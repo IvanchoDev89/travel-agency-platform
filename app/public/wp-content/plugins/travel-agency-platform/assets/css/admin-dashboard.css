@@ -1,0 +1,75 @@
+.tap-dash { max-width: 1280px; }
+
+.tap-dash-sub { color: #6b7280; margin-top: -6px; }
+
+.tap-dash-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin: 20px 0 24px;
+}
+
+.tap-dash-card {
+  border-radius: 12px;
+  padding: 20px;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.tap-dash-card-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.9; }
+.tap-dash-card-value { font-size: 30px; font-weight: 700; line-height: 1.1; }
+.tap-dash-card-value small { font-size: 14px; font-weight: 500; opacity: 0.9; }
+.tap-dash-card-foot { font-size: 12px; opacity: 0.85; }
+
+.tap-accent-teal   { background: linear-gradient(135deg, #0d9488, #0f766e); }
+.tap-accent-amber  { background: linear-gradient(135deg, #d97706, #b45309); }
+.tap-accent-violet { background: linear-gradient(135deg, #7c3aed, #6d28d9); }
+.tap-accent-sky    { background: linear-gradient(135deg, #0ea5e9, #0284c7); }
+
+.tap-dash-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.tap-dash-panel {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.tap-dash-grid .tap-dash-panel { margin-bottom: 0; }
+
+.tap-dash-panel h2 { font-size: 15px; font-weight: 600; color: #0f172a; margin: 0 0 16px; }
+
+.tap-chart-box { position: relative; height: 260px; }
+.tap-chart-donut { height: 260px; display: flex; align-items: center; justify-content: center; }
+
+.tap-dash-empty { color: #6b7280; }
+
+.tap-dash-table { margin-top: 4px; }
+.tap-dash-table td { vertical-align: middle; }
+
+.tap-status {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.tap-status-pending   { background: #fef3c7; color: #92400e; }
+.tap-status-confirmed { background: #dcfce7; color: #166534; }
+.tap-status-completed { background: #dbeafe; color: #1e40af; }
+.tap-status-cancelled { background: #fee2e2; color: #991b1b; }
+.tap-status-refunded  { background: #f3e8ff; color: #6b21a8; }
+
+@media (max-width: 960px) {
+  .tap-dash-grid { grid-template-columns: 1fr; }
+}

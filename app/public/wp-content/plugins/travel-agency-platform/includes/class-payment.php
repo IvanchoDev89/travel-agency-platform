@@ -1,0 +1,177 @@
+<?php
+defined('ABSPATH') || exit;
+
+class TAP_Payment {
+    public static function process_booking_payment($booking_id) {
+        $booking = TAP_Booking::get_booking($booking_id);
+        if (!$booking) return new WP_Error('invalid_booking', __('Booking not found', 'travel-agency-platform'));
+
+        $method = get_option('tap_default_gateway', 'paypal');
+
+        do_action('tap_process_payment_' . $method, $booking_id);
+
+        return true;
+    }
+
+    public static function get_available_gateways() {
+        $gateways = [
+            'paypal' => [
+                'id'      => 'paypal',
+                'name'    => __('PayPal', 'travel-agency-platform'),
+                'enabled' => get_option('tap_paypal_enabled', '0') === '1',
+                'ready'   => TAP_PayPal::is_ready(),
+            ],
+        ];
+
+        return apply_filters('tap_payment_gateways', $gateways);
+    }
+
+    public static function get_active_gateway() {
+        $gateways = self::get_available_gateways();
+        foreach ($gateways as $gw) {
+            if ($gw['enabled'] && $gw['ready']) return $gw;
+        }
+        return null;
+    }
+
+    public static function handle_paypal_webhook() {
+        $body = file_get_contents('php://input');
+        $headers = self::get_webhook_headers();
+
+        if (empty($body)) {
+            status_header(400);
+            exit;
+        }
+
+        $event = json_decode($body);
+        if (!$event || empty($event->event_type)) {
+            status_header(400);
+            exit;
+        }
+
+        $verified = TAP_PayPal::verify_webhook($headers, $body);
+        if (!$verified) {
+            status_header(403);
+            exit;
+        }
+
+        switch ($event->event_type) {
+            case 'CHECKOUT.ORDER.APPROVED':
+                self::handle_order_approved($event);
+                break;
+
+            case 'PAYMENT.CAPTURE.COMPLETED':
+                self::handle_capture_completed($event);
+                break;
+
+            case 'PAYMENT.CAPTURE.DENIED':
+                self::handle_capture_denied($event);
+                break;
+
+            case 'PAYMENT.CAPTURE.REFUNDED':
+                self::handle_capture_refunded($event);
+                break;
+        }
+
+        status_header(200);
+        exit;
+    }
+
+    private static function get_webhook_headers() {
+        $headers = [];
+        $paypal_headers = [
+            'PAYPAL-AUTH-ALGO',
+            'PAYPAL-CERT-URL',
+            'PAYPAL-TRANSMISSION-ID',
+            'PAYPAL-TRANSMISSION-SIG',
+            'PAYPAL-TRANSMISSION-TIME',
+        ];
+
+        foreach ($paypal_headers as $h) {
+            $headers[$h] = $_SERVER['HTTP_' . str_replace('-', '_', $h)] ?? '';
+        }
+
+        return $headers;
+    }
+
+    private static function handle_order_approved($event) {
+        $paypal_order_id = $event->resource->id ?? '';
+        if (!$paypal_order_id) return;
+
+        global $wpdb;
+        $booking_id = $wpdb->get_var($wpdb->prepare(
+            "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_tap_paypal_order_id' AND meta_value = %s",
+            $paypal_order_id
+        ));
+
+        if ($booking_id) {
+            do_action('tap_payment_approved', $booking_id, 'paypal', $paypal_order_id);
+        }
+    }
+
+    private static function handle_capture_completed($event) {
+        $capture = $event->resource;
+        $paypal_order_id = $capture->supplementary_data->related_ids->order_id ?? '';
+
+        if (!$paypal_order_id) return;
+
+        global $wpdb;
+        $booking_id = $wpdb->get_var($wpdb->prepare(
+            "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_tap_paypal_order_id' AND meta_value = %s",
+            $paypal_order_id
+        ));
+
+        if ($booking_id) {
+            TAP_Booking::update_payment_status($booking_id, 'paid');
+            TAP_Booking::update_status($booking_id, 'confirmed');
+            update_post_meta($booking_id, '_tap_paypal_capture_id', $capture->id ?? '');
+            update_post_meta($booking_id, '_tap_payment_details', json_encode($capture));
+
+            do_action('tap_payment_completed', $booking_id, 'paypal', $capture->id ?? '');
+        }
+    }
+
+    private static function handle_capture_denied($event) {
+        $capture = $event->resource;
+        $paypal_order_id = $capture->supplementary_data->related_ids->order_id ?? '';
+
+        if (!$paypal_order_id) return;
+
+        global $wpdb;
+        $booking_id = $wpdb->get_var($wpdb->prepare(
+            "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_tap_paypal_order_id' AND meta_value = %s",
+            $paypal_order_id
+        ));
+
+        if ($booking_id) {
+            TAP_Booking::update_payment_status($booking_id, 'failed');
+            do_action('tap_payment_failed', $booking_id, 'paypal', '');
+        }
+    }
+
+    private static function handle_capture_refunded($event) {
+        $capture = $event->resource;
+        $paypal_order_id = $capture->supplementary_data->related_ids->order_id ?? '';
+
+        if (!$paypal_order_id) return;
+
+        global $wpdb;
+        $booking_id = $wpdb->get_var($wpdb->prepare(
+            "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_tap_paypal_order_id' AND meta_value = %s",
+            $paypal_order_id
+        ));
+
+        if ($booking_id) {
+            TAP_Booking::update_payment_status($booking_id, 'refunded');
+            do_action('tap_payment_refunded', $booking_id, 'paypal', $capture->id ?? '');
+        }
+    }
+}
+
+add_action('rest_api_init', function () {
+    register_rest_route('tap/v1', '/paypal-webhook', [
+        'methods'             => 'POST',
+        'callback'            => ['TAP_Payment', 'handle_paypal_webhook'],
+        'permission_callback' => '__return_true',
+    ]);
+});

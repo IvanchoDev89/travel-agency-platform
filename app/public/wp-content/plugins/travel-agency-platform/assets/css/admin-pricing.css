@@ -1,0 +1,50 @@
+.tap-pricing-wrap { position: relative; }
+.tap-pricing-toolbar { display: flex; align-items: center; gap: 24px; margin-bottom: 16px; flex-wrap: wrap; }
+.tap-pricing-month-nav { display: flex; align-items: center; gap: 12px; }
+.tap-pricing-nav-btn { background: #f0f0f1; border: 1px solid #c3c4c7; border-radius: 4px; padding: 4px 12px; cursor: pointer; font-size: 16px; line-height: 1.8; }
+.tap-pricing-nav-btn:hover { background: #e0e0e1; }
+.tap-pricing-month-label { font-size: 15px; font-weight: 600; min-width: 160px; text-align: center; display: inline-block; }
+.tap-pricing-bulk { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tap-pricing-legend { display: flex; gap: 12px; font-size: 12px; color: #666; margin-left: auto; }
+.tap-pricing-legend span { display: inline-flex; align-items: center; gap: 4px; }
+.tap-pricing-swatch { display: inline-block; width: 12px; height: 12px; border-radius: 2px; border: 1px solid rgba(0,0,0,0.1); }
+.swatch-base { background: #fff; }
+.swatch-override { background: #dbeafe; border-color: #93c5fd; }
+.swatch-blocked { background: #fce4e4; border-color: #fca5a5; }
+
+.tap-pricing-calendar { margin: 12px 0; }
+.tap-pricing-loading { text-align: center; padding: 40px; color: #666; font-style: italic; }
+
+.tap-pricing-weekdays, .tap-pricing-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.tap-pricing-weekdays { margin-bottom: 4px; }
+.tap-pricing-weekday { text-align: center; font-size: 11px; font-weight: 600; text-transform: uppercase; color: #888; padding: 6px 0; }
+.tap-pricing-day { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 6px; border: 1px solid #e5e7eb; background: #fff; cursor: pointer; transition: box-shadow 0.15s; min-height: 64px; padding: 2px; position: relative; }
+.tap-pricing-day:hover { box-shadow: 0 0 0 2px #0d9488; z-index: 1; }
+.tap-pricing-day.tap-day-other-month { opacity: 0.3; pointer-events: none; }
+.tap-pricing-day.tap-day-override { background: #dbeafe; border-color: #93c5fd; }
+.tap-pricing-day.tap-day-blocked { background: #fce4e4; border-color: #fca5a5; text-decoration: line-through; color: #b91c1c; cursor: not-allowed; }
+.tap-pricing-day.tap-day-blocked:hover { box-shadow: 0 0 0 2px #ef4444; }
+.tap-pricing-day.tap-day-selected { box-shadow: 0 0 0 2px #0d9488; background: #ccfbf1; }
+.tap-pricing-day.tap-day-today { font-weight: 700; }
+.tap-pricing-day .tap-day-number { font-size: 13px; line-height: 1.2; }
+.tap-pricing-day .tap-day-price { font-size: 10px; color: #0d9488; font-weight: 600; line-height: 1.2; }
+.tap-pricing-day .tap-day-label { font-size: 8px; color: #888; text-transform: uppercase; letter-spacing: 0.03em; line-height: 1; margin-top: 1px; }
+.tap-pricing-day.tap-day-blocked .tap-day-price { display: none; }
+
+.tap-pricing-edit-panel { margin-top: 16px; padding: 16px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; }
+.tap-pricing-edit-panel h4 { margin: 0 0 12px; font-size: 14px; }
+.tap-edit-table { width: 100%; border-collapse: collapse; }
+.tap-edit-table td { padding: 6px 8px; vertical-align: middle; }
+.tap-edit-table td:first-child { width: 140px; font-size: 13px; font-weight: 500; color: #333; }
+.tap-edit-table input[type="number"], .tap-edit-table input[type="text"], .tap-edit-table select { width: 100%; max-width: 260px; }
+.tap-edit-actions { display: flex; gap: 8px; align-items: center; margin-top: 12px; }
+.tap-edit-msg { font-size: 13px; font-style: italic; color: #666; padding-left: 8px; }
+
+.tap-season-dialog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100000; display: flex; align-items: center; justify-content: center; }
+.tap-season-dialog { background: #fff; border-radius: 8px; padding: 24px; min-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+.tap-season-dialog h3 { margin: 0 0 16px; }
+.tap-season-dialog label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+.tap-season-dialog input[type="text"], .tap-season-dialog input[type="number"], .tap-season-dialog select { width: 100%; margin-bottom: 12px; }
+.tap-season-dialog .tap-season-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+.tap-season-dates { display: flex; gap: 12px; }
+.tap-season-dates > div { flex: 1; }
