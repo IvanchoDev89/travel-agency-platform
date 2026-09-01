@@ -339,6 +339,10 @@ while (have_posts()): the_post();
                 </div>
               </div>
               <div id="bw-discounts" style="display:none;"></div>
+              <div class="tap-bw-total-row tap-bw-fee-row" id="bw-fee" style="display:none;">
+                <span><?php _e('Tarifa de servicio', 'travel-agency-theme'); ?></span>
+                <span id="bw-fee-amount">$0</span>
+              </div>
               <div class="tap-bw-total-row tap-bw-total-final">
                 <span><?php _e('Total', 'travel-agency-theme'); ?></span>
                 <span id="bw-total-amount">$0</span>
@@ -441,6 +445,14 @@ jQuery(document).ready(function($) {
 
       $('#bw-nights').text(nights);
       $('#bw-total-amount').text(tapSym + Number(total).toLocaleString('en-US', {minimumFractionDigits: tapDecimals, maximumFractionDigits: tapDecimals}));
+
+      var fee = Number(data.fee || 0);
+      if (fee > 0) {
+        $('#bw-fee-amount').text(tapSym + Number(fee).toFixed(tapDecimals));
+        $('#bw-fee').show();
+      } else {
+        $('#bw-fee').hide();
+      }
 
       if (data.price_breakdown && Object.keys(data.price_breakdown).length > 0) {
         var prices = data.price_breakdown;

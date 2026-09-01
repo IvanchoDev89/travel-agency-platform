@@ -69,7 +69,7 @@ While signed in:
    - For **accommodations**, select a room.
    - For **tours**, select a date (capacity is enforced per date).
 3. Add the main guest's **name**, **contact email**, and (optionally) **phone**.
-4. Review the live **price breakdown** (nights, per-night price, subtotal, discounts, and total).
+4. Review the live **price breakdown** (nights, per-night price, subtotal, discounts, service fee when applicable, and total).
 5. Confirm — you will not be charged until you complete pay.
 6. Follow the **checkout** flow to finalize payment (when applicable).
 

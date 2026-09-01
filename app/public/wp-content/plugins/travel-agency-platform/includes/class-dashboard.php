@@ -105,6 +105,18 @@ class TAP_Dashboard {
         register_setting('tap_settings', 'tap_paypal_secret');
         register_setting('tap_settings', 'tap_paypal_webhook_id');
         register_setting('tap_settings', 'tap_default_gateway');
+        register_setting('tap_settings', 'tap_booking_fee_type', [
+            'type' => 'string',
+            'sanitize_callback' => function ($value) {
+                return in_array($value, ['none', 'fixed', 'percent'], true) ? $value : 'none';
+            },
+        ]);
+        register_setting('tap_settings', 'tap_booking_fee_value', [
+            'type' => 'number',
+            'sanitize_callback' => function ($value) {
+                return max(0, floatval($value));
+            },
+        ]);
     }
 
     public static function dashboard_page() {
@@ -381,12 +393,13 @@ class TAP_Dashboard {
                         <th><?php esc_html_e('Total', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Status', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Commission', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Fee', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Date', 'travel-agency-platform'); ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (!$bookings): ?>
-                        <tr><td colspan="8"><?php esc_html_e('No bookings found.', 'travel-agency-platform'); ?></td></tr>
+                        <tr><td colspan="9"><?php esc_html_e('No bookings found.', 'travel-agency-platform'); ?></td></tr>
                     <?php endif; ?>
                     <?php foreach ($bookings as $b):
                         $service = get_post($b->service_id);
@@ -400,6 +413,7 @@ class TAP_Dashboard {
                         <td><?php echo esc_html(TAP_Currency::fmt($b->total_amount)); ?></td>
                         <td><?php echo esc_html(ucfirst($b->status)); ?></td>
                         <td><?php echo esc_html(TAP_Currency::fmt($b->commission_amount)) . ' <span style="color:#64748b;">(' . esc_html($b->commission_status) . ')</span>'; ?></td>
+                        <td><?php echo esc_html((float) ($b->booking_fee ?? 0) > 0 ? TAP_Currency::fmt($b->booking_fee) : '&mdash;'); ?></td>
                         <td><?php echo esc_html($b->created_at); ?></td>
                     </tr>
                     <?php endforeach; ?>
@@ -945,22 +959,42 @@ class TAP_Dashboard {
 
     public static function reports_page() {
         global $wpdb;
+        $table = $wpdb->prefix . 'tap_bookings';
         $monthly = $wpdb->get_results(
-            "SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as bookings, SUM(total_amount) as revenue, SUM(commission_amount) as commission
+            "SELECT DATE_FORMAT(created_at, '%Y-%m') as month,
+                    COUNT(*) as bookings,
+                    SUM(total_amount) as revenue,
+                    SUM(commission_amount) as commission,
+                    SUM(booking_fee) as fees
             FROM {$wpdb->prefix}tap_bookings
             WHERE status NOT IN ('cancelled', 'refunded')
             GROUP BY month ORDER BY month DESC LIMIT 12"
         );
+        $totals = $wpdb->get_row(
+            "SELECT COUNT(*) as bookings,
+                    SUM(total_amount) as gmv,
+                    SUM(commission_amount) as commission,
+                    SUM(booking_fee) as fees
+            FROM $table
+            WHERE status NOT IN ('cancelled', 'refunded')"
+        );
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Reports', 'travel-agency-platform'); ?></h1>
+            <div class="tap-stat-grid" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;">
+                <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(TAP_Currency::fmt($totals->gmv ?? 0)); ?></span><span class="tap-stat-label"><?php esc_html_e('GMV', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(TAP_Currency::fmt($totals->commission ?? 0)); ?></span><span class="tap-stat-label"><?php esc_html_e('Comisiones (plataforma)', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number" style="color:#047857;"><?php echo esc_html(TAP_Currency::fmt($totals->fees ?? 0)); ?></span><span class="tap-stat-label"><?php esc_html_e('Booking fees (plataforma)', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html($totals->bookings ?? 0); ?></span><span class="tap-stat-label"><?php esc_html_e('Reservas', 'travel-agency-platform'); ?></span></div>
+            </div>
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
                         <th><?php esc_html_e('Month', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Bookings', 'travel-agency-platform'); ?></th>
-                        <th><?php esc_html_e('Revenue', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Revenue (GMV)', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Commission', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Booking Fees', 'travel-agency-platform'); ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -970,6 +1004,7 @@ class TAP_Dashboard {
                         <td><?php echo esc_html($m->bookings); ?></td>
                         <td><?php echo esc_html(TAP_Currency::fmt($m->revenue)); ?></td>
                         <td><?php echo esc_html(TAP_Currency::fmt($m->commission)); ?></td>
+                        <td><?php echo esc_html(TAP_Currency::fmt($m->fees ?? 0)); ?></td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -1020,6 +1055,25 @@ class TAP_Dashboard {
                                 <option value="paypal" <?php selected('paypal', get_option('tap_default_gateway', 'paypal')); ?>><?php esc_html_e('PayPal', 'travel-agency-platform'); ?></option>
                             </select>
                         </td>
+                    </tr>
+                </table>
+
+                <h2 style="margin-top: 30px;"><?php esc_html_e('Booking Fee (client)', 'travel-agency-platform'); ?></h2>
+                <table class="form-table">
+                    <tr>
+                        <th><label for="tap_booking_fee_type"><?php esc_html_e('Fee Type', 'travel-agency-platform'); ?></label></th>
+                        <td>
+                            <select id="tap_booking_fee_type" name="tap_booking_fee_type">
+                                <option value="none" <?php selected('none', get_option('tap_booking_fee_type', 'none')); ?>><?php esc_html_e('No fee', 'travel-agency-platform'); ?></option>
+                                <option value="fixed" <?php selected('fixed', get_option('tap_booking_fee_type', 'none')); ?>><?php esc_html_e('Fixed amount', 'travel-agency-platform'); ?></option>
+                                <option value="percent" <?php selected('percent', get_option('tap_booking_fee_type', 'none')); ?>><?php esc_html_e('Percentage of total', 'travel-agency-platform'); ?></option>
+                            </select>
+                            <p class="description"><?php esc_html_e('Charged to the client on top of the booking total. This revenue belongs to the platform (not the agency).', 'travel-agency-platform'); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="tap_booking_fee_value"><?php esc_html_e('Fee Value', 'travel-agency-platform'); ?></label></th>
+                        <td><input type="number" id="tap_booking_fee_value" name="tap_booking_fee_value" min="0" step="0.01" value="<?php echo esc_attr(get_option('tap_booking_fee_value', '0')); ?>" class="regular-text" style="width: 140px;"></td>
                     </tr>
                 </table>
 

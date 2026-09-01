@@ -179,6 +179,10 @@ $badge = $agency ? __('Verificada', 'travel-agency-theme') : '';
             </div>
 
             <div class="tap-bw-total" id="bw-total" style="display:none;">
+              <div class="tap-bw-total-row tap-bw-fee-row" id="bw-fee" style="display:none;">
+                <span><?php esc_html_e('Tarifa de servicio', 'travel-agency-theme'); ?></span>
+                <span id="bw-fee-amount">$0</span>
+              </div>
               <div class="tap-bw-total-row tap-bw-total-final">
                 <span><?php esc_html_e('Total', 'travel-agency-theme'); ?></span>
                 <span id="bw-total-amount">$0</span>
@@ -231,6 +235,13 @@ jQuery(document).ready(function($) {
     }).done(function(res) {
       if (res && res.success) {
         $('#bw-total').show();
+        var fee = Number(res.data.fee || 0);
+        if (fee > 0) {
+          $('#bw-fee-amount').text(tapSym + fee.toFixed(tapDecimals));
+          $('#bw-fee').show();
+        } else {
+          $('#bw-fee').hide();
+        }
         $('#bw-total-amount').text(tapSym + res.data.total.toFixed(tapDecimals));
         tapFull = false;
         $('#bw-capacity').hide().empty();

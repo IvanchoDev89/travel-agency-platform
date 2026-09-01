@@ -64,6 +64,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
   - Price sorting includes all listings (accommodations without a direct price meta are backfilled from the base room).
 - **V2 — Unified rating widget**:
   - Shared `tap_rating_stars($avg, $count)` helper used by the accommodation archive and cards, replacing duplicated inline markup.
+- **M1 — Agency net breakdown (monetization, phase 1)**:
+  - `get_booking_stats()` now returns `net` (subtotal minus commission) and `fees`.
+  - Agency panel adds a **Net to you** stat and a **Net** column per booking.
+- **M2 — Booking fee (monetization, phase 4)**:
+  - New settings **Booking Fee (client)**: `tap_booking_fee_type` (`none`/`fixed`/`percent`) and `tap_booking_fee_value`.
+  - Fee computed in `TAP_Booking::get_booking_fee()` and added to the client total across booking forms (single-service and accommodation), the price calculator AJAX, the voucher, and reports.
+  - Persisted in the new `booking_fee` column (migration) and excluded from agency commission (commission is calculated on the service subtotal, not on the fee).
+  - Admin reports now show GMV, retained commissions, and booking fees.
 
 ---
 

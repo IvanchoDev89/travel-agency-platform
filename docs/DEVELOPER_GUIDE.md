@@ -152,8 +152,9 @@ Stores the primary reservation records.
 | `children` | int | |
 | `nights` | int | Computed stay length. |
 | `bed_config` | text NULL | |
-| `total_amount` | decimal(15,2) | |
-| `commission_amount` | decimal(15,2) | |
+| `total_amount` | decimal(15,2) | Client total = service subtotal + booking fee. |
+| `booking_fee` | decimal(15,2) | Platform fee (M2); excluded from agency commission. |
+| `commission_amount` | decimal(15,2) | Calculated on the service subtotal (total − booking_fee). |
 | `commission_percent` | decimal(5,2) | |
 | `commission_status` | varchar(20) | `owed` / settled. |
 | `status` | varchar(30) | `pending`, `confirmed`, `completed`, `cancelled`, … |
@@ -293,7 +294,7 @@ Registered in `TravelAgencyPlatform::init_hooks()` via `admin-ajax.php`. Public 
 | `tap_search_services` | `TAP_Ajax::search_services` | ✅ | Filtered search. |
 | `tap_create_paypal_order` | `TAP_Ajax::create_paypal_order` | ✅ | Start PayPal checkout. |
 | `tap_capture_paypal_order` | `TAP_Ajax::capture_paypal_order` | ✅ | Capture PayPal payment. |
-| `tap_calculate_booking_total` | `TAP_Ajax::calculate_booking_total` | ✅ | Live price breakdown. |
+| `tap_calculate_booking_total` | `TAP_Ajax::calculate_booking_total` | ✅ | Live price breakdown. Returns `subtotal`, `fee`, and `total` (subtotal + booking fee, M2). |
 | `tap_get_rooms` | `TAP_Ajax::get_rooms` | ✅ | Rooms for an accommodation. |
 | `tap_get_public_pricing` | `TAP_Ajax::get_public_pricing` | ✅ | Public pricing for a date range. |
 | `tap_search_suggestions` | `TAP_Ajax::search_suggestions` | ✅ | Autocomplete suggestions. |
@@ -370,6 +371,18 @@ The platform exposes a small, stable set of hooks for extension.
 - `symbol()` / `code()` / `decimals()` expose the active currency to the front-end.
 
 > **Always use `TAP_Currency` for display** to keep formatting consistent across search, cards, vouchers, and emails.
+
+---
+
+## Monetization & the Booking Fee
+
+The platform monetizes through (1) **agency commissions** and (2) an optional **client booking fee**.
+
+- **Settings** — `tap_booking_fee_type` (`none` | `fixed` | `percent`) and `tap_booking_fee_value` (amount or percentage), registered in `TAP_Admin_Dashboard::register_settings()` under the `tap_settings` group.
+- **Computation** — `TAP_Booking::get_booking_fee($subtotal)` returns the fee for a service subtotal.
+- **Total semantics** — `total_amount` = service subtotal + booking fee. `booking_fee` is stored separately so the agency commission is always calculated on the **subtotal** (fee belongs to the platform, never to the agency). Agency net = `total_amount − booking_fee − commission_amount`.
+- **Reports** — `TAP_Admin_Dashboard::reports_page()` shows GMV, retained commissions, and booking fees; `get_booking_stats()` exposes `revenue`, `commission`, `net`, and `fees`.
+- **Adding a fee type** — extend `get_booking_fee()` and mirror the value in `calculate_booking_total` so the front-end breakdown stays consistent with the persisted booking.
 
 ---
 

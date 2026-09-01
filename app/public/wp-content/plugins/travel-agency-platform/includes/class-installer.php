@@ -215,5 +215,8 @@ class TAP_Installer {
         if (!in_array('cancelled_by', $cols_bookings)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN cancelled_by varchar(20) DEFAULT NULL AFTER cancel_requested_at");
         }
+        if (!in_array('booking_fee', $cols_bookings)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN booking_fee decimal(15,2) DEFAULT 0.00 AFTER total_amount");
+        }
     }
 }

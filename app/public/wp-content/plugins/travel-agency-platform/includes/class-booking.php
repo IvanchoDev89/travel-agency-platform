@@ -2,6 +2,21 @@
 defined('ABSPATH') || exit;
 
 class TAP_Booking {
+    public static function get_booking_fee($subtotal) {
+        $type  = get_option('tap_booking_fee_type', 'none');
+        $value = floatval(get_option('tap_booking_fee_value', 0));
+        if ('none' === $type || $value <= 0) {
+            return 0.0;
+        }
+        if ('fixed' === $type) {
+            return round($value, 2);
+        }
+        if ('percent' === $type) {
+            return round($subtotal * ($value / 100), 2);
+        }
+        return 0.0;
+    }
+
     public static function create($data) {
         global $wpdb;
 
@@ -18,7 +33,12 @@ class TAP_Booking {
             intval($data['children'] ?? 0),
             !empty($data['room_id']) ? intval($data['room_id']) : 0
         );
-        $commission_amount = $total * ($commission_percent / 100);
+
+        $subtotal = $total;
+        $booking_fee = isset($data['booking_fee']) && $data['booking_fee'] !== '' ? floatval($data['booking_fee']) : self::get_booking_fee($subtotal);
+        $booking_fee = round(max(0, $booking_fee), 2);
+        $total = round($subtotal + $booking_fee, 2);
+        $commission_amount = round($subtotal * ($commission_percent / 100), 2);
 
         $nights = 0;
         if (!empty($data['check_in']) && !empty($data['check_out'])) {
@@ -91,6 +111,7 @@ class TAP_Booking {
                 'children'          => intval($data['children'] ?? 0),
                 'nights'            => $nights,
                 'total_amount'      => $total,
+                'booking_fee'       => $booking_fee,
                 'commission_amount' => $commission_amount,
                 'commission_percent'=> $commission_percent,
                 'status'            => 'pending',
@@ -572,6 +593,8 @@ class TAP_Booking {
             'cancelled'  => $wpdb->get_var("SELECT COUNT(*) FROM $table $where AND status = 'cancelled'"),
             'revenue'    => $wpdb->get_var("SELECT COALESCE(SUM(total_amount), 0) FROM $table $where AND status NOT IN ('cancelled', 'refunded')"),
             'commission' => $wpdb->get_var("SELECT COALESCE(SUM(commission_amount), 0) FROM $table $where"),
+            'net'        => $wpdb->get_var("SELECT COALESCE(SUM(total_amount - booking_fee - commission_amount), 0) FROM $table $where AND status NOT IN ('cancelled', 'refunded')"),
+            'fees'       => $wpdb->get_var("SELECT COALESCE(SUM(booking_fee), 0) FROM $table $where AND status NOT IN ('cancelled', 'refunded')"),
         ];
     }
 

@@ -293,8 +293,12 @@ class TAP_Ajax {
             }
         }
 
+        $fee = TAP_Booking::get_booking_fee($total);
+
         wp_send_json_success([
-            'total'            => $total,
+            'total'            => round($total + $fee, 2),
+            'subtotal'         => round($total, 2),
+            'fee'              => $fee,
             'base_total'       => $base_total,
             'savings'          => $savings,
             'discounts'        => $discounts,

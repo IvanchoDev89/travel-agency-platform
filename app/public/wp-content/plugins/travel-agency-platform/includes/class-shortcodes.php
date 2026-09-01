@@ -627,6 +627,7 @@ class TAP_Shortcodes {
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(number_format($stats['completed'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Completed', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(TAP_Currency::fmt($stats['revenue'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Revenue', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(TAP_Currency::fmt($stats['commission'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Commission', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number" style="color:#047857;"><?php echo esc_html(TAP_Currency::fmt($stats['net'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Net to you', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b45309;"><?php echo esc_html(TAP_Currency::fmt($comm_rows->owed)); ?></span><span class="tap-stat-label"><?php esc_html_e('Por cobrar', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number" style="color:#047857;"><?php echo esc_html(TAP_Currency::fmt($comm_rows->settled)); ?></span><span class="tap-stat-label"><?php esc_html_e('Cobrado', 'travel-agency-platform'); ?></span></div>
             </div>
@@ -662,6 +663,7 @@ class TAP_Shortcodes {
                             <th><?php esc_html_e('Dates', 'travel-agency-platform'); ?></th>
                             <th><?php esc_html_e('Total', 'travel-agency-platform'); ?></th>
                             <th><?php esc_html_e('Commission', 'travel-agency-platform'); ?></th>
+                            <th><?php esc_html_e('Net', 'travel-agency-platform'); ?></th>
                             <th><?php esc_html_e('Status', 'travel-agency-platform'); ?></th>
                             <th></th>
                         </tr>
@@ -692,6 +694,7 @@ class TAP_Shortcodes {
                             <td><?php echo esc_html($date_label); ?></td>
                             <td><?php echo esc_html(TAP_Currency::fmt($b->total_amount)); ?></td>
                             <td><?php echo esc_html(TAP_Currency::fmt($b->commission_amount)); ?></td>
+                            <td><?php echo esc_html(TAP_Currency::fmt(max(0, (float) $b->total_amount - (float) ($b->booking_fee ?? 0) - (float) $b->commission_amount))); ?></td>
                             <td><span class="tap-status tap-status-<?php echo esc_attr($b->status); ?>"><?php echo esc_html(TAP_Emails::STATUS_LABELS[$b->status] ?? ucfirst($b->status)); ?></span></td>
                             <td class="tap-actions">
                                 <?php if (in_array($b->status, ['pending', 'confirmed'])):
@@ -1628,6 +1631,12 @@ class TAP_Shortcodes {
                             <?php endforeach; ?>
                         </tbody>
                         <tfoot>
+                            <?php if ((float) ($booking->booking_fee ?? 0) > 0): ?>
+                            <tr>
+                                <td colspan="3" class="tap-voucher-total-label"><?php esc_html_e('Tarifa de servicio', 'travel-agency-platform'); ?></td>
+                                <td class="tap-voucher-total"><?php echo esc_html(TAP_Currency::fmt((float) $booking->booking_fee)); ?></td>
+                            </tr>
+                            <?php endif; ?>
                             <tr>
                                 <td colspan="3" class="tap-voucher-total-label"><?php esc_html_e('Total', 'travel-agency-platform'); ?></td>
                                 <td class="tap-voucher-total"><?php echo esc_html(TAP_Currency::fmt((float) $booking->total_amount)); ?></td>
