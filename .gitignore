@@ -3,6 +3,10 @@
 
 # Local by Flywheel / WordPress artifacts
 !.gitignore
+!README.md
+!docs/
+docs/*
+!docs/*.md
 !app/
 app/*
 !app/public/
