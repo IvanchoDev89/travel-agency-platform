@@ -181,6 +181,15 @@ The reply (with author and timestamp) is shown alongside the original review. Re
 - **Promotions** (admin → Promotions): review agency requests (price = months × `tap_featured_price`), confirm the payment with **Marcar activo**, or **Expirar** promotions early.
 - Active promotions mark the listing as **featured** (★) for the paid period; expired promotions remove the badge automatically. Confirmed promotion amounts are shown in **Reports**.
 
+## View platform analytics
+
+- **Analytics** (admin → Analytics) gives a financial overview of the platform:
+  - KPI cards: platform revenue (last 12 months), subscription MRR, filtered GMV, active promotion value, live bookings, average ticket, active agencies, and published listings.
+  - A 12-month stacked chart of platform revenue split by **Comisiones**, **Booking fees**, **Suscripciones**, and **Destacados**, plus a revenue-source breakdown table.
+  - **Top agencias** (bookings, GMV, platform commission, fees) and **Top listados** (bookings, GMV).
+  - Use **Desde**/**Hasta** to filter by month (format `YYYY-MM`); KPIs, top tables, and exports respect the filter.
+  - **Exportar reservas (CSV)** downloads booking-level detail (with fee, commission, and net). **Exportar resumen (CSV)** downloads the monthly financial summary including subscriptions and promotions.
+
 ---
 
 > For developer-focused details (architecture, hooks, APIs, shortcodes), see [`docs/DEVELOPER_GUIDE.md`](DEVELOPER_GUIDE.md).

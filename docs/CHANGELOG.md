@@ -87,6 +87,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
   - Featured is now promo-driven: the free "Featured" checkbox was removed from the tour/package editors.
   - Agencies request promotions from the dashboard (Destacar + months), general admin confirms/expires via the new **Promotions** admin page.
   - Reports now include confirmed promotion revenue; agencies get an email when a promotion is activated.
+- **M5 — Financial analytics (monetization, phase 5)**:
+  - New **Analytics** admin page (`tap-analytics`, capability `tap_view_reports`).
+  - KPI cards: 12-month platform revenue, subscription MRR, filtered GMV, active promotion value, live bookings, average ticket, active agencies, published listings.
+  - 12-month stacked chart of platform revenue (commissions / booking fees / subscriptions / featured promotions) with a source-breakdown table.
+  - **Top agencies** (bookings, GMV, platform commission, fees) and **Top listings** (bookings, GMV) tables.
+  - Period filter (`Desde`/`Hasta`, YYYY-MM) applied to KPIs, top tables, and exports.
+  - CSV exports: booking-level detail (with fee, commission, net) and monthly financial summary (with subscriptions and promotions), both nonce-protected.
 
 ---
 
