@@ -96,6 +96,15 @@ class TAP_Dashboard {
 
         add_submenu_page(
             'travel-platform',
+            __('Promotions', 'travel-agency-platform'),
+            __('Promotions', 'travel-agency-platform'),
+            'manage_options',
+            'tap-promotions',
+            [__CLASS__, 'promotions_page']
+        );
+
+        add_submenu_page(
+            'travel-platform',
             __('Settings', 'travel-agency-platform'),
             __('Settings', 'travel-agency-platform'),
             'tap_manage_settings',
@@ -996,6 +1005,9 @@ class TAP_Dashboard {
             FROM $table
             WHERE status NOT IN ('cancelled', 'refunded')"
         );
+        $promo_revenue = (float) $wpdb->get_var(
+            "SELECT COALESCE(SUM(amount),0) FROM {$wpdb->prefix}tap_promos WHERE status = 'active'"
+        );
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Reports', 'travel-agency-platform'); ?></h1>
@@ -1003,6 +1015,7 @@ class TAP_Dashboard {
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(TAP_Currency::fmt($totals->gmv ?? 0)); ?></span><span class="tap-stat-label"><?php esc_html_e('GMV', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(TAP_Currency::fmt($totals->commission ?? 0)); ?></span><span class="tap-stat-label"><?php esc_html_e('Comisiones (plataforma)', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number" style="color:#047857;"><?php echo esc_html(TAP_Currency::fmt($totals->fees ?? 0)); ?></span><span class="tap-stat-label"><?php esc_html_e('Booking fees (plataforma)', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b45309;"><?php echo esc_html(TAP_Currency::fmt($promo_revenue)); ?></span><span class="tap-stat-label"><?php esc_html_e('Destacados (confirmados)', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html($totals->bookings ?? 0); ?></span><span class="tap-stat-label"><?php esc_html_e('Reservas', 'travel-agency-platform'); ?></span></div>
             </div>
             <table class="wp-list-table widefat fixed striped">
@@ -1153,6 +1166,88 @@ class TAP_Dashboard {
                 wp_nonce_field('tap_expire_subscription');
                 echo '<input type="hidden" name="sub_id" value="' . (int) $s->id . '">';
                 submit_button(__('Expirar', 'travel-agency-platform'), 'small', 'tap_expire_sub', false);
+                echo '</form>';
+            }
+            echo '</td></tr>';
+        }
+        echo '</tbody></table></div>';
+    }
+
+    public static function promotions_page() {
+        global $wpdb;
+        $t_promo = $wpdb->prefix . 'tap_promos';
+        $t_age   = $wpdb->prefix . 'tap_agencies';
+
+        if (isset($_POST['tap_promo_activate']) && isset($_POST['_wpnonce']) && wp_verify_nonce($_POST['_wpnonce'], 'tap_promo_activate_nonce')) {
+            $months = min(24, max(1, (int) ($_POST['months'] ?? 1)));
+            $result = class_exists('TAP_Promotions') ? TAP_Promotions::activate((int) ($_POST['promo_id'] ?? 0), get_current_user_id(), $months) : null;
+            if (is_wp_error($result)) {
+                echo '<div class="notice notice-error is-dismissible"><p>' . esc_html($result->get_error_message()) . '</p></div>';
+            } else {
+                echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Promotion activated until ' . $result, 'travel-agency-platform') . '</p></div>';
+            }
+        }
+
+        if (isset($_POST['tap_promo_expire']) && isset($_POST['_wpnonce']) && wp_verify_nonce($_POST['_wpnonce'], 'tap_promo_expire_nonce')) {
+            if (class_exists('TAP_Promotions')) {
+                TAP_Promotions::expire((int) ($_POST['promo_id'] ?? 0));
+            }
+            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Promotion expired.', 'travel-agency-platform') . '</p></div>';
+        }
+
+        $promos = $wpdb->get_results(
+            "SELECT p.*, a.name AS agency_name
+             FROM $t_promo p
+             LEFT JOIN $t_age a ON a.id = p.agency_id
+             ORDER BY p.created_at DESC LIMIT 200"
+        );
+        $pending = (int) $wpdb->get_var("SELECT COUNT(*) FROM $t_promo WHERE status = 'pending'");
+        $active  = (int) $wpdb->get_var("SELECT COUNT(*) FROM $t_promo WHERE status = 'active'");
+        $confirmed_total = (float) $wpdb->get_var("SELECT COALESCE(SUM(amount),0) FROM $t_promo WHERE status = 'active'");
+        $price = class_exists('TAP_Promotions') ? TAP_Promotions::get_price() : 0;
+
+        echo '<div class="wrap">';
+        echo '<h1>' . esc_html__('Listado Promotions (Destacados)', 'travel-agency-platform') . '</h1>';
+        echo '<p class="description">' . esc_html(sprintf(__('Precio por destacado: %s/mes por listado. Confirma el pago para activar la promoción hasta la fecha correspondiente.', 'travel-agency-platform'), TAP_Currency::fmt($price))) . '</p>';
+        echo '<div class="tap-stat-grid" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;">';
+        echo '<div class="tap-stat-card"><span class="tap-stat-number" style="color:#047857;">' . esc_html($active) . '</span><span class="tap-stat-label">' . esc_html__('Activos', 'travel-agency-platform') . '</span></div>';
+        echo '<div class="tap-stat-card"><span class="tap-stat-number" style="color:#b45309;">' . esc_html($pending) . '</span><span class="tap-stat-label">' . esc_html__('Pendientes de pago', 'travel-agency-platform') . '</span></div>';
+        echo '<div class="tap-stat-card"><span class="tap-stat-number">' . esc_html(TAP_Currency::fmt($confirmed_total)) . '</span><span class="tap-stat-label">' . esc_html__('Facturado en destacados', 'travel-agency-platform') . '</span></div>';
+        echo '</div>';
+        echo '<table class="wp-list-table widefat fixed striped"><thead><tr>';
+        foreach (['Agencia', 'Listado', 'Meses', 'Monto', 'Estado', 'Hasta', 'Solicitado', 'Acciones'] as $h) {
+            echo '<th>' . esc_html($h) . '</th>';
+        }
+        echo '</tr></thead><tbody>';
+        if (!$promos) {
+            echo '<tr><td colspan="8">' . esc_html__('No promotions yet.', 'travel-agency-platform') . '</td></tr>';
+        }
+        foreach ($promos as $p) {
+            $title = get_the_title($p->listing_id);
+            if (empty($title)) {
+                $title = __('Listado borrado', 'travel-agency-platform');
+            }
+            $status_color = 'active' === $p->status ? '#047857' : ('pending' === $p->status ? '#b45309' : '#94a3b8');
+            echo '<tr>';
+            echo '<td>' . esc_html($p->agency_name ?: ('#' . $p->agency_id)) . '</td>';
+            echo '<td>' . esc_html($title) . ' <small>(' . esc_html(str_replace('tap_', '', (string) get_post_type($p->listing_id))) . ')</small></td>';
+            echo '<td>' . esc_html($p->months) . '</td>';
+            echo '<td>' . esc_html(TAP_Currency::fmt($p->amount)) . '</td>';
+            echo '<td style="color:' . esc_attr($status_color) . ';font-weight:600;">' . esc_html($p->status) . '</td>';
+            echo '<td>' . esc_html($p->paid_until ?: '—') . '</td>';
+            echo '<td>' . esc_html($p->created_at) . '</td>';
+            echo '<td>';
+            echo '<form method="post" style="display:inline-block;margin-right:8px;">';
+            wp_nonce_field('tap_promo_activate_nonce');
+            echo '<input type="hidden" name="promo_id" value="' . (int) $p->id . '">';
+            echo '<input type="number" name="months" value="' . esc_attr($p->months) . '" min="1" max="24" style="width:60px;">';
+            submit_button(__('Marcar activo', 'travel-agency-platform'), 'small', 'tap_promo_activate', false);
+            echo '</form>';
+            if ('expired' !== $p->status) {
+                echo '<form method="post" style="display:inline-block;">';
+                wp_nonce_field('tap_promo_expire_nonce');
+                echo '<input type="hidden" name="promo_id" value="' . (int) $p->id . '">';
+                submit_button(__('Expirar', 'travel-agency-platform'), 'small', 'tap_promo_expire', false);
                 echo '</form>';
             }
             echo '</td></tr>';

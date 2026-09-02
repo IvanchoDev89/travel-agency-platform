@@ -80,6 +80,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
   - Admin menus **Plans** (edit pricing/limits) and **Subscriptions** (mark paid / expire).
   - New `[tap_plans]` shortcode (plans page at `/planes/`), plan summary card in the agency panel, and `tap_agency_subscribe` AJAX endpoint.
   - Email notification to the agency when a subscription payment is confirmed.
+- **M4 — Featured promotions (monetization, phase 3)**:
+  - New `tap_promos` table and `tap_featured_price` option (default **$5/mes**).
+  - `TAP_Promotions` class: request → pending → admin confirmation → featured until date, automatic expiry.
+  - Featured slots are enforced against the agency's plan (`featured_slots`); freelancers on the free plan are blocked until they upgrade.
+  - Featured is now promo-driven: the free "Featured" checkbox was removed from the tour/package editors.
+  - Agencies request promotions from the dashboard (Destacar + months), general admin confirms/expires via the new **Promotions** admin page.
+  - Reports now include confirmed promotion revenue; agencies get an email when a promotion is activated.
 
 ---
 

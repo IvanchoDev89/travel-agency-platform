@@ -784,6 +784,97 @@ class TAP_Shortcodes {
             </div>
             <?php endif; ?>
 
+            <?php if ($agency_id && class_exists('TAP_Promotions')):
+                $promo_price = TAP_Promotions::get_price();
+                $promo_slots = TAP_Promotions::featured_slots($agency_id);
+                $promo_active = TAP_Promotions::active_promos($agency_id);
+                $promo_pending = TAP_Promotions::pending_promos($agency_id);
+                $promo_listings = [];
+                foreach ($listings as $type => $info) {
+                    foreach (array_slice($info['ids'], 0, 50) as $pid) {
+                        $promo_listings[] = ['id' => (int) $pid, 'type' => $type, 'label' => $info['label'], 'title' => get_the_title($pid)];
+                    }
+                }
+                $promo_listings = array_slice($promo_listings, 0, 15);
+                $promo_active_ids = [];
+                foreach ($promo_active as $pa) { $promo_active_ids[] = (int) $pa->listing_id; }
+                $promo_pending_ids = [];
+                foreach ($promo_pending as $pp) { $promo_pending_ids[] = (int) $pp->listing_id; }
+            ?>
+            <div class="tap-panel-section">
+                <div class="tap-section-head">
+                    <h3><?php esc_html_e('Destacados (promociones)', 'travel-agency-platform'); ?></h3>
+                    <?php if ($promo_slots > 0): ?>
+                        <span class="tap-agency-meta"><?php echo esc_html(sprintf(__('Disponibles: %d de %d · %s/mes por listado', 'travel-agency-platform'), count($promo_active_ids), $promo_slots, TAP_Currency::fmt($promo_price))); ?></span>
+                    <?php endif; ?>
+                </div>
+                <?php if ($promo_slots <= 0): ?>
+                    <p class="tap-capacity-note" style="background:#fffbeb;color:#92400e;font-size:13px;font-weight:600;padding:10px 14px;border-radius:10px;">
+                        <?php esc_html_e('Tu plan actual no incluye listados destacados. Mejora tu plan para destacar tus servicios en la plataforma.', 'travel-agency-platform'); ?>
+                        <a href="<?php echo esc_url(home_url('/planes/')); ?>" class="tap-btn tap-btn-sm" style="margin-left:8px;"><?php esc_html_e('Ver planes', 'travel-agency-platform'); ?></a>
+                    </p>
+                <?php elseif (empty($promo_listings)): ?>
+                    <p class="tap-agency-meta"><?php esc_html_e('Aún no tienes listados publicados para destacar.', 'travel-agency-platform'); ?></p>
+                <?php else: ?>
+                    <?php if ($promo_pending): ?>
+                        <p class="tap-capacity-note" style="background:#fffbeb;color:#92400e;font-size:13px;font-weight:600;padding:10px 14px;border-radius:10px;margin-bottom:12px;">
+                            <?php esc_html_e('Tienes solicitudes de destacado pendientes de confirmación de pago.', 'travel-agency-platform'); ?>
+                        </p>
+                    <?php endif; ?>
+                    <div class="tap-table-scroll">
+                    <table class="tap-agency-table">
+                        <thead>
+                            <tr>
+                                <th><?php esc_html_e('Listado', 'travel-agency-platform'); ?></th>
+                                <th><?php esc_html_e('Tipo', 'travel-agency-platform'); ?></th>
+                                <th><?php esc_html_e('Estado', 'travel-agency-platform'); ?></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($promo_listings as $pl):
+                                $is_feat = TAP_Promotions::is_featured($pl['id']);
+                                $until = TAP_Promotions::featured_until($pl['id']);
+                                $is_pending_promo = in_array((int) $pl['id'], $promo_pending_ids, true);
+                            ?>
+                            <tr>
+                                <td><?php echo esc_html($pl['title']); ?></td>
+                                <td><?php echo esc_html($pl['label']); ?></td>
+                                <td>
+                                    <?php if ($is_feat && $until): ?>
+                                        <span class="tap-status tap-status-confirmed">★ <?php esc_html_e('Destacado hasta', 'travel-agency-platform'); ?> <?php echo esc_html($until); ?></span>
+                                    <?php elseif ($is_pending_promo): ?>
+                                        <span class="tap-status tap-status-pending"><?php esc_html_e('Pendiente de pago', 'travel-agency-platform'); ?></span>
+                                    <?php else: ?>
+                                        <span class="tap-status tap-status-pending"><?php esc_html_e('No destacado', 'travel-agency-platform'); ?></span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="tap-actions">
+                                    <?php if ($is_feat): ?>
+                                        <span class="tap-promo-badge">★</span>
+                                    <?php elseif ($is_pending_promo): ?>
+                                        <span class="tap-promo-badge" style="background:#ffedd5;color:#c2410c;">&#8987;</span>
+                                    <?php else: ?>
+                                        <form class="tap-promo-form">
+                                            <input type="hidden" name="listing_id" value="<?php echo (int) $pl['id']; ?>">
+                                            <select name="months" class="tap-promo-months">
+                                                <?php foreach ([1, 3, 6, 12, 24] as $m): ?>
+                                                    <option value="<?php echo $m; ?>"><?php echo esc_html($m); ?> <?php esc_html_e('mes(es)', 'travel-agency-platform'); ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <button type="submit" class="tap-btn tap-btn-sm tap-promo-btn"><?php esc_html_e('Destacar', 'travel-agency-platform'); ?></button>
+                                        </form>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                    </div>
+                <?php endif; ?>
+            </div>
+            <?php endif; ?>
+
             <div class="tap-panel-section">
                 <h3><?php esc_html_e('Liquidaciones de comisiones', 'travel-agency-platform'); ?></h3>
                 <?php if (!$settlements): ?>
@@ -831,6 +922,22 @@ class TAP_Shortcodes {
                 }).done(function(res) {
                     if (res && res.success) { window.location.reload(); }
                     else { $btn.prop('disabled', false).text(res && res.data && res.data.message ? '' : '!'); alert(res && res.data ? res.data.message : 'Error'); }
+                }).fail(function() {
+                    $btn.prop('disabled', false).text('!');
+                });
+            });
+            $('body').on('submit', '.tap-promo-form', function(e) {
+                e.preventDefault();
+                var $form = $(this), $btn = $form.find('.tap-promo-btn');
+                $btn.prop('disabled', true).text('...');
+                $.post(tap_ajax.ajax_url, {
+                    action: 'tap_promo_request',
+                    listing_id: $form.find('[name="listing_id"]').val(),
+                    months: $form.find('[name="months"]').val(),
+                    nonce: tap_ajax.agency_nonce
+                }).done(function(res) {
+                    if (res && res.success) { window.location.reload(); }
+                    else { $btn.prop('disabled', false).text('!'); alert(res && res.data ? res.data.message : 'Error'); }
                 }).fail(function() {
                     $btn.prop('disabled', false).text('!');
                 });

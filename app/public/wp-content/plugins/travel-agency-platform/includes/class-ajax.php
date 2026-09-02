@@ -680,6 +680,35 @@ class TAP_Ajax {
         return TAP_Booking::get_agency_for_user( $user_id );
     }
 
+    public static function promo_request() {
+        check_ajax_referer( 'tap_agency_nonce', 'nonce' );
+        if ( ! is_user_logged_in() ) {
+            wp_send_json_error( [ 'message' => __( 'Authentication required', 'travel-agency-platform' ) ] );
+        }
+        $user   = wp_get_current_user();
+        $agency = self::current_agency_for( $user->ID );
+        if ( ! $agency ) {
+            wp_send_json_error( [ 'message' => __( 'Only agencies can promote listings.', 'travel-agency-platform' ) ] );
+        }
+        $listing_id = isset( $_POST['listing_id'] ) ? intval( $_POST['listing_id'] ) : 0;
+        $months     = isset( $_POST['months'] ) ? max(1, intval( $_POST['months'] )) : 1;
+        if ( ! $listing_id || ! class_exists( 'TAP_Promotions' ) ) {
+            wp_send_json_error( [ 'message' => __( 'Invalid listing.', 'travel-agency-platform' ) ] );
+        }
+        if ( (int) TAP_Promotions::agency_of_listing( $listing_id ) !== (int) $agency ) {
+            wp_send_json_error( [ 'message' => __( 'You can only promote your own listings.', 'travel-agency-platform' ) ] );
+        }
+        $result = TAP_Promotions::request( $agency, $listing_id, $months );
+        if ( is_wp_error( $result ) ) {
+            wp_send_json_error( [ 'message' => $result->get_error_message() ] );
+        }
+        wp_send_json_success( [
+            'message' => __( 'Solicitud de destacado enviada. Un administrador confirmará el pago para activarlo.', 'travel-agency-platform' ),
+            'status'  => 'pending',
+            'promo_id' => (int) $result,
+        ] );
+    }
+
     private static function agency_owns_accommodation( $acc_id ) {
         global $wpdb;
         $user   = wp_get_current_user();

@@ -154,6 +154,7 @@ The reply (with author and timestamp) is shown alongside the original review. Re
 - Review generated commissions per booking (calculated on the service subtotal, before the client booking fee).
 - Commission totals are tracked in the platform's commission ledger for settlement.
 - The agency panel shows your **current plan** (plan name, valid until, listings used, and commission rate).
+- The **Destacados (promociones)** section lets you promote a listing: choose the number of months, request it, and the platform confirms the payment to activate it. Promotions count against your plan's featured slots; the free plan has none. A **★** badge appears on the listing while it is featured, and it is removed automatically when the promotion expires.
 
 ---
 
@@ -174,6 +175,11 @@ The reply (with author and timestamp) is shown alongside the original review. Re
 
 - **Plans** (admin → Plans): edit each plan's price, commission rate, listing limit, and featured slots.
 - **Subscriptions** (admin → Subscriptions): see every agency's current/past subscriptions. When an agency requests a plan, its subscription is **Pending** until you confirm the payment — use **Mark paid** (select renewal months) to activate it, or **Expire** to cancel it. Confirmed payments notify the agency by email, and the plan takes effect immediately.
+
+## Manage featured promotions
+
+- **Promotions** (admin → Promotions): review agency requests (price = months × `tap_featured_price`), confirm the payment with **Marcar activo**, or **Expirar** promotions early.
+- Active promotions mark the listing as **featured** (★) for the paid period; expired promotions remove the badge automatically. Confirmed promotion amounts are shown in **Reports**.
 
 ---
 

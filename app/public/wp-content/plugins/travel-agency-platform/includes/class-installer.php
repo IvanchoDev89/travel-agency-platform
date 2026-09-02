@@ -240,6 +240,29 @@ $cols_bookings = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
             ) {$wpdb->get_charset_collate()}");
         }
 
+        $promos_table = $wpdb->prefix . 'tap_promos';
+        if ($wpdb->get_var("SHOW TABLES LIKE '{$promos_table}'") !== $promos_table) {
+            $wpdb->query("CREATE TABLE {$promos_table} (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                agency_id bigint(20) NOT NULL,
+                listing_id bigint(20) NOT NULL,
+                months int(11) NOT NULL DEFAULT 1,
+                amount decimal(10,2) NOT NULL DEFAULT 0,
+                status varchar(20) DEFAULT 'pending',
+                paid_until date DEFAULT NULL,
+                payment_status varchar(20) DEFAULT 'pending',
+                payment_method varchar(20) DEFAULT 'manual',
+                notes text,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY agency_id (agency_id),
+                KEY listing_id (listing_id)
+            ) {$wpdb->get_charset_collate()}");
+        }
+
+        add_option('tap_featured_price', 5.00);
+
         $plan_count = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$plans_table}");
         if (0 === $plan_count) {
             $wpdb->insert($plans_table, [

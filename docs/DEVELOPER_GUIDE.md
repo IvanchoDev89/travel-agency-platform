@@ -272,6 +272,21 @@ Agency subscription lifecycle (`pending` → `active` → `expired`).
 | `payment_status` / `payment_method` | `manual` marking of payments. |
 | `notes` / `created_at` / `updated_at` | |
 
+### `{prefix}tap_promos`
+
+Featured-listing promotions (`pending` → `active` → `expired`).
+
+| Column | Notes |
+| --- | --- |
+| `id` / `agency_id` / `listing_id` | Listing is any service post type. |
+| `months` / `amount` | Amount = months × `tap_featured_price`. |
+| `status` | `pending`, `active`, `expired`. |
+| `paid_until` | Featured-until date (extended on renewal). |
+| `payment_status` / `payment_method` | `manual` marking of payments. |
+| `notes` / `created_at` / `updated_at` | |
+
+Promotion activation sets the listing's `_tap_{type}_is_featured` to `1` and `_tap_{type}_featured_until` to the expiry date; expiry (auto or manual) clears both. Global price lives in the `tap_featured_price` option.
+
 ### Database Migrations
 
 Migrations live in `TAP_Installer::migrate()` and run from `create_tables()`.
@@ -331,6 +346,7 @@ Registered in `TravelAgencyPlatform::init_hooks()` via `admin-ajax.php`. Public 
 | `tap_agency_delete_room` | `TAP_Ajax::agency_delete_room` | — | Agency removes a room. |
 | `tap_toggle_favorite` | `TAP_Ajax::toggle_favorite` | — | Add/remove favorite. |
 | `tap_agency_subscribe` | `TAP_Ajax::agency_subscribe` | — | Agency subscribes to a plan (creates a pending subscription). |
+| `tap_promo_request` | `TAP_Ajax::promo_request` | — | Agency requests a featured promotion (creates a pending promo). |
 
 **Nonce handling**
 
@@ -410,7 +426,8 @@ The platform monetizes through (1) **agency commissions**, (2) an optional **cli
 - **Booking fee computation** — `TAP_Booking::get_booking_fee($subtotal)` returns the fee for a service subtotal.
 - **Total semantics** — `total_amount` = service subtotal + booking fee. `booking_fee` is stored separately so the agency commission is always calculated on the **subtotal** (fee belongs to the platform, never to the agency). Agency net = `total_amount − booking_fee − commission_amount`.
 - **Subscription plans** — `TAP_Subscriptions::active_plan($agency_id)` returns the active plan (or the free default). While active, its nonzero `commission_rate` overrides the agency commission in `TAP_Booking::get_agency_commission()`, and its `listing_limit` is enforced when the agency creates listings. Administration is manual: agencies request via `tap_agency_subscribe` (pending), admins confirm via the **Subscriptions** admin page (`TAP_Subscriptions::mark_paid()`), and expiry is automatic (`expire_active()`, run from an `init` transient guard).
-- **Reports** — `TAP_Admin_Dashboard::reports_page()` shows GMV, retained commissions, and booking fees; `get_booking_stats()` exposes `revenue`, `commission`, `net`, and `fees`.
+- **Featured promotions** — `TAP_Promotions::request($agency_id, $listing_id, $months)` validates ownership, plan featured slots (`TAP_Subscriptions::active_plan()->featured_slots`, so the free plan blocks promotions), and prevents duplicate pending requests. Admins confirm via `TAP_Promotions::activate()` (sets `_tap_{type}_is_featured` + `_tap_{type}_featured_until`), and `expire_active()` on an `init` transient unfeatures expired listings. Price comes from the `tap_featured_price` option. Featured is promo-driven only — there is no free-form editor checkbox anymore.
+- **Reports** — `TAP_Admin_Dashboard::reports_page()` shows GMV, retained commissions, booking fees, and confirmed promotion revenue; `get_booking_stats()` exposes `revenue`, `commission`, `net`, and `fees`.
 - **Adding a fee type** — extend `get_booking_fee()` and mirror the value in `calculate_booking_total` so the front-end breakdown stays consistent with the persisted booking.
 - **Adding a plan** — insert into `tap_plans` (or seed via `TAP_Installer::migrate()`); optional `commission_rate`, `listing_limit` (`-1` = unlimited), and `featured_slots` then take effect automatically.
 

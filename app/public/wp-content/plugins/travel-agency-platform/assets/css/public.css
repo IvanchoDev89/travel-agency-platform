@@ -1020,3 +1020,40 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 .tap-plan-summary strong {
   color: var(--tap-neutral-900);
 }
+
+.tap-plan-summary strong {
+  color: var(--tap-neutral-900);
+}
+
+.tap-promo-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #b45309;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.tap-promo-form {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tap-promo-form select.tap-promo-months {
+  padding: 6px 8px;
+  border: 1px solid var(--tap-neutral-200, #e2e8f0);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 13px;
+  color: var(--tap-neutral-700, #334155);
+}
+
+.tap-status-confirmed {
+  background: #d4edda;
+  color: #155724;
+}
