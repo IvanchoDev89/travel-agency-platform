@@ -261,6 +261,20 @@ $cols_bookings = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
             ) {$wpdb->get_charset_collate()}");
         }
 
+        $views_table = $wpdb->prefix . 'tap_listing_views';
+        if ($wpdb->get_var("SHOW TABLES LIKE '{$views_table}'") !== $views_table) {
+            $wpdb->query("CREATE TABLE {$views_table} (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                listing_id bigint(20) NOT NULL,
+                service_type varchar(50) NOT NULL,
+                view_date date NOT NULL,
+                views bigint(20) NOT NULL DEFAULT 0,
+                PRIMARY KEY (id),
+                UNIQUE KEY listing_date (listing_id, view_date),
+                KEY view_date (view_date)
+            ) {$wpdb->get_charset_collate()}");
+        }
+
         add_option('tap_featured_price', 5.00);
 
         $plan_count = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$plans_table}");

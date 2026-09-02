@@ -50,6 +50,7 @@ final class TravelAgencyPlatform {
         require_once TAP_PLUGIN_DIR . 'includes/class-seo.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-subscriptions.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-promotions.php';
+        require_once TAP_PLUGIN_DIR . 'includes/class-analytics.php';
     }
 
     private function init_hooks() {
@@ -69,6 +70,7 @@ final class TravelAgencyPlatform {
         add_action('plugins_loaded', [$this, 'maybe_update_tables'], 5);
         add_action('pre_get_posts', ['TAP_Ajax', 'filter_archive_query'], 10);
         add_filter('posts_clauses', ['TAP_Ajax', 'rating_sort_clauses'], 10, 2);
+        add_filter('posts_clauses', ['TAP_Ajax', 'featured_sort_clauses'], 11, 2);
         add_action('init', function () {
             if (!wp_next_scheduled('tap_maintenance_hook')) {
                 wp_schedule_event(time(), 'hourly', 'tap_maintenance_hook');
@@ -109,6 +111,7 @@ final class TravelAgencyPlatform {
         add_action('wp_ajax_tap_promo_request', ['TAP_Ajax', 'promo_request']);
         add_action('init', ['TAP_Subscriptions', 'init'], 14);
         add_action('init', ['TAP_Promotions', 'init'], 15);
+        add_action('init', ['TAP_Analytics', 'init'], 16);
         add_shortcode('tap_checkout', ['TAP_Shortcodes', 'checkout']);
     }
 

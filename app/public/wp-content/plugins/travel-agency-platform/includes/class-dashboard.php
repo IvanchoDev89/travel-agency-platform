@@ -502,6 +502,28 @@ class TAP_Dashboard {
             exit;
         }
 
+        if (isset($_POST['tap_settle_booking']) && isset($_POST['_wpnonce']) && wp_verify_nonce($_POST['_wpnonce'], 'tap_settle_booking')) {
+            $booking_id = intval($_POST['booking_id'] ?? 0);
+            $method = sanitize_key($_POST['method'] ?? 'bank_transfer');
+            $note   = sanitize_textarea_field($_POST['note'] ?? '');
+            $booking = $booking_id ? $wpdb->get_row($wpdb->prepare("SELECT * FROM {$b_table} WHERE id = %d AND commission_status = 'owed'", $booking_id)) : null;
+            if ($booking) {
+                $wpdb->insert($p_table, [
+                    'agency_id'   => (int) $booking->agency_id,
+                    'amount'      => (float) $booking->commission_amount,
+                    'booking_ids' => (string) $booking_id,
+                    'method'      => $method,
+                    'note'        => $note ?: __('Liquidación individual', 'travel-agency-platform'),
+                    'created_by'  => get_current_user_id(),
+                ]);
+                $payment_id = $wpdb->insert_id;
+                $wpdb->update($b_table, ['commission_status' => 'paid'], ['id' => $booking_id]);
+                do_action('tap_commission_paid', (int) $booking->agency_id, $payment_id);
+                set_transient('tap_commission_notice', __('Comisión liquidada individualmente.', 'travel-agency-platform'), 60);
+            }
+            wp_safe_redirect(admin_url('admin.php?page=tap-commissions&status=' . sanitize_key($_POST['filter'] ?? 'all')));
+            exit;
+        }
         $filter = sanitize_key($_GET['status'] ?? 'all');
         if (!in_array($filter, ['all', 'owed', 'paid'], true)) {
             $filter = 'all';
@@ -576,7 +598,11 @@ class TAP_Dashboard {
                             <td><?php echo esc_html(TAP_Currency::fmt($c->total_amount)); ?></td>
                             <td><?php echo esc_html($c->commission_percent); ?>%</td>
                             <td><?php echo esc_html(TAP_Currency::fmt($c->commission_amount)); ?></td>
-                            <td><?php echo 'paid' === $c->commission_status ? '<span style="color:#047857;font-weight:600;">' . esc_html__('Cobrada', 'travel-agency-platform') . '</span>' : '<span style="color:#b45309;font-weight:600;">' . esc_html__('Por cobrar', 'travel-agency-platform') . '</span>'; ?></td>
+                            <td><?php echo 'paid' === $c->commission_status ? '<span style="color:#047857;font-weight:600;" class="tap-status-confirmed">' . esc_html__('Cobrada', 'travel-agency-platform') . '</span>' : '<span style="color:#b45309;font-weight:600;">' . esc_html__('Por cobrar', 'travel-agency-platform') . '</span>'; ?>
+                                <?php if ('owned' !== $c->commission_status && 'paid' !== $c->commission_status): ?>
+                                    <button type="button" class="button-link" data-settle="<?php echo (int) $c->id; ?>" data-code="<?php echo esc_attr($c->booking_code); ?>" data-amount="<?php echo esc_attr(TAP_Currency::fmt($c->commission_amount)); ?>"><?php esc_html_e('Liquidar', 'travel-agency-platform'); ?></button>
+                                <?php endif; ?>
+                            </td>
                             <td><?php echo esc_html($c->created_at); ?></td>
                         </tr>
                         <?php endforeach; ?>
@@ -627,7 +653,16 @@ class TAP_Dashboard {
                         <td><?php echo esc_html($p->agency_name ?? 'N/A'); ?></td>
                         <td><?php echo esc_html(TAP_Currency::fmt($p->amount)); ?></td>
                         <td><?php echo esc_html($p->method); ?></td>
-                        <td><?php echo esc_html($p->booking_ids); ?></td>
+                        <td><?php
+                            $ids = array_filter(array_map('intval', explode(',', $p->booking_ids)));
+                            if ($ids) {
+                                $ph = implode(',', array_fill(0, count($ids), '%d'));
+                                $codes = $wpdb->get_col($wpdb->prepare("SELECT booking_code FROM {$b_table} WHERE id IN ({$ph})", $ids));
+                                echo esc_html(implode(', ', $codes ?: $ids));
+                            } else {
+                                echo '—';
+                            }
+                        ?></td>
                         <td><?php echo esc_html($p->note); ?></td>
                         <td><?php echo esc_html($p->created_at); ?></td>
                     </tr>
@@ -635,12 +670,54 @@ class TAP_Dashboard {
                 </tbody>
             </table>
         </div>
+
+        <div id="tap-settle-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100000;align-items:center;justify-content:center;">
+            <form method="post" action="" style="background:#fff;padding:22px;border-radius:10px;max-width:420px;width:92%;box-shadow:0 10px 40px rgba(0,0,0,.25);">
+                <?php wp_nonce_field('tap_settle_booking'); ?>
+                <input type="hidden" name="tap_settle_booking" value="1">
+                <input type="hidden" name="booking_id" id="tap-settle-id" value="">
+                <input type="hidden" name="filter" id="tap-settle-filter" value="<?php echo esc_attr($filter); ?>">
+                <h3 style="margin-top:0;"><?php esc_html_e('Liquidar comisión', 'travel-agency-platform'); ?>: <code id="tap-settle-code"></code> — <strong id="tap-settle-amount"></strong></h3>
+                <table class="form-table" style="margin:0;">
+                    <tr>
+                        <th><?php esc_html_e('Método', 'travel-agency-platform'); ?></th>
+                        <td>
+                            <select name="method">
+                                <option value="bank_transfer"><?php esc_html_e('Transferencia bancaria', 'travel-agency-platform'); ?></option>
+                                <option value="cash"><?php esc_html_e('Efectivo', 'travel-agency-platform'); ?></option>
+                                <option value="paypal">PayPal</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><?php esc_html_e('Nota', 'travel-agency-platform'); ?></th>
+                        <td><input type="text" name="note" class="widefat" placeholder="Comprobante / referencia"></td>
+                    </tr>
+                </table>
+                <p class="submit" style="margin-bottom:0;">
+                    <button type="submit" class="button button-primary"><?php esc_html_e('Confirmar liquidación', 'travel-agency-platform'); ?></button>
+                    <button type="button" class="button" id="tap-settle-close"><?php esc_html_e('Cancelar', 'travel-agency-platform'); ?></button>
+                </p>
+            </form>
+        </div>
         <script>
         (function(d){
             var a = d.getElementById('tap-check-all');
             if (a) a.addEventListener('change', function(){
                 d.querySelectorAll('input[name="booking_ids[]"]').forEach(function(c){ c.checked = a.checked; });
             });
+            var modal = d.getElementById('tap-settle-modal');
+            var fmt = new Intl.NumberFormat('es-CR', {style:'currency', currency:'CRC', minimumFractionDigits:0});
+            d.querySelectorAll('[data-settle]').forEach(function(btn){
+                btn.addEventListener('click', function(){
+                    d.getElementById('tap-settle-id').value = btn.getAttribute('data-settle');
+                    d.getElementById('tap-settle-code').textContent = btn.getAttribute('data-code');
+                    d.getElementById('tap-settle-amount').textContent = btn.getAttribute('data-amount');
+                    modal.style.display = 'flex';
+                });
+            });
+            d.getElementById('tap-settle-close').addEventListener('click', function(){ modal.style.display = 'none'; });
+            modal.addEventListener('click', function(e){ if (e.target === modal) modal.style.display = 'none'; });
         })(document);
         </script>
         <?php
@@ -1132,6 +1209,7 @@ class TAP_Dashboard {
              GROUP BY b.service_id, b.service_type, p.post_title ORDER BY gmv DESC LIMIT 10",
             ...$bparams
         ));
+        $listing_views = class_exists('TAP_Analytics') ? TAP_Analytics::listing_views($from, $to) : [];
 
         krsort($monthly);
         $max_total = 1.0;
@@ -1149,6 +1227,12 @@ class TAP_Dashboard {
         $avg = $totals->bookings > 0 ? $totals->gmv / $totals->bookings : 0;
         $year_rev = 0.0;
         foreach ($monthly as $m) { $year_rev += $m['commission'] + $m['fees'] + $m['subs'] + $m['promos']; }
+
+        $views_total = class_exists('TAP_Analytics') ? TAP_Analytics::total_views($from, $to) : 0;
+        $conversion  = 0.0;
+        if ($views_total > 0 && $totals->bookings > 0) {
+            $conversion = ($totals->bookings / $views_total) * 100;
+        }
 
         echo '<div class="wrap">';
         echo '<h1>' . esc_html__('Analytics', 'travel-agency-platform') . '</h1>';
@@ -1169,6 +1253,8 @@ class TAP_Dashboard {
         echo '<div class="tap-stat-card"><span class="tap-stat-number">' . esc_html(TAP_Currency::fmt($promo_revenue)) . '</span><span class="tap-stat-label">' . esc_html__('Destacados activos', 'travel-agency-platform') . '</span></div>';
         echo '<div class="tap-stat-card"><span class="tap-stat-number">' . esc_html($totals->bookings ?? 0) . '</span><span class="tap-stat-label">' . esc_html__('Reservas vigentes', 'travel-agency-platform') . '</span></div>';
         echo '<div class="tap-stat-card"><span class="tap-stat-number">' . esc_html(TAP_Currency::fmt($avg)) . '</span><span class="tap-stat-label">' . esc_html__('Ticket promedio', 'travel-agency-platform') . '</span></div>';
+        echo '<div class="tap-stat-card"><span class="tap-stat-number">' . esc_html(number_format($views_total, 0)) . '</span><span class="tap-stat-label">' . esc_html__('Vistas (filtro)', 'travel-agency-platform') . '</span></div>';
+        echo '<div class="tap-stat-card"><span class="tap-stat-number">' . esc_html(number_format($conversion, 2) . '%') . '</span><span class="tap-stat-label">' . esc_html__('Conversión vistas→reserva', 'travel-agency-platform') . '</span></div>';
         echo '<div class="tap-stat-card"><span class="tap-stat-number">' . esc_html($active_agencies) . '</span><span class="tap-stat-label">' . esc_html__('Agencias activas', 'travel-agency-platform') . '</span></div>';
         echo '<div class="tap-stat-card"><span class="tap-stat-number">' . esc_html($total_listings) . '</span><span class="tap-stat-label">' . esc_html__('Listados publicados', 'travel-agency-platform') . '</span></div>';
         echo '</div>';
@@ -1233,11 +1319,15 @@ class TAP_Dashboard {
 
         echo '<h2>' . esc_html__('Top listados', 'travel-agency-platform') . '</h2>';
         echo '<table class="wp-list-table widefat fixed striped"><thead><tr>';
-        foreach (['Listado', 'Tipo', 'Reservas', 'GMV'] as $h) { echo '<th>' . esc_html($h) . '</th>'; }
+        foreach (['Listado', 'Tipo', 'Vistas', 'Reservas', 'Conversión', 'GMV'] as $h) { echo '<th>' . esc_html($h) . '</th>'; }
         echo '</tr></thead><tbody>';
-        if (!$top_listings) { echo '<tr><td colspan="4">' . esc_html__('Sin datos en el periodo.', 'travel-agency-platform') . '</td></tr>'; }
+        if (!$top_listings) { echo '<tr><td colspan="6">' . esc_html__('Sin datos en el periodo.', 'travel-agency-platform') . '</td></tr>'; }
         foreach ($top_listings as $l) {
-            echo '<tr><td>' . esc_html($l->title ?: '# ' . $l->service_id) . '</td><td>' . esc_html(str_replace('tap_', '', $l->service_type)) . '</td><td>' . esc_html($l->bookings) . '</td><td>' . esc_html(TAP_Currency::fmt($l->gmv)) . '</td></tr>';
+            $views = isset($listing_views[(int) $l->service_id]) ? (float) $listing_views[(int) $l->service_id]->views : 0;
+            $conv = $views > 0 ? ($l->bookings / $views) * 100 : 0;
+            echo '<tr><td>' . esc_html($l->title ?: '# ' . $l->service_id) . '</td><td>' . esc_html(str_replace('tap_', '', $l->service_type)) . '</td>'
+                . '<td>' . esc_html(number_format($views, 0)) . '</td><td>' . esc_html($l->bookings) . '</td>'
+                . '<td>' . esc_html(number_format($conv, 2) . '%') . '</td><td>' . esc_html(TAP_Currency::fmt($l->gmv)) . '</td></tr>';
         }
         echo '</tbody></table>';
         echo '</div>';
@@ -1280,11 +1370,16 @@ class TAP_Dashboard {
                         COUNT(*) reservas, SUM(total_amount) gmv, SUM(commission_amount) comisiones, SUM(booking_fee) fees
                  FROM {$wpdb->prefix}tap_bookings WHERE {$bwhere} GROUP BY mes ORDER BY mes DESC"
             );
-            $header = ['Mes', 'Reservas', 'GMV', 'Comisiones', 'Booking fees', 'Suscripciones', 'Destacados'];
+            $header = ['Mes', 'Reservas', 'GMV', 'Comisiones', 'Booking fees', 'Suscripciones', 'Destacados', 'Vistas'];
             $subs = $wpdb->get_results("SELECT DATE_FORMAT(s.created_at,'%Y-%m') mes, SUM(p.price_monthly) total FROM {$wpdb->prefix}tap_agency_subscriptions s JOIN {$wpdb->prefix}tap_plans p ON p.id=s.plan_id WHERE s.payment_status='paid' GROUP BY mes");
             $promos = $wpdb->get_results("SELECT DATE_FORMAT(updated_at,'%Y-%m') mes, SUM(amount) total FROM {$wpdb->prefix}tap_promos WHERE payment_status='paid' GROUP BY mes");
             $subs_map = []; foreach ($subs as $s) { $subs_map[$s->mes] = (float) $s->total; }
             $promos_map = []; foreach ($promos as $q) { $promos_map[$q->mes] = (float) $q->total; }
+            $views_by_month = [];
+            if (class_exists('TAP_Analytics')) {
+                $vrows = $wpdb->get_results("SELECT DATE_FORMAT(view_date,'%Y-%m') mes, COALESCE(SUM(views),0) v FROM " . TAP_Analytics::views_table() . " GROUP BY mes");
+                foreach ($vrows as $v) { $views_by_month[$v->mes] = (float) $v->v; }
+            }
         }
 
         header('Content-Type: text/csv; charset=utf-8');
@@ -1296,6 +1391,7 @@ class TAP_Dashboard {
             if ($type === 'summary') {
                 $line[] = $subs_map[$line['mes']] ?? 0;
                 $line[] = $promos_map[$line['mes']] ?? 0;
+                $line[] = $views_by_month[$line['mes']] ?? 0;
             }
             fputcsv($out, $line);
         }

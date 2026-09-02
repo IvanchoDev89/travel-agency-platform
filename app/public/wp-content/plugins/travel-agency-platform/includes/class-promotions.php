@@ -15,18 +15,35 @@ class TAP_Promotions {
         return max(0, (float) get_option('tap_featured_price', 5));
     }
 
-    public static function listing_meta_keys($post_id) {
-        $type = get_post_type($post_id);
-        if (!in_array($type, ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'], true)) {
+    public static function prefix_for_type($type) {
+        $prefixes = [
+            'tap_accommodation' => 'acc',
+            'tap_tour'          => 'tour',
+            'tap_transport'     => 'trans',
+            'tap_car_rental'    => 'car',
+            'tap_boat'          => 'boat',
+            'tap_package'       => 'pkg',
+        ];
+        return isset($prefixes[$type]) ? $prefixes[$type] : null;
+    }
+
+    public static function keys_for_type($type) {
+        $prefix = self::prefix_for_type($type);
+        if ($prefix === null) {
             return null;
         }
-        $short = str_replace('tap_', '', $type);
         return [
-            'type'       => $type,
-            'agency_key' => '_tap_' . $short . '_agency_id',
-            'flag_key'   => '_tap_' . $short . '_is_featured',
-            'until_key'  => '_tap_' . $short . '_featured_until',
+            'type'       => (string) $type,
+            'prefix'     => (string) $prefix,
+            'agency_key' => '_tap_' . $prefix . '_agency_id',
+            'flag_key'   => '_tap_' . $prefix . '_is_featured',
+            'until_key'  => '_tap_' . $prefix . '_featured_until',
+            'active_key' => '_tap_' . $prefix . '_is_active',
         ];
+    }
+
+    public static function listing_meta_keys($post_id) {
+        return self::keys_for_type(get_post_type($post_id));
     }
 
     public static function agency_of_listing($post_id) {

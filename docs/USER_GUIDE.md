@@ -155,6 +155,8 @@ The reply (with author and timestamp) is shown alongside the original review. Re
 - Commission totals are tracked in the platform's commission ledger for settlement.
 - The agency panel shows your **current plan** (plan name, valid until, listings used, and commission rate).
 - The **Destacados (promociones)** section lets you promote a listing: choose the number of months, request it, and the platform confirms the payment to activate it. Promotions count against your plan's featured slots; the free plan has none. A **★** badge appears on the listing while it is featured, and it is removed automatically when the promotion expires.
+- **Featured** listings appear **first** in archives and search results, ahead of non-featured ones in the same sort order.
+- The **Libro de comisiones** section lists your last 30 commission-generating bookings with a status pill per booking: **Cobrada** (settled) or **Por cobrar** (outstanding). Settlement history shows booking codes instead of raw IDs.
 
 ---
 
@@ -168,8 +170,9 @@ The reply (with author and timestamp) is shown alongside the original review. Re
 ## Manage commissions
 
 - Review commission amounts owed per agency and per booking.
-- Record commission settlements in the ledger.
+- Record commission settlements in the ledger — either **select bookings and register payment**, or click **Liquidar** on an individual booking to settle it directly (opens a dialog for method + note).
 - Track `owed` vs. settled commission across the platform.
+- Settlement history resolves each payment to the concrete booking codes it covers.
 
 ## Manage subscription plans
 
@@ -186,9 +189,10 @@ The reply (with author and timestamp) is shown alongside the original review. Re
 - **Analytics** (admin → Analytics) gives a financial overview of the platform:
   - KPI cards: platform revenue (last 12 months), subscription MRR, filtered GMV, active promotion value, live bookings, average ticket, active agencies, and published listings.
   - A 12-month stacked chart of platform revenue split by **Comisiones**, **Booking fees**, **Suscripciones**, and **Destacados**, plus a revenue-source breakdown table.
-  - **Top agencias** (bookings, GMV, platform commission, fees) and **Top listados** (bookings, GMV).
+  - **Top agencias** (bookings, GMV, platform commission, fees) and **Top listados** (bookings, GMV, **Vistas**, **Conversión**).
   - Use **Desde**/**Hasta** to filter by month (format `YYYY-MM`); KPIs, top tables, and exports respect the filter.
-  - **Exportar reservas (CSV)** downloads booking-level detail (with fee, commission, and net). **Exportar resumen (CSV)** downloads the monthly financial summary including subscriptions and promotions.
+  - **Vistas** counts singular-page views per listing (tracked with a 5-minute throttle per visitor) and **Conversión vistas → reservas** is the ratio of bookings to views.
+  - **Exportar reservas (CSV)** downloads booking-level detail (with fee, commission, and net). **Exportar resumen (CSV)** downloads the monthly financial summary including subscriptions, promotions, and views.
 
 ---
 

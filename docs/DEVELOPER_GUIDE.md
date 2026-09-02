@@ -287,6 +287,20 @@ Featured-listing promotions (`pending` → `active` → `expired`).
 
 Promotion activation sets the listing's `_tap_{type}_is_featured` to `1` and `_tap_{type}_featured_until` to the expiry date; expiry (auto or manual) clears both. Global price lives in the `tap_featured_price` option.
 
+### `{prefix}tap_listing_views`
+
+Per-day listing view counts (analytics).
+
+| Column | Notes |
+| --- | --- |
+| `id` | Primary key. |
+| `listing_id` | Any service post ID. |
+| `service_type` | Canonical `tap_*` type (denormalized for reporting). |
+| `view_date` | `DATE`, part of the unique key. |
+| `views` | Daily count. |
+
+Unique key `listing_id + view_date`; writes come from `TAP_Analytics::record_view()` (5-min throttle), reads from `total_views()` / `listing_views()`.
+
 ### Database Migrations
 
 Migrations live in `TAP_Installer::migrate()` and run from `create_tables()`.
@@ -428,7 +442,11 @@ The platform monetizes through (1) **agency commissions**, (2) an optional **cli
 - **Subscription plans** — `TAP_Subscriptions::active_plan($agency_id)` returns the active plan (or the free default). While active, its nonzero `commission_rate` overrides the agency commission in `TAP_Booking::get_agency_commission()`, and its `listing_limit` is enforced when the agency creates listings. Administration is manual: agencies request via `tap_agency_subscribe` (pending), admins confirm via the **Subscriptions** admin page (`TAP_Subscriptions::mark_paid()`), and expiry is automatic (`expire_active()`, run from an `init` transient guard).
 - **Featured promotions** — `TAP_Promotions::request($agency_id, $listing_id, $months)` validates ownership, plan featured slots (`TAP_Subscriptions::active_plan()->featured_slots`, so the free plan blocks promotions), and prevents duplicate pending requests. Admins confirm via `TAP_Promotions::activate()` (sets `_tap_{type}_is_featured` + `_tap_{type}_featured_until`), and `expire_active()` on an `init` transient unfeatures expired listings. Price comes from the `tap_featured_price` option. Featured is promo-driven only — there is no free-form editor checkbox anymore.
 - **Reports** — `TAP_Admin_Dashboard::reports_page()` shows GMV, retained commissions, booking fees, and confirmed promotion revenue; `get_booking_stats()` exposes `revenue`, `commission`, `net`, and `fees`.
-- **Analytics** — `TAP_Dashboard::analytics_page()` (admin page `tap-analytics`, capability `tap_view_reports`) aggregates platform revenue across `tap_bookings` (commissions + booking fees, excluding `cancelled`/`refunded`), `tap_agency_subscriptions` (active plan MRR; paid subscriptions counted in the month of `created_at`), and `tap_promos` (paid promotions counted in the month of `updated_at`). It renders KPI cards, a 12-month stacked chart, top agencies (agency name resolved from the `tap_agency` post title joined on `agency_id`), top listings, and supports a `YYYY-MM` period filter (`tap_from`/`tap_to`). Two nonce-protected CSV exports are available: `export=bookings` (booking-level detail with fee/commission/net) and `export=summary` (monthly financial summary), handled by the private `analytics_csv_export()` before any HTML output.
+- **Analytics** — `TAP_Dashboard::analytics_page()` (admin page `tap-analytics`, capability `tap_view_reports`) aggregates platform revenue across `tap_bookings` (commissions + booking fees, excluding `cancelled`/`refunded`), `tap_agency_subscriptions` (active plan MRR; paid subscriptions counted in the month of `created_at`), and `tap_promos` (paid promotions counted in the month of `updated_at`). It renders KPI cards, a 12-month stacked chart, top agencies (agency name resolved from the `tap_agency` post title joined on `agency_id`), top listings, and supports a `YYYY-MM` period filter (`tap_from`/`tap_to`). Two nonce-protected CSV exports are available: `export=bookings` (booking-level detail with fee/commission/net) and `export=summary` (monthly financial summary, now including views), handled by the private `analytics_csv_export()` before any HTML output.
+- **Featured-first ordering** — `TAP_Promotions::prefix_for_type()` maps each `tap_*` type to its canonical meta prefix (`_tap_acc_`, `_tap_tour_`, `_tap_trans_`, `_tap_car_`, `_tap_boat_`, `_tap_pkg_`); `keys_for_type()` derives all promotion meta keys from it. `TAP_Ajax::featured_sort_clauses()` hooks `posts_clauses` and prepends a `CASE WHEN featured THEN 0 ELSE 1 END` ordering term so featured listings sort first in archives and search without disturbing the user-chosen order.
+- **Listing views** — `TAP_Analytics` hooks `template_redirect`, and on singular service pages upserts a per-day row in `tap_listing_views` (keyed `listing_id + view_date`). A 5-minute transient per user+listing throttles writes (`tap_view_{user}_{listing}`). Totals come from `TAP_Analytics::total_views($from, $to)` and `listing_views($from, $to)`; the Analytics page derives the **Conversión vistas → reservas** KPI by dividing period bookings by period views.
+- **Commission book** — commissions screen (`tap-commissions`) settles either via the bulk checkbox flow (one payment row per agency) or per-booking (`tap_settle_booking` POST, nonce `tap_settle_booking`) which liquidates a single booking's commission directly. Both write `tap_commission_payments` and flip `commission_status → paid`; `tap_commission_paid` fires with `(agency_id, payment_id)`. Settlement history resolves `booking_ids` back to booking codes. The agency panel lists the last 30 commission-generating bookings with status pills.
+- **Tests** — `tests/run.sh` executes the WP-CLI suites in `tests/` against a real install. Target the travel site with `SITE=travel ./tests/run.sh` or the second site with `SITE=ivanchodev ./tests/run.sh`; override `WP_PATH`/`WP_BIN`/`SUITES` as needed. Suites seed and then delete their own rows, so they are safe to re-run and leave no residue.
 - **Adding a fee type** — extend `get_booking_fee()` and mirror the value in `calculate_booking_total` so the front-end breakdown stays consistent with the persisted booking.
 - **Adding a plan** — insert into `tap_plans` (or seed via `TAP_Installer::migrate()`); optional `commission_rate`, `listing_limit` (`-1` = unlimited), and `featured_slots` then take effect automatically.
 

@@ -19,3 +19,7 @@ app/public/wp-content/plugins/*
 !app/public/wp-content/themes/
 app/public/wp-content/themes/*
 !app/public/wp-content/themes/travel-agency-theme/
+!tests/
+tests/*
+!tests/*.php
+!tests/run.sh

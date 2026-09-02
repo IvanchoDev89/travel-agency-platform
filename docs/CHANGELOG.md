@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [Unreleased] — post-1.3.0 improvements
+
+### Added
+
+- **F-FF — Featured-first ordering**:
+  - Archive and search results now sort *featured* listings first (stable within the existing sort order) across all service types.
+  - Canonical meta-key map in `TAP_Promotions` (`_tap_acc_*`, `_tap_tour_*`, `_tap_trans_*`, `_tap_car_*`, `_tap_boat_*`, `_tap_pkg_*`) fixes the derived prefixes that broke featured/active lookups for accommodation, transport, and package types.
+  - `TAP_Ajax::featured_sort_clauses()` applied on `posts_clauses` so archives (accommodation) and search agree on ordering.
+- **F-AN — Listing views & conversion**:
+  - New `tap_listing_views` table (daily per-listing view counts) with `TAP_Analytics` tracking.
+  - Views recorded on singular service pages with a 5-minute per-user throttle.
+  - Analytics page adds **Vistas** and **Conversión vistas → reservas** KPIs plus per-listing view/conversion columns in Top Listings; summary CSV now includes views.
+- **F-LV — Commission book**:
+  - Per-booking commission settlement: admin can liquidate a single booking directly from the commissions screen (modal, method + note) in addition to the bulk checkbox flow.
+  - Settlement history shows booking **codes** instead of raw IDs (admin + agency panel).
+  - Agency panel adds a **Libro de comisiones** section listing the last 30 commission-generating bookings with status pills (Cobrada / Por cobrar).
+- **F-TS — Test suite**:
+  - `tests/run.sh` runner (WP-CLI based, target site via `SITE`/`WP_PATH`) plus consolidated E2E suites: `suite_core`, `suite_bookings`, `suite_commissions`, `suite_promotions`, `suite_views`, `suite_analytics`.
+  - Suites are self-cleaning (delete seeded rows) and idempotent on re-run.
+
+### Fixed
+
+- Featured/active meta lookups used the wrong prefix for 3 of 6 service types; the canonical prefix map now guarantees `keys_for_type()` returns the correct keys everywhere.
+
+---
+
 ## [1.2.0] — 2026-08-31
 
 ### Added

@@ -540,6 +540,14 @@ class TAP_Shortcodes {
             $agency_id
         )) : [];
 
+        $comm_ledger = $agency_id ? $wpdb->get_results($wpdb->prepare(
+            "SELECT booking_code, CAST(created_at AS CHAR) created_at, total_amount, commission_amount, commission_status
+             FROM {$wpdb->prefix}tap_bookings
+             WHERE agency_id = %d AND commission_amount > 0
+             ORDER BY created_at DESC LIMIT 30",
+            $agency_id
+        )) : [];
+
         $ab_status = sanitize_key($_GET['ab_status'] ?? 'all');
         if (!in_array($ab_status, ['all', 'pending', 'confirmed', 'completed', 'cancelled', 'refunded'], true)) {
             $ab_status = 'all';
@@ -897,13 +905,54 @@ class TAP_Shortcodes {
                             <td>#<?php echo (int) $s->id; ?></td>
                             <td><?php echo esc_html(TAP_Currency::fmt($s->amount)); ?></td>
                             <td><?php echo esc_html($s->method); ?></td>
-                            <td><?php echo esc_html($s->booking_ids); ?></td>
+                            <td><?php
+                                $ids = array_filter(array_map('intval', explode(',', $s->booking_ids)));
+                                if ($ids) {
+                                    $ph = implode(',', array_fill(0, count($ids), '%d'));
+                                    $codes = $wpdb->get_col($wpdb->prepare("SELECT booking_code FROM {$wpdb->prefix}tap_bookings WHERE id IN ({$ph})", $ids));
+                                    echo esc_html(implode(', ', $codes ?: $ids));
+                                } else {
+                                    echo '—';
+                                }
+                            ?></td>
                             <td><?php echo esc_html($s->note); ?></td>
                             <td><?php echo esc_html($s->created_at); ?></td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                <?php endif; ?>
+            </div>
+
+            <div class="tap-panel-section">
+                <h3><?php esc_html_e('Libro de comisiones (30 últimas)', 'travel-agency-platform'); ?></h3>
+                <?php if (!$comm_ledger): ?>
+                    <p class="tap-agency-meta"><?php esc_html_e('Aún no hay comisiones generadas.', 'travel-agency-platform'); ?></p>
+                <?php else: ?>
+                <div class="tap-table-scroll">
+                <table class="tap-agency-table">
+                    <thead>
+                        <tr>
+                            <th><?php esc_html_e('Booking', 'travel-agency-platform'); ?></th>
+                            <th><?php esc_html_e('Fecha', 'travel-agency-platform'); ?></th>
+                            <th><?php esc_html_e('Total', 'travel-agency-platform'); ?></th>
+                            <th><?php esc_html_e('Comisión', 'travel-agency-platform'); ?></th>
+                            <th><?php esc_html_e('Estado', 'travel-agency-platform'); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($comm_ledger as $cl): ?>
+                        <tr>
+                            <td><?php echo esc_html($cl->booking_code); ?></td>
+                            <td><?php echo esc_html($cl->created_at); ?></td>
+                            <td><?php echo esc_html(TAP_Currency::fmt($cl->total_amount)); ?></td>
+                            <td><?php echo esc_html(TAP_Currency::fmt($cl->commission_amount)); ?></td>
+                            <td><?php echo 'paid' === $cl->commission_status ? '<span class="tap-status tap-status-confirmed">' . esc_html__('Cobrada', 'travel-agency-platform') . '</span>' : '<span class="tap-status tap-status-pending">' . esc_html__('Por cobrar', 'travel-agency-platform') . '</span>'; ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                </div>
                 <?php endif; ?>
             </div>
 

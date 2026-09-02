@@ -89,13 +89,14 @@ class TAP_Ajax {
         $results = [];
 
         foreach ($types as $pt) {
+            $type_keys = TAP_Promotions::keys_for_type($pt);
             $args = [
                 'post_type'      => $pt,
                 'posts_per_page' => 20,
                 'post_status'    => 'publish',
                 's'              => $keyword,
                 'meta_query'     => [
-                    ['key' => '_tap_' . str_replace('tap_', '', $pt) . '_is_active', 'value' => '1'],
+                    ['key' => $type_keys['active_key'], 'value' => '1'],
                 ],
             ];
 
@@ -108,7 +109,6 @@ class TAP_Ajax {
             $query = new WP_Query($args);
 
             foreach ($query->posts as $post) {
-                $prefix = '_tap_' . str_replace('tap_', '', $pt);
                 $results[] = [
                     'id'        => $post->ID,
                     'title'     => $post->post_title,
@@ -120,6 +120,12 @@ class TAP_Ajax {
                 ];
             }
         }
+
+        usort($results, function ($a, $b) {
+            $fa = (int) TAP_Promotions::is_featured($a['id']);
+            $fb = (int) TAP_Promotions::is_featured($b['id']);
+            return $fb - $fa;
+        });
 
         wp_send_json_success([
             'results' => $results,
@@ -454,6 +460,32 @@ class TAP_Ajax {
         global $wpdb;
         $sub = "(SELECT AVG(r.rating) FROM {$wpdb->prefix}tap_reviews r WHERE r.service_type = 'tap_accommodation' AND r.service_id = {$wpdb->posts}.ID AND r.is_approved = 1)";
         $clauses['orderby'] = $sub . ' DESC, ' . $wpdb->posts . '.ID DESC';
+        return $clauses;
+    }
+
+    public static function featured_sort_clauses($clauses, $wp_query) {
+        if (is_admin() || !$wp_query->is_main_query()) return $clauses;
+
+        $types = (array) $wp_query->get('post_type');
+        $types = array_filter($types);
+        if (empty($types) && $wp_query->is_search()) {
+            $types = ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
+        }
+        if (empty($types)) return $clauses;
+
+        $guards = [];
+        foreach ($types as $type) {
+            $keys = class_exists('TAP_Promotions') ? TAP_Promotions::keys_for_type($type) : null;
+            if (!$keys) continue;
+            global $wpdb;
+            $flag = "(SELECT pm.meta_value FROM {$wpdb->postmeta} pm WHERE pm.post_id = {$wpdb->posts}.ID AND pm.meta_key = '{$keys['flag_key']}' LIMIT 1)";
+            $until = "(SELECT pu.meta_value FROM {$wpdb->postmeta} pu WHERE pu.post_id = {$wpdb->posts}.ID AND pu.meta_key = '{$keys['until_key']}' LIMIT 1)";
+            $guards[] = "(COALESCE({$flag}, '') = '1' AND COALESCE({$until}, '') >= CURDATE())";
+        }
+        if (empty($guards)) return $clauses;
+
+        $featured = '(CASE WHEN ' . implode(' OR ', $guards) . " THEN 0 ELSE 1 END)";
+        $clauses['orderby'] = $featured . ' ASC' . ($clauses['orderby'] ? ', ' . $clauses['orderby'] : '');
         return $clauses;
     }
 
