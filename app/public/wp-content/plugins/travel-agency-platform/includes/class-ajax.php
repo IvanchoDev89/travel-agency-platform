@@ -649,6 +649,30 @@ class TAP_Ajax {
         ]);
     }
 
+    public static function agency_subscribe() {
+        check_ajax_referer('tap_plan_nonce', 'nonce');
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => __('Authentication required', 'travel-agency-platform')]);
+        }
+        $user   = wp_get_current_user();
+        $agency = self::current_agency_for($user->ID);
+        if (!$agency) {
+            wp_send_json_error(['message' => __('Only agencies can subscribe to a plan.', 'travel-agency-platform')]);
+        }
+        $plan_id = isset($_POST['plan_id']) ? intval($_POST['plan_id']) : 0;
+        if (!$plan_id) {
+            wp_send_json_error(['message' => __('Invalid plan.', 'travel-agency-platform')]);
+        }
+        $result = TAP_Subscriptions::subscribe($agency, $plan_id);
+        if (is_wp_error($result)) {
+            wp_send_json_error(['message' => $result->get_error_message()]);
+        }
+        wp_send_json_success([
+            'message' => __('Subscription requested. An administrator will confirm the payment to activate your plan.', 'travel-agency-platform'),
+            'status'  => 'pending',
+        ]);
+    }
+
     private static function current_agency_for( $user_id ) {
         if ( user_can( $user_id, 'manage_options' ) ) {
             return null;
@@ -684,6 +708,13 @@ class TAP_Ajax {
         $title = isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '';
         if ( '' === $title ) {
             wp_send_json_error( [ 'message' => __( 'Name is required', 'travel-agency-platform' ) ] );
+        }
+
+        if ( null !== $agency && class_exists('TAP_Subscriptions') ) {
+            $limit = TAP_Subscriptions::listing_limit( $agency );
+            if ( $limit >= 0 && ! $listing_id && TAP_Subscriptions::listing_count( $agency ) >= $limit ) {
+                wp_send_json_error( [ 'message' => sprintf( __( 'Your plan allows a maximum of %d listings. Upgrading your plan unlocks more.', 'travel-agency-platform' ), $limit ) ] );
+            }
         }
 
         $post = [

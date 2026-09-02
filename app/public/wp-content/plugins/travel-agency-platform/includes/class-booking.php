@@ -365,6 +365,12 @@ class TAP_Booking {
 
     public static function get_agency_commission($agency_id) {
         if (!$agency_id) return 10;
+        if (class_exists('TAP_Subscriptions')) {
+            $rate = TAP_Subscriptions::commission_rate_for_agency($agency_id);
+            if ($rate !== null) {
+                return $rate;
+            }
+        }
         $commission = get_post_meta($agency_id, '_tap_agency_commission', true);
         return $commission ? floatval($commission) : 10;
     }

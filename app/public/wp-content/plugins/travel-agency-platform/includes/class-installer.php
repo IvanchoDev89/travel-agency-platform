@@ -199,9 +199,67 @@ class TAP_Installer {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_reviews ADD COLUMN reply_at datetime DEFAULT NULL AFTER reply_author");
         }
 
-        $cols_bookings = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
-        if (!in_array('guest_name', $cols_bookings)) {
-            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN guest_name varchar(100) DEFAULT NULL AFTER notes");
+$cols_bookings = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
+        if (!in_array('booking_fee', $cols_bookings)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN booking_fee decimal(15,2) DEFAULT 0.00 AFTER total_amount");
+        }
+
+        $plans_table = $wpdb->prefix . 'tap_plans';
+        if ($wpdb->get_var("SHOW TABLES LIKE '{$plans_table}'") !== $plans_table) {
+            $wpdb->query("CREATE TABLE {$plans_table} (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                name varchar(100) NOT NULL,
+                slug varchar(50) NOT NULL,
+                price_monthly decimal(10,2) NOT NULL DEFAULT 0,
+                commission_rate decimal(5,2) DEFAULT NULL,
+                listing_limit int(11) DEFAULT 3,
+                featured_slots int(11) DEFAULT 0,
+                features text,
+                is_active tinyint(1) DEFAULT 1,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                UNIQUE KEY slug (slug)
+            ) {$wpdb->get_charset_collate()}");
+        }
+
+        $subs_table = $wpdb->prefix . 'tap_agency_subscriptions';
+        if ($wpdb->get_var("SHOW TABLES LIKE '{$subs_table}'") !== $subs_table) {
+            $wpdb->query("CREATE TABLE {$subs_table} (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                agency_id bigint(20) NOT NULL,
+                plan_id bigint(20) NOT NULL,
+                status varchar(20) DEFAULT 'pending',
+                paid_until date DEFAULT NULL,
+                payment_status varchar(20) DEFAULT 'pending',
+                payment_method varchar(20) DEFAULT 'manual',
+                notes text,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY agency_id (agency_id)
+            ) {$wpdb->get_charset_collate()}");
+        }
+
+        $plan_count = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$plans_table}");
+        if (0 === $plan_count) {
+            $wpdb->insert($plans_table, [
+                'name' => 'Gratis', 'slug' => 'free', 'price_monthly' => 0,
+                'commission_rate' => null, 'listing_limit' => 3, 'featured_slots' => 0,
+                'features' => wp_json_encode(['3 listados', 'Comisión estándar', 'Sin destacados']),
+                'is_active' => 1,
+            ]);
+            $wpdb->insert($plans_table, [
+                'name' => 'Básico', 'slug' => 'basic', 'price_monthly' => 9,
+                'commission_rate' => 8, 'listing_limit' => 10, 'featured_slots' => 1,
+                'features' => wp_json_encode(['10 listados', 'Comisión 8%', '1 destacado / mes']),
+                'is_active' => 1,
+            ]);
+            $wpdb->insert($plans_table, [
+                'name' => 'Pro', 'slug' => 'pro', 'price_monthly' => 19,
+                'commission_rate' => 5, 'listing_limit' => -1, 'featured_slots' => 3,
+                'features' => wp_json_encode(['Listados ilimitados', 'Comisión 5%', '3 destacados / mes', 'Soporte prioritario']),
+                'is_active' => 1,
+            ]);
         }
         if (!in_array('guest_email', $cols_bookings)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN guest_email varchar(150) DEFAULT NULL AFTER guest_name");
@@ -214,9 +272,6 @@ class TAP_Installer {
         }
         if (!in_array('cancelled_by', $cols_bookings)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN cancelled_by varchar(20) DEFAULT NULL AFTER cancel_requested_at");
-        }
-        if (!in_array('booking_fee', $cols_bookings)) {
-            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN booking_fee decimal(15,2) DEFAULT 0.00 AFTER total_amount");
         }
     }
 }

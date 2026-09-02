@@ -78,6 +78,24 @@ class TAP_Dashboard {
 
         add_submenu_page(
             'travel-platform',
+            __('Plans', 'travel-agency-platform'),
+            __('Plans', 'travel-agency-platform'),
+            'manage_options',
+            'tap-plans',
+            [__CLASS__, 'plans_page']
+        );
+
+        add_submenu_page(
+            'travel-platform',
+            __('Subscriptions', 'travel-agency-platform'),
+            __('Subscriptions', 'travel-agency-platform'),
+            'manage_options',
+            'tap-subscriptions',
+            [__CLASS__, 'subscriptions_page']
+        );
+
+        add_submenu_page(
+            'travel-platform',
             __('Settings', 'travel-agency-platform'),
             __('Settings', 'travel-agency-platform'),
             'tap_manage_settings',
@@ -1011,6 +1029,135 @@ class TAP_Dashboard {
             </table>
         </div>
         <?php
+    }
+
+    public static function plans_page() {
+        global $wpdb;
+        $t = $wpdb->prefix . 'tap_plans';
+
+        if (isset($_POST['tap_save_plans']) && isset($_POST['_wpnonce']) && wp_verify_nonce($_POST['_wpnonce'], 'tap_save_plans')) {
+            foreach ((array) ($_POST['tap_plans'] ?? []) as $id => $row) {
+                $id = (int) $id;
+                $existing = $wpdb->get_row($wpdb->prepare("SELECT * FROM $t WHERE id = %d", $id));
+                if (!$existing) {
+                    continue;
+                }
+                $wpdb->update(
+                    $t,
+                    [
+                        'name'           => sanitize_text_field($row['name'] ?? $existing->name),
+                        'price_monthly'  => max(0, floatval($row['price_monthly'] ?? $existing->price_monthly)),
+                        'commission_rate'=> (isset($row['commission_rate']) && $row['commission_rate'] !== '') ? max(0, floatval($row['commission_rate'])) : null,
+                        'listing_limit'  => (int) ($row['listing_limit'] ?? $existing->listing_limit),
+                        'featured_slots' => max(0, (int) ($row['featured_slots'] ?? $existing->featured_slots)),
+                        'features'       => sanitize_textarea_field($row['features'] ?? ''),
+                        'is_active'      => !empty($row['is_active']) ? 1 : 0,
+                    ],
+                    ['id' => $id]
+                );
+            }
+            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Plans saved.', 'travel-agency-platform') . '</p></div>';
+        }
+
+        echo '<div class="wrap"><h1>' . esc_html__('Subscription Plans', 'travel-agency-platform') . '</h1>';
+        echo '<p class="description">' . esc_html__('Commission rate (%) is used while the plan is active; leave blank to keep the agency/global commission. Listing limit -1 = unlimited.', 'travel-agency-platform') . '</p>';
+        echo '<form method="post">';
+        wp_nonce_field('tap_save_plans');
+        echo '<table class="wp-list-table widefat fixed striped"><thead><tr>';
+        foreach (['Plan', 'Precio/mes', 'Comisión %', 'Límite listados', 'Destacados', 'Features', 'Activo'] as $h) {
+            echo '<th>' . esc_html($h) . '</th>';
+        }
+        echo '</tr></thead><tbody>';
+        foreach ($wpdb->get_results("SELECT * FROM $t ORDER BY price_monthly ASC, id ASC") as $p) {
+            $features_txt = implode("\n", (array) json_decode($p->features ?: '', true)) ?: $p->features;
+            echo '<tr>';
+            echo '<td><input type="text" name="tap_plans[' . (int) $p->id . '][name]" value="' . esc_attr($p->name) . '" class="regular-text"></td>';
+            echo '<td><input type="number" name="tap_plans[' . (int) $p->id . '][price_monthly]" value="' . esc_attr($p->price_monthly) . '" min="0" step="0.01" style="width:90px;"></td>';
+            echo '<td><input type="number" name="tap_plans[' . (int) $p->id . '][commission_rate]" value="' . esc_attr($p->commission_rate === null ? '' : $p->commission_rate) . '" min="0" step="0.01" style="width:70px;" placeholder="estándar"></td>';
+            echo '<td><input type="number" name="tap_plans[' . (int) $p->id . '][listing_limit]" value="' . esc_attr($p->listing_limit) . '" style="width:80px;"></td>';
+            echo '<td><input type="number" name="tap_plans[' . (int) $p->id . '][featured_slots]" value="' . esc_attr($p->featured_slots) . '" min="0" style="width:70px;"></td>';
+            echo '<td><textarea name="tap_plans[' . (int) $p->id . '][features]" rows="3" cols="30" placeholder="una por línea">' . esc_textarea($features_txt) . '</textarea></td>';
+            echo '<td><input type="checkbox" name="tap_plans[' . (int) $p->id . '][is_active]" value="1" ' . checked(1, $p->is_active, false) . '></td>';
+            echo '</tr>';
+        }
+        echo '</tbody></table>';
+        submit_button(__('Save plans', 'travel-agency-platform'), 'primary', 'tap_save_plans');
+        echo '</form></div>';
+    }
+
+    public static function subscriptions_page() {
+        global $wpdb;
+        $t_sub  = $wpdb->prefix . 'tap_agency_subscriptions';
+        $t_plan = $wpdb->prefix . 'tap_plans';
+        $t_age  = $wpdb->prefix . 'tap_agencies';
+
+        if (isset($_POST['tap_mark_paid']) && isset($_POST['_wpnonce']) && wp_verify_nonce($_POST['_wpnonce'], 'tap_mark_subscription_paid')) {
+            $sub_id = (int) ($_POST['sub_id'] ?? 0);
+            $months = (int) ($_POST['months'] ?? 1);
+            $result = TAP_Subscriptions::mark_paid($sub_id, get_current_user_id(), $months);
+            if (is_wp_error($result)) {
+                echo '<div class="notice notice-error is-dismissible"><p>' . esc_html($result->get_error_message()) . '</p></div>';
+            } else {
+                echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Subscription marked as paid until ' . $result, 'travel-agency-platform') . '</p></div>';
+            }
+        }
+
+        if (isset($_POST['tap_expire_sub']) && isset($_POST['_wpnonce']) && wp_verify_nonce($_POST['_wpnonce'], 'tap_expire_subscription')) {
+            $wpdb->update($t_sub, ['status' => 'expired'], ['id' => (int) ($_POST['sub_id'] ?? 0)]);
+            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Subscription expired.', 'travel-agency-platform') . '</p></div>';
+        }
+
+        $subs = $wpdb->get_results(
+            "SELECT s.*, a.name AS agency_name, p.name AS plan_name, p.price_monthly
+             FROM $t_sub s
+             LEFT JOIN $t_age a ON a.id = s.agency_id
+             LEFT JOIN $t_plan p ON p.id = s.plan_id
+             ORDER BY s.created_at DESC LIMIT 200"
+        );
+        $pending = (int) $wpdb->get_var("SELECT COUNT(*) FROM $t_sub WHERE status = 'pending'");
+        $active  = (int) $wpdb->get_var("SELECT COUNT(*) FROM $t_sub WHERE status = 'active'");
+
+        echo '<div class="wrap">';
+        echo '<h1>' . esc_html__('Agency Subscriptions', 'travel-agency-platform') . '</h1>';
+        echo '<div class="tap-stat-grid" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;">';
+        echo '<div class="tap-stat-card"><span class="tap-stat-number">' . esc_html($active) . '</span><span class="tap-stat-label">' . esc_html__('Activas', 'travel-agency-platform') . '</span></div>';
+        echo '<div class="tap-stat-card"><span class="tap-stat-number" style="color:#b45309;">' . esc_html($pending) . '</span><span class="tap-stat-label">' . esc_html__('Pendientes de pago', 'travel-agency-platform') . '</span></div>';
+        echo '</div>';
+        echo '<table class="wp-list-table widefat fixed striped"><thead><tr>';
+        foreach (['Agencia', 'Plan', 'Precio', 'Estado', 'Pagado hasta', 'Pago', 'Creado', 'Acciones'] as $h) {
+            echo '<th>' . esc_html($h) . '</th>';
+        }
+        echo '</tr></thead><tbody>';
+        if (!$subs) {
+            echo '<tr><td colspan="8">' . esc_html__('No subscriptions yet.', 'travel-agency-platform') . '</td></tr>';
+        }
+        foreach ($subs as $s) {
+            $status_color = 'active' === $s->status ? '#047857' : ('pending' === $s->status ? '#b45309' : '#94a3b8');
+            echo '<tr>';
+            echo '<td>' . esc_html($s->agency_name ?: ('#' . $s->agency_id)) . '</td>';
+            echo '<td>' . esc_html($s->plan_name ?: '—') . '</td>';
+            echo '<td>' . esc_html(TAP_Currency::fmt($s->price_monthly)) . '/mes</td>';
+            echo '<td style="color:' . esc_attr($status_color) . ';font-weight:600;">' . esc_html($s->status) . '</td>';
+            echo '<td>' . esc_html($s->paid_until ?: '—') . '</td>';
+            echo '<td>' . esc_html($s->payment_method . ' · ' . $s->payment_status) . '</td>';
+            echo '<td>' . esc_html($s->created_at) . '</td>';
+            echo '<td>';
+            echo '<form method="post" style="display:inline-block;margin-right:8px;">';
+            wp_nonce_field('tap_mark_subscription_paid');
+            echo '<input type="hidden" name="sub_id" value="' . (int) $s->id . '">';
+            echo '<input type="number" name="months" value="1" min="1" max="24" style="width:60px;">';
+            submit_button(__('Marcar pagado', 'travel-agency-platform'), 'small', 'tap_mark_paid', false);
+            echo '</form>';
+            if ('expired' !== $s->status) {
+                echo '<form method="post" style="display:inline-block;">';
+                wp_nonce_field('tap_expire_subscription');
+                echo '<input type="hidden" name="sub_id" value="' . (int) $s->id . '">';
+                submit_button(__('Expirar', 'travel-agency-platform'), 'small', 'tap_expire_sub', false);
+                echo '</form>';
+            }
+            echo '</td></tr>';
+        }
+        echo '</tbody></table></div>';
     }
 
     public static function settings_page() {

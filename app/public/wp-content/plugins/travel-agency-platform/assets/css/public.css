@@ -923,3 +923,100 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
   background: #fef2f2;
   color: #b91c1c;
 }
+
+.tap-plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--tap-space-5);
+  margin-bottom: var(--tap-space-6);
+}
+
+.tap-plan-card {
+  background: #fff;
+  border: 1px solid var(--tap-neutral-200);
+  border-radius: var(--tap-radius-xl);
+  padding: var(--tap-space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--tap-space-3);
+  box-shadow: var(--tap-shadow-sm);
+}
+
+.tap-plan-card.tap-plan-active {
+  border-color: var(--tap-primary);
+  box-shadow: 0 0 0 1px var(--tap-primary);
+}
+
+.tap-plan-head h3 {
+  margin: 0;
+  font-size: var(--tap-text-lg);
+  color: var(--tap-neutral-900);
+}
+
+.tap-plan-price {
+  font-size: var(--tap-text-2xl);
+  font-weight: 800;
+  color: var(--tap-neutral-900);
+  margin: 0;
+}
+
+.tap-plan-price span {
+  font-size: var(--tap-text-sm);
+  font-weight: 500;
+  color: var(--tap-neutral-400);
+}
+
+.tap-plan-features {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--tap-space-2);
+  font-size: var(--tap-text-sm);
+  color: var(--tap-neutral-600);
+}
+
+.tap-plan-features li {
+  padding-left: var(--tap-space-4);
+  position: relative;
+}
+
+.tap-plan-features li::before {
+  content: "\2713";
+  position: absolute;
+  left: 0;
+  color: var(--tap-primary);
+  font-weight: 700;
+}
+
+.tap-plan-badge {
+  margin: 0;
+  text-align: center;
+  font-size: var(--tap-text-sm);
+  font-weight: 700;
+  color: var(--tap-primary);
+}
+
+.tap-plan-badge.tap-plan-pending {
+  color: #b45309;
+}
+
+.tap-plan-note {
+  font-size: var(--tap-text-sm);
+  color: var(--tap-neutral-500);
+}
+
+.tap-plan-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--tap-space-3);
+  margin-bottom: var(--tap-space-4);
+  padding-bottom: var(--tap-space-4);
+  border-bottom: 1px solid var(--tap-neutral-100);
+}
+
+.tap-plan-summary strong {
+  color: var(--tap-neutral-900);
+}

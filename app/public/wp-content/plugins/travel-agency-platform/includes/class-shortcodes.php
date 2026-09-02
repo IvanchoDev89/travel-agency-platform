@@ -18,6 +18,7 @@ class TAP_Shortcodes {
             'tap_agency_manage'  => [__CLASS__, 'agency_manage'],
             'tap_booking_detail' => [__CLASS__, 'booking_detail'],
             'tap_favorites'      => [__CLASS__, 'favorites'],
+            'tap_plans'         => [__CLASS__, 'plans'],
         ];
 
         foreach ($shortcodes as $tag => $callback) {
@@ -620,6 +621,31 @@ class TAP_Shortcodes {
                 <a href="<?php echo esc_url(home_url('/agency-profile/?id=' . $agency_id)); ?>" class="tap-btn"><?php esc_html_e('View Public Profile', 'travel-agency-platform'); ?></a>
             </div>
 
+            <?php if ($agency_id && class_exists('TAP_Subscriptions')):
+                $tap_plan    = TAP_Subscriptions::active_plan($agency_id);
+                $tap_current = TAP_Subscriptions::current_subscription($agency_id);
+                $tap_limit   = TAP_Subscriptions::listing_limit($agency_id);
+                $tap_used    = TAP_Subscriptions::listing_count($agency_id);
+            ?>
+            <div class="tap-plan-summary">
+                <span><?php esc_html_e('Plan', 'travel-agency-platform'); ?>: <strong><?php echo esc_html($tap_plan->name); ?></strong></span>
+                <?php if (!empty($tap_plan->paid_until)): ?>
+                    <span><?php esc_html_e('Válido hasta', 'travel-agency-platform'); ?>: <strong><?php echo esc_html($tap_plan->paid_until); ?></strong></span>
+                <?php endif; ?>
+                <span><?php esc_html_e('Listados', 'travel-agency-platform'); ?>: <strong><?php echo (int) $tap_limit < 0 ? esc_html__('Ilimitados', 'travel-agency-platform') : esc_html($tap_used . ' / ' . $tap_limit); ?></strong></span>
+                <span><?php esc_html_e('Comisión', 'travel-agency-platform'); ?>: <strong><?php echo esc_html($commission); ?>%</strong></span>
+                <a href="<?php echo esc_url(home_url('/planes/')); ?>" class="tap-btn tap-btn-sm"><?php esc_html_e('Ver planes', 'travel-agency-platform'); ?></a>
+            </div>
+            <?php if ($tap_current && 'pending' === $tap_current->status): ?>
+                <div class="tap-capacity-note" style="background:#fffbeb;color:#92400e;font-size:13px;font-weight:600;padding:10px 14px;border-radius:10px;margin-bottom:16px;">
+                    <?php esc_html_e('Tienes una suscripción pendiente de confirmación de pago.', 'travel-agency-platform'); ?>
+                </div>
+            <?php elseif ((int) $tap_limit >= 0 && $tap_used >= (int) $tap_limit): ?>
+                <div class="tap-capacity-note tap-full" style="margin-bottom:16px;">
+                    <?php echo esc_html(sprintf(__('Alcanzaste el límite de %d listados de tu plan. Mejora de plan para publicar más.', 'travel-agency-platform'), (int) $tap_limit)); ?>
+                </div>
+            <?php endif; endif; ?>
+
             <div class="tap-stats-grid">
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html($stats['total']); ?></span><span class="tap-stat-label"><?php esc_html_e('Total Bookings', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html($stats['pending']); ?></span><span class="tap-stat-label"><?php esc_html_e('Pending', 'travel-agency-platform'); ?></span></div>
@@ -812,6 +838,95 @@ class TAP_Shortcodes {
         })(jQuery);
         </script>
         <?php
+    }
+
+    public static function plans($atts) {
+        if (!class_exists('TAP_Subscriptions')) {
+            return '<p class="tap-empty">' . esc_html__('Plans are not available.', 'travel-agency-platform') . '</p>';
+        }
+        $plans = TAP_Subscriptions::get_plans();
+        if (!$plans) {
+            return '<p class="tap-empty">' . esc_html__('No plans configured yet.', 'travel-agency-platform') . '</p>';
+        }
+
+        $user      = wp_get_current_user();
+        $agency_id = 0;
+        if (is_user_logged_in()) {
+            $agency_id = (int) TAP_Booking::get_agency_for_user($user->ID);
+        }
+        $current      = $agency_id ? TAP_Subscriptions::current_subscription($agency_id) : null;
+        $active_plan  = $agency_id ? TAP_Subscriptions::active_plan($agency_id) : null;
+        $nonce        = wp_create_nonce('tap_plan_nonce');
+
+        $html = '<div class="tap-plans-grid">';
+        foreach ($plans as $plan) {
+            $is_current  = $active_plan && (int) $active_plan->id === (int) $plan->id;
+            $is_pending  = $current && 'pending' === $current->status && (int) $current->plan_id === (int) $plan->id;
+            $features    = json_decode($plan->features ?: '', true);
+            if (!is_array($features)) {
+                $features = array_filter(array_map('trim', explode("\n", (string) $plan->features)));
+            }
+            $limit_txt = (int) $plan->listing_limit < 0
+                ? __('Listados ilimitados', 'travel-agency-platform')
+                : sprintf(__('Hasta %d listados', 'travel-agency-platform'), (int) $plan->listing_limit);
+            $commission_txt = null !== $plan->commission_rate
+                ? sprintf(__('Comisión solo %s%%', 'travel-agency-platform'), (float) $plan->commission_rate)
+                : __('Comisión estándar', 'travel-agency-platform');
+
+            $html .= '<div class="tap-plan-card' . ($is_current ? ' tap-plan-active' : '') . '">';
+            $html .= '<div class="tap-plan-head">';
+            $html .= '<h3>' . esc_html($plan->name) . '</h3>';
+            $html .= '<p class="tap-plan-price">' . esc_html(TAP_Currency::fmt($plan->price_monthly)) . ' <span>' . esc_html__('/mes', 'travel-agency-platform') . '</span></p>';
+            $html .= '</div>';
+            $html .= '<ul class="tap-plan-features">';
+            $html .= '<li>' . esc_html($limit_txt) . '</li>';
+            $html .= '<li>' . esc_html($commission_txt) . '</li>';
+            $html .= '<li>' . sprintf(esc_html__('%d destacado(s)', 'travel-agency-platform'), (int) $plan->featured_slots) . '</li>';
+            foreach ($features as $f) {
+                if (is_string($f) && '' !== trim($f)) {
+                    $html .= '<li>' . esc_html($f) . '</li>';
+                }
+            }
+            $html .= '</ul>';
+            if ($is_current) {
+                $html .= '<p class="tap-plan-badge">' . esc_html__('Plan actual', 'travel-agency-platform') . '</p>';
+            } elseif ($is_pending) {
+                $html .= '<p class="tap-plan-badge tap-plan-pending">' . esc_html__('Pago pendiente de confirmación', 'travel-agency-platform') . '</p>';
+            } elseif ($agency_id) {
+                $html .= '<button type="button" class="tap-btn tap-btn-primary tap-plan-subscribe" data-plan-id="' . (int) $plan->id . '" data-nonce="' . esc_attr($nonce) . '">' . esc_html__('Seleccionar plan', 'travel-agency-platform') . '</button>';
+            }
+            $html .= '</div>';
+        }
+        $html .= '</div>';
+
+        if ($agency_id && !$current) {
+            $html .= '<p class="tap-plan-note">' . esc_html__('Tu agencia usa el plan Gratis. Elige un plan para desbloquear más listados y una comisión menor.', 'travel-agency-platform') . '</p>';
+        } elseif (!$agency_id) {
+            $html .= '<p class="tap-plan-note">' . esc_html__('Inicia sesión como agencia para seleccionar un plan.', 'travel-agency-platform') . '</p>';
+        }
+
+        $html .= '<script>
+        (function($){
+          $(document).on("click", ".tap-plan-subscribe", function(){
+            var $btn = $(this).prop("disabled", true);
+            $.post(tap_ajax.ajax_url, {
+              action: "tap_agency_subscribe",
+              plan_id: $btn.data("plan-id"),
+              nonce: $btn.data("nonce")
+            }).done(function(res){
+              if (res && res.success) {
+                alert(res.data.message);
+                window.location.reload();
+              } else {
+                alert(res && res.data && res.data.message ? res.data.message : "Error");
+                $btn.prop("disabled", false);
+              }
+            }).fail(function(){ alert("Error"); $btn.prop("disabled", false); });
+          });
+        })(jQuery);
+        </script>';
+
+        return $html;
     }
 
     public static function featured_services($atts) {

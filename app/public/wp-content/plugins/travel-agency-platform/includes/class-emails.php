@@ -22,6 +22,7 @@ class TAP_Emails {
         add_action('tap_booking_status_updated', [__CLASS__, 'on_status_updated'], 10, 2);
         add_action('tap_payment_completed', [__CLASS__, 'on_payment_completed'], 10, 3);
         add_action('tap_agency_registered', [__CLASS__, 'on_agency_registered'], 10, 2);
+        add_action('tap_subscription_paid', [__CLASS__, 'on_subscription_paid'], 10, 3);
         add_action('tap_commission_paid', [__CLASS__, 'on_commission_paid'], 10, 2);
         add_filter('wp_mail_content_type', [__CLASS__, 'set_html_content_type']);
         add_action('wp_mail_failed', function ($error) {
@@ -226,6 +227,38 @@ class TAP_Emails {
             true
         );
 
+        self::send($to, $subject, $body);
+    }
+
+    public static function on_subscription_paid($agency_id, $plan_id, $until) {
+        $plan = class_exists('TAP_Subscriptions') ? TAP_Subscriptions::get_plan($plan_id) : null;
+        self::send_subscription_paid($agency_id, $plan ? $plan->name : __('tu plan', 'travel-agency-platform'), $until);
+    }
+
+    public static function send_subscription_paid($agency_id, $plan_name, $until) {
+        $to = self::get_agency_email($agency_id);
+        if (!$to) return;
+        $subject = sprintf(__('[Plan activado] %s', 'travel-agency-platform'), $plan_name);
+        $heading = __('Tu plan está activo', 'travel-agency-platform');
+        $body = '<!DOCTYPE html><html><body style="margin:0;padding:0;background-color:#f1f5f9;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f1f5f9;padding:32px 16px;">
+          <tr><td align="center">
+            <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:16px;overflow:hidden;">
+              <tr><td style="background-color:#0d9488;padding:24px 32px;">
+                <div style="color:#ffffff;font-size:22px;font-weight:700;">Travel Agency</div>
+              </td></tr>
+              <tr><td style="padding:32px;">
+                <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#16a34a;margin-bottom:8px;">' . esc_html__('Suscripción', 'travel-agency-platform') . '</div>
+                <h1 style="font-size:22px;color:#0f172a;margin:0 0 8px;line-height:1.3;">' . esc_html($heading) . '</h1>
+                <p style="font-size:15px;color:#64748b;line-height:1.6;margin:0 0 24px;">' .
+                    sprintf(esc_html__('Se confirmó el pago de tu suscripción al plan <strong>%s</strong>. Tu plan es válido hasta el <strong>%s</strong>. Gracias por confiar en la plataforma.', 'travel-agency-platform'),
+                        esc_html($plan_name),
+                        esc_html($until)) . '</p>
+                <p style="font-size:13px;color:#94a3b8;margin:0;">' . esc_html__('Travel Agency Platform', 'travel-agency-platform') . '</p>
+              </td></tr>
+            </table>
+          </td></tr>
+        </table></body></html>';
         self::send($to, $subject, $body);
     }
 

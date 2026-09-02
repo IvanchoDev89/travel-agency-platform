@@ -151,8 +151,9 @@ The reply (with author and timestamp) is shown alongside the original review. Re
 ## Track bookings & commissions
 
 - Monitor incoming bookings and their statuses.
-- Review generated commissions per booking.
+- Review generated commissions per booking (calculated on the service subtotal, before the client booking fee).
 - Commission totals are tracked in the platform's commission ledger for settlement.
+- The agency panel shows your **current plan** (plan name, valid until, listings used, and commission rate).
 
 ---
 
@@ -168,6 +169,11 @@ The reply (with author and timestamp) is shown alongside the original review. Re
 - Review commission amounts owed per agency and per booking.
 - Record commission settlements in the ledger.
 - Track `owed` vs. settled commission across the platform.
+
+## Manage subscription plans
+
+- **Plans** (admin → Plans): edit each plan's price, commission rate, listing limit, and featured slots.
+- **Subscriptions** (admin → Subscriptions): see every agency's current/past subscriptions. When an agency requests a plan, its subscription is **Pending** until you confirm the payment — use **Mark paid** (select renewal months) to activate it, or **Expire** to cancel it. Confirmed payments notify the agency by email, and the plan takes effect immediately.
 
 ---
 

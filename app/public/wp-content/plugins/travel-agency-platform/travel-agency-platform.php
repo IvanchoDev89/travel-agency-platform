@@ -48,6 +48,7 @@ final class TravelAgencyPlatform {
         require_once TAP_PLUGIN_DIR . 'includes/class-payment.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-emails.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-seo.php';
+        require_once TAP_PLUGIN_DIR . 'includes/class-subscriptions.php';
     }
 
     private function init_hooks() {
@@ -103,6 +104,8 @@ final class TravelAgencyPlatform {
         add_action('wp_ajax_tap_agency_save_room', ['TAP_Ajax', 'agency_save_room']);
         add_action('wp_ajax_tap_agency_delete_room', ['TAP_Ajax', 'agency_delete_room']);
         add_action('wp_ajax_tap_toggle_favorite', ['TAP_Ajax', 'toggle_favorite']);
+        add_action('wp_ajax_tap_agency_subscribe', ['TAP_Ajax', 'agency_subscribe']);
+        add_action('init', ['TAP_Subscriptions', 'init'], 14);
         add_shortcode('tap_checkout', ['TAP_Shortcodes', 'checkout']);
     }
 

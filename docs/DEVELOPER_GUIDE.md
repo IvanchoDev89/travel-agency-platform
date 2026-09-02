@@ -246,6 +246,32 @@ Commission settlement ledger.
 | `method` / `note` | |
 | `created_by` / `created_at` | |
 
+### `{prefix}tap_plans`
+
+Subscription plans (seeded: Gratis / Básico / Pro).
+
+| Column | Notes |
+| --- | --- |
+| `id` / `name` / `slug` | Slug is unique. |
+| `price_monthly` | Monthly price. |
+| `commission_rate` | `NULL` = keep agency/global commission; otherwise overrides while active. |
+| `listing_limit` | `-1` = unlimited. |
+| `featured_slots` | Featured slots included. |
+| `features` | JSON array of feature strings. |
+| `is_active` / `created_at` | |
+
+### `{prefix}tap_agency_subscriptions`
+
+Agency subscription lifecycle (`pending` → `active` → `expired`).
+
+| Column | Notes |
+| --- | --- |
+| `id` / `agency_id` / `plan_id` | |
+| `status` | `pending`, `active`, `expired`. |
+| `paid_until` | Active-until date (extended on renewal). |
+| `payment_status` / `payment_method` | `manual` marking of payments. |
+| `notes` / `created_at` / `updated_at` | |
+
 ### Database Migrations
 
 Migrations live in `TAP_Installer::migrate()` and run from `create_tables()`.
@@ -304,6 +330,7 @@ Registered in `TravelAgencyPlatform::init_hooks()` via `admin-ajax.php`. Public 
 | `tap_agency_save_room` | `TAP_Ajax::agency_save_room` | — | Agency saves a room. |
 | `tap_agency_delete_room` | `TAP_Ajax::agency_delete_room` | — | Agency removes a room. |
 | `tap_toggle_favorite` | `TAP_Ajax::toggle_favorite` | — | Add/remove favorite. |
+| `tap_agency_subscribe` | `TAP_Ajax::agency_subscribe` | — | Agency subscribes to a plan (creates a pending subscription). |
 
 **Nonce handling**
 
@@ -337,6 +364,7 @@ Registered in `TAP_Shortcodes::init()`.
 | `[tap_booking_detail]` | Voucher page (accepts `?code=`). |
 | `[tap_favorites]` | Client wishlist. |
 | `[tap_checkout]` | Checkout flow. |
+| `[tap_plans]` | Subscription plans (renders plan cards + subscribe buttons). |
 
 ---
 
@@ -376,13 +404,15 @@ The platform exposes a small, stable set of hooks for extension.
 
 ## Monetization & the Booking Fee
 
-The platform monetizes through (1) **agency commissions** and (2) an optional **client booking fee**.
+The platform monetizes through (1) **agency commissions**, (2) an optional **client booking fee**, and (3) **agency subscription plans**.
 
-- **Settings** — `tap_booking_fee_type` (`none` | `fixed` | `percent`) and `tap_booking_fee_value` (amount or percentage), registered in `TAP_Admin_Dashboard::register_settings()` under the `tap_settings` group.
-- **Computation** — `TAP_Booking::get_booking_fee($subtotal)` returns the fee for a service subtotal.
+- **Booking fee settings** — `tap_booking_fee_type` (`none` | `fixed` | `percent`) and `tap_booking_fee_value` (amount or percentage), registered in `TAP_Admin_Dashboard::register_settings()` under the `tap_settings` group.
+- **Booking fee computation** — `TAP_Booking::get_booking_fee($subtotal)` returns the fee for a service subtotal.
 - **Total semantics** — `total_amount` = service subtotal + booking fee. `booking_fee` is stored separately so the agency commission is always calculated on the **subtotal** (fee belongs to the platform, never to the agency). Agency net = `total_amount − booking_fee − commission_amount`.
+- **Subscription plans** — `TAP_Subscriptions::active_plan($agency_id)` returns the active plan (or the free default). While active, its nonzero `commission_rate` overrides the agency commission in `TAP_Booking::get_agency_commission()`, and its `listing_limit` is enforced when the agency creates listings. Administration is manual: agencies request via `tap_agency_subscribe` (pending), admins confirm via the **Subscriptions** admin page (`TAP_Subscriptions::mark_paid()`), and expiry is automatic (`expire_active()`, run from an `init` transient guard).
 - **Reports** — `TAP_Admin_Dashboard::reports_page()` shows GMV, retained commissions, and booking fees; `get_booking_stats()` exposes `revenue`, `commission`, `net`, and `fees`.
 - **Adding a fee type** — extend `get_booking_fee()` and mirror the value in `calculate_booking_total` so the front-end breakdown stays consistent with the persisted booking.
+- **Adding a plan** — insert into `tap_plans` (or seed via `TAP_Installer::migrate()`); optional `commission_rate`, `listing_limit` (`-1` = unlimited), and `featured_slots` then take effect automatically.
 
 ---
 

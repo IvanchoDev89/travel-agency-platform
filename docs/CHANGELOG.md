@@ -72,6 +72,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
   - Fee computed in `TAP_Booking::get_booking_fee()` and added to the client total across booking forms (single-service and accommodation), the price calculator AJAX, the voucher, and reports.
   - Persisted in the new `booking_fee` column (migration) and excluded from agency commission (commission is calculated on the service subtotal, not on the fee).
   - Admin reports now show GMV, retained commissions, and booking fees.
+- **M3 — Agency subscriptions (monetization, phase 2)**:
+  - New tables `tap_plans` and `tap_agency_subscriptions` with seeded plans: **Gratis** (3 listings), **Básico** (10 listings, 8% commission), **Pro** (unlimited listings, 5% commission).
+  - `TAP_Subscriptions` class: subscribe → pending, manual payment confirmation via admin, paid-until extension/upgrade, automatic expiry.
+  - Commission override: while a plan is active, `get_agency_commission()` uses the plan rate.
+  - Listing-limit enforcement when an agency creates a new listing.
+  - Admin menus **Plans** (edit pricing/limits) and **Subscriptions** (mark paid / expire).
+  - New `[tap_plans]` shortcode (plans page at `/planes/`), plan summary card in the agency panel, and `tap_agency_subscribe` AJAX endpoint.
+  - Email notification to the agency when a subscription payment is confirmed.
 
 ---
 
