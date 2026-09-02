@@ -43,9 +43,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
-## [Unreleased / Next] — Planned
-
-> The following improvements were implemented and verified in the working round following `1.2.0` and are queued for release as **1.3.0**:
+## [1.3.0] — 2026-09-02
 
 ### Added
 
@@ -100,15 +98,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 ## How this version was built
 
 - **`1.2.0`** = the approved improvement batch (R1, C1, R4, F1, V1, S1, E1, H1).
-- **`pending 1.3.0`** = follow-up improvements (R2, R3, T1, P1, V2) plus the database schema migration to version `1.3.0`.
-
-> Pending items are listed under **Unreleased** until the plugin constant and `tap_db_version` are officially bumped to `1.3.0` in the release process.
+- **`1.3.0`** = follow-up improvements (R2, R3, T1, P1, V2) plus the monetization roadmap phases 1–5 (M1 net breakdown, M2 booking fee, M3 agency subscriptions, M4 featured promotions, M5 financial analytics).
 
 ---
 
 ## Version numbering
 
-| Version | Plugin constant | Schema |
-| --- | --- | --- |
-| 1.2.0 | `TAP_VERSION` = `1.2.0` | `1.2.0` |
-| (next) | `TAP_VERSION` = `1.3.0` | `1.3.0` |
+| Version | Plugin constant |
+| --- | --- |
+| 1.2.0 | `TAP_VERSION` = `1.2.0` |
+| 1.3.0 | `TAP_VERSION` = `1.3.0` |
+
+Schema upgrades are handled incrementally and idempotently by `TAP_Installer::migrate()` on startup whenever `tap_version` differs from `TAP_VERSION`.
