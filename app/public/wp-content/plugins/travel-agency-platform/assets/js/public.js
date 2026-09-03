@@ -295,15 +295,17 @@ jQuery(document).ready(function($) {
         init: function() {
             var self = this;
 
-            $(document).on('input', '#hs-destino', function() {
+            $(document).on('input', '.tap-search-destino input, #hs-destino', function() {
                 clearTimeout(self.timer);
                 self.active = -1;
                 var val = $(this).val();
+                self.input = this;
                 if (val.length < 2) { self.close(); return; }
                 self.timer = setTimeout(function() { self.search(val); }, 250);
             });
 
-            $(document).on('keydown', '#hs-destino', function(e) {
+            $(document).on('keydown', '.tap-search-destino input, #hs-destino', function(e) {
+                self.input = this;
                 var $box = $('.tap-hs-suggestions');
                 var count = $box.find('.tap-hs-suggestion-item').length;
                 if (!$box.is(':visible') || count === 0) return;
@@ -340,7 +342,7 @@ jQuery(document).ready(function($) {
             });
 
             $(document).on('click', function(e) {
-                if (!$(e.target).closest('.tap-hs-destino').length) {
+                if (!$(e.target).closest('.tap-search-destino, .tap-hs-destino').length) {
                     self.close();
                 }
             });
@@ -356,7 +358,8 @@ jQuery(document).ready(function($) {
             });
         },
         render: function(results) {
-            var $box = $('.tap-hs-suggestions');
+            var $box = $(this.input).closest('.tap-search-destino').find('.tap-hs-suggestions');
+            if (!$box.length) $box = $('.tap-hs-suggestions');
             if (!results || !results.length) { this.close(); return; }
 
             var self = this;
@@ -373,7 +376,7 @@ jQuery(document).ready(function($) {
                     '</div></a>';
             });
             $box.attr('role', 'listbox').html(html).show();
-            $('#hs-destino').attr('aria-expanded', 'true').attr('aria-activedescendant', '').attr('aria-controls', 'tap-hs-listbox');
+            $(this.input).attr('aria-expanded', 'true').attr('aria-activedescendant', '').attr('aria-controls', 'tap-hs-listbox');
             $box.attr('id', 'tap-hs-listbox');
             this.active = -1;
         },
@@ -386,12 +389,12 @@ jQuery(document).ready(function($) {
                 if ($el.length && $el[0].scrollIntoView) {
                     $el[0].scrollIntoView({ block: 'nearest' });
                 }
-                $('#hs-destino').attr('aria-activedescendant', $el.attr('id'));
+                $(this.input).attr('aria-activedescendant', $el.attr('id'));
             }
         },
         close: function() {
             $('.tap-hs-suggestions').hide().empty();
-            $('#hs-destino').attr('aria-expanded', 'false').removeAttr('aria-activedescendant');
+            $(this.input || '#hs-destino').attr('aria-expanded', 'false').removeAttr('aria-activedescendant');
             this.items = [];
             this.active = -1;
         }

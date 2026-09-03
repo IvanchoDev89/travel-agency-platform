@@ -29,6 +29,8 @@ class TAP_Metaboxes {
             '_tap_agency_commission'=> ['type' => 'number', 'label' => __('Commission %', 'travel-agency-platform'), 'step' => '0.01', 'default' => '10'],
             '_tap_agency_verified'  => ['type' => 'checkbox', 'label' => __('Verified Agency', 'travel-agency-platform')],
             '_tap_agency_user_id'   => ['type' => 'number', 'label' => __('WordPress User ID', 'travel-agency-platform')],
+            '_tap_seo_title'        => ['type' => 'text', 'label' => __('SEO Title', 'travel-agency-platform'), 'placeholder' => __('Falls back to post title', 'travel-agency-platform')],
+            '_tap_seo_description'  => ['type' => 'textarea', 'label' => __('Meta Description (SEO)', 'travel-agency-platform')],
         ];
     }
 

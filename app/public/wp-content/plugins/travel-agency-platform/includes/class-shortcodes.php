@@ -19,6 +19,7 @@ class TAP_Shortcodes {
             'tap_booking_detail' => [__CLASS__, 'booking_detail'],
             'tap_favorites'      => [__CLASS__, 'favorites'],
             'tap_plans'         => [__CLASS__, 'plans'],
+            'tap_search_results' => [__CLASS__, 'search_results'],
         ];
 
         foreach ($shortcodes as $tag => $callback) {
@@ -34,10 +35,13 @@ class TAP_Shortcodes {
             <form method="get" action="<?php echo esc_url(home_url('/search-results')); ?>" class="tap-search-form-inner">
                 <input type="hidden" name="tap_search" value="1">
                 <div class="tap-search-fields">
-                    <div class="tap-search-field">
-                        <label><?php esc_html_e('Destination', 'travel-agency-platform'); ?></label>
-                        <input type="text" name="keyword" placeholder="<?php echo esc_attr($atts['placeholder']); ?>" class="tap-input">
+                <div class="tap-search-field">
+                    <label><?php esc_html_e('Destination', 'travel-agency-platform'); ?></label>
+                    <div class="tap-search-destino">
+                        <input type="text" name="keyword" placeholder="<?php echo esc_attr($atts['placeholder']); ?>" class="tap-input" autocomplete="off">
+                        <div class="tap-hs-suggestions tap-form-suggestions" role="listbox" aria-expanded="false"></div>
                     </div>
+                </div>
                     <div class="tap-search-field">
                         <label><?php esc_html_e('Check-in', 'travel-agency-platform'); ?></label>
                         <input type="date" name="check_in" class="tap-input">
@@ -59,6 +63,109 @@ class TAP_Shortcodes {
         </div>
         <?php
         return ob_get_clean();
+    }
+
+    public static function search_results($atts) {
+        $atts = shortcode_atts(['per_page' => 20], $atts);
+
+        $keyword  = sanitize_text_field($_GET['keyword'] ?? '');
+        $type     = sanitize_text_field($_GET['type'] ?? '');
+        $location = intval($_GET['location'] ?? 0);
+
+        if ('' === $keyword && !$type && !$location) {
+            return '<p class="tap-no-results">' . esc_html__('Busca servicios por destino, nombre o tipo para ver resultados.', 'travel-agency-platform') . '</p>';
+        }
+
+        $types = $type ? [$type] : ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
+        $rows  = [];
+
+        foreach ($types as $pt) {
+            $keys = TAP_Promotions::keys_for_type($pt);
+            if (!$keys) {
+                continue;
+            }
+            $args = [
+                'post_type'      => $pt,
+                'posts_per_page' => intval($atts['per_page']) + 5,
+                'post_status'    => 'publish',
+                's'              => $keyword,
+                'meta_query'     => [
+                    ['key' => $keys['active_key'], 'value' => '1'],
+                ],
+                'suppress_filters' => true,
+            ];
+
+            if ($location) {
+                $args['tax_query'] = [
+                    ['taxonomy' => 'tap_location', 'field' => 'term_id', 'terms' => $location],
+                ];
+            }
+
+            $q = new WP_Query($args);
+            foreach ($q->posts as $p) {
+                $rows[] = $p;
+            }
+            wp_reset_postdata();
+        }
+
+        usort($rows, function ($a, $b) {
+            $fa = (int) TAP_Promotions::is_featured($a->ID);
+            $fb = (int) TAP_Promotions::is_featured($b->ID);
+            if ($fa !== $fb) {
+                return $fb - $fa;
+            }
+            return strcmp($b->post_date, $a->post_date);
+        });
+
+        $total = count($rows);
+        ob_start();
+
+        echo '<div class="tap-search-results">';
+        if ($total) {
+            /* translators: %d: number of results found. */
+            echo '<p class="tap-results-count">' . esc_html(sprintf(_n('%d resultado encontrado', '%d resultados encontrados', $total, 'travel-agency-platform'), $total)) . '</p>';
+        }
+        echo '<div class="tap-services-grid">';
+        foreach ($rows as $p) {
+            self::render_result_card($p);
+        }
+        echo '</div>';
+        if (!$total) {
+            echo '<p class="tap-no-results">' . esc_html__('No encontramos resultados para tu búsqueda. Probá con otro destino o palabra clave.', 'travel-agency-platform') . '</p>';
+        }
+        echo '</div>';
+
+        return ob_get_clean();
+    }
+
+    protected static function render_result_card($post) {
+        $type      = $post->post_type;
+        $type_name = TAP_Post_Types::get_service_types()[$type] ?? ucfirst($type);
+        $price_key = TAP_API::get_price_key($type);
+        $price     = $price_key ? floatval(get_post_meta($post->ID, $price_key, true)) : 0;
+        $featured  = TAP_Promotions::is_featured($post->ID);
+        $city      = get_post_meta($post->ID, '_tap_' . (TAP_Promotions::prefix_for_type($type) ?: '') . '_city', true);
+        $excerpt   = has_excerpt($post->ID) ? get_the_excerpt($post) : wp_trim_words(wp_strip_all_tags($post->post_content), 18);
+        ?>
+        <article class="tap-service-card">
+            <?php if (has_post_thumbnail($post->ID)): ?>
+                <a href="<?php echo esc_url(get_permalink($post->ID)); ?>"><?php echo get_the_post_thumbnail($post->ID, 'medium'); ?></a>
+            <?php endif; ?>
+            <div class="tap-service-card-body">
+                <span class="tap-service-type"><?php echo esc_html($type_name); ?></span>
+                <?php if ($featured): ?>
+                    <span class="tap-featured-badge">★ <?php esc_html_e('Destacado', 'travel-agency-platform'); ?></span>
+                <?php endif; ?>
+                <h3><a href="<?php echo esc_url(get_permalink($post->ID)); ?>"><?php echo esc_html($post->post_title); ?></a></h3>
+                <?php if ($city): ?><p class="tap-service-city"><?php echo esc_html($city); ?></p><?php endif; ?>
+                <p class="tap-service-excerpt"><?php echo esc_html($excerpt); ?></p>
+                <?php if ($price > 0): ?>
+                    <p class="tap-service-price"><?php echo esc_html(TAP_Currency::fmt($price)); ?></p>
+                <?php endif; ?>
+                <a href="<?php echo esc_url(get_permalink($post->ID)); ?>" class="tap-btn tap-btn-outline"><?php esc_html_e('Ver detalles', 'travel-agency-platform'); ?></a>
+            </div>
+        </article>
+        <?php
     }
 
     public static function services_list($atts) {

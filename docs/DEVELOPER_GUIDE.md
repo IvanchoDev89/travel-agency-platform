@@ -410,6 +410,22 @@ Registered in `TAP_Shortcodes::init()`.
 | `[tap_favorites]` | Client wishlist. |
 | `[tap_checkout]` | Checkout flow. |
 | `[tap_plans]` | Subscription plans (renders plan cards + subscribe buttons). |
+| `[tap_search_results]` | Renders filtered results (reads `keyword`/`type`/`location` GET params) featured-first, cut into cards; used on the `search-results` page with `[tap_search]`. |
+
+> The **search-results** page should contain `[tap_search]` followed by `[tap_search_results]`. Search is a GET to the page; the form's destination field has an autocomplete wired to `tap_search_suggestions` (shared with the hero `#hs-destino`).
+
+---
+
+## Search Engine Optimization (`TAP_SEO`)
+
+Registered in `travel-agency-platform.php` via `add_action('init', ['TAP_SEO','init'], 13)` which hooks `wp_head` and `document_title_parts`.
+
+- **Singular services** (`tap_accommodation`, `tap_tour`, `tap_transport`, `tap_car_rental`, `tap_boat`, `tap_package`): canonical, meta description (~155 chars, from `_tap_seo_description` with excerpt/content fallback), Open Graph, Twitter Card, JSON-LD, and BreadcrumbList.
+- **JSON-LD types**: accommodation `Hotel` (with `PostalAddress`, optional `geo` from stored `_tap_acc_lat`/`_tap_acc_lng` — no in-head geocoding, and `TravelAgency` provider when `_tap_acc_agency_id` set); tours `TouristTrip` with provider; everything else `Product`. `offers` emitted when a price exists, using the global `tap_currency`.
+- **Agencies** (`tap_agency`): canonical, meta description, Open Graph `og:type=profile`, JSON-LD `TravelAgency` (email/phone/website/address) and BreadcrumbList.
+- **Archives** (all service types, agencies, and tax terms): canonical, meta description, and Open Graph with humanized titles (see `TAP_SEO::archive_map()`).
+- `document_title_parts` humanizes archive `<title>` and appends `- Página N` on pagination.
+- Optional per-listing override fields `_tap_seo_title` / `_tap_seo_description` (agencies too).
 
 ---
 

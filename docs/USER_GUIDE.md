@@ -38,7 +38,8 @@ A practical manual for the people using the **Travel Agency Platform** every day
 
 ## Search & discover services
 
-- Use the **search box** by destination/keyword.
+- Use the **search box** by destination/keyword — type to see live suggestions (destinations and services) as you type.
+- Searching lands on the **Resultados de Búsqueda** page, which lists matching services **featured-first** (★ highlighted first), newest after, each with its type, price, city, photo and a link to its page.
 - Refine results with **filters**:
   - Travel dates (check-in / check-out)
   - Number of guests

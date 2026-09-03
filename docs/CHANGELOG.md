@@ -10,6 +10,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ### Added
 
+- **C1 — Search results page (conversion)**:
+  - New `[tap_search_results]` shortcode renders filtered results (keyword / type / location) from the **search-results** page, featured-first then newest, with result count, service type badge, price, city and empty-state.
+  - The **search-results** page now shows both the search form and the live results grid.
+  - Autocomplete suggestions are now wired to the `[tap_search]` keyword input (shared `tap_search_suggestions` endpoint), in addition to the hero search.
+  - Fixed the `tests/run.sh` path resolution so it works from the repo root.
+- **C2 — Search/SEO tags**:
+  - Archives (all 6 service types + agencies + location/category tax terms) now output canonical, meta description, and Open Graph tags with human-friendly titles ("Tours y Excursiones", "Alojamientos", etc.).
+  - Agency singular pages output canonical, meta description, Open Graph (`og:type=profile`) and JSON-LD `TravelAgency` with contact/address.
+  - Service cards: accommodation JSON-LD gained `geo` (from stored coords only — no in-head geocoding) and a `TravelAgency` `provider`; tours now use `TouristTrip` schema with provider.
+  - Tightened meta descriptions to ~155 chars and added Twitter Card (`summary_large_image`) tags.
+  - Search archive `<title>` tags now humanize the post-type name and append pagination.
 - **P1 — Online payments via PayPal for subscriptions & promotions**:
   - **PayPal Checkout v2** now charges **agency subscriptions** and **featured promotions** directly online, in addition to the existing booking payments.
   - New generic order flow in `TAP_PayPal::create_order_generic()` + a `tap_payment_orders` ledger table mapping PayPal orders to subscription/promotion records.

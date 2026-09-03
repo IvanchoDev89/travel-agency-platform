@@ -10,9 +10,9 @@
 # Each suite runs in a fresh `wp eval-file` process against real WP code +
 # a real MySQL install, so results reflect actual plugin behaviour.
 set -u
-cd "$(dirname "$0")"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR"
 SITE="${SITE:-travel}"
 SUITES="${SUITES:-}"
 
@@ -30,7 +30,7 @@ fi
 WP_BIN="${WP_BIN:-$HOME/.local/bin/wp}"
 
 if [ -z "$SUITES" ]; then
-  SUITES="suite_core suite_bookings suite_commissions suite_promotions suite_views suite_analytics suite_payments"
+  SUITES="suite_core suite_bookings suite_commissions suite_promotions suite_views suite_analytics suite_payments suite_seo"
 fi
 
 fails=0
