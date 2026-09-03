@@ -41,4 +41,19 @@ tap_t_assert(isset($bs['total'], $bs['commission'], $bs['revenue']), 'get_bookin
 tap_t_assert((float) $bs['commission'] >= 25.0, 'get_booking_stats commission includes seeded booking');
 
 tap_t_cleanup_bookings($ids);
+
+// 5) REGRESSION: both front-end booking forms must pass the create_booking nonce guard.
+// The [tap_booking_form] shortcode JS sends tap_ajax.nonce (action 'tap_nonce'), while the
+// accommodation template sends a 'tap_booking_nonce' nonce. create_booking accepts either.
+$shortcode_nonce = wp_create_nonce('tap_nonce');
+$acc_nonce       = wp_create_nonce('tap_booking_nonce');
+tap_t_assert(wp_verify_nonce($shortcode_nonce, 'tap_nonce') || wp_verify_nonce($shortcode_nonce, 'tap_booking_nonce'),
+    '[regression] shortcode booking form nonce (tap_nonce) is accepted by create_booking');
+tap_t_assert(wp_verify_nonce($acc_nonce, 'tap_nonce') || wp_verify_nonce($acc_nonce, 'tap_booking_nonce'),
+    '[regression] accommodation template nonce (tap_booking_nonce) is accepted by create_booking');
+// A random/garbage nonce must NOT pass.
+$bogus = wp_generate_password(10, false);
+tap_t_assert(!(wp_verify_nonce($bogus, 'tap_nonce') || wp_verify_nonce($bogus, 'tap_booking_nonce')),
+    '[regression] bogus nonce is rejected by create_booking');
+
 tap_t_finish();

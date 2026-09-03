@@ -3,7 +3,15 @@ defined('ABSPATH') || exit;
 
 class TAP_Ajax {
     public static function create_booking() {
-        check_ajax_referer('tap_booking_nonce', 'nonce');
+        // Two front-end booking forms historically send distinct nonces:
+        // the accommodation template sends a 'tap_booking_nonce' nonce, while the
+        // [tap_booking_form] shortcode sends tap_ajax.nonce (action 'tap_nonce').
+        // Accept either to keep both forms working.
+        $raw = isset($_POST['nonce']) ? (string) $_POST['nonce'] : '';
+        $valid = $raw !== '' && (wp_verify_nonce($raw, 'tap_nonce') || wp_verify_nonce($raw, 'tap_booking_nonce'));
+        if (!$valid) {
+            wp_send_json_error(['message' => __('Security check failed.', 'travel-agency-platform')], 403);
+        }
 
         if (!empty($_POST['tap_hp'])) {
             wp_send_json_success(['fake' => true]);
