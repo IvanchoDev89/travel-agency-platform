@@ -10,6 +10,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ### Added
 
+- **C3 — Search filters, sitemap, rich results & detail UX**:
+  - **Search filters** on the results page: filter by type, location, min/max price and sort (newest / price asc / price desc / best rated), featured-first, applied as GET params.
+  - **Technical SEO**: `TAP_Sitemap` extends WordPress' native sitemaps so all 6 service types and the platform taxonomies are indexed, and robots.txt now references the sitemap. (Rewrites via WP core — no custom rewrite/301.)
+  - **FAQ rich results**: service listings emit FAQPage JSON-LD (booking, pricing, operator, cancellation, payment).
+  - **Contact rich results**: service listings + agencies emit `ContactPoint`/`telephone` schema.
+  - **Visible breadcrumbs** (`TAP_SEO::visible_breadcrumbs()`) rendered on service and agency detail pages (matching the BreadcrumbList schema).
+  - **Detail page improvements**: service page now shows type badge, rating (+count), featured badge, agency link with verified badge, and a prominent price; Spanish-friendly labels.
 - **C1 — Search results page (conversion)**:
   - New `[tap_search_results]` shortcode renders filtered results (keyword / type / location) from the **search-results** page, featured-first then newest, with result count, service type badge, price, city and empty-state.
   - The **search-results** page now shows both the search form and the live results grid.

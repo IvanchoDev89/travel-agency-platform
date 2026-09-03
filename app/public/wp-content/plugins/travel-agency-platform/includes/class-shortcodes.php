@@ -68,15 +68,17 @@ class TAP_Shortcodes {
     public static function search_results($atts) {
         $atts = shortcode_atts(['per_page' => 20], $atts);
 
-        $keyword  = sanitize_text_field($_GET['keyword'] ?? '');
-        $type     = sanitize_text_field($_GET['type'] ?? '');
-        $location = intval($_GET['location'] ?? 0);
+        $current_url = home_url(add_query_arg([]));
 
-        if ('' === $keyword && !$type && !$location) {
-            return '<p class="tap-no-results">' . esc_html__('Busca servicios por destino, nombre o tipo para ver resultados.', 'travel-agency-platform') . '</p>';
-        }
+        $keyword   = sanitize_text_field($_GET['keyword'] ?? '');
+        $type      = sanitize_text_field($_GET['type'] ?? '');
+        $location  = intval($_GET['location'] ?? 0);
+        $min_price = isset($_GET['min_price']) && $_GET['min_price'] !== '' ? floatval($_GET['min_price']) : null;
+        $max_price = isset($_GET['max_price']) && $_GET['max_price'] !== '' ? floatval($_GET['max_price']) : null;
+        $sort      = sanitize_key($_GET['sort'] ?? 'relevance');
 
-        $types = $type ? [$type] : ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
+        $service_types = ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
+        $types = $type && in_array($type, $service_types, true) ? [$type] : $service_types;
         $rows  = [];
 
         foreach ($types as $pt) {
@@ -86,7 +88,7 @@ class TAP_Shortcodes {
             }
             $args = [
                 'post_type'      => $pt,
-                'posts_per_page' => intval($atts['per_page']) + 5,
+                'posts_per_page' => intval($atts['per_page']) * 3,
                 'post_status'    => 'publish',
                 's'              => $keyword,
                 'meta_query'     => [
@@ -101,6 +103,16 @@ class TAP_Shortcodes {
                 ];
             }
 
+            $price_key = TAP_API::get_price_key($pt);
+            if ($price_key) {
+                if ($min_price !== null) {
+                    $args['meta_query'][] = ['key' => $price_key, 'value' => $min_price, 'type' => 'NUMERIC', 'compare' => '>='];
+                }
+                if ($max_price !== null) {
+                    $args['meta_query'][] = ['key' => $price_key, 'value' => $max_price, 'type' => 'NUMERIC', 'compare' => '<='];
+                }
+            }
+
             $q = new WP_Query($args);
             foreach ($q->posts as $p) {
                 $rows[] = $p;
@@ -108,17 +120,41 @@ class TAP_Shortcodes {
             wp_reset_postdata();
         }
 
-        usort($rows, function ($a, $b) {
+        // Sort: featured bucket first, then chosen order.
+        usort($rows, function ($a, $b) use ($sort) {
             $fa = (int) TAP_Promotions::is_featured($a->ID);
             $fb = (int) TAP_Promotions::is_featured($b->ID);
             if ($fa !== $fb) {
                 return $fb - $fa;
             }
-            return strcmp($b->post_date, $a->post_date);
+            $pa = TAP_API::get_price_key($a->post_type) ? floatval(get_post_meta($a->ID, TAP_API::get_price_key($a->post_type), true)) : 0;
+            $pb = TAP_API::get_price_key($b->post_type) ? floatval(get_post_meta($b->ID, TAP_API::get_price_key($b->post_type), true)) : 0;
+
+            switch ($sort) {
+                case 'price_asc':
+                    return $pa <=> $pb;
+                case 'price_desc':
+                    return $pb <=> $pa;
+                case 'rating':
+                    $ra = TAP_API::get_rating_stats($a->post_type, $a->ID);
+                    $rb = TAP_API::get_rating_stats($b->post_type, $b->ID);
+                    return ($rb['avg'] ?? 0) <=> ($ra['avg'] ?? 0);
+                case 'newest':
+                    return strcmp($b->post_date, $a->post_date);
+                default:
+                    return strcmp($b->post_date, $a->post_date);
+            }
         });
 
         $total = count($rows);
+
+        if ('' === $keyword && !$type && !$location && $min_price === null && $max_price === null && $sort === 'relevance') {
+            return self::search_filters($current_url, $type, $location, $sort, $min_price, $max_price)
+                . '<p class="tap-no-results">' . esc_html__('Busca servicios por destino, nombre o tipo para ver resultados.', 'travel-agency-platform') . '</p>';
+        }
+
         ob_start();
+        echo self::search_filters($current_url, $type, $location, $sort, $min_price, $max_price);
 
         echo '<div class="tap-search-results">';
         if ($total) {
@@ -131,10 +167,74 @@ class TAP_Shortcodes {
         }
         echo '</div>';
         if (!$total) {
-            echo '<p class="tap-no-results">' . esc_html__('No encontramos resultados para tu búsqueda. Probá con otro destino o palabra clave.', 'travel-agency-platform') . '</p>';
+            echo '<p class="tap-no-results">' . esc_html__('No encontramos resultados para tu búsqueda. Probá con otro destino, palabra clave o ajustá los filtros.', 'travel-agency-platform') . '</p>';
         }
         echo '</div>';
 
+        return ob_get_clean();
+    }
+
+    protected static function search_filters($current_url, $type, $location, $sort, $min_price, $max_price) {
+        $types = [
+            ''    => __('Todos los servicios', 'travel-agency-platform'),
+            'tap_accommodation' => __('Alojamientos', 'travel-agency-platform'),
+            'tap_tour'          => __('Tours', 'travel-agency-platform'),
+            'tap_transport'     => __('Transporte', 'travel-agency-platform'),
+            'tap_car_rental'    => __('Alquiler de Autos', 'travel-agency-platform'),
+            'tap_boat'          => __('Barcos y Paseos', 'travel-agency-platform'),
+            'tap_package'       => __('Paquetes', 'travel-agency-platform'),
+        ];
+        $sorts = [
+            'relevance' => __('Más recientes', 'travel-agency-platform'),
+            'price_asc' => __('Precio: menor a mayor', 'travel-agency-platform'),
+            'price_desc'=> __('Precio: mayor a menor', 'travel-agency-platform'),
+            'rating'    => __('Mejor valorados', 'travel-agency-platform'),
+        ];
+        ob_start();
+        ?>
+        <form class="tap-search-filters" method="get" action="<?php echo esc_url($current_url); ?>">
+            <?php if (isset($_GET['keyword'])): ?>
+                <input type="hidden" name="keyword" value="<?php echo esc_attr($keyword = sanitize_text_field($_GET['keyword'] ?? '')); ?>">
+            <?php endif; ?>
+            <label><?php esc_html_e('Tipo', 'travel-agency-platform'); ?>
+                <select name="type">
+                    <?php foreach ($types as $val => $label): ?>
+                        <option value="<?php echo esc_attr($val); ?>" <?php selected($type, $val); ?>><?php echo esc_html($label); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+            <label><?php esc_html_e('Ubicación', 'travel-agency-platform'); ?>
+                <select name="location">
+                    <option value="0"><?php esc_html_e('Todas', 'travel-agency-platform'); ?></option>
+                    <?php
+                    $terms = get_terms(['taxonomy' => 'tap_location', 'hide_empty' => false, 'orderby' => 'name']);
+                    if (!is_wp_error($terms)) {
+                        foreach ($terms as $term) {
+                            printf('<option value="%d" %s>%s</option>', (int) $term->term_id, selected($location, $term->term_id, false), esc_html($term->name));
+                        }
+                    }
+                    ?>
+                </select>
+            </label>
+            <label><?php esc_html_e('Precio mín.', 'travel-agency-platform'); ?>
+                <input type="number" name="min_price" min="0" step="0.01" value="<?php echo esc_attr($min_price !== null ? $min_price : ''); ?>" placeholder="0">
+            </label>
+            <label><?php esc_html_e('Precio máx.', 'travel-agency-platform'); ?>
+                <input type="number" name="max_price" min="0" step="0.01" value="<?php echo esc_attr($max_price !== null ? $max_price : ''); ?>" placeholder="9999">
+            </label>
+            <label><?php esc_html_e('Ordenar', 'travel-agency-platform'); ?>
+                <select name="sort">
+                    <?php foreach ($sorts as $val => $label): ?>
+                        <option value="<?php echo esc_attr($val); ?>" <?php selected($sort, $val); ?>><?php echo esc_html($label); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </label>
+            <button type="submit" class="tap-btn tap-btn-primary"><?php esc_html_e('Aplicar', 'travel-agency-platform'); ?></button>
+            <?php if ($type || $location || $min_price !== null || $max_price !== null || $sort !== 'relevance'): ?>
+                <a class="tap-btn tap-btn-outline" href="<?php echo esc_url(remove_query_arg(['type', 'location', 'min_price', 'max_price', 'sort'])); ?>"><?php esc_html_e('Limpiar', 'travel-agency-platform'); ?></a>
+            <?php endif; ?>
+        </form>
+        <?php
         return ob_get_clean();
     }
 
@@ -256,9 +356,32 @@ class TAP_Shortcodes {
         $prefix = '_tap_' . str_replace('tap_', '', $type);
 
         ob_start();
+        echo TAP_SEO::visible_breadcrumbs($post);
         ?>
         <div class="tap-service-detail">
-            <h1><?php the_title(); ?></h1>
+            <?php
+            $featured   = TAP_Promotions::is_featured($post->ID);
+            $rating     = TAP_API::get_rating_stats($type, $post->ID);
+            $agency_id  = (int) get_post_meta($post->ID, $prefix . '_agency_id', true);
+            $agency     = $agency_id ? get_post($agency_id) : null;
+            ?>
+            <header class="tap-detail-header">
+                <div class="tap-detail-titles">
+                    <span class="tap-service-type"><?php echo esc_html(TAP_Post_Types::get_service_types()[$type] ?? ucfirst($type)); ?></span>
+                    <?php if ($featured): ?>
+                        <span class="tap-featured-badge">★ <?php esc_html_e('Destacado', 'travel-agency-platform'); ?></span>
+                    <?php endif; ?>
+                    <h1><?php the_title(); ?></h1>
+                    <?php if ($rating['count'] > 0): ?>
+                        <span class="tap-rating">
+                            <?php echo esc_html(number_format($rating['avg'], 1)); ?> ★ <small><?php echo esc_html(sprintf(_n('(%d reseña)', '(%d reseñas)', (int) $rating['count'], 'travel-agency-platform'), (int) $rating['count'])); ?></small>
+                        </span>
+                    <?php endif; ?>
+                    <?php if ($agency): ?>
+                        <p class="tap-detail-agency"><?php esc_html_e('Operado por', 'travel-agency-platform'); ?> <a href="<?php echo esc_url(get_permalink($agency->ID)); ?>"><?php echo esc_html($agency->post_title); ?></a><?php if (get_post_meta($agency->ID, '_tap_agency_verified', true)): ?> <span class="tap-verified-badge" title="<?php esc_attr_e('Agencia verificada', 'travel-agency-platform'); ?>">✓</span><?php endif; ?></p>
+                    <?php endif; ?>
+                </div>
+            </header>
             <?php if (has_post_thumbnail()): ?>
                 <div class="tap-featured-image"><?php the_post_thumbnail('large'); ?></div>
             <?php endif; ?>
@@ -266,20 +389,19 @@ class TAP_Shortcodes {
             <div class="tap-meta-grid">
                 <?php
                 $price_fields = [
-                    'tap_accommodation' => ['_tap_acc_price_per_night', __('Price per Night', 'travel-agency-platform')],
-                    'tap_tour' => ['_tap_tour_price_adult', __('Price per Adult', 'travel-agency-platform')],
-                    'tap_transport' => ['_tap_trans_price', __('Price', 'travel-agency-platform')],
-                    'tap_car_rental' => ['_tap_car_price_per_day', __('Price per Day', 'travel-agency-platform')],
-                    'tap_boat' => ['_tap_boat_price_half', __('Half Day Price', 'travel-agency-platform')],
-                    'tap_package' => ['_tap_pkg_price', __('Total Price', 'travel-agency-platform')],
+                    'tap_accommodation' => ['_tap_acc_price_per_night', __('Precio por noche', 'travel-agency-platform')],
+                    'tap_tour' => ['_tap_tour_price_adult', __('Precio por adulto', 'travel-agency-platform')],
+                    'tap_transport' => ['_tap_trans_price', __('Precio', 'travel-agency-platform')],
+                    'tap_car_rental' => ['_tap_car_price_per_day', __('Precio por día', 'travel-agency-platform')],
+                    'tap_boat' => ['_tap_boat_price_half', __('Precio medio día', 'travel-agency-platform')],
+                    'tap_package' => ['_tap_pkg_price', __('Precio total', 'travel-agency-platform')],
                 ];
 
                 if (isset($price_fields[$type])) {
                     list($price_key, $price_label) = $price_fields[$type];
                     $price = get_post_meta($post->ID, $price_key, true);
-                    $currency = get_post_meta($post->ID, $prefix . '_currency', true) ?: TAP_Currency::symbol();
                     if ($price) {
-                        echo '<div class="tap-meta-item"><strong>' . esc_html($price_label) . ':</strong> ' . esc_html($currency . number_format(floatval($price), 2)) . '</div>';
+                        echo '<div class="tap-meta-item"><strong>' . esc_html($price_label) . ':</strong> <span class="tap-detail-price">' . esc_html(TAP_Currency::fmt(floatval($price))) . '</span></div>';
                     }
                 }
 
@@ -294,7 +416,7 @@ class TAP_Shortcodes {
                     $label = ucwords(trim($label));
                     $value = $values[0];
 
-                    if ($value === '1') $value = __('Yes', 'travel-agency-platform');
+                    if ($value === '1') $value = __('Sí', 'travel-agency-platform');
                     elseif ($value === '0') $value = __('No', 'travel-agency-platform');
 
                     echo '<div class="tap-meta-item"><strong>' . esc_html($label) . ':</strong> ' . esc_html($value) . '</div>';
@@ -360,6 +482,7 @@ class TAP_Shortcodes {
         $is_verified = get_post_meta($post->ID, '_tap_agency_verified', true);
 
         ob_start();
+        echo TAP_SEO::visible_breadcrumbs($post);
         ?>
         <div class="tap-agency-detail">
             <div class="tap-agency-header">

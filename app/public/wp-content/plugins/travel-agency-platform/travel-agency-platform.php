@@ -51,6 +51,7 @@ final class TravelAgencyPlatform {
         require_once TAP_PLUGIN_DIR . 'includes/class-subscriptions.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-promotions.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-analytics.php';
+        require_once TAP_PLUGIN_DIR . 'includes/class-sitemap.php';
     }
 
     private function init_hooks() {
@@ -116,6 +117,7 @@ final class TravelAgencyPlatform {
         add_action('init', ['TAP_Subscriptions', 'init'], 14);
         add_action('init', ['TAP_Promotions', 'init'], 15);
         add_action('init', ['TAP_Analytics', 'init'], 16);
+        add_action('init', ['TAP_Sitemap', 'init'], 17);
         add_shortcode('tap_checkout', ['TAP_Shortcodes', 'checkout']);
     }
 

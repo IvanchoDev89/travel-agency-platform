@@ -47,6 +47,27 @@ foreach ($service_types as $pt) {
 }
 tap_t_assert($found_singular, "[seo] at least one service singular tested");
 
+// 1b) FAQ + ContactPoint rich results on service singular
+$faq_ok = strpos($out, 'FAQPage') !== false && strpos($out, 'Question') !== false;
+tap_t_assert($faq_ok, "[seo] service singular includes FAQPage rich results");
+// ContactPoint only emits when a phone is available (agency phone or support setting).
+$pt_type = $GLOBALS['post']->post_type;
+$pt_prefix = str_replace('tap_', '', $pt_type);
+$sec_agency = (int) get_post_meta($GLOBALS['post']->ID, '_tap_' . $pt_prefix . '_agency_id', true);
+$sec_has_phone = $sec_agency ? (bool) get_post_meta($sec_agency, '_tap_agency_phone', true) : false;
+if ($sec_has_phone || (string) get_option('tap_support_phone', '') !== '') {
+    tap_t_assert(strpos($out, 'ContactPoint') !== false, "[seo] service singular includes ContactPoint");
+} else {
+    tap_t_assert(true, "[seo] ContactPoint skipped (no phone configured on this site)");
+}
+
+// 1c) visible breadcrumbs rendered by service_detail shortcode
+if ($found_singular && in_array($GLOBALS['post']->post_type, $service_types, true)) {
+    $sid = $GLOBALS['post']->ID;
+    $det = do_shortcode('[tap_service_detail id="' . $sid . '"]');
+    tap_t_assert(strpos($det, 'tap-breadcrumbs') !== false, "[conversion] service_detail renders visible breadcrumbs");
+}
+
 // 2) Agency singular: TravelAgency schema + og profile
 $agency = get_posts(['post_type' => 'tap_agency', 'post_status' => 'publish', 'posts_per_page' => 1, 'fields' => 'ids']);
 if ($agency) {
@@ -86,6 +107,7 @@ $_GET['keyword'] = $kw;
 $out = do_shortcode('[tap_search_results]');
 tap_t_assert(strpos($out, 'tap-service-card') !== false, "[conversion] search_results renders result cards ($kw)");
 tap_t_assert(strpos($out, 'resultado') !== false, "[conversion] search_results shows count");
+tap_t_assert(strpos($out, 'tap-search-filters') !== false, "[conversion] search_results filter bar present");
 
 unset($_GET['keyword']);
 $out = do_shortcode('[tap_search_results]');
@@ -95,8 +117,32 @@ $_GET['keyword'] = 'zzzznomatch999';
 $out = do_shortcode('[tap_search_results]');
 tap_t_assert(strpos($out, 'No encontramos resultados') !== false, "[conversion] search_results shows empty state");
 
+// 5b) filters: type select filters only tours, sort renders
+$_GET['keyword'] = ''; $_GET['type'] = 'tap_tour'; $_GET['sort'] = 'price_asc';
+$out = do_shortcode('[tap_search_results]');
+tap_t_assert((bool) preg_match('/value="tap_tour"[^>]*selected=/', $out), "[conversion] type filter applied");
+tap_t_assert((bool) preg_match('/value="price_asc"[^>]*selected=/', $out), "[conversion] sort=price_asc applied");
+unset($_GET['type'], $_GET['sort']);
+
 // 6) search form includes autocomplete destination box
 $form = do_shortcode('[tap_search]');
 tap_t_assert(strpos($form, 'tap-search-destino') !== false && strpos($form, 'tap-form-suggestions') !== false, "[conversion] search form has autocomplete box");
+
+// 7) agency detail renders visible breadcrumbs
+if ($agency) {
+    $det = do_shortcode('[tap_agency_detail id="' . $agency[0] . '"]');
+    tap_t_assert(strpos($det, 'tap-breadcrumbs') !== false, "[conversion] agency_detail renders visible breadcrumbs");
+}
+
+// 8) sitemap: WP core provider covers all 6 service types + taxonomies
+if (function_exists('wp_sitemaps_get_server')) {
+    $pts = apply_filters('wp_sitemaps_post_types', get_post_types(['public' => true]));
+    $missing = array_diff($service_types, array_keys($pts));
+    tap_t_assert(empty($missing), "[seo] sitemap post_types covers all 6 service types (" . ($missing ? implode(',', $missing) : 'all') . ")");
+    $taxs = apply_filters('wp_sitemaps_taxonomies', get_taxonomies(['public' => true]));
+    $want = ['tap_location', 'tap_service_cat', 'tap_property_type', 'tap_tour_type', 'tap_vehicle_type', 'tap_boat_type', 'tap_amenity'];
+    $missing_tax = array_diff($want, array_keys($taxs));
+    tap_t_assert(empty($missing_tax), "[seo] sitemap taxonomies covers platform taxonomies");
+}
 
 tap_t_finish();

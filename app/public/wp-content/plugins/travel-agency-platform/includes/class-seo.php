@@ -242,7 +242,110 @@ class TAP_SEO {
             ];
         }
 
+        // Contact point (phone/whatsapp) for the associated agency on the listing.
+        $agency_id = (int) get_post_meta($post->ID, '_tap_' . (TAP_Promotions::prefix_for_type($type) ?: '') . '_agency_id', true);
+        $contact = $agency_id ? get_post_meta($agency_id, '_tap_agency_phone', true) : '';
+        if (!$contact) {
+            $contact = TAP_API::platform_support_phone();
+        }
+        if ($contact) {
+            $base['contactPoint'] = [
+                '@type'       => 'ContactPoint',
+                'telephone'   => $contact,
+                'contactType' => 'reservations',
+                'availableLanguage' => ['es', 'en'],
+            ];
+        }
+
         echo '<script type="application/ld+json">' . wp_json_encode($base, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
+
+        self::faq_json_ld($post, $type);
+    }
+
+    protected static function faq_json_ld($post, $type) {
+        $title   = self::seo_title($post);
+        $agency_id = (int) get_post_meta($post->ID, '_tap_' . (TAP_Promotions::prefix_for_type($type) ?: '') . '_agency_id', true);
+        $agency_name = '';
+        if ($agency_id) {
+            $agency = get_post($agency_id);
+            if ($agency) {
+                $agency_name = $agency->post_title;
+            }
+        }
+        $price = TAP_API::get_price_key($type) ? floatval(get_post_meta($post->ID, TAP_API::get_price_key($type), true)) : 0;
+        $price = $price > 0 ? TAP_Currency::fmt($price) : '';
+
+        $qa = [
+            ['q' => sprintf(__('¿Cómo reservar %s?', 'travel-agency-platform'), $title), 'a' => __('Completá el formulario de reserva en la página, elegí fechas y cantidad de huéspedes, y confirmá el pago para recibir tu voucher.', 'travel-agency-platform')],
+            ['q' => __('¿Puedo cancelar o modificar mi reserva?', 'travel-agency-platform'), 'a' => __('Podés cancelar desde tu panel de reservas según la política de cancelación del operador. Las reservas pendientes se cancelan automáticamente tras un tiempo sin confirmación.', 'travel-agency-platform')],
+        ];
+        if ($price) {
+            $qa[] = ['q' => __('¿Cuánto cuesta?', 'travel-agency-platform'), 'a' => sprintf(__('El precio publicado es %s, sujeto a disponibilidad y a las tarifas por fechas seleccionadas. El total se calcula al elegir fechas en el formulario.', 'travel-agency-platform'), $price)];
+        }
+        if ($agency_name) {
+            $qa[] = ['q' => __('¿Quién opera este servicio?', 'travel-agency-platform'), 'a' => sprintf(__('%s es la agencia de viajes verificada que opera este listado.', 'travel-agency-platform'), $agency_name)];
+        }
+        $qa[] = ['q' => __('¿Cómo pago?', 'travel-agency-platform'), 'a' => __('Aceptamos pago online seguro con tarjeta o PayPal al confirmar la reserva.', 'travel-agency-platform')];
+
+        $mainEntity = [];
+        foreach ($qa as $i => $item) {
+            $mainEntity[] = [
+                '@type' => 'Question',
+                'name'  => $item['q'],
+                'acceptedAnswer' => ['@type' => 'Answer', 'text' => $item['a']],
+            ];
+        }
+
+        $graph = [
+            '@context'   => 'https://schema.org',
+            '@type'      => 'FAQPage',
+            'mainEntity' => $mainEntity,
+        ];
+        echo '<script type="application/ld+json">' . wp_json_encode($graph, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
+    }
+
+    public static function visible_breadcrumbs($post = null) {
+        $post = $post ?: get_post();
+        if (!$post) {
+            return '';
+        }
+        $type  = $post->post_type;
+        $parts = [['name' => __('Inicio', 'travel-agency-platform'), 'url' => home_url('/')]];
+
+        if ($type === 'tap_agency') {
+            $parts[] = ['name' => __('Agencias', 'travel-agency-platform'), 'url' => get_post_type_archive_link('tap_agency')];
+            $parts[] = ['name' => $post->post_title];
+        } elseif (in_array($type, self::$types, true)) {
+            $map = [
+                'tap_accommodation' => 'accommodation',
+                'tap_tour'          => 'tour',
+                'tap_transport'     => 'transport',
+                'tap_car_rental'    => 'car-rental',
+                'tap_boat'          => 'boat-rental',
+                'tap_package'       => 'package',
+            ];
+            $slug  = $map[$type] ?? $type;
+            $label = self::archive_map()[$type]['name'] ?? ucfirst(str_replace('-', ' ', $slug));
+            $parts[] = ['name' => $label, 'url' => home_url('/' . $slug . '/')];
+            $parts[] = ['name' => $post->post_title];
+        } else {
+            return '';
+        }
+
+        ob_start();
+        echo '<nav class="tap-breadcrumbs" aria-label="Breadcrumb">';
+        foreach ($parts as $i => $p) {
+            if ($i > 0) {
+                echo '<span class="tap-breadcrumb-sep">›</span>';
+            }
+            if (!empty($p['url'])) {
+                echo '<a href="' . esc_url($p['url']) . '">' . esc_html($p['name']) . '</a>';
+            } else {
+                echo '<span class="tap-breadcrumb-current" aria-current="page">' . esc_html($p['name']) . '</span>';
+            }
+        }
+        echo '</nav>';
+        return ob_get_clean();
     }
 
     protected static function agency_json_ld($post) {
@@ -265,6 +368,7 @@ class TAP_SEO {
         ];
         if ($email)    $data['email'] = $email;
         if ($phone)    $data['telephone'] = $phone;
+        if ($phone)    $data['contactPoint'] = ['@type' => 'ContactPoint', 'telephone' => $phone, 'contactType' => 'customer service', 'availableLanguage' => ['es', 'en']];
         if ($website)  $data['sameAs'] = $website;
         if ($address || $city || $country) {
             $data['address'] = array_filter([

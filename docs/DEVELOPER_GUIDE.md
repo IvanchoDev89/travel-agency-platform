@@ -31,24 +31,27 @@ The platform is organized around a set of **single-responsibility classes**, eac
 
 ```
 TravelAgencyPlatform (bootstraps everything)
- ├─ TAP_Installer   → tables, migrations, activation
- ├─ TAP_PostTypes   → custom post types (services, rooms)
- ├─ TAP_Taxonomies  → classification taxonomies
- ├─ TAP_Roles       → custom roles & capabilities
- ├─ TAP_Metaboxes   → admin meta fields
- ├─ TAP_Pricing     → dynamic/seasonal pricing
- ├─ TAP_Discounts   → discount engine
- ├─ TAP_Booking     → reservations, capacity, cancellation
- ├─ TAP_API         → REST routes & rating aggregation
- ├─ TAP_Shortcodes  → public-facing shortcodes
- ├─ TAP_Ajax        → admin-ajax handlers & archive filters
- ├─ TAP_Dashboard   → agency dashboard
- ├─ TAP_Paypal      → PayPal integration
- ├─ TAP_Payment     → payment statuses
- ├─ TAP_Emails      → email notifications
- ├─ TAP_SEO         → meta/OG/JSON-LD output
- ├─ TAP_Currency    → money formatting
- └─ TAP_Dashboard   → admin reports
+ ├─ TAP_Installer    → tables, migrations, activation
+ ├─ TAP_PostTypes    → custom post types (services, rooms)
+ ├─ TAP_Taxonomies   → classification taxonomies
+ ├─ TAP_Roles        → custom roles & capabilities
+ ├─ TAP_Metaboxes    → admin meta fields
+ ├─ TAP_Pricing      → dynamic/seasonal pricing
+ ├─ TAP_Discounts    → discount engine
+ ├─ TAP_Booking      → reservations, capacity, cancellation
+ ├─ TAP_API          → REST routes & rating aggregation
+ ├─ TAP_Shortcodes   → public-facing shortcodes
+ ├─ TAP_Ajax         → admin-ajax handlers & archive filters
+ ├─ TAP_Dashboard    → agency dashboard
+ ├─ TAP_Paypal       → PayPal integration
+ ├─ TAP_Payment      → payment statuses
+ ├─ TAP_Emails       → email notifications
+ ├─ TAP_SEO          → meta/OG/JSON-LD + visible breadcrumbs
+ ├─ TAP_Sitemap      → extends WP native sitemaps (post types + taxonomies)
+ ├─ TAP_Subscriptions→ agency plans
+ ├─ TAP_Promotions   → featured listings
+ ├─ TAP_Analytics    → listing view analytics
+ └─ TAP_Currency     → money formatting
 ```
 
 The **companion theme** (`travel-agency-theme`) provides the public templates that render these data structures (cards, single pages, search, voucher, forms) and delegates all business logic to the plugin.
@@ -426,6 +429,20 @@ Registered in `travel-agency-platform.php` via `add_action('init', ['TAP_SEO','i
 - **Archives** (all service types, agencies, and tax terms): canonical, meta description, and Open Graph with humanized titles (see `TAP_SEO::archive_map()`).
 - `document_title_parts` humanizes archive `<title>` and appends `- Página N` on pagination.
 - Optional per-listing override fields `_tap_seo_title` / `_tap_seo_description` (agencies too).
+- **Visible breadcrumbs**: `TAP_SEO::visible_breadcrumbs($post)` returns an HTML `<nav class="tap-breadcrumbs">`; it is echoed by the `[tap_service_detail]` and `[tap_agency_detail]` shortcodes (mirrors the BreadcrumbList JSON-LD).
+- **FAQ rich results**: listings emit an `FAQPage` JSON-LD block (booking, cancellation, pricing, operator, payment).
+- **Contact rich results**: service listings and agencies emit `ContactPoint`/`telephone` when a phone is configured (agency phone, else `tap_support_phone` option).
+
+## Sitemaps (`TAP_Sitemap`)
+
+Rather than a custom rewrite (which collides with WP Core's `/sitemap.xml` + 301s), the plugin **extends WordPress' native XML sitemaps**:
+
+- `wp_sitemaps_post_types` → ensures all 6 service types are covered.
+- `wp_sitemaps_taxonomies` → ensures `tap_location`, `tap_service_cat`, `tap_property_type`, `tap_amenity`, `tap_tour_type`, `tap_vehicle_type`, `tap_boat_type` are covered.
+- Empty post types/taxonomies correctly produce no sitemap pages.
+- `robots.txt` references the sitemap via `do_robots` (`/wp-sitemap.xml`).
+
+The sitemap is served at the WordPress-standard `/sitemap.xml` (redirects to `/wp-sitemap.xml`) with no additional setup.
 
 ---
 

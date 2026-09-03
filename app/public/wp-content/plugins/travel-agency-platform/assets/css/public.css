@@ -550,6 +550,26 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 .tap-search-results { margin-top: var(--tap-space-3); }
 .tap-search-destino { position: relative; }
 .tap-form-suggestions { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid var(--tap-neutral-200); border-radius: var(--tap-radius-xl); box-shadow: var(--tap-shadow-xl); z-index: 100; max-height: 320px; overflow-y: auto; margin-top: 4px; display: none; }
+.tap-search-filters { display: flex; flex-wrap: wrap; gap: var(--tap-space-3); align-items: flex-end; background: #fff; border: 1px solid var(--tap-neutral-200); border-radius: var(--tap-radius-xl); padding: var(--tap-space-4) var(--tap-space-5); margin-bottom: var(--tap-space-4); }
+.tap-search-filters label { display: flex; flex-direction: column; gap: 4px; font-size: var(--tap-text-xs); font-weight: 600; color: var(--tap-neutral-500); }
+.tap-search-filters select, .tap-search-filters input[type="number"] { padding: 0.45rem 0.6rem; border: 1px solid var(--tap-neutral-200); border-radius: var(--tap-radius-md); font-size: var(--tap-text-sm); background: #fff; }
+
+/* ===== Visible breadcrumbs & detail ===== */
+.tap-breadcrumbs { font-size: var(--tap-text-xs); color: var(--tap-neutral-400); margin: 0 0 var(--tap-space-3); display: flex; flex-wrap: wrap; gap: 4px 0; }
+.tap-breadcrumbs a { color: var(--tap-primary); text-decoration: none; }
+.tap-breadcrumbs a:hover { text-decoration: underline; }
+.tap-breadcrumb-sep { margin: 0 6px; color: var(--tap-neutral-300); }
+.tap-breadcrumb-current { color: var(--tap-neutral-500); }
+.tap-detail-header { margin-bottom: var(--tap-space-4); }
+.tap-detail-titles h1 { margin: var(--tap-space-1) 0; }
+.tap-detail-titles { display: flex; flex-direction: column; gap: var(--tap-space-1); align-items: flex-start; }
+.tap-rating { color: #d97706; font-weight: 700; font-size: var(--tap-text-base); }
+.tap-rating small { color: var(--tap-neutral-500); font-weight: 400; }
+.tap-detail-agency { color: var(--tap-neutral-500); font-size: var(--tap-text-sm); margin: 0; }
+.tap-detail-agency a { color: var(--tap-primary); font-weight: 600; text-decoration: none; }
+.tap-verified-badge { display: inline-block; width: 18px; height: 18px; line-height: 18px; text-align: center; border-radius: 50%; background: #ecfdf5; color: #047857; font-size: 12px; font-weight: 700; vertical-align: middle; }
+.tap-detail-price { font-weight: 700; color: var(--tap-neutral-900); font-size: var(--tap-text-lg); }
+
 .tap-results-count { font-size: var(--tap-text-sm); color: var(--tap-neutral-500); margin: 0 0 var(--tap-space-4); }
 .tap-service-card-body { display: flex; flex-direction: column; align-items: center; gap: var(--tap-space-2); flex: 1; }
 .tap-service-card-body h3 a { color: var(--tap-neutral-900); text-decoration: none; }

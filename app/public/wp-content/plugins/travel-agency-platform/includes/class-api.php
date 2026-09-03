@@ -513,6 +513,10 @@ class TAP_API {
         return $data;
     }
 
+    public static function platform_support_phone() {
+        return (string) get_option('tap_support_phone', '');
+    }
+
     public static function get_price_key($type) {
         $keys = [
             'tap_accommodation' => '_tap_acc_price_per_night',
