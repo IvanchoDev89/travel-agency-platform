@@ -142,6 +142,88 @@ class TAP_PayPal {
         ];
     }
 
+    /**
+     * Create a generic PayPal Checkout v2 order (used for subscription and
+     * promotion payments in addition to bookings).
+     *
+     * @param float  $amount       Total to charge (USD).
+     * @param string $description  Line description shown in the checkout.
+     * @param string $reference_id Seller reference (e.g. sub/promo code).
+     * @param string $object_type  Object kind recorded on payment ('subscription' | 'promotion').
+     * @param int    $object_id    Object id recorded on payment.
+     *
+     * @return array|WP_Error { order_id, approval_url, status }
+     */
+    public static function create_order_generic($amount, $description, $reference_id, $object_type, $object_id) {
+        $token = self::get_access_token();
+        if (is_wp_error($token)) return $token;
+
+        $url = self::get_base_url() . '/v2/checkout/orders';
+
+        $body = [
+            'intent' => 'CAPTURE',
+            'purchase_units' => [[
+                'reference_id' => $reference_id,
+                'description'  => $description,
+                'amount' => [
+                    'currency_code' => 'USD',
+                    'value'         => number_format((float) $amount, 2, '.', ''),
+                    'breakdown' => [
+                        'item_total' => [
+                            'currency_code' => 'USD',
+                            'value'         => number_format((float) $amount, 2, '.', ''),
+                        ]
+                    ]
+                ],
+                'items' => [[
+                    'name'        => $description,
+                    'unit_amount' => [
+                        'currency_code' => 'USD',
+                        'value'         => number_format((float) $amount, 2, '.', ''),
+                    ],
+                    'quantity' => '1',
+                    'category' => 'DIGITAL_GOODS',
+                ]],
+            ]],
+        ];
+
+        $response = wp_remote_post($url, [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $token,
+                'Content-Type'  => 'application/json',
+            ],
+            'body'    => json_encode($body),
+            'timeout' => 30,
+        ]);
+
+        if (is_wp_error($response)) {
+            return new WP_Error('paypal_order_error', $response->get_error_message());
+        }
+
+        $result = json_decode(wp_remote_retrieve_body($response));
+
+        if (empty($result->id)) {
+            $error = $result->message ?? __('Could not create PayPal order', 'travel-agency-platform');
+            return new WP_Error('paypal_order_error', $error);
+        }
+
+        $approval_url = '';
+        foreach ($result->links as $link) {
+            if ($link->rel === 'payer-action') {
+                $approval_url = $link->href;
+                break;
+            }
+        }
+
+        TAP_Payment::record_order($result->id, $object_type, (int) $object_id, $amount, 'created');
+
+        return [
+            'order_id'     => $result->id,
+            'approval_url' => $approval_url,
+            'status'       => $result->status,
+        ];
+    }
+
     public static function capture_order($paypal_order_id) {
         $token = self::get_access_token();
         if (is_wp_error($token)) return $token;

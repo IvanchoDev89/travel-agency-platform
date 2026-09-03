@@ -10,6 +10,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ### Added
 
+- **P1 — Online payments via PayPal for subscriptions & promotions**:
+  - **PayPal Checkout v2** now charges **agency subscriptions** and **featured promotions** directly online, in addition to the existing booking payments.
+  - New generic order flow in `TAP_PayPal::create_order_generic()` + a `tap_payment_orders` ledger table mapping PayPal orders to subscription/promotion records.
+  - Plans page renders a **Pagar con PayPal** button per paid plan; promotions render an inline PayPal button per listing.
+  - New AJAX endpoints `tap_subscribe_paypal`, `tap_capture_subscription_paypal`, `tap_promo_paypal`, `tap_capture_promo_paypal`; webhooks route `PAYMENT.CAPTURE.COMPLETED` to activate the subscription/promotion.
+  - The **manual** confirmation flow remains as a fallback for both whenever PayPal is not configured.
+  - Add `tap_payment_orders` migration (idempotent).
 - **F-FF — Featured-first ordering**:
   - Archive and search results now sort *featured* listings first (stable within the existing sort order) across all service types.
   - Canonical meta-key map in `TAP_Promotions` (`_tap_acc_*`, `_tap_tour_*`, `_tap_trans_*`, `_tap_car_*`, `_tap_boat_*`, `_tap_pkg_*`) fixes the derived prefixes that broke featured/active lookups for accommodation, transport, and package types.

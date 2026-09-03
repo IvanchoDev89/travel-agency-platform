@@ -2,6 +2,39 @@
 defined('ABSPATH') || exit;
 
 class TAP_Payment {
+    public static function orders_table() {
+        global $wpdb;
+        return $wpdb->prefix . 'tap_payment_orders';
+    }
+
+    public static function record_order($paypal_order_id, $object_type, $object_id, $amount, $status = 'created', $capture_id = null) {
+        global $wpdb;
+        $existing = $wpdb->get_var($wpdb->prepare("SELECT id FROM " . self::orders_table() . " WHERE paypal_order_id = %s", $paypal_order_id));
+        if ($existing) {
+            return $wpdb->update(self::orders_table(), [
+                'status'     => $status,
+                'capture_id' => $capture_id,
+            ], ['id' => (int) $existing]);
+        }
+        return $wpdb->insert(self::orders_table(), [
+            'paypal_order_id' => $paypal_order_id,
+            'object_type'     => $object_type,
+            'object_id'       => (int) $object_id,
+            'amount'          => (float) $amount,
+            'status'          => $status,
+            'capture_id'      => $capture_id,
+        ]);
+    }
+
+    /** Resolve recorded object for a completed PayPal order (sub/promo). */
+    public static function resolve_order($paypal_order_id) {
+        global $wpdb;
+        return $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM " . self::orders_table() . " WHERE paypal_order_id = %s",
+            $paypal_order_id
+        ));
+    }
+
     public static function process_booking_payment($booking_id) {
         $booking = TAP_Booking::get_booking($booking_id);
         if (!$booking) return new WP_Error('invalid_booking', __('Booking not found', 'travel-agency-platform'));
@@ -128,7 +161,52 @@ class TAP_Payment {
             update_post_meta($booking_id, '_tap_payment_details', json_encode($capture));
 
             do_action('tap_payment_completed', $booking_id, 'paypal', $capture->id ?? '');
+            return;
         }
+
+        // Non-booking payments (subscription / promotion)
+        $order = self::resolve_order($paypal_order_id);
+        if (!$order) return;
+
+        self::record_order($paypal_order_id, $order->object_type, $order->object_id, $order->amount, 'completed', $capture->id ?? '');
+
+        if ('subscription' === $order->object_type) {
+            $sub_pay = TAP_Payment::confirm_subscription_payment((int) $order->object_id, 'paypal', $capture->id ?? '');
+            do_action('tap_payment_completed', 0, 'paypal', $capture->id ?? '');
+        } elseif ('promotion' === $order->object_type) {
+            TAP_Payment::confirm_promotion_payment((int) $order->object_id, 'paypal', $capture->id ?? '');
+            do_action('tap_payment_completed', 0, 'paypal', $capture->id ?? '');
+        }
+    }
+
+    /** Mark a subscription paid after PayPal capture (1 month per charge). */
+    public static function confirm_subscription_payment($sub_id, $method = 'paypal', $capture_id = '') {
+        global $wpdb;
+        $sub = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM " . $wpdb->prefix . 'tap_agency_subscriptions' . " WHERE id = %d AND status = 'pending' AND payment_status = 'pending'",
+            (int) $sub_id
+        ));
+        if (!$sub) return;
+        if ($capture_id) {
+            $wpdb->update($wpdb->prefix . 'tap_agency_subscriptions', ['notes' => sprintf(__('Paid via PayPal (capture %s)', 'travel-agency-platform'), $capture_id)], ['id' => (int) $sub_id]);
+        }
+        $until = TAP_Subscriptions::mark_paid((int) $sub_id, get_current_user_id(), 1);
+        return $until;
+    }
+
+    /** Activate a promotion after PayPal capture (1 month per charge). */
+    public static function confirm_promotion_payment($promo_id, $method = 'paypal', $capture_id = '') {
+        global $wpdb;
+        $promo = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM " . $wpdb->prefix . 'tap_promos' . " WHERE id = %d AND status = 'pending' AND payment_status = 'pending'",
+            (int) $promo_id
+        ));
+        if (!$promo) return;
+        if ($capture_id) {
+            $wpdb->update($wpdb->prefix . 'tap_promos', ['notes' => sprintf(__('Paid via PayPal (capture %s)', 'travel-agency-platform'), $capture_id)], ['id' => (int) $promo_id]);
+        }
+        TAP_Promotions::activate((int) $promo_id);
+        return true;
     }
 
     private static function handle_capture_denied($event) {

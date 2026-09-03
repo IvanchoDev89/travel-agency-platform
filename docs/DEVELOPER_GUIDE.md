@@ -287,6 +287,21 @@ Featured-listing promotions (`pending` → `active` → `expired`).
 
 Promotion activation sets the listing's `_tap_{type}_is_featured` to `1` and `_tap_{type}_featured_until` to the expiry date; expiry (auto or manual) clears both. Global price lives in the `tap_featured_price` option.
 
+### `{prefix}tap_payment_orders`
+
+Maps PayPal Checkout orders to subscription/promotion records for webhook routing.
+
+| Column | Notes |
+| --- | --- |
+| `id` | Primary key. |
+| `paypal_order_id` | Unique PayPal order id. |
+| `object_type` | `subscription` or `promotion`. |
+| `object_id` | Row id in `tap_agency_subscriptions` / `tap_promos`. |
+| `amount` / `status` / `capture_id` | Charge amount, lifecycle (`created`/`completed`), PayPal capture id. |
+| `created_at` / `updated_at` | |
+
+`TAP_Payment::record_order()` upserts by `paypal_order_id`; `resolve_order()` looks up the object to finalize on capture.
+
 ### `{prefix}tap_listing_views`
 
 Per-day listing view counts (analytics).
@@ -441,6 +456,9 @@ The platform monetizes through (1) **agency commissions**, (2) an optional **cli
 - **Total semantics** — `total_amount` = service subtotal + booking fee. `booking_fee` is stored separately so the agency commission is always calculated on the **subtotal** (fee belongs to the platform, never to the agency). Agency net = `total_amount − booking_fee − commission_amount`.
 - **Subscription plans** — `TAP_Subscriptions::active_plan($agency_id)` returns the active plan (or the free default). While active, its nonzero `commission_rate` overrides the agency commission in `TAP_Booking::get_agency_commission()`, and its `listing_limit` is enforced when the agency creates listings. Administration is manual: agencies request via `tap_agency_subscribe` (pending), admins confirm via the **Subscriptions** admin page (`TAP_Subscriptions::mark_paid()`), and expiry is automatic (`expire_active()`, run from an `init` transient guard).
 - **Featured promotions** — `TAP_Promotions::request($agency_id, $listing_id, $months)` validates ownership, plan featured slots (`TAP_Subscriptions::active_plan()->featured_slots`, so the free plan blocks promotions), and prevents duplicate pending requests. Admins confirm via `TAP_Promotions::activate()` (sets `_tap_{type}_is_featured` + `_tap_{type}_featured_until`), and `expire_active()` on an `init` transient unfeatures expired listings. Price comes from the `tap_featured_price` option. Featured is promo-driven only — there is no free-form editor checkbox anymore.
+- **Online payments (PayPal)** — `TAP_PayPal` implements Checkout v2: `get_access_token()`, `create_order()` (bookings), `create_order_generic()` (subscriptions & promotions), `capture_order()`, `verify_webhook()`, `refund_capture()`. Credentials come from options (`tap_paypal_client_id`, `tap_paypal_secret`, `tap_paypal_sandbox`, `tap_paypal_webhook_id`); `is_ready()` gates the buttons. Payment <-> object association for non-booking charges uses the `tap_payment_orders` ledger (`TAP_Payment::record_order()` / `resolve_order()`).
+- **Payment webhooks** — `TAP_Payment::handle_paypal_webhook()` (REST `tap/v1/paypal-webhook`) verifies signatures and routes events: `PAYMENT.CAPTURE.COMPLETED` marks bookings paid/confirmed and, for subscription/promotion orders, routes to `TAP_Payment::confirm_subscription_payment()` / `confirm_promotion_payment()` which call `TAP_Subscriptions::mark_paid()` / `TAP_Promotions::activate()`.
+- **AJAX payment endpoints** — booking: `tap_create_paypal_order` / `tap_capture_paypal_order`. Subscription: `tap_subscribe_paypal` / `tap_capture_subscription_paypal`. Promotion: `tap_promo_paypal` / `tap_capture_promo_paypal`. All are nonce-protected and agency-gated. The **manual** admin-confirmation flow (`tap_agency_subscribe`, `tap_promo_request`) remains as a fallback whenever PayPal is not ready.
 - **Reports** — `TAP_Admin_Dashboard::reports_page()` shows GMV, retained commissions, booking fees, and confirmed promotion revenue; `get_booking_stats()` exposes `revenue`, `commission`, `net`, and `fees`.
 - **Analytics** — `TAP_Dashboard::analytics_page()` (admin page `tap-analytics`, capability `tap_view_reports`) aggregates platform revenue across `tap_bookings` (commissions + booking fees, excluding `cancelled`/`refunded`), `tap_agency_subscriptions` (active plan MRR; paid subscriptions counted in the month of `created_at`), and `tap_promos` (paid promotions counted in the month of `updated_at`). It renders KPI cards, a 12-month stacked chart, top agencies (agency name resolved from the `tap_agency` post title joined on `agency_id`), top listings, and supports a `YYYY-MM` period filter (`tap_from`/`tap_to`). Two nonce-protected CSV exports are available: `export=bookings` (booking-level detail with fee/commission/net) and `export=summary` (monthly financial summary, now including views), handled by the private `analytics_csv_export()` before any HTML output.
 - **Featured-first ordering** — `TAP_Promotions::prefix_for_type()` maps each `tap_*` type to its canonical meta prefix (`_tap_acc_`, `_tap_tour_`, `_tap_trans_`, `_tap_car_`, `_tap_boat_`, `_tap_pkg_`); `keys_for_type()` derives all promotion meta keys from it. `TAP_Ajax::featured_sort_clauses()` hooks `posts_clauses` and prepends a `CASE WHEN featured THEN 0 ELSE 1 END` ordering term so featured listings sort first in archives and search without disturbing the user-chosen order.

@@ -521,6 +521,9 @@ class TAP_Shortcodes {
     private static function agency_panel($user) {
         global $wpdb;
 
+        $paypal_ready = class_exists('TAP_PayPal') ? TAP_PayPal::is_ready() : false;
+        $paypal_price = class_exists('TAP_Promotions') ? (float) TAP_Promotions::get_price() : 5;
+
         $agency_id  = TAP_Booking::get_agency_for_user($user->ID);
         $agency     = $agency_id ? get_post($agency_id) : null;
         $agency_name = $agency ? $agency->post_title : __('Your Agency', 'travel-agency-platform');
@@ -862,6 +865,16 @@ class TAP_Shortcodes {
                                         <span class="tap-promo-badge">★</span>
                                     <?php elseif ($is_pending_promo): ?>
                                         <span class="tap-promo-badge" style="background:#ffedd5;color:#c2410c;">&#8987;</span>
+                                    <?php elseif ($paypal_ready): ?>
+                                        <form class="tap-promo-paypal-form">
+                                            <input type="hidden" name="listing_id" value="<?php echo (int) $pl['id']; ?>">
+                                            <select name="months" class="tap-promo-months">
+                                                <?php foreach ([1, 3, 6, 12, 24] as $m): ?>
+                                                    <option value="<?php echo $m; ?>"><?php echo esc_html($m); ?> <?php esc_html_e('mes(es)', 'travel-agency-platform'); ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <div class="tap-promo-paypal-btn" data-listing-id="<?php echo (int) $pl['id']; ?>" data-price="<?php echo esc_attr((float) TAP_Promotions::get_price()); ?>"></div>
+                                        </form>
                                     <?php else: ?>
                                         <form class="tap-promo-form">
                                             <input type="hidden" name="listing_id" value="<?php echo (int) $pl['id']; ?>">
@@ -991,8 +1004,48 @@ class TAP_Shortcodes {
                     $btn.prop('disabled', false).text('!');
                 });
             });
+            var paypalPromoInit = false;
+            function initPromoPayPal() {
+                if (typeof tapPayPal === 'undefined' || paypalPromoInit) return;
+                paypalPromoInit = true;
+                document.querySelectorAll('.tap-promo-paypal-btn').forEach(function(holder){
+                    var $row = jQuery(holder).parents('form.tap-promo-paypal-form');
+                    var listingId = holder.getAttribute('data-listing-id');
+                    var basePrice = parseFloat(holder.getAttribute('data-price')) || 0;
+                    tapPayPal.Buttons({
+                        style: { label: 'paypal', layout: 'horizontal', height: 32 },
+                        createOrder: function(){
+                            var months = $row.find('[name="months"]').val() || 1;
+                            return $.post(tap_ajax.ajax_url, {
+                                action: 'tap_promo_paypal',
+                                listing_id: listingId,
+                                months: months,
+                                nonce: tap_ajax.agency_nonce
+                            }).then(function(res){
+                                if (res && res.success) return res.data.order_id;
+                                throw new Error(res && res.data && res.data.message ? res.data.message : 'Error');
+                            });
+                        },
+                        onApprove: function(data){
+                            return $.post(tap_ajax.ajax_url, {
+                                action: 'tap_capture_promo_paypal',
+                                paypal_order_id: data.orderID,
+                                nonce: tap_ajax.agency_nonce
+                            }).then(function(res){
+                                if (res && res.success) { alert(res.data.message); window.location.reload(); }
+                                else { alert(res && res.data && res.data.message ? res.data.message : 'Error'); }
+                            });
+                        }
+                    }).render(holder);
+                });
+            }
+            var promoCheck = setInterval(function(){ if (typeof tapPayPal !== 'undefined') { initPromoPayPal(); clearInterval(promoCheck); } }, 300);
+            setTimeout(function(){ clearInterval(promoCheck); }, 15000);
         })(jQuery);
         </script>
+        <?php if ($paypal_ready): ?>
+        <script src="https://www.paypal.com/sdk/js?client-id=<?php echo esc_attr(TAP_PayPal::get_client_id()); ?>&currency=USD" data-namespace="tapPayPal"></script>
+        <?php endif; ?>
         <?php
     }
 
@@ -1013,6 +1066,7 @@ class TAP_Shortcodes {
         $current      = $agency_id ? TAP_Subscriptions::current_subscription($agency_id) : null;
         $active_plan  = $agency_id ? TAP_Subscriptions::active_plan($agency_id) : null;
         $nonce        = wp_create_nonce('tap_plan_nonce');
+        $paypal_ready = class_exists('TAP_PayPal') ? TAP_PayPal::is_ready() : false;
 
         $html = '<div class="tap-plans-grid">';
         foreach ($plans as $plan) {
@@ -1049,7 +1103,9 @@ class TAP_Shortcodes {
             } elseif ($is_pending) {
                 $html .= '<p class="tap-plan-badge tap-plan-pending">' . esc_html__('Pago pendiente de confirmación', 'travel-agency-platform') . '</p>';
             } elseif ($agency_id) {
-                $html .= '<button type="button" class="tap-btn tap-btn-primary tap-plan-subscribe" data-plan-id="' . (int) $plan->id . '" data-nonce="' . esc_attr($nonce) . '">' . esc_html__('Seleccionar plan', 'travel-agency-platform') . '</button>';
+                $html .= $paypal_ready && (float) $plan->price_monthly > 0
+                    ? '<button type="button" class="tap-btn tap-btn-primary tap-plan-paypal" data-plan-id="' . (int) $plan->id . '" data-plan-name="' . esc_attr($plan->name) . '" data-amount="' . esc_attr((float) $plan->price_monthly) . '">' . esc_html__('Pagar con PayPal', 'travel-agency-platform') . '</button>'
+                    : '<button type="button" class="tap-btn tap-btn-primary tap-plan-subscribe" data-plan-id="' . (int) $plan->id . '" data-nonce="' . esc_attr($nonce) . '">' . esc_html__('Seleccionar plan', 'travel-agency-platform') . '</button>';
             }
             $html .= '</div>';
         }
@@ -1079,8 +1135,45 @@ class TAP_Shortcodes {
               }
             }).fail(function(){ alert("Error"); $btn.prop("disabled", false); });
           });
+
+          var paypalReady = false;
+          function initPlanPayPal() {
+            if (typeof tapPayPal === "undefined" || paypalReady) return;
+            paypalReady = true;
+            document.querySelectorAll(".tap-plan-paypal").forEach(function(btn){
+              var planId = btn.getAttribute("data-plan-id");
+              tapPayPal.Buttons({
+                createOrder: function(){
+                  return $.post(tap_ajax.ajax_url, {
+                    action: "tap_subscribe_paypal",
+                    plan_id: planId,
+                    nonce: ' . wp_json_encode($nonce) . '
+                  }).then(function(res){
+                    if (res.success) return res.data.order_id;
+                    throw new Error(res.data.message || "Error");
+                  });
+                },
+                onApprove: function(data){
+                  return $.post(tap_ajax.ajax_url, {
+                    action: "tap_capture_subscription_paypal",
+                    paypal_order_id: data.orderID,
+                    nonce: ' . wp_json_encode($nonce) . '
+                  }).then(function(res){
+                    if (res.success) { alert(res.data.message); window.location.reload(); }
+                    else { alert(res.data.message || "Error"); }
+                  });
+                }
+              }).render(btn);
+            });
+          }
+          var planCheck = setInterval(function(){ if (typeof tapPayPal !== "undefined") { initPlanPayPal(); clearInterval(planCheck); } }, 300);
+          setTimeout(function(){ clearInterval(planCheck); }, 15000);
         })(jQuery);
         </script>';
+
+        if ($paypal_ready) {
+            $html .= '<script src="https://www.paypal.com/sdk/js?client-id=' . esc_attr(TAP_PayPal::get_client_id()) . '&currency=USD" data-namespace="tapPayPal"></script>';
+        }
 
         return $html;
     }

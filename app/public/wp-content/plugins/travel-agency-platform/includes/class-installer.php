@@ -275,6 +275,24 @@ $cols_bookings = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
             ) {$wpdb->get_charset_collate()}");
         }
 
+        $payment_orders = $wpdb->prefix . 'tap_payment_orders';
+        if ($wpdb->get_var("SHOW TABLES LIKE '{$payment_orders}'") !== $payment_orders) {
+            $wpdb->query("CREATE TABLE {$payment_orders} (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                paypal_order_id varchar(64) NOT NULL,
+                object_type varchar(30) NOT NULL,
+                object_id bigint(20) NOT NULL,
+                amount decimal(10,2) NOT NULL DEFAULT 0,
+                status varchar(20) DEFAULT 'created',
+                capture_id varchar(64) DEFAULT NULL,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                UNIQUE KEY paypal_order (paypal_order_id),
+                KEY object (object_type, object_id)
+            ) {$wpdb->get_charset_collate()}");
+        }
+
         add_option('tap_featured_price', 5.00);
 
         $plan_count = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$plans_table}");

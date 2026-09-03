@@ -154,7 +154,13 @@ The reply (with author and timestamp) is shown alongside the original review. Re
 - Review generated commissions per booking (calculated on the service subtotal, before the client booking fee).
 - Commission totals are tracked in the platform's commission ledger for settlement.
 - The agency panel shows your **current plan** (plan name, valid until, listings used, and commission rate).
-- The **Destacados (promociones)** section lets you promote a listing: choose the number of months, request it, and the platform confirms the payment to activate it. Promotions count against your plan's featured slots; the free plan has none. A **★** badge appears on the listing while it is featured, and it is removed automatically when the promotion expires.
+- The **Destacados (promociones)** section lets you promote a listing: choose the number of months and pay. If online payment is configured, an inline **PayPal** button charges and activates the listing instantly; otherwise a manual request is sent for an administrator to confirm. Promotions count against your plan's featured slots; the free plan has none. A **★** badge appears on the listing while it is featured, and it is removed automatically when the promotion expires.
+
+### Paying for a plan / promotion with PayPal
+
+- On the **planes** page, paid plans show a **Pagar con PayPal** button. Completing the PayPal flow activates your plan for a month immediately — no manual confirmation needed. If PayPal is not configured, the **Seleccionar plan** button remains and an administrator confirms the manual payment.
+- Promotions are charged the same way: pick months and pay inline with the PayPal button; the listing becomes featured right away.
+- PayPal must be configured by an administrator in **Ajustes → PayPal Settings** (Client ID + Secret). Until then, the manual flow is used.
 - **Featured** listings appear **first** in archives and search results, ahead of non-featured ones in the same sort order.
 - The **Libro de comisiones** section lists your last 30 commission-generating bookings with a status pill per booking: **Cobrada** (settled) or **Por cobrar** (outstanding). Settlement history shows booking codes instead of raw IDs.
 
@@ -177,12 +183,18 @@ The reply (with author and timestamp) is shown alongside the original review. Re
 ## Manage subscription plans
 
 - **Plans** (admin → Plans): edit each plan's price, commission rate, listing limit, and featured slots.
-- **Subscriptions** (admin → Subscriptions): see every agency's current/past subscriptions. When an agency requests a plan, its subscription is **Pending** until you confirm the payment — use **Mark paid** (select renewal months) to activate it, or **Expire** to cancel it. Confirmed payments notify the agency by email, and the plan takes effect immediately.
+- **Subscriptions** (admin → Subscriptions): see every agency's current/past subscriptions. When an agency requests a plan, its subscription is **Pending** until a payment is received. With PayPal enabled, agencies pay online and the subscription activates automatically; otherwise confirm the manual payment with **Mark paid** (select renewal months) to activate it, or **Expire** to cancel it. Confirmed payments notify the agency by email, and the plan takes effect immediately.
 
 ## Manage featured promotions
 
-- **Promotions** (admin → Promotions): review agency requests (price = months × `tap_featured_price`), confirm the payment with **Marcar activo**, or **Expirar** promotions early.
+- **Promotions** (admin → Promotions): review agency requests (price = months × `tap_featured_price`). With PayPal enabled, agencies pay online and the listing activates automatically; otherwise confirm the manual payment with **Marcar activo**, or **Expirar** promotions early.
 - Active promotions mark the listing as **featured** (★) for the paid period; expired promotions remove the badge automatically. Confirmed promotion amounts are shown in **Reports**.
+
+## Configure online payments (PayPal)
+
+- **Ajustes → PayPal Settings** (`travel-agency-platform`): enable **PayPal**, set it to **Sandbox** or **Live** mode, and paste the **Client ID** and **Secret** from your PayPal app (developer dashboard, or live REST API app). Save and set **Webhook ID** to the verification value.
+- Webhook URL to register in PayPal: `https://<your-site>/wp-json/tap/v1/paypal-webhook`.
+- When ready, agencies see PayPal buttons for plan subscriptions and promotions and pay instantly; the platform records the charge in `tap_commission_payments`/ledger and activates the subscription/promotion automatically.
 
 ## View platform analytics
 
