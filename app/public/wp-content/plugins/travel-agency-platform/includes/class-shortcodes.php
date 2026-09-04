@@ -289,7 +289,7 @@ class TAP_Shortcodes {
             ];
 
             if ($atts['agency']) {
-                $prefix = '_tap_' . str_replace('tap_', '', $pt) . '_agency_id';
+                $prefix = '_tap_' . TAP_Post_Types::meta_prefix($pt) . '_agency_id';
                 $pt_args['meta_query'] = [
                     ['key' => $prefix, 'value' => intval($atts['agency'])],
                 ];
@@ -302,7 +302,7 @@ class TAP_Shortcodes {
             }
 
             if ($atts['featured'] === 'yes') {
-                $prefix = '_tap_' . str_replace('tap_', '', $pt);
+                $prefix = '_tap_' . TAP_Post_Types::meta_prefix($pt);
                 $pt_args['meta_query'][] = ['key' => $prefix . '_is_featured', 'value' => '1'];
             }
 
@@ -353,7 +353,7 @@ class TAP_Shortcodes {
 
         setup_postdata($post);
         $type = $post->post_type;
-        $prefix = '_tap_' . str_replace('tap_', '', $type);
+        $prefix = '_tap_' . TAP_Post_Types::meta_prefix($type);
 
         ob_start();
         echo TAP_SEO::visible_breadcrumbs($post);
@@ -528,7 +528,7 @@ class TAP_Shortcodes {
         $service = get_post(intval($atts['service_id']));
         if (!$service) return '<p>' . __('Service not found.', 'travel-agency-platform') . '</p>';
 
-        $prefix = '_tap_' . str_replace('tap_', '', $atts['service_type']);
+        $prefix = '_tap_' . TAP_Post_Types::meta_prefix($atts['service_type']);
 
         ob_start();
         ?>
@@ -1415,7 +1415,7 @@ class TAP_Shortcodes {
         $all_posts = [];
 
         foreach ($types as $pt) {
-            $prefix = '_tap_' . str_replace('tap_', '', $pt);
+            $prefix = '_tap_' . TAP_Post_Types::meta_prefix($pt);
             $q = new WP_Query([
                 'post_type'      => $pt,
                 'posts_per_page' => intval($atts['limit']),
@@ -1475,7 +1475,7 @@ class TAP_Shortcodes {
         $types = ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
 
         foreach ($types as $type) {
-            $prefix = '_tap_' . str_replace('tap_', '', $type) . '_agency_id';
+            $prefix = '_tap_' . TAP_Post_Types::meta_prefix($type) . '_agency_id';
             $posts = get_posts([
                 'post_type'      => $type,
                 'posts_per_page' => intval($atts['limit']),
@@ -1772,21 +1772,29 @@ class TAP_Shortcodes {
             return '<p class="tap-empty">' . esc_html__('Only agency accounts can manage listings.', 'travel-agency-platform') . '</p>';
         }
 
-        $acc_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-        $is_new = isset($_GET['new']);
+        $listing_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+        $new_type   = isset($_GET['new']) ? sanitize_key($_GET['new']) : '';
 
-        if ($acc_id) {
-            $acc = get_post($acc_id);
-            if (!$acc || 'tap_accommodation' !== $acc->post_type) {
+        if ($listing_id) {
+            $listing = get_post($listing_id);
+            $types   = TAP_Post_Types::get_service_types();
+            unset($types['tap_room']);
+            $types   = array_keys($types);
+            if (!$listing || !in_array($listing->post_type, $types, true)) {
                 return '<p class="tap-empty">' . esc_html__('Listing not found.', 'travel-agency-platform') . '</p>';
             }
-            if (!$is_admin && (int) get_post_meta($acc_id, '_tap_acc_agency_id', true) !== (int) $agency) {
+            if (!$is_admin && !self::agency_owns_listing_meta($listing_id, $listing->post_type, $agency)) {
                 return '<p class="tap-empty">' . esc_html__('You can only manage your own listings.', 'travel-agency-platform') . '</p>';
             }
-            return self::render_manage_editor($acc_id);
+            return self::render_manage_editor($listing_id, $listing->post_type);
         }
 
-        return self::render_manage_index($is_new, $agency, $is_admin);
+        return self::render_manage_index($new_type, $agency, $is_admin);
+    }
+
+    private static function agency_owns_listing_meta($listing_id, $type, $agency) {
+        $prefix = TAP_Post_Types::meta_prefix($type);
+        return (int) get_post_meta($listing_id, '_tap_' . $prefix . '_agency_id', true) === (int) $agency;
     }
 
     private static function manage_agency_id($agency, $is_admin) {
@@ -1797,55 +1805,74 @@ class TAP_Shortcodes {
         return (int) $agency;
     }
 
-    private static function render_manage_index($is_new, $agency, $is_admin) {
+    private static function render_manage_index($new_type, $agency, $is_admin) {
         $agency_id = self::manage_agency_id($agency, $is_admin);
+        $types     = TAP_Post_Types::get_service_types();
+        unset($types['tap_room']);
         ob_start();
         ?>
         <div class="tap-agency-panel tap-manage-wrap">
             <div class="tap-panel-head">
                 <div>
                     <h2 class="tap-panel-title"><?php esc_html_e('Manage your listings', 'travel-agency-platform'); ?></h2>
-                    <p class="tap-panel-sub"><?php esc_html_e('Create and edit your accommodations and rooms from the front-end.', 'travel-agency-platform'); ?></p>
+                    <p class="tap-panel-sub"><?php esc_html_e('Create and edit your services from the front-end.', 'travel-agency-platform'); ?></p>
                 </div>
-                <a class="tap-btn tap-btn-primary" href="<?php echo esc_url(home_url('/manage-listing/?new=accommodation')); ?>">+ <?php esc_html_e('Nuevo alojamiento', 'travel-agency-platform'); ?></a>
+                <div class="tap-manage-new">
+                    <span class="tap-manage-new-label"><?php esc_html_e('Nuevo:', 'travel-agency-platform'); ?></span>
+                    <select class="tap-input tap-manage-type-select" onchange="if(this.value) window.location.href='<?php echo esc_url(home_url('/manage-listing/')); ?>?new='+this.value;">
+                        <option value=""><?php esc_html_e('Seleccionar tipo…', 'travel-agency-platform'); ?></option>
+                        <?php foreach ($types as $pt => $label): ?>
+                            <option value="<?php echo esc_attr($pt); ?>"><?php echo esc_html($label); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
             </div>
 
-            <?php if ($is_new): ?>
-                <?php echo self::render_manage_editor(0); ?>
+            <?php if ($new_type && isset($types[$new_type])): ?>
+                <?php echo self::render_manage_editor(0, $new_type); ?>
             <?php else: ?>
             <div class="tap-grid tap-listings-grid">
                 <?php
-                $args = [
-                    'post_type'      => 'tap_accommodation',
-                    'post_status'    => 'publish',
-                    'posts_per_page' => 50,
-                    'meta_key'       => '_tap_acc_agency_id',
-                ];
-                $args = $agency_id
-                    ? array_merge($args, ['meta_value' => $agency_id])
-                    : ['post_type' => 'tap_accommodation', 'post_status' => 'publish', 'posts_per_page' => 50];
-
-                $listings = get_posts($args);
-                if (!$listings) {
-                    echo '<p class="tap-empty">' . esc_html__('You have no listings yet. Create your first accommodation.', 'travel-agency-platform') . '</p>';
+                $empty = true;
+                foreach ($types as $pt => $label) {
+                    $prefix = TAP_Post_Types::meta_prefix($pt);
+                    $args = [
+                        'post_type'      => $pt,
+                        'post_status'    => 'publish',
+                        'posts_per_page' => 50,
+                    ];
+                    if ($agency_id) {
+                        $args['meta_key']   = '_tap_' . $prefix . '_agency_id';
+                        $args['meta_value'] = $agency_id;
+                    }
+                    $listings = get_posts($args);
+                    if (!$listings) {
+                        continue;
+                    }
+                    $empty = false;
+                    foreach ($listings as $l) {
+                        $active   = '1' === get_post_meta($l->ID, '_tap_' . $prefix . '_is_active', true);
+                        $city     = get_post_meta($l->ID, '_tap_' . $prefix . '_city', true)
+                                    ?: get_post_meta($l->ID, '_tap_' . $prefix . '_location', true)
+                                    ?: get_post_meta($l->ID, '_tap_' . $prefix . '_departure', true);
+                        $edit_url = home_url('/manage-listing/?id=' . $l->ID);
+                        ?>
+                        <div class="tap-listing-card">
+                            <div class="tap-listing-card-head">
+                                <strong><?php echo esc_html($l->post_title); ?></strong>
+                                <span class="tap-badge"><?php echo esc_html($label); ?></span>
+                                <span class="tap-badge <?php echo $active ? 'tap-badge-ok' : 'tap-badge-off'; ?>"><?php echo $active ? esc_html__('Activo', 'travel-agency-platform') : esc_html__('Inactivo', 'travel-agency-platform'); ?></span>
+                            </div>
+                            <div class="tap-listing-card-meta">
+                                <span><?php echo esc_html($city ?: '—'); ?></span>
+                            </div>
+                            <a class="tap-btn tap-btn-sm" href="<?php echo esc_url($edit_url); ?>"><?php esc_html_e('Editar', 'travel-agency-platform'); ?></a>
+                        </div>
+                        <?php
+                    }
                 }
-                foreach ($listings as $l) {
-                    $rooms      = get_posts(['post_type' => 'tap_room', 'post_status' => 'publish', 'posts_per_page' => -1, 'meta_key' => '_tap_room_accommodation_id', 'meta_value' => $l->ID]);
-                    $active     = '1' === get_post_meta($l->ID, '_tap_acc_is_active', true);
-                    $edit_url   = home_url('/manage-listing/?id=' . $l->ID);
-                    ?>
-                    <div class="tap-listing-card">
-                        <div class="tap-listing-card-head">
-                            <strong><?php echo esc_html($l->post_title); ?></strong>
-                            <span class="tap-badge <?php echo $active ? 'tap-badge-ok' : 'tap-badge-off'; ?>"><?php echo $active ? esc_html__('Activo', 'travel-agency-platform') : esc_html__('Inactivo', 'travel-agency-platform'); ?></span>
-                        </div>
-                        <div class="tap-listing-card-meta">
-                            <span><?php echo count($rooms); ?> <?php esc_html_e('habitaciones', 'travel-agency-platform'); ?></span>
-                            <span><?php echo esc_html(get_post_meta($l->ID, '_tap_acc_city', true) ?: 'Sin ciudad'); ?></span>
-                        </div>
-                        <a class="tap-btn tap-btn-sm" href="<?php echo esc_url($edit_url); ?>"><?php esc_html_e('Editar', 'travel-agency-platform'); ?></a>
-                    </div>
-                    <?php
+                if ($empty) {
+                    echo '<p class="tap-empty">' . esc_html__('You have no listings yet. Use "Nuevo" to create your first service.', 'travel-agency-platform') . '</p>';
                 }
                 ?>
             </div>
@@ -1855,102 +1882,92 @@ class TAP_Shortcodes {
         return ob_get_clean();
     }
 
-    private static function render_manage_editor($acc_id) {
-        $is_edit = (bool) $acc_id;
-        $acc     = $is_edit ? get_post($acc_id) : null;
-
-        $types = ['hotel' => 'Hotel', 'hostel' => 'Hostel', 'resort' => 'Resort', 'villa' => 'Villa', 'cabin' => 'Cabin', 'apartment' => 'Apartment', 'boutique' => 'Boutique Hotel', 'eco' => 'Eco-Lodge'];
+    private static function render_manage_editor($listing_id, $type) {
+        $is_edit   = (bool) $listing_id;
+        $listing   = $is_edit ? get_post($listing_id) : null;
+        $prefix    = TAP_Post_Types::meta_prefix($type);
+        $type_label = TAP_Post_Types::get_service_types()[$type] ?? ucfirst($type);
+        $fields    = TAP_Metaboxes::get_fields($type);
+        $action    = $is_edit ? __('Edit listing', 'travel-agency-platform') : sprintf(__('New %s', 'travel-agency-platform'), $type_label);
 
         ob_start();
         ?>
         <div class="tap-agency-panel tap-manage-wrap">
             <div class="tap-panel-head">
                 <div>
-                    <h2 class="tap-panel-title"><?php echo $is_edit ? esc_html__('Edit listing', 'travel-agency-platform') : esc_html__('New accommodation', 'travel-agency-platform'); ?></h2>
+                    <h2 class="tap-panel-title"><?php echo esc_html($action); ?></h2>
                 </div>
                 <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(home_url('/manage-listing/')); ?>">&larr; <?php esc_html_e('Volver', 'travel-agency-platform'); ?></a>
             </div>
 
             <form class="tap-manage-form" id="tap-listing-form">
                 <?php wp_nonce_field('tap_agency_listing_nonce', 'nonce'); ?>
-                <input type="hidden" name="listing_id" value="<?php echo (int) $acc_id; ?>">
+                <input type="hidden" name="listing_id" value="<?php echo (int) $listing_id; ?>">
+                <input type="hidden" name="listing_type" value="<?php echo esc_attr($type); ?>">
                 <div class="tap-form-grid">
                     <div class="tap-field tap-span-2">
-                        <label><?php esc_html_e('Nombre del alojamiento *', 'travel-agency-platform'); ?></label>
-                        <input type="text" name="title" required value="<?php echo esc_attr($acc ? $acc->post_title : ''); ?>">
+                        <label><?php esc_html_e('Nombre *', 'travel-agency-platform'); ?></label>
+                        <input type="text" name="title" required value="<?php echo esc_attr($listing ? $listing->post_title : ''); ?>">
                     </div>
                     <div class="tap-field tap-span-2">
                         <label><?php esc_html_e('Descripción', 'travel-agency-platform'); ?></label>
-                        <textarea name="description" rows="4"><?php echo esc_textarea($acc ? $acc->post_content : ''); ?></textarea>
+                        <textarea name="description" rows="4"><?php echo esc_textarea($listing ? $listing->post_content : ''); ?></textarea>
                     </div>
-                    <div class="tap-field">
-                        <label><?php esc_html_e('Tipo', 'travel-agency-platform'); ?></label>
-                        <select name="type">
-                            <?php foreach ($types as $k => $v) {
-                                $sel = $acc && $k === get_post_meta($acc_id, '_tap_acc_type', true) ? ' selected' : '';
-                                echo '<option value="' . esc_attr($k) . '"' . $sel . '>' . esc_html($v) . '</option>';
-                            } ?>
-                        </select>
-                    </div>
-                    <div class="tap-field">
-                        <label><?php esc_html_e('Estrellas', 'travel-agency-platform'); ?></label>
-                        <select name="stars">
-                            <option value="">—</option>
-                            <?php foreach (['1', '2', '3', '4', '5'] as $s) {
-                                $sel = $acc && $s === get_post_meta($acc_id, '_tap_acc_stars', true) ? ' selected' : '';
-                                echo '<option value="' . esc_attr($s) . '"' . $sel . '>' . esc_html($s) . '★</option>';
-                            } ?>
-                        </select>
-                    </div>
-                    <div class="tap-field">
-                        <label><?php esc_html_e('Precio/noche ($) — fallback sin habitaciones', 'travel-agency-platform'); ?></label>
-                        <input type="number" name="price_per_night" min="0" step="0.01" value="<?php echo esc_attr($acc ? get_post_meta($acc_id, '_tap_acc_price_per_night', true) : ''); ?>">
-                    </div>
-                    <div class="tap-field">
-                        <label><?php esc_html_e('Máx. huéspedes', 'travel-agency-platform'); ?></label>
-                        <input type="number" name="capacity" min="0" value="<?php echo esc_attr($acc ? get_post_meta($acc_id, '_tap_acc_capacity', true) : ''); ?>">
-                    </div>
-                    <div class="tap-field">
-                        <label><?php esc_html_e('Dormitorios', 'travel-agency-platform'); ?></label>
-                        <input type="number" name="bedrooms" min="0" value="<?php echo esc_attr($acc ? get_post_meta($acc_id, '_tap_acc_bedrooms', true) : ''); ?>">
-                    </div>
-                    <div class="tap-field">
-                        <label><?php esc_html_e('Baños', 'travel-agency-platform'); ?></label>
-                        <input type="number" name="bathrooms" min="0" value="<?php echo esc_attr($acc ? get_post_meta($acc_id, '_tap_acc_bathrooms', true) : ''); ?>">
-                    </div>
-                    <div class="tap-field">
-                        <label><?php esc_html_e('Check-in', 'travel-agency-platform'); ?></label>
-                        <input type="time" name="checkin_time" value="<?php echo esc_attr($acc ? get_post_meta($acc_id, '_tap_acc_checkin_time', true) : '15:00'); ?>">
-                    </div>
-                    <div class="tap-field">
-                        <label><?php esc_html_e('Check-out', 'travel-agency-platform'); ?></label>
-                        <input type="time" name="checkout_time" value="<?php echo esc_attr($acc ? get_post_meta($acc_id, '_tap_acc_checkout_time', true) : '11:00'); ?>">
-                    </div>
-                    <div class="tap-field">
-                        <label><?php esc_html_e('Latitud', 'travel-agency-platform'); ?></label>
-                        <input type="text" name="lat" value="<?php echo esc_attr($acc ? get_post_meta($acc_id, '_tap_acc_lat', true) : ''); ?>">
-                    </div>
-                    <div class="tap-field">
-                        <label><?php esc_html_e('Longitud', 'travel-agency-platform'); ?></label>
-                        <input type="text" name="lng" value="<?php echo esc_attr($acc ? get_post_meta($acc_id, '_tap_acc_lng', true) : ''); ?>">
-                    </div>
-                    <div class="tap-field">
-                        <label><?php esc_html_e('Moneda', 'travel-agency-platform'); ?></label>
-                        <input type="text" name="currency" value="<?php echo esc_attr($acc ? get_post_meta($acc_id, '_tap_acc_currency', true) : 'USD'); ?>">
-                    </div>
-                    <div class="tap-field">
-                        <label class="tap-check-label">
-                            <input type="checkbox" name="is_active" value="1" <?php checked('1', $acc ? get_post_meta($acc_id, '_tap_acc_is_active', true) : '1'); ?>>
-                            <?php esc_html_e('Activo (visible en la web)', 'travel-agency-platform'); ?>
-                        </label>
-                    </div>
+                    <?php
+                    foreach ($fields as $meta_key => $cfg) {
+                        if (strpos($meta_key, '_tap_' . $prefix . '_agency_id') !== false) {
+                            continue;
+                        }
+                        if ($meta_key === '_tap_seo_title' || $meta_key === '_tap_seo_description') {
+                            continue;
+                        }
+                        $ftype  = isset($cfg['type']) ? $cfg['type'] : 'text';
+                        $label  = isset($cfg['label']) ? $cfg['label'] : $meta_key;
+                        $value  = $is_edit ? get_post_meta($listing_id, $meta_key, true) : (isset($cfg['default']) ? $cfg['default'] : '');
+                        $span   = ($ftype === 'textarea') ? ' tap-span-2' : '';
+                        echo '<div class="tap-field' . $span . '">';
+                        switch ($ftype) {
+                            case 'checkbox':
+                                echo '<label class="tap-check-label"><input type="checkbox" name="' . esc_attr($meta_key) . '" value="1" ' . checked('1', (string) $value, false) . '> ' . esc_html($label) . '</label>';
+                                break;
+                            case 'select':
+                                echo '<label>' . esc_html($label) . '</label><select name="' . esc_attr($meta_key) . '"><option value="">—</option>';
+                                foreach ($cfg['options'] as $k => $v) {
+                                    $sel = (string) $value !== '' && (string) $k === (string) $value ? ' selected' : '';
+                                    echo '<option value="' . esc_attr($k) . '"' . $sel . '>' . esc_html($v) . '</option>';
+                                }
+                                echo '</select>';
+                                break;
+                            case 'number':
+                                $step = isset($cfg['step']) ? ' step="' . esc_attr($cfg['step']) . '"' : '';
+                                echo '<label>' . esc_html($label) . '</label><input type="number" name="' . esc_attr($meta_key) . '" min="0"' . $step . ' value="' . esc_attr($value) . '">';
+                                break;
+                            case 'email':
+                                echo '<label>' . esc_html($label) . '</label><input type="email" name="' . esc_attr($meta_key) . '" value="' . esc_attr($value) . '">';
+                                break;
+                            case 'url':
+                                echo '<label>' . esc_html($label) . '</label><input type="url" name="' . esc_attr($meta_key) . '" value="' . esc_attr($value) . '">';
+                                break;
+                            case 'time':
+                                echo '<label>' . esc_html($label) . '</label><input type="time" name="' . esc_attr($meta_key) . '" value="' . esc_attr($value) . '">';
+                                break;
+                            case 'textarea':
+                                echo '<label>' . esc_html($label) . '</label><textarea name="' . esc_attr($meta_key) . '" rows="3">' . esc_textarea($value) . '</textarea>';
+                                break;
+                            default:
+                                echo '<label>' . esc_html($label) . '</label><input type="text" name="' . esc_attr($meta_key) . '" value="' . esc_attr($value) . '">';
+                        }
+                        echo '</div>';
+                    }
+                    ?>
                 </div>
-                <button type="submit" class="tap-btn tap-btn-primary"><?php echo $is_edit ? esc_html__('Guardar cambios', 'travel-agency-platform') : esc_html__('Crear alojamiento', 'travel-agency-platform'); ?></button>
+                <button type="submit" class="tap-btn tap-btn-primary"><?php echo $is_edit ? esc_html__('Guardar cambios', 'travel-agency-platform') : esc_html__('Crear servicio', 'travel-agency-platform'); ?></button>
                 <span class="tap-form-msg"></span>
             </form>
 
-            <?php if ($is_edit): ?>
+            <?php if ($is_edit && $type === 'tap_accommodation'): ?>
                 <?php
+                $acc_id = $listing_id;
                 $rooms = get_posts(['post_type' => 'tap_room', 'post_status' => ['publish', 'draft'], 'posts_per_page' => -1, 'orderby' => 'ID', 'order' => 'ASC', 'meta_key' => '_tap_room_accommodation_id', 'meta_value' => $acc_id]);
                 ?>
                 <hr class="tap-manage-hr">

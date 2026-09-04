@@ -50,6 +50,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 - **F-TS — Test suite**:
   - `tests/run.sh` runner (WP-CLI based, target site via `SITE`/`WP_PATH`) plus consolidated E2E suites: `suite_core`, `suite_bookings`, `suite_commissions`, `suite_promotions`, `suite_views`, `suite_analytics`.
   - Suites are self-cleaning (delete seeded rows) and idempotent on re-run.
+- **P2 — Auto-service listing manager (generalized to all 6 service types)**:
+  - The front-end **manage-listing** panel now Creates/Edits **all** public service types (accommodation, tour, transport, car rental, boat, package) through a generic editor driven by `TAP_Metaboxes::get_fields()`. `tap_room` is intentionally not creatable by providers.
+  - The save handler was extracted into a testable core, `TAP_Ajax::save_listing_data()`, that never dies, decoupled from the AJAX/`wp_send_json` wrapper; it validates ownership (`agency_owns_listing`), enforces the plan listing limit, and persists fields with per-type sanitization (plus legacy short-name mapping for the accommodation form).
+  - New single source of truth for per-type meta prefixes, `TAP_Post_Types::meta_prefix()` (`acc`, `tour`, `trans`, `car`, `boat`, `pkg`), applied across ajax, shortcodes, API, dashboard and promotions. `TAP_Promotions::prefix_for_type()` now delegates to it. This fixes a latent bug where the owner/`_is_active` lookups wrote/read the wrong keys for accommodation, transport, car-rental and package.
+  - New site-agnostic E2E suite `suite_agency_manage`: discovers an agency user dynamically (and creates a temporary second agency when the install has only one), covers create/edit/ownership across all types, and verifies the owner lands on the canonical meta key (no strays on derived keys).
+  - `suite_seo` now picks its search keyword from an **active** listing (the results page filters `_is_active=1`), so it no longer depends on the newest published post being active.
 
 ### Fixed
 

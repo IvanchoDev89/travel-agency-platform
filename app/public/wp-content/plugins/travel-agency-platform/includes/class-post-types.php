@@ -265,6 +265,22 @@ class TAP_Post_Types {
         return isset($slugs[$post_type]) ? $slugs[$post_type] : '';
     }
 
+    /**
+     * Resolve the per-type metadata prefix (without leading "_tap_").
+     * Canonical map for all service types' meta keys.
+     */
+    public static function meta_prefix($post_type) {
+        $prefixes = [
+            'tap_accommodation' => 'acc',
+            'tap_tour'          => 'tour',
+            'tap_transport'     => 'trans',
+            'tap_car_rental'    => 'car',
+            'tap_boat'          => 'boat',
+            'tap_package'       => 'pkg',
+        ];
+        return isset($prefixes[$post_type]) ? $prefixes[$post_type] : '';
+    }
+
     public static function get_accommodation_rooms($accommodation_id) {
         return get_posts([
             'post_type'      => 'tap_room',

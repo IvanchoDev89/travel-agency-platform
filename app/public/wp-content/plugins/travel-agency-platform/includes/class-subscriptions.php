@@ -89,11 +89,21 @@ class TAP_Subscriptions {
     }
 
     public static function listing_limit($agency_id) {
-        $plan = self::active_plan($agency_id);
+        $limit = null;
+        $plan  = self::active_plan($agency_id);
         if ($plan && isset($plan->listing_limit)) {
-            return (int) $plan->listing_limit;
+            $limit = (int) $plan->listing_limit;
+        } else {
+            $limit = (int) self::default_plan()->listing_limit;
         }
-        return (int) self::default_plan()->listing_limit;
+        /**
+         * Filter the listing limit for an agency. Returns negative (< 0) to
+         * indicate "unlimited". Useful for product bundles and for E2E tests.
+         *
+         * @param int      $limit     Resolved limit.
+         * @param int      $agency_id Agency post ID.
+         */
+        return (int) apply_filters('tap_listing_limit', $limit, $agency_id);
     }
 
     public static function listing_count($agency_id) {

@@ -16,15 +16,8 @@ class TAP_Promotions {
     }
 
     public static function prefix_for_type($type) {
-        $prefixes = [
-            'tap_accommodation' => 'acc',
-            'tap_tour'          => 'tour',
-            'tap_transport'     => 'trans',
-            'tap_car_rental'    => 'car',
-            'tap_boat'          => 'boat',
-            'tap_package'       => 'pkg',
-        ];
-        return isset($prefixes[$type]) ? $prefixes[$type] : null;
+        $prefix = TAP_Post_Types::meta_prefix($type);
+        return $prefix !== '' ? $prefix : null;
     }
 
     public static function keys_for_type($type) {

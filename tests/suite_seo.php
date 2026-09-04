@@ -101,8 +101,20 @@ $out = tap_seo_render();
 tap_t_assert(strpos($out, 'rel="canonical"') !== false && preg_match('/<meta name="description" content="[^"]+">/', $out) === 1, "[seo] agency archive canonical + description present");
 
 // 5) Search results shortcode: nonempty state + empty state + no-keyword prompt
-$any = get_posts(['post_type' => $service_types, 'post_status' => 'publish', 'posts_per_page' => 1]);
-$kw = ($any && trim($any[0]->post_title) !== '') ? $any[0]->post_title : 'tour';
+// Pick a keyword from an ACTIVE listing (the search filters by _is_active=1),
+// so the test never depends on a stale/inactive leftover listing.
+$kw       = '';
+$searched = get_posts(['post_type' => $service_types, 'post_status' => 'publish', 'posts_per_page' => 100]);
+foreach ($searched as $p) {
+    $pre = TAP_Post_Types::meta_prefix($p->post_type);
+    if ('1' === get_post_meta($p->ID, '_tap_' . $pre . '_is_active', true) && trim($p->post_title) !== '') {
+        $kw = $p->post_title;
+        break;
+    }
+}
+if ($kw === '') {
+    tap_t_fail('[conversion] no ACTIVE listing exists to use as a search keyword');
+}
 $_GET['keyword'] = $kw;
 $out = do_shortcode('[tap_search_results]');
 tap_t_assert(strpos($out, 'tap-service-card') !== false, "[conversion] search_results renders result cards ($kw)");

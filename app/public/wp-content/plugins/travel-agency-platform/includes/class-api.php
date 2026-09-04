@@ -98,7 +98,7 @@ class TAP_API {
                 'posts_per_page' => 10,
                 'post_status'    => 'publish',
                 'meta_query'     => [
-                    ['key' => '_tap_' . str_replace('tap_', '', $type) . '_is_active', 'value' => '1'],
+                    ['key' => '_tap_' . TAP_Post_Types::meta_prefix($type) . '_is_active', 'value' => '1'],
                 ],
             ]);
 
@@ -128,7 +128,7 @@ class TAP_API {
             'paged'          => intval($paged),
             'post_status'    => 'publish',
             'meta_query'     => [
-                ['key' => '_tap_' . str_replace('tap_', '', $type) . '_is_active', 'value' => '1'],
+                ['key' => '_tap_' . TAP_Post_Types::meta_prefix($type) . '_is_active', 'value' => '1'],
             ],
         ];
 
@@ -197,7 +197,7 @@ class TAP_API {
         $services = [];
 
         foreach ($service_types as $st) {
-            $prefix = '_tap_' . str_replace('tap_', '', $st) . '_agency_id';
+            $prefix = '_tap_' . TAP_Post_Types::meta_prefix($st) . '_agency_id';
             $posts = get_posts([
                 'post_type'      => $st,
                 'posts_per_page' => -1,
@@ -237,7 +237,7 @@ class TAP_API {
                 'post_status'    => 'publish',
                 's'              => $keyword,
                 'meta_query'     => [
-                    ['key' => '_tap_' . str_replace('tap_', '', $pt) . '_is_active', 'value' => '1'],
+                    ['key' => '_tap_' . TAP_Post_Types::meta_prefix($pt) . '_is_active', 'value' => '1'],
                 ],
             ];
 
@@ -432,7 +432,7 @@ class TAP_API {
     }
 
     private static function format_service($post, $type, $detailed = false) {
-        $prefix = '_tap_' . str_replace('tap_', '', $type);
+        $prefix = '_tap_' . TAP_Post_Types::meta_prefix($type);
         $price_key = self::get_price_key($type);
 
         $data = [
@@ -555,7 +555,7 @@ class TAP_API {
         $types = ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
 
         foreach ($types as $type) {
-            $prefix = '_tap_' . str_replace('tap_', '', $type) . '_agency_id';
+            $prefix = '_tap_' . TAP_Post_Types::meta_prefix($type) . '_agency_id';
             $count += count(get_posts([
                 'post_type'      => $type,
                 'post_status'    => 'publish',

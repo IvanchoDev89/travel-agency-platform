@@ -96,6 +96,30 @@ wp-content/
 | `tap_boat` | Boat / nautical service. |
 | `tap_package` | Bundled package. |
 
+#### Per-type meta key prefixes
+
+Each service post type stores its listing metadata under a **meta prefix** that is *not*
+always the post type's suffix. Use the canonical map — `TAP_Post_Types::meta_prefix($type)` —
+as the **single source of truth**; never derive it with `str_replace('tap_', '', $type)`.
+
+| Post type | Prefix | Example meta keys |
+| --- | --- | --- |
+| `tap_accommodation` | `acc` | `_tap_acc_agency_id`, `_tap_acc_price_per_night`, `_tap_acc_is_active` |
+| `tap_tour` | `tour` | `_tap_tour_agency_id`, `_tap_tour_price_adult` |
+| `tap_transport` | `trans` | `_tap_trans_agency_id`, `_tap_trans_price` |
+| `tap_car_rental` | `car` | `_tap_car_agency_id`, `_tap_car_price_per_day` |
+| `tap_boat` | `boat` | `_tap_boat_agency_id`, `_tap_boat_price` |
+| `tap_package` | `pkg` | `_tap_pkg_agency_id`, `_tap_pkg_price_adult` |
+
+Common keys built from the prefix: `_tap_{prefix}_agency_id` (owning agency),
+`_tap_{prefix}_is_active` (visibility), `_tap_{prefix}_is_featured` /
+`_tap_{prefix}_featured_until` (promotions). Use `TAP_Promotions::keys_for_type($type)`
+when you need all of them at once.
+
+`TAP_Promotions::prefix_for_type()` delegates to `meta_prefix()`, and
+`TAP_Ajax::listing_prefix()` is the same helper — so owner/active/featured lookups in the
+admin, public API, shortcodes, and the agency manager all agree.
+
 ### Taxonomies
 
 | Taxonomy | Applied to |

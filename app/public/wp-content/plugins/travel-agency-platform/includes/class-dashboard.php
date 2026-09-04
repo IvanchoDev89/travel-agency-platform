@@ -1712,7 +1712,7 @@ class TAP_Dashboard {
     public static function render_agency_column($column, $post_id) {
         if ($column !== 'agency') return;
         $post_type = get_post_type($post_id);
-        $prefix = '_tap_' . str_replace('tap_', '', $post_type) . '_agency_id';
+        $prefix = '_tap_' . TAP_Post_Types::meta_prefix($post_type) . '_agency_id';
         $agency_id = get_post_meta($post_id, $prefix, true);
         if ($agency_id) {
             $agency = get_post($agency_id);

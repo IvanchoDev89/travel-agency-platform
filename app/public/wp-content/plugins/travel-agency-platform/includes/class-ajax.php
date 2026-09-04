@@ -907,94 +907,170 @@ class TAP_Ajax {
         ] );
     }
 
-    private static function agency_owns_accommodation( $acc_id ) {
+    /**
+     * Resolve the per-type meta prefix from a listing post type.
+     */
+    private static function listing_prefix($type) {
+        return TAP_Post_Types::meta_prefix($type);
+    }
+
+    private static function agency_owns_listing($listing_id, $type) {
         global $wpdb;
         $user   = wp_get_current_user();
-        $agency = self::current_agency_for( $user->ID );
-        if ( null === $agency ) {
+        $agency = self::current_agency_for($user->ID);
+        if (null === $agency) {
             return true;
         }
-        $acc_agency = (int) get_post_meta( $acc_id, '_tap_acc_agency_id', true );
-        return $acc_agency > 0 && $acc_agency === (int) $agency;
+        $prefix  = self::listing_prefix($type);
+        $owner   = (int) get_post_meta($listing_id, '_tap_' . $prefix . '_agency_id', true);
+        return $owner > 0 && $owner === (int) $agency;
+    }
+
+    private static function agency_owns_accommodation($acc_id) {
+        return self::agency_owns_listing($acc_id, 'tap_accommodation');
     }
 
     public static function agency_save_listing() {
-        check_ajax_referer( 'tap_agency_listing_nonce', 'nonce' );
-        if ( ! is_user_logged_in() ) {
-            wp_send_json_error( [ 'message' => __( 'Authentication required', 'travel-agency-platform' ) ] );
-        }
-        $user   = wp_get_current_user();
-        $agency = self::current_agency_for( $user->ID );
-
-        $listing_id = isset( $_POST['listing_id'] ) ? intval( $_POST['listing_id'] ) : 0;
-
-        if ( $listing_id && ! self::agency_owns_accommodation( $listing_id ) ) {
-            wp_send_json_error( [ 'message' => __( 'You can only manage your own listings.', 'travel-agency-platform' ) ] );
+        check_ajax_referer('tap_agency_listing_nonce', 'nonce');
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => __('Authentication required', 'travel-agency-platform')]);
         }
 
-        $title = isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '';
-        if ( '' === $title ) {
-            wp_send_json_error( [ 'message' => __( 'Name is required', 'travel-agency-platform' ) ] );
+        $result = self::save_listing_data(get_current_user_id(), $_POST);
+        if (true === $result) {
+            $id = (int) $GLOBALS['_tap_saved_listing'];
+            wp_send_json_success([
+                'message'    => isset($_POST['listing_id']) ? __('Listing updated', 'travel-agency-platform') : __('Listing created', 'travel-agency-platform'),
+                'listing_id' => $id,
+                'edit_url'   => home_url('/manage-listing/?id=' . $id),
+            ]);
+        } else {
+            wp_send_json_error(['message' => $result]);
+        }
+    }
+
+    /**
+     * Core, testable listing save. Returns TRUE on success (listing id in
+     * $GLOBALS['_tap_saved_listing']) or an error message string. Never dies,
+     * so it can be exercised directly under wp-cli.
+     */
+    public static function save_listing_data($user_id, array $input) {
+        wp_set_current_user($user_id);
+        $agency = self::current_agency_for($user_id);
+
+        $service_types = array_keys(TAP_Post_Types::get_service_types());
+        $service_types = array_values(array_filter($service_types, function ($t) {
+            return $t !== 'tap_room';
+        }));
+        $listing_type  = isset($input['listing_type']) ? sanitize_key($input['listing_type']) : 'tap_accommodation';
+        if (!in_array($listing_type, $service_types, true)) {
+            $listing_type = 'tap_accommodation';
+        }
+        $prefix = self::listing_prefix($listing_type);
+
+        $listing_id = isset($input['listing_id']) ? intval($input['listing_id']) : 0;
+        if ($listing_id && !self::agency_owns_listing($listing_id, $listing_type)) {
+            return __('You can only manage your own listings.', 'travel-agency-platform');
         }
 
-        if ( null !== $agency && class_exists('TAP_Subscriptions') ) {
-            $limit = TAP_Subscriptions::listing_limit( $agency );
-            if ( $limit >= 0 && ! $listing_id && TAP_Subscriptions::listing_count( $agency ) >= $limit ) {
-                wp_send_json_error( [ 'message' => sprintf( __( 'Your plan allows a maximum of %d listings. Upgrading your plan unlocks more.', 'travel-agency-platform' ), $limit ) ] );
+        $title = isset($input['title']) ? sanitize_text_field(wp_unslash($input['title'])) : '';
+        if ('' === $title) {
+            return __('Name is required', 'travel-agency-platform');
+        }
+
+        if (null !== $agency && class_exists('TAP_Subscriptions')) {
+            $limit = TAP_Subscriptions::listing_limit($agency);
+            if ($limit >= 0 && !$listing_id && TAP_Subscriptions::listing_count($agency) >= $limit) {
+                return sprintf(__('Your plan allows a maximum of %d listings. Upgrading your plan unlocks more.', 'travel-agency-platform'), $limit);
             }
         }
 
         $post = [
-            'post_type'    => 'tap_accommodation',
+            'post_type'    => $listing_type,
             'post_status'  => 'publish',
             'post_title'   => $title,
-            'post_content' => isset( $_POST['description'] ) ? wp_kses_post( wp_unslash( $_POST['description'] ) ) : '',
+            'post_content' => isset($input['description']) ? wp_kses_post(wp_unslash($input['description'])) : '',
         ];
 
-        if ( $listing_id ) {
+        if ($listing_id) {
             $post['ID'] = $listing_id;
-            $new_id     = wp_update_post( $post, true );
+            $new_id     = wp_update_post($post, true);
         } else {
-            $new_id = wp_insert_post( $post, true );
+            $new_id = wp_insert_post($post, true);
         }
 
-        if ( is_wp_error( $new_id ) ) {
-            wp_send_json_error( [ 'message' => $new_id->get_error_message() ] );
+        if (is_wp_error($new_id)) {
+            return $new_id->get_error_message();
         }
-        if ( ! $new_id ) {
-            wp_send_json_error( [ 'message' => __( 'Could not save the listing', 'travel-agency-platform' ) ] );
-        }
-
-        $acc_agency = $listing_id ? (int) get_post_meta( $new_id, '_tap_acc_agency_id', true ) : 0;
-        if ( null !== $agency ) {
-            $acc_agency = (int) $agency;
+        if (!$new_id) {
+            return __('Could not save the listing', 'travel-agency-platform');
         }
 
-        $fields = [
-            '_tap_acc_agency_id'       => $acc_agency,
-            '_tap_acc_type'            => isset( $_POST['type'] ) ? sanitize_key( $_POST['type'] ) : 'hotel',
-            '_tap_acc_stars'           => isset( $_POST['stars'] ) ? sanitize_text_field( $_POST['stars'] ) : '',
-            '_tap_acc_price_per_night' => isset( $_POST['price_per_night'] ) ? floatval( $_POST['price_per_night'] ) : 0,
-            '_tap_acc_capacity'        => isset( $_POST['capacity'] ) ? intval( $_POST['capacity'] ) : 0,
-            '_tap_acc_bedrooms'        => isset( $_POST['bedrooms'] ) ? intval( $_POST['bedrooms'] ) : 0,
-            '_tap_acc_bathrooms'       => isset( $_POST['bathrooms'] ) ? intval( $_POST['bathrooms'] ) : 0,
-            '_tap_acc_checkin_time'    => isset( $_POST['checkin_time'] ) ? sanitize_text_field( $_POST['checkin_time'] ) : '15:00',
-            '_tap_acc_checkout_time'   => isset( $_POST['checkout_time'] ) ? sanitize_text_field( $_POST['checkout_time'] ) : '11:00',
-            '_tap_acc_lat'             => isset( $_POST['lat'] ) ? sanitize_text_field( $_POST['lat'] ) : '',
-            '_tap_acc_lng'             => isset( $_POST['lng'] ) ? sanitize_text_field( $_POST['lng'] ) : '',
-            '_tap_acc_currency'        => isset( $_POST['currency'] ) ? sanitize_text_field( $_POST['currency'] ) : 'USD',
-            '_tap_acc_is_active'       => isset( $_POST['is_active'] ) && '1' === $_POST['is_active'] ? '1' : '0',
+        if (null !== $agency) {
+            update_post_meta($new_id, '_tap_' . $prefix . '_agency_id', (int) $agency);
+        }
+
+        // Legacy short input-name → meta-key map for the accommodation form.
+        $legacy_map = [
+            'tap_accommodation' => [
+                'type' => '_tap_acc_type', 'stars' => '_tap_acc_stars',
+                'price_per_night' => '_tap_acc_price_per_night', 'capacity' => '_tap_acc_capacity',
+                'bedrooms' => '_tap_acc_bedrooms', 'bathrooms' => '_tap_acc_bathrooms',
+                'checkin_time' => '_tap_acc_checkin_time', 'checkout_time' => '_tap_acc_checkout_time',
+                'lat' => '_tap_acc_lat', 'lng' => '_tap_acc_lng', 'currency' => '_tap_acc_currency',
+                'is_active' => '_tap_acc_is_active',
+            ],
         ];
 
-        foreach ( $fields as $key => $value ) {
-            update_post_meta( $new_id, $key, $value );
+        $fields = TAP_Metaboxes::get_fields($listing_type);
+        foreach ($fields as $meta_key => $cfg) {
+            if (strpos($meta_key, '_tap_' . $prefix . '_agency_id') !== false) {
+                continue;
+            }
+            if ($meta_key === '_tap_seo_title' || $meta_key === '_tap_seo_description') {
+                continue;
+            }
+
+            $input_name = $meta_key;
+            $raw = isset($input[$input_name]) ? $input[$input_name] : null;
+
+            if ($raw === null && $listing_type === 'tap_accommodation' && isset($legacy_map['tap_accommodation'][substr($meta_key, strlen('_tap_acc_'))])) {
+                $legacy_name = array_search($meta_key, $legacy_map['tap_accommodation'], true);
+                $raw = isset($input[$legacy_name]) ? $input[$legacy_name] : null;
+            }
+
+            if ($raw === null) {
+                continue;
+            }
+
+            $ftype = isset($cfg['type']) ? $cfg['type'] : 'text';
+            switch ($ftype) {
+                case 'number':
+                    $value = isset($cfg['step']) && strpos($cfg['step'], '.') !== false ? (string) floatval($raw) : (string) intval($raw);
+                    break;
+                case 'checkbox':
+                    $value = '1' === (string) $raw ? '1' : '0';
+                    break;
+                case 'select':
+                    $value = sanitize_key($raw);
+                    break;
+                case 'textarea':
+                    $value = sanitize_textarea_field(wp_unslash((string) $raw));
+                    break;
+                case 'email':
+                    $value = sanitize_email($raw);
+                    break;
+                case 'url':
+                    $value = esc_url_raw($raw);
+                    break;
+                default:
+                    $value = sanitize_text_field(wp_unslash((string) $raw));
+            }
+            update_post_meta($new_id, $meta_key, $value);
         }
 
-        wp_send_json_success( [
-            'message'     => $listing_id ? __( 'Listing updated', 'travel-agency-platform' ) : __( 'Listing created', 'travel-agency-platform' ),
-            'listing_id'  => (int) $new_id,
-            'edit_url'    => home_url( '/manage-listing/?id=' . $new_id ),
-        ] );
+        $GLOBALS['_tap_saved_listing'] = (int) $new_id;
+        return true;
     }
 
     public static function agency_save_room() {

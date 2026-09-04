@@ -2,7 +2,8 @@
 defined('ABSPATH') || exit;
 
 class TAP_Metaboxes {
-    private static $fields = [];
+    private static $fields   = [];
+    private static $loaded   = false;
 
     public static function register() {
         self::register_agency_metabox();
@@ -14,6 +15,14 @@ class TAP_Metaboxes {
         self::register_boat_metabox();
         self::register_package_metabox();
         self::register_booking_metabox();
+        self::$loaded = true;
+    }
+
+    public static function get_fields($post_type) {
+        if (!self::$loaded) {
+            self::register();
+        }
+        return isset(self::$fields[$post_type]) ? self::$fields[$post_type] : [];
     }
 
     private static function register_agency_metabox() {

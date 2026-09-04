@@ -1,8 +1,14 @@
 # FASE 1 — Registro público multiagencia & flujo de conversión
 ## Plan técnico detallado (basado en auditoría real del código, v1.3.0)
 
-> Estado del documento: PLAN (para ejecutar tras aprobación).
+> Estado del documento: **EN EJECUCIÓN — P1 y P2 COMPLETADOS (verificado en travel e ivanchodev)**.
 > Anexa a [`INTEGRATION_PLAN.md`](INTEGRATION_PLAN.md) (estrategia de implantación).
+>
+> Estado por prioridad:
+> - ✅ **P1** — BUG de nonce de reservas: **COMMIT `1d55b17`**, cubierto en `suite_bookings`.
+> - ✅ **P2** — Autoservicio de proveedores para los 6 tipos: **implementado** + `suite_agency_manage` verde en ambos sitios.
+> - ⬜ **P3** — Guest checkout (siguiente).
+> - ⬜ **P4** — Monetización por lead.
 
 ---
 
@@ -14,58 +20,56 @@ su catálogo y pagan. Esto elimina la carga manual de tarifas/tours y multiplica
 e ingresos sin trabajo adicional.
 
 La auditoría revela que **una buena parte ya existe** (registro de agencia, dashboard,
-suscripciones, comisiones, destacados, pagos). Lo que bloquea el modelo es:
+suscripciones, comisiones, destacados, pagos). Lo que bloquea el modelo era:
 
-1. **BUG CRÍTICO de conversión**: el nonce del formulario de reserva no coincide con el que
-   verifica el servidor → **todas las reservas front-end fallan**. Hay que arreglarlo primero.
-2. **Falta completar el autoservicio**: el gestor de listings solo cubre alojamientos.
-3. **Falta registro de clientes / guest checkout**: no hay público que reserve sin cuenta.
-4. **Falta monetización por lead** (contacto a agencias).
+1. ✅ **BUG de conversión**: el nonce del formulario de reserva no coincidía con el que
+   verifica el servidor → todas las reservas front-end fallaban. **Arreglado.**
+2. ✅ **Falta completar el autoservicio**: el gestor de listings solo cubría alojamientos;
+   ahora cubre los 6 tipos. **Completado.**
+3. ⬜ **Falta registro de clientes / guest checkout**: no hay público que reserve sin cuenta.
+4. ⬜ **Falta monetización por lead** (contacto a agencias).
 
 ---
 
 ## 1. Prioridades (orden de ejecución)
 
-### 🔴 P1 — Bug crítico de nonce en reservas (BLOQUEANTE)
+### 🔴 P1 — Bug crítico de nonce en reservas (BLOQUEANTE) ✅ COMPLETADO
 Ruta de negocios principal = reserva → pago. Sin esto, todo el flujo monetario está roto.
 
-**Archivos:**
-- `includes/class-ajax.php:6` — `create_booking()` usa `check_ajax_referer('tap_booking_nonce', 'nonce')`
-- `includes/class-ajax.php:60` — `cancel_booking()` igual
-- `includes/class-shortcodes.php:~613` — el JS envía `&nonce=' + tap_ajax.nonce`
+**Implementado (commit `1d55b17`):** `create_booking()` ahora acepta `tap_nonce` **o**
+`tap_booking_nonce` (había dos formularios: el shortcode `[tap_booking_form]` envía
+`tap_nonce`; el template `single-tap_accommodation.php` envía `tap_booking_nonce`).
+`cancel_booking` se mantuvo con `tap_booking_nonce` (su JS lo usa correctamente).
 
-**Diagnóstico (verificado con PHP):**
-- Servidor espera `$_POST['nonce']` generado con acción `tap_booking_nonce`.
-- JS envía `tap_ajax.nonce` = `wp_create_nonce('tap_nonce')` → NO verifica.
-
-**Fix propuesto (2 opciones):**
-- Opción A (mínima y segura): que `create_booking`/`cancel_booking` verifiquen contra la
-  acción del nonce que realmente se envía: cambiar a `check_ajax_referer('tap_nonce', 'nonce')`.
-- Opción B (consistente con el resto): en el JS, enviar un nonce con acción
-  `tap_booking_nonce`. Pero el JS de booking usa `tap_ajax.nonce` compartido; la opción A es
-  la más limpia y no rompe otros usos.
-
-**Verificación:** test AJAX real que simule la petición de reserva y compruebe que pasa el
-nonce. Añadir a `suite_bookings.php` un test que golpee `TAP_Ajax::create_booking()` con el
-nonce correcto.
+**Verificación:** tests de regresión en `suite_bookings` (ambos nonces aceptados + nonce
+falso rechazado). Verde en travel e ivanchodev.
 
 ---
 
-### 🟠 P2 — Completar el autoservicio de proveedores
+### 🟠 P2 — Completar el autoservicio de proveedores ✅ COMPLETADO
 El proveedor debe poder dar de alta **todos** los tipos de servicio (tour, transport, coche,
 barco, paquete, alojamiento), no solo alojamiento.
 
-**Archivos:**
-- `includes/class-shortcodes.php`: `render_manage_*` de `[tap_agency_manage]` (solo
-  `tap_accommodation` hoy)
-- `includes/class-ajax.php`: `agency_save_listing`, `agency_save_room`, `agency_delete_room`
-  (validan tipo → ampliar a los 6 tipos)
-- `includes/class-metaboxes.php`: reutilizar los `field_group` por tipo para el editor público
+**Implementado:**
+- **Editor público genérico** en `render_manage_editor()` basado en
+  `TAP_Metaboxes::get_fields($type)` (con lazy-load `$loaded` añadido a
+  `class-metaboxes.php`). Cubre los 6 tipos; `tap_room` queda excluido como creable por
+  proveedores.
+- **Handler de guardado** extraído a un núcleo testable `TAP_Ajax::save_listing_data()` que
+  nunca hace `wp_die` (el wrapper AJAX `agency_save_listing` lo envuelve con JSON). Valida
+  propiedad (`agency_owns_listing`, generalizado), respeta el límite del plan
+  (`tap_listing_limit` filtrable, `<0` = ilimitado) y persiste campos con sanitización por
+  tipo, más el mapeo legacy de nombres cortos del formulario de alojamiento.
+- **Prefix de metadatos centralizado**: nueva fuente única
+  `TAP_Post_Types::meta_prefix()` (`acc`, `tour`, `trans`, `car`, `boat`, `pkg`) aplicada en
+  ajax, shortcodes, API, dashboard y promotions. `TAP_Promotions::prefix_for_type()` delega
+  en ella. **Corrige un bug latente** donde los prefijos derivados (`str_replace('tap_','')`)
+  rompían el owner / `_is_active` de accommodation, transport, car-rental y package.
 
-**Alcance propuesto:**
-- Editorial público genérico por tipo de servicio (campos base + específicos por tipo).
-- Carga de imágenes/gallery ya soportada (`upload_files` presente en rol).
-- Límites según plan (conteo de listings publicados vs. cuota del plan).
+**Verificación:** nuevo suite `suite_agency_manage` (create/edit/ownership en los 6 tipos +
+mapeo legacy + rechazo de otra agencia), **agnóstico al sitio** (descubre la agencia/usuario;
+crea una agencia temporal si el sitio solo tiene una). Verde en travel e ivanchodev. Es la
+suite #9 del runner.
 
 ---
 
@@ -139,12 +143,13 @@ lógica debe insertarse respetando:
 
 ## 6. Criterios de aceptación (Definition of Done)
 
-1. `suite_bookings` verde y NUEVO test que cubra el nonce de reserva front-end (P1).
-2. Un usuario puede registrarse como agencia (ya funciona) y publicar al menos un servicio de
-   cada tipo desde el front-end (P2).
-3. Un visitante puede completar una reserva sin cuenta (P3).
-4. Un cliente puede contactar a una agencia y esto genera un lead visible en el dashboard (P4).
-5. Todas las suites pasan en travel y ivanchodev; docs y CHANGELOG actualizados; commit.
+1. ✅ `suite_bookings` verde y test que cubre el nonce de reserva front-end (P1) — **hecho**, commit `1d55b17`.
+2. ✅ Un usuario puede registrarse como agencia (ya funcionaba) y publicar un servicio de cada
+   tipo desde el front-end (P2) — **hecho**, `suite_agency_manage` verde en travel e ivanchodev.
+3. ⬜ Un visitante puede completar una reserva sin cuenta (P3) — siguiente.
+4. ⬜ Un cliente puede contactar a una agencia y esto genera un lead visible en el dashboard (P4).
+5. ✅ Todas las suites pasan en travel e ivanchodev (9/9 cada uno); CHANGELOG actualizado.
+   Commit de P2 pendiente.
 
 ---
 
