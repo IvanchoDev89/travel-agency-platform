@@ -201,6 +201,9 @@ $badge = $agency ? __('Verificada', 'travel-agency-theme') : '';
             <p><?php esc_html_e('You won\'t be charged yet', 'travel-agency-theme'); ?></p>
           </div>
         </div>
+        <?php if ($agency): ?>
+          <?php echo do_shortcode('[tap_lead_form agency="' . (int) $agency->ID . '" service="' . (int) $id . '"]'); ?>
+        <?php endif; ?>
       </div>
     </div>
   </div>

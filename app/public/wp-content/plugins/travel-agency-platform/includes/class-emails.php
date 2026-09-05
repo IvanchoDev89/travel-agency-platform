@@ -25,6 +25,7 @@ class TAP_Emails {
         add_action('tap_subscription_paid', [__CLASS__, 'on_subscription_paid'], 10, 3);
         add_action('tap_promo_active', [__CLASS__, 'on_promo_active'], 10, 4);
         add_action('tap_commission_paid', [__CLASS__, 'on_commission_paid'], 10, 2);
+        add_action('tap_lead_created', [__CLASS__, 'on_lead_created'], 10, 1);
         add_filter('wp_mail_content_type', [__CLASS__, 'set_html_content_type']);
         add_action('wp_mail_failed', function ($error) {
             error_log('TAP email failed: ' . $error->get_error_message());
@@ -108,6 +109,39 @@ class TAP_Emails {
             (int) $payment->id
         );
         self::send($email, __('Liquidación de comisiones', 'travel-agency-platform'), self::info_template($headline, $intro));
+    }
+
+    public static function on_lead_created($lead_id) {
+        global $wpdb;
+        $lead = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_leads WHERE id = %d", $lead_id));
+        if (!$lead) return;
+
+        $to = self::get_agency_email($lead->agency_id);
+        if (!$to) return;
+
+        $service_name = $lead->service_id ? get_the_title($lead->service_id) : '';
+        $contact = trim($lead->name . ($lead->phone ? ' — ' . $lead->phone : ''));
+
+        $headline = __('Nuevo mensaje de contacto', 'travel-agency-platform');
+        $lines = [];
+        $lines[] = sprintf(__('Recibiste un mensaje de <strong>%s</strong>.', 'travel-agency-platform'), esc_html($lead->name));
+        if ($service_name) {
+            $lines[] = sprintf(__('Servicio de interés: <strong>%s</strong>', 'travel-agency-platform'), esc_html($service_name));
+        }
+        $lines[] = __('Correo: ', 'travel-agency-platform') . esc_html($lead->email);
+        if ($lead->phone) {
+            $lines[] = __('Teléfono: ', 'travel-agency-platform') . esc_html($lead->phone);
+        }
+        if ($lead->message) {
+            $lines[] = '<br>' . nl2br(esc_html($lead->message));
+        }
+        $intro = implode('<br>', $lines);
+
+        self::send(
+            $to,
+            __('[Nuevo lead] Mensaje de contacto en tu agencia', 'travel-agency-platform'),
+            self::info_template($headline, $intro)
+        );
     }
 
     private static function info_template($headline, $intro) {

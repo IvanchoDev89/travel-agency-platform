@@ -139,6 +139,23 @@ class TAP_Installer {
                 KEY room_id (room_id),
                 KEY date (date)
             ) $charset;",
+
+            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_leads (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                agency_id bigint(20) NOT NULL,
+                service_id bigint(20) DEFAULT NULL,
+                name varchar(150) NOT NULL,
+                email varchar(150) NOT NULL,
+                phone varchar(50) DEFAULT NULL,
+                message text,
+                ip varchar(45) DEFAULT NULL,
+                source varchar(30) DEFAULT 'agency',
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY agency_id (agency_id),
+                KEY email (email),
+                KEY created_at (created_at)
+            ) $charset;",
         ];
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -294,6 +311,26 @@ $cols_bookings = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
         }
 
         add_option('tap_featured_price', 5.00);
+
+        $leads_table = $wpdb->prefix . 'tap_leads';
+        if ($wpdb->get_var("SHOW TABLES LIKE '{$leads_table}'") !== $leads_table) {
+            $wpdb->query("CREATE TABLE {$leads_table} (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                agency_id bigint(20) NOT NULL,
+                service_id bigint(20) DEFAULT NULL,
+                name varchar(150) NOT NULL,
+                email varchar(150) NOT NULL,
+                phone varchar(50) DEFAULT NULL,
+                message text,
+                ip varchar(45) DEFAULT NULL,
+                source varchar(30) DEFAULT 'agency',
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY agency_id (agency_id),
+                KEY email (email),
+                KEY created_at (created_at)
+            ) {$wpdb->get_charset_collate()}");
+        }
 
         $plan_count = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$plans_table}");
         if (0 === $plan_count) {

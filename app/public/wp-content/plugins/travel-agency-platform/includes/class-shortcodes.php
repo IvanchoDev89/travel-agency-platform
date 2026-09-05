@@ -507,6 +507,7 @@ class TAP_Shortcodes {
                     <?php if ($website): ?><p><strong><?php esc_html_e('Website:', 'travel-agency-platform'); ?></strong> <a href="<?php echo esc_url($website); ?>" target="_blank"><?php echo esc_html($website); ?></a></p><?php endif; ?>
                     <?php if ($address): ?><p><strong><?php esc_html_e('Address:', 'travel-agency-platform'); ?></strong> <?php echo esc_html($address); ?></p><?php endif; ?>
                 </div>
+                <?php echo do_shortcode('[tap_lead_form agency="' . (int) $post->ID . '" source="agency"]'); ?>
             </div>
             <h3><?php esc_html_e('Our Services', 'travel-agency-platform'); ?></h3>
             <?php echo do_shortcode('[tap_agency_services agency="' . $post->ID . '"]'); ?>
@@ -991,6 +992,55 @@ class TAP_Shortcodes {
                 <?php endif; ?>
                 <?php endif; ?>
             </div>
+
+            <?php if ($agency_id): ?>
+            <div class="tap-panel-section">
+                <div class="tap-section-head">
+                    <h3><?php esc_html_e('Leads de contacto', 'travel-agency-platform'); ?>
+                        <span class="tap-tab-count"><?php echo (int) TAP_Leads::count_for_agency($agency_id); ?></span>
+                    </h3>
+                    <?php if (TAP_Leads::count_for_agency($agency_id) > 0): ?>
+                        <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php') . '?action=tap_export_leads&agency=' . (int) $agency_id, 'tap_export_leads_' . $user->ID)); ?>"><?php esc_html_e('Exportar CSV', 'travel-agency-platform'); ?></a>
+                    <?php endif; ?>
+                </div>
+                <?php
+                $leads = TAP_Leads::for_agency($agency_id, 20);
+                if (!$leads):
+                ?>
+                    <p class="tap-agency-meta"><?php esc_html_e('Aún no has recibido mensajes de contacto. Cuando un visitante envíe el formulario de tu perfil o de un servicio, aparecerá aquí.', 'travel-agency-platform'); ?></p>
+                <?php else: ?>
+                <div class="tap-table-scroll">
+                <table class="tap-agency-table">
+                    <thead>
+                        <tr>
+                            <th><?php esc_html_e('Nombre', 'travel-agency-platform'); ?></th>
+                            <th><?php esc_html_e('Contacto', 'travel-agency-platform'); ?></th>
+                            <th><?php esc_html_e('Servicio', 'travel-agency-platform'); ?></th>
+                            <th><?php esc_html_e('Mensaje', 'travel-agency-platform'); ?></th>
+                            <th><?php esc_html_e('Fecha', 'travel-agency-platform'); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($leads as $ld):
+                            $ld_service = $ld->service_id ? get_the_title($ld->service_id) : '';
+                        ?>
+                        <tr>
+                            <td><strong><?php echo esc_html($ld->name); ?></strong></td>
+                            <td>
+                                <?php if (is_email($ld->email)): ?><a href="mailto:<?php echo esc_attr($ld->email); ?>"><?php echo esc_html($ld->email); ?></a><?php else: echo esc_html($ld->email); endif; ?>
+                                <?php if ($ld->phone): ?><br><small><?php echo esc_html($ld->phone); ?></small><?php endif; ?>
+                            </td>
+                            <td><?php echo $ld_service ? esc_html($ld_service) : '—'; ?></td>
+                            <td class="tap-lead-message"><?php echo esc_html(mb_strimwidth($ld->message ?? '', 0, 120, '…')); ?></td>
+                            <td><?php echo esc_html($ld->created_at); ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                </div>
+                <?php endif; ?>
+            </div>
+            <?php endif; ?>
 
             <?php if (!empty($listings)): ?>
             <div class="tap-panel-section">

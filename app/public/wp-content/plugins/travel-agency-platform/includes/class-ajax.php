@@ -737,6 +737,30 @@ class TAP_Ajax {
         ]);
     }
 
+    public static function submit_lead() {
+        check_ajax_referer('tap_lead_nonce', 'nonce');
+
+        if (!empty($_POST['tap_hp'])) {
+            wp_send_json_success(['message' => __('Gracias por tu mensaje.', 'travel-agency-platform')]);
+        }
+
+        $result = TAP_Leads::submit([
+            'name'       => $_POST['tap_name'] ?? '',
+            'email'      => $_POST['tap_email'] ?? '',
+            'phone'      => $_POST['tap_phone'] ?? '',
+            'message'    => $_POST['tap_message'] ?? '',
+            'agency_id'  => (int) ($_POST['agency_id'] ?? 0),
+            'service_id' => (int) ($_POST['service_id'] ?? 0),
+            'source'     => isset($_POST['service_id']) && (int) $_POST['service_id'] > 0 ? 'service' : 'agency',
+        ]);
+
+        if (is_wp_error($result)) {
+            wp_send_json_error(['message' => $result->get_error_message()]);
+        }
+
+        wp_send_json_success(['message' => __('Mensaje enviado. La agencia te contactará pronto.', 'travel-agency-platform')]);
+    }
+
     public static function agency_subscribe() {
         check_ajax_referer('tap_plan_nonce', 'nonce');
         if (!is_user_logged_in()) {
