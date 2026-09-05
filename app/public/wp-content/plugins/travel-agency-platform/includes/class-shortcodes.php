@@ -1623,8 +1623,39 @@ class TAP_Shortcodes {
             return '<p>' . __('Booking not found.', 'travel-agency-platform') . '</p>';
         }
 
-        if (!is_user_logged_in() || $booking->client_id != get_current_user_id()) {
+        $uid = get_current_user_id();
+        $can = false;
+        if ($uid) {
+            $can = (int) $booking->client_id === $uid || current_user_can('manage_options');
+            if (!$can && $booking->agency_id) {
+                $agency = TAP_Booking::get_agency_for_user($uid);
+                if ($agency && (int) $agency === (int) $booking->agency_id) $can = true;
+            }
+        }
+
+        $is_guest = !$uid && (int) $booking->client_id === 0;
+
+        if (!$uid && !$is_guest) {
             return '<p>' . __('Please log in to view this booking.', 'travel-agency-platform') . '</p>';
+        }
+
+        if ($uid && !$can) {
+            return '<p>' . __('You do not have permission to view this booking.', 'travel-agency-platform') . '</p>';
+        }
+
+        if ($can) {
+            $guest_verified = true;
+        } elseif ($is_guest) {
+            $guest_verified = TAP_Ajax::get_guest_pay_token($booking->booking_code);
+            if (!$guest_verified) {
+                $email = sanitize_email($_GET['email'] ?? '');
+                if (is_email($email) && strcasecmp($email, (string) $booking->guest_email) === 0) {
+                    TAP_Ajax::set_guest_pay_token($booking->booking_code);
+                    $guest_verified = true;
+                }
+            }
+        } else {
+            $guest_verified = false;
         }
 
         $service = get_post($booking->service_id);
@@ -1642,11 +1673,30 @@ class TAP_Shortcodes {
                 <div class="tap-error"><?php esc_html_e('Payment was cancelled. You can try again.', 'travel-agency-platform'); ?></div>
             <?php endif; ?>
 
+            <?php if (!$can && $is_guest && !$guest_verified): ?>
+                <div class="tap-voucher-lookup">
+                    <p><?php esc_html_e('Para pagar tu reserva, verifica el correo electrónico con el que la realizaste.', 'travel-agency-platform'); ?></p>
+                    <form class="tap-manage-form" method="get" action="">
+                        <div class="tap-form-grid">
+                            <div class="tap-field tap-span-2">
+                                <label><?php esc_html_e('Correo de la reserva', 'travel-agency-platform'); ?></label>
+                                <input type="email" name="email" required autocomplete="email" placeholder="tucorreo@ejemplo.com">
+                            </div>
+                            <input type="hidden" name="code" value="<?php echo esc_attr($booking->booking_code); ?>">
+                            <div class="tap-field tap-field-actions">
+                                <button type="submit" class="tap-btn tap-btn-primary"><?php esc_html_e('Continuar al pago', 'travel-agency-platform'); ?></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <?php return ob_get_clean(); ?>
+            <?php endif; ?>
+
             <?php if ($booking->payment_status === 'paid'): ?>
                 <div class="tap-success">
                     <p><?php esc_html_e('This booking has been paid.', 'travel-agency-platform'); ?></p>
                     <p><strong><?php esc_html_e('Booking Code:', 'travel-agency-platform'); ?></strong> <?php echo esc_html($booking->booking_code); ?></p>
-                    <a href="<?php echo esc_url(home_url('/my-bookings')); ?>" class="tap-btn tap-btn-primary"><?php esc_html_e('View My Bookings', 'travel-agency-platform'); ?></a>
+                    <a href="<?php echo esc_url($uid ? home_url('/my-bookings') : home_url('/booking-detail/?code=' . rawurlencode($booking->booking_code))); ?>" class="tap-btn tap-btn-primary"><?php esc_html_e('View voucher', 'travel-agency-platform'); ?></a>
                 </div>
                 <?php return ob_get_clean(); ?>
             <?php endif; ?>
@@ -1720,7 +1770,7 @@ class TAP_Shortcodes {
                                         msg.removeClass('tap-error').addClass('tap-success')
                                            .html('<p><?php echo esc_js(__('Payment successful! Your booking is confirmed.', 'travel-agency-platform')); ?></p>');
                                         setTimeout(function() {
-                                            window.location.href = '<?php echo esc_url(home_url('/my-bookings')); ?>';
+                                            window.location.href = '<?php echo esc_url($uid ? home_url('/my-bookings') : home_url('/booking-detail/?code=' . rawurlencode($booking->booking_code))); ?>';
                                         }, 2000);
                                     } else {
                                         msg.removeClass('tap-success').addClass('tap-error')
@@ -2095,12 +2145,10 @@ class TAP_Shortcodes {
     }
 
     public static function booking_detail($atts) {
-        if (!is_user_logged_in()) {
-            return '<p class="tap-empty"><a href="' . esc_url(wp_login_url(home_url('/booking-detail/'))) . '">' . esc_html__('Log in to view your booking voucher', 'travel-agency-platform') . '</a></p>';
-        }
-
         global $wpdb;
-        $code = isset($_GET['code']) ? sanitize_text_field(wp_unslash($_GET['code'])) : '';
+        $code  = isset($_GET['code']) ? sanitize_text_field(wp_unslash($_GET['code'])) : '';
+        $email = isset($_GET['email']) ? sanitize_email(wp_unslash($_GET['email'])) : '';
+        $uid   = get_current_user_id();
 
         if ('' === $code) {
             ob_start();
@@ -2113,6 +2161,12 @@ class TAP_Shortcodes {
                             <label><?php esc_html_e('Código de reserva', 'travel-agency-platform'); ?></label>
                             <input type="text" name="code" required placeholder="TAP-XXXXXXXX-XXXXXX">
                         </div>
+                        <?php if (!$uid): ?>
+                        <div class="tap-field tap-span-2">
+                            <label><?php esc_html_e('Correo electrónico de la reserva', 'travel-agency-platform'); ?></label>
+                            <input type="email" name="email" required placeholder="tucorreo@ejemplo.com">
+                        </div>
+                        <?php endif; ?>
                         <div class="tap-field tap-field-actions">
                             <button type="submit" class="tap-btn tap-btn-primary"><?php esc_html_e('Ver voucher', 'travel-agency-platform'); ?></button>
                         </div>
@@ -2131,12 +2185,45 @@ class TAP_Shortcodes {
             return '<p class="tap-empty">' . esc_html__('Booking not found.', 'travel-agency-platform') . '</p>';
         }
 
-        $uid  = get_current_user_id();
-        $can  = (int) $booking->client_id === $uid;
-        if (!$can && user_can($uid, 'manage_options')) $can = true;
-        if (!$can && $booking->agency_id) {
-            $agency = TAP_Booking::get_agency_for_user($uid);
-            if ($agency && (int) $agency === (int) $booking->agency_id) $can = true;
+        if ($uid) {
+            $can  = (int) $booking->client_id === $uid;
+            if (!$can && user_can($uid, 'manage_options')) $can = true;
+            if (!$can && $booking->agency_id) {
+                $agency = TAP_Booking::get_agency_for_user($uid);
+                if ($agency && (int) $agency === (int) $booking->agency_id) $can = true;
+            }
+            if (!$can) {
+                return '<p class="tap-empty">' . esc_html__('You do not have permission to view this booking.', 'travel-agency-platform') . '</p>';
+            }
+        } else {
+            if ((int) $booking->client_id !== 0) {
+                return '<p class="tap-empty"><a href="' . esc_url(wp_login_url(home_url('/booking-detail/'))) . '">' . esc_html__('Log in to view your booking voucher', 'travel-agency-platform') . '</a></p>';
+            }
+            if ('' === $email) {
+                ob_start();
+                ?>
+                <div class="tap-voucher-lookup">
+                    <p><?php esc_html_e('Verifica el correo con el que hiciste la reserva para ver tu voucher.', 'travel-agency-platform'); ?></p>
+                    <form class="tap-manage-form" method="get" action="">
+                        <div class="tap-form-grid">
+                            <div class="tap-field tap-span-2">
+                                <label><?php esc_html_e('Correo electrónico de la reserva', 'travel-agency-platform'); ?></label>
+                                <input type="email" name="email" required autocomplete="email" placeholder="tucorreo@ejemplo.com">
+                            </div>
+                            <input type="hidden" name="code" value="<?php echo esc_attr($code); ?>">
+                            <div class="tap-field tap-field-actions">
+                                <button type="submit" class="tap-btn tap-btn-primary"><?php esc_html_e('Ver voucher', 'travel-agency-platform'); ?></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <?php
+                return ob_get_clean();
+            }
+            if (strcasecmp($email, (string) $booking->guest_email) !== 0) {
+                return '<p class="tap-empty">' . esc_html__('El correo introducido no coincide con el de la reserva.', 'travel-agency-platform') . '</p>';
+            }
+            $can = true;
         }
         if (!$can) {
             return '<p class="tap-empty">' . esc_html__('You do not have permission to view this booking.', 'travel-agency-platform') . '</p>';
@@ -2180,7 +2267,7 @@ class TAP_Shortcodes {
                 <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(home_url('/my-bookings/')); ?>">&larr; <?php esc_html_e('Mis reservas', 'travel-agency-platform'); ?></a>
                 <button type="button" class="tap-btn tap-btn-sm" onclick="window.print()">🖨 <?php esc_html_e('Imprimir voucher', 'travel-agency-platform'); ?></button>
                 <?php if ((int) $booking->client_id === $uid && in_array($booking->status, ['pending', 'confirmed'], true) && (!$booking->check_in || $booking->check_in >= gmdate('Y-m-d'))): ?>
-                    <button type="button" class="tap-btn tap-btn-sm tap-btn-danger tap-cancel-booking-btn" data-booking-id="<?php echo (int) $booking->id; ?>" data-confirm="<?php echo esc_attr($booking->booking_code); ?>"><?php esc_html_e('Cancelar reserva', 'travel-agency-platform'); ?></button>
+                    <button type="button" class="tap-btn tap-btn-sm tap-btn-danger tap-cancel-booking-btn" data-booking-id="<?php echo (int) $booking->id; ?>" data-confirm="<?php echo esc_attr($booking->booking_code); ?>" data-guest-email="<?php echo !$uid ? esc_attr($booking->guest_email) : ''; ?>"><?php esc_html_e('Cancelar reserva', 'travel-agency-platform'); ?></button>
                 <?php endif; ?>
             </div>
             <div class="tap-voucher-inner">
@@ -2296,7 +2383,10 @@ class TAP_Shortcodes {
                 var code = $btn.data('confirm') || '';
                 if (!confirm('<?php echo esc_js(__('¿Cancelar la reserva ', 'travel-agency-platform')); ?>' + code + '?')) return;
                 $btn.prop('disabled', true).text('...');
-                $.post(tap_ajax.ajax_url, { action: 'tap_cancel_booking', nonce: nonce, booking_id: id })
+                var data = { action: 'tap_cancel_booking', nonce: nonce, booking_id: id };
+                var gemail = $btn.data('guest-email') || '';
+                if (gemail) data.guest_email = gemail;
+                $.post(tap_ajax.ajax_url, data)
                     .done(function(res) {
                         if (res && res.success) { location.reload(); }
                         else { alert(res && res.data && res.data.message ? res.data.message : '<?php echo esc_js(__('Error', 'travel-agency-platform')); ?>'); $btn.prop('disabled', false).text('<?php echo esc_js(__('Cancelar reserva', 'travel-agency-platform')); ?>'); }

@@ -17,8 +17,20 @@ class TAP_Ajax {
             wp_send_json_success(['fake' => true]);
         }
 
+        // Guest checkout: logged-out visitors book with client_id = 0 and their
+        // contact data in the guest_* columns. Emails are spam-guarded by a
+        // per-IP+email rate limit, then a short-lived token allows paying on /checkout.
+        $guest_name  = sanitize_text_field($_POST['guest_name'] ?? '');
+        $guest_email = sanitize_email($_POST['guest_email'] ?? '');
+
         if (!is_user_logged_in()) {
-            wp_send_json_error(['message' => __('Please log in first.', 'travel-agency-platform')]);
+            if ('' === $guest_name || !is_email($guest_email)) {
+                wp_send_json_error(['message' => __('Indica tu nombre y un correo electrónico válido para completar la reserva.', 'travel-agency-platform')]);
+            }
+
+            if (self::guest_book_rate_blocked($guest_email)) {
+                wp_send_json_error(['message' => __('Demasiadas reservas en poco tiempo. Intenta nuevamente más tarde.', 'travel-agency-platform')]);
+            }
         }
 
         $required = ['service_type', 'service_id'];
@@ -61,22 +73,49 @@ class TAP_Ajax {
             wp_send_json_error(['message' => $result->get_error_message()]);
         }
 
+        if (!is_user_logged_in() && is_email($guest_email)) {
+            self::guest_book_rate_bump($guest_email);
+            self::set_guest_pay_token($result['booking_code']);
+        }
+
         wp_send_json_success($result);
+    }
+
+    /* ===== Guest checkout helpers (testable, no die) ===== */
+
+    public static function guest_bucket($email) {
+        return 'tap_guest_book_' . md5(($_SERVER['REMOTE_ADDR'] ?? '') . '|' . strtolower((string) $email));
+    }
+
+    public static function guest_book_rate_blocked($email) {
+        return (int) get_transient(self::guest_bucket((string) $email)) >= 5;
+    }
+
+    public static function guest_book_rate_bump($email) {
+        $key = self::guest_bucket((string) $email);
+        set_transient($key, (int) get_transient($key) + 1, 15 * MINUTE_IN_SECONDS);
+    }
+
+    public static function set_guest_pay_token($booking_code) {
+        set_transient('tap_guest_pay_' . (string) $booking_code, 1, 30 * MINUTE_IN_SECONDS);
+    }
+
+    public static function get_guest_pay_token($booking_code) {
+        return (bool) get_transient('tap_guest_pay_' . (string) $booking_code);
     }
 
     public static function cancel_booking() {
         check_ajax_referer('tap_booking_nonce', 'nonce');
-
-        if (!is_user_logged_in()) {
-            wp_send_json_error(['message' => __('Debes iniciar sesión.', 'travel-agency-platform')]);
-        }
 
         $booking_id = intval($_POST['booking_id'] ?? 0);
         if (!$booking_id) {
             wp_send_json_error(['message' => __('Reserva inválida.', 'travel-agency-platform')]);
         }
 
-        $result = TAP_Booking::client_cancel_request($booking_id, get_current_user_id());
+        $uid = get_current_user_id();
+        $guest_email = $uid ? '' : sanitize_email($_POST['guest_email'] ?? '');
+
+        $result = TAP_Booking::client_cancel_request($booking_id, $uid, $guest_email);
 
         if (is_wp_error($result)) {
             wp_send_json_error(['message' => $result->get_error_message()]);
@@ -185,17 +224,20 @@ class TAP_Ajax {
     public static function create_paypal_order() {
         check_ajax_referer('tap_nonce', 'nonce');
 
-        if (!is_user_logged_in()) {
-            wp_send_json_error(['message' => __('Please log in first.', 'travel-agency-platform')]);
-        }
-
         $booking_id = intval($_POST['booking_id'] ?? 0);
         if (!$booking_id) {
             wp_send_json_error(['message' => __('Invalid booking', 'travel-agency-platform')]);
         }
 
         $booking = TAP_Booking::get_booking($booking_id);
-        if (!$booking || $booking->client_id != get_current_user_id()) {
+        if (!$booking) {
+            wp_send_json_error(['message' => __('Booking not found', 'travel-agency-platform')]);
+        }
+
+        $uid = get_current_user_id();
+        $owner_ok = $uid && (int) $booking->client_id === $uid;
+        $guest_ok = !$uid && (int) $booking->client_id === 0 && self::get_guest_pay_token($booking->booking_code);
+        if (!$owner_ok && !$guest_ok) {
             wp_send_json_error(['message' => __('Booking not found', 'travel-agency-platform')]);
         }
 
@@ -218,19 +260,9 @@ class TAP_Ajax {
     public static function capture_paypal_order() {
         check_ajax_referer('tap_nonce', 'nonce');
 
-        if (!is_user_logged_in()) {
-            wp_send_json_error(['message' => __('Please log in first.', 'travel-agency-platform')]);
-        }
-
         $paypal_order_id = sanitize_text_field($_POST['paypal_order_id'] ?? '');
         if (!$paypal_order_id) {
             wp_send_json_error(['message' => __('Invalid PayPal order', 'travel-agency-platform')]);
-        }
-
-        $result = TAP_PayPal::capture_order($paypal_order_id);
-
-        if (is_wp_error($result)) {
-            wp_send_json_error(['message' => $result->get_error_message()]);
         }
 
         global $wpdb;
@@ -238,6 +270,22 @@ class TAP_Ajax {
             "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_tap_paypal_order_id' AND meta_value = %s",
             $paypal_order_id
         ));
+
+        if ($booking_id) {
+            $booking = TAP_Booking::get_booking((int) $booking_id);
+            $uid = get_current_user_id();
+            $owner_ok = $uid && $booking && (int) $booking->client_id === $uid;
+            $guest_ok = !$uid && $booking && (int) $booking->client_id === 0 && self::get_guest_pay_token($booking->booking_code);
+            if ($booking && !$owner_ok && !$guest_ok) {
+                wp_send_json_error(['message' => __('Booking not found', 'travel-agency-platform')]);
+            }
+        }
+
+        $result = TAP_PayPal::capture_order($paypal_order_id);
+
+        if (is_wp_error($result)) {
+            wp_send_json_error(['message' => $result->get_error_message()]);
+        }
 
         if ($booking_id && $result['capture_status'] === 'COMPLETED') {
             TAP_Booking::update_payment_status($booking_id, 'paid');

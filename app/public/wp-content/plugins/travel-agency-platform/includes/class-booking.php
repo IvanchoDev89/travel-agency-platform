@@ -95,12 +95,24 @@ class TAP_Booking {
             }
         }
 
+        // Guest checkout support: logged-out visitors book with client_id = 0 and
+        // their contact data in the guest_* columns (no WordPress account required).
+        $client_id = isset($data['client_id']) ? intval($data['client_id']) : get_current_user_id();
+        $guest_email = !empty($data['guest_email']) ? sanitize_email($data['guest_email']) : '';
+
+        if (!$client_id && !is_email($guest_email)) {
+            return new WP_Error(
+                'guest_email_required',
+                __('Debes indicar un correo electrónico válido para completar la reserva.', 'travel-agency-platform')
+            );
+        }
+
         $result = $wpdb->insert(
             $wpdb->prefix . 'tap_bookings',
             [
                 'booking_code'      => $booking_code,
                 'agency_id'         => $agency_id,
-                'client_id'         => get_current_user_id(),
+                'client_id'         => $client_id,
                 'service_type'      => sanitize_text_field($data['service_type']),
                 'service_id'        => intval($data['service_id']),
                 'room_id'           => !empty($data['room_id']) ? intval($data['room_id']) : null,
@@ -195,17 +207,22 @@ class TAP_Booking {
         ];
     }
 
-    public static function client_cancel_request($booking_id, $user_id = 0) {
+    public static function client_cancel_request($booking_id, $user_id = 0, $guest_email = '') {
         global $wpdb;
         $user_id = $user_id ?: get_current_user_id();
-        if (!$user_id) {
-            return new WP_Error('no_user', __('Debes iniciar sesión.', 'travel-agency-platform'));
-        }
         $booking = self::get_booking($booking_id);
         if (!$booking) {
             return new WP_Error('not_found', __('Reserva no encontrada.', 'travel-agency-platform'));
         }
-        if ((int) $booking->client_id !== (int) $user_id) {
+        if (!$user_id) {
+            if ((int) $booking->client_id !== 0) {
+                return new WP_Error('no_user', __('Debes iniciar sesión.', 'travel-agency-platform'));
+            }
+            $guest_email = sanitize_email($guest_email);
+            if (!$guest_email || strcasecmp($guest_email, (string) $booking->guest_email) !== 0) {
+                return new WP_Error('no_email', __('Debes verificar el correo de la reserva para cancelarla.', 'travel-agency-platform'));
+            }
+        } elseif ((int) $booking->client_id !== (int) $user_id) {
             return new WP_Error('forbidden', __('No tienes permiso para cancelar esta reserva.', 'travel-agency-platform'));
         }
         if (!in_array($booking->status, ['pending', 'confirmed'], true)) {

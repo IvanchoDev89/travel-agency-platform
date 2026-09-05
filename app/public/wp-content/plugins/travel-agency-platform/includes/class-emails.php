@@ -141,27 +141,27 @@ class TAP_Emails {
         $booking = TAP_Booking::get_booking($booking_id);
         if (!$booking) return;
 
-        $user = get_userdata($booking->client_id);
-        if (!$user || empty($user->user_email)) return;
+        list($email, $name) = self::client_contact($booking);
+        if (!$email) return;
 
         $ctx = self::build_context($booking);
         $subject = sprintf(__('Reserva %s recibida', 'travel-agency-platform'), $booking->booking_code);
         $body = self::template(
-            sprintf(__('¡Gracias %s! Tu reserva ha sido recibida.', 'travel-agency-platform'), $user->display_name),
+            sprintf(__('¡Gracias %s! Tu reserva ha sido recibida.', 'travel-agency-platform'), $name),
             __('Estamos procesando tu solicitud. En breve recibirás la confirmación una vez el pago sea verificado.', 'travel-agency-platform'),
             $ctx,
             'pending'
         );
 
-        self::send($user->user_email, $subject, $body);
+        self::send($email, $subject, $body);
     }
 
     public static function send_user_status_update($booking_id, $status) {
         $booking = TAP_Booking::get_booking($booking_id);
         if (!$booking) return;
 
-        $user = get_userdata($booking->client_id);
-        if (!$user || empty($user->user_email)) return;
+        list($email, $name) = self::client_contact($booking);
+        if (!$email) return;
 
         $ctx = self::build_context($booking);
         $label = self::STATUS_LABELS[$status] ?? $status;
@@ -183,15 +183,15 @@ class TAP_Emails {
         $subject = sprintf(__('Actualización de reserva %s: %s', 'travel-agency-platform'), $booking->booking_code, $label);
         $body = self::template($headline, $intro, $ctx, $status);
 
-        self::send($user->user_email, $subject, $body);
+        self::send($email, $subject, $body);
     }
 
     public static function send_payment_receipt($booking_id) {
         $booking = TAP_Booking::get_booking($booking_id);
         if (!$booking) return;
 
-        $user = get_userdata($booking->client_id);
-        if (!$user || empty($user->user_email)) return;
+        list($email, $name) = self::client_contact($booking);
+        if (!$email) return;
 
         $ctx = self::build_context($booking);
         $ctx['payment_status'] = __('Pagada', 'travel-agency-platform');
@@ -203,7 +203,7 @@ class TAP_Emails {
             'confirmed'
         );
 
-        self::send($user->user_email, $subject, $body);
+        self::send($email, $subject, $body);
     }
 
     public static function send_admin_notification($booking_id) {
@@ -345,6 +345,18 @@ class TAP_Emails {
         return get_the_title($booking->service_id) ?: $booking->service_type;
     }
 
+    private static function client_contact($booking) {
+        $client = get_userdata($booking->client_id);
+        if ($client && is_email($client->user_email)) {
+            return [$client->user_email, $client->display_name];
+        }
+        $guest_email = sanitize_email($booking->guest_email);
+        if (is_email($guest_email)) {
+            return [$guest_email, $booking->guest_name ?: __('Estimado cliente', 'travel-agency-platform')];
+        }
+        return ['', ''];
+    }
+
     private static function format_date($date) {
         if (!$date) return '—';
         return date_i18n(get_option('date_format'), strtotime($date));
@@ -369,9 +381,9 @@ class TAP_Emails {
         ];
 
         if ($include_client || $booking->service_id) {
-            $client = get_userdata($booking->client_id);
-            $ctx['client'] = $client ? $client->display_name : __('Cliente', 'travel-agency-platform');
-            $ctx['client_email'] = $client ? $client->user_email : '';
+            list($client_email, $client_name) = self::client_contact($booking);
+            $ctx['client'] = $client_name ?: __('Cliente', 'travel-agency-platform');
+            $ctx['client_email'] = $client_email;
         }
 
         return $ctx;
