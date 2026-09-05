@@ -27,6 +27,10 @@ class TAP_PayPal {
         return self::$sandbox;
     }
 
+    public static function currency_code() {
+        return class_exists('TAP_Currency') ? TAP_Currency::code() : 'USD';
+    }
+
     public static function get_base_url() {
         self::init();
         return self::$sandbox ? 'https://api-m.sandbox.paypal.com' : 'https://api-m.paypal.com';
@@ -75,11 +79,11 @@ class TAP_PayPal {
                 'reference_id' => $booking->booking_code,
                 'description'  => sprintf(__('Booking %s - %s', 'travel-agency-platform'), $booking->booking_code, $service_name),
                 'amount' => [
-                    'currency_code' => 'USD',
+                    'currency_code' => self::currency_code(),
                     'value'         => number_format(floatval($booking->total_amount), 2, '.', ''),
                     'breakdown' => [
                         'item_total' => [
-                            'currency_code' => 'USD',
+                            'currency_code' => self::currency_code(),
                             'value'         => number_format(floatval($booking->total_amount), 2, '.', ''),
                         ]
                     ]
@@ -87,7 +91,7 @@ class TAP_PayPal {
                 'items' => [[
                     'name'     => $service_name,
                     'unit_amount' => [
-                        'currency_code' => 'USD',
+                        'currency_code' => self::currency_code(),
                         'value'         => number_format(floatval($booking->total_amount), 2, '.', ''),
                     ],
                     'quantity' => '1',
@@ -166,11 +170,11 @@ class TAP_PayPal {
                 'reference_id' => $reference_id,
                 'description'  => $description,
                 'amount' => [
-                    'currency_code' => 'USD',
+                    'currency_code' => self::currency_code(),
                     'value'         => number_format((float) $amount, 2, '.', ''),
                     'breakdown' => [
                         'item_total' => [
-                            'currency_code' => 'USD',
+                            'currency_code' => self::currency_code(),
                             'value'         => number_format((float) $amount, 2, '.', ''),
                         ]
                     ]
@@ -178,7 +182,7 @@ class TAP_PayPal {
                 'items' => [[
                     'name'        => $description,
                     'unit_amount' => [
-                        'currency_code' => 'USD',
+                        'currency_code' => self::currency_code(),
                         'value'         => number_format((float) $amount, 2, '.', ''),
                     ],
                     'quantity' => '1',
@@ -295,7 +299,7 @@ class TAP_PayPal {
         $body = [];
         if ($amount) {
             $body['amount'] = [
-                'currency_code' => 'USD',
+                'currency_code' => self::currency_code(),
                 'value'         => number_format(floatval($amount), 2, '.', ''),
             ];
         }

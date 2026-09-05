@@ -3,7 +3,10 @@
 <div class="tap-page-header">
     <div class="tap-container">
         <?php
-        $post_type = get_post_type();
+        $post_type = (string) get_query_var('post_type');
+        if (!is_post_type_archive() && is_tax('tap_location')) {
+            $post_type = '';
+        }
         $type_labels = [
             'tap_accommodation' => __('Accommodations', 'travel-agency-theme'),
             'tap_tour'          => __('Tours', 'travel-agency-theme'),

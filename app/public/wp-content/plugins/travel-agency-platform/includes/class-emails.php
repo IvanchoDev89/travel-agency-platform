@@ -410,7 +410,7 @@ class TAP_Emails {
             'status'           => self::STATUS_LABELS[$booking->status] ?? $booking->status,
             'payment_status'   => self::PAYMENT_LABELS[$booking->payment_status] ?? $booking->payment_status,
             'notes'            => $booking->notes ? nl2br(esc_html($booking->notes)) : '',
-            'management_url'   => admin_url('admin.php?page=tap-dashboard&view=orders'),
+            'management_url'   => admin_url('admin.php?page=tap-bookings'),
             'voucher_url'      => home_url('/booking-detail/?code=' . rawurlencode($booking->booking_code)),
         ];
 

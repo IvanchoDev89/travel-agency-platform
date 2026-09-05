@@ -316,19 +316,11 @@ class TAP_Shortcodes {
             return '<p class="tap-no-results">' . __('No services found.', 'travel-agency-platform') . '</p>';
         }
 
-        $query = (object) ['posts' => $all_posts, 'have_posts' => function() use (&$all_posts) { return !empty($all_posts); }];
-        $query->have_posts = function() use (&$all_posts) {
-            $has = !empty($all_posts);
-            if (!$has) return false;
-            $GLOBALS['post'] = array_shift($all_posts);
-            setup_postdata($GLOBALS['post']);
-            return true;
-        };
-
         ob_start();
         ?>
-        <div class="tap-services-grid" style="display: grid; grid-template-columns: repeat(<?php echo $cols; ?>, 1fr); gap: 20px;">
-            <?php while ($query->have_posts()): $query->have_posts(); setup_postdata($GLOBALS['post']); ?>
+        <div class="tap-services-grid" style="display: grid; grid-template-columns: repeat(<?php echo intval($atts['columns']); ?>, 1fr); gap: 20px;">
+            <?php foreach ($all_posts as $post):
+                setup_postdata($post); ?>
                 <div class="tap-service-card">
                     <?php if (has_post_thumbnail()): ?>
                         <a href="<?php the_permalink(); ?>"><?php the_post_thumbnail('medium'); ?></a>
@@ -339,7 +331,7 @@ class TAP_Shortcodes {
                         <a href="<?php the_permalink(); ?>" class="tap-btn tap-btn-outline"><?php esc_html_e('View Details', 'travel-agency-platform'); ?></a>
                     </div>
                 </div>
-            <?php endwhile; wp_reset_postdata(); ?>
+            <?php endforeach; wp_reset_postdata(); ?>
         </div>
         <?php
         return ob_get_clean();
@@ -1324,7 +1316,7 @@ class TAP_Shortcodes {
         })(jQuery);
         </script>
         <?php if ($paypal_ready): ?>
-        <script src="https://www.paypal.com/sdk/js?client-id=<?php echo esc_attr(TAP_PayPal::get_client_id()); ?>&currency=USD" data-namespace="tapPayPal"></script>
+        <script src="https://www.paypal.com/sdk/js?client-id=<?php echo esc_attr(TAP_PayPal::get_client_id()); ?>&currency=<?php echo esc_attr(TAP_Currency::code()); ?>" data-namespace="tapPayPal"></script>
         <?php endif; ?>
         <?php
     }
@@ -1452,7 +1444,7 @@ class TAP_Shortcodes {
         </script>';
 
         if ($paypal_ready) {
-            $html .= '<script src="https://www.paypal.com/sdk/js?client-id=' . esc_attr(TAP_PayPal::get_client_id()) . '&currency=USD" data-namespace="tapPayPal"></script>';
+            $html .= '<script src="https://www.paypal.com/sdk/js?client-id=' . esc_attr(TAP_PayPal::get_client_id()) . '&currency=' . esc_attr(TAP_Currency::code()) . '" data-namespace="tapPayPal"></script>';
         }
 
         return $html;
@@ -1776,7 +1768,7 @@ class TAP_Shortcodes {
                     <div id="tap-paypal-button-container"></div>
                     <div id="tap-paypal-message" class="tap-booking-message"></div>
 
-                    <script src="https://www.paypal.com/sdk/js?client-id=<?php echo esc_attr(TAP_PayPal::get_client_id()); ?>&currency=USD" data-namespace="tapPayPal"></script>
+                    <script src="https://www.paypal.com/sdk/js?client-id=<?php echo esc_attr(TAP_PayPal::get_client_id()); ?>&currency=<?php echo esc_attr(TAP_Currency::code()); ?>" data-namespace="tapPayPal"></script>
                 <script>
                 jQuery(document).ready(function($) {
                     var bookingId = <?php echo intval($booking->id); ?>;

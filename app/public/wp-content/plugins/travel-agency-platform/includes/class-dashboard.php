@@ -442,7 +442,7 @@ class TAP_Dashboard {
                         $agency = get_post($b->agency_id);
                     ?>
                     <tr>
-                        <td><a href="<?php echo esc_url(get_edit_post_link($b->id)); ?>"><?php echo esc_html($b->booking_code); ?></a></td>
+                        <td><a href="<?php echo esc_url(home_url('/booking-detail/?code=' . rawurlencode($b->booking_code))); ?>" target="_blank"><?php echo esc_html($b->booking_code); ?></a></td>
                         <td><?php echo $b->display_name ? esc_html($b->display_name) : 'N/A'; ?></td>
                         <td><?php echo $service ? esc_html($service->post_title) : esc_html($b->service_type); ?></td>
                         <td><?php echo $agency ? esc_html($agency->post_title) : 'N/A'; ?></td>
@@ -1002,9 +1002,10 @@ class TAP_Dashboard {
                 update_post_meta($agency_id, '_tap_agency_commission', $c);
                 break;
             case 'delete':
-                $listing_ids = get_posts(['post_type' => ['tap_accommodation', 'tap_tour', 'tap_transport'], 'posts_per_page' => -1, 'fields' => 'ids', 'meta_query' => [['relation' => 'OR', ['key' => '_tap_acc_agency_id', 'value' => $agency_id], ['key' => '_tap_tour_agency_id', 'value' => $agency_id], ['key' => '_tap_trans_agency_id', 'value' => $agency_id]]]]);
+                $listing_types = ['tap_accommodation' => '_tap_acc_agency_id', 'tap_tour' => '_tap_tour_agency_id', 'tap_transport' => '_tap_trans_agency_id', 'tap_car_rental' => '_tap_car_agency_id', 'tap_boat' => '_tap_boat_agency_id', 'tap_package' => '_tap_pkg_agency_id'];
+                $listing_ids = get_posts(['post_type' => array_keys($listing_types), 'posts_per_page' => -1, 'fields' => 'ids', 'meta_query' => [['relation' => 'OR', ...array_map(fn($mk) => ['key' => $mk, 'value' => $agency_id], array_values($listing_types))]]]);
                 foreach ($listing_ids as $lid) {
-                    foreach (['_tap_acc_agency_id', '_tap_tour_agency_id', '_tap_trans_agency_id'] as $mk) {
+                    foreach ($listing_types as $mk) {
                         if ((string) get_post_meta($lid, $mk, true) === (string) $agency_id) {
                             delete_post_meta($lid, $mk);
                         }

@@ -58,7 +58,6 @@
                         <a href="<?php echo esc_url(home_url('/dashboard')); ?>"><?php esc_html_e('Dashboard', 'travel-agency-theme'); ?></a>
                         <a href="<?php echo esc_url(home_url('/my-bookings')); ?>"><?php esc_html_e('My Bookings', 'travel-agency-theme'); ?></a>
                         <a href="<?php echo esc_url(home_url('/favorites')); ?>"><?php esc_html_e('Favorites', 'travel-agency-theme'); ?></a>
-                        <a href="<?php echo esc_url(home_url('/edit-profile')); ?>"><?php esc_html_e('Edit Profile', 'travel-agency-theme'); ?></a>
                         <a href="<?php echo esc_url(wp_logout_url(home_url())); ?>"><?php esc_html_e('Log Out', 'travel-agency-theme'); ?></a>
                     </div>
                 </div>
