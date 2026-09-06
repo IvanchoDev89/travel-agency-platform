@@ -10,6 +10,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ### Added
 
+- **UI/UX audit batch 2 (P0) — agencies, customer dashboard & data tables**:
+  - **Agency directory** (`[tap_agencies]`): cards now render in a responsive auto-fill grid with the designed circular-logo card (hover lift/shadow); `<img>` is rounded via CSS, no markup churn.
+  - **Agency profile** (`[tap_agency_details]`): styled header (logo circle, h1, verified badge, location), contact info card, `.tap-content` typography and the "Our Services" mini list (`.tap-agency-services` / `.tap-service-mini`).
+  - **Customer dashboard**: `.tap-dashboard`/`.tap-dashboard-links` card layout.
+  - **Data tables** (my bookings + agency dashboards): shared `.tap-table`/`.tap-agency-table` styling with uppercase micro-headers, striped-ish hover rows.
+  - **Public status pills**: generic `.tap-status` base + pending/confirmed/completed/cancelled/refunded/paid/unpaid variants (previously only existed in admin CSS), so booking status reads correctly on the public "my bookings" list.
+
 - **UI/UX audit batch 1 (P0) — search, language switcher & results page**:
   - `[tap_search]` form now renders inside the designed `.tap-search-box` card (shortcode), so the results page no longer shows a bare, unstyled form.
   - Search params submit via the box card, fields keep responsive stacking at ≤768px.
