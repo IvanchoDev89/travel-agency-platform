@@ -300,7 +300,7 @@ class TAP_API {
             return new WP_Error('not_found', __('Booking not found', 'travel-agency-platform'), ['status' => 404]);
         }
 
-        if ($booking->client_id !== get_current_user_id() && !current_user_can('manage_options')) {
+        if ((int) $booking->client_id !== (int) get_current_user_id() && !current_user_can('manage_options')) {
             return new WP_Error('forbidden', __('Access denied', 'travel-agency-platform'), ['status' => 403]);
         }
 

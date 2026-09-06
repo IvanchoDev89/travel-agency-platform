@@ -99,6 +99,7 @@ wp_set_current_user($client_uid);
 $logged = TAP_Booking::create($booking_data);
 wp_set_current_user(0);
 tap_t_assert(!is_wp_error($logged), 'registered customer booking created');
+$created_booking_ids[] = (int) $logged['booking_id'];
 $lrow = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_bookings WHERE id = %d", (int) $logged['booking_id']));
 tap_t_assert($lrow !== null && (int) $lrow->client_id === $client_uid, 'registered customer booking stored with client_id = user_id');
 
