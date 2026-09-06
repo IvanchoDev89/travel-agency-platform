@@ -50,8 +50,9 @@ TravelAgencyPlatform (bootstraps everything)
  ├─ TAP_Sitemap      → extends WP native sitemaps (post types + taxonomies)
  ├─ TAP_Subscriptions→ agency plans
  ├─ TAP_Promotions   → featured listings
- ├─ TAP_Analytics    → listing view analytics
- └─ TAP_Currency     → money formatting
+├─ TAP_Analytics    → listing view analytics
+  ├─ TAP_Leads        → agency contact leads (tap_leads)
+  └─ TAP_Currency     → money formatting
 ```
 
 The **companion theme** (`travel-agency-theme`) provides the public templates that render these data structures (cards, single pages, search, voucher, forms) and delegates all business logic to the plugin.
@@ -343,6 +344,22 @@ Per-day listing view counts (analytics).
 
 Unique key `listing_id + view_date`; writes come from `TAP_Analytics::record_view()` (5-min throttle), reads from `total_views()` / `listing_views()`.
 
+### `{prefix}tap_leads`
+
+Contact leads from visitors to agencies (monetization input).
+
+| Column | Notes |
+| --- | --- |
+| `id` | PK |
+| `agency_id` | Owning agency (validated active on submit). |
+| `service_id` | NULL unless the form was submitted from a service detail page. |
+| `name` / `email` / `phone` | Contact data (name/email required). |
+| `message` | Free text (≤ 2000 chars). |
+| `ip` / `source` | Submission IP and `agency`/`service` source. |
+| `created_at` | |
+
+Validation and rate limiting live in `TAP_Leads::submit()` (5 emails / 10 IPs per hour, keyed with `DATE_SUB(NOW(), INTERVAL 1 HOUR)` so *server* time is used). Submission is CLI-safe (never calls `wp_send_json_*`/`wp_die`).
+
 ### Database Migrations
 
 Migrations live in `TAP_Installer::migrate()` and run from `create_tables()`.
@@ -380,6 +397,8 @@ Registered in `TAP_API::register_routes()`. Most read endpoints are public (`__r
 | `/review` | POST | Submit a review. |
 | `/availability/{type}/{id}` | GET | Per-date availability. |
 
+**Auth guards** (verified by `suite_rest`): `/booking` POST and `/review` POST require a logged-in user (`rest_forbidden` 401 otherwise); `GET /booking/{id}` enforces ownership — both `client_id` and `get_current_user_id()` are compared as integers, and a non-owner gets `forbidden` 403. Only approved reviews (`is_approved = 1`) are served by `/reviews/{type}/{id}`; `/search` returns only listings whose `_tap_{prefix}_is_active = '1'`.
+
 ### AJAX endpoints
 
 Registered in `TravelAgencyPlatform::init_hooks()` via `admin-ajax.php`. Public (guest) endpoints are additionally registered with the `nopriv` suffix.
@@ -403,6 +422,17 @@ Registered in `TravelAgencyPlatform::init_hooks()` via `admin-ajax.php`. Public 
 | `tap_toggle_favorite` | `TAP_Ajax::toggle_favorite` | — | Add/remove favorite. |
 | `tap_agency_subscribe` | `TAP_Ajax::agency_subscribe` | — | Agency subscribes to a plan (creates a pending subscription). |
 | `tap_promo_request` | `TAP_Ajax::promo_request` | — | Agency requests a featured promotion (creates a pending promo). |
+| `tap_lead_submit` | `TAP_Ajax::lead_submit` | ✅ | Visitor sends a contact lead to an agency. |
+
+**Guest mode**
+
+Public booking/cancel/paypal endpoints work for **logged-out visitors** too:
+
+- A guest booking is stored with `client_id = 0` plus `guest_name`/`guest_email`/`guest_phone`.
+- The voucher (`[tap_booking_detail]`) and checkout (`[tap_checkout]`) only disclose the booking when `?code=` matches **and** the posted email equals `guest_email` ("no coincide" otherwise).
+- Payment is gated behind a short-lived proof token: `TAP_Ajax::set_guest_pay_token($booking_code)` (30-min transient `tap_guest_pay_{code}`) is set after email verification and checked by the PayPal capture flow.
+- Guest cancellation is allowed with `client_cancel_request($id, 0, $guest_email)`; cross-ownership is refused both ways (`forbidden` / `no_user`).
+- Guest checkout is rate-limited by email+IP via `guest_book_rate_bump()` / `guest_book_rate_blocked()` (5 bookings/hour).
 
 **Nonce handling**
 
@@ -438,6 +468,7 @@ Registered in `TAP_Shortcodes::init()`.
 | `[tap_checkout]` | Checkout flow. |
 | `[tap_plans]` | Subscription plans (renders plan cards + subscribe buttons). |
 | `[tap_search_results]` | Renders filtered results (reads `keyword`/`type`/`location` GET params) featured-first, cut into cards; used on the `search-results` page with `[tap_search]`. |
+| `[tap_lead_form]` | Contact form for an agency (profile page or service detail); posts to the `tap_lead_submit` AJAX endpoint. |
 
 > The **search-results** page should contain `[tap_search]` followed by `[tap_search_results]`. Search is a GET to the page; the form's destination field has an autocomplete wired to `tap_search_suggestions` (shared with the hero `#hs-destino`).
 
@@ -520,8 +551,9 @@ The platform monetizes through (1) **agency commissions**, (2) an optional **cli
 - **Analytics** — `TAP_Dashboard::analytics_page()` (admin page `tap-analytics`, capability `tap_view_reports`) aggregates platform revenue across `tap_bookings` (commissions + booking fees, excluding `cancelled`/`refunded`), `tap_agency_subscriptions` (active plan MRR; paid subscriptions counted in the month of `created_at`), and `tap_promos` (paid promotions counted in the month of `updated_at`). It renders KPI cards, a 12-month stacked chart, top agencies (agency name resolved from the `tap_agency` post title joined on `agency_id`), top listings, and supports a `YYYY-MM` period filter (`tap_from`/`tap_to`). Two nonce-protected CSV exports are available: `export=bookings` (booking-level detail with fee/commission/net) and `export=summary` (monthly financial summary, now including views), handled by the private `analytics_csv_export()` before any HTML output.
 - **Featured-first ordering** — `TAP_Promotions::prefix_for_type()` maps each `tap_*` type to its canonical meta prefix (`_tap_acc_`, `_tap_tour_`, `_tap_trans_`, `_tap_car_`, `_tap_boat_`, `_tap_pkg_`); `keys_for_type()` derives all promotion meta keys from it. `TAP_Ajax::featured_sort_clauses()` hooks `posts_clauses` and prepends a `CASE WHEN featured THEN 0 ELSE 1 END` ordering term so featured listings sort first in archives and search without disturbing the user-chosen order.
 - **Listing views** — `TAP_Analytics` hooks `template_redirect`, and on singular service pages upserts a per-day row in `tap_listing_views` (keyed `listing_id + view_date`). A 5-minute transient per user+listing throttles writes (`tap_view_{user}_{listing}`). Totals come from `TAP_Analytics::total_views($from, $to)` and `listing_views($from, $to)`; the Analytics page derives the **Conversión vistas → reservas** KPI by dividing period bookings by period views.
+- **Contact leads** — `TAP_Leads::submit()` stores visitor messages in `tap_leads` and fires `tap_lead_created` (wired to `TAP_Emails` for the agency notification). The `[tap_lead_form]` shortcode posts to `tap_lead_submit` (nonce `tap_lead_nonce`); the agency dashboard lists leads and exports them as CSV (`tap_export_leads` admin-post).
 - **Commission book** — commissions screen (`tap-commissions`) settles either via the bulk checkbox flow (one payment row per agency) or per-booking (`tap_settle_booking` POST, nonce `tap_settle_booking`) which liquidates a single booking's commission directly. Both write `tap_commission_payments` and flip `commission_status → paid`; `tap_commission_paid` fires with `(agency_id, payment_id)`. Settlement history resolves `booking_ids` back to booking codes. The agency panel lists the last 30 commission-generating bookings with status pills.
-- **Tests** — `tests/run.sh` executes the WP-CLI suites in `tests/` against a real install. Target the travel site with `SITE=travel ./tests/run.sh` or the second site with `SITE=ivanchodev ./tests/run.sh`; override `WP_PATH`/`WP_BIN`/`SUITES` as needed. Suites seed and then delete their own rows, so they are safe to re-run and leave no residue.
+- **Tests** — `tests/run.sh` executes the WP-CLI suites in `tests/` against a real install. Target the travel site with `SITE=travel ./tests/run.sh` or the second site with `SITE=ivanchodev ./tests/run.sh`; override `WP_PATH`/`WP_BIN`/`SUITES` as needed. The default battery runs **17 suites** (`suite_core`, `suite_bookings`, `suite_commissions`, `suite_promotions`, `suite_views`, `suite_analytics`, `suite_payments`, `suite_guest_checkout`, `suite_leads`, `suite_booking_flow`, `suite_pricing`, `suite_paypal`, `suite_rest`, `suite_reviews`, `suite_bugs`, `suite_seo`, `suite_agency_manage`). `tests/bootstrap.php` ships shared helpers (site-agnostic service/user discovery, a PayPal `pre_http_request` mock, an in-process REST dispatcher with `tap_t_rest_error_code()` normalization, and cleanup helpers). Every suite **seeds and then deletes its own rows** — the battery is verified residue-free on both installs.
 - **Adding a fee type** — extend `get_booking_fee()` and mirror the value in `calculate_booking_total` so the front-end breakdown stays consistent with the persisted booking.
 - **Adding a plan** — insert into `tap_plans` (or seed via `TAP_Installer::migrate()`); optional `commission_rate`, `listing_limit` (`-1` = unlimited), and `featured_slots` then take effect automatically.
 
@@ -540,7 +572,7 @@ pending  →  confirmed  →  completed
 
 **Client cancellation guard** (`TAP_Booking::client_cancel_request()`):
 
-1. Caller must own the booking (`client_id`).
+1. Caller must own the booking (`client_id`), unless it is a **guest** booking (`client_id = 0`) — then the third argument `$guest_email` must match `guest_email`.
 2. Status must be `pending` or `confirmed`.
 3. `check_in` must not be in the past.
 4. On success: status → `cancelled`, `cancel_requested_at` set, `cancelled_by = client`; paid bookings are flagged `refunded`.

@@ -56,6 +56,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
   - New single source of truth for per-type meta prefixes, `TAP_Post_Types::meta_prefix()` (`acc`, `tour`, `trans`, `car`, `boat`, `pkg`), applied across ajax, shortcodes, API, dashboard and promotions. `TAP_Promotions::prefix_for_type()` now delegates to it. This fixes a latent bug where the owner/`_is_active` lookups wrote/read the wrong keys for accommodation, transport, car-rental and package.
   - New site-agnostic E2E suite `suite_agency_manage`: discovers an agency user dynamically (and creates a temporary second agency when the install has only one), covers create/edit/ownership across all types, and verifies the owner lands on the canonical meta key (no strays on derived keys).
   - `suite_seo` now picks its search keyword from an **active** listing (the results page filters `_is_active=1`), so it no longer depends on the newest published post being active.
+- **P3 — Guest checkout (Fase 1, prioridad 3)**:
+  - Logged-out visitors can book without an account: the booking form captures `guest_name` / `guest_email` / `guest_phone`, and the booking is stored with `client_id = 0` + the guest contact data.
+  - Voucher and checkout pages verify the booking by `?code=` + the **guest email** before rendering the voucher or the PayPal button.
+  - Client-side cancellation works for guests via email proof; registered customers can only cancel their own bookings (`forbidden` guard) and vice versa (`no_user`).
+  - **Rate limiting**: `TAP_Ajax::guest_book_rate_bump()` / `guest_book_rate_blocked()` (5 bookings / hour / email) on guest checkout; a `guest_email_required` WP_Error rejects guests without a valid email.
+- **P4 — Agency contact leads (Fase 1, prioridad 4)**:
+  - New `tap_leads` table + `TAP_Leads` class with a CLI-safe `submit()` that validates name/email/message, active-agency and service-ownership checks, and rate limiting (5 emails / 10 IPs per hour).
+  - Public `[tap_lead_form]` shortcode on agency profile + service detail pages; email alert to the agency on each lead (`tap_lead_created`).
+  - Agency dashboard **Mensajes** section lists lead count and the last 20 leads, with a nonce-protected **Exportar CSV** export (`tap_export_leads` admin-post).
+- **Fase B — deuda técnica (verificación + batería de regresión)**:
+  - Fixed a fatal on PHP 8: the public services grid stored closures as `stdClass` methods and called them as methods; rewritten with `foreach` + `setup_postdata()`.
+  - `TAP_PayPal::currency_code()` centralizes the charge currency (falls back to USD), replacing hard-coded `USD` in PayPal bodies and SDK script tags.
+  - Deleting an agency now wipes all 6 per-type meta keys; admin emails point to the real bookings screen (`admin.php?page=tap-bookings`) instead of `/tap-dashboard`; the removed `/edit-profile` link was dropped from the account menu; archives resolve the query post-type via `get_query_var`.
+  - New `suite_bugs` regression suite asserting the source of each fix.
+- **Fase C — batería de crítica (reserva, pricing, PayPal, REST, reviews)**:
+  - Five new suites green on both installs: `suite_booking_flow` (full lifecycle, stale-cancel cron, booking fee), `suite_pricing` (night ranges, blocked dates, min-stay, per-person packages), `suite_paypal` (create/capture/refund/webhook via a `pre_http_request` mock), `suite_rest` (the whole `tap/v1` surface incl. ownership), `suite_reviews` (duplicate/`missing_field`/anonymous guards + rating aggregation behind approval).
+  - Fixed a real REST bug surfaced by the suites: `GET /tap/v1/booking/{id}` compared the DB `client_id` (string) to the current user id (int) with a strict `!==`, so owners were always denied; both sides are now cast.
+  - `tests/bootstrap.php` now provides shared helpers (service/user discovery, PayPal mock, in-process REST dispatcher, error-code normalization) and every suite is residue-free (verified 0 rows left behind on both sites).
 
 ### Fixed
 

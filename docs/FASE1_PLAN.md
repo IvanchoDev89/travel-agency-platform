@@ -1,14 +1,19 @@
 # FASE 1 — Registro público multiagencia & flujo de conversión
 ## Plan técnico detallado (basado en auditoría real del código, v1.3.0)
 
-> Estado del documento: **EN EJECUCIÓN — P1 y P2 COMPLETADOS (verificado en travel e ivanchodev)**.
+> Estado del documento: **EN EJECUCIÓN — P1–P4 COMPLETADOS; deuda técnica (Fase B) y batería de crítica (Fase C) CERRADAS**.
+> Verificado en travel e ivanchodev (17/17 suites verdes, 0 residuos).
 > Anexa a [`INTEGRATION_PLAN.md`](INTEGRATION_PLAN.md) (estrategia de implantación).
 >
 > Estado por prioridad:
 > - ✅ **P1** — BUG de nonce de reservas: **COMMIT `1d55b17`**, cubierto en `suite_bookings`.
-> - ✅ **P2** — Autoservicio de proveedores para los 6 tipos: **implementado** + `suite_agency_manage` verde en ambos sitios.
-> - ⬜ **P3** — Guest checkout (siguiente).
-> - ⬜ **P4** — Monetización por lead.
+> - ✅ **P2** — Autoservicio de proveedores para los 6 tipos: **COMMIT `75f6aec`** + `suite_agency_manage` verde en ambos sitios.
+> - ✅ **P3** — Guest checkout: **COMMIT `882b926`**, cubierto en `suite_guest_checkout`.
+> - ✅ **P4** — Monetización por lead: **COMMIT `a7a1847`**, cubierto en `suite_leads`.
+>
+> Suplementario:
+> - ✅ **Fase B** — Deuda técnica cobrada: **COMMIT `9d842a3`** (+ `suite_bugs`).
+> - ✅ **Fase C** — Batería de crítica (reserva, pricing, PayPal, REST, reviews): **COMMIT `b68ba9a`** (+5 suites, fix REST propietario).
 
 ---
 
@@ -73,29 +78,47 @@ suite #9 del runner.
 
 ---
 
-### 🟠 P3 — Captación de clientes: reserva accesible
+### 🟠 P3 — Captación de clientes: reserva accesible ✅ COMPLETADO
 Para que el marketplace genere comisiones, **cualquier visitante debe poder reservar** sin
 fricción.
 
-**Alcance:**
-- **Guest checkout**: permitir reserva sin login, pidiendo nombre/email/teléfono en el
-  formulario, y crear un usuario cliente automáticamente (o almacenar datos de huésped ya
-  soportados: `guest_name/email/phone` en la tabla de booking).
-- Actualmente `client_id` = `get_current_user_id()`; para guest, `client_id` puede ser 0 y
-  usar `guest_email` para localizar la reserva.
-- **Registro de cliente**: formulario simple de cuenta de viajero que agilice futuras reservas.
+**Implementado (commit `882b926`):**
+- **Guest checkout**: el formulario captura `guest_name`/`guest_email`/`guest_phone`, y la
+  reserva se guarda con `client_id = 0` + datos de huésped. Las acciones públicas
+  (`tap_booking_create`, `tap_cancel_booking`, voucher `[tap_booking_detail]`, checkout
+  `[tap_checkout]`) aceptan huéspedes verificando `?code=` + email.
+- **Cierre por email**: el voucher y el botón de pago solo se muestran cuando el email
+  usado coincide con `guest_email` de la reserva; canje erróneo → "no coincide".
+- **Cancelación de huésped**: `TAP_Booking::client_cancel_request($id, 0, $guest_email)`
+  valida el email; un registrado no puede cancelar reserva guest (`forbidden`) y un guest
+  no puede cancelar la de un registrado (`no_user`).
+- **Rate limiting**: `TAP_Ajax::guest_book_rate_bump()` / `guest_book_rate_blocked()`
+  (5 reservas/hora/email) protegen el checkout.
+- `guest_email_required` rechaza booking sin email válido.
+
+**Verificación:** `suite_guest_checkout` (flujo happy path, validaciones de email,
+permisos de cancelación cruzados, tokens de pago guest, rate limit). Verde en travel e
+ivanchodev. *Nota de higiene:* la suite registra ambos bookings (guest y cliente logueado)
+en su cleanup — antes filtraba 1 fila por ejecución (fix en commit `b68ba9a`).
 
 ---
 
-### 🟢 P4 — Monetización por lead (contacto a agencias)
+### 🟢 P4 — Monetización por lead (contacto a agencias) ✅ COMPLETADO
 Nueva fuente de ingresos: cuando un cliente envía un mensaje/presupuesto a una agencia, se
 registra un **lead** y opcionalmente se cobra/basura su visibilidad.
 
-**Alcance (nuevo):**
-- Tabla `tap_leads` (o reutilizar patrón de `tap_payment_orders`).
-- Formulario de contacto/presupuesto en la página de agencia y en el detalle de servicio.
-- Dashboard de agencia: ver y descargar sus leads.
-- Modelo de cobro: lead por contacto / paquete de leads (decisión de negocio a fijar).
+**Implementado (commit `a7a1847`):**
+- Tabla `tap_leads` + clase `TAP_Leads` con `submit()` CLI-safe (sin `wp_send_json`/`wp_die`):
+  valida nombre/email/mensaje, agencia activa, pertenencia del servicio (`invalid_service`)
+  y rate limiting (`lead_rate_limit`; 5 emails / 10 IPs por hora; limpieza vía
+  `DATE_SUB(NOW(), INTERVAL 1 HOUR)`).
+- Shortcode público `[tap_lead_form]` en el perfil de agencia y detalle de servicio; alerta
+  por email a la agencia (`tap_lead_created`) con `TAP_Emails::send_lead_notification()`.
+- Dashboard de agencia **Mensajes**: contador y últimos 20 leads + **Exportar CSV**
+  (`TAP_Leads::export_csv()`, nonce `tap_export_leads_{user}` vía `admin-post`).
+
+**Verificación:** `suite_leads` (submit feliz + todos los rechazos + rate limit + CSV y
+notificación). Verde en travel e ivanchodev.
 
 ---
 
@@ -146,10 +169,9 @@ lógica debe insertarse respetando:
 1. ✅ `suite_bookings` verde y test que cubre el nonce de reserva front-end (P1) — **hecho**, commit `1d55b17`.
 2. ✅ Un usuario puede registrarse como agencia (ya funcionaba) y publicar un servicio de cada
    tipo desde el front-end (P2) — **hecho**, `suite_agency_manage` verde en travel e ivanchodev.
-3. ⬜ Un visitante puede completar una reserva sin cuenta (P3) — siguiente.
-4. ⬜ Un cliente puede contactar a una agencia y esto genera un lead visible en el dashboard (P4).
-5. ✅ Todas las suites pasan en travel e ivanchodev (9/9 cada uno); CHANGELOG actualizado.
-   Commit de P2 pendiente.
+3. ✅ Un visitante puede completar una reserva sin cuenta (P3) — **hecho**, `suite_guest_checkout` verde en ambos sitios (commit `882b926`).
+4. ✅ Un cliente puede contactar a una agencia y esto genera un lead visible en el dashboard (P4) — **hecho**, `suite_leads` verde en ambos sitios (commit `a7a1847`).
+5. ✅ Todas las suites pasan en travel e ivanchodev (17/17 cada uno); CHANGELOG actualizado. Commits de P2 (`75f6aec`), P3 (`882b926`), P4 (`a7a1847`), Fase B (`9d842a3`) y Fase C (`b68ba9a`).
 
 ---
 

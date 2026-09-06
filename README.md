@@ -54,6 +54,7 @@ The platform orchestrates three core actors:
 - Date-range validation (no past check-in, valid check-out ordering).
 - **Capacity/inventory control** — tours use per-date slots; rooms enforce inventory and blocked dates; overlapping stays are refused.
 - **Guest data capture** (name, email, phone) persisted per booking.
+- **Guest checkout** — logged-out visitors book, pay and manage their reservation using `?code=` + their email, with 5/hour rate limiting.
 - **Client-side cancellation** with ownership enforcement and lifecycle guards (`pending`/`confirmed` → `cancelled`, past stays refused, paid orders flagged for refund).
 - Automatic cancellation of **stale/pending** bookings via a scheduled maintenance task.
 
@@ -79,6 +80,11 @@ The platform orchestrates three core actors:
 - Sortable results: relevance, price (asc/desc), rating, name.
 - **Interactive map** built on Leaflet with marker clustering.
 - Favorites (wishlist) for logged-in clients.
+
+### Agencies & Monetization
+- Self-service inventory manager for all **six service types** (plan-limit and ownership enforced).
+- **Contact leads** from visitors, with agency email alerts and CSV export.
+- Agency subscriptions with commission overrides, featured promotions, booking fees, commission settlement, and financial analytics.
 
 ### Content, SEO & Engagement
 - Per-service SEO **meta title & description** fields rendered as `<meta>`, Open Graph, and JSON-LD (`Product`, `AggregateRating`, `Offer`, `BreadcrumbList`).
@@ -129,6 +135,8 @@ travel-agency/
 | [`docs/INSTALLATION.md`](docs/INSTALLATION.md) | Administrators / DevOps | Install, configure, and deploy the platform. |
 | [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md) | Clients & agency staff | How to use the marketplace day-to-day. |
 | [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md) | Developers | Architecture, database schema, custom hooks, AJAX and REST APIs, and shortcodes. |
+| [`docs/FASE1_PLAN.md`](docs/FASE1_PLAN.md) | Product/engineering | Technical plan for the multi-agency marketplace roadmap (P1–P4 status). |
+| [`docs/INTEGRATION_PLAN.md`](docs/INTEGRATION_PLAN.md) | Integrators | How to embed the plugin into an existing WordPress site (child-theme strategy). |
 | [`docs/CHANGELOG.md`](docs/CHANGELOG.md) | All | Released improvements and fixes by version. |
 
 ---
