@@ -26,6 +26,10 @@ y también expone **shortcodes** autocontenidos. Hay dos modos de mostrar conten
 | `[tap_service_detail id="X"]` | Página de detalle de un servicio |
 | `[tap_agency_detail id="X"]` | Perfil de agencia |
 | `[tap_booking_form ...]` | Formulario de reserva |
+| `[tap_booking_detail]` | Voucher de reserva por `?code=` (válido para guest checkout) |
+| `[tap_checkout]` | Pago de la reserva (verificación de email para huéspedes) |
+| `[tap_my_bookings]` | Mis reservas (con cancelación) |
+| `[tap_lead_form]` | Mensaje de contacto a una agencia |
 | `[tap_agency_services agency="X"]` | Servicios de una agencia |
 
 El theme Rara Themes **no sabe nada** de estos templates/hooks, por lo que por sí solo no
@@ -104,8 +108,11 @@ Esto funciona **sin tocar templates** una vez activado el plugin:
 - **Rich results (JSON-LD)**: BreadcrumbList, FAQPage, ContactPoint, TouristTrip, Hotel,
   TravelAgency.
 - **Búsqueda con filtros**: la página `/search-results` con `[tap_search_results]`.
-- **Toda la lógica de negocio**: reservas, pagos (PayPal en `565f344`), promociones,
-  planes, comisiones, analíticas, panel de agencia.
+- **Guest checkout completo**: reserva sin cuenta, voucher por email e incluso pago
+  (todo cortesía del plugin; solo necesitas las páginas con los shortcodes).
+- **Leads de contacto**: `[tap_lead_form]` + alertas por email a la agencia.
+- **Toda la lógica de negocio**: reservas, pagos (PayPal), promociones, planes,
+  comisiones, analíticas, panel de agencia.
 
 ---
 
