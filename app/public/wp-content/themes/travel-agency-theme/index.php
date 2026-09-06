@@ -12,9 +12,7 @@
             <h1><?php _e('Discover Your Next Adventure', 'travel-agency-theme'); ?></h1>
             <p><?php _e('Explore curated accommodations, tours, and travel experiences from trusted local agencies.', 'travel-agency-theme'); ?></p>
 
-            <div class="tap-search-box">
-                <?php echo do_shortcode('[tap_search]'); ?>
-            </div>
+            <?php echo do_shortcode('[tap_search]'); ?>
         </div>
     </div>
 </section>

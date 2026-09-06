@@ -10,6 +10,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ### Added
 
+- **UI/UX audit batch 1 (P0) — search, language switcher & results page**:
+  - `[tap_search]` form now renders inside the designed `.tap-search-box` card (shortcode), so the results page no longer shows a bare, unstyled form.
+  - Search params submit via the box card, fields keep responsive stacking at ≤768px.
+  - Results page (`templates/search-results.php`): removed inline 3-column grid + inline margins (broke responsiveness); grid now uses themed `.tap-services-grid` (auto-fill, 240px) and container uses `.tap-search-results-container`; service type is shown as a themed pill via `.tap-service-type-label`.
+  - Language switcher styled as segmented pills: `.tap-lang-switcher`, `.tap-lang-link` (+ `.is-active`), `.tap-lang-sep`.
+  - Hero destination field gains desktop emphasis (`@media (min-width:481px)` → `.tap-hs-destino { flex: 1.5; }`).
+  - `index.php` no longer double-wraps the search in `.tap-search-box` (shortcode self-wraps now).
+
 - **C3 — Search filters, sitemap, rich results & detail UX**:
   - **Search filters** on the results page: filter by type, location, min/max price and sort (newest / price asc / price desc / best rated), featured-first, applied as GET params.
   - **Technical SEO**: `TAP_Sitemap` extends WordPress' native sitemaps so all 6 service types and the platform taxonomies are indexed, and robots.txt now references the sitemap. (Rewrites via WP core — no custom rewrite/301.)

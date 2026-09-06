@@ -31,7 +31,7 @@ class TAP_Shortcodes {
         $atts = shortcode_atts(['type' => '', 'placeholder' => __('Where do you want to go?', 'travel-agency-platform')], $atts);
         ob_start();
         ?>
-        <div class="tap-search-form">
+        <div class="tap-search-form tap-search-box">
             <form method="get" action="<?php echo esc_url(home_url('/search-results')); ?>" class="tap-search-form-inner">
                 <input type="hidden" name="tap_search" value="1">
                 <div class="tap-search-fields">

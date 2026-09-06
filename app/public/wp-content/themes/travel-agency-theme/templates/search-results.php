@@ -13,7 +13,7 @@ get_header();
 
 <div class="entry-content">
     <?php echo do_shortcode('[tap_search]'); ?>
-    <div class="tap-search-results-container" style="margin-top: 30px;">
+    <div class="tap-search-results-container">
         <?php
         $keyword = sanitize_text_field($_GET['keyword'] ?? '');
         $type = sanitize_text_field($_GET['type'] ?? '');
@@ -46,7 +46,7 @@ get_header();
         if (!empty($results)):
         ?>
             <p><strong><?php printf(__('%d results found', 'travel-agency-theme'), count($results)); ?></strong></p>
-            <div class="tap-services-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+            <div class="tap-services-grid">
                 <?php foreach ($results as $post): setup_postdata($post); ?>
                     <div class="tap-service-card">
                         <div class="tap-card-thumb">
