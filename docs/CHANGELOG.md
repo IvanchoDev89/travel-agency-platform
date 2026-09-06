@@ -10,6 +10,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ### Added
 
+- **UI/UX audit batch 4 (P1) — generic single-service page**:
+  - Header block (`.tap-svc-header`): badge + h1 rows baseline aligned, agency link emphasized.
+  - Specs grid (`.tap-acc-facts`/`.tap-acc-fact`): responsive auto-fit cards with micro uppercase labels.
+  - Legacy detail shortcode meta row (`.tap-meta-grid`/`.tap-meta-item`, `.tap-detail-price`).
+  - Review star selector spacing (`.tap-review-stars`).
+  - Content-partial cards: `.tap-price` (primary, bold) and `.tap-duration` (micro uppercase) paragraphs for tour/transport/boat/car/package listings.
+  - Fixed single-image gallery layout on generic service pages: `.tap-acc-gallery` with a lone `<img>` (tours, transport, boats…) no longer leaves an empty thumb column; image stretches full width via `:has(> img:only-of-type)`.
+
 - **UI/UX audit batch 3 (P1) — forms, leads, voucher & booking summary**:
   - **Booking widget**: `.tap-form-group` labels/margins, `.tap-total-display` moved out of inline styles into a themed rule; total row reads as a strong summary line.
   - **Lead forms** (`[tap_lead_form]`): card wrapper (`.tap-lead-form-wrap`) with styled labels and full-width inputs/textarea with focus ring, matching the rest of the theme.

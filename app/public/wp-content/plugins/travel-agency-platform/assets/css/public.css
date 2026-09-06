@@ -1289,3 +1289,27 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 
 .tap-bw-total-row.tap-bw-price-row { font-weight: 600; color: var(--tap-neutral-800); }
 .tap-bw-total-row.tap-bw-fee-row { font-size: var(--tap-text-xs); color: var(--tap-neutral-400); }
+
+/* ===== Theme UI surfaces (Lote 4): generic single-service page ===== */
+.tap-svc-header { text-align: left; }
+.tap-svc-header h1 { display: flex; align-items: center; flex-wrap: wrap; gap: var(--tap-space-2); margin-top: var(--tap-space-3); }
+.tap-svc-header .tap-agency-meta a { color: var(--tap-primary); text-decoration: none; }
+.tap-acc-content h2 { font-size: var(--tap-text-xl); font-weight: 600; color: var(--tap-neutral-900); margin: 0 0 var(--tap-space-4); }
+
+.tap-acc-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--tap-space-3); margin-top: var(--tap-space-5); }
+.tap-acc-fact { display: flex; flex-direction: column; gap: 2px; padding: var(--tap-space-3) var(--tap-space-4); background: var(--tap-neutral-50); border-radius: var(--tap-radius-lg); }
+.tap-acc-fact strong { font-size: var(--tap-text-xs); text-transform: uppercase; letter-spacing: 0.04em; color: var(--tap-neutral-400); }
+.tap-acc-fact span { font-size: var(--tap-text-sm); color: var(--tap-neutral-800); }
+
+.tap-meta-grid { display: flex; flex-wrap: wrap; gap: var(--tap-space-3); margin-top: var(--tap-space-6); padding: var(--tap-space-4); background: var(--tap-neutral-50); border-radius: var(--tap-radius-xl); }
+.tap-meta-item { font-size: var(--tap-text-sm); color: var(--tap-neutral-600); }
+.tap-meta-item strong { color: var(--tap-neutral-800); }
+.tap-detail-price { color: var(--tap-primary); font-weight: 700; }
+
+.tap-review-stars { margin-bottom: var(--tap-space-4); }
+
+.tap-price { font-size: var(--tap-text-base); font-weight: 700; color: var(--tap-primary); margin: var(--tap-space-1) 0 0; }
+.tap-duration { font-size: var(--tap-text-xs); color: var(--tap-neutral-500); margin: 2px 0 0; text-transform: uppercase; letter-spacing: 0.03em; }
+
+.tap-acc-gallery:has(> img:only-of-type) { display: block; }
+.tap-acc-gallery > img { width: 100%; height: 100%; min-height: 380px; object-fit: cover; }
