@@ -558,7 +558,7 @@ class TAP_Shortcodes {
                     <textarea id="tap_notes" name="notes" rows="3" class="tap-input"></textarea>
                 </div>
                 <div class="tap-form-group">
-                    <span class="tap-total-display" style="font-size: 18px; font-weight: bold; display: block; margin-bottom: 10px;"><?php esc_html_e('Total: ', 'travel-agency-platform'); ?>$<span id="tap-total-amount">0.00</span></span>
+                    <span class="tap-total-display"><?php esc_html_e('Total: ', 'travel-agency-platform'); ?>$<span id="tap-total-amount">0.00</span></span>
                 </div>
                 <div class="tap-form-group">
                     <button type="submit" class="tap-btn tap-btn-primary tap-btn-lg"><?php esc_html_e('Book Now', 'travel-agency-platform'); ?></button>

@@ -1252,3 +1252,40 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 .tap-status-refunded { background: #f3e8ff; color: #6b21a8; }
 .tap-status-paid { background: #dcfce7; color: #166534; }
 .tap-status-unpaid { background: #fef3c7; color: #92400e; }
+
+/* ===== Theme UI surfaces (Lote 3): forms, leads, voucher & booking summary ===== */
+.tap-booking-form .tap-form-group { margin-bottom: var(--tap-space-4); }
+.tap-booking-form .tap-form-group label { display: block; font-size: var(--tap-text-sm); font-weight: 600; color: var(--tap-neutral-700); margin-bottom: var(--tap-space-1); }
+.tap-booking-form textarea.tap-input { resize: vertical; }
+.tap-total-display { display: block; font-size: 18px; font-weight: 700; color: var(--tap-neutral-900); margin-bottom: var(--tap-space-2); }
+
+.tap-lead-form-wrap { background: var(--tap-neutral-50); border: 1px solid var(--tap-neutral-200); border-radius: var(--tap-radius-xl); padding: var(--tap-space-6); }
+.tap-lead-form-wrap h3 { font-size: var(--tap-text-lg); font-weight: 600; color: var(--tap-neutral-900); margin: 0 0 var(--tap-space-4); }
+.tap-lead-form p { margin: 0 0 var(--tap-space-3); }
+.tap-lead-form label { display: block; font-size: var(--tap-text-sm); font-weight: 600; color: var(--tap-neutral-700); margin-bottom: var(--tap-space-1); }
+.tap-lead-form input[type="text"], .tap-lead-form input[type="email"], .tap-lead-form textarea {
+  width: 100%;
+  padding: var(--tap-space-2) var(--tap-space-3);
+  border: 1px solid var(--tap-neutral-300);
+  border-radius: var(--tap-radius-lg);
+  font-size: var(--tap-text-sm);
+  font-family: var(--tap-font-sans);
+  background: #fff;
+}
+.tap-lead-form input:focus, .tap-lead-form textarea:focus { outline: none; border-color: var(--tap-primary); box-shadow: 0 0 0 3px rgba(13,148,136,0.15); }
+.tap-lead-msg { font-size: var(--tap-text-sm); font-style: italic; }
+
+.tap-voucher-lookup { background: var(--tap-neutral-50); border: 1px solid var(--tap-neutral-200); border-radius: var(--tap-radius-xl); padding: var(--tap-space-6); margin-top: var(--tap-space-4); }
+.tap-voucher-lookup > p { color: var(--tap-neutral-600); font-size: var(--tap-text-sm); margin-top: 0; }
+
+.tap-box { padding: var(--tap-space-4) var(--tap-space-5); background: var(--tap-neutral-50); border: 1px solid var(--tap-neutral-200); border-radius: var(--tap-radius-xl); color: var(--tap-neutral-600); }
+.tap-box-warn { background: #fffbeb; border-color: #fde68a; color: var(--tap-neutral-700); }
+.tap-box-warn a { color: var(--tap-primary); font-weight: 600; }
+
+.tap-promo-paypal-form { display: flex; align-items: center; gap: var(--tap-space-2); flex-wrap: wrap; }
+.tap-promo-btn { white-space: nowrap; }
+
+.tap-voucher-total-label { text-align: right; font-weight: 600; color: var(--tap-neutral-800); }
+
+.tap-bw-total-row.tap-bw-price-row { font-weight: 600; color: var(--tap-neutral-800); }
+.tap-bw-total-row.tap-bw-fee-row { font-size: var(--tap-text-xs); color: var(--tap-neutral-400); }

@@ -10,6 +10,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ### Added
 
+- **UI/UX audit batch 3 (P1) — forms, leads, voucher & booking summary**:
+  - **Booking widget**: `.tap-form-group` labels/margins, `.tap-total-display` moved out of inline styles into a themed rule; total row reads as a strong summary line.
+  - **Lead forms** (`[tap_lead_form]`): card wrapper (`.tap-lead-form-wrap`) with styled labels and full-width inputs/textarea with focus ring, matching the rest of the theme.
+  - **Voucher guest-payment panel** (`.tap-voucher-lookup`) styled as a card; voucher totals table right-aligns `.tap-voucher-total-label` rows.
+  - **Favorites login callout**: generic `.tap-box` + `.tap-box-warn` styles.
+  - **Promo/PayPal actions**: `.tap-promo-paypal-form` flex layout + `.tap-promo-btn` nowrap; plan paypal/subscribe buttons already rode on `.tap-btn` but now have spacing context.
+  - **Booking summary rows**: `.tap-bw-total-row` modifiers for price (strong) and fee (subtle) rows, covering both server-rendered and JS-rendered lines.
+
 - **UI/UX audit batch 2 (P0) — agencies, customer dashboard & data tables**:
   - **Agency directory** (`[tap_agencies]`): cards now render in a responsive auto-fill grid with the designed circular-logo card (hover lift/shadow); `<img>` is rounded via CSS, no markup churn.
   - **Agency profile** (`[tap_agency_details]`): styled header (logo circle, h1, verified badge, location), contact info card, `.tap-content` typography and the "Our Services" mini list (`.tap-agency-services` / `.tap-service-mini`).
