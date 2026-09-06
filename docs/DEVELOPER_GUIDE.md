@@ -21,6 +21,7 @@ Technical reference for developers working on the **Travel Agency Platform**: ar
   - [Filters](#filters)
 - [Currency & Money Handling](#currency--money-handling)
 - [Booking Lifecycle](#booking-lifecycle)
+- [Multilingual Interface (i18n)](#multilingual-interface-i18n)
 - [Common Development Tasks](#common-development-tasks)
 
 ---
@@ -581,6 +582,23 @@ pending  →  confirmed  →  completed
 
 - **Tours**: `tour_slots()` enforces per-date `_tap_tour_capacity`.
 - **Rooms**: `get_room_availability()` enforces `_tap_room_inventory` and blocked dates; overlapping stays are refused when inventory is exhausted.
+
+---
+
+## Multilingual Interface (i18n)
+
+The visitor-facing UI is **bilingual (ES/EN)** with **Spanish as the default**. The engine is `TAP_Localization` (`includes/class-localization.php`).
+
+- **Default locale** — a `locale` + `determine_locale` filter force the **public front-end** to `es_ES` regardless of the WordPress site locale. The **admin** and WP-CLI context are unaffected (they keep `en_US`), so backend screens and the E2E batteries stay as before.
+- **Switching** — visitors choose English via `?lang=en` (URL param), the `tap_lang` cookie, or their `tap_lang` user meta. `TAP_Localization::set_lang($lang)` persists the choice and calls `switch_to_locale()` + a textdomain reload; `current_lang()` returns `es` | `en`; unsupported codes are rejected.
+- **Switcher** — `[tap_lang_switcher]` renders ES/EN links (labels `ES`/`EN`) preserving the current URL and marks the active language with `is-active`; optional `class` attribute.
+- **Message catalogs** (`languages/`, compiled with `msgfmt`, not WP's built-in i18n generator):
+  - `travel-agency-platform-es_ES.mo` — English **source msgids → Spanish**, making the default Spanish UI fully translated.
+  - `travel-agency-platform-en_US.mo` — Spanish **source msgids → English**, completing the English UI when switched.
+  - Both catalogs are **generated** from `/tmp/opencode/dictionaries.py` + `gen_mo.py`; the `.po` files live next to the `.mo` files for reference.
+- **Authoring strings** — all visitor-facing strings use `__()/esc_html__()/esc_html_e()` (and `esc_attr__()` for visible attributes) with the `travel-agency-platform` domain. **The msgid is the Spanish literal** (byte-exact), so the default rendering never changes. When a new string is added: wrap it, add the msgid + English translation to `EN_US` in `dictionaries.py`, recompile both `.mo` files, and re-run `suite_i18n`.
+- **Scope** — the default/es catalogs cover the plugin's public shortcodes, emails, booking/AJAX/REST messages, and the theme templates/parts. **Content** (service titles, descriptions) is intentionally **not** translated (bilingual content is a later iteration); `TAP_Localization::set_lang()` unloads/reloads only the TEXT domain, it does not switch custom-fields.
+- **Regression** — `tests/suite_i18n.php` asserts default `es_ES`, `EN→ES` fallback, `set_lang('en')` → `en_US`, `ES→EN` translation, switcher markup, invalid-lang rejection, and the back-to-Spanish round-trip.
 
 ---
 

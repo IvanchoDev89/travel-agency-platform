@@ -1,0 +1,665 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: travel-agency-platform 1.4.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-06 00:00+0000\n"
+"PO-Revision-Date: 2026-09-06 00:00+0000\n"
+"Last-Translator: Travel Agency Platform\n"
+"Language-Team: TAP\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+
+msgid "Access denied"
+msgstr "Acceso denegado"
+
+msgid "Accommodations"
+msgstr "Alojamientos"
+
+msgid "Actions"
+msgstr "Acciones"
+
+msgid "Address"
+msgstr "Dirección"
+
+msgid "Address:"
+msgstr "Dirección:"
+
+msgid "adults"
+msgstr "adultos"
+
+msgid "Adults"
+msgstr "Adultos"
+
+msgid "Adults:"
+msgstr "Adultos:"
+
+msgid "Agency Name"
+msgstr "Nombre de la agencia"
+
+msgid "Agency name is required."
+msgstr "El nombre de la agencia es obligatorio."
+
+msgid "Agency not found"
+msgstr "Agencia no encontrada"
+
+msgid "Agency not found."
+msgstr "Agencia no encontrada."
+
+msgid "Agency Profile"
+msgstr "Perfil de la agencia"
+
+msgid "All"
+msgstr "Todos"
+
+msgid "An error occurred with PayPal."
+msgstr "Ocurrió un error con PayPal."
+
+msgid "Authentication required"
+msgstr "Autenticación requerida"
+
+msgid "Boats"
+msgstr "Barcos"
+
+msgid "Booking"
+msgstr "Reserva"
+
+msgid "Booking already paid"
+msgstr "La reserva ya fue pagada"
+
+msgid "Booking Code:"
+msgstr "Código de reserva:"
+
+msgid "Booking created! Redirecting to payment..."
+msgstr "¡Reserva creada! Redirigiendo al pago..."
+
+msgid "Booking created successfully"
+msgstr "Reserva creada correctamente"
+
+msgid "Booking not found"
+msgstr "Reserva no encontrada"
+
+msgid "Booking not found."
+msgstr "Reserva no encontrada."
+
+msgid "bookings"
+msgstr "reservas"
+
+msgid "Bookings"
+msgstr "Reservas"
+
+msgid "Booking %s - %s"
+msgstr "Reserva %s - %s"
+
+msgid "Booking Summary"
+msgstr "Resumen de la reserva"
+
+msgid "Book Now"
+msgstr "Reservar ahora"
+
+msgid "Bunk"
+msgstr "Camarote"
+
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgid "Cancelled"
+msgstr "Cancelada"
+
+msgid "Car Rentals"
+msgstr "Renta de Autos"
+
+msgid "Check back soon for new featured listings."
+msgstr "Vuelve pronto para ver nuevos listados destacados."
+
+msgid "Check-in"
+msgstr "Entrada"
+
+msgid "Check-in:"
+msgstr "Entrada:"
+
+msgid "Check-in Date"
+msgstr "Fecha de entrada"
+
+msgid "Check-out"
+msgstr "Salida"
+
+msgid "Check-out:"
+msgstr "Salida:"
+
+msgid "Check-out Date"
+msgstr "Fecha de salida"
+
+msgid "children"
+msgstr "niños"
+
+msgid "Children"
+msgstr "Niños"
+
+msgid "Children:"
+msgstr "Niños:"
+
+msgid "City"
+msgstr "Ciudad"
+
+msgid "Code"
+msgstr "Código"
+
+msgid "Code:"
+msgstr "Código:"
+
+msgid "Commission"
+msgstr "Comisión"
+
+msgid "Complete"
+msgstr "Completar"
+
+msgid "Completed"
+msgstr "Completada"
+
+msgid "Complete Your Payment"
+msgstr "Completa tu pago"
+
+msgid "Confirm"
+msgstr "Confirmar"
+
+msgid "Confirmed"
+msgstr "Confirmada"
+
+msgid "Connection error."
+msgstr "Error de conexión."
+
+msgid "Contact Information"
+msgstr "Información de contacto"
+
+msgid "Could not capture PayPal order"
+msgstr "No se pudo capturar el pedido de PayPal"
+
+msgid "Could not create booking"
+msgstr "No se pudo crear la reserva"
+
+msgid "Could not create PayPal order"
+msgstr "No se pudo crear el pedido de PayPal"
+
+msgid "Could not create the agency. Please try again."
+msgstr "No se pudo crear la agencia. Inténtalo de nuevo."
+
+msgid "Could not get PayPal access token"
+msgstr "No se pudo obtener el token de acceso de PayPal"
+
+msgid "Could not process refund"
+msgstr "No se pudo procesar el reembolso"
+
+msgid "Could not save the listing"
+msgstr "No se pudo guardar el listado"
+
+msgid "Could not save the room"
+msgstr "No se pudo guardar la habitación"
+
+msgid "Country"
+msgstr "País"
+
+msgid "Create and edit your services from the front-end."
+msgstr "Crea y edita tus servicios desde el front-end."
+
+msgid "Creating booking..."
+msgstr "Creando reserva..."
+
+msgid "Crib"
+msgstr "Cuna"
+
+msgid "Dates"
+msgstr "Fechas"
+
+msgid "Deleted listing"
+msgstr "Listado eliminado"
+
+msgid "Deleted user"
+msgstr "Usuario eliminado"
+
+msgid "Destination"
+msgstr "Destino"
+
+msgid "Double"
+msgstr "Doble"
+
+msgid "Edit listing"
+msgstr "Editar listado"
+
+msgid "Email"
+msgstr "Correo"
+
+msgid "Email:"
+msgstr "Correo:"
+
+msgid "Enter your booking code to view the detail and voucher."
+msgstr "Ingresa el código de tu reserva para ver el detalle y el voucher."
+
+msgid "Error"
+msgstr "Error"
+
+msgid "Error creating booking."
+msgstr "Error al crear la reserva."
+
+msgid "Error creating PayPal order"
+msgstr "Error al crear el pedido de PayPal"
+
+msgid "Featured"
+msgstr "Destacado"
+
+msgid "Field %s is required"
+msgstr "El campo %s es obligatorio"
+
+msgid "Futon"
+msgstr "Futón"
+
+msgid "Guest"
+msgstr "Huésped"
+
+msgid "Guests"
+msgstr "Huéspedes"
+
+msgid "Home"
+msgstr "Inicio"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "Invalid accommodation"
+msgstr "Alojamiento inválido"
+
+msgid "Invalid booking"
+msgstr "Reserva inválida"
+
+msgid "Invalid listing."
+msgstr "Listado inválido."
+
+msgid "Invalid order"
+msgstr "Pedido inválido"
+
+msgid "Invalid payment status"
+msgstr "Estado de pago inválido"
+
+msgid "Invalid PayPal order"
+msgstr "Pedido de PayPal inválido"
+
+msgid "Invalid plan."
+msgstr "Plan inválido."
+
+msgid "Invalid request"
+msgstr "Solicitud inválida"
+
+msgid "Invalid room"
+msgstr "Habitación inválida"
+
+msgid "Invalid service."
+msgstr "Servicio inválido."
+
+msgid "Invalid service configuration."
+msgstr "Configuración de servicio inválida."
+
+msgid "Invalid service type"
+msgstr "Tipo de servicio inválido"
+
+msgid "Invalid status"
+msgstr "Estado inválido"
+
+msgid "Invalid status."
+msgstr "Estado inválido."
+
+msgid "King"
+msgstr "King"
+
+msgid "Listing created"
+msgstr "Listado creado"
+
+msgid "Listing not found."
+msgstr "Listado no encontrado."
+
+msgid "listings"
+msgstr "listados"
+
+msgid "Listing updated"
+msgstr "Listado actualizado"
+
+msgid "Log in to manage your listings"
+msgstr "Inicia sesión para gestionar tus listados"
+
+msgid "Log in to view your booking voucher"
+msgstr "Inicia sesión para ver el voucher de tu reserva"
+
+msgid "Manage"
+msgstr "Gestionar"
+
+msgid "Manage your listings"
+msgstr "Gestiona tus listados"
+
+msgid "Max $"
+msgstr "Máx. $"
+
+msgid "Min $"
+msgstr "Mín. $"
+
+msgid "Murphy"
+msgstr "Murphy"
+
+msgid "My Bookings"
+msgstr "Mis reservas"
+
+msgid "Name is required"
+msgstr "El nombre es obligatorio"
+
+msgid "Net"
+msgstr "Neto"
+
+msgid "Net to you"
+msgstr "Neto para ti"
+
+msgid "Network error. Please try again."
+msgstr "Error de red. Inténtalo de nuevo."
+
+msgid "New %s"
+msgstr "Nuevo %s"
+
+msgid "No agencies found."
+msgstr "No se encontraron agencias."
+
+msgid "No agency linked to your account."
+msgstr "No hay una agencia vinculada a tu cuenta."
+
+msgid "No bookings found."
+msgstr "No se encontraron reservas."
+
+msgid "No booking specified."
+msgstr "No se especificó la reserva."
+
+msgid "No bookings yet. Share your listing and start receiving reservations. Commission: %s%%"
+msgstr "Aún no tienes reservas. Comparte tu listado y empieza a recibir reservas. Comisión: %s%%"
+
+msgid "No featured services yet"
+msgstr "Aún no hay servicios destacados"
+
+msgid "No plans configured yet."
+msgstr "Aún no hay planes configurados."
+
+msgid "No services found."
+msgstr "No se encontraron servicios."
+
+msgid "No services from this agency."
+msgstr "No hay servicios de esta agencia."
+
+msgid "Online payment is not configured."
+msgstr "El pago online no está configurado."
+
+msgid "Online payment is temporarily unavailable. Your reservation is registered and will be confirmed by the agency."
+msgstr "El pago online no está disponible temporalmente. Tu reserva está registrada y será confirmada por la agencia."
+
+msgid "Only agencies can promote listings."
+msgstr "Solo las agencias pueden destacar listados."
+
+msgid "Only agencies can subscribe to a plan."
+msgstr "Solo las agencias pueden suscribirse a un plan."
+
+msgid "Only agency accounts can manage listings."
+msgstr "Solo las cuentas de agencia pueden gestionar listados."
+
+msgid "Order not found"
+msgstr "Pedido no encontrado"
+
+msgid "Our Services"
+msgstr "Nuestros servicios"
+
+msgid "Packages"
+msgstr "Paquetes"
+
+msgid "Password"
+msgstr "Contraseña"
+
+msgid "Password must be at least 8 characters."
+msgstr "La contraseña debe tener al menos 8 caracteres."
+
+msgid "Payment"
+msgstr "Pago"
+
+msgid "Payment cancelled."
+msgstr "Pago cancelado."
+
+msgid "Payment completed successfully!"
+msgstr "¡Pago completado correctamente!"
+
+msgid "Payment completed! Thank you for your booking."
+msgstr "¡Pago completado! Gracias por tu reserva."
+
+msgid "Payment failed."
+msgstr "Pago fallido."
+
+msgid "Payment successful! Your booking is confirmed."
+msgstr "¡Pago exitoso! Tu reserva está confirmada."
+
+msgid "Payment was cancelled. You can try again."
+msgstr "El pago fue cancelado. Puedes intentarlo de nuevo."
+
+msgid "Pay with PayPal"
+msgstr "Pagar con PayPal"
+
+msgid "Pending"
+msgstr "Pendiente"
+
+msgid "Phone"
+msgstr "Teléfono"
+
+msgid "Phone:"
+msgstr "Teléfono:"
+
+msgid "Plans are not available."
+msgstr "Los planes no están disponibles."
+
+msgid "Please enter a valid email address."
+msgstr "Ingresa un correo electrónico válido."
+
+msgid "Please enter a valid username (letters and numbers only)."
+msgstr "Ingresa un nombre de usuario válido (solo letras y números)."
+
+msgid "Please log in to access the dashboard."
+msgstr "Inicia sesión para acceder al panel."
+
+msgid "Please log in to save favorites."
+msgstr "Inicia sesión para guardar favoritos."
+
+msgid "Please log in to view this booking."
+msgstr "Inicia sesión para ver esta reserva."
+
+msgid "Please log in to view your bookings."
+msgstr "Inicia sesión para ver tus reservas."
+
+msgid "Please select dates to calculate the price."
+msgstr "Selecciona las fechas para calcular el precio."
+
+msgid "Price per night must be greater than 0"
+msgstr "El precio por noche debe ser mayor que 0"
+
+msgid "Processing payment..."
+msgstr "Procesando el pago..."
+
+msgid "Queen"
+msgstr "Queen"
+
+msgid "Ref"
+msgstr "Ref"
+
+msgid "Revenue"
+msgstr "Ingresos"
+
+msgid "Review submitted and pending approval"
+msgstr "Reseña enviada y pendiente de aprobación"
+
+msgid "Room created"
+msgstr "Habitación creada"
+
+msgid "Room deleted"
+msgstr "Habitación eliminada"
+
+msgid "Room name is required"
+msgstr "El nombre de la habitación es obligatorio"
+
+msgid "Room updated"
+msgstr "Habitación actualizada"
+
+msgid "Search"
+msgstr "Buscar"
+
+msgid "Security check failed."
+msgstr "Falló la verificación de seguridad."
+
+msgid "Service"
+msgstr "Servicio"
+
+msgid "Service:"
+msgstr "Servicio:"
+
+msgid "Service not found"
+msgstr "Servicio no encontrado"
+
+msgid "Service not found."
+msgstr "Servicio no encontrado."
+
+msgid "Sofa Bed"
+msgstr "Sofá cama"
+
+msgid "Special Requests"
+msgstr "Solicitudes especiales"
+
+msgid "starting"
+msgstr "desde"
+
+msgid "Status"
+msgstr "Estado"
+
+msgid "Status:"
+msgstr "Estado:"
+
+msgid "Status updated"
+msgstr "Estado actualizado"
+
+msgid "Subscription requested. An administrator will confirm the payment to activate your plan."
+msgstr "Solicitud de suscripción enviada. Un administrador confirmará el pago para activar tu plan."
+
+msgid "That email is already registered."
+msgstr "Ese correo ya está registrado."
+
+msgid "That username is already taken."
+msgstr "Ese nombre de usuario ya está en uso."
+
+msgid "The payment could not be completed."
+msgstr "El pago no pudo completarse."
+
+msgid "The room is not available for the selected dates."
+msgstr "La habitación no está disponible para las fechas seleccionadas."
+
+msgid "This booking has been paid."
+msgstr "Esta reserva ha sido pagada."
+
+msgid "This room has future bookings and cannot be deleted."
+msgstr "Esta habitación tiene reservas futuras y no puede eliminarse."
+
+msgid "Total Bookings"
+msgstr "Reservas totales"
+
+msgid "Tour"
+msgstr "Tour"
+
+msgid "Tours"
+msgstr "Tours"
+
+msgid "Transports"
+msgstr "Transportes"
+
+msgid "travel-agency-platform"
+msgstr "travel-agency-platform"
+
+msgid "Travel Agency Platform"
+msgstr "Plataforma de Agencias de Viaje"
+
+msgid "Travel Service"
+msgstr "Servicio de viaje"
+
+msgid "Twin"
+msgstr "Twin"
+
+msgid "Unauthorized"
+msgstr "No autorizado"
+
+msgid "Username"
+msgstr "Nombre de usuario"
+
+msgid "Verified"
+msgstr "Verificada"
+
+msgid "Verified agency"
+msgstr "Agencia verificada"
+
+msgid "View Details"
+msgstr "Ver detalles"
+
+msgid "View Profile"
+msgstr "Ver perfil"
+
+msgid "View Public Profile"
+msgstr "Ver perfil público"
+
+msgid "View voucher"
+msgstr "Ver voucher"
+
+msgid "Website"
+msgstr "Sitio web"
+
+msgid "Website:"
+msgstr "Sitio web:"
+
+msgid "Welcome, %s!"
+msgstr "¡Bienvenido, %s!"
+
+msgid "WhatsApp"
+msgstr "WhatsApp"
+
+msgid "WhatsApp:"
+msgstr "WhatsApp:"
+
+msgid "Where do you want to go?"
+msgstr "¿A dónde vas?"
+
+msgid "You already have an account. Go to your"
+msgstr "Ya tienes una cuenta. Ve a tu"
+
+msgid "You already reviewed this service"
+msgstr "Ya dejaste una reseña para este servicio"
+
+msgid "You can only manage bookings from your own agency."
+msgstr "Solo puedes gestionar reservas de tu propia agencia."
+
+msgid "You can only manage your own listings."
+msgstr "Solo puedes gestionar tus propios listados."
+
+msgid "You can only promote your own listings."
+msgstr "Solo puedes destacar tus propios listados."
+
+msgid "You do not have permission to view this booking."
+msgstr "No tienes permiso para ver esta reserva."
+
+msgid "You have no listings yet. Use \"Nuevo\" to create your first service."
+msgstr "Aún no tienes listados. Usa \"Nuevo\" para crear tu primer servicio."
+
+msgid "Your Agency"
+msgstr "Tu agencia"
+
+msgid "Your agency account is ready!"
+msgstr "¡Tu cuenta de agencia está lista!"
+
+msgid "Your Listings"
+msgstr "Tus listados"
+
+msgid "Your plan allows a maximum of %d listings. Upgrading your plan unlocks more."
+msgstr "Tu plan permite un máximo de %d listados. Mejorar tu plan desbloquea más."

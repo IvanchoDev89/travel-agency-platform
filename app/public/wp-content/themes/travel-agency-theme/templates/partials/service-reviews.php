@@ -15,7 +15,7 @@ $rev_id   = get_the_ID();
     <div class="tap-reviews-average">
       <span class="tap-reviews-avg-score">0.0</span>
       <div class="tap-reviews-avg-stars"></div>
-      <span class="tap-reviews-avg-total">0 reseñas</span>
+      <span class="tap-reviews-avg-total"><?php echo esc_html__('0 reseñas', 'travel-agency-platform'); ?></span>
     </div>
   </div>
   <div class="tap-reviews-list"></div>
@@ -31,7 +31,7 @@ $rev_id   = get_the_ID();
         <div class="tap-star-input">
           <?php for ($i = 5; $i >= 1; $i--): ?>
           <input type="radio" name="rating" value="<?php echo $i; ?>" id="tap-star-<?php echo $i; ?>" <?php echo $i === 5 ? 'checked' : ''; ?>>
-          <label for="tap-star-<?php echo $i; ?>" title="<?php echo $i; ?> estrellas">&#9733;</label>
+          <label for="tap-star-<?php echo $i; ?>" title="<?php echo esc_attr($i); ?> <?php echo esc_attr__('estrellas', 'travel-agency-platform'); ?>">&#9733;</label>
           <?php endfor; ?>
         </div>
       </div>

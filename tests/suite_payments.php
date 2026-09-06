@@ -10,6 +10,8 @@ $orders = TAP_Payment::orders_table();
 $agency = tap_t_test_agency();
 $plan = $wpdb->get_row("SELECT * FROM {$wpdb->prefix}tap_plans WHERE price_monthly > 0 AND is_active = 1 ORDER BY price_monthly LIMIT 1");
 
+$wpdb->delete($subs, ['agency_id' => (int) $agency]);
+
 // 1) record_order + resolve_order
 $oid = 'MOCK-ORDER-' . wp_generate_password(8, false);
 TAP_Payment::record_order($oid, 'subscription', 123, 9.50, 'created');

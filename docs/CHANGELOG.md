@@ -74,6 +74,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
   - Five new suites green on both installs: `suite_booking_flow` (full lifecycle, stale-cancel cron, booking fee), `suite_pricing` (night ranges, blocked dates, min-stay, per-person packages), `suite_paypal` (create/capture/refund/webhook via a `pre_http_request` mock), `suite_rest` (the whole `tap/v1` surface incl. ownership), `suite_reviews` (duplicate/`missing_field`/anonymous guards + rating aggregation behind approval).
   - Fixed a real REST bug surfaced by the suites: `GET /tap/v1/booking/{id}` compared the DB `client_id` (string) to the current user id (int) with a strict `!==`, so owners were always denied; both sides are now cast.
   - `tests/bootstrap.php` now provides shared helpers (service/user discovery, PayPal mock, in-process REST dispatcher, error-code normalization) and every suite is residue-free (verified 0 rows left behind on both sites).
+- **Fase 3 — Multilingüe (interfaz pública ES/EN)**:
+  - New `TAP_Localization` engine: the **public front-end defaults to Spanish** (`es_ES`) while the WordPress admin keeps the site locale; visitors switch to English via `?lang=en`, a `tap_lang` cookie, or the per-user `tap_lang` meta (`?lang=es` back).
+  - New `[tap_lang_switcher]` shortcode renders ES/EN links that preserve the current URL and marks the active language.
+  - **Message catalogs** shipped in `languages/` (dual-direction, compiled with `msgfmt`): `es_ES` maps every English source msgid to Spanish (so the whole visitor-facing UI is Spanish by default), and `en_US` maps every Spanish source msgid to English (complete English UI when switched).
+  - Wrapped all remaining visible visitor-facing strings into `__()` with the `travel-agency-platform` domain across the theme templates/parts and the plugin's public shortcodes.
+  - Hardened `suite_payments` (stale pending subscription cleanup) and `suite_guest_checkout` (voucher guard now asserts the Spanish rendering).
+  - New `suite_i18n` regression suite — battery is now **18 suites** green on both installs (travel & ivanchodev).
 
 ### Fixed
 

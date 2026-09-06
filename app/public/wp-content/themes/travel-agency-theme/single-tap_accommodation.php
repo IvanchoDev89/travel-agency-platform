@@ -166,9 +166,9 @@ while (have_posts()): the_post();
             <button type="button" class="tap-avcal-nav-btn" data-dir="1">&rarr;</button>
           </div>
           <div class="tap-avcal-legend">
-            <span><span class="tap-avcal-swatch available"></span> Disponible</span>
-            <span><span class="tap-avcal-swatch selected"></span> Seleccionado</span>
-            <span><span class="tap-avcal-swatch blocked"></span> Bloqueado</span>
+            <span><span class="tap-avcal-swatch available"></span> <?php echo esc_html__('Disponible', 'travel-agency-platform'); ?></span>
+            <span><span class="tap-avcal-swatch selected"></span> <?php echo esc_html__('Seleccionado', 'travel-agency-platform'); ?></span>
+            <span><span class="tap-avcal-swatch blocked"></span> <?php echo esc_html__('Bloqueado', 'travel-agency-platform'); ?></span>
           </div>
         </div>
         <div class="tap-avcal-grid"></div>
@@ -227,7 +227,7 @@ while (have_posts()): the_post();
                 <span class="tap-room-promo-badge">-<?php echo esc_html(array_sum(array_column($room['discounts'], 'percent'))); ?>%</span>
                 <?php endif; ?>
                 <?php if (!empty($room['price_breakdown'])): ?>
-                <span class="tap-room-total"><?php echo esc_html(TAP_Currency::fmt($room['total'])); ?> total</span>
+                <span class="tap-room-total"><?php echo esc_html(TAP_Currency::fmt($room['total'])); ?> <?php esc_html_e('total', 'travel-agency-platform'); ?></span>
                 <?php if ($room['savings'] > 0): ?>
                 <span class="tap-room-saved"><?php printf(__('Ahorras %s', 'travel-agency-theme'), esc_html(TAP_Currency::fmt($room['savings']))); ?></span>
                 <?php endif; ?>
@@ -334,7 +334,7 @@ while (have_posts()): the_post();
               </div>
               <div id="bw-price-breakdown" style="display:none;">
                 <div class="tap-bw-total-row tap-bw-price-row">
-                  <span><span id="bw-price-per-night">$0</span> x <span id="bw-breakdown-nights">0</span> noches</span>
+                  <span><span id="bw-price-per-night">$0</span> x <span id="bw-breakdown-nights">0</span> <?php esc_html_e('noches', 'travel-agency-platform'); ?></span>
                   <span id="bw-price-subtotal">$0</span>
                 </div>
               </div>

@@ -123,7 +123,7 @@ tap_t_assert(stripos($html, 'Voucher de Reserva') !== false && stripos($html, $g
 
 $_GET = ['code' => $lcode];
 $html = do_shortcode('[tap_booking_detail]');
-tap_t_assert(stripos($html, 'Log in to view your booking voucher') !== false, 'guest cannot view a registered customer booking');
+tap_t_assert(stripos($html, 'Inicia sesión para ver el voucher de tu reserva') !== false, 'guest cannot view a registered customer booking');
 $_GET = [];
 
 // 5) Checkout: guest must verify email before paying --------------------------

@@ -21,17 +21,17 @@ $total_posts = $wp_query->found_posts;
   <div class="tap-acc-archive-header">
     <div>
       <h1><?php post_type_archive_title(); ?></h1>
-      <p><?php echo esc_html($total_posts); ?> propiedades encontradas</p>
+      <p><?php echo esc_html($total_posts); ?> <?php esc_html_e('propiedades encontradas', 'travel-agency-platform'); ?></p>
     </div>
     <div class="tap-archive-actions">
       <div class="tap-view-toggle">
-        <button type="button" class="tap-view-btn <?php echo $view !== 'list' ? 'active' : ''; ?>" data-view="grid" title="Cuadrícula">
+        <button type="button" class="tap-view-btn <?php echo $view !== 'list' ? 'active' : ''; ?>" data-view="grid" title="<?php echo esc_attr__('Cuadrícula', 'travel-agency-platform'); ?>">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
         </button>
-        <button type="button" class="tap-view-btn <?php echo $view === 'list' ? 'active' : ''; ?>" data-view="list" title="Lista">
+        <button type="button" class="tap-view-btn <?php echo $view === 'list' ? 'active' : ''; ?>" data-view="list" title="<?php echo esc_attr__('Lista', 'travel-agency-platform'); ?>">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
         </button>
-        <button type="button" class="tap-view-btn" data-view="map" title="Mapa">
+        <button type="button" class="tap-view-btn" data-view="map" title="<?php echo esc_attr__('Mapa', 'travel-agency-platform'); ?>">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
         </button>
       </div>
@@ -45,25 +45,25 @@ $total_posts = $wp_query->found_posts;
         <input type="hidden" name="view" value="<?php echo esc_attr($view); ?>">
 
         <div class="tap-filter-group">
-          <h4>Destino</h4>
+          <h4><?php echo esc_html__('Destino', 'travel-agency-platform'); ?></h4>
           <div class="tap-filter-search">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" name="keyword" placeholder="Ciudad, propiedad..." value="<?php echo esc_attr($keyword); ?>" autocomplete="off">
+            <input type="text" name="keyword" placeholder="<?php echo esc_attr__('Ciudad, propiedad...', 'travel-agency-platform'); ?>" value="<?php echo esc_attr($keyword); ?>" autocomplete="off">
           </div>
         </div>
 
         <div class="tap-filter-group">
-          <h4>Fechas</h4>
-          <label>Llegada</label>
+          <h4><?php echo esc_html__('Fechas', 'travel-agency-platform'); ?></h4>
+          <label><?php echo esc_html__('Llegada', 'travel-agency-platform'); ?></label>
           <input type="date" name="check_in" value="<?php echo esc_attr($check_in); ?>" min="<?php echo esc_attr(date('Y-m-d')); ?>" class="tap-input">
-          <label>Salida</label>
+          <label><?php echo esc_html__('Salida', 'travel-agency-platform'); ?></label>
           <input type="date" name="check_out" value="<?php echo esc_attr($check_out); ?>" min="<?php echo esc_attr(date('Y-m-d', strtotime('+1 day'))); ?>" class="tap-input">
         </div>
 
         <div class="tap-filter-group">
-          <h4>Huéspedes</h4>
+          <h4><?php echo esc_html__('Huéspedes', 'travel-agency-platform'); ?></h4>
           <select name="guests" class="tap-input">
-            <option value="">Cualquier</option>
+            <option value=""><?php echo esc_html__('Cualquier', 'travel-agency-platform'); ?></option>
             <?php foreach ([1,2,3,4,5,6,8,10] as $g): ?>
             <option value="<?php echo $g; ?>" <?php selected($guests, $g); ?>><?php echo $g; ?>+</option>
             <?php endforeach; ?>
@@ -71,9 +71,9 @@ $total_posts = $wp_query->found_posts;
         </div>
 
         <div class="tap-filter-group">
-          <h4>Tipo</h4>
+          <h4><?php echo esc_html__('Tipo', 'travel-agency-platform'); ?></h4>
           <select name="type" class="tap-input">
-            <option value="">Todos</option>
+            <option value=""><?php echo esc_html__('Todos', 'travel-agency-platform'); ?></option>
             <?php
             $types = get_terms(['taxonomy' => 'tap_property_type', 'hide_empty' => true]);
             foreach ($types as $t):
@@ -84,9 +84,9 @@ $total_posts = $wp_query->found_posts;
         </div>
 
         <div class="tap-filter-group">
-          <h4>Estrellas</h4>
+          <h4><?php echo esc_html__('Estrellas', 'travel-agency-platform'); ?></h4>
           <select name="stars" class="tap-input">
-            <option value="">Cualquier</option>
+            <option value=""><?php echo esc_html__('Cualquier', 'travel-agency-platform'); ?></option>
             <?php foreach ([5,4,3,2,1] as $s): ?>
             <option value="<?php echo $s; ?>" <?php selected($stars, $s); ?>><?php echo $s; ?> ★</option>
             <?php endforeach; ?>
@@ -94,16 +94,16 @@ $total_posts = $wp_query->found_posts;
         </div>
 
         <div class="tap-filter-group">
-          <h4>Precio por noche</h4>
+          <h4><?php echo esc_html__('Precio por noche', 'travel-agency-platform'); ?></h4>
           <div class="tap-filter-range">
-            <input type="number" name="min_price" placeholder="Min $" value="<?php echo $min_price ?: ''; ?>" class="tap-input">
+            <input type="number" name="min_price" placeholder="<?php echo esc_attr__('Min $', 'travel-agency-platform'); ?>" value="<?php echo $min_price ?: ''; ?>" class="tap-input">
             <span>—</span>
-            <input type="number" name="max_price" placeholder="Max $" value="<?php echo $max_price ?: ''; ?>" class="tap-input">
+            <input type="number" name="max_price" placeholder="<?php echo esc_attr__('Max $', 'travel-agency-platform'); ?>" value="<?php echo $max_price ?: ''; ?>" class="tap-input">
           </div>
         </div>
 
         <div class="tap-filter-group">
-          <h4>Amenidades</h4>
+          <h4><?php echo esc_html__('Amenidades', 'travel-agency-platform'); ?></h4>
           <?php
           $amenities_terms = get_terms(['taxonomy' => 'tap_amenity', 'hide_empty' => true]);
           foreach ($amenities_terms as $a):
@@ -116,8 +116,8 @@ $total_posts = $wp_query->found_posts;
         </div>
 
         <div class="tap-filter-actions">
-          <button type="submit" class="tap-btn tap-btn-primary tap-btn-block">Filtrar</button>
-          <a href="<?php echo esc_url(get_post_type_archive_link('tap_accommodation')); ?>" class="tap-btn tap-btn-ghost tap-btn-block">Limpiar</a>
+          <button type="submit" class="tap-btn tap-btn-primary tap-btn-block"><?php echo esc_html__('Filtrar', 'travel-agency-platform'); ?></button>
+          <a href="<?php echo esc_url(get_post_type_archive_link('tap_accommodation')); ?>" class="tap-btn tap-btn-ghost tap-btn-block"><?php echo esc_html__('Limpiar', 'travel-agency-platform'); ?></a>
         </div>
       </form>
     </aside>
@@ -125,13 +125,13 @@ $total_posts = $wp_query->found_posts;
     <!-- Results -->
     <div class="tap-archive-content">
       <div class="tap-archive-toolbar">
-        <span class="tap-archive-count"><?php echo esc_html($total_posts); ?> resultados</span>
+        <span class="tap-archive-count"><?php echo esc_html($total_posts); ?> <?php esc_html_e('resultados', 'travel-agency-platform'); ?></span>
         <select name="sort" class="tap-input tap-sort-select" form="tap-filter-form">
-          <option value="">Más relevantes</option>
-          <option value="price_asc" <?php selected($sort, 'price_asc'); ?>>Precio: menor a mayor</option>
-          <option value="price_desc" <?php selected($sort, 'price_desc'); ?>>Precio: mayor a menor</option>
-          <option value="rating" <?php selected($sort, 'rating'); ?>>Mejor calificación</option>
-          <option value="name" <?php selected($sort, 'name'); ?>>Nombre A-Z</option>
+          <option value=""><?php echo esc_html__('Más relevantes', 'travel-agency-platform'); ?></option>
+          <option value="price_asc" <?php selected($sort, 'price_asc'); ?>><?php echo esc_html__('Precio: menor a mayor', 'travel-agency-platform'); ?></option>
+          <option value="price_desc" <?php selected($sort, 'price_desc'); ?>><?php echo esc_html__('Precio: mayor a menor', 'travel-agency-platform'); ?></option>
+          <option value="rating" <?php selected($sort, 'rating'); ?>><?php echo esc_html__('Mejor calificación', 'travel-agency-platform'); ?></option>
+          <option value="name" <?php selected($sort, 'name'); ?>><?php echo esc_html__('Nombre A-Z', 'travel-agency-platform'); ?></option>
         </select>
       </div>
 
@@ -210,10 +210,10 @@ $total_posts = $wp_query->found_posts;
           <div class="tap-acc-card-footer">
             <div class="tap-acc-card-price">
               <?php if ($check_in && $check_out && !empty($rooms)): ?>
-                <span class="tap-acc-card-price-from">desde</span>
+                <span class="tap-acc-card-price-from"><?php echo esc_html__('desde', 'travel-agency-platform'); ?></span>
               <?php endif; ?>
               <span class="tap-acc-card-price-amount"><?php echo esc_html(TAP_Currency::fmt0($price)); ?></span>
-              <span class="tap-acc-card-price-label">/ noche</span>
+              <span class="tap-acc-card-price-label"><?php echo esc_html__('/ noche', 'travel-agency-platform'); ?></span>
             </div>
             <?php if ($rating_avg > 0): ?>
             <div class="tap-acc-card-rating-sm">
@@ -226,8 +226,8 @@ $total_posts = $wp_query->found_posts;
         <?php endwhile; else: ?>
         <div class="tap-empty" style="grid-column:1/-1;">
           <div class="tap-empty-icon">🔍</div>
-          <h3>No encontramos propiedades</h3>
-          <p>Intentá con otros filtros o fechas diferentes.</p>
+          <h3><?php echo esc_html__('No encontramos propiedades', 'travel-agency-platform'); ?></h3>
+          <p><?php echo esc_html__('Intentá con otros filtros o fechas diferentes.', 'travel-agency-platform'); ?></p>
         </div>
         <?php endif; ?>
       </div>
@@ -236,8 +236,8 @@ $total_posts = $wp_query->found_posts;
 
       <div id="tap-map-wrap">
         <div class="tap-map-header">
-          <h3><?php echo esc_html(count($map_data)); ?> propiedades en el mapa</h3>
-          <button type="button" class="tap-map-close">Ver lista</button>
+          <h3><?php echo esc_html(count($map_data)); ?> <?php esc_html_e('propiedades en el mapa', 'travel-agency-platform'); ?></h3>
+          <button type="button" class="tap-map-close"><?php echo esc_html__('Ver lista', 'travel-agency-platform'); ?></button>
         </div>
         <div id="tap-map"></div>
       </div>

@@ -90,6 +90,7 @@ The platform orchestrates three core actors:
 - Per-service SEO **meta title & description** fields rendered as `<meta>`, Open Graph, and JSON-LD (`Product`, `AggregateRating`, `Offer`, `BreadcrumbList`).
 - Email notifications to clients including a **booking voucher detail link**.
 - Spam protection via a **honeypot** field on public forms.
+- **Multilingual interface (ES/EN)** — Spanish-first front-end with a one-click English switch (`?lang=en`, persistent via cookie / user meta) backed by dual compiled message catalogs and a `[tap_lang_switcher]` shortcode.
 
 ---
 

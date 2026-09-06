@@ -32,6 +32,7 @@ final class TravelAgencyPlatform {
 
     private function includes() {
         require_once TAP_PLUGIN_DIR . 'includes/class-installer.php';
+        require_once TAP_PLUGIN_DIR . 'includes/class-localization.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-currency.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-post-types.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-taxonomies.php';
@@ -60,6 +61,9 @@ final class TravelAgencyPlatform {
         register_deactivation_hook(__FILE__, ['TAP_Installer', 'deactivate']);
 
         add_action('plugins_loaded', [$this, 'load_textdomain']);
+        add_action('init', ['TAP_Localization', 'init'], 1);
+        add_filter('locale', ['TAP_Localization', 'filter_locale'], 1);
+        add_filter('determine_locale', ['TAP_Localization', 'filter_determine_locale'], 1);
         add_action('init', ['TAP_Post_Types', 'register'], 5);
         add_action('init', ['TAP_Taxonomies', 'register'], 6);
         add_action('init', ['TAP_Roles', 'setup'], 7);
