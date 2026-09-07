@@ -105,6 +105,8 @@ class TAP_Installer {
                 title varchar(255) DEFAULT NULL,
                 content text,
                 is_approved tinyint(1) DEFAULT 0,
+                mod_status varchar(20) DEFAULT 'ok',
+                mod_reason varchar(50) DEFAULT NULL,
                 created_at datetime DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (id),
                 KEY service_type_service_id (service_type, service_id),
@@ -160,6 +162,8 @@ class TAP_Installer {
                 message text,
                 ip varchar(45) DEFAULT NULL,
                 source varchar(30) DEFAULT 'agency',
+                mod_status varchar(20) DEFAULT 'ok',
+                mod_reason varchar(50) DEFAULT NULL,
                 created_at datetime DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (id),
                 KEY agency_id (agency_id),
@@ -236,6 +240,20 @@ class TAP_Installer {
         }
         if (!in_array('reply_at', $cols_reviews)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_reviews ADD COLUMN reply_at datetime DEFAULT NULL AFTER reply_author");
+        }
+        if (!in_array('mod_status', $cols_reviews)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_reviews ADD COLUMN mod_status varchar(20) DEFAULT 'ok' AFTER is_approved");
+        }
+        if (!in_array('mod_reason', $cols_reviews)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_reviews ADD COLUMN mod_reason varchar(50) DEFAULT NULL AFTER mod_status");
+        }
+
+        $cols_leads = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_leads");
+        if (!in_array('mod_status', $cols_leads)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_leads ADD COLUMN mod_status varchar(20) DEFAULT 'ok' AFTER source");
+        }
+        if (!in_array('mod_reason', $cols_leads)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_leads ADD COLUMN mod_reason varchar(50) DEFAULT NULL AFTER mod_status");
         }
 
 $cols_bookings = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");

@@ -60,6 +60,15 @@ class TAP_Dashboard {
 
         add_submenu_page(
             'travel-platform',
+            __('Moderation', 'travel-agency-platform'),
+            __('Moderation', 'travel-agency-platform'),
+            'manage_options',
+            'tap-moderation',
+            [__CLASS__, 'moderation_page']
+        );
+
+        add_submenu_page(
+            'travel-platform',
             __('Agencies', 'travel-agency-platform'),
             __('Agencies', 'travel-agency-platform'),
             'tap_manage_agencies',
@@ -838,6 +847,68 @@ class TAP_Dashboard {
                                     <button class="button button-primary"><?php esc_html_e('Guardar respuesta', 'travel-agency-platform'); ?></button>
                                 </form>
                             </details>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php
+    }
+
+    /** Fase 4 — moderation queue (auto-flagged content needing human review). */
+    public static function moderation_page() {
+        $items = TAP_Moderation::queue();
+        $blocked = ($GLOBALS['wpdb']->get_var("SELECT COUNT(*) FROM {$GLOBALS['wpdb']->prefix}tap_reviews WHERE mod_status = 'block'")) +
+                   (int) ($GLOBALS['wpdb']->get_var("SELECT COUNT(*) FROM {$GLOBALS['wpdb']->prefix}tap_leads WHERE mod_status = 'block'"));
+        $reviewed = (int) ($GLOBALS['wpdb']->get_var("SELECT COUNT(*) FROM {$GLOBALS['wpdb']->prefix}tap_reviews WHERE mod_status = 'review'")) +
+                    (int) ($GLOBALS['wpdb']->get_var("SELECT COUNT(*) FROM {$GLOBALS['wpdb']->prefix}tap_leads WHERE mod_status = 'review'"));
+        ?>
+        <div class="wrap">
+            <h1><?php esc_html_e('Moderación de contenido', 'travel-agency-platform'); ?></h1>
+            <div class="notice notice-info inline" style="margin:10px 0;">
+                <p>
+                    <?php printf(esc_html__('Reseñas y mensajes marcados automáticamente: %d en revisión, %d bloqueados.', 'travel-agency-platform'), $reviewed, $blocked); ?>
+                    — <?php esc_html_e('Aprobar publica la reseña / limpia el mensaje; bloquear los oculta; eliminar los borra.', 'travel-agency-platform'); ?>
+                </p>
+            </div>
+            <table class="wp-list-table widefat fixed striped">
+                <thead>
+                    <tr>
+                        <th style="width:70px;"><?php esc_html_e('Tipo', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Contenido', 'travel-agency-platform'); ?></th>
+                        <th style="width:150px;"><?php esc_html_e('Motivo', 'travel-agency-platform'); ?></th>
+                        <th style="width:150px;"><?php esc_html_e('Fecha', 'travel-agency-platform'); ?></th>
+                        <th style="width:250px;"><?php esc_html_e('Acciones', 'travel-agency-platform'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (!$items): ?>
+                    <tr><td colspan="5"><em><?php esc_html_e('No hay contenido en la cola de moderación.', 'travel-agency-platform'); ?></em></td></tr>
+                    <?php endif; ?>
+                    <?php foreach ($items as $it):
+                        $is_review = 'review' === $it->kind;
+                        $base = admin_url('admin.php?page=tap-moderation&kind=' . ($is_review ? 'review' : 'lead') . '&item_id=' . (int) $it->id);
+                        $aw = wp_nonce_url($base . '&mod_action=approve', 'tap_mod_approve_' . ($is_review ? 'review' : 'lead') . '_' . (int) $it->id);
+                        $bl = wp_nonce_url($base . '&mod_action=block', 'tap_mod_block_' . ($is_review ? 'review' : 'lead') . '_' . (int) $it->id);
+                        $dl = wp_nonce_url($base . '&mod_action=delete', 'tap_mod_delete_' . ($is_review ? 'review' : 'lead') . '_' . (int) $it->id);
+                    ?>
+                    <tr>
+                        <td><span class="dashicons <?php echo $is_review ? 'dashicons-star-filled' : 'dashicons-email-alt'; ?>"></span> <?php echo $is_review ? esc_html__('Reseña', 'travel-agency-platform') : esc_html__('Mensaje', 'travel-agency-platform'); ?></td>
+                        <td>
+                            <?php if ($it->rating > 0): ?><span class="tap-admin-stars" style="color:#f59e0b;"><?php echo str_repeat('★', (int) $it->rating); ?></span> <?php endif; ?>
+                            <?php echo esc_html(mb_substr((string) $it->content, 0, 160)); ?>
+                            <div class="description" style="color:#64748b;"><?php echo esc_html((string) $it->owner); ?></div>
+                        </td>
+                        <td>
+                            <span class="description" style="font-size:12px;"><?php echo esc_html(TAP_Moderation::reason_label($it->mod_reason)); ?></span>
+                            <div class="description"><?php echo esc_html((string) $it->mod_status); ?></div>
+                        </td>
+                        <td class="description"><?php echo esc_html((string) $it->created_at); ?></td>
+                        <td>
+                            <a class="button button-primary button-small" href="<?php echo esc_url($aw); ?>"><?php esc_html_e('Aprobar', 'travel-agency-platform'); ?></a>
+                            <a class="button button-small" href="<?php echo esc_url($bl); ?>"><?php esc_html_e('Bloquear', 'travel-agency-platform'); ?></a>
+                            <a class="button button-link-delete button-small" href="<?php echo esc_url($dl); ?>" onclick="return confirm('Delete?');"><?php esc_html_e('Eliminar', 'travel-agency-platform'); ?></a>
                         </td>
                     </tr>
                     <?php endforeach; ?>

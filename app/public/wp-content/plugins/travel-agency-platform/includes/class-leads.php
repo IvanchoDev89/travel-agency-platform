@@ -56,6 +56,11 @@ class TAP_Leads {
             return new WP_Error('lead_rate_limit', __('Has enviado demasiados mensajes. Inténtalo de nuevo más tarde.', 'travel-agency-platform'));
         }
 
+        $hit = TAP_Moderation::assess($name . ' ' . $message, 'lead');
+        if (TAP_Moderation::BLOCK === $hit['status']) {
+            return new WP_Error('lead_blocked', __('Tu mensaje no pasó las verificaciones de seguridad. Inténtalo de nuevo.', 'travel-agency-platform'));
+        }
+
         global $wpdb;
         $ok = $wpdb->insert(
             $wpdb->prefix . 'tap_leads',
@@ -68,8 +73,10 @@ class TAP_Leads {
                 'message'    => $message,
                 'ip'         => $ip ?: null,
                 'source'     => $source,
+                'mod_status' => $hit['status'],
+                'mod_reason' => $hit['reason'],
             ],
-            ['%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s']
+            ['%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s']
         );
         if (!$ok) {
             return new WP_Error('db_error', __('No se pudo guardar el mensaje.', 'travel-agency-platform'));

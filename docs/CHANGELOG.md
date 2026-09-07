@@ -10,6 +10,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ### Added
 
+- **Fase 4 — Lote B: automatic content-moderation engine**:
+  - New `TAP_Moderation` engine (`includes/class-moderation.php`): deterministic `assess($text, $kind)` scoring every piece of visitor content as `ok` / `review` / `block` — abuse vocabulary (ES/EN, accent-insensitive), privacy leaks (email/phone in reviews), spam keywords and URL bursts, and gibberish detection; no external services, reason codes stored for the admin queue.
+  - **Review pipeline** (`tap/v1/review`): abusive/PII/spam/3+-link reviews are rejected with a translated `400` (`review_blocked`); single-link reviews are stored `mod_status=review` and still hidden from public reads; clean reviews land `ok`. Response message switches to "pending moderation" when flagged.
+  - **Lead pipeline** (`TAP_Leads::submit`): spam leads are rejected (`lead_blocked`, nothing stored); link-bearing/PII-carrying leads are stored `mod_status=review`; clean leads `ok`.
+  - New `mod_status` / `mod_reason` columns on `wp_tap_reviews` and `wp_tap_leads` (added via `TAP_Installer::migrate()`; `tap_version` 1.4.2, fresh-install `CREATE TABLE` updated).
+  - New admin **Moderation** page (`Travel Platform → Moderación`, `manage_options`): queue of flagged reviews + leads with kind, reason label (translated ES/EN), approve / manual-block / delete actions (nonce-verified `handle_admin_actions` on `admin_init`).
+  - 9 new catalog entries (blocked/PII/spam/links/gibberish/manual reason labels, public moderation messages, menu name) via `gen_mo.py` + `msgfmt --check`, shipped as `.po` + `.mo`.
+  - New `suite_moderation` (33 assertions): assess rule matrix ES/EN, REST blocked/accepted/held states + queue surfacing + admin page render + lead submission filtering + migration columns + inert-action guard. Both installs green on **20/20** suites, migrations applied (`1.4.2`) and 0 residue.
+
 - **Fase 4 — Lote A: support chatbot engine (IA/chatbot, back-end core)**:
   - New `TAP_Chatbot` rules engine (`includes/class-chatbot.php`): deterministic, multilingual intent detection (ES/EN) via accent-insensitive normalization + weighted pattern scoring. Intents: greeting, booking, search, checkout/voucher, payment, cancel, agency, favorites, contact, availability, pricing, recommend (top published services) and fallback.
   - Replies are English msgids translated through the plugin domain (Spanish descriptions); every answer returns the reply plus actionable links (search, my bookings, voucher, dashboard, login) and 5 quick-question chips in the active language.

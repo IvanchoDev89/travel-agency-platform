@@ -384,6 +384,13 @@ class TAP_API {
             return new WP_Error('duplicate', __('You already reviewed this service', 'travel-agency-platform'), ['status' => 409]);
         }
 
+        $content = sanitize_textarea_field($params['content']);
+        $title   = !empty($params['title']) ? sanitize_text_field($params['title']) : '';
+        $hit     = TAP_Moderation::assess($title . ' ' . $content, 'review');
+        if (TAP_Moderation::BLOCK === $hit['status']) {
+            return new WP_Error('review_blocked', __('Your review did not pass our safety checks. Please adjust it and try again.', 'travel-agency-platform'), ['status' => 400]);
+        }
+
         $wpdb->insert(
             $wpdb->prefix . 'tap_reviews',
             [
@@ -392,14 +399,19 @@ class TAP_API {
                 'user_id'      => get_current_user_id(),
                 'booking_id'   => !empty($params['booking_id']) ? intval($params['booking_id']) : null,
                 'rating'       => floatval($params['rating']),
-                'title'        => !empty($params['title']) ? sanitize_text_field($params['title']) : '',
-                'content'      => sanitize_textarea_field($params['content']),
+                'title'        => $title,
+                'content'      => $content,
                 'is_approved'  => 0,
+                'mod_status'   => $hit['status'],
+                'mod_reason'   => $hit['reason'],
             ]
         );
 
+        $is_moderated = TAP_Moderation::REVIEW === $hit['status'];
         return rest_ensure_response([
-            'message' => __('Review submitted and pending approval', 'travel-agency-platform'),
+            'message'   => $is_moderated
+                ? __('Review submitted and pending moderation', 'travel-agency-platform')
+                : __('Review submitted and pending approval', 'travel-agency-platform'),
             'review_id' => $wpdb->insert_id,
         ]);
     }
