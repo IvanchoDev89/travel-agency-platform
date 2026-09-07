@@ -29,6 +29,7 @@ class TAP_Shortcodes {
 
     public static function search_form($atts) {
         $atts = shortcode_atts(['type' => '', 'placeholder' => __('Where do you want to go?', 'travel-agency-platform')], $atts);
+        $uid = wp_unique_id('tap-sf-');
         ob_start();
         ?>
         <div class="tap-search-form tap-search-box">
@@ -36,23 +37,23 @@ class TAP_Shortcodes {
                 <input type="hidden" name="tap_search" value="1">
                 <div class="tap-search-fields">
                 <div class="tap-search-field">
-                    <label><?php esc_html_e('Destination', 'travel-agency-platform'); ?></label>
+                    <label for="<?php echo esc_attr($uid); ?>-destino"><?php esc_html_e('Destination', 'travel-agency-platform'); ?></label>
                     <div class="tap-search-destino">
-                        <input type="text" name="keyword" placeholder="<?php echo esc_attr($atts['placeholder']); ?>" class="tap-input" autocomplete="off">
+                        <input type="text" id="<?php echo esc_attr($uid); ?>-destino" name="keyword" placeholder="<?php echo esc_attr($atts['placeholder']); ?>" class="tap-input" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="tap-hs-listbox">
                         <div class="tap-hs-suggestions tap-form-suggestions" role="listbox" aria-expanded="false"></div>
                     </div>
                 </div>
                     <div class="tap-search-field">
-                        <label><?php esc_html_e('Check-in', 'travel-agency-platform'); ?></label>
-                        <input type="date" name="check_in" class="tap-input">
+                        <label for="<?php echo esc_attr($uid); ?>-check-in"><?php esc_html_e('Check-in', 'travel-agency-platform'); ?></label>
+                        <input type="date" id="<?php echo esc_attr($uid); ?>-check-in" name="check_in" class="tap-input">
                     </div>
                     <div class="tap-search-field">
-                        <label><?php esc_html_e('Check-out', 'travel-agency-platform'); ?></label>
-                        <input type="date" name="check_out" class="tap-input">
+                        <label for="<?php echo esc_attr($uid); ?>-check-out"><?php esc_html_e('Check-out', 'travel-agency-platform'); ?></label>
+                        <input type="date" id="<?php echo esc_attr($uid); ?>-check-out" name="check_out" class="tap-input">
                     </div>
                     <div class="tap-search-field">
-                        <label><?php esc_html_e('Guests', 'travel-agency-platform'); ?></label>
-                        <input type="number" name="guests" min="1" value="1" class="tap-input tap-input-sm">
+                        <label for="<?php echo esc_attr($uid); ?>-guests"><?php esc_html_e('Guests', 'travel-agency-platform'); ?></label>
+                        <input type="number" id="<?php echo esc_attr($uid); ?>-guests" name="guests" min="1" value="1" class="tap-input tap-input-sm">
                     </div>
                     <div class="tap-search-field">
                         <label>&nbsp;</label>

@@ -11,7 +11,7 @@ get_header();
     if ($agency_id) {
         echo do_shortcode('[tap_agency_detail id="' . $agency_id . '"]');
     } else {
-        echo '<p>' . __('Agency not specified.', 'travel-agency-theme') . '</p>';
+        echo '<p>' . __('Agency not specified.', 'travel-agency-platform') . '</p>';
     }
     ?>
 </div>

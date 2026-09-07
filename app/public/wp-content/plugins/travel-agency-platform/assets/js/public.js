@@ -22,7 +22,8 @@ jQuery(document).ready(function($) {
                         $('button.tap-fav-btn[data-post-id="' + postId + '"]')
                             .toggleClass('active', !!res.data.added)
                             .attr('aria-pressed', res.data.added ? 'true' : 'false');
-                        Favorites.toast(res.data.added ? 'Guardado en favoritos' : 'Quitado de favoritos');
+                        var i18n = window.tapI18n || {};
+                        Favorites.toast(res.data.added ? (i18n.favAdded || 'Guardado en favoritos') : (i18n.favRemoved || 'Quitado de favoritos'));
                         if ($btn.closest('.tap-fav-card').length && !res.data.added) {
                             $btn.closest('.tap-fav-card').fadeOut(250, function() {
                                 $(this).remove();
@@ -112,9 +113,10 @@ jQuery(document).ready(function($) {
         }
     };
 
-    var tapLabels = tapLabels || {
-        resultsFound: 'results found',
-        noResults: 'No results found'
+    var tapI18n = window.tapI18n || {};
+    var tapLabels = {
+        resultsFound: tapI18n.resultsFound || 'results found',
+        noResults: tapI18n.noResults || 'No results found'
     };
 
     /* ===== Lightbox ===== */
@@ -129,6 +131,7 @@ jQuery(document).ready(function($) {
                 e.preventDefault();
                 var $container = $(this).closest('[data-lightbox]');
                 if (!$container.length) return;
+                self.lastTrigger = e.currentTarget;
                 var src = $(this).is('img') ? $(this).attr('src') : $(this).data('src');
                 var imgs = $container.find('img');
                 self.images = [];
@@ -144,15 +147,28 @@ jQuery(document).ready(function($) {
                 if (e.key === 'Escape') self.close();
                 if (e.key === 'ArrowLeft') self.prev();
                 if (e.key === 'ArrowRight') self.next();
+                if (e.key === 'Tab') {
+                    var $els = self.overlay.find('button');
+                    if (!$els.length) return;
+                    var first = $els[0];
+                    var last = $els[$els.length - 1];
+                    if (e.shiftKey && document.activeElement === first) {
+                        e.preventDefault();
+                        last.focus();
+                    } else if (!e.shiftKey && document.activeElement === last) {
+                        e.preventDefault();
+                        first.focus();
+                    }
+                }
             });
         },
         build: function() {
             if (document.querySelector('.tap-lightbox-overlay')) return;
             this.overlay = $(
-                '<div class="tap-lightbox-overlay">' +
-                '<button class="tap-lightbox-close">&times;</button>' +
-                '<button class="tap-lightbox-prev">&lsaquo;</button>' +
-                '<button class="tap-lightbox-next">&rsaquo;</button>' +
+                '<div class="tap-lightbox-overlay" role="dialog" aria-modal="true" aria-label="' + (tapI18n.galleryLabel || 'Image gallery') + '">' +
+                '<button class="tap-lightbox-close" aria-label="' + (tapI18n.closeLabel || 'Close image gallery') + '">&times;</button>' +
+                '<button class="tap-lightbox-prev" aria-label="' + (tapI18n.prevLabel || 'Previous image') + '">&lsaquo;</button>' +
+                '<button class="tap-lightbox-next" aria-label="' + (tapI18n.nextLabel || 'Next image') + '">&rsaquo;</button>' +
                 '<img class="tap-lightbox-img" src="" alt="">' +
                 '<div class="tap-lightbox-counter"></div>' +
                 '</div>'
@@ -168,12 +184,14 @@ jQuery(document).ready(function($) {
         open: function(idx) {
             this.current = idx;
             this.show();
-            this.overlay.addClass('open');
+            this.overlay.addClass('open').attr('aria-hidden', 'false');
             $('body').css('overflow', 'hidden');
+            this.overlay.find('.tap-lightbox-close').trigger('focus');
         },
         close: function() {
-            this.overlay.removeClass('open');
+            this.overlay.removeClass('open').attr('aria-hidden', 'true');
             $('body').css('overflow', '');
+            if (this.lastTrigger && this.lastTrigger.focus) this.lastTrigger.focus();
         },
         show: function() {
             if (this.images.length === 0) return;
@@ -213,7 +231,7 @@ jQuery(document).ready(function($) {
             $list.empty();
 
             if (!reviews || !reviews.length) {
-                $list.html('<p class="tap-reviews-empty">Aún no hay reseñas.</p>');
+                $list.html('<p class="tap-reviews-empty">' + (tapI18n.reviewsEmpty || 'Aún no hay reseñas.') + '</p>');
                 $('.tap-reviews-count').text('(0)');
                 return;
             }
@@ -226,7 +244,7 @@ jQuery(document).ready(function($) {
 
             $('.tap-reviews-avg-score').text(avg.toFixed(1));
             $('.tap-reviews-avg-stars').html(Reviews.starsHtml(Math.round(avg)));
-            $('.tap-reviews-avg-total').text(reviews.length + ' ' + (reviews.length === 1 ? 'reseña' : 'reseñas'));
+            $('.tap-reviews-avg-total').text(reviews.length + ' ' + (reviews.length === 1 ? (tapI18n.reviewOne || 'reseña') : (tapI18n.reviewMany || 'reseñas')));
 
             $.each(reviews, function(i, r) {
                 var date = r.created_at ? r.created_at.split(' ')[0] : '';
@@ -235,7 +253,7 @@ jQuery(document).ready(function($) {
                     '<div class="tap-review-avatar">' + (r.user_name ? r.user_name[0].toUpperCase() : '?') + '</div>' +
                     '<div class="tap-review-body">' +
                     '<div class="tap-review-header">' +
-                    '<strong>' + (r.user_name || 'Anónimo') + '</strong>' +
+                    '<strong>' + (r.user_name || (tapI18n.anonymous || 'Anónimo')) + '</strong>' +
                     '<span class="tap-review-date">' + date + '</span>' +
                     '</div>' +
                     '<div class="tap-review-stars-display">' + Reviews.starsHtml(r.rating) + '</div>' +
@@ -258,7 +276,7 @@ jQuery(document).ready(function($) {
                 e.preventDefault();
                 var $form = $(this);
                 var $msg = $form.find('.tap-review-msg');
-                $msg.text('Enviando...');
+                $msg.text(tapI18n.reviewsSending || 'Enviando...');
 
                 $.ajax({
                     url: '/wp-json/tap/v1/review',
@@ -274,11 +292,11 @@ jQuery(document).ready(function($) {
                         content: $form.find('textarea[name="content"]').val()
                     },
                     success: function(res) {
-                        $msg.text('¡Reseña enviada! Pendiente de aprobación.').css('color', 'var(--tap-success)');
+                        $msg.text(tapI18n.reviewsSent || '¡Reseña enviada! Pendiente de aprobación.').css('color', 'var(--tap-success)');
                         $form[0].reset();
                     },
                     error: function(jqXHR) {
-                        var msg = 'Error al enviar';
+                        var msg = tapI18n.reviewsError || 'Error al enviar';
                         if (jqXHR.responseJSON && jqXHR.responseJSON.message) msg = jqXHR.responseJSON.message;
                         $msg.text(msg).css('color', 'var(--tap-error)');
                     }

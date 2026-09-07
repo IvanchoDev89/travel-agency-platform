@@ -1011,3 +1011,99 @@ msgstr "Back"
 
 msgid "Voucher de Reserva"
 msgstr "Booking Voucher"
+
+msgid "Ahorras %s"
+msgstr "You save %s"
+
+msgid "Asientos"
+msgstr "Seats"
+
+msgid "Capacidad"
+msgstr "Capacity"
+
+msgid "Desde"
+msgstr "From"
+
+msgid "Devolución"
+msgstr "Return"
+
+msgid "Duración"
+msgstr "Duration"
+
+msgid "El tour está completo para esta fecha."
+msgstr "This tour is full for this date."
+
+msgid "Email de contacto"
+msgstr "Contact email"
+
+msgid "Guardar en favoritos"
+msgstr "Save to favorites"
+
+msgid "Hasta"
+msgstr "To"
+
+msgid "Nombre del huésped principal"
+msgstr "Lead guest name"
+
+msgid "Opcional"
+msgstr "Optional"
+
+msgid "Punto de encuentro"
+msgstr "Meeting point"
+
+msgid "Recogida"
+msgstr "Pickup"
+
+msgid "Ruta"
+msgstr "Route"
+
+msgid "Transmisión"
+msgstr "Transmission"
+
+msgid "Tu nombre"
+msgstr "Your name"
+
+msgid "Vehículo"
+msgstr "Vehicle"
+
+msgid "Verificada"
+msgstr "Verified"
+
+msgid "Guardado en favoritos"
+msgstr "Saved to favorites"
+
+msgid "Quitado de favoritos"
+msgstr "Removed from favorites"
+
+msgid "Enviando..."
+msgstr "Sending..."
+
+msgid "¡Reseña enviada! Pendiente de aprobación."
+msgstr "Review submitted! Pending approval."
+
+msgid "Error al enviar"
+msgstr "Error sending"
+
+msgid "Error al enviar la reseña"
+msgstr "Error submitting the review"
+
+msgid "Aún no hay reseñas."
+msgstr "No reviews yet."
+
+msgid "Aún no hay reseñas. Sé el primero en compartir tu experiencia."
+msgstr "No reviews yet. Be the first to share your experience."
+
+msgid "reseña"
+msgstr "review"
+
+msgid "Anónimo"
+msgstr "Anonymous"
+
+msgid "Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!"
+msgstr "Thank you for your stay (%s). Tell us how it went!"
+
+msgid "Cupos disponibles: %s de %s"
+msgstr "Available spots: %s of %s"
+
+msgid "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
+msgstr "Full for this date (%s/%s). Please choose another date."

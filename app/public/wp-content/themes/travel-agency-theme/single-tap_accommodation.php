@@ -103,7 +103,7 @@ while (have_posts()): the_post();
           </span>
           <?php endif; ?>
           <?php if ($agency): ?>
-          <span class="tap-acc-hosted"><?php esc_html_e('Hosted by', 'travel-agency-theme'); ?> <strong><?php echo esc_html($agency->post_title); ?></strong></span>
+          <span class="tap-acc-hosted"><?php esc_html_e('Hosted by', 'travel-agency-platform'); ?> <strong><?php echo esc_html($agency->post_title); ?></strong></span>
           <?php endif; ?>
         </div>
       </div>
@@ -113,19 +113,19 @@ while (have_posts()): the_post();
         <?php if ($bedrooms): ?>
         <div class="tap-acc-highlight">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7"/><path d="M21 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2"/><line x1="3" y1="12" x2="21" y2="12"/></svg>
-          <span><?php echo esc_html($bedrooms); ?> <?php _e('Bedrooms', 'travel-agency-theme'); ?></span>
+          <span><?php echo esc_html($bedrooms); ?> <?php _e('Bedrooms', 'travel-agency-platform'); ?></span>
         </div>
         <?php endif; ?>
         <?php if ($bathrooms): ?>
         <div class="tap-acc-highlight">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16a1 1 0 0 1 1 1v3a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4v-3a1 1 0 0 1 1-1z"/><path d="M6 12V5a2 2 0 0 1 2-2h3v2.25"/><path d="M14 12V5a2 2 0 0 1 2-2h3v2.25"/></svg>
-          <span><?php echo esc_html($bathrooms); ?> <?php _e('Bathrooms', 'travel-agency-theme'); ?></span>
+          <span><?php echo esc_html($bathrooms); ?> <?php _e('Bathrooms', 'travel-agency-platform'); ?></span>
         </div>
         <?php endif; ?>
         <?php if ($capacity): ?>
         <div class="tap-acc-highlight">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          <span><?php echo esc_html($capacity); ?> <?php _e('Guests', 'travel-agency-theme'); ?></span>
+          <span><?php echo esc_html($capacity); ?> <?php _e('Guests', 'travel-agency-platform'); ?></span>
         </div>
         <?php endif; ?>
         <div class="tap-acc-highlight">
@@ -136,14 +136,14 @@ while (have_posts()): the_post();
 
       <!-- Description -->
       <div class="tap-acc-section">
-        <h2><?php _e('About this property', 'travel-agency-theme'); ?></h2>
+        <h2><?php _e('About this property', 'travel-agency-platform'); ?></h2>
         <div class="tap-acc-description"><?php the_content(); ?></div>
       </div>
 
       <!-- Amenities -->
       <?php if (!empty($amenities)): ?>
       <div class="tap-acc-section">
-        <h2><?php _e('Amenities', 'travel-agency-theme'); ?></h2>
+        <h2><?php _e('Amenities', 'travel-agency-platform'); ?></h2>
         <div class="tap-acc-amenities">
           <?php foreach ($amenities as $amenity): ?>
             <span class="tap-acc-amenity">
@@ -158,7 +158,7 @@ while (have_posts()): the_post();
       <!-- Availability Calendar -->
       <?php if ($has_rooms): ?>
       <div class="tap-acc-section tap-avcal-wrap" data-accommodation="<?php echo esc_attr($id); ?>">
-        <h2><?php _e('Availability & Prices', 'travel-agency-theme'); ?></h2>
+        <h2><?php _e('Availability & Prices', 'travel-agency-platform'); ?></h2>
         <div class="tap-avcal-header">
           <div class="tap-avcal-nav">
             <button type="button" class="tap-avcal-nav-btn" data-dir="-1">&larr;</button>
@@ -178,7 +178,7 @@ while (have_posts()): the_post();
       <!-- Room Types -->
       <?php if ($has_rooms): ?>
       <div class="tap-acc-section" id="tap-rooms-section">
-        <h2><?php _e('Available Room Types', 'travel-agency-theme'); ?></h2>
+        <h2><?php _e('Available Room Types', 'travel-agency-platform'); ?></h2>
         <div class="tap-rooms-list">
           <?php foreach ($rooms as $room): ?>
           <div class="tap-room-card <?php echo !$room['available'] ? 'tap-room-unavailable' : ''; ?>" data-room-id="<?php echo esc_attr($room['id']); ?>">
@@ -197,7 +197,7 @@ while (have_posts()): the_post();
               <?php if ($room['bed_summary']): ?>
               <p class="tap-room-beds">🛏 <?php echo esc_html($room['bed_summary']); ?></p>
               <?php endif; ?>
-              <p class="tap-room-capacity">👥 <?php printf(__('Up to %d guests', 'travel-agency-theme'), $room['max_occupancy']); ?></p>
+              <p class="tap-room-capacity">👥 <?php printf(__('Up to %d guests', 'travel-agency-platform'), $room['max_occupancy']); ?></p>
               <?php if ($room['view']): ?><p class="tap-room-view">🌅 <?php echo esc_html($room['view']); ?></p><?php endif; ?>
               <?php if ($room['amenities']): ?>
               <div class="tap-room-amenities-sm">
@@ -210,7 +210,7 @@ while (have_posts()): the_post();
               </div>
               <?php endif; ?>
               <?php if (!$room['available']): ?>
-                <span class="tap-room-unavailable-badge"><?php _e('Sold out', 'travel-agency-theme'); ?></span>
+                <span class="tap-room-unavailable-badge"><?php _e('Sold out', 'travel-agency-platform'); ?></span>
               <?php endif; ?>
             </div>
             <div class="tap-room-card-footer">
@@ -219,9 +219,9 @@ while (have_posts()): the_post();
                 <span class="tap-room-price-base"><?php echo esc_html(TAP_Currency::fmt0($room['base_total'] / max(1, $room['nights']))); ?></span>
                 <?php endif; ?>
                 <span class="tap-room-price-amount"><?php echo esc_html(TAP_Currency::fmt0($room['total'] / max(1, ($room['nights'] ?: 1)))); ?></span>
-                <span class="tap-room-price-label">/ <?php _e('night', 'travel-agency-theme'); ?></span>
+                <span class="tap-room-price-label">/ <?php _e('night', 'travel-agency-platform'); ?></span>
                 <?php if ($room['min_stay'] > 1): ?>
-                <span class="tap-room-min-stay"><?php printf(__('Min %d nights', 'travel-agency-theme'), $room['min_stay']); ?></span>
+                <span class="tap-room-min-stay"><?php printf(__('Min %d nights', 'travel-agency-platform'), $room['min_stay']); ?></span>
                 <?php endif; ?>
                 <?php if (!empty($room['discounts'])): ?>
                 <span class="tap-room-promo-badge">-<?php echo esc_html(array_sum(array_column($room['discounts'], 'percent'))); ?>%</span>
@@ -229,12 +229,12 @@ while (have_posts()): the_post();
                 <?php if (!empty($room['price_breakdown'])): ?>
                 <span class="tap-room-total"><?php echo esc_html(TAP_Currency::fmt($room['total'])); ?> <?php esc_html_e('total', 'travel-agency-platform'); ?></span>
                 <?php if ($room['savings'] > 0): ?>
-                <span class="tap-room-saved"><?php printf(__('Ahorras %s', 'travel-agency-theme'), esc_html(TAP_Currency::fmt($room['savings']))); ?></span>
+                <span class="tap-room-saved"><?php printf(__('Ahorras %s', 'travel-agency-platform'), esc_html(TAP_Currency::fmt($room['savings']))); ?></span>
                 <?php endif; ?>
                 <?php endif; ?>
               </div>
               <button class="tap-btn tap-btn-primary tap-btn-sm tap-select-room" data-room-id="<?php echo esc_attr($room['id']); ?>" data-room-price="<?php echo esc_attr($room['total']); ?>" data-room-discounts='<?php echo esc_attr(wp_json_encode($room['discounts'])); ?>' <?php echo !$room['available'] ? 'disabled' : ''; ?>>
-                <?php $room['available'] ? _e('Select', 'travel-agency-theme') : _e('Unavailable', 'travel-agency-theme'); ?>
+                <?php $room['available'] ? _e('Select', 'travel-agency-platform') : _e('Unavailable', 'travel-agency-platform'); ?>
               </button>
             </div>
           </div>
@@ -248,19 +248,19 @@ while (have_posts()): the_post();
 
       <!-- Policies -->
       <div class="tap-acc-section">
-        <h2><?php _e('Policies', 'travel-agency-theme'); ?></h2>
+        <h2><?php _e('Policies', 'travel-agency-platform'); ?></h2>
         <div class="tap-acc-policies">
           <div class="tap-acc-policy">
-            <strong><?php _e('Check-in / Check-out', 'travel-agency-theme'); ?></strong>
-            <span><?php printf(__('Check-in from %s — Check-out until %s', 'travel-agency-theme'), esc_html($checkin), esc_html($checkout)); ?></span>
+            <strong><?php _e('Check-in / Check-out', 'travel-agency-platform'); ?></strong>
+            <span><?php printf(__('Check-in from %s — Check-out until %s', 'travel-agency-platform'), esc_html($checkin), esc_html($checkout)); ?></span>
           </div>
           <div class="tap-acc-policy">
-            <strong><?php _e('Cancellation', 'travel-agency-theme'); ?></strong>
+            <strong><?php _e('Cancellation', 'travel-agency-platform'); ?></strong>
             <span><?php echo esc_html($cancellation_labels[$cancellation] ?? $cancellation); ?></span>
           </div>
           <?php if ($house_rules): ?>
           <div class="tap-acc-policy">
-            <strong><?php _e('House Rules', 'travel-agency-theme'); ?></strong>
+            <strong><?php _e('House Rules', 'travel-agency-platform'); ?></strong>
             <span><?php echo nl2br(esc_html($house_rules)); ?></span>
           </div>
           <?php endif; ?>
@@ -274,10 +274,10 @@ while (have_posts()): the_post();
       <div class="tap-acc-booking-widget" id="tap-booking-widget">
         <div class="tap-bw-header">
           <?php if ($has_rooms): ?>
-            <span class="tap-bw-price"><?php _e('Select dates & room', 'travel-agency-theme'); ?></span>
+            <span class="tap-bw-price"><?php _e('Select dates & room', 'travel-agency-platform'); ?></span>
           <?php elseif ($price_fallback): ?>
             <span class="tap-bw-price-amount"><?php echo esc_html(TAP_Currency::fmt0($price_fallback)); ?></span>
-            <span class="tap-bw-price-label">/ <?php _e('night', 'travel-agency-theme'); ?></span>
+            <span class="tap-bw-price-label">/ <?php _e('night', 'travel-agency-platform'); ?></span>
           <?php endif; ?>
         </div>
 
@@ -292,44 +292,44 @@ while (have_posts()): the_post();
 
             <div class="tap-bw-dates">
               <div class="tap-bw-field">
-                <label><?php _e('Check-in', 'travel-agency-theme'); ?></label>
+                <label><?php _e('Check-in', 'travel-agency-platform'); ?></label>
                 <input type="date" name="check_in" id="bw-check-in" class="tap-input" min="<?php echo esc_attr(date('Y-m-d')); ?>">
               </div>
               <div class="tap-bw-field">
-                <label><?php _e('Check-out', 'travel-agency-theme'); ?></label>
+                <label><?php _e('Check-out', 'travel-agency-platform'); ?></label>
                 <input type="date" name="check_out" id="bw-check-out" class="tap-input" min="<?php echo esc_attr(date('Y-m-d', strtotime('+1 day'))); ?>">
               </div>
             </div>
 
             <div class="tap-bw-guests">
               <div class="tap-bw-field">
-                <label><?php _e('Adults', 'travel-agency-theme'); ?></label>
+                <label><?php _e('Adults', 'travel-agency-platform'); ?></label>
                 <input type="number" name="adults" id="bw-adults" class="tap-input" value="2" min="1" max="20">
               </div>
               <div class="tap-bw-field">
-                <label><?php _e('Children', 'travel-agency-theme'); ?></label>
+                <label><?php _e('Children', 'travel-agency-platform'); ?></label>
                 <input type="number" name="children" id="bw-children" class="tap-input" value="0" min="0" max="10">
               </div>
             </div>
 
             <div class="tap-bw-guests tap-bw-guest-data">
               <div class="tap-bw-field tap-bw-field-full">
-                <label><?php _e('Nombre del huésped principal', 'travel-agency-theme'); ?></label>
+                <label><?php _e('Nombre del huésped principal', 'travel-agency-platform'); ?></label>
                 <input type="text" name="guest_name" id="bw-guest-name" class="tap-input" autocomplete="name" value="<?php echo esc_attr(wp_get_current_user()->display_name ?? ''); ?>">
               </div>
               <div class="tap-bw-field">
-                <label><?php _e('Email de contacto', 'travel-agency-theme'); ?></label>
+                <label><?php _e('Email de contacto', 'travel-agency-platform'); ?></label>
                 <input type="email" name="guest_email" id="bw-guest-email" class="tap-input" autocomplete="email" value="<?php echo esc_attr(wp_get_current_user()->user_email ?? ''); ?>">
               </div>
               <div class="tap-bw-field">
-                <label><?php _e('Teléfono', 'travel-agency-theme'); ?></label>
-                <input type="tel" name="guest_phone" id="bw-guest-phone" class="tap-input" autocomplete="tel" placeholder="<?php esc_attr_e('Opcional', 'travel-agency-theme'); ?>">
+                <label><?php _e('Teléfono', 'travel-agency-platform'); ?></label>
+                <input type="tel" name="guest_phone" id="bw-guest-phone" class="tap-input" autocomplete="tel" placeholder="<?php esc_attr_e('Opcional', 'travel-agency-platform'); ?>">
               </div>
             </div>
 
             <div class="tap-bw-total" id="bw-total" style="display:none;">
               <div class="tap-bw-total-row">
-                <span><?php _e('Nights', 'travel-agency-theme'); ?></span>
+                <span><?php _e('Nights', 'travel-agency-platform'); ?></span>
                 <span id="bw-nights">0</span>
               </div>
               <div id="bw-price-breakdown" style="display:none;">
@@ -340,27 +340,27 @@ while (have_posts()): the_post();
               </div>
               <div id="bw-discounts" style="display:none;"></div>
               <div class="tap-bw-total-row tap-bw-fee-row" id="bw-fee" style="display:none;">
-                <span><?php _e('Tarifa de servicio', 'travel-agency-theme'); ?></span>
+                <span><?php _e('Tarifa de servicio', 'travel-agency-platform'); ?></span>
                 <span id="bw-fee-amount">$0</span>
               </div>
               <div class="tap-bw-total-row tap-bw-total-final">
-                <span><?php _e('Total', 'travel-agency-theme'); ?></span>
+                <span><?php _e('Total', 'travel-agency-platform'); ?></span>
                 <span id="bw-total-amount">$0</span>
               </div>
             </div>
 
             <div class="tap-bw-actions">
               <div id="bw-room-selected" style="display:none;margin-bottom:12px;">
-                <small><?php _e('Room:', 'travel-agency-theme'); ?> <strong id="bw-room-name"></strong></small>
+                <small><?php _e('Room:', 'travel-agency-platform'); ?> <strong id="bw-room-name"></strong></small>
               </div>
               <button type="submit" class="tap-btn tap-btn-primary tap-btn-block" id="bw-submit" disabled>
-                <?php _e('Book Now', 'travel-agency-theme'); ?>
+                <?php _e('Book Now', 'travel-agency-platform'); ?>
               </button>
             </div>
           </form>
 
           <div class="tap-bw-footer">
-            <p><?php _e('You won\'t be charged yet', 'travel-agency-theme'); ?></p>
+            <p><?php _e('You won\'t be charged yet', 'travel-agency-platform'); ?></p>
           </div>
         </div>
         <?php if ($agency): ?>
@@ -506,10 +506,10 @@ jQuery(document).ready(function($) {
   $('#tap-booking-form').on('submit', function(e) {
     e.preventDefault();
 
-    if (!selectedRoomId) { alert('<?php echo esc_js(__('Please select a room type', 'travel-agency-theme')); ?>'); return; }
+    if (!selectedRoomId) { alert('<?php echo esc_js(__('Please select a room type', 'travel-agency-platform')); ?>'); return; }
 
     var btn = $('#bw-submit');
-    btn.prop('disabled', true).text('<?php echo esc_js(__('Processing...', 'travel-agency-theme')); ?>');
+    btn.prop('disabled', true).text('<?php echo esc_js(__('Processing...', 'travel-agency-platform')); ?>');
 
     $.post(tap_ajax.ajax_url, {
       action: 'tap_booking_create',
@@ -527,7 +527,7 @@ jQuery(document).ready(function($) {
     }, function(res) {
       if (!res.success) {
         alert(res.data && res.data.message ? res.data.message : 'Error');
-        btn.prop('disabled', false).text('<?php echo esc_js(__('Book Now', 'travel-agency-theme')); ?>');
+        btn.prop('disabled', false).text('<?php echo esc_js(__('Book Now', 'travel-agency-platform')); ?>');
         return;
       }
       window.location.href = '<?php echo esc_url(home_url('/checkout')); ?>?code=' + res.data.booking_code;

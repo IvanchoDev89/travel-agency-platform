@@ -10,7 +10,7 @@ $rev_id   = get_the_ID();
 ?>
 
 <div class="tap-acc-section tap-reviews-section" data-service-type="<?php echo esc_attr($rev_type); ?>" data-service-id="<?php echo esc_attr($rev_id); ?>">
-  <h2><?php _e('Reviews', 'travel-agency-theme'); ?> <span class="tap-reviews-count"></span></h2>
+  <h2><?php _e('Reviews', 'travel-agency-platform'); ?> <span class="tap-reviews-count"></span></h2>
   <div class="tap-reviews-summary">
     <div class="tap-reviews-average">
       <span class="tap-reviews-avg-score">0.0</span>
@@ -22,12 +22,12 @@ $rev_id   = get_the_ID();
 
   <?php if (is_user_logged_in()): ?>
   <div class="tap-review-form-wrap">
-    <h3><?php _e('Write a Review', 'travel-agency-theme'); ?></h3>
+    <h3><?php _e('Write a Review', 'travel-agency-platform'); ?></h3>
     <form class="tap-review-form">
       <input type="hidden" name="service_type" value="<?php echo esc_attr($rev_type); ?>">
       <input type="hidden" name="service_id" value="<?php echo esc_attr($rev_id); ?>">
       <div class="tap-review-stars">
-        <label><?php _e('Your rating', 'travel-agency-theme'); ?></label>
+        <label><?php _e('Your rating', 'travel-agency-platform'); ?></label>
         <div class="tap-star-input">
           <?php for ($i = 5; $i >= 1; $i--): ?>
           <input type="radio" name="rating" value="<?php echo $i; ?>" id="tap-star-<?php echo $i; ?>" <?php echo $i === 5 ? 'checked' : ''; ?>>
@@ -36,24 +36,25 @@ $rev_id   = get_the_ID();
         </div>
       </div>
       <div class="tap-review-field">
-        <label for="tap-review-title"><?php _e('Review title', 'travel-agency-theme'); ?></label>
-        <input type="text" id="tap-review-title" name="title" class="tap-input" placeholder="<?php esc_attr_e('Summarize your experience', 'travel-agency-theme'); ?>">
+        <label for="tap-review-title"><?php _e('Review title', 'travel-agency-platform'); ?></label>
+        <input type="text" id="tap-review-title" name="title" class="tap-input" placeholder="<?php esc_attr_e('Summarize your experience', 'travel-agency-platform'); ?>">
       </div>
       <div class="tap-review-field">
-        <label for="tap-review-content"><?php _e('Your review', 'travel-agency-theme'); ?></label>
-        <textarea id="tap-review-content" name="content" class="tap-input" rows="4" required placeholder="<?php esc_attr_e('Tell others about your experience...', 'travel-agency-theme'); ?>"></textarea>
+        <label for="tap-review-content"><?php _e('Your review', 'travel-agency-platform'); ?></label>
+        <textarea id="tap-review-content" name="content" class="tap-input" rows="4" required placeholder="<?php esc_attr_e('Tell others about your experience...', 'travel-agency-platform'); ?>"></textarea>
       </div>
-      <button type="submit" class="tap-btn tap-btn-primary"><?php _e('Submit Review', 'travel-agency-theme'); ?></button>
+      <button type="submit" class="tap-btn tap-btn-primary"><?php _e('Submit Review', 'travel-agency-platform'); ?></button>
       <span class="tap-review-msg"></span>
     </form>
   </div>
   <?php else: ?>
-  <p class="tap-review-login"><?php printf(__('<a href="%s">Log in</a> to leave a review.', 'travel-agency-theme'), wp_login_url(get_permalink())); ?></p>
+  <p class="tap-review-login"><?php printf(__('<a href="%s">Log in</a> to leave a review.', 'travel-agency-platform'), wp_login_url(get_permalink())); ?></p>
   <?php endif; ?>
 </div>
 
 <script>
 jQuery(document).ready(function($) {
+  var tapI18n = window.tapI18n || {};
   var $sec = $('.tap-reviews-section');
   if (!$sec.length) return;
 
@@ -79,7 +80,7 @@ jQuery(document).ready(function($) {
   $.getJSON(restBase + '/reviews/' + serviceType + '/' + serviceId, function(reviews) {
     $list.empty();
     if (!reviews.length) {
-      $list.html('<p class="tap-reviews-empty">Aún no hay reseñas. Sé el primero en compartir tu experiencia.</p>');
+      $list.html('<p class="tap-reviews-empty">' + (tapI18n.reviewsEmptyShare || 'Aún no hay reseñas. Sé el primero en compartir tu experiencia.') + '</p>');
     }
     var sum = 0;
     $.each(reviews, function(i, r) {
@@ -101,7 +102,7 @@ jQuery(document).ready(function($) {
     var avg = reviews.length ? (sum / reviews.length) : 0;
     $avgScore.text(avg.toFixed(1));
     $avgStars.html(starHtml(avg));
-    $avgTotal.text(reviews.length + (reviews.length === 1 ? ' reseña' : ' reseñas'));
+    $avgTotal.text(reviews.length + ' ' + (reviews.length === 1 ? (tapI18n.reviewOne || 'reseña') : (tapI18n.reviewMany || 'reseñas')));
     $count.text('(' + reviews.length + ')');
   });
 
@@ -127,11 +128,11 @@ jQuery(document).ready(function($) {
         headers: { 'X-WP-Nonce': tap_ajax.rest_nonce },
       }).done(function(res) {
         $msg.addClass('tap-error').removeClass('tap-success').hide();
-        $msg.removeClass('tap-error').addClass('tap-success').text(res.message || 'Review submitted').show();
+        $msg.removeClass('tap-error').addClass('tap-success').text(res.message || (tapI18n.reviewSubmitted || 'Review submitted')).show();
         $form.find('textarea[name=content]').val('');
         $form.find('input[name=title]').val('');
       }).fail(function(x) {
-        var msg = x.responseJSON && x.responseJSON.message ? x.responseJSON.message : 'Error al enviar la reseña';
+        var msg = x.responseJSON && x.responseJSON.message ? x.responseJSON.message : (tapI18n.reviewError2 || 'Error al enviar la reseña');
         $msg.removeClass('tap-success').addClass('tap-error').text(msg).show();
       }).always(function() { btn.prop('disabled', false); });
     });
@@ -141,7 +142,7 @@ jQuery(document).ready(function($) {
   var ref = params.get('tap_review');
   if (ref) {
     $sec.find('.tap-review-form-wrap').css('border-color', '#f59e0b').css('background', '#fffbeb');
-    $sec.prepend('<p class="tap-review-thanks">Gracias por tu estancia (' + ref + '). ¡Cuéntanos cómo fue tu experiencia!</p>');
+    $sec.prepend('<p class="tap-review-thanks">' + (tapI18n.reviewThanks || 'Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!').replace('%s', ref) + '</p>');
     setTimeout(function() { $sec[0].scrollIntoView({ behavior: 'smooth' }); }, 400);
   }
 });

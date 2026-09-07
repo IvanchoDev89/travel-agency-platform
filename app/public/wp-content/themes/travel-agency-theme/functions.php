@@ -15,8 +15,8 @@ function travel_agency_theme_setup() {
     ]);
 
     register_nav_menus([
-        'primary' => __('Primary Menu', 'travel-agency-theme'),
-        'footer'  => __('Footer Menu', 'travel-agency-theme'),
+        'primary' => __('Primary Menu', 'travel-agency-platform'),
+        'footer'  => __('Footer Menu', 'travel-agency-platform'),
     ]);
 }
 add_action('after_setup_theme', 'travel_agency_theme_setup');
@@ -71,7 +71,7 @@ class TAT_Nav_Walker extends Walker_Nav_Menu {
         $item_output .= '</a>';
 
         if ($has_children) {
-            $item_output .= '<button class="submenu-toggle" aria-label="' . esc_attr__('Toggle submenu', 'travel-agency-theme') . '">';
+            $item_output .= '<button class="submenu-toggle" aria-label="' . esc_attr__('Toggle submenu', 'travel-agency-platform') . '">';
             $item_output .= '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
             $item_output .= '</button>';
         }
@@ -83,7 +83,7 @@ class TAT_Nav_Walker extends Walker_Nav_Menu {
 
 function travel_agency_theme_widgets_init() {
     register_sidebar([
-        'name'          => __('Footer Column 1', 'travel-agency-theme'),
+        'name'          => __('Footer Column 1', 'travel-agency-platform'),
         'id'            => 'footer-1',
         'before_widget' => '<div id="%1$s" class="widget %2$s">',
         'after_widget'  => '</div>',
@@ -92,7 +92,7 @@ function travel_agency_theme_widgets_init() {
     ]);
 
     register_sidebar([
-        'name'          => __('Footer Column 2', 'travel-agency-theme'),
+        'name'          => __('Footer Column 2', 'travel-agency-platform'),
         'id'            => 'footer-2',
         'before_widget' => '<div id="%1$s" class="widget %2$s">',
         'after_widget'  => '</div>',
@@ -101,7 +101,7 @@ function travel_agency_theme_widgets_init() {
     ]);
 
     register_sidebar([
-        'name'          => __('Footer Column 3', 'travel-agency-theme'),
+        'name'          => __('Footer Column 3', 'travel-agency-platform'),
         'id'            => 'footer-3',
         'before_widget' => '<div id="%1$s" class="widget %2$s">',
         'after_widget'  => '</div>',
@@ -126,7 +126,7 @@ function tap_fav_button($post_id = 0, $class = '') {
     }
     $active = class_exists('TAP_API') && TAP_API::is_favorite($post_id);
     $active_class = $active ? ' active' : '';
-    return '<button type="button" class="tap-fav-btn ' . esc_attr($class . $active_class) . '" data-post-id="' . (int) $post_id . '" aria-label="' . esc_attr__('Guardar en favoritos', 'travel-agency-theme') . '" aria-pressed="' . ($active ? 'true' : 'false') . '"><span class="tap-fav-heart">♥</span></button>';
+    return '<button type="button" class="tap-fav-btn ' . esc_attr($class . $active_class) . '" data-post-id="' . (int) $post_id . '" aria-label="' . esc_attr__('Guardar en favoritos', 'travel-agency-platform') . '" aria-pressed="' . ($active ? 'true' : 'false') . '"><span class="tap-fav-heart">♥</span></button>';
 }
 
 function tap_rating_stars($avg = 0, $count = 0) {

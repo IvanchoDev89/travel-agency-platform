@@ -7,7 +7,7 @@ get_header();
 
 <div class="tap-page-header">
     <div class="tap-container">
-        <h1><?php _e('Search Results', 'travel-agency-theme'); ?></h1>
+        <h1><?php _e('Search Results', 'travel-agency-platform'); ?></h1>
     </div>
 </div>
 
@@ -45,7 +45,7 @@ get_header();
 
         if (!empty($results)):
         ?>
-            <p><strong><?php printf(__('%d results found', 'travel-agency-theme'), count($results)); ?></strong></p>
+            <p><strong><?php printf(__('%d results found', 'travel-agency-platform'), count($results)); ?></strong></p>
             <div class="tap-services-grid">
                 <?php foreach ($results as $post): setup_postdata($post); ?>
                     <div class="tap-service-card">
@@ -60,13 +60,13 @@ get_header();
                             <p class="tap-service-type-label"><?php echo esc_html(TAP_Post_Types::get_service_types()[get_post_type()] ?? get_post_type()); ?></p>
                             <?php echo tap_card_rating(get_the_ID(), get_post_type()); ?>
                             <p><?php echo wp_trim_words(get_the_excerpt(), 20); ?></p>
-                            <a href="<?php the_permalink(); ?>" class="tap-btn tap-btn-outline"><?php _e('View Details', 'travel-agency-theme'); ?></a>
+                            <a href="<?php the_permalink(); ?>" class="tap-btn tap-btn-outline"><?php _e('View Details', 'travel-agency-platform'); ?></a>
                         </div>
                     </div>
                 <?php endforeach; wp_reset_postdata(); ?>
             </div>
         <?php else: ?>
-            <p><?php _e('No results found. Try different search terms.', 'travel-agency-theme'); ?></p>
+            <p><?php _e('No results found. Try different search terms.', 'travel-agency-platform'); ?></p>
         <?php endif; ?>
     </div>
 </div>

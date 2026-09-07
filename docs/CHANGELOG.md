@@ -10,6 +10,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ### Added
 
+- **UI/UX audit batch 5 — visible i18n & technical a11y**:
+  - **Theme strings now translate** (139 msgids across 20 theme templates): theme textdomain migrated to `travel-agency-platform`; 133 new catalog entries added (ES→EN and EN→ES) so ES mode shows Spanish and EN mode (`?lang=en`) shows English for hero, search, results, 404, booking widget, filters and type labels.
+  - **Front-end JS strings externalized** via a new `tapI18n` global (localized on the `tap-public` handle): favorites toasts, review list/form messages, placeholder counts (`reseña`/`reseñas`), booking-capacity messages, and lightbox ARIA labels. Theme inline scripts (`service-reviews.php`, `single-service.php`) consume `window.tapI18n` instead of hardcoded ES.
+  - **A11y técnicas**:
+    - Reduced-motion support: `prefers-reduced-motion` CSS override (`.tap-section`, `.tap-category-card`, gallery images) + JS guard in `main.js` disables reveal animation, staggered category entrance and hero parallax.
+    - Mobile drawer: toggle now declares `aria-controls="main-nav"`; opening moves focus to the first nav link, closing restores focus to the toggle.
+    - Lightbox: `role="dialog"`, `aria-modal`, ARIA labels, focus moves to the close button on open, restores to the trigger on close, and Tab cycles within the overlay.
+    - `[tap_search]` shortcode: unique `for`/`id` label association (`tap-sf-*`) for destination, check-in, check-out and guests fields.
+    - New entries produced with `msgfmt --check`; catalogs re-shipped as both `.po` and `.mo` for `es_ES` and `en_US`.
+
 - **UI/UX audit batch 4 (P1) — generic single-service page**:
   - Header block (`.tap-svc-header`): badge + h1 rows baseline aligned, agency link emphasized.
   - Specs grid (`.tap-acc-facts`/`.tap-acc-fact`): responsive auto-fit cards with micro uppercase labels.

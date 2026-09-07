@@ -5,7 +5,7 @@
         <div class="footer-grid">
             <div class="footer-brand">
                 <h3><?php bloginfo('name'); ?></h3>
-                <p><?php _e('Your trusted multi-agency travel platform. Discover, compare, and book the best travel experiences from verified local agencies.', 'travel-agency-theme'); ?></p>
+                <p><?php _e('Your trusted multi-agency travel platform. Discover, compare, and book the best travel experiences from verified local agencies.', 'travel-agency-platform'); ?></p>
                 <div class="footer-social">
                     <a href="#" aria-label="Facebook">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
@@ -19,35 +19,35 @@
                 </div>
             </div>
             <div>
-                <h3><?php _e('Services', 'travel-agency-theme'); ?></h3>
+                <h3><?php _e('Services', 'travel-agency-platform'); ?></h3>
                 <ul>
-                    <li><a href="<?php echo esc_url(home_url('/accommodation')); ?>"><?php _e('Accommodations', 'travel-agency-theme'); ?></a></li>
-                    <li><a href="<?php echo esc_url(home_url('/tour')); ?>"><?php _e('Tours', 'travel-agency-theme'); ?></a></li>
-                    <li><a href="<?php echo esc_url(home_url('/transport')); ?>"><?php _e('Transport', 'travel-agency-theme'); ?></a></li>
-                    <li><a href="<?php echo esc_url(home_url('/car-rental')); ?>"><?php _e('Car Rental', 'travel-agency-theme'); ?></a></li>
-                    <li><a href="<?php echo esc_url(home_url('/boat')); ?>"><?php _e('Boats', 'travel-agency-theme'); ?></a></li>
-                    <li><a href="<?php echo esc_url(home_url('/package')); ?>"><?php _e('Packages', 'travel-agency-theme'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/accommodation')); ?>"><?php _e('Accommodations', 'travel-agency-platform'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/tour')); ?>"><?php _e('Tours', 'travel-agency-platform'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/transport')); ?>"><?php _e('Transport', 'travel-agency-platform'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/car-rental')); ?>"><?php _e('Car Rental', 'travel-agency-platform'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/boat')); ?>"><?php _e('Boats', 'travel-agency-platform'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/package')); ?>"><?php _e('Packages', 'travel-agency-platform'); ?></a></li>
                 </ul>
             </div>
             <div>
-                <h3><?php _e('For Agencies', 'travel-agency-theme'); ?></h3>
+                <h3><?php _e('For Agencies', 'travel-agency-platform'); ?></h3>
                 <ul>
-                    <li><a href="<?php echo esc_url(home_url('/dashboard')); ?>"><?php _e('Agency Dashboard', 'travel-agency-theme'); ?></a></li>
-                    <li><a href="<?php echo esc_url(home_url('/register')); ?>"><?php _e('Join as Agency', 'travel-agency-theme'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/dashboard')); ?>"><?php _e('Agency Dashboard', 'travel-agency-platform'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/register')); ?>"><?php _e('Join as Agency', 'travel-agency-platform'); ?></a></li>
                 </ul>
             </div>
             <div>
-                <h3><?php _e('Support', 'travel-agency-theme'); ?></h3>
+                <h3><?php _e('Support', 'travel-agency-platform'); ?></h3>
                 <ul>
-                    <li><a href="#"><?php _e('Help Center', 'travel-agency-theme'); ?></a></li>
-                    <li><a href="#"><?php _e('Contact Us', 'travel-agency-theme'); ?></a></li>
-                    <li><a href="#"><?php _e('Privacy Policy', 'travel-agency-theme'); ?></a></li>
-                    <li><a href="#"><?php _e('Terms of Service', 'travel-agency-theme'); ?></a></li>
+                    <li><a href="#"><?php _e('Help Center', 'travel-agency-platform'); ?></a></li>
+                    <li><a href="#"><?php _e('Contact Us', 'travel-agency-platform'); ?></a></li>
+                    <li><a href="#"><?php _e('Privacy Policy', 'travel-agency-platform'); ?></a></li>
+                    <li><a href="#"><?php _e('Terms of Service', 'travel-agency-platform'); ?></a></li>
                 </ul>
             </div>
         </div>
         <div class="footer-bottom">
-            &copy; <?php echo date('Y'); ?> <?php bloginfo('name'); ?>. <?php _e('All rights reserved.', 'travel-agency-theme'); ?>
+            &copy; <?php echo date('Y'); ?> <?php bloginfo('name'); ?>. <?php _e('All rights reserved.', 'travel-agency-platform'); ?>
         </div>
     </div>
 </footer>

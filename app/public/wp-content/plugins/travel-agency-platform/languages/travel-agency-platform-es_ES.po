@@ -663,3 +663,306 @@ msgstr "Tus listados"
 
 msgid "Your plan allows a maximum of %d listings. Upgrading your plan unlocks more."
 msgstr "Tu plan permite un máximo de %d listados. Mejorar tu plan desbloquea más."
+
+msgid "About this property"
+msgstr "Acerca de esta propiedad"
+
+msgid "About this service"
+msgstr "Acerca de este servicio"
+
+msgid "Agencies"
+msgstr "Agencias"
+
+msgid "Agency Dashboard"
+msgstr "Panel de la agencia"
+
+msgid "Agency not specified."
+msgstr "Agencia no especificada."
+
+msgid "<a href=\"%s\">Log in</a> to leave a review."
+msgstr "<a href=\"%s\">Inicia sesión</a> para dejar una reseña."
+
+msgid "All rights reserved."
+msgstr "Todos los derechos reservados."
+
+msgid "Amenities"
+msgstr "Comodidades"
+
+msgid "Availability & Prices"
+msgstr "Disponibilidad y precios"
+
+msgid "Available Room Types"
+msgstr "Tipos de habitación disponibles"
+
+msgid "Bathrooms"
+msgstr "Baños"
+
+msgid "Bedrooms"
+msgstr "Dormitorios"
+
+msgid "Book with confidence from our verified travel agencies"
+msgstr "Reserva con confianza en nuestras agencias de viaje verificadas"
+
+msgid "Browse Services"
+msgstr "Explorar servicios"
+
+msgid "Cancellation"
+msgstr "Cancelación"
+
+msgid "Car Rental"
+msgstr "Alquiler de autos"
+
+msgid "Check-in / Check-out"
+msgstr "Entrada / Salida"
+
+msgid "Check-in from %s — Check-out until %s"
+msgstr "Check-in desde %s — Check-out hasta %s"
+
+msgid "Choose from a wide range of travel services"
+msgstr "Elige entre una amplia gama de servicios de viaje"
+
+msgid "Close search"
+msgstr "Cerrar búsqueda"
+
+msgid "Contact Us"
+msgstr "Contáctanos"
+
+msgid "Create Account"
+msgstr "Crear cuenta"
+
+msgid "Dashboard"
+msgstr "Panel"
+
+msgid "day"
+msgstr "día"
+
+msgid "Discover Your Next Adventure"
+msgstr "Descubre tu próxima aventura"
+
+msgid "%d results found"
+msgstr "%d resultados encontrados"
+
+msgid "Explore curated accommodations, tours, and travel experiences from trusted local agencies."
+msgstr "Explora alojamientos, tours y experiencias de viaje seleccionados de agencias locales de confianza."
+
+msgid "Favorites"
+msgstr "Favoritos"
+
+msgid "Featured Services"
+msgstr "Servicios destacados"
+
+msgid "Footer Column 1"
+msgstr "Columna de pie 1"
+
+msgid "Footer Column 2"
+msgstr "Columna de pie 2"
+
+msgid "Footer Column 3"
+msgstr "Columna de pie 3"
+
+msgid "Footer Menu"
+msgstr "Menú de pie de página"
+
+msgid "For Agencies"
+msgstr "Para agencias"
+
+msgid "Go Home"
+msgstr "Ir al inicio"
+
+msgid "half day"
+msgstr "medio día"
+
+msgid "Hand-picked experiences our top agencies recommend"
+msgstr "Experiencias seleccionadas que recomiendan nuestras mejores agencias"
+
+msgid "Help Center"
+msgstr "Centro de ayuda"
+
+msgid "Hosted by"
+msgstr "Operado por"
+
+msgid "Hotels & Stays"
+msgstr "Hoteles y alojamientos"
+
+msgid "House Rules"
+msgstr "Normas de la casa"
+
+msgid "Join as Agency"
+msgstr "Únete como agencia"
+
+msgid "Join our community of travelers and discover amazing experiences curated by local experts."
+msgstr "Únete a nuestra comunidad de viajeros y descubre experiencias increíbles seleccionadas por expertos locales."
+
+msgid "Log In"
+msgstr "Iniciar sesión"
+
+msgid "Log Out"
+msgstr "Cerrar sesión"
+
+msgid "Menu"
+msgstr "Menú"
+
+msgid "Min %d nights"
+msgstr "Mínimo %d noches"
+
+msgid "More"
+msgstr "Más"
+
+msgid "More menu"
+msgstr "Más opciones del menú"
+
+msgid "night"
+msgstr "noche"
+
+msgid "Nights"
+msgstr "Noches"
+
+msgid "No results found. Try different keywords."
+msgstr "No se encontraron resultados. Prueba con otras palabras clave."
+
+msgid "No results found. Try different search terms."
+msgstr "No se encontraron resultados. Prueba con otros términos de búsqueda."
+
+msgid "Page Not Found"
+msgstr "Página no encontrada"
+
+msgid "passengers"
+msgstr "pasajeros"
+
+msgid "per adult"
+msgstr "por adulto"
+
+msgid "per day"
+msgstr "por día"
+
+msgid "per person"
+msgstr "por persona"
+
+msgid "person"
+msgstr "persona"
+
+msgid "Please select a room type"
+msgstr "Selecciona un tipo de habitación"
+
+msgid "Policies"
+msgstr "Políticas"
+
+msgid "Primary Menu"
+msgstr "Menú principal"
+
+msgid "Privacy Policy"
+msgstr "Política de privacidad"
+
+msgid "Processing..."
+msgstr "Procesando..."
+
+msgid "Ready to Start Your Journey?"
+msgstr "¿Listo para comenzar tu viaje?"
+
+msgid "Reviews"
+msgstr "Reseñas"
+
+msgid "Review title"
+msgstr "Título de la reseña"
+
+msgid "Room:"
+msgstr "Habitación:"
+
+msgid "Search destinations, tours, accommodations..."
+msgstr "Busca destinos, tours y alojamientos..."
+
+msgid "Search Results"
+msgstr "Resultados de búsqueda"
+
+msgid "Search Results for: %s"
+msgstr "Resultados de búsqueda para: %s"
+
+msgid "Select"
+msgstr "Seleccionar"
+
+msgid "Select dates & room"
+msgstr "Selecciona fechas y habitación"
+
+msgid "Services"
+msgstr "Servicios"
+
+msgid "Sign Up"
+msgstr "Regístrate"
+
+msgid "Sold out"
+msgstr "Agotado"
+
+msgid "Submit Review"
+msgstr "Enviar reseña"
+
+msgid "Summarize your experience"
+msgstr "Resume tu experiencia"
+
+msgid "Support"
+msgstr "Soporte"
+
+msgid "Tell others about your experience..."
+msgstr "Comparte tu experiencia con otros..."
+
+msgid "Terms of Service"
+msgstr "Términos del servicio"
+
+msgid "The page you are looking for might have been removed or is temporarily unavailable."
+msgstr "La página que buscas puede haber sido eliminada o no estar disponible temporalmente."
+
+msgid "Toggle search"
+msgstr "Alternar búsqueda"
+
+msgid "Toggle submenu"
+msgstr "Alternar submenú"
+
+msgid "Top Agencies"
+msgstr "Principales agencias"
+
+msgid "Transfers"
+msgstr "Traslados"
+
+msgid "Transport"
+msgstr "Transporte"
+
+msgid "Unavailable"
+msgstr "No disponible"
+
+msgid "Up to %d guests"
+msgstr "Hasta %d huéspedes"
+
+msgid "What are you looking for?"
+msgstr "¿Qué estás buscando?"
+
+msgid "Write a Review"
+msgstr "Escribir una reseña"
+
+msgid "Your rating"
+msgstr "Tu calificación"
+
+msgid "Your review"
+msgstr "Tu reseña"
+
+msgid "Your trusted multi-agency travel platform. Discover, compare, and book the best travel experiences from verified local agencies."
+msgstr "Tu plataforma de viajes multiagencia de confianza. Descubre, compara y reserva las mejores experiencias de viaje de agencias locales verificadas."
+
+msgid "results found"
+msgstr "resultados encontrados"
+
+msgid "No results found"
+msgstr "No se encontraron resultados"
+
+msgid "Review submitted"
+msgstr "Reseña enviada"
+
+msgid "Image gallery"
+msgstr "Galería de imágenes"
+
+msgid "Close image gallery"
+msgstr "Cerrar galería de imágenes"
+
+msgid "Previous image"
+msgstr "Imagen anterior"
+
+msgid "Next image"
+msgstr "Imagen siguiente"

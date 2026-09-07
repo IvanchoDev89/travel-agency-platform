@@ -26,11 +26,11 @@ $price_meta = [
     'tap_package'    => '_tap_pkg_price',
 ];
 $unit_label = [
-    'tap_tour'       => __('per adult', 'travel-agency-theme'),
+    'tap_tour'       => __('per adult', 'travel-agency-platform'),
     'tap_transport'  => '',
-    'tap_car_rental' => __('per day', 'travel-agency-theme'),
+    'tap_car_rental' => __('per day', 'travel-agency-platform'),
     'tap_boat'       => '',
-    'tap_package'    => __('per person', 'travel-agency-theme'),
+    'tap_package'    => __('per person', 'travel-agency-platform'),
 ];
 
 $price_key = $price_meta[$pt] ?? '';
@@ -47,7 +47,7 @@ $needs_out = 'tap_car_rental' === $pt;
 $needs_guests = in_array($pt, ['tap_tour', 'tap_package'], true);
 $needs_date = in_array($pt, ['tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat'], true);
 
-$badge = $agency ? __('Verificada', 'travel-agency-theme') : '';
+$badge = $agency ? __('Verificada', 'travel-agency-platform') : '';
 ?>
 
 <div class="tap-page-header">
@@ -56,10 +56,10 @@ $badge = $agency ? __('Verificada', 'travel-agency-theme') : '';
             <span class="tap-badge tap-badge-primary"><?php echo esc_html($type_label); ?></span>
             <h1><?php the_title(); ?> <?php echo tap_fav_button($id, 'tap-fav-hero'); ?></h1>
             <?php if ($agency): ?>
-                <p class="tap-agency-meta"><?php esc_html_e('Operada por', 'travel-agency-theme'); ?>
+                <p class="tap-agency-meta"><?php esc_html_e('Operada por', 'travel-agency-platform'); ?>
                     <a href="<?php echo esc_url(home_url('/agency-profile/?id=' . $agency->ID)); ?>"><strong><?php echo esc_html($agency->post_title); ?></strong></a>
                     <?php if ('1' === get_post_meta($agency->ID, '_tap_agency_verified', true)): ?>
-                        <span class="tap-verified-badge" title="<?php esc_attr_e('Verified agency', 'travel-agency-theme'); ?>">&#10003;</span>
+                        <span class="tap-verified-badge" title="<?php esc_attr_e('Verified agency', 'travel-agency-platform'); ?>">&#10003;</span>
                     <?php endif; ?>
                 </p>
             <?php endif; ?>
@@ -77,32 +77,32 @@ $badge = $agency ? __('Verificada', 'travel-agency-theme') : '';
       <?php endif; ?>
 
       <div class="tap-acc-content">
-        <h2><?php esc_html_e('About this service', 'travel-agency-theme'); ?></h2>
+        <h2><?php esc_html_e('About this service', 'travel-agency-platform'); ?></h2>
         <div class="tap-acc-description">
           <?php the_content(); ?>
         </div>
         <?php
         $specs = [];
         if ('tap_tour' === $pt) {
-            foreach (['_tap_tour_duration' => __('Duración', 'travel-agency-theme'), '_tap_tour_departure_city' => __('Salida', 'travel-agency-theme'), '_tap_tour_meeting_point' => __('Punto de encuentro', 'travel-agency-theme')] as $k => $l) {
+            foreach (['_tap_tour_duration' => __('Duración', 'travel-agency-platform'), '_tap_tour_departure_city' => __('Salida', 'travel-agency-platform'), '_tap_tour_meeting_point' => __('Punto de encuentro', 'travel-agency-platform')] as $k => $l) {
                 $v = get_post_meta($id, $k, true);
                 if ($v) $specs[] = [$l, $v];
             }
         }
         if ('tap_transport' === $pt) {
-            foreach (['_tap_trans_from' => __('Desde', 'travel-agency-theme'), '_tap_trans_to' => __('Hasta', 'travel-agency-theme'), '_tap_trans_vehicle' => __('Vehículo', 'travel-agency-theme')] as $k => $l) {
+            foreach (['_tap_trans_from' => __('Desde', 'travel-agency-platform'), '_tap_trans_to' => __('Hasta', 'travel-agency-platform'), '_tap_trans_vehicle' => __('Vehículo', 'travel-agency-platform')] as $k => $l) {
                 $v = get_post_meta($id, $k, true);
                 if ($v) $specs[] = [$l, $v];
             }
         }
         if ('tap_car_rental' === $pt) {
-            foreach (['_tap_car_type' => __('Tipo', 'travel-agency-theme'), '_tap_car_transmission' => __('Transmisión', 'travel-agency-theme'), '_tap_car_seats' => __('Asientos', 'travel-agency-theme')] as $k => $l) {
+            foreach (['_tap_car_type' => __('Tipo', 'travel-agency-platform'), '_tap_car_transmission' => __('Transmisión', 'travel-agency-platform'), '_tap_car_seats' => __('Asientos', 'travel-agency-platform')] as $k => $l) {
                 $v = get_post_meta($id, $k, true);
                 if ($v) $specs[] = [$l, $v];
             }
         }
         if ('tap_boat' === $pt) {
-            foreach (['_tap_boat_capacity' => __('Capacidad', 'travel-agency-theme'), '_tap_boat_route' => __('Ruta', 'travel-agency-theme')] as $k => $l) {
+            foreach (['_tap_boat_capacity' => __('Capacidad', 'travel-agency-platform'), '_tap_boat_route' => __('Ruta', 'travel-agency-platform')] as $k => $l) {
                 $v = get_post_meta($id, $k, true);
                 if ($v) $specs[] = [$l, $v];
             }
@@ -138,12 +138,12 @@ $badge = $agency ? __('Verificada', 'travel-agency-theme') : '';
             <?php if ($needs_date): ?>
             <div class="tap-bw-dates <?php echo $needs_out ? '' : 'tap-bw-single'; ?>">
               <div class="tap-bw-field">
-                <label><?php echo 'tap_car_rental' === $pt ? __('Recogida', 'travel-agency-theme') : __('Fecha', 'travel-agency-theme'); ?></label>
+                <label><?php echo 'tap_car_rental' === $pt ? __('Recogida', 'travel-agency-platform') : __('Fecha', 'travel-agency-platform'); ?></label>
                 <input type="date" name="check_in" id="bw-check-in" class="tap-input" min="<?php echo esc_attr(date('Y-m-d')); ?>">
               </div>
               <?php if ($needs_out): ?>
               <div class="tap-bw-field">
-                <label><?php esc_html_e('Devolución', 'travel-agency-theme'); ?></label>
+                <label><?php esc_html_e('Devolución', 'travel-agency-platform'); ?></label>
                 <input type="date" name="check_out" id="bw-check-out" class="tap-input" min="<?php echo esc_attr(date('Y-m-d', strtotime('+1 day'))); ?>">
               </div>
               <?php endif; ?>
@@ -153,11 +153,11 @@ $badge = $agency ? __('Verificada', 'travel-agency-theme') : '';
             <?php if ($needs_guests): ?>
             <div class="tap-bw-guests">
               <div class="tap-bw-field">
-                <label><?php esc_html_e('Adults', 'travel-agency-theme'); ?></label>
+                <label><?php esc_html_e('Adults', 'travel-agency-platform'); ?></label>
                 <input type="number" name="adults" id="bw-adults" class="tap-input" value="1" min="1" max="20">
               </div>
               <div class="tap-bw-field">
-                <label><?php esc_html_e('Children', 'travel-agency-theme'); ?></label>
+                <label><?php esc_html_e('Children', 'travel-agency-platform'); ?></label>
                 <input type="number" name="children" id="bw-children" class="tap-input" value="0" min="0" max="10">
               </div>
             </div>
@@ -165,26 +165,26 @@ $badge = $agency ? __('Verificada', 'travel-agency-theme') : '';
 
             <div class="tap-bw-guests tap-bw-guest-data">
               <div class="tap-bw-field tap-bw-field-full">
-                <label><?php esc_html_e('Nombre del huésped principal', 'travel-agency-theme'); ?></label>
-                <input type="text" name="guest_name" id="bw-guest-name" class="tap-input" autocomplete="name" placeholder="<?php esc_attr_e('Tu nombre', 'travel-agency-theme'); ?>" value="<?php echo esc_attr(wp_get_current_user()->display_name ?? ''); ?>">
+                <label><?php esc_html_e('Nombre del huésped principal', 'travel-agency-platform'); ?></label>
+                <input type="text" name="guest_name" id="bw-guest-name" class="tap-input" autocomplete="name" placeholder="<?php esc_attr_e('Tu nombre', 'travel-agency-platform'); ?>" value="<?php echo esc_attr(wp_get_current_user()->display_name ?? ''); ?>">
               </div>
               <div class="tap-bw-field">
-                <label><?php esc_html_e('Email de contacto', 'travel-agency-theme'); ?></label>
+                <label><?php esc_html_e('Email de contacto', 'travel-agency-platform'); ?></label>
                 <input type="email" name="guest_email" id="bw-guest-email" class="tap-input" autocomplete="email" value="<?php echo esc_attr(wp_get_current_user()->user_email ?? ''); ?>">
               </div>
               <div class="tap-bw-field">
-                <label><?php esc_html_e('Teléfono', 'travel-agency-theme'); ?></label>
-                <input type="tel" name="guest_phone" id="bw-guest-phone" class="tap-input" autocomplete="tel" placeholder="<?php esc_attr_e('Opcional', 'travel-agency-theme'); ?>">
+                <label><?php esc_html_e('Teléfono', 'travel-agency-platform'); ?></label>
+                <input type="tel" name="guest_phone" id="bw-guest-phone" class="tap-input" autocomplete="tel" placeholder="<?php esc_attr_e('Opcional', 'travel-agency-platform'); ?>">
               </div>
             </div>
 
             <div class="tap-bw-total" id="bw-total" style="display:none;">
               <div class="tap-bw-total-row tap-bw-fee-row" id="bw-fee" style="display:none;">
-                <span><?php esc_html_e('Tarifa de servicio', 'travel-agency-theme'); ?></span>
+                <span><?php esc_html_e('Tarifa de servicio', 'travel-agency-platform'); ?></span>
                 <span id="bw-fee-amount">$0</span>
               </div>
               <div class="tap-bw-total-row tap-bw-total-final">
-                <span><?php esc_html_e('Total', 'travel-agency-theme'); ?></span>
+                <span><?php esc_html_e('Total', 'travel-agency-platform'); ?></span>
                 <span id="bw-total-amount">$0</span>
               </div>
               <div class="tap-capacity-note" id="bw-capacity" style="display:none;"></div>
@@ -192,13 +192,13 @@ $badge = $agency ? __('Verificada', 'travel-agency-theme') : '';
 
             <div class="tap-bw-actions">
               <button type="submit" class="tap-btn tap-btn-primary tap-btn-block" id="bw-submit" disabled>
-                <?php esc_html_e('Book Now', 'travel-agency-theme'); ?>
+                <?php esc_html_e('Book Now', 'travel-agency-platform'); ?>
               </button>
             </div>
           </form>
 
           <div class="tap-bw-footer">
-            <p><?php esc_html_e('You won\'t be charged yet', 'travel-agency-theme'); ?></p>
+            <p><?php esc_html_e('You won\'t be charged yet', 'travel-agency-platform'); ?></p>
           </div>
         </div>
         <?php if ($agency): ?>
@@ -211,6 +211,7 @@ $badge = $agency ? __('Verificada', 'travel-agency-theme') : '';
 
 <script>
 jQuery(document).ready(function($) {
+  var tapI18n = window.tapI18n || {};
   var tapSym = tap_ajax.currency_symbol + ' ';
   var tapDecimals = parseInt(tap_ajax.currency_decimals || '2', 10);
   var tapFull = false;
@@ -251,10 +252,10 @@ jQuery(document).ready(function($) {
         if (res.data.capacity) {
           var cap = res.data.capacity;
           if (cap.remaining > 0) {
-            $('#bw-capacity').show().removeClass('tap-full').text('Cupos disponibles: ' + cap.remaining + ' de ' + cap.capacity);
+            $('#bw-capacity').show().removeClass('tap-full').text((tapI18n.capacityAvailable || 'Cupos disponibles: %s de %s').replace('%s', cap.remaining).replace('%s', cap.capacity));
           } else {
             tapFull = true;
-            $('#bw-capacity').show().addClass('tap-full').text('Cupo completo para esta fecha (' + cap.capacity + '/' + cap.capacity + '). Elige otra fecha.');
+            $('#bw-capacity').show().addClass('tap-full').text((tapI18n.capacityFull || 'Cupo completo para esta fecha (%s/%s). Elige otra fecha.').replace('%s', cap.capacity).replace('%s', cap.capacity));
           }
         }
         checkFormReady();
@@ -272,7 +273,7 @@ jQuery(document).ready(function($) {
     e.preventDefault();
     var $btn = $('#bw-submit');
     if (tapFull) {
-      alert('<?php echo esc_js(__('El tour está completo para esta fecha.', 'travel-agency-theme')); ?>');
+      alert('<?php echo esc_js(__('El tour está completo para esta fecha.', 'travel-agency-platform')); ?>');
       return;
     }
     $btn.prop('disabled', true).text('...');
@@ -292,12 +293,12 @@ jQuery(document).ready(function($) {
       if (res && res.success && res.data.booking_code) {
         window.location.href = '<?php echo esc_url(home_url('/checkout')); ?>?code=' + res.data.booking_code;
       } else {
-        $btn.prop('disabled', false).text('<?php echo esc_js(__('Book Now', 'travel-agency-theme')); ?>');
-        alert(res && res.data && res.data.message ? res.data.message : '<?php echo esc_js(__('Error', 'travel-agency-theme')); ?>');
+        $btn.prop('disabled', false).text('<?php echo esc_js(__('Book Now', 'travel-agency-platform')); ?>');
+        alert(res && res.data && res.data.message ? res.data.message : '<?php echo esc_js(__('Error', 'travel-agency-platform')); ?>');
       }
     }).fail(function() {
-      $btn.prop('disabled', false).text('<?php echo esc_js(__('Book Now', 'travel-agency-theme')); ?>');
-      alert('<?php echo esc_js(__('Error', 'travel-agency-theme')); ?>');
+      $btn.prop('disabled', false).text('<?php echo esc_js(__('Book Now', 'travel-agency-platform')); ?>');
+      alert('<?php echo esc_js(__('Error', 'travel-agency-platform')); ?>');
     });
   });
 });

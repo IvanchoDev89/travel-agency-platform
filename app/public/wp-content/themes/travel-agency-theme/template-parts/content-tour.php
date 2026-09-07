@@ -10,9 +10,9 @@
         <?php echo tap_card_rating(get_the_ID(), 'tap_tour'); ?>
         <?php $price = get_post_meta(get_the_ID(), '_tap_tour_price_adult', true); ?>
         <?php $duration = get_post_meta(get_the_ID(), '_tap_tour_duration', true); ?>
-        <?php if ($price): ?><p class="tap-price"><?php echo esc_html(TAP_Currency::fmt(floatval($price))); ?> / <?php _e('person', 'travel-agency-theme'); ?></p><?php endif; ?>
+        <?php if ($price): ?><p class="tap-price"><?php echo esc_html(TAP_Currency::fmt(floatval($price))); ?> / <?php _e('person', 'travel-agency-platform'); ?></p><?php endif; ?>
         <?php if ($duration): ?><p class="tap-duration"><?php echo esc_html($duration); ?></p><?php endif; ?>
         <p><?php echo wp_trim_words(get_the_excerpt(), 20); ?></p>
-        <a href="<?php the_permalink(); ?>" class="tap-btn tap-btn-outline"><?php _e('View Details', 'travel-agency-theme'); ?></a>
+        <a href="<?php the_permalink(); ?>" class="tap-btn tap-btn-outline"><?php _e('View Details', 'travel-agency-platform'); ?></a>
     </div>
 </article>

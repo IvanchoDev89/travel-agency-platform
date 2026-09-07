@@ -12,8 +12,8 @@
         <?php $brand = get_post_meta(get_the_ID(), '_tap_car_brand', true); ?>
         <?php $model = get_post_meta(get_the_ID(), '_tap_car_model', true); ?>
         <?php if ($brand && $model): ?><p><?php echo esc_html($brand . ' ' . $model); ?></p><?php endif; ?>
-        <?php if ($price): ?><p class="tap-price"><?php echo esc_html(TAP_Currency::fmt(floatval($price))); ?> / <?php _e('day', 'travel-agency-theme'); ?></p><?php endif; ?>
+        <?php if ($price): ?><p class="tap-price"><?php echo esc_html(TAP_Currency::fmt(floatval($price))); ?> / <?php _e('day', 'travel-agency-platform'); ?></p><?php endif; ?>
         <p><?php echo wp_trim_words(get_the_excerpt(), 20); ?></p>
-        <a href="<?php the_permalink(); ?>" class="tap-btn tap-btn-outline"><?php _e('View Details', 'travel-agency-theme'); ?></a>
+        <a href="<?php the_permalink(); ?>" class="tap-btn tap-btn-outline"><?php _e('View Details', 'travel-agency-platform'); ?></a>
     </div>
 </article>

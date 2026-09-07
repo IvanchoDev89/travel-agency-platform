@@ -8,13 +8,13 @@
             $post_type = '';
         }
         $type_labels = [
-            'tap_accommodation' => __('Accommodations', 'travel-agency-theme'),
-            'tap_tour'          => __('Tours', 'travel-agency-theme'),
-            'tap_transport'     => __('Transports', 'travel-agency-theme'),
-            'tap_car_rental'    => __('Car Rentals', 'travel-agency-theme'),
-            'tap_boat'          => __('Boats', 'travel-agency-theme'),
-            'tap_package'       => __('Packages', 'travel-agency-theme'),
-            'tap_agency'        => __('Agencies', 'travel-agency-theme'),
+            'tap_accommodation' => __('Accommodations', 'travel-agency-platform'),
+            'tap_tour'          => __('Tours', 'travel-agency-platform'),
+            'tap_transport'     => __('Transports', 'travel-agency-platform'),
+            'tap_car_rental'    => __('Car Rentals', 'travel-agency-platform'),
+            'tap_boat'          => __('Boats', 'travel-agency-platform'),
+            'tap_package'       => __('Packages', 'travel-agency-platform'),
+            'tap_agency'        => __('Agencies', 'travel-agency-platform'),
         ];
         $title = isset($type_labels[$post_type]) ? $type_labels[$post_type] : get_the_archive_title();
         ?>

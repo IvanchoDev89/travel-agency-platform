@@ -13,6 +13,6 @@
         <?php if ($price): ?><p class="tap-price"><?php echo esc_html(TAP_Currency::fmt(floatval($price))); ?></p><?php endif; ?>
         <?php if ($duration): ?><p class="tap-duration"><?php echo esc_html($duration); ?></p><?php endif; ?>
         <p><?php echo wp_trim_words(get_the_excerpt(), 20); ?></p>
-        <a href="<?php the_permalink(); ?>" class="tap-btn tap-btn-outline"><?php _e('View Details', 'travel-agency-theme'); ?></a>
+        <a href="<?php the_permalink(); ?>" class="tap-btn tap-btn-outline"><?php _e('View Details', 'travel-agency-platform'); ?></a>
     </div>
 </article>

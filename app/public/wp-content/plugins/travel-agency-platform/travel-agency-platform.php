@@ -173,6 +173,33 @@ final class TravelAgencyPlatform {
             'is_logged_in' => is_user_logged_in() ? '1' : '0',
             'login_url' => wp_login_url(),
         ]);
+
+        wp_localize_script('tap-public', 'tapI18n', [
+            'resultsFound'   => __('results found', 'travel-agency-platform'),
+            'noResults'      => __('No results found', 'travel-agency-platform'),
+            'favAdded'       => __('Guardado en favoritos', 'travel-agency-platform'),
+            'favRemoved'     => __('Quitado de favoritos', 'travel-agency-platform'),
+            'reviewsEmpty'   => __('Aún no hay reseñas.', 'travel-agency-platform'),
+            'reviewsEmptyShare' => __('Aún no hay reseñas. Sé el primero en compartir tu experiencia.', 'travel-agency-platform'),
+            'reviewOne'      => __('reseña', 'travel-agency-platform'),
+            'reviewMany'     => __('reseñas', 'travel-agency-platform'),
+            'anonymous'      => __('Anónimo', 'travel-agency-platform'),
+            'reviewsSending' => __('Enviando...', 'travel-agency-platform'),
+            'reviewsSent'    => __('¡Reseña enviada! Pendiente de aprobación.', 'travel-agency-platform'),
+            'reviewsError'   => __('Error al enviar', 'travel-agency-platform'),
+            'reviewSubmitted'=> __('Review submitted', 'travel-agency-platform'),
+            'reviewError2'   => __('Error al enviar la reseña', 'travel-agency-platform'),
+            'reviewThanks'   => __('Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!', 'travel-agency-platform'),
+            'capacityAvailable' => __('Cupos disponibles: %s de %s', 'travel-agency-platform'),
+            'capacityFull'   => __('Cupo completo para esta fecha (%s/%s). Elige otra fecha.', 'travel-agency-platform'),
+            'tourFull'       => __('El tour está completo para esta fecha.', 'travel-agency-platform'),
+            'bookNow'        => __('Book Now', 'travel-agency-platform'),
+            'errorGeneric'   => __('Error', 'travel-agency-platform'),
+            'galleryLabel'   => __('Image gallery', 'travel-agency-platform'),
+            'closeLabel'     => __('Close image gallery', 'travel-agency-platform'),
+            'prevLabel'      => __('Previous image', 'travel-agency-platform'),
+            'nextLabel'      => __('Next image', 'travel-agency-platform'),
+        ]);
     }
 
     public function enqueue_admin_assets($hook) {

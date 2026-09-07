@@ -1313,3 +1313,19 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 
 .tap-acc-gallery:has(> img:only-of-type) { display: block; }
 .tap-acc-gallery > img { width: 100%; height: 100%; min-height: 380px; object-fit: cover; }
+
+/* ===== Theme UI surfaces (Lote 5: reduced motion / a11y) ===== */
+@media (prefers-reduced-motion: reduce) {
+    .tap-section,
+    .tap-category-card,
+    .tap-acc-gallery img,
+    .tap-reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+    html {
+        scroll-behavior: auto;
+    }
+}
+.tap-lightbox-overlay[aria-hidden="true"] { visibility: hidden; }
