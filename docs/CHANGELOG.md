@@ -10,6 +10,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ### Added
 
+- **UI/UX audit batch 6 — responsive polish & full-audit sign-off**:
+  - `[tap_search]` box: search fields stretch full width on ≤768px (were previously right-aligned in column mode); submit button full width on mobile.
+  - Tables: `.tap-table-scroll` gets iOS momentum scrolling; cells compact + `white-space: nowrap` on ≤480px so wide booking/dashboard tables scroll cleanly.
+  - Agency public profile: header stacks (logo above info) at ≤640px; archive sidebar filters collapse to a single column on tablets.
+  - Hero autocomplete suggestions clamp height on short/small screens; availability calendar gains horizontal overflow protection.
+  - Verified end-to-end: ES homepage and search-results render only translated strings; `?lang=en` renders English and sets the `tap_lang` cookie. Audit lots 1–6 complete with both installs green (battery 18/18) and 0 residue.
+
 - **UI/UX audit batch 5 — visible i18n & technical a11y**:
   - **Theme strings now translate** (139 msgids across 20 theme templates): theme textdomain migrated to `travel-agency-platform`; 133 new catalog entries added (ES→EN and EN→ES) so ES mode shows Spanish and EN mode (`?lang=en`) shows English for hero, search, results, 404, booking widget, filters and type labels.
   - **Front-end JS strings externalized** via a new `tapI18n` global (localized on the `tap-public` handle): favorites toasts, review list/form messages, placeholder counts (`reseña`/`reseñas`), booking-capacity messages, and lightbox ARIA labels. Theme inline scripts (`service-reviews.php`, `single-service.php`) consume `window.tapI18n` instead of hardcoded ES.

@@ -1329,3 +1329,23 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
     }
 }
 .tap-lightbox-overlay[aria-hidden="true"] { visibility: hidden; }
+
+/* ===== Responsive polish (Lote 6) ===== */
+.tap-table-scroll { -webkit-overflow-scrolling: touch; }
+
+@media (max-width: 768px) {
+  .tap-search-box .tap-search-fields { align-items: stretch; }
+  .tap-search-box .tap-search-field { width: 100%; }
+  .tap-search-box .tap-search-field .tap-btn { width: 100%; }
+}
+
+@media (max-width: 640px) {
+  .tap-agency-detail .tap-agency-header { flex-direction: column; align-items: flex-start; }
+  .tap-archive-sidebar form { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .tap-hs-suggestions { max-height: 260px; }
+  .tap-avcal-wrap { overflow-x: auto; }
+  .tap-table th, .tap-table td { padding: var(--tap-space-2) var(--tap-space-3); white-space: nowrap; }
+}
