@@ -470,8 +470,28 @@ Registered in `TAP_Shortcodes::init()`.
 | `[tap_plans]` | Subscription plans (renders plan cards + subscribe buttons). |
 | `[tap_search_results]` | Renders filtered results (reads `keyword`/`type`/`location` GET params) featured-first, cut into cards; used on the `search-results` page with `[tap_search]`. |
 | `[tap_lead_form]` | Contact form for an agency (profile page or service detail); posts to the `tap_lead_submit` AJAX endpoint. |
+| `[tap_chatbot]` | Fase 4 support-chat widget: toggleable dialog with bilingual assistant, quick-question chips, and an input that posts to `tap_chatbot_message` (rate-limited). |
 
 > The **search-results** page should contain `[tap_search]` followed by `[tap_search_results]`. Search is a GET to the page; the form's destination field has an autocomplete wired to `tap_search_suggestions` (shared with the hero `#hs-destino`).
+
+### Fase 4 — Chatbot (`TAP_Chatbot`)
+
+Deterministic, multilingual (ES/EN) rules engine in `includes/class-chatbot.php`, **no external LLM**. Extensible via the `tap_chatbot_provider` filter (not yet hooked by default).
+
+- `TAP_Chatbot::answer($message)` → `{intent, reply, links[], suggestions[]}`. Matching is accent-insensitive (manual `strtr` strip, no intl dependency), lowercase, punctuation-stripped; each intent defines weighted regex patterns and the highest-scoring intent wins (`fallback` otherwise). Replies + link labels are English msgids of the `travel-agency-platform` domain, so the front-end locale renders them in Spanish or `?lang=en` English.
+- Intents: `greeting`, `booking`, `search`, `checkout`, `payment`, `cancel`, `agency`, `favorites`, `contact`, `availability`, `pricing`, `recommend` (lists up to 3 recent published services, excluding `tap_room`), `fallback`.
+- Endpoints: `wp_ajax_(nopriv_)tap_chatbot_message` (`TAP_Ajax::chatbot_message`) — nonce `tap_nonce`, per-IP rate limit (12 msgs / 10 min via transient), empty-message guard. Sends the response in the front-end language because replies are translated by `__()` at render time.
+- Logging: `{prefix}tap_chat_events` stores only `intent`, `lang`, `created_at` aggregates (no PII; `fallback` is never logged).
+- Widget: `[tap_chatbot]` renders `.tap-chat` markup (bufferized return), styled in `assets/css/public.css`, wired in `assets/js/public.js` (`Chat` module: toggle, focus management, chips, AJAX send with DOM-safe rendering — no user input flows through `innerHTML`). UI labels live in the `tapI18n` bundle (`chatLabel`, `chatOpen`, `chatPlaceholder`, `chatSend`, `chatIntro`, `chatThinking`, `chatError`).
+
+### Fase 4 — Moderation (`TAP_Moderation`)
+
+In `includes/class-moderation.php`. `TAP_Moderation::assess($text, $kind)` classifies every visitor-generated item as `ok` / `review` / `block` with a short reason code (`abuse|pii|spam|links|gibberish`):
+
+- **Reviews** (`tap/v1/review`, `TAP_API::submit_review`): abuse / personal data / spam / 3+ URLs → HTTP 400 `review_blocked` (nothing stored); 1–2 URLs → stored `mod_status=review` (still hidden: `is_approved=0`); clean → `ok`. The public message switches to *pending moderation* when flagged.
+- **Leads** (`TAP_Leads::submit`): spam → `WP_Error('lead_blocked')`; URL/PII-bearing → stored `mod_status=review`; clean → `ok`.
+- **Storage**: `mod_status varchar(20) default 'ok'` + `mod_reason varchar(50)` on `{prefix}tap_reviews` and `{prefix}tap_leads` (added in `TAP_Installer::migrate()` and in the fresh-install `CREATE TABLE`); `tap_version` tracks schema migrations.
+- **Admin queue**: `Travel Platform → Moderación` (`manage_options`, `TAP_Dashboard::moderation_page`) lists flagged rows from both tables with translated reason labels; nonce-verified actions approve (publish / clear), manual-block, or delete via `TAP_Moderation::handle_admin_actions()` on `admin_init`.
 
 ---
 
@@ -554,7 +574,7 @@ The platform monetizes through (1) **agency commissions**, (2) an optional **cli
 - **Listing views** — `TAP_Analytics` hooks `template_redirect`, and on singular service pages upserts a per-day row in `tap_listing_views` (keyed `listing_id + view_date`). A 5-minute transient per user+listing throttles writes (`tap_view_{user}_{listing}`). Totals come from `TAP_Analytics::total_views($from, $to)` and `listing_views($from, $to)`; the Analytics page derives the **Conversión vistas → reservas** KPI by dividing period bookings by period views.
 - **Contact leads** — `TAP_Leads::submit()` stores visitor messages in `tap_leads` and fires `tap_lead_created` (wired to `TAP_Emails` for the agency notification). The `[tap_lead_form]` shortcode posts to `tap_lead_submit` (nonce `tap_lead_nonce`); the agency dashboard lists leads and exports them as CSV (`tap_export_leads` admin-post).
 - **Commission book** — commissions screen (`tap-commissions`) settles either via the bulk checkbox flow (one payment row per agency) or per-booking (`tap_settle_booking` POST, nonce `tap_settle_booking`) which liquidates a single booking's commission directly. Both write `tap_commission_payments` and flip `commission_status → paid`; `tap_commission_paid` fires with `(agency_id, payment_id)`. Settlement history resolves `booking_ids` back to booking codes. The agency panel lists the last 30 commission-generating bookings with status pills.
-- **Tests** — `tests/run.sh` executes the WP-CLI suites in `tests/` against a real install. Target the travel site with `SITE=travel ./tests/run.sh` or the second site with `SITE=ivanchodev ./tests/run.sh`; override `WP_PATH`/`WP_BIN`/`SUITES` as needed. The default battery runs **17 suites** (`suite_core`, `suite_bookings`, `suite_commissions`, `suite_promotions`, `suite_views`, `suite_analytics`, `suite_payments`, `suite_guest_checkout`, `suite_leads`, `suite_booking_flow`, `suite_pricing`, `suite_paypal`, `suite_rest`, `suite_reviews`, `suite_bugs`, `suite_seo`, `suite_agency_manage`). `tests/bootstrap.php` ships shared helpers (site-agnostic service/user discovery, a PayPal `pre_http_request` mock, an in-process REST dispatcher with `tap_t_rest_error_code()` normalization, and cleanup helpers). Every suite **seeds and then deletes its own rows** — the battery is verified residue-free on both installs.
+- **Tests** — `tests/run.sh` executes the WP-CLI suites in `tests/` against a real install. Target the travel site with `SITE=travel ./tests/run.sh` or the second site with `SITE=ivanchodev ./tests/run.sh`; override `WP_PATH`/`WP_BIN`/`SUITES` as needed. The default battery runs **20 suites** (`suite_core`, `suite_bookings`, `suite_commissions`, `suite_promotions`, `suite_views`, `suite_analytics`, `suite_payments`, `suite_guest_checkout`, `suite_leads`, `suite_booking_flow`, `suite_pricing`, `suite_paypal`, `suite_rest`, `suite_reviews`, `suite_i18n`, `suite_bugs`, `suite_seo`, `suite_agency_manage`, `suite_chatbot`, `suite_moderation`). `tests/bootstrap.php` ships shared helpers (site-agnostic service/user discovery, a PayPal `pre_http_request` mock, an in-process REST dispatcher with `tap_t_rest_error_code()` normalization, and cleanup helpers). Every suite **seeds and then deletes its own rows** — the battery is verified residue-free on both installs.
 - **Adding a fee type** — extend `get_booking_fee()` and mirror the value in `calculate_booking_total` so the front-end breakdown stays consistent with the persisted booking.
 - **Adding a plan** — insert into `tap_plans` (or seed via `TAP_Installer::migrate()`); optional `commission_rate`, `listing_limit` (`-1` = unlimited), and `featured_slots` then take effect automatically.
 

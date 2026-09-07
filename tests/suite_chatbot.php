@@ -72,6 +72,21 @@ tap_t_assert($L::set_lang('es') === true, 'restore es');
 tap_t_assert($C::answer('RESERVAR')['intent'] === 'booking', 'uppercase normalized to lowercase');
 tap_t_assert($C::answer('estación') !== false, 'accented normalization does not throw');
 
+// --- [tap_chatbot] widget rendering (Fase 4 Lote C) ---
+tap_t_assert(shortcode_exists('tap_chatbot'), 'tap_chatbot shortcode registered');
+$w1 = do_shortcode('[tap_chatbot]');
+tap_t_assert(strpos($w1, 'tap-chat-panel') !== false && strpos($w1, 'role="dialog"') !== false && strpos($w1, 'aria-hidden="true"') !== false, 'chat widget skeleton rendered');
+tap_t_assert(substr_count($w1, 'class="tap-chat-chip"') === 5, '5 quick-question chips rendered');
+tap_t_assert(strpos($w1, 'Escribe tu pregunta…') !== false, 'ES placeholder rendered');
+tap_t_assert(strpos($w1, '¿Cómo reservo un alojamiento?') !== false, 'ES chip translated from msgid');
+$w2 = do_shortcode('[tap_chatbot]');
+tap_t_assert($w1 !== $w2 && strpos($w2, 'tap-chat-') !== false, 'unique widget ids across instances');
+$L = 'TAP_Localization';
+tap_t_assert($L::set_lang('en') === true, 'set_lang("en") for widget check');
+tap_t_assert(__('Asistente de viajes', 'travel-agency-platform') === 'Travel assistant', 'EN widget label translated');
+tap_t_assert(strpos(do_shortcode('[tap_chatbot]'), 'How do I book a stay?') !== false, 'EN chips rendered');
+tap_t_assert($L::set_lang('es') === true, 'restore es after widget check');
+
 // --- recommendation resolves published titles ---
 $r = $C::answer('recomiéndame');
 tap_t_assert($r['intent'] === 'recommend', 'recommend intent detected');

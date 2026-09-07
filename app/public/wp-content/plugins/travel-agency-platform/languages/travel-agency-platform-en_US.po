@@ -1107,3 +1107,27 @@ msgstr "Available spots: %s of %s"
 
 msgid "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
 msgstr "Full for this date (%s/%s). Please choose another date."
+
+msgid "Asistente de viajes"
+msgstr "Travel assistant"
+
+msgid "Abrir asistente"
+msgstr "Open assistant"
+
+msgid "Cerrar asistente"
+msgstr "Close assistant"
+
+msgid "Escribe tu pregunta…"
+msgstr "Type your question…"
+
+msgid "Enviar"
+msgstr "Send"
+
+msgid "¡Hola! Soy el asistente de viajes. Pregunta por alojamientos, tours, bonos o agencias, o toca una sugerencia."
+msgstr "Hi! I am the travel assistant. Ask about stays, tours, vouchers or agencies, or tap a suggestion."
+
+msgid "Pensando…"
+msgstr "Thinking…"
+
+msgid "Hubo un problema. Inténtalo de nuevo."
+msgstr "Something went wrong. Please try again."

@@ -10,6 +10,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ### Added
 
+- **Fase 4 — Lote C: public support-chat widget, i18n and phase close**:
+  - New `[tap_chatbot]` shortcode (`TAP_Shortcodes::chatbot`, bufferized return): self-contained collapsible `.tap-chat` block (role=dialog, `aria-hidden` panel, focus handling) with 5 translated quick-question chips, bilingual placeholder/send labels and a `tapI18n` bundle (`chatLabel`, `chatOpen`, `chatClose`, `chatPlaceholder`, `chatSend`, `chatIntro`, `chatThinking`, `chatError`).
+  - `public.js` `Chat` module: toggle + caret state, keyboard-safe send, AJAX POST to `tap_chatbot_message` (nonce), DOM-safe message rendering (no user input through `innerHTML`), thinking/error states and graceful rate-limit handling; widget CSS in `public.css` matching the audit visual language.
+  - 8 new catalog entries (EN→ES + ES→EN) validated through the `dictionaries.py` / `gen_mo.py` / `msgfmt --check` pipeline (0 missing / 0 duplicates) and shipped as `.po` + `.mo`.
+  - `suite_chatbot` widget checks: shortcode registered, skeleton (role/labels), 5 chips, ES placeholder, ES/EN chip translation, unique DOM ids across two instances. Full battery **20/20** on travel and ivanchodev, migrations on `1.4.2` in both, 0 residue.
+  - Docs closed: `USER_GUIDE` (Support chat), `DEVELOPER_GUIDE` (chatbot + moderation sections, 20-suite battery, `tap_chatbot_provider` hook), `FASE4_PLAN` marked complete.
+
 - **Fase 4 — Lote B: automatic content-moderation engine**:
   - New `TAP_Moderation` engine (`includes/class-moderation.php`): deterministic `assess($text, $kind)` scoring every piece of visitor content as `ok` / `review` / `block` — abuse vocabulary (ES/EN, accent-insensitive), privacy leaks (email/phone in reviews), spam keywords and URL bursts, and gibberish detection; no external services, reason codes stored for the admin queue.
   - **Review pipeline** (`tap/v1/review`): abusive/PII/spam/3+-link reviews are rejected with a translated `400` (`review_blocked`); single-link reviews are stored `mod_status=review` and still hidden from public reads; clean reviews land `ok`. Response message switches to "pending moderation" when flagged.

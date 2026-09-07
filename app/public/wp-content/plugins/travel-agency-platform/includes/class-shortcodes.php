@@ -20,6 +20,7 @@ class TAP_Shortcodes {
             'tap_favorites'      => [__CLASS__, 'favorites'],
             'tap_plans'         => [__CLASS__, 'plans'],
             'tap_search_results' => [__CLASS__, 'search_results'],
+            'tap_chatbot'       => [__CLASS__, 'chatbot'],
         ];
 
         foreach ($shortcodes as $tag => $callback) {
@@ -2503,6 +2504,35 @@ class TAP_Shortcodes {
                 </article>
             <?php endforeach; ?>
         </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /** Fase 4 — Support chat widget shortcode. */
+    public static function chatbot() {
+        $id = 'tap-chat-' . wp_unique_id();
+        ob_start();
+        ?>
+        <section class="tap-chat" id="<?php echo esc_attr($id); ?>" role="dialog" aria-label="<?php esc_attr_e('Asistente de viajes', 'travel-agency-platform'); ?>">
+            <header class="tap-chat-header">
+                <h2 class="tap-chat-title"><?php esc_html_e('Asistente de viajes', 'travel-agency-platform'); ?></h2>
+            </header>
+            <div class="tap-chat-panel" aria-hidden="true">
+                <div class="tap-chat-messages" aria-live="polite">
+                    <div class="tap-chat-msg tap-chat-msg--bot tap-chat-msg--intro"><?php esc_html_e('¡Hola! Soy el asistente de viajes. Pregunta por alojamientos, tours, bonos o agencias, o toca una sugerencia.', 'travel-agency-platform'); ?></div>
+                    <div class="tap-chat-chips">
+                        <?php foreach (['How do I book a stay?', 'How do I search trips?', 'How do I pay my voucher?', 'How do I cancel a booking?', 'How do I join as an agency?'] as $chip): ?>
+                            <button type="button" class="tap-chat-chip" aria-label="<?php echo esc_attr(__($chip, 'travel-agency-platform')); ?>"><?php echo esc_html__($chip, 'travel-agency-platform'); ?></button>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <form class="tap-chat-input" autocomplete="off">
+                    <label for="<?php echo esc_attr($id); ?>-input" class="screen-reader-text"><?php esc_html_e('Escribe tu pregunta…', 'travel-agency-platform'); ?></label>
+                    <input type="text" id="<?php echo esc_attr($id); ?>-input" class="tap-chat-field" placeholder="<?php esc_attr_e('Escribe tu pregunta…', 'travel-agency-platform'); ?>" required>
+                    <button type="submit" class="tap-chat-send" aria-label="<?php esc_attr_e('Enviar', 'travel-agency-platform'); ?>"><?php esc_html_e('Enviar', 'travel-agency-platform'); ?></button>
+                </form>
+            </div>
+        </section>
         <?php
         return ob_get_clean();
     }

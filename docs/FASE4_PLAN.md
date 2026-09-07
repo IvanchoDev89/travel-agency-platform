@@ -1,7 +1,6 @@
 # FASE 4 — Atención por chatbot & moderación de contenido
 
-> Estado del documento: **EN EJECUCIÓN**
-> Base: UI/UX audit cerrado (lotes 1–6, batería 18/18 en travel e ivanchodev).
+> Estado del documento: **COMPLETADA** (lotes A, B y C, batería 20/20 en travel e ivanchodev, 0 residuos, commits por lote: `2d3c9c2`, `0cdc47e`, y el commit de cierre de C).
 > Anexa a [`FASE1_PLAN.md`](FASE1_PLAN.md) (roadmap: Fase 3 multilingüe completada).
 
 ## 0. Resumen ejecutivo
@@ -38,7 +37,7 @@ plugin. Queda preparada la extensión a un proveedor LLM externo vía filtro.
 - Suite `suite_moderation`. Regresión: reseñas limpias siguen el flujo actual.
 
 ### C — Widget público, i18n y cierre
-- Shortcode `[tap_chatbot]` (launcher flotante + panel), estilos del widget en `public.css`
+- Shortcode `[tap_chatbot]` (panel plegable auto-contenido; no flotante), estilos del widget en `public.css`
   (mismo lenguaje visual del audit) y lógica en `public.js`, usando `tapI18n`.
 - Todas las cadenas del bot/widget/moderación al catálogo (ES→EN y EN→ES) con la tubería
   `dictionaries.py` + `gen_mo.py` + `msgfmt --check`.

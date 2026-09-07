@@ -130,6 +130,21 @@ After completing a service:
 
 ---
 
+## Support chat
+
+The built-in travel assistant (Fase 4) answers questions about **bookings, availability, payments, cancellations, agencies, favorites and recommendations** in Spanish or English (use the site's **EN** switcher for English).
+
+1. Open the **chat** block and click its header to expand it; five quick-question suggestions are shown.
+2. Type a question — for example *"¿cómo reservo un alojamiento?"* — and press **Enviar**.
+3. The assistant responds with a plain-language answer and links to the relevant sections (or 2–3 recommended published services for *"recomiéndame…"*).
+
+Notes:
+
+- The chat is rate-limited (12 messages per 10 minutes) to prevent abuse.
+- The assistant is offline/rule-based; for anything not covered, it invites you to use an agency's contact form, and a **Modérate**/admin keeps flagged messages under control. It never asks for or logs personal data.
+
+---
+
 # For Agencies
 
 ## Register & complete your profile

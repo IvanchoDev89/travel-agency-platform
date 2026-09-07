@@ -418,11 +418,94 @@ jQuery(document).ready(function($) {
         }
     };
 
+    /** Fase 4 — Chat widget: toggle panel, send messages, render replies + chips. */
+    var Chat = {
+        init: function() {
+            if (typeof tap_ajax === 'undefined') return;
+            $('.tap-chat').each(function() {
+                var $root = $(this).addClass('tap-chat--js').attr('aria-expanded', 'false');
+                var $panel = $root.find('.tap-chat-panel');
+                var $form  = $root.find('.tap-chat-input');
+                var $input = $root.find('.tap-chat-field');
+                var $msgs  = $root.find('.tap-chat-messages');
+                var opened = false;
+
+                function toggle(force) {
+                    opened = (typeof force === 'boolean') ? force : !opened;
+                    $panel.attr('aria-hidden', opened ? 'false' : 'true').toggleClass('is-open', opened);
+                    $root.attr('aria-expanded', opened ? 'true' : 'false').toggleClass('is-open', opened);
+                    if (opened) { setTimeout(function() { $input.trigger('focus'); }, 50); }
+                }
+
+                $root.on('click', '.tap-chat-header', function(e) {
+                    if (!$(e.target).closest('.tap-chat-input, .tap-chat-panel, .tap-chat-msg').length) {
+                        toggle();
+                    }
+                });
+
+                $root.on('click', '.tap-chat-chip', function() {
+                    Chat.send($msgs, $input, $(this).text());
+                });
+
+                $form.on('submit', function(e) {
+                    e.preventDefault();
+                    var msg = ($input.val() || '').trim();
+                    if (!msg) return;
+                    Chat.send($msgs, $input, msg);
+                });
+            });
+        },
+        send: function($msgs, $input, text) {
+            var i18n = window.tapI18n || {};
+            var $user = $('<div class="tap-chat-msg tap-chat-msg--user"></div>').text(text);
+            $msgs.append($user).scrollTop($msgs[0].scrollHeight);
+            $input.val('');
+            var $typing = $('<div class="tap-chat-msg tap-chat-msg--bot tap-chat-msg--thinking"></div>').text(i18n.chatThinking || 'Pensando…');
+            $msgs.append($typing).scrollTop($msgs[0].scrollHeight);
+            $.post(tap_ajax.ajax_url, {
+                action: 'tap_chatbot_message',
+                nonce:   tap_ajax.nonce,
+                message: text
+            }, function(res) {
+                $typing.remove();
+                if (res && res.success) {
+                    var d = res.data;
+                    var $bot = $('<div class="tap-chat-msg tap-chat-msg--bot"></div>').text(d.reply || '');
+                    $msgs.append($bot);
+                    if (Array.isArray(d.links)) {
+                        var $lnk = $('<div class="tap-chat-links"></div>');
+                        $.each(d.links, function(_, l) {
+                            $('<a class="tap-chat-link" target="_blank" rel="noopener"></a>').attr('href', l.url).text(l.label).appendTo($lnk);
+                        });
+                        if ($lnk.children().length) $msgs.append($lnk);
+                    }
+                    if (Array.isArray(d.suggestions) && d.suggestions.length) {
+                        var $chips = $('<div class="tap-chat-chips"></div>');
+                        $.each(d.suggestions, function(_, c) {
+                            $('<button type="button" class="tap-chat-chip"></button>').text(c).appendTo($chips);
+                        });
+                        $msgs.append($chips);
+                    }
+                    $msgs.scrollTop($msgs[0].scrollHeight);
+                } else {
+                    var msg = (res && res.data && res.data.message) ? res.data.message : (i18n.chatError || 'Error');
+                    $msgs.append($('<div class="tap-chat-msg tap-chat-msg--error"></div>').text(msg));
+                }
+                $input.trigger('focus');
+            }).fail(function() {
+                $typing.remove();
+                $msgs.append($('<div class="tap-chat-msg tap-chat-msg--error"></div>').text(i18n.chatError || 'Error'));
+                $input.trigger('focus');
+            });
+        }
+    };
+
     if (typeof tap_ajax !== 'undefined') {
         tap.init();
         Lightbox.init('.tap-lightbox-trigger');
         Reviews.init();
         Autocomplete.init();
         Favorites.init();
+        Chat.init();
     }
 });

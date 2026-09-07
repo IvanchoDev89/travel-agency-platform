@@ -204,6 +204,14 @@ final class TravelAgencyPlatform {
             'closeLabel'     => __('Close image gallery', 'travel-agency-platform'),
             'prevLabel'      => __('Previous image', 'travel-agency-platform'),
             'nextLabel'      => __('Next image', 'travel-agency-platform'),
+            'chatLabel'      => __('Asistente de viajes', 'travel-agency-platform'),
+            'chatOpen'       => __('Abrir asistente', 'travel-agency-platform'),
+            'chatClose'      => __('Cerrar asistente', 'travel-agency-platform'),
+            'chatPlaceholder' => __('Escribe tu pregunta…', 'travel-agency-platform'),
+            'chatSend'       => __('Enviar', 'travel-agency-platform'),
+            'chatIntro'      => __('¡Hola! Soy el asistente de viajes. Pregunta por alojamientos, tours, bonos o agencias, o toca una sugerencia.', 'travel-agency-platform'),
+            'chatThinking'   => __('Pensando…', 'travel-agency-platform'),
+            'chatError'      => __('Hubo un problema. Inténtalo de nuevo.', 'travel-agency-platform'),
         ]);
     }
 
