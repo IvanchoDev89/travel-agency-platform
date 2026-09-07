@@ -140,6 +140,16 @@ class TAP_Installer {
                 KEY date (date)
             ) $charset;",
 
+            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_chat_events (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                intent varchar(40) NOT NULL,
+                lang varchar(10) DEFAULT NULL,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY intent (intent),
+                KEY created_at (created_at)
+            ) $charset;",
+
             "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_leads (
                 id bigint(20) NOT NULL AUTO_INCREMENT,
                 agency_id bigint(20) NOT NULL,
@@ -202,6 +212,18 @@ class TAP_Installer {
                 created_at datetime DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (id),
                 KEY agency_id (agency_id)
+            ) {$wpdb->get_charset_collate()}");
+        }
+
+        if ($wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}tap_chat_events'") !== "{$wpdb->prefix}tap_chat_events") {
+            $wpdb->query("CREATE TABLE {$wpdb->prefix}tap_chat_events (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                intent varchar(40) NOT NULL,
+                lang varchar(10) DEFAULT NULL,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY intent (intent),
+                KEY created_at (created_at)
             ) {$wpdb->get_charset_collate()}");
         }
 

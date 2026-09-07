@@ -1270,4 +1270,28 @@ class TAP_Ajax {
             'favorites'  => array_map('intval', $favorites),
         ]);
     }
+
+    /** Fase 4 — Support chat: answer a visitor message (rate-limited). */
+    public static function chatbot_message() {
+        if (!wp_verify_nonce(isset($_POST['nonce']) ? (string) $_POST['nonce'] : '', 'tap_nonce')) {
+            wp_send_json_error(['message' => __('Security check failed.', 'travel-agency-platform')], 403);
+        }
+
+        $ip = isset($_SERVER['REMOTE_ADDR']) ? (string) $_SERVER['REMOTE_ADDR'] : 'cli';
+        if (TAP_Chatbot::rate_limited($ip)) {
+            wp_send_json_error(['message' => __('Too many messages. Try again in a moment.', 'travel-agency-platform')], 429);
+        }
+
+        $message = sanitize_text_field($_POST['message'] ?? '');
+        if ('' === trim($message)) {
+            wp_send_json_error(['message' => __('Type your question...', 'travel-agency-platform')], 400);
+        }
+
+        $answer = TAP_Chatbot::answer($message);
+
+        $lang = TAP_Localization::current_lang();
+        TAP_Chatbot::log_event($answer['intent'], $lang);
+
+        wp_send_json_success($answer);
+    }
 }

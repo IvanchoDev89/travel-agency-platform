@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: travel-agency-platform 1.4.0\n"
+"Project-Id-Version: travel-agency-platform 1.4.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2026-09-06 00:00+0000\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
@@ -966,3 +966,87 @@ msgstr "Imagen anterior"
 
 msgid "Next image"
 msgstr "Imagen siguiente"
+
+msgid "Welcome to the travel assistant! Ask me about booking a stay, finding tours, paying your voucher, cancelling a booking, or joining as an agency. Use one of the quick questions below."
+msgstr "¡Bienvenido al asistente de viajes! Pregunta cómo reservar alojamiento, encontrar tours, pagar tu bono, cancelar una reserva o unirte como agencia. Usa una de las preguntas rápidas de abajo."
+
+msgid "To book a stay: open the property, choose check-in and check-out dates, pick a room type (if it has rooms) and send the reservation. You can book without an account — you will get a booking code to confirm and pay. Use the search page to find options with your dates."
+msgstr "Para reservar un alojamiento: abre la propiedad, elige las fechas de entrada y salida, selecciona el tipo de habitación (si tiene) y envía la reserva. Puedes reservar sin cuenta: recibirás un código para confirmar y pagar. Usa la página de búsqueda para encontrar opciones con tus fechas."
+
+msgid "You can search the whole catalogue from the search page: type a destination, name, or service type (stays, tours, transfers, car rental, boats, packages) and refine by type, location, price, and sort order. The search box suggests destinations as you type."
+msgstr "Puedes buscar en todo el catálogo desde la página de búsqueda: escribe un destino, nombre o tipo de servicio (alojamientos, tours, traslados, alquiler de autos, barcos, paquetes) y filtra por tipo, ubicación, precio y orden. El buscador sugiere destinos mientras escribes."
+
+msgid "After booking you get a code like TAP-XXXXXXXX-XXXXXX. Open the checkout or voucher page with that code to see the total (including the service fee) and pay by card or PayPal. If you have an account, the booking also appears in My Bookings."
+msgstr "Tras reservar recibirás un código tipo TAP-XXXXXXXX-XXXXXX. Abre la página de checkout o bono con ese código para ver el total (incluye la tarifa de servicio) y paga con tarjeta o PayPal. Si tienes cuenta, la reserva también aparece en Mis reservas."
+
+msgid "We accept secure card or PayPal payments when you confirm a booking; agency plans also subscribe via PayPal. The total always includes the service fee. For refunds, check the cancellation policy of the agency (see My Bookings)."
+msgstr "Aceptamos pagos seguros con tarjeta o PayPal al confirmar una reserva; los planes de agencia también se suscriben por PayPal. El total siempre incluye la tarifa de servicio. Para reembolsos, consulta la política de cancelación de la agencia (ver Mis reservas)."
+
+msgid "To cancel: open My Bookings, open the booking and press Cancel; the agency is notified and keeps the record. Refunds depend on the agency cancellation policy. Without an account, enter your booking code on the voucher page."
+msgstr "Para cancelar: abre Mis reservas, abre la reserva y pulsa Cancelar; la agencia recibe la notificación y conserva el registro. Los reembolsos dependen de la política de cancelación de la agencia. Sin cuenta, introduce tu código en la página de bono."
+
+msgid "Agencies can join from the site: register as an agency, complete your profile (verification), and publish your own catalogue from your dashboard — stays, tours, transfers, cars, boats and packages. The free plan lets you publish; upgrade opens more listings."
+msgstr "Las agencias pueden unirse desde el sitio: regístrate como agencia, completa tu perfil (verificación) y publica tu propio catálogo desde tu panel — alojamientos, tours, traslados, autos, barcos y paquetes. El plan gratuito te permite publicar; mejorar el plan abre más anuncios."
+
+msgid "Tap the heart on any service to save it to Favorites. You need a free user account — you will be taken to log in if you are not. Your saved list lives on the Favorites page."
+msgstr "Toca el corazón de cualquier servicio para guardarlo en Favoritos. Necesitas una cuenta gratuita de usuario: si no la tienes, irás a iniciar sesión. Tu lista guardada está en la página de Favoritos."
+
+msgid "Each agency profile and service page includes a contact form; the message goes straight to the agency by email. For anything else, use the platform support channels or the language switch."
+msgstr "Cada perfil de agencia y página de servicio incluye un formulario de contacto; el mensaje llega directamente a la agencia por correo. Para cualquier otra cosa, usa los canales de soporte de la plataforma o el selector de idioma."
+
+msgid "Availability works by dates: minimum-night stays and blocked days show on the property calendar. Pick your check-in and check-out dates first — the booking widget recalculates the total and shows which room types are free."
+msgstr "La disponibilidad funciona por fechas: las estancias de mínima duración y los días bloqueados aparecen en el calendario de la propiedad. Elige primero las fechas de entrada y salida: el widget de reserva recalcula el total y muestra qué habitaciones están libres."
+
+msgid "Prices show per night (stays) or per person or adult (tours, trips) in the site currency. The final total adds the platform service fee. The booking widget updates the total live as you choose dates and guests."
+msgstr "Los precios se muestran por noche (alojamientos) o por persona o adulto (tours, salidas) en la moneda del sitio. Al total final se suma la tarifa de servicio de la plataforma. El widget de reserva actualiza el total en vivo al elegir fechas y huéspedes."
+
+msgid "Here are a few services from the platform right now:"
+msgstr "Aquí tienes algunos servicios de la plataforma en este momento:"
+
+msgid "I could not find any published services right now. Use the search page to explore the catalogue."
+msgstr "No pude encontrar servicios publicados en este momento. Usa la página de búsqueda para explorar el catálogo."
+
+msgid "I am not sure I understood that question. Try one of the quick questions below, use the search page, or contact an agency directly through a profile page."
+msgstr "No estoy seguro de haber entendido tu pregunta. Prueba una de las preguntas rápidas de abajo, usa la página de búsqueda o contacta a una agencia directamente desde su perfil."
+
+msgid "Search services"
+msgstr "Buscar servicios"
+
+msgid "My bookings"
+msgstr "Mis reservas"
+
+msgid "Voucher page"
+msgstr "Página de bono"
+
+msgid "Open the search page"
+msgstr "Abrir la página de búsqueda"
+
+msgid "Log in"
+msgstr "Iniciar sesión"
+
+msgid "Go to the site"
+msgstr "Ir al sitio"
+
+msgid "Open the dashboard"
+msgstr "Abrir el panel"
+
+msgid "How do I book a stay?"
+msgstr "¿Cómo reservo un alojamiento?"
+
+msgid "How do I search trips?"
+msgstr "¿Cómo busco salidas?"
+
+msgid "How do I pay my voucher?"
+msgstr "¿Cómo pago mi bono?"
+
+msgid "How do I cancel a booking?"
+msgstr "¿Cómo cancelo una reserva?"
+
+msgid "How do I join as an agency?"
+msgstr "¿Cómo me uno como agencia?"
+
+msgid "Too many messages. Try again in a moment."
+msgstr "Demasiados mensajes. Inténtalo de nuevo en un momento."
+
+msgid "Type your question..."
+msgstr "Escribe tu pregunta..."

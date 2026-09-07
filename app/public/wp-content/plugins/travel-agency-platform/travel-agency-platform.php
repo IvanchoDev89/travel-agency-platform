@@ -11,7 +11,7 @@
 
 defined('ABSPATH') || exit;
 
-define('TAP_VERSION', '1.4.0');
+define('TAP_VERSION', '1.4.1');
 define('TAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -44,6 +44,7 @@ final class TravelAgencyPlatform {
         require_once TAP_PLUGIN_DIR . 'includes/class-api.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-shortcodes.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-ajax.php';
+        require_once TAP_PLUGIN_DIR . 'includes/class-chatbot.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-dashboard.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-paypal.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-payment.php';
@@ -119,6 +120,8 @@ final class TravelAgencyPlatform {
         add_action('wp_ajax_tap_promo_request', ['TAP_Ajax', 'promo_request']);
         add_action('wp_ajax_tap_promo_paypal', ['TAP_Ajax', 'promo_request_paypal']);
         add_action('wp_ajax_tap_capture_promo_paypal', ['TAP_Ajax', 'capture_promo_paypal']);
+        add_action('wp_ajax_tap_chatbot_message', ['TAP_Ajax', 'chatbot_message']);
+        add_action('wp_ajax_nopriv_tap_chatbot_message', ['TAP_Ajax', 'chatbot_message']);
         add_action('init', ['TAP_Subscriptions', 'init'], 14);
         add_action('init', ['TAP_Promotions', 'init'], 15);
         add_action('init', ['TAP_Analytics', 'init'], 16);

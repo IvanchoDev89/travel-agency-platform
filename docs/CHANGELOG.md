@@ -10,6 +10,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ### Added
 
+- **Fase 4 — Lote A: support chatbot engine (IA/chatbot, back-end core)**:
+  - New `TAP_Chatbot` rules engine (`includes/class-chatbot.php`): deterministic, multilingual intent detection (ES/EN) via accent-insensitive normalization + weighted pattern scoring. Intents: greeting, booking, search, checkout/voucher, payment, cancel, agency, favorites, contact, availability, pricing, recommend (top published services) and fallback.
+  - Replies are English msgids translated through the plugin domain (Spanish descriptions); every answer returns the reply plus actionable links (search, my bookings, voucher, dashboard, login) and 5 quick-question chips in the active language.
+  - New AJAX endpoint `tap_chatbot_message` (guest + logged-in) with public nonce `tap_nonce`, per-IP rate limit (12 msgs / 10 min via transient), empty-message guard and Spanish/English error messages.
+  - New `wp_tap_chat_events` table (aggregate intent/lang/date only, no PII); installed on activation/version bump (`tap_version` 1.4.1) in `TAP_Installer` (dbDelta + `migrate()` fallback).
+  - 28 new catalog entries (bot replies, link labels, quick questions, limit/placeholder messages) committed to `es_ES`/`en_US` `.po` + `.mo` (built with `msgfmt --check`).
+  - New `suite_chatbot` (28 assertions): intent mapping ES/EN, ES/EN translation round-trip, deterministic output, accent normalization, recommend resolves live published titles, rate-limit window, chat-event logging (fallback skipped), AJAX handler + migration table presence. Both installs green on **19/19** suites, `tap_chat_events` migrated on both, 0 residue.
+
 - **UI/UX audit batch 6 — responsive polish & full-audit sign-off**:
   - `[tap_search]` box: search fields stretch full width on ≤768px (were previously right-aligned in column mode); submit button full width on mobile.
   - Tables: `.tap-table-scroll` gets iOS momentum scrolling; cells compact + `white-space: nowrap` on ≤480px so wide booking/dashboard tables scroll cleanly.
