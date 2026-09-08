@@ -42,6 +42,7 @@ list($fid, $ftype) = tap_t_find_service();
 tap_t_assert($fid > 0, 'discovered service for review moderation');
 $u1 = tap_t_make_subscriber();
 tap_t_assert($u1 > 0, 'created fixture reviewer');
+$mb1 = tap_t_seed_booking(['client_id' => $u1, 'service_type' => $ftype, 'service_id' => $fid]);
 wp_set_current_user($u1);
 $bad = tap_t_rest('POST', '/tap/v1/review', ['service_type' => $ftype, 'service_id' => $fid, 'rating' => 1, 'content' => 'Esto es una mierda de servicio']);
 tap_t_assert(tap_t_rest_error_code($bad) === 'review_blocked', 'abusive review rejected by REST (400)');
@@ -57,6 +58,7 @@ tap_t_assert($ok_row && $ok_row->mod_status === 'ok' && $ok_row->mod_reason === 
 $lnk = 'MDRL' . substr(md5(uniqid('', true)), 0, 8);
 $u2 = tap_t_make_subscriber();
 tap_t_assert($u2 > 0, 'created second fixture reviewer');
+$mb2 = tap_t_seed_booking(['client_id' => $u2, 'service_type' => $ftype, 'service_id' => $fid]);
 wp_set_current_user($u2);
 $mod = tap_t_rest('POST', '/tap/v1/review', ['service_type' => $ftype, 'service_id' => $fid, 'rating' => 4, 'content' => 'See ' . $lnk . ' here http://example.com/guide']);
 tap_t_assert(tap_t_rest_error_code($mod) === '', 'link-carrying review accepted for moderation');
@@ -125,6 +127,7 @@ $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}tap_reviews WHERE user_i
 $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}tap_leads WHERE email LIKE %s", $pref . '_%'));
 $wpdb->delete($wpdb->prefix . 'tap_agencies', ['id' => $agency_id]);
 wp_delete_post($apost, true);
+tap_t_cleanup_bookings([$mb1, $mb2]);
 wp_delete_user($u1);
 wp_delete_user($u2);
 if ($owner && !is_wp_error($owner)) {

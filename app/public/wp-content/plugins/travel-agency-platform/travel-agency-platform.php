@@ -11,7 +11,7 @@
 
 defined('ABSPATH') || exit;
 
-define('TAP_VERSION', '1.4.3');
+define('TAP_VERSION', '1.4.4');
 define('TAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -48,6 +48,7 @@ final class TravelAgencyPlatform {
         require_once TAP_PLUGIN_DIR . 'includes/class-ajax.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-chatbot.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-moderation.php';
+        require_once TAP_PLUGIN_DIR . 'includes/class-reviews.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-dashboard.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-paypal.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-payment.php';
@@ -202,6 +203,7 @@ final class TravelAgencyPlatform {
             'reviewSubmitted'=> __('Review submitted', 'travel-agency-platform'),
             'reviewError2'   => __('Error al enviar la reseña', 'travel-agency-platform'),
             'reviewThanks'   => __('Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!', 'travel-agency-platform'),
+            'reviewVerified' => __('Reseña verificada', 'travel-agency-platform'),
             'capacityAvailable' => __('Cupos disponibles: %s de %s', 'travel-agency-platform'),
             'capacityFull'   => __('Cupo completo para esta fecha (%s/%s). Elige otra fecha.', 'travel-agency-platform'),
             'tourFull'       => __('El tour está completo para esta fecha.', 'travel-agency-platform'),

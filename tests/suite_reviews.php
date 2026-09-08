@@ -19,6 +19,11 @@ $u1 = tap_t_make_subscriber();
 $u2 = tap_t_make_subscriber();
 tap_t_assert($u1 > 0 && $u2 > 0, 'created two reviewers');
 
+// Fase 5: reviews are verified — each author holds a confirmed booking.
+$b1 = tap_t_seed_booking(['client_id' => $u1, 'service_type' => $ftype, 'service_id' => $fid]);
+$b2 = tap_t_seed_booking(['client_id' => $u2, 'service_type' => $ftype, 'service_id' => $fid]);
+tap_t_assert($b1 > 0 && $b2 > 0, 'seeded confirmed bookings for reviewers');
+
 // 1) pending review is stored but hidden ------------------------------------------
 wp_set_current_user($u1);
 $r1 = tap_t_rest('POST', '/tap/v1/review', ['service_type' => $ftype, 'service_id' => $fid, 'rating' => 4.5, 'title' => 'Great trip', 'content' => 'Loved it e2e']);
@@ -73,6 +78,7 @@ tap_t_assert(!empty($rows2[0]->user_name), 'review join exposes author name');
 // cleanup -------------------------------------------------------------------------------
 $wpdb->query($wpdb->prepare("DELETE FROM $rev_table WHERE id IN (%d,%d)", $r1_id, $r2_id));
 wp_cache_delete('tap_rating_' . $ftype . '_' . $fid, 'tap_ratings');
+tap_t_cleanup_bookings([$b1, $b2]);
 wp_delete_user($u1);
 wp_delete_user($u2);
 tap_t_finish();

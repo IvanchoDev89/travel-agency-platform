@@ -816,7 +816,7 @@ class TAP_Dashboard {
                             <?php echo esc_html($r->content); ?>
                         </td>
                         <td><?php echo $service ? esc_html($service->post_title) : esc_html($r->service_type . ' #' . $r->service_id); ?></td>
-                        <td><?php echo esc_html($r->user_name); ?> <span class="description">#<?php echo (int) $r->user_id; ?></span></td>
+                        <td><?php echo esc_html($r->user_name); ?> <span class="description">#<?php echo (int) $r->user_id; ?></span><?php if ((int) $r->is_verified): ?> <span class="tap-verified-badge" title="<?php esc_attr_e('Basada en una reserva confirmada', 'travel-agency-platform'); ?>">&#10003; <?php esc_html_e('Verificada', 'travel-agency-platform'); ?></span><?php endif; ?></td>
                         <td><?php echo esc_html($r->created_at); ?></td>
                         <td>
                             <?php if (!$r->is_approved): ?>

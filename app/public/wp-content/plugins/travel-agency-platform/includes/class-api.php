@@ -378,10 +378,14 @@ class TAP_API {
     public static function get_reviews($request) {
         global $wpdb;
         $type = $request->get_param('type');
-        $id = $request->get_param('id');
+        $id = intval($request->get_param('id'));
 
         $reviews = $wpdb->get_results($wpdb->prepare(
-            "SELECT r.*, u.display_name as user_name, u.user_email
+            "SELECT r.id, r.service_type, r.service_id, r.user_id,
+                    r.rating, r.title, r.content,
+                    r.reply, r.reply_author, r.reply_at,
+                    r.is_verified, r.created_at,
+                    u.display_name as user_name
             FROM {$wpdb->prefix}tap_reviews r
             JOIN {$wpdb->users} u ON r.user_id = u.ID
             WHERE r.service_type = %s AND r.service_id = %d AND r.is_approved = 1
@@ -395,6 +399,7 @@ class TAP_API {
 
     public static function submit_review($request) {
         global $wpdb;
+        $uid = get_current_user_id();
 
         $params = $request->get_params();
         $required = ['service_type', 'service_id', 'rating', 'content'];
@@ -405,15 +410,40 @@ class TAP_API {
             }
         }
 
+        $service_type = sanitize_text_field($params['service_type']);
+        $service_id   = intval($params['service_id']);
+        $rating       = floatval($params['rating']);
+
+        // Service must exist, be reviewable and published.
+        $svc = get_post($service_id);
+        if (!in_array($service_type, TAP_Reviews::service_types(), true) || !$svc || $svc->post_type !== $service_type || 'publish' !== $svc->post_status) {
+            return new WP_Error('invalid_service', __('El servicio no está disponible para reseñar.', 'travel-agency-platform'), ['status' => 400]);
+        }
+
         $existing = $wpdb->get_var($wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->prefix}tap_reviews WHERE user_id = %d AND service_type = %s AND service_id = %d",
-            get_current_user_id(),
-            $params['service_type'],
-            $params['service_id']
+            $uid,
+            $service_type,
+            $service_id
         ));
 
         if ($existing > 0) {
             return new WP_Error('duplicate', __('You already reviewed this service', 'travel-agency-platform'), ['status' => 409]);
+        }
+
+        // Verified-only: the author must hold a confirmed or completed booking.
+        $booking_id = !empty($params['booking_id']) ? intval($params['booking_id']) : 0;
+        if ($booking_id) {
+            $booking = TAP_Reviews::match_booking($uid, $booking_id);
+            if (!$booking || (int) $booking->service_id !== $service_id || (string) $booking->service_type !== $service_type) {
+                return new WP_Error('review_not_verified', TAP_Reviews::verified_only_message(), ['status' => 403]);
+            }
+        } else {
+            $booking = TAP_Reviews::latest_booking($uid, $service_type, $service_id);
+            if (!$booking) {
+                return new WP_Error('review_not_verified', TAP_Reviews::verified_only_message(), ['status' => 403]);
+            }
+            $booking_id = (int) $booking->id;
         }
 
         $content = sanitize_textarea_field($params['content']);
@@ -426,11 +456,12 @@ class TAP_API {
         $wpdb->insert(
             $wpdb->prefix . 'tap_reviews',
             [
-                'service_type' => sanitize_text_field($params['service_type']),
-                'service_id'   => intval($params['service_id']),
-                'user_id'      => get_current_user_id(),
-                'booking_id'   => !empty($params['booking_id']) ? intval($params['booking_id']) : null,
-                'rating'       => floatval($params['rating']),
+                'service_type' => $service_type,
+                'service_id'   => $service_id,
+                'user_id'      => $uid,
+                'booking_id'   => $booking_id,
+                'is_verified'  => 1,
+                'rating'       => $rating,
                 'title'        => $title,
                 'content'      => $content,
                 'is_approved'  => 0,

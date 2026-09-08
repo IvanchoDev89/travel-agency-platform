@@ -1416,3 +1416,15 @@ msgstr "No linked booking"
 
 msgid "Reserva"
 msgstr "Booking"
+
+msgid "Solo puedes dejar reseñas después de una reserva confirmada o completada."
+msgstr "You can only leave reviews after a confirmed or completed booking."
+
+msgid "El servicio no está disponible para reseñar."
+msgstr "This service is not available for reviews."
+
+msgid "Reseña verificada"
+msgstr "Verified review"
+
+msgid "Basada en una reserva confirmada"
+msgstr "Based on a confirmed booking"

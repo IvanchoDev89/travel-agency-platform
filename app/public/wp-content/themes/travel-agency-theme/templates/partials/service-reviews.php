@@ -20,7 +20,10 @@ $rev_id   = get_the_ID();
   </div>
   <div class="tap-reviews-list"></div>
 
-  <?php if (is_user_logged_in()): ?>
+  <?php if (is_user_logged_in()):
+        $tap_can_review = class_exists('TAP_Reviews') && TAP_Reviews::can_review(get_current_user_id(), $rev_type, $rev_id);
+    ?>
+  <?php if ($tap_can_review): ?>
   <div class="tap-review-form-wrap">
     <h3><?php _e('Write a Review', 'travel-agency-platform'); ?></h3>
     <form class="tap-review-form">
@@ -47,6 +50,9 @@ $rev_id   = get_the_ID();
       <span class="tap-review-msg"></span>
     </form>
   </div>
+  <?php else: ?>
+  <p class="tap-review-login"><?php echo esc_html__('Solo puedes dejar reseñas después de una reserva confirmada o completada.', 'travel-agency-platform'); ?></p>
+  <?php endif; ?>
   <?php else: ?>
   <p class="tap-review-login"><?php printf(__('<a href="%s">Log in</a> to leave a review.', 'travel-agency-platform'), wp_login_url(get_permalink())); ?></p>
   <?php endif; ?>
@@ -90,7 +96,9 @@ jQuery(document).ready(function($) {
       var body = $('<div class="tap-review-body">');
       if (r.title) body.append($('<div class="tap-review-title">').text(r.title));
       body.append($('<p class="tap-review-text">').text(r.content));
-      body.append($('<div class="tap-review-meta">').text(r.user_name + ' · ' + new Date(r.created_at).toLocaleDateString()));
+      var meta = $('<div class="tap-review-meta">').text(r.user_name + ' · ' + new Date(r.created_at).toLocaleDateString());
+      if (parseInt(r.is_verified, 10) === 1) meta.append('<span class="tap-review-verified">' + (tapI18n.reviewVerified || 'Reseña verificada') + '</span>');
+      body.append(meta);
       $('<div class="tap-review-item">').append(avatar, $('<div class="tap-review-main">').append(stars, body)).appendTo($list);
       if (r.reply) {
         var replyWrap = $('<div class="tap-review-reply">');

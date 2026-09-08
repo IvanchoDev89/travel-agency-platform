@@ -101,6 +101,7 @@ class TAP_Installer {
                 service_id bigint(20) NOT NULL,
                 user_id bigint(20) NOT NULL,
                 booking_id bigint(20) DEFAULT NULL,
+                is_verified tinyint(1) DEFAULT 0,
                 rating decimal(2,1) NOT NULL,
                 title varchar(255) DEFAULT NULL,
                 content text,
@@ -246,6 +247,9 @@ class TAP_Installer {
         }
         if (!in_array('mod_reason', $cols_reviews)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_reviews ADD COLUMN mod_reason varchar(50) DEFAULT NULL AFTER mod_status");
+        }
+        if (!in_array('is_verified', $cols_reviews)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_reviews ADD COLUMN is_verified tinyint(1) DEFAULT 0 AFTER booking_id");
         }
 
         $cols_leads = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_leads");
