@@ -23,6 +23,10 @@ class TAP_Booking {
         $booking_code = self::generate_booking_code();
         $agency_id = self::resolve_agency_id($data['service_type'], $data['service_id']);
 
+        if ($agency_id && !TAP_Approval::is_approved($agency_id)) {
+            return new WP_Error('agency_pending', __('La agencia que ofrece este servicio aún está en revisión y no puede recibir reservas.', 'travel-agency-platform'));
+        }
+
         $commission_percent = self::get_agency_commission($agency_id);
         $total = isset($data['total_amount']) && $data['total_amount'] !== '' ? floatval($data['total_amount']) : self::calculate_price(
             sanitize_text_field($data['service_type']),

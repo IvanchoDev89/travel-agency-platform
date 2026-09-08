@@ -1206,3 +1206,120 @@ msgstr "Back"
 
 msgid "Voucher de Reserva"
 msgstr "Booking Voucher"
+
+msgid "Representante legal / razón social"
+msgstr "Legal representative / business name"
+
+msgid "Tipo de documento"
+msgstr "Document type"
+
+msgid "Número de documento (cédula)"
+msgstr "ID number (cédula)"
+
+msgid "Cédula jurídica"
+msgstr "Corporate tax ID (cédula jurídica)"
+
+msgid "Indica el nombre del representante legal o de la empresa."
+msgstr "Enter the name of the legal representative or business."
+
+msgid "Indica el tipo y número de documento (cédula)."
+msgstr "Enter a document type and ID number (cédula)."
+
+msgid "Para persona jurídica indica la cédula jurídica."
+msgstr "For legal persons, provide your corporate tax ID."
+
+msgid "Debes aceptar los términos y condiciones."
+msgstr "You must accept the terms and conditions."
+
+msgid "Tu agencia está en revisión. Te avisaremos por correo cuando sea aprobada."
+msgstr "Your agency is under review. We will email you when it is approved."
+
+msgid "Tu agencia está en revisión"
+msgstr "Your agency is under review"
+
+msgid "Identificación (verificación de la agencia)"
+msgstr "Identity (agency verification)"
+
+msgid "Tus datos de identificación solo los revisa el administrador para aprobar tu agencia."
+msgstr "Your identity data is only reviewed by the administrator to approve your agency."
+
+msgid "Física"
+msgstr "Individual"
+
+msgid "Jurídica"
+msgstr "Company"
+
+msgid "Cédula"
+msgstr "Cédula (ID number)"
+
+msgid "Confirmo que los datos son verídicos y acepto los términos y condiciones de verificación."
+msgstr "I confirm the data is truthful and I accept the verification terms and conditions."
+
+msgid "Puedes preparar tus listados, pero serán visibles para los viajeros solo cuando el administrador apruebe tu agencia."
+msgstr "You can prepare your listings, but they will only be visible to travelers once the administrator approves your agency."
+
+msgid "Esta agencia está en revisión y aún no es visible públicamente."
+msgstr "This agency is under review and is not yet publicly visible."
+
+msgid "Este servicio aún no está disponible públicamente."
+msgstr "This service is not yet publicly available."
+
+msgid "No verificada"
+msgstr "Not verified"
+
+msgid "KYC:"
+msgstr "KYC:"
+
+msgid "C. jurídica"
+msgstr "Legal ID"
+
+msgid "Aprobada"
+msgstr "Approved"
+
+msgid "Rechazada"
+msgstr "Rejected"
+
+msgid "Aprobar"
+msgstr "Approve"
+
+msgid "Rechazar"
+msgstr "Reject"
+
+msgid "Rechazar esta agencia y ocultarla del sitio?"
+msgstr "Reject this agency and hide it from the site?"
+
+msgid "Total: %1$d · Pendientes: %2$d · Verificadas: %3$d · Activas: %4$d · Comisiones acumuladas: %5$s"
+msgstr "Total: %1$d · Pending: %2$d · Verified: %3$d · Active: %4$d · Accumulated commissions: %5$s"
+
+msgid "[Aprobar agencia] %s"
+msgstr "[Approve agency] %s"
+
+msgid "Nueva agencia pendiente de aprobación"
+msgstr "New agency awaiting approval"
+
+msgid "Tu agencia <strong>%s</strong> ha sido registrada y ahora está <strong>en revisión</strong>.<br><br>Un administrador verificará tus datos de identificación. En cuanto tu agencia sea aprobada te avisaremos por correo y podrás publicar tus servicios y recibir reservas. Accede a tu <a href=\"%s\" style=\"color:#0d9488;\">panel de agencia</a> para adelantar tus listados."
+msgstr "Your agency <strong>%s</strong> has been registered and is now <strong>under review</strong>.<br><br>An administrator will verify your identity data. As soon as your agency is approved we will notify you by email and you will be able to publish your services and receive bookings. Go to your <a href=\"%s\" style=\"color:#0d9488;\">agency dashboard</a> to get your listings ready."
+
+msgid "La agencia <strong>%s</strong> (%s) se registró y espera la verificación de sus datos.<br>KYC: %s<br><br><a href=\"%s\" style=\"color:#0d9488;\">Revisar en el panel de agencias</a>."
+msgstr "Agency <strong>%s</strong> (%s) registered and is awaiting verification of its data.<br>KYC: %s<br><br><a href=\"%s\" style=\"color:#0d9488;\">Review in the agencies panel</a>."
+
+msgid "¡Tu agencia fue aprobada!"
+msgstr "Your agency has been approved!"
+
+msgid "Aprobada — %s"
+msgstr "Approved — %s"
+
+msgid "Tu agencia <strong>%s</strong> fue aprobada y ya es visible para los viajeros.<br><br>Ya puedes publicar servicios y recibir reservas desde tu <a href=\"%s\" style=\"color:#0d9488;\">panel de agencia</a>."
+msgstr "Your agency <strong>%s</strong> has been approved and is now visible to travelers.<br><br>You can now publish services and receive bookings from your <a href=\"%s\" style=\"color:#0d9488;\">agency dashboard</a>."
+
+msgid "Tu agencia no fue aprobada"
+msgstr "Your agency was not approved"
+
+msgid "Agencia en revisión — %s"
+msgstr "Agency under review — %s"
+
+msgid "Lamentablemente tu agencia <strong>%s</strong> no fue aprobada en esta revisión.<br><br>Contacta a soporte en <a href=\"%s\" style=\"color:#0d9488;\">info@visitnuevoarenal.com</a> para corregir los datos de identificación y volver a intentarlo."
+msgstr "Unfortunately your agency <strong>%s</strong> was not approved in this review.<br><br>Contact support at <a href=\"%s\" style=\"color:#0d9488;\">info@visitnuevoarenal.com</a> to correct your identity data and try again."
+
+msgid "La agencia que ofrece este servicio aún está en revisión y no puede recibir reservas."
+msgstr "The agency offering this service is still under review and cannot receive bookings yet."

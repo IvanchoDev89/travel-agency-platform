@@ -130,6 +130,8 @@ class TAP_Shortcodes {
                 }
             }
 
+            $args = TAP_Approval::exclude_from_query($args, [$pt]);
+
             $q = new WP_Query($args);
             foreach ($q->posts as $p) {
                 $rows[] = $p;
@@ -348,6 +350,8 @@ class TAP_Shortcodes {
                 $pt_args['meta_query'][] = ['key' => $prefix . '_is_featured', 'value' => '1'];
             }
 
+            $pt_args = TAP_Approval::exclude_from_query($pt_args, [$pt]);
+
             $q = new WP_Query($pt_args);
             foreach ($q->posts as $p) {
                 $all_posts[] = $p;
@@ -471,8 +475,12 @@ class TAP_Shortcodes {
             'post_type'      => 'tap_agency',
             'posts_per_page' => intval($atts['limit']),
             'post_status'    => 'publish',
+            'orderby'        => 'title',
+            'order'          => 'ASC',
             'meta_query'     => [
                 ['key' => '_tap_agency_verified', 'value' => '1'],
+                ['key' => TAP_Approval::STATUS_META, 'value' => TAP_Approval::APPROVED],
+                ['key' => TAP_Approval::ACTIVE_META, 'compare' => '!=', 'value' => '0'],
             ],
         ]);
 
@@ -504,6 +512,17 @@ class TAP_Shortcodes {
 
         if (!$post || $post->post_type !== 'tap_agency') {
             return '<p>' . __('Agency not found.', 'travel-agency-platform') . '</p>';
+        }
+
+        if (!TAP_Approval::is_approved($post->ID)) {
+            $can_view = current_user_can('manage_options');
+            if (!$can_view) {
+                $owner_id = (int) get_post_meta($post->ID, '_tap_agency_user_id', true);
+                $can_view = $owner_id === get_current_user_id();
+            }
+            if (!$can_view) {
+                return '<div class="tap-agency-pending"><p>' . __('Esta agencia está en revisión y aún no es visible públicamente.', 'travel-agency-platform') . '</p></div>';
+            }
         }
 
         $email = get_post_meta($post->ID, '_tap_agency_email', true);
@@ -1500,14 +1519,16 @@ class TAP_Shortcodes {
 
         foreach ($types as $pt) {
             $prefix = '_tap_' . TAP_Post_Types::meta_prefix($pt);
-            $q = new WP_Query([
+            $q_args = [
                 'post_type'      => $pt,
                 'posts_per_page' => intval($atts['limit']),
                 'post_status'    => 'publish',
                 'meta_query'     => [
                     ['key' => $prefix . '_is_featured', 'value' => '1'],
                 ],
-            ]);
+            ];
+            $q_args = TAP_Approval::exclude_from_query($q_args, [$pt]);
+            $q = new WP_Query($q_args);
             foreach ($q->posts as $p) { $all_posts[] = $p; }
         }
 
@@ -1554,6 +1575,17 @@ class TAP_Shortcodes {
         $atts = shortcode_atts(['agency' => 0, 'limit' => -1], $atts);
         $agency_id = intval($atts['agency']);
         if (!$agency_id) return '';
+
+        if (!TAP_Approval::is_approved($agency_id)) {
+            $can_view = current_user_can('manage_options');
+            if (!$can_view) {
+                $owner_id = (int) get_post_meta($agency_id, '_tap_agency_user_id', true);
+                $can_view = $owner_id === get_current_user_id();
+            }
+            if (!$can_view) {
+                return '';
+            }
+        }
 
         $all_services = [];
         $types = ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
@@ -1652,6 +1684,35 @@ class TAP_Shortcodes {
                     <label for="tap_reg_description"><?php esc_html_e('Describe tu agencia', 'travel-agency-platform'); ?></label>
                     <textarea id="tap_reg_description" name="description" class="tap-input" rows="4"></textarea>
                 </div>
+                <div class="tap-span-2 tap-register-kyc">
+                    <h3><?php esc_html_e('Identificación (verificación de la agencia)', 'travel-agency-platform'); ?></h3>
+                    <p class="tap-register-intro"><?php esc_html_e('Tus datos de identificación solo los revisa el administrador para aprobar tu agencia.', 'travel-agency-platform'); ?></p>
+                    <div class="tap-form-grid">
+                        <div class="tap-input-group">
+                            <label for="tap_reg_kyc_legal_name"><?php esc_html_e('Representante legal / razón social', 'travel-agency-platform'); ?> *</label>
+                            <input type="text" id="tap_reg_kyc_legal_name" name="kyc_legal_name" class="tap-input" required>
+                        </div>
+                        <div class="tap-input-group">
+                            <label><?php esc_html_e('Tipo de documento', 'travel-agency-platform'); ?> *</label>
+                            <select name="kyc_doc_type" id="tap_reg_kyc_doc_type" class="tap-input" required>
+                                <option value="">—</option>
+                                <option value="fisica"><?php esc_html_e('Física', 'travel-agency-platform'); ?></option>
+                                <option value="juridica"><?php esc_html_e('Jurídica', 'travel-agency-platform'); ?></option>
+                            </select>
+                        </div>
+                        <div class="tap-input-group">
+                            <label for="tap_reg_kyc_doc_number"><?php esc_html_e('Cédula', 'travel-agency-platform'); ?> *</label>
+                            <input type="text" id="tap_reg_kyc_doc_number" name="kyc_doc_number" class="tap-input" required>
+                        </div>
+                        <div class="tap-input-group" id="tap_reg_kyc_tax_wrap" style="display:none;">
+                            <label for="tap_reg_kyc_legal_tax_id"><?php esc_html_e('Cédula jurídica', 'travel-agency-platform'); ?></label>
+                            <input type="text" id="tap_reg_kyc_legal_tax_id" name="kyc_legal_tax_id" class="tap-input">
+                        </div>
+                        <div class="tap-input-group tap-span-2">
+                            <label class="tap-check-label"><input type="checkbox" name="kyc_accept" value="1" required> <?php esc_html_e('Confirmo que los datos son verídicos y acepto los términos y condiciones de verificación.', 'travel-agency-platform'); ?></label>
+                        </div>
+                    </div>
+                </div>
                 <div class="tap-span-2">
                     <div id="tap-register-message" class="tap-booking-message"></div>
                     <button type="submit" class="tap-btn tap-btn-primary tap-btn-block"><?php esc_html_e('Crear mi cuenta de agencia', 'travel-agency-platform'); ?></button>
@@ -1687,6 +1748,18 @@ class TAP_Shortcodes {
                             .html('<p><?php echo esc_js(__('Network error. Please try again.', 'travel-agency-platform')); ?></p>');
                         $btn.prop('disabled', false).text('<?php echo esc_js(__('Crear mi cuenta de agencia', 'travel-agency-platform')); ?>');
                     });
+            });
+
+            $('#tap_reg_kyc_doc_type').on('change', function() {
+                var v = $(this).val();
+                var $tax = $('#tap_reg_kyc_tax_wrap');
+                if (v === 'juridica') {
+                    $tax.show();
+                    $tax.find('input').prop('required', true);
+                } else {
+                    $tax.hide();
+                    $tax.find('input').prop('required', false);
+                }
             });
         })(jQuery);
         </script>
@@ -1908,6 +1981,10 @@ class TAP_Shortcodes {
 
         $listing_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
         $new_type   = isset($_GET['new']) ? sanitize_key($_GET['new']) : '';
+
+        if (!$is_admin && $agency && TAP_Approval::is_pending($agency)) {
+            echo '<div class="tap-notice" style="padding:10px 14px;border:1px solid #f59e0b;border-radius:6px;background:#fffbeb;color:#92400e;margin-bottom:14px;"><strong>' . esc_html__('Tu agencia está en revisión', 'travel-agency-platform') . '.</strong> ' . esc_html__('Puedes preparar tus listados, pero serán visibles para los viajeros solo cuando el administrador apruebe tu agencia.', 'travel-agency-platform') . '</div>';
+        }
 
         if ($listing_id) {
             $listing = get_post($listing_id);

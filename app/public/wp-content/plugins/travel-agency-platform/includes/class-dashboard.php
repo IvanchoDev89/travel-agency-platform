@@ -946,9 +946,11 @@ class TAP_Dashboard {
 
         $verified = 0;
         $active   = 0;
+        $pending  = 0;
         foreach ($visible as $a) {
             if ('1' === get_post_meta($a->ID, '_tap_agency_verified', true)) $verified++;
             if ('0' !== get_post_meta($a->ID, '_tap_agency_is_active', '1')) $active++;
+            if (TAP_Approval::is_pending($a->ID)) $pending++;
         }
         $rows_rev = $wpdb->get_results("SELECT agency_id, COUNT(*) AS c, SUM(total_amount) AS rev, SUM(commission_amount) AS comm FROM {$wpdb->prefix}tap_bookings WHERE status NOT IN ('cancelled','refunded') GROUP BY agency_id");
         $revenue_map = [];
@@ -966,8 +968,8 @@ class TAP_Dashboard {
             <h1><?php esc_html_e('Agencies', 'travel-agency-platform'); ?></h1>
             <div class="notice notice-info inline" style="margin:10px 0;">
                 <p><?php
-                    printf(esc_html__('Total: %1$d · Verificadas: %2$d · Activas: %3$d · Comisiones acumuladas: %4$s', 'travel-agency-platform'),
-                        count($visible), $verified, $active, esc_html(TAP_Currency::fmt((float) $total_commission)));
+                    printf(esc_html__('Total: %1$d · Pendientes: %2$d · Verificadas: %3$d · Activas: %4$d · Comisiones acumuladas: %5$s', 'travel-agency-platform'),
+                        count($visible), $pending, $verified, $active, esc_html(TAP_Currency::fmt((float) $total_commission)));
                     ?>
                     <span style="opacity:.7"> — <?php esc_html_e('El registro se sincroniza automáticamente al abrir esta página.', 'travel-agency-platform'); ?></span>
                 </p>
@@ -1006,12 +1008,25 @@ class TAP_Dashboard {
                         $verify_url = wp_nonce_url(admin_url('admin.php?page=tap-agencies&tap_action=' . ($is_verified ? 'unverify' : 'verify') . '&agency_id=' . $a->ID), ($is_verified ? 'unverify' : 'verify') . '_' . $a->ID);
                         $active_url = wp_nonce_url(admin_url('admin.php?page=tap-agencies&tap_action=' . ($is_active ? 'deactivate' : 'activate') . '&agency_id=' . $a->ID), ($is_active ? 'deactivate' : 'activate') . '_' . $a->ID);
                         $delete_url = wp_nonce_url(admin_url('admin.php?page=tap-agencies&tap_action=delete&agency_id=' . $a->ID), 'delete_' . $a->ID);
+                        $approve_url = wp_nonce_url(admin_url('admin.php?page=tap-agencies&tap_action=approve&agency_id=' . $a->ID), 'approve_' . $a->ID);
+                        $reject_url  = wp_nonce_url(admin_url('admin.php?page=tap-agencies&tap_action=reject&agency_id=' . $a->ID), 'reject_' . $a->ID);
+                        $status = TAP_Approval::status($a->ID);
+                        $kyc    = TAP_Approval::kyc($a->ID);
                     ?>
                     <tr>
                         <td>
                             <strong><?php echo esc_html($a->post_title); ?></strong>
                             <?php if ($is_verified): ?><span class="dashicons dashicons-yes" style="color:#16a34a;" title="<?php esc_attr_e('Verificada', 'travel-agency-platform'); ?>"></span><?php endif; ?>
                             <div class="description"><?php echo esc_html($a->post_excerpt ?: ('#' . $a->ID)); ?></div>
+                            <?php if (!empty($kyc['legal_name']) || !empty($kyc['doc_number'])): ?>
+                                <div class="description" style="color:#57534e;font-size:11px;">
+                                    <?php esc_html_e('KYC:', 'travel-agency-platform'); ?>
+                                    <?php echo esc_html($kyc['legal_name']); ?>
+                                    <?php if (!empty($kyc['doc_type'])): ?>· <?php echo esc_html(('juridica' === $kyc['doc_type']) ? __('Jurídica', 'travel-agency-platform') : __('Física', 'travel-agency-platform')); ?><?php endif; ?>
+                                    <?php if (!empty($kyc['doc_number'])): ?>· <?php echo esc_html($kyc['doc_number']); ?><?php endif; ?>
+                                    <?php if (!empty($kyc['legal_tax_id'])): ?>· <?php esc_html_e('C. jurídica', 'travel-agency-platform'); ?> <?php echo esc_html($kyc['legal_tax_id']); ?><?php endif; ?>
+                                </div>
+                            <?php endif; ?>
                         </td>
                         <td>
                             <?php if ($u): echo esc_html($u->display_name) . ' <span class="description">@' . esc_html($u->user_login) . '</span><br>'; endif; ?>
@@ -1035,14 +1050,30 @@ class TAP_Dashboard {
                             </form>
                         </td>
                         <td>
+                            <?php if (TAP_Approval::APPROVED === $status): ?>
+                                <span style="color:#16a34a;"><?php esc_html_e('Aprobada', 'travel-agency-platform'); ?></span>
+                            <?php elseif (TAP_Approval::REJECTED === $status): ?>
+                                <span style="color:#dc2626;"><?php esc_html_e('Rechazada', 'travel-agency-platform'); ?></span>
+                            <?php else: ?>
+                                <span style="color:#d97706;"><?php esc_html_e('Pendiente', 'travel-agency-platform'); ?></span>
+                            <?php endif; ?>
+                            <br>
                             <?php if ($is_verified): ?>
                                 <span class="dashicons dashicons-shield" style="color:#0d9488;vertical-align:middle;"></span> <?php esc_html_e('Verificada', 'travel-agency-platform'); ?>
-                            <?php else: ?><span style="color:#dc2626;"><?php esc_html_e('Pendiente', 'travel-agency-platform'); ?></span><?php endif; ?>
+                            <?php else: ?><span style="color:#dc2626;"><?php esc_html_e('No verificada', 'travel-agency-platform'); ?></span><?php endif; ?>
                             <br>
                             <?php if ($is_active): ?><span style="color:#16a34a;"><?php esc_html_e('Activa', 'travel-agency-platform'); ?></span><?php else: ?><span style="color:#64748b;"><?php esc_html_e('Desactivada', 'travel-agency-platform'); ?></span><?php endif; ?>
                         </td>
                         <td>
-                            <a class="button button-small" href="<?php echo esc_url($verify_url); ?>"><?php echo $is_verified ? esc_html__('Quitar verificación', 'travel-agency-platform') : esc_html__('Verificar', 'travel-agency-platform'); ?></a>
+                            <?php if (TAP_Approval::APPROVED !== $status): ?>
+                                <a class="button button-primary button-small" href="<?php echo esc_url($approve_url); ?>"><?php esc_html_e('Aprobar', 'travel-agency-platform'); ?></a>
+                            <?php endif; ?>
+                            <?php if (TAP_Approval::REJECTED !== $status): ?>
+                                <a class="button button-small" href="<?php echo esc_url($reject_url); ?>" onclick="return confirm('<?php echo esc_js(__('Rechazar esta agencia y ocultarla del sitio?', 'travel-agency-platform')); ?>');"><?php esc_html_e('Rechazar', 'travel-agency-platform'); ?></a>
+                            <?php endif; ?>
+                            <?php if (TAP_Approval::APPROVED === $status): ?>
+                                <a class="button button-small" href="<?php echo esc_url($verify_url); ?>"><?php echo $is_verified ? esc_html__('Quitar verificación', 'travel-agency-platform') : esc_html__('Verificar', 'travel-agency-platform'); ?></a>
+                            <?php endif; ?>
                             <a class="button button-small" href="<?php echo esc_url($active_url); ?>"><?php echo $is_active ? esc_html__('Desactivar', 'travel-agency-platform') : esc_html__('Activar', 'travel-agency-platform'); ?></a>
                             <a class="button button-link-delete button-small" href="<?php echo esc_url($delete_url); ?>" onclick="return confirm('Borrar esta agencia y desvincular sus listados?');"><?php esc_html_e('Eliminar', 'travel-agency-platform'); ?></a>
                         </td>
@@ -1059,10 +1090,18 @@ class TAP_Dashboard {
         $wpdb = $GLOBALS['wpdb'];
         switch ($action) {
             case 'verify':
-                update_post_meta($agency_id, '_tap_agency_verified', '1');
+                if (TAP_Approval::is_approved($agency_id)) {
+                    update_post_meta($agency_id, '_tap_agency_verified', '1');
+                }
                 break;
             case 'unverify':
                 update_post_meta($agency_id, '_tap_agency_verified', '');
+                break;
+            case 'approve':
+                TAP_Approval::approve($agency_id);
+                break;
+            case 'reject':
+                TAP_Approval::reject($agency_id);
                 break;
             case 'activate':
                 update_post_meta($agency_id, '_tap_agency_is_active', '1');

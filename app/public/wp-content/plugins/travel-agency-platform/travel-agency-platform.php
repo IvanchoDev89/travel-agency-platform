@@ -37,6 +37,7 @@ final class TravelAgencyPlatform {
         require_once TAP_PLUGIN_DIR . 'includes/class-post-types.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-taxonomies.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-destinations.php';
+        require_once TAP_PLUGIN_DIR . 'includes/class-approval.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-roles.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-metaboxes.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-pricing.php';
@@ -132,6 +133,7 @@ final class TravelAgencyPlatform {
         add_action('init', ['TAP_Analytics', 'init'], 16);
         add_action('init', ['TAP_Sitemap', 'init'], 17);
         add_action('init', ['TAP_Leads', 'init'], 18);
+        add_action('init', ['TAP_Approval', 'init'], 19);
         add_action('wp_ajax_tap_lead_submit', ['TAP_Ajax', 'submit_lead']);
         add_action('wp_ajax_nopriv_tap_lead_submit', ['TAP_Ajax', 'submit_lead']);
         add_action('admin_post_tap_export_leads', ['TAP_Leads', 'csv_download']);

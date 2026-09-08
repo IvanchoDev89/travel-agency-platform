@@ -22,6 +22,8 @@ class TAP_Emails {
         add_action('tap_booking_status_updated', [__CLASS__, 'on_status_updated'], 10, 2);
         add_action('tap_payment_completed', [__CLASS__, 'on_payment_completed'], 10, 3);
         add_action('tap_agency_registered', [__CLASS__, 'on_agency_registered'], 10, 2);
+        add_action('tap_agency_approved', [__CLASS__, 'on_agency_approved'], 10, 1);
+        add_action('tap_agency_rejected', [__CLASS__, 'on_agency_rejected'], 10, 1);
         add_action('tap_subscription_paid', [__CLASS__, 'on_subscription_paid'], 10, 3);
         add_action('tap_promo_active', [__CLASS__, 'on_promo_active'], 10, 4);
         add_action('tap_commission_paid', [__CLASS__, 'on_commission_paid'], 10, 2);
@@ -70,27 +72,69 @@ class TAP_Emails {
 
         $welcome_headline = sprintf(__('Bienvenido, %s!', 'travel-agency-platform'), $agency->post_title);
         $welcome_intro = sprintf(
-            __('Tu agencia <strong>%s</strong> ya forma parte de nuestra plataforma.<br><br>Ya puedes empezar a publicar tus servicios y recibir reservas. Accede a tu <a href="%s" style="color:#0d9488;">panel de agencia</a> para gestionarlas.', 'travel-agency-platform'),
+            __('Tu agencia <strong>%s</strong> ha sido registrada y ahora está <strong>en revisión</strong>.<br><br>Un administrador verificará tus datos de identificación. En cuanto tu agencia sea aprobada te avisaremos por correo y podrás publicar tus servicios y recibir reservas. Accede a tu <a href="%s" style="color:#0d9488;">panel de agencia</a> para adelantar tus listados.', 'travel-agency-platform'),
             esc_html($agency->post_title),
             esc_url(home_url('/dashboard/'))
         );
-        self::send($agency_email, __('Tu agencia está registrada', 'travel-agency-platform'), self::info_template($welcome_headline, $welcome_intro));
+        self::send($agency_email, __('Tu agencia está en revisión', 'travel-agency-platform'), self::info_template($welcome_headline, $welcome_intro));
 
         $admin_email = get_option('admin_email');
         if ($admin_email) {
+            $kyc = TAP_Approval::kyc($agency_id);
+            $kyc_line = esc_html(trim(($kyc['legal_name'] ?? '') . ' ' . ($kyc['doc_number'] ?? ''))) . ($kyc['legal_tax_id'] ? ' · C. jurídica ' . esc_html($kyc['legal_tax_id']) : '');
             self::send(
                 $admin_email,
-                sprintf(__('[Nueva agencia] %s', 'travel-agency-platform'), $agency->post_title),
+                sprintf(__('[Aprobar agencia] %s', 'travel-agency-platform'), $agency->post_title),
                 self::info_template(
-                    __('Nueva agencia registrada', 'travel-agency-platform'),
+                    __('Nueva agencia pendiente de aprobación', 'travel-agency-platform'),
                     sprintf(
-                        __('La agencia <strong>%s</strong> (%s) se ha registrado en la plataforma.', 'travel-agency-platform'),
+                        __('La agencia <strong>%s</strong> (%s) se registró y espera la verificación de sus datos.<br>KYC: %s<br><br><a href="%s" style="color:#0d9488;">Revisar en el panel de agencias</a>.', 'travel-agency-platform'),
                         esc_html($agency->post_title),
-                        esc_html($user->user_email)
+                        esc_html($user->user_email),
+                        $kyc_line ?: '—',
+                        esc_url(admin_url('admin.php?page=tap-agencies'))
                     )
                 )
             );
         }
+    }
+
+    public static function on_agency_approved($agency_id) {
+        $agency = get_post($agency_id);
+        $email  = self::get_agency_email($agency_id);
+        if (!$agency || !$email) return;
+
+        self::send(
+            $email,
+            __('¡Tu agencia fue aprobada!', 'travel-agency-platform'),
+            self::info_template(
+                sprintf(__('Aprobada — %s', 'travel-agency-platform'), $agency->post_title),
+                sprintf(
+                    __('Tu agencia <strong>%s</strong> fue aprobada y ya es visible para los viajeros.<br><br>Ya puedes publicar servicios y recibir reservas desde tu <a href="%s" style="color:#0d9488;">panel de agencia</a>.', 'travel-agency-platform'),
+                    esc_html($agency->post_title),
+                    esc_url(home_url('/dashboard/'))
+                )
+            )
+        );
+    }
+
+    public static function on_agency_rejected($agency_id) {
+        $agency = get_post($agency_id);
+        $email  = self::get_agency_email($agency_id);
+        if (!$agency || !$email) return;
+
+        self::send(
+            $email,
+            __('Tu agencia no fue aprobada', 'travel-agency-platform'),
+            self::info_template(
+                sprintf(__('Agencia en revisión — %s', 'travel-agency-platform'), $agency->post_title),
+                sprintf(
+                    __('Lamentablemente tu agencia <strong>%s</strong> no fue aprobada en esta revisión.<br><br>Contacta a soporte en <a href="%s" style="color:#0d9488;">info@visitnuevoarenal.com</a> para corregir los datos de identificación y volver a intentarlo.', 'travel-agency-platform'),
+                    esc_html($agency->post_title),
+                    esc_url(home_url('/'))
+                )
+            )
+        );
     }
 
     public static function on_commission_paid($agency_id, $payment_id) {

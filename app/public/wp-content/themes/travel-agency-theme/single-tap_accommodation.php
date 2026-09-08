@@ -4,6 +4,12 @@ get_header();
 
 while (have_posts()): the_post();
     $id = get_the_ID();
+    if (!TAP_Approval::is_service_visible($id, 'tap_accommodation')) {
+        get_sidebar();
+        echo '<div class="tap-agency-pending"><p>' . esc_html__('Este servicio aún no está disponible públicamente.', 'travel-agency-platform') . '</p></div>';
+        get_footer();
+        return;
+    }
     $agency_id = get_post_meta($id, '_tap_acc_agency_id', true);
     $agency = $agency_id ? get_post($agency_id) : null;
     $stars = get_post_meta($id, '_tap_acc_stars', true);

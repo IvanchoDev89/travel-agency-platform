@@ -30,7 +30,7 @@ fi
 WP_BIN="${WP_BIN:-$HOME/.local/bin/wp}"
 
 if [ -z "$SUITES" ]; then
-  SUITES="suite_core suite_bookings suite_commissions suite_promotions suite_views suite_analytics suite_payments suite_guest_checkout suite_leads suite_booking_flow suite_pricing suite_paypal suite_rest suite_reviews suite_i18n suite_bugs suite_seo suite_agency_manage suite_chatbot suite_moderation suite_destinations suite_tour_catalog suite_equipment"
+  SUITES="suite_core suite_bookings suite_commissions suite_promotions suite_views suite_analytics suite_payments suite_guest_checkout suite_leads suite_booking_flow suite_pricing suite_paypal suite_rest suite_reviews suite_i18n suite_bugs suite_seo suite_agency_manage suite_chatbot suite_moderation suite_destinations suite_tour_catalog suite_equipment suite_agency_approval"
 fi
 
 fails=0

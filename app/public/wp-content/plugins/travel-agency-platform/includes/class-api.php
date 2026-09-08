@@ -93,14 +93,14 @@ class TAP_API {
         $results = [];
 
         foreach ($types as $type) {
-            $posts = get_posts([
+            $posts = get_posts(TAP_Approval::exclude_from_query([
                 'post_type'      => $type,
                 'posts_per_page' => 10,
                 'post_status'    => 'publish',
                 'meta_query'     => [
                     ['key' => '_tap_' . TAP_Post_Types::meta_prefix($type) . '_is_active', 'value' => '1'],
                 ],
-            ]);
+            ], [$type]));
 
             foreach ($posts as $post) {
                 $results[] = self::format_service($post, $type);
@@ -122,7 +122,7 @@ class TAP_API {
         $paged = $request->get_param('page') ?: 1;
         $location = $request->get_param('location');
 
-        $args = [
+        $args = TAP_Approval::exclude_from_query([
             'post_type'      => $type,
             'posts_per_page' => intval($per_page),
             'paged'          => intval($paged),
@@ -130,7 +130,7 @@ class TAP_API {
             'meta_query'     => [
                 ['key' => '_tap_' . TAP_Post_Types::meta_prefix($type) . '_is_active', 'value' => '1'],
             ],
-        ];
+        ], [$type]);
 
         if ($location) {
             $args['tax_query'] = [
@@ -162,6 +162,10 @@ class TAP_API {
             return new WP_Error('not_found', __('Service not found', 'travel-agency-platform'), ['status' => 404]);
         }
 
+        if (!TAP_Approval::is_service_visible($id, $type)) {
+            return new WP_Error('not_found', __('Service not found', 'travel-agency-platform'), ['status' => 404]);
+        }
+
         return rest_ensure_response(self::format_service($post, $type, true));
     }
 
@@ -172,6 +176,8 @@ class TAP_API {
             'post_status'    => 'publish',
             'meta_query'     => [
                 ['key' => '_tap_agency_verified', 'value' => '1'],
+                ['key' => TAP_Approval::STATUS_META, 'value' => TAP_Approval::APPROVED],
+                ['key' => TAP_Approval::ACTIVE_META, 'compare' => '!=', 'value' => '0'],
             ],
         ]);
 
@@ -189,6 +195,16 @@ class TAP_API {
 
         if (!$post || $post->post_type !== 'tap_agency') {
             return new WP_Error('not_found', __('Agency not found', 'travel-agency-platform'), ['status' => 404]);
+        }
+
+        if (!TAP_Approval::is_approved($post->ID)) {
+            $can_view = current_user_can('manage_options');
+            if (!$can_view) {
+                $can_view = (int) get_post_meta($post->ID, '_tap_agency_user_id', true) === get_current_user_id();
+            }
+            if (!$can_view) {
+                return new WP_Error('not_found', __('Agency not found', 'travel-agency-platform'), ['status' => 404]);
+            }
         }
 
         $agency = self::format_agency($post, true);
@@ -246,6 +262,8 @@ class TAP_API {
                     ['key' => '_tap_' . TAP_Post_Types::meta_prefix($pt) . '_is_active', 'value' => '1'],
                 ],
             ];
+
+            $args = TAP_Approval::exclude_from_query($args, [$pt]);
 
             $tax_query = [];
             if ($location) {

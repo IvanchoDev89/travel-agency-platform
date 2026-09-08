@@ -35,6 +35,7 @@ class TAP_Sitemap {
     public static function init() {
         add_filter('wp_sitemaps_post_types', [__CLASS__, 'post_types']);
         add_filter('wp_sitemaps_taxonomies', [__CLASS__, 'taxonomies']);
+        add_filter('wp_sitemaps_posts_query_args', [__CLASS__, 'posts_query_args'], 10, 2);
         add_action('do_robots', [__CLASS__, 'robots_sitemap_line']);
     }
 
@@ -56,6 +57,19 @@ class TAP_Sitemap {
             }
         }
         return $taxonomies;
+    }
+
+    public static function posts_query_args($args, $post_type) {
+        if (in_array($post_type, self::$service_types, true)) {
+            $excluded = TAP_Approval::excluded_listing_ids();
+            if (!empty($excluded)) {
+                $args['post__not_in'] = array_values(array_unique(array_merge(
+                    (array) ($args['post__not_in'] ?? []),
+                    $excluded
+                )));
+            }
+        }
+        return $args;
     }
 
     public static function robots_sitemap_line() {

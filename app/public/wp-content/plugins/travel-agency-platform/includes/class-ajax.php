@@ -153,6 +153,8 @@ class TAP_Ajax {
                 ],
             ];
 
+            $args = TAP_Approval::exclude_from_query($args, [$pt]);
+
             $tax_query = [];
             if ($location) {
                 $tax_query[] = ['taxonomy' => 'tap_location', 'field' => 'term_id', 'terms' => $location];
@@ -441,6 +443,15 @@ class TAP_Ajax {
 
     public static function filter_archive_query($query) {
         if (is_admin() || !$query->is_main_query()) return;
+
+        if ($query->is_search()) {
+            $excluded = TAP_Approval::excluded_listing_ids();
+            if (!empty($excluded)) {
+                $query->set('post__not_in', $excluded);
+            }
+            return;
+        }
+
         if (!$query->is_post_type_archive('tap_accommodation')) return;
 
         $meta_query = $query->get('meta_query', []);
@@ -496,6 +507,11 @@ class TAP_Ajax {
 
         // Filter active only
         $meta_query[] = ['key' => '_tap_acc_is_active', 'value' => '1'];
+
+        $excluded = TAP_Approval::excluded_listing_ids();
+        if (!empty($excluded)) {
+            $query->set('post__not_in', $excluded);
+        }
 
         // Sorting
         $sort = sanitize_text_field($_GET['sort'] ?? '');
@@ -602,12 +618,12 @@ class TAP_Ajax {
 
         // Tours, transports, etc.
         foreach (['tap_tour' => 'Tour', 'tap_car_rental' => 'Auto'] as $pt => $label) {
-            $posts = get_posts([
+            $posts = get_posts(TAP_Approval::exclude_from_query([
                 'post_type' => $pt,
                 'post_status' => 'publish',
                 'posts_per_page' => 3,
                 's' => $keyword,
-            ]);
+            ], [$pt]));
             foreach ($posts as $p) {
                 $results[] = [
                     'type' => $label,
@@ -654,6 +670,14 @@ class TAP_Ajax {
         $country     = sanitize_text_field($_POST['country'] ?? '');
         $description = sanitize_textarea_field($_POST['description'] ?? '');
 
+        $kyc = [
+            'legal_name'   => sanitize_text_field($_POST['kyc_legal_name'] ?? ''),
+            'doc_type'     => in_array((string) ($_POST['kyc_doc_type'] ?? ''), ['fisica', 'juridica'], true) ? sanitize_text_field($_POST['kyc_doc_type']) : '',
+            'doc_number'   => sanitize_text_field($_POST['kyc_doc_number'] ?? ''),
+            'legal_tax_id' => sanitize_text_field($_POST['kyc_legal_tax_id'] ?? ''),
+        ];
+        $kyc_accept = !empty($_POST['kyc_accept']);
+
         if (empty($fullname)) {
             wp_send_json_error(['message' => __('Agency name is required.', 'travel-agency-platform')]);
         }
@@ -671,6 +695,19 @@ class TAP_Ajax {
         }
         if (email_exists($email)) {
             wp_send_json_error(['message' => __('That email is already registered.', 'travel-agency-platform')]);
+        }
+
+        if (empty($kyc['legal_name'])) {
+            wp_send_json_error(['message' => __('Indica el nombre del representante legal o de la empresa.', 'travel-agency-platform')]);
+        }
+        if (!in_array($kyc['doc_type'], ['fisica', 'juridica'], true) || empty($kyc['doc_number'])) {
+            wp_send_json_error(['message' => __('Indica el tipo y número de documento (cédula).', 'travel-agency-platform')]);
+        }
+        if ($kyc['doc_type'] === 'juridica' && empty($kyc['legal_tax_id'])) {
+            wp_send_json_error(['message' => __('Para persona jurídica indica la cédula jurídica.', 'travel-agency-platform')]);
+        }
+        if (!$kyc_accept) {
+            wp_send_json_error(['message' => __('Debes aceptar los términos y condiciones.', 'travel-agency-platform')]);
         }
 
         $user_id = wp_insert_user([
@@ -714,10 +751,13 @@ class TAP_Ajax {
             '_tap_agency_country'    => $country,
             '_tap_agency_commission' => $commission,
             '_tap_agency_verified'   => '',
+            '_tap_agency_is_active'  => '0',
+            '_tap_agency_status'     => TAP_Approval::PENDING,
         ];
         foreach ($metas as $key => $value) {
             update_post_meta($agency_id, $key, $value);
         }
+        TAP_Approval::save_kyc($agency_id, $kyc);
 
         global $wpdb;
         $wpdb->insert(
@@ -736,7 +776,7 @@ class TAP_Ajax {
                 'country'            => $country,
                 'commission_percent' => $commission,
                 'is_verified'        => 0,
-                'is_active'          => 1,
+                'is_active'          => 0,
             ]
         );
 
@@ -746,7 +786,7 @@ class TAP_Ajax {
         wp_set_auth_cookie($user_id, true);
 
         wp_send_json_success([
-            'message'  => __('Your agency account is ready!', 'travel-agency-platform'),
+            'message'  => __('Tu agencia está en revisión. Te avisaremos por correo cuando sea aprobada.', 'travel-agency-platform'),
             'redirect' => home_url('/dashboard/'),
         ]);
     }

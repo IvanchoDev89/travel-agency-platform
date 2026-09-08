@@ -11,6 +11,13 @@ $id        = get_the_ID();
 $type_info = TAP_Post_Types::get_service_types();
 $type_label = $type_info[$pt] ?? ucfirst(str_replace('tap_', '', $pt));
 
+if (!TAP_Approval::is_service_visible($id, $pt)) {
+    get_sidebar();
+    echo '<div class="tap-agency-pending"><p>' . esc_html__('Este servicio aún no está disponible públicamente.', 'travel-agency-platform') . '</p></div>';
+    get_footer();
+    return;
+}
+
 $agency_meta = [
     'tap_tour'       => '_tap_tour_agency_id',
     'tap_transport'  => '_tap_trans_agency_id',
