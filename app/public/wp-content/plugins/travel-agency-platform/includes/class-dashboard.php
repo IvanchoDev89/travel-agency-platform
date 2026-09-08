@@ -1239,6 +1239,63 @@ class TAP_Dashboard {
                     <?php endforeach; ?>
                 </tbody>
             </table>
+
+            <h2 style="margin-top:28px;"><?php esc_html_e('Atribución de leads', 'travel-agency-platform'); ?></h2>
+            <?php
+            $attr_rows = $wpdb->get_results(
+                "SELECT l.id, l.name, l.email, l.created_at,
+                        COALESCE(a.name, CONCAT('#', l.agency_id)) agencia,
+                        b.booking_code, b.status booking_status, b.total_amount
+                 FROM {$wpdb->prefix}tap_leads l
+                 LEFT JOIN {$wpdb->prefix}tap_agencies a ON a.id = l.agency_id
+                 LEFT JOIN {$wpdb->prefix}tap_bookings b ON b.lead_id = l.id
+                 ORDER BY l.id DESC, (b.status = 'confirmed') DESC"
+            );
+            $attr_best = [];
+            foreach ($attr_rows as $r) {
+                $id = (int) $r->id;
+                if (!isset($attr_best[$id])) {
+                    $attr_best[$id] = $r;
+                }
+            }
+            $n_leads = count($attr_best);
+            $n_conv  = 0;
+            foreach ($attr_best as $r) {
+                if (isset($r->booking_status) && $r->booking_status === 'confirmed') $n_conv++;
+            }
+            $attr_rate = $n_leads > 0 ? ($n_conv / $n_leads) * 100 : 0;
+            ?>
+            <div class="tap-stat-grid" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;">
+                <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html($n_leads); ?></span><span class="tap-stat-label"><?php esc_html_e('Lead', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number" style="color:#047857;"><?php echo esc_html($n_conv); ?></span><span class="tap-stat-label"><?php esc_html_e('Conversiones (reservas confirmadas)', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(number_format($attr_rate, 1) . '%'); ?></span><span class="tap-stat-label"><?php esc_html_e('Tasa de conversión', 'travel-agency-platform'); ?></span></div>
+            </div>
+            <table class="wp-list-table widefat fixed striped">
+                <thead>
+                    <tr>
+                        <th><?php esc_html_e('Nombre', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Correo', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Agencia', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Fecha', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Reserva', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Estado', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Total', 'travel-agency-platform'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach (array_slice($attr_best, 0, 20) as $r): ?>
+                    <tr>
+                        <td><?php echo esc_html($r->name); ?></td>
+                        <td><?php echo esc_html($r->email); ?></td>
+                        <td><?php echo esc_html($r->agencia ?? '—'); ?></td>
+                        <td><?php echo esc_html($r->created_at); ?></td>
+                        <td><?php echo $r->booking_code ? esc_html($r->booking_code) : esc_html__('Sin reserva vinculada', 'travel-agency-platform'); ?></td>
+                        <td><?php echo $r->booking_status ? esc_html($r->booking_status) : '—'; ?></td>
+                        <td><?php echo $r->booking_code ? esc_html(TAP_Currency::fmt($r->total_amount)) : '—'; ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
         </div>
         <?php
     }

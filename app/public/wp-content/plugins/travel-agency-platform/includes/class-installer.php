@@ -405,5 +405,8 @@ $cols_bookings = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
         if (!in_array('cancelled_by', $cols_bookings)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN cancelled_by varchar(20) DEFAULT NULL AFTER cancel_requested_at");
         }
+        if (!in_array('lead_id', $cols_bookings)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN lead_id bigint(20) DEFAULT NULL AFTER cancelled_by");
+        }
     }
 }

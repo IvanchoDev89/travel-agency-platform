@@ -1395,3 +1395,24 @@ msgstr "You have a new booking request (<strong>%s</strong>) totaling <strong>%s
 
 msgid "solicitudes"
 msgstr "requests"
+
+msgid "Contacto protegido — visible tras una reserva confirmada."
+msgstr "Protected contact — visible once a booking is confirmed."
+
+msgid "Atribución de leads"
+msgstr "Lead attribution"
+
+msgid "Lead"
+msgstr "Lead"
+
+msgid "Conversiones (reservas confirmadas)"
+msgstr "Conversions (confirmed bookings)"
+
+msgid "Tasa de conversión"
+msgstr "Conversion rate"
+
+msgid "Sin reserva vinculada"
+msgstr "No linked booking"
+
+msgid "Reserva"
+msgstr "Booking"

@@ -1002,7 +1002,21 @@ class TAP_Shortcodes {
                                 $service_title = __('Deleted listing', 'travel-agency-platform');
                             }
                             $client = get_userdata($b->client_id);
-                            $client_name = $client ? $client->display_name : __('Deleted user', 'travel-agency-platform');
+                            $b_contact_open = class_exists('TAP_Attribution') && TAP_Attribution::booking_unlocked($b);
+                            if ((int) $b->client_id === 0) {
+                                $b_name  = $b->guest_name ?: '';
+                                $b_email = $b->guest_email ?: '';
+                                $b_phone = $b->guest_phone ?: '';
+                            } elseif ($client) {
+                                $b_name  = $client->display_name;
+                                $b_email = $client->user_email;
+                                $b_phone = '';
+                            } else {
+                                $b_name  = '';
+                                $b_email = '';
+                                $b_phone = '';
+                            }
+                            $b_display = $b_contact_open && $b_name ? $b_name : TAP_Attribution::mask_name($b_name ?: __('Deleted user', 'travel-agency-platform'));
                             $date_label = $b->check_in . ($b->check_out ? ' &rarr; ' . $b->check_out : '');
                         ?>
                         <tr>
@@ -1015,7 +1029,10 @@ class TAP_Shortcodes {
                                     <span class="tap-booking-room"><?php echo esc_html($room->post_title); ?></span>
                                 <?php endif; endif; ?>
                             </td>
-                            <td><?php echo esc_html($client_name); ?><br>
+                            <td><?php echo esc_html($b_display); ?><br>
+                                <?php if ($b_email): ?><small><?php echo esc_html($b_contact_open ? $b_email : TAP_Attribution::mask_email($b_email)); ?></small><?php endif; ?>
+                                <?php if ($b_phone && $b_contact_open): ?><br><small><?php echo esc_html($b_phone); ?></small><?php endif; ?>
+                                <?php if (!$b_contact_open): ?><br><small class="tap-muted"><?php esc_html_e('Contacto protegido — visible tras una reserva confirmada.', 'travel-agency-platform'); ?></small><?php endif; ?>
                                 <small><?php echo esc_html($b->adults . ' ' . __('adults', 'travel-agency-platform') . ($b->children ? ', ' . $b->children . ' ' . __('children', 'travel-agency-platform') : '')); ?></small>
                             </td>
                             <td><?php echo esc_html($date_label); ?></td>
@@ -1087,12 +1104,16 @@ class TAP_Shortcodes {
                     <tbody>
                         <?php foreach ($leads as $ld):
                             $ld_service = $ld->service_id ? get_the_title($ld->service_id) : '';
+                            $ld_open = class_exists('TAP_Attribution') && TAP_Attribution::contact_unlocked($agency_id, $ld->email);
+                            $ld_email = $ld_open ? $ld->email : TAP_Attribution::mask_email($ld->email);
+                            $ld_phone = $ld_open ? ($ld->phone ?? '') : TAP_Attribution::mask_phone($ld->phone ?? '');
                         ?>
                         <tr>
-                            <td><strong><?php echo esc_html($ld->name); ?></strong></td>
+                            <td><strong><?php echo esc_html($ld_open ? $ld->name : TAP_Attribution::mask_name($ld->name)); ?></strong></td>
                             <td>
-                                <?php if (is_email($ld->email)): ?><a href="mailto:<?php echo esc_attr($ld->email); ?>"><?php echo esc_html($ld->email); ?></a><?php else: echo esc_html($ld->email); endif; ?>
-                                <?php if ($ld->phone): ?><br><small><?php echo esc_html($ld->phone); ?></small><?php endif; ?>
+                                <?php if (is_email($ld->email)): ?><a href="mailto:<?php echo esc_attr($ld_open ? $ld->email : ''); ?>"><?php echo esc_html($ld_email); ?></a><?php else: echo esc_html($ld_email); endif; ?>
+                                <?php if ($ld_phone): ?><br><small><?php echo esc_html($ld_phone); ?></small><?php endif; ?>
+                                <?php if (!$ld_open): ?><br><small class="tap-muted"><?php esc_html_e('Contacto protegido — visible tras una reserva confirmada.', 'travel-agency-platform'); ?></small><?php endif; ?>
                             </td>
                             <td><?php echo $ld_service ? esc_html($ld_service) : '—'; ?></td>
                             <td class="tap-lead-message"><?php echo esc_html(mb_strimwidth($ld->message ?? '', 0, 120, '…')); ?></td>

@@ -155,7 +155,8 @@ tap_t_assert(is_wp_error($r) && 'lead_rate_limit' === $r->get_error_code(), '11t
 // ===== CSV export =====
 $csv = TAP_Leads::export_csv($ld_agency_id);
 tap_t_assert(strpos($csv, 'name,email,phone,message') !== false, 'csv has header row');
-tap_t_assert(strpos($csv, $email) !== false, 'csv contains lead email');
+tap_t_assert(strpos($csv, $email) === false, 'csv hides full lead email while contact is locked');
+tap_t_assert(strpos($csv, '***') !== false, 'csv masks contact fields while locked');
 tap_t_assert(substr($csv, 0, 3) === "\xEF\xBB\xBF", 'csv starts with BOM');
 
 // ===== Shortcode rendering =====

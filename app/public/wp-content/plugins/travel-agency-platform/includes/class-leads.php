@@ -89,24 +89,32 @@ class TAP_Leads {
 
     public static function for_agency($agency_id, $limit = 20) {
         global $wpdb;
+        $row_id = self::agency_row_id($agency_id);
+        if ($row_id < 1) {
+            return [];
+        }
         $t = $wpdb->prefix . 'tap_leads';
         if ($limit > 0) {
             return $wpdb->get_results($wpdb->prepare(
                 "SELECT * FROM {$t} WHERE agency_id = %d ORDER BY created_at DESC, id DESC LIMIT %d",
-                $agency_id, $limit
+                $row_id, $limit
             )) ?: [];
         }
         return $wpdb->get_results($wpdb->prepare(
             "SELECT * FROM {$t} WHERE agency_id = %d ORDER BY created_at DESC, id DESC",
-            $agency_id
+            $row_id
         )) ?: [];
     }
 
     public static function count_for_agency($agency_id) {
+        $row_id = self::agency_row_id($agency_id);
+        if ($row_id < 1) {
+            return 0;
+        }
         global $wpdb;
         return (int) $wpdb->get_var($wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->prefix}tap_leads WHERE agency_id = %d",
-            $agency_id
+            $row_id
         ));
     }
 
@@ -116,11 +124,13 @@ class TAP_Leads {
         $out .= chr(0xEF) . chr(0xBB) . chr(0xBF);
         $out .= implode(',', ['id', 'name', 'email', 'phone', 'message', 'source', 'service_id', 'created_at']) . "\n";
         foreach ($rows as $r) {
+            $unlocked = class_exists('TAP_Attribution')
+                && TAP_Attribution::contact_unlocked($agency_id, $r->email);
             $fields = [
                 (int) $r->id,
-                $r->name,
-                $r->email,
-                $r->phone ?? '',
+                $unlocked ? $r->name : TAP_Attribution::mask_name($r->name),
+                $unlocked ? $r->email : TAP_Attribution::mask_email($r->email),
+                $unlocked ? ($r->phone ?? '') : TAP_Attribution::mask_phone($r->phone ?? ''),
                 $r->message ?? '',
                 $r->source ?? '',
                 (int) ($r->service_id ?? 0),
@@ -257,6 +267,23 @@ class TAP_Leads {
             "SELECT COUNT(*) FROM {$wpdb->prefix}tap_agencies WHERE id = %d AND is_active = 1",
             $agency_id
         )) > 0;
+    }
+
+    /**
+     * Map an agency identifier to the tap_leads/tap_agencies row id namespace.
+     * Accepts the tap_agency post id (canonical in bookings and the agency
+     * dashboard) or an already-resolved tap_agencies row id.
+     */
+    public static function agency_row_id($agency_id) {
+        $agency_id = (int) $agency_id;
+        if ($agency_id < 1) {
+            return 0;
+        }
+        $post = get_post($agency_id);
+        if ($post && $post->post_type === 'tap_agency') {
+            return self::row_id_for_agency_post($agency_id);
+        }
+        return $agency_id;
     }
 
     /**
