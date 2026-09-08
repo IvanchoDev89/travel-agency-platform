@@ -18,6 +18,7 @@ class TAP_Sitemap {
         'tap_car_rental',
         'tap_boat',
         'tap_package',
+        'tap_equipment',
     ];
 
     protected static $taxonomies = [
@@ -28,6 +29,7 @@ class TAP_Sitemap {
         'tap_tour_type',
         'tap_vehicle_type',
         'tap_boat_type',
+        'tap_tour_difficulty',
     ];
 
     public static function init() {

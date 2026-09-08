@@ -75,11 +75,18 @@ class TAP_Shortcodes {
         $keyword   = sanitize_text_field($_GET['keyword'] ?? '');
         $type      = sanitize_text_field($_GET['type'] ?? '');
         $location  = intval($_GET['location'] ?? 0);
+        $difficulty = sanitize_title($_GET['difficulty'] ?? '');
+        $tour_type  = sanitize_title($_GET['tour_type'] ?? '');
         $min_price = isset($_GET['min_price']) && $_GET['min_price'] !== '' ? floatval($_GET['min_price']) : null;
         $max_price = isset($_GET['max_price']) && $_GET['max_price'] !== '' ? floatval($_GET['max_price']) : null;
         $sort      = sanitize_key($_GET['sort'] ?? 'relevance');
 
-        $service_types = ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
+        // Difficulty and tour-type only apply to tours; force the tour type.
+        if ($difficulty || $tour_type) {
+            $type = 'tap_tour';
+        }
+
+        $service_types = ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
         $types = $type && in_array($type, $service_types, true) ? [$type] : $service_types;
         $rows  = [];
 
@@ -99,10 +106,18 @@ class TAP_Shortcodes {
                 'suppress_filters' => true,
             ];
 
+            $tax_query = [];
             if ($location) {
-                $args['tax_query'] = [
-                    ['taxonomy' => 'tap_location', 'field' => 'term_id', 'terms' => $location],
-                ];
+                $tax_query[] = ['taxonomy' => 'tap_location', 'field' => 'term_id', 'terms' => $location];
+            }
+            if ($difficulty && $pt === 'tap_tour' && term_exists($difficulty, 'tap_tour_difficulty')) {
+                $tax_query[] = ['taxonomy' => 'tap_tour_difficulty', 'field' => 'slug', 'terms' => $difficulty];
+            }
+            if ($tour_type && $pt === 'tap_tour' && term_exists($tour_type, 'tap_tour_type')) {
+                $tax_query[] = ['taxonomy' => 'tap_tour_type', 'field' => 'slug', 'terms' => $tour_type];
+            }
+            if (!empty($tax_query)) {
+                $args['tax_query'] = $tax_query;
             }
 
             $price_key = TAP_API::get_price_key($pt);
@@ -150,13 +165,20 @@ class TAP_Shortcodes {
 
         $total = count($rows);
 
-        if ('' === $keyword && !$type && !$location && $min_price === null && $max_price === null && $sort === 'relevance') {
-            return self::search_filters($current_url, $type, $location, $sort, $min_price, $max_price)
+        if ('' === $keyword && !$type && !$location && !$difficulty && !$tour_type && $min_price === null && $max_price === null && $sort === 'relevance') {
+            return self::search_filters($current_url, $type, $location, $sort, $min_price, $max_price, $difficulty, $tour_type)
                 . '<p class="tap-no-results">' . esc_html__('Busca servicios por destino, nombre o tipo para ver resultados.', 'travel-agency-platform') . '</p>';
         }
 
         ob_start();
-        echo self::search_filters($current_url, $type, $location, $sort, $min_price, $max_price);
+        echo self::search_filters($current_url, $type, $location, $sort, $min_price, $max_price, $difficulty, $tour_type);
+
+        if ($location) {
+            $bc = TAP_Destinations::breadcrumb($location);
+            if ($bc) {
+                echo '<nav class="tap-breadcrumb" aria-label="' . esc_attr__('Breadcrumb', 'travel-agency-platform') . '">' . esc_html($bc) . '</nav>';
+            }
+        }
 
         echo '<div class="tap-search-results">';
         if ($total) {
@@ -176,7 +198,7 @@ class TAP_Shortcodes {
         return ob_get_clean();
     }
 
-    protected static function search_filters($current_url, $type, $location, $sort, $min_price, $max_price) {
+    protected static function search_filters($current_url, $type, $location, $sort, $min_price, $max_price, $difficulty = '', $tour_type = '') {
         $types = [
             ''    => __('Todos los servicios', 'travel-agency-platform'),
             'tap_accommodation' => __('Alojamientos', 'travel-agency-platform'),
@@ -185,6 +207,7 @@ class TAP_Shortcodes {
             'tap_car_rental'    => __('Alquiler de Autos', 'travel-agency-platform'),
             'tap_boat'          => __('Barcos y Paseos', 'travel-agency-platform'),
             'tap_package'       => __('Paquetes', 'travel-agency-platform'),
+            'tap_equipment'     => __('Equipos y Alquileres', 'travel-agency-platform'),
         ];
         $sorts = [
             'relevance' => __('Más recientes', 'travel-agency-platform'),
@@ -205,14 +228,31 @@ class TAP_Shortcodes {
                     <?php endforeach; ?>
                 </select>
             </label>
-            <label><?php esc_html_e('Ubicación', 'travel-agency-platform'); ?>
-                <select name="location">
-                    <option value="0"><?php esc_html_e('Todas', 'travel-agency-platform'); ?></option>
+            <div class="tap-field">
+                <span class="tap-field-label"><?php esc_html_e('Ubicación', 'travel-agency-platform'); ?></span>
+                <?php echo TAP_Destinations::render_picker($location, 'location'); ?>
+            </div>
+            <label><?php esc_html_e('Tipo de tour', 'travel-agency-platform'); ?>
+                <select name="tour_type">
+                    <option value="">—</option>
                     <?php
-                    $terms = get_terms(['taxonomy' => 'tap_location', 'hide_empty' => false, 'orderby' => 'name']);
-                    if (!is_wp_error($terms)) {
-                        foreach ($terms as $term) {
-                            printf('<option value="%d" %s>%s</option>', (int) $term->term_id, selected($location, $term->term_id, false), esc_html($term->name));
+                    $tours = get_terms(['taxonomy' => 'tap_tour_type', 'hide_empty' => false, 'orderby' => 'name']);
+                    if (!is_wp_error($tours)) {
+                        foreach ($tours as $t) {
+                            printf('<option value="%s" %s>%s</option>', esc_attr($t->slug), selected($tour_type, $t->slug, false), esc_html(__($t->name, 'travel-agency-platform')));
+                        }
+                    }
+                    ?>
+                </select>
+            </label>
+            <label><?php esc_html_e('Dificultad', 'travel-agency-platform'); ?>
+                <select name="difficulty">
+                    <option value="">—</option>
+                    <?php
+                    $diffs = get_terms(['taxonomy' => 'tap_tour_difficulty', 'hide_empty' => false, 'orderby' => 'name']);
+                    if (!is_wp_error($diffs)) {
+                        foreach ($diffs as $d) {
+                            printf('<option value="%s" %s>%s</option>', esc_attr($d->slug), selected($difficulty, $d->slug, false), esc_html(__($d->name, 'travel-agency-platform')));
                         }
                     }
                     ?>
@@ -232,8 +272,8 @@ class TAP_Shortcodes {
                 </select>
             </label>
             <button type="submit" class="tap-btn tap-btn-primary"><?php esc_html_e('Aplicar', 'travel-agency-platform'); ?></button>
-            <?php if ($type || $location || $min_price !== null || $max_price !== null || $sort !== 'relevance'): ?>
-                <a class="tap-btn tap-btn-outline" href="<?php echo esc_url(remove_query_arg(['type', 'location', 'min_price', 'max_price', 'sort'])); ?>"><?php esc_html_e('Limpiar', 'travel-agency-platform'); ?></a>
+            <?php if ($type || $location || $difficulty || $tour_type || $min_price !== null || $max_price !== null || $sort !== 'relevance'): ?>
+                <a class="tap-btn tap-btn-outline" href="<?php echo esc_url(remove_query_arg(['type', 'location', 'difficulty', 'tour_type', 'min_price', 'max_price', 'sort'])); ?>"><?php esc_html_e('Limpiar', 'travel-agency-platform'); ?></a>
             <?php endif; ?>
         </form>
         <?php
@@ -669,7 +709,7 @@ class TAP_Shortcodes {
                             $service = get_post($booking->service_id);
                             $service_marker = $booking->service_type . ':' . $booking->service_id;
                             $can_review = 'completed' === $booking->status
-                                && in_array($booking->service_type, ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'], true)
+                                && in_array($booking->service_type, ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'], true)
                                 && $service
                                 && !in_array($service_marker, $reviewed, true);
                         ?>
@@ -2054,6 +2094,27 @@ class TAP_Shortcodes {
                         echo '</div>';
                     }
                     ?>
+                    <div class="tap-field tap-span-2">
+                        <label><?php esc_html_e('Destino', 'travel-agency-platform'); ?></label>
+                        <?php
+                        $dest_sel = 0;
+                        if ($is_edit) {
+                            $dterms = get_the_terms($listing_id, 'tap_location');
+                            $highest_level = -1;
+                            if (is_array($dterms)) {
+                                foreach ($dterms as $dt) {
+                                    $dl = TAP_Destinations::term_level($dt->term_id);
+                                    $dl = $dl !== null ? $dl : TAP_Destinations::term_depth($dt->term_id);
+                                    if ($dl > $highest_level) {
+                                        $highest_level = $dl;
+                                        $dest_sel = (int) $dt->term_id;
+                                    }
+                                }
+                            }
+                        }
+                        echo TAP_Destinations::render_picker($dest_sel, 'destination');
+                        ?>
+                    </div>
                 </div>
                 <button type="submit" class="tap-btn tap-btn-primary"><?php echo $is_edit ? esc_html__('Guardar cambios', 'travel-agency-platform') : esc_html__('Crear servicio', 'travel-agency-platform'); ?></button>
                 <span class="tap-form-msg"></span>

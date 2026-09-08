@@ -36,6 +36,7 @@ final class TravelAgencyPlatform {
         require_once TAP_PLUGIN_DIR . 'includes/class-currency.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-post-types.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-taxonomies.php';
+        require_once TAP_PLUGIN_DIR . 'includes/class-destinations.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-roles.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-metaboxes.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-pricing.php';
@@ -68,7 +69,9 @@ final class TravelAgencyPlatform {
         add_filter('determine_locale', ['TAP_Localization', 'filter_determine_locale'], 1);
         add_action('init', ['TAP_Post_Types', 'register'], 5);
         add_action('init', ['TAP_Taxonomies', 'register'], 6);
-        add_action('init', ['TAP_Roles', 'setup'], 7);
+        add_action('init', ['TAP_Taxonomies', 'seed'], 7);
+        add_action('init', ['TAP_Taxonomies', 'migrate_tour_difficulty'], 8);
+        add_action('init', ['TAP_Roles', 'setup'], 9);
         add_action('init', ['TAP_Shortcodes', 'init'], 8);
         add_action('init', ['TAP_Dashboard', 'init'], 9);
         add_action('init', ['TAP_Pricing', 'init'], 10);

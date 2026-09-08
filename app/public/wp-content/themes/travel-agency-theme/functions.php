@@ -112,7 +112,7 @@ function travel_agency_theme_widgets_init() {
 add_action('widgets_init', 'travel_agency_theme_widgets_init');
 
 function travel_agency_route_service_single($template) {
-    if (is_singular(['tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'])) {
+    if (is_singular(['tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'])) {
         $alt = locate_template('templates/single-service.php');
         if ($alt) return $alt;
     }

@@ -128,11 +128,17 @@ class TAP_Ajax {
         $keyword = sanitize_text_field($_POST['keyword'] ?? '');
         $type = sanitize_text_field($_POST['type'] ?? '');
         $location = intval($_POST['location'] ?? 0);
+        $difficulty = sanitize_title($_POST['difficulty'] ?? '');
+        $tour_type = sanitize_title($_POST['tour_type'] ?? '');
         $check_in = sanitize_text_field($_POST['check_in'] ?? '');
         $check_out = sanitize_text_field($_POST['check_out'] ?? '');
         $guests = intval($_POST['guests'] ?? 1);
 
-        $types = $type ? [$type] : ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
+        if ($difficulty || $tour_type) {
+            $type = 'tap_tour';
+        }
+
+        $types = $type ? [$type] : ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
         $results = [];
 
         foreach ($types as $pt) {
@@ -147,10 +153,18 @@ class TAP_Ajax {
                 ],
             ];
 
+            $tax_query = [];
             if ($location) {
-                $args['tax_query'] = [
-                    ['taxonomy' => 'tap_location', 'field' => 'term_id', 'terms' => $location],
-                ];
+                $tax_query[] = ['taxonomy' => 'tap_location', 'field' => 'term_id', 'terms' => $location];
+            }
+            if ($difficulty && $pt === 'tap_tour' && term_exists($difficulty, 'tap_tour_difficulty')) {
+                $tax_query[] = ['taxonomy' => 'tap_tour_difficulty', 'field' => 'slug', 'terms' => $difficulty];
+            }
+            if ($tour_type && $pt === 'tap_tour' && term_exists($tour_type, 'tap_tour_type')) {
+                $tax_query[] = ['taxonomy' => 'tap_tour_type', 'field' => 'slug', 'terms' => $tour_type];
+            }
+            if (!empty($tax_query)) {
+                $args['tax_query'] = $tax_query;
             }
 
             $query = new WP_Query($args);
@@ -525,7 +539,7 @@ class TAP_Ajax {
         $types = (array) $wp_query->get('post_type');
         $types = array_filter($types);
         if (empty($types) && $wp_query->is_search()) {
-            $types = ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
+            $types = ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
         }
         if (empty($types)) return $clauses;
 
@@ -1142,6 +1156,13 @@ class TAP_Ajax {
         }
 
         $GLOBALS['_tap_saved_listing'] = (int) $new_id;
+
+        if (isset($input['destination'])) {
+            $dest  = absint($input['destination']);
+            $valid = $dest && term_exists($dest, 'tap_location');
+            wp_set_object_terms($new_id, $valid ? [$dest] : [], 'tap_location', false);
+        }
+
         return true;
     }
 

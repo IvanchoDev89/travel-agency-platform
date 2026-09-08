@@ -193,7 +193,7 @@ class TAP_API {
 
         $agency = self::format_agency($post, true);
 
-        $service_types = ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
+        $service_types = ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
         $services = [];
 
         foreach ($service_types as $st) {
@@ -220,13 +220,19 @@ class TAP_API {
         $keyword = $request->get_param('keyword');
         $type = $request->get_param('type');
         $location = $request->get_param('location');
+        $difficulty = sanitize_title((string) $request->get_param('difficulty'));
+        $tour_type = sanitize_title((string) $request->get_param('tour_type'));
         $check_in = $request->get_param('check_in');
         $check_out = $request->get_param('check_out');
         $guests = $request->get_param('guests');
         $min_price = $request->get_param('min_price');
         $max_price = $request->get_param('max_price');
 
-        $types = $type ? [$type] : ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
+        if ($difficulty || $tour_type) {
+            $type = 'tap_tour';
+        }
+
+        $types = $type ? [$type] : ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
 
         $results = [];
 
@@ -241,10 +247,18 @@ class TAP_API {
                 ],
             ];
 
+            $tax_query = [];
             if ($location) {
-                $args['tax_query'] = [
-                    ['taxonomy' => 'tap_location', 'field' => 'term_id', 'terms' => intval($location)],
-                ];
+                $tax_query[] = ['taxonomy' => 'tap_location', 'field' => 'term_id', 'terms' => intval($location)];
+            }
+            if ($difficulty && $pt === 'tap_tour' && term_exists($difficulty, 'tap_tour_difficulty')) {
+                $tax_query[] = ['taxonomy' => 'tap_tour_difficulty', 'field' => 'slug', 'terms' => $difficulty];
+            }
+            if ($tour_type && $pt === 'tap_tour' && term_exists($tour_type, 'tap_tour_type')) {
+                $tax_query[] = ['taxonomy' => 'tap_tour_type', 'field' => 'slug', 'terms' => $tour_type];
+            }
+            if (!empty($tax_query)) {
+                $args['tax_query'] = $tax_query;
             }
 
             if ($min_price) {
@@ -537,6 +551,7 @@ class TAP_API {
             'tap_car_rental'    => '_tap_car_price_per_day',
             'tap_boat'          => '_tap_boat_price_half',
             'tap_package'       => '_tap_pkg_price',
+            'tap_equipment'     => '_tap_eq_price_day',
         ];
         return $keys[$type] ?? null;
     }

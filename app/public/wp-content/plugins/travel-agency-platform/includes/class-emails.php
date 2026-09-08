@@ -432,6 +432,7 @@ class TAP_Emails {
             'tap_car_rental'    => __('Alquiler de auto', 'travel-agency-platform'),
             'tap_boat'          => __('Barco', 'travel-agency-platform'),
             'tap_package'       => __('Paquete', 'travel-agency-platform'),
+            'tap_equipment'     => __('Equipo', 'travel-agency-platform'),
         ];
         return $labels[$type] ?? $type;
     }

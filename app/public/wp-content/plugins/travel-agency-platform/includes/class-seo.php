@@ -10,6 +10,7 @@ class TAP_SEO {
         'tap_car_rental',
         'tap_boat',
         'tap_package',
+        'tap_equipment',
     ];
 
     public static function init() {
@@ -48,7 +49,7 @@ class TAP_SEO {
                 $desc = isset($map[$pt]) ? $map[$pt]['desc'] : '';
                 self::archive_tags($name, $desc, get_post_type_archive_link($pt));
             }
-        } elseif (is_tax(['tap_location', 'tap_service_cat', 'tap_property_type', 'tap_amenity', 'tap_tour_type', 'tap_vehicle_type', 'tap_boat_type'])) {
+        } elseif (is_tax(['tap_location', 'tap_service_cat', 'tap_property_type', 'tap_amenity', 'tap_tour_type', 'tap_vehicle_type', 'tap_boat_type', 'tap_tour_difficulty'])) {
             $term = get_queried_object();
             if ($term instanceof WP_Term) {
                 $name = $term->name;
@@ -66,6 +67,7 @@ class TAP_SEO {
             'tap_car_rental'    => ['name' => __('Alquiler de Autos', 'travel-agency-platform'), 'desc' => __('Alquiler de autos y vehículos para viajar con libertad.', 'travel-agency-platform')],
             'tap_boat'          => ['name' => __('Barcos y Paseos', 'travel-agency-platform'), 'desc' => __('Paseos en barco, lanchas y actividades acuáticas con operadores verificados.', 'travel-agency-platform')],
             'tap_package'       => ['name' => __('Paquetes Turísticos', 'travel-agency-platform'), 'desc' => __('Paquetes turísticos todo incluido y experiencias combinadas.', 'travel-agency-platform')],
+            'tap_equipment'     => ['name' => __('Equipos y Alquileres', 'travel-agency-platform'), 'desc' => __('Alquiler de equipo: kayaks, snorkel, bicicletas, surf y más para tu viaje.', 'travel-agency-platform')],
         ];
     }
 

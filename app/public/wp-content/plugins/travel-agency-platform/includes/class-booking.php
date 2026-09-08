@@ -370,6 +370,7 @@ class TAP_Booking {
             case 'tap_car_rental':    $meta_key = '_tap_car_agency_id'; break;
             case 'tap_boat':          $meta_key = '_tap_boat_agency_id'; break;
             case 'tap_package':       $meta_key = '_tap_pkg_agency_id'; break;
+            case 'tap_equipment':     $meta_key = '_tap_eq_agency_id'; break;
         }
 
         if ($meta_key) {
@@ -400,6 +401,7 @@ class TAP_Booking {
             'tap_car_rental'    => '_tap_car_price_per_day',
             'tap_boat'          => '_tap_boat_price_half',
             'tap_package'       => '_tap_pkg_price',
+            'tap_equipment'     => '_tap_eq_price_day',
         ];
 
         if ($service_type === 'tap_accommodation' && $room_id) {
@@ -420,6 +422,22 @@ class TAP_Booking {
 
         $price_key = $price_keys[$service_type] ?? '';
         if (!$price_key) return 0;
+
+        if ($service_type === 'tap_equipment') {
+            // Equipment may be priced per day and/or per hour; a valid hourly
+            // price must not be short-circuited by a missing day price.
+            $days = 1;
+            if ($check_in && $check_out) {
+                $d1 = new DateTime($check_in);
+                $d2 = new DateTime($check_out);
+                $days = max(1, $d1->diff($d2)->days);
+            }
+            $day_price = floatval(get_post_meta($service_id, '_tap_eq_price_day', true));
+            if ($day_price > 0) {
+                return $day_price * $days;
+            }
+            return floatval(get_post_meta($service_id, '_tap_eq_price_hour', true)) * max($days, 1);
+        }
 
         $unit_price = floatval(get_post_meta($service_id, $price_key, true));
         if ($unit_price <= 0) return 0;

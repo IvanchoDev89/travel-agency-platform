@@ -11,6 +11,7 @@ class TAP_Post_Types {
         self::register_car_rental();
         self::register_boat();
         self::register_package();
+        self::register_equipment();
     }
 
     private static function register_agency() {
@@ -239,6 +240,34 @@ class TAP_Post_Types {
         ]);
     }
 
+    private static function register_equipment() {
+        $labels = [
+            'name'               => __('Equipment & Rentals', 'travel-agency-platform'),
+            'singular_name'      => __('Equipment', 'travel-agency-platform'),
+            'add_new'            => __('Add Equipment', 'travel-agency-platform'),
+            'add_new_item'       => __('Add New Equipment', 'travel-agency-platform'),
+            'edit_item'          => __('Edit Equipment', 'travel-agency-platform'),
+            'view_item'          => __('View Equipment', 'travel-agency-platform'),
+            'search_items'       => __('Search Equipment', 'travel-agency-platform'),
+            'not_found'          => __('No equipment found', 'travel-agency-platform'),
+            'all_items'          => __('All Equipment', 'travel-agency-platform'),
+        ];
+
+        register_post_type('tap_equipment', [
+            'labels'       => $labels,
+            'public'       => true,
+            'has_archive'  => true,
+            'show_in_menu' => true,
+            'menu_icon'    => 'dashicons-hammer',
+            'menu_position' => 27,
+            'supports'     => ['title', 'editor', 'thumbnail', 'custom-fields'],
+            'rewrite'      => ['slug' => 'equipment'],
+            'capability_type' => ['tap_equipment', 'tap_equipment_items'],
+            'map_meta_cap' => true,
+            'show_in_rest' => true,
+        ]);
+    }
+
     public static function get_service_types() {
         return [
             'tap_accommodation' => __('Accommodation', 'travel-agency-platform'),
@@ -248,6 +277,7 @@ class TAP_Post_Types {
             'tap_car_rental'    => __('Car Rental', 'travel-agency-platform'),
             'tap_boat'          => __('Boat', 'travel-agency-platform'),
             'tap_package'       => __('Package', 'travel-agency-platform'),
+            'tap_equipment'     => __('Equipment', 'travel-agency-platform'),
         ];
     }
 
@@ -261,6 +291,7 @@ class TAP_Post_Types {
             'tap_car_rental'    => 'car-rental',
             'tap_boat'          => 'boat',
             'tap_package'       => 'package',
+            'tap_equipment'     => 'equipment',
         ];
         return isset($slugs[$post_type]) ? $slugs[$post_type] : '';
     }
@@ -277,6 +308,7 @@ class TAP_Post_Types {
             'tap_car_rental'    => 'car',
             'tap_boat'          => 'boat',
             'tap_package'       => 'pkg',
+            'tap_equipment'     => 'eq',
         ];
         return isset($prefixes[$post_type]) ? $prefixes[$post_type] : '';
     }

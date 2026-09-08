@@ -17,6 +17,7 @@ $agency_meta = [
     'tap_car_rental' => '_tap_car_agency_id',
     'tap_boat'       => '_tap_boat_agency_id',
     'tap_package'    => '_tap_pkg_agency_id',
+    'tap_equipment'  => '_tap_eq_agency_id',
 ];
 $price_meta = [
     'tap_tour'       => '_tap_tour_price_adult',
@@ -24,6 +25,7 @@ $price_meta = [
     'tap_car_rental' => '_tap_car_price_per_day',
     'tap_boat'       => '_tap_boat_price_half',
     'tap_package'    => '_tap_pkg_price',
+    'tap_equipment'  => '_tap_eq_price_day',
 ];
 $unit_label = [
     'tap_tour'       => __('per adult', 'travel-agency-platform'),
@@ -31,6 +33,7 @@ $unit_label = [
     'tap_car_rental' => __('per day', 'travel-agency-platform'),
     'tap_boat'       => '',
     'tap_package'    => __('per person', 'travel-agency-platform'),
+    'tap_equipment'  => __('per day', 'travel-agency-platform'),
 ];
 
 $price_key = $price_meta[$pt] ?? '';
@@ -45,7 +48,7 @@ if (isset($agency_meta[$pt])) {
 
 $needs_out = 'tap_car_rental' === $pt;
 $needs_guests = in_array($pt, ['tap_tour', 'tap_package'], true);
-$needs_date = in_array($pt, ['tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat'], true);
+$needs_date = in_array($pt, ['tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_equipment'], true);
 
 $badge = $agency ? __('Verificada', 'travel-agency-platform') : '';
 ?>
@@ -66,6 +69,25 @@ $badge = $agency ? __('Verificada', 'travel-agency-platform') : '';
         </div>
     </div>
 </div>
+
+<?php
+$dest_terms = wp_get_post_terms($id, 'tap_location');
+$deepest = null;
+$highest = -1;
+if (is_array($dest_terms) && $dest_terms) {
+    foreach ($dest_terms as $dt) {
+        $dlv = class_exists('TAP_Destinations') ? TAP_Destinations::term_level($dt->term_id) : null;
+        $dlv = $dlv !== null ? $dlv : 0;
+        if ($dlv > $highest) {
+            $highest = $dlv;
+            $deepest = $dt;
+        }
+    }
+}
+if ($deepest && class_exists('TAP_Destinations')) {
+    echo '<div class="tap-breadcrumb-meta"><nav class="tap-breadcrumb" aria-label="' . esc_attr__('Breadcrumb', 'travel-agency-platform') . '">' . esc_html(TAP_Destinations::breadcrumb($deepest->term_id)) . '</nav></div>';
+}
+?>
 
 <div class="tap-container">
   <div class="tap-acc-layout">

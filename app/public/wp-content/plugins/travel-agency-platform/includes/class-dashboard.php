@@ -18,6 +18,8 @@ class TAP_Dashboard {
         add_action('manage_tap_boat_posts_custom_column', [__CLASS__, 'render_agency_column'], 10, 2);
         add_filter('manage_tap_package_posts_columns', [__CLASS__, 'add_agency_column']);
         add_action('manage_tap_package_posts_custom_column', [__CLASS__, 'render_agency_column'], 10, 2);
+        add_filter('manage_tap_equipment_posts_columns', [__CLASS__, 'add_agency_column']);
+        add_action('manage_tap_equipment_posts_custom_column', [__CLASS__, 'render_agency_column'], 10, 2);
     }
 
     public static function add_admin_menu() {

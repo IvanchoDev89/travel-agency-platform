@@ -15,7 +15,38 @@ class TAP_Metaboxes {
         self::register_boat_metabox();
         self::register_package_metabox();
         self::register_booking_metabox();
+        self::register_equipment_metabox();
+        self::register_destination_metabox();
         self::$loaded = true;
+    }
+
+    private static function service_types() {
+        return ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
+    }
+
+    private static function register_destination_metabox() {
+        foreach (self::service_types() as $type) {
+            add_meta_box('tap_destination', __('Destination', 'travel-agency-platform'), [__CLASS__, 'render_destination'], $type, 'side', 'default');
+        }
+    }
+
+    public static function render_destination($post) {
+        wp_nonce_field('tap_metabox_save', 'tap_metabox_nonce');
+        $selected = 0;
+        $highest  = -1;
+        $terms    = get_the_terms($post->ID, 'tap_location');
+        if (is_array($terms) && $terms) {
+            foreach ($terms as $term) {
+                $level = TAP_Destinations::term_level($term->term_id);
+                $level = $level !== null ? $level : TAP_Destinations::term_depth($term->term_id);
+                if ($level > $highest) {
+                    $highest  = $level;
+                    $selected = (int) $term->term_id;
+                }
+            }
+        }
+        echo '<p class="description">' . esc_html__('Destination hierarchy: país → provincia → cantón → distrito → lugar.', 'travel-agency-platform') . '</p>';
+        echo TAP_Destinations::render_picker($selected, 'tap_destination');
     }
 
     public static function get_fields($post_type) {
@@ -92,6 +123,24 @@ class TAP_Metaboxes {
             '_tap_tour_capacity'    => ['type' => 'number', 'label' => __('Cupos por fecha (capacidad)', 'travel-agency-platform')],
             '_tap_seo_title'        => ['type' => 'text', 'label' => __('SEO Title', 'travel-agency-platform'), 'placeholder' => __('Falls back to post title', 'travel-agency-platform')],
             '_tap_seo_description'  => ['type' => 'textarea', 'label' => __('Meta Description (SEO)', 'travel-agency-platform')],
+        ];
+    }
+
+    private static function register_equipment_metabox() {
+        add_meta_box('tap_equipment_details', __('Equipment Details', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_equipment', 'normal', 'high');
+        self::$fields['tap_equipment'] = [
+            '_tap_eq_agency_id'    => ['type' => 'select_post', 'label' => __('Agency', 'travel-agency-platform'), 'post_type' => 'tap_agency'],
+            '_tap_eq_type'         => ['type' => 'select', 'label' => __('Category', 'travel-agency-platform'), 'options' => ['hiking' => 'Senderismo', 'camping' => 'Camping', 'kayak' => 'Kayak', 'snorkel' => 'Snorkel', 'surf' => 'Surf', 'bicicleta' => 'Bicicleta', 'acuatico' => 'Deportes acuáticos', 'fotografia' => 'Fotografía', 'bebe' => 'Equipo para bebés', 'playa' => 'Playa', 'cocina' => 'Cocina / Parrilla', 'otros' => 'Otros']],
+            '_tap_eq_price_day'    => ['type' => 'number', 'label' => __('Price per Day ($)', 'travel-agency-platform'), 'step' => '0.01'],
+            '_tap_eq_price_hour'   => ['type' => 'number', 'label' => __('Price per Hour ($)', 'travel-agency-platform'), 'step' => '0.01'],
+            '_tap_eq_deposit'      => ['type' => 'number', 'label' => __('Security Deposit ($)', 'travel-agency-platform'), 'step' => '0.01'],
+            '_tap_eq_quantity'     => ['type' => 'number', 'label' => __('Units Available', 'travel-agency-platform')],
+            '_tap_eq_currency'     => ['type' => 'text', 'label' => __('Currency', 'travel-agency-platform'), 'default' => 'USD'],
+            '_tap_eq_pickup'       => ['type' => 'text', 'label' => __('Pick-up / Delivery Location', 'travel-agency-platform')],
+            '_tap_eq_conditions'   => ['type' => 'textarea', 'label' => __('Rental Conditions', 'travel-agency-platform')],
+            '_tap_eq_is_active'    => ['type' => 'checkbox', 'label' => __('Active', 'travel-agency-platform'), 'default' => '1'],
+            '_tap_seo_title'       => ['type' => 'text', 'label' => __('SEO Title', 'travel-agency-platform'), 'placeholder' => __('Falls back to post title', 'travel-agency-platform')],
+            '_tap_seo_description' => ['type' => 'textarea', 'label' => __('Meta Description (SEO)', 'travel-agency-platform')],
         ];
     }
 
@@ -323,6 +372,27 @@ class TAP_Metaboxes {
 
             if (isset($_POST['_tap_room_beds'])) {
                 update_post_meta($post_id, '_tap_room_beds', wp_unslash($_POST['_tap_room_beds']));
+            }
+        }
+
+        $service_like = in_array($post_type, self::service_types(), true);
+        if ($service_like || $post_type === 'tap_room') {
+            if (isset($_POST['tap_destination'])) {
+                $dest = absint($_POST['tap_destination']);
+                $valid = $dest && term_exists($dest, 'tap_location');
+                wp_set_object_terms($post_id, $valid ? [$dest] : [], 'tap_location', false);
+            }
+        }
+
+        if ($post_type === 'tap_tour' && isset($_POST['_tap_tour_difficulty'])) {
+            $difficulty = sanitize_key($_POST['_tap_tour_difficulty']);
+            $term = $difficulty && term_exists($difficulty, 'tap_tour_difficulty') ? $difficulty : '';
+            if ($term) {
+                $tt = term_exists($term, 'tap_tour_difficulty');
+                $term_id = (int) (is_array($tt) ? $tt['term_id'] : $tt);
+                wp_set_object_terms($post_id, [$term_id], 'tap_tour_difficulty', false);
+            } else {
+                wp_set_object_terms($post_id, [], 'tap_tour_difficulty', false);
             }
         }
     }
