@@ -221,7 +221,7 @@ if ($deepest && class_exists('TAP_Destinations')) {
 
             <div class="tap-bw-actions">
               <button type="submit" class="tap-btn tap-btn-primary tap-btn-block" id="bw-submit" disabled>
-                <?php esc_html_e('Book Now', 'travel-agency-platform'); ?>
+                <?php echo TAP_Booking::booking_mode($pt, $id) === 'request' ? esc_html__('Solicitar reserva', 'travel-agency-platform') : esc_html__('Book Now', 'travel-agency-platform'); ?>
               </button>
             </div>
           </form>
@@ -320,13 +320,13 @@ jQuery(document).ready(function($) {
       guest_phone: $('#bw-guest-phone').val() || ''
     }).done(function(res) {
       if (res && res.success && res.data.booking_code) {
-        window.location.href = '<?php echo esc_url(home_url('/checkout')); ?>?code=' + res.data.booking_code;
+        window.location.href = (res.data.redirect || '<?php echo esc_url(home_url('/checkout')); ?>?code=' + res.data.booking_code);
       } else {
-        $btn.prop('disabled', false).text('<?php echo esc_js(__('Book Now', 'travel-agency-platform')); ?>');
+        $btn.prop('disabled', false).text('<?php echo TAP_Booking::booking_mode($pt, $id) === 'request' ? esc_js(__('Solicitar reserva', 'travel-agency-platform')) : esc_js(__('Book Now', 'travel-agency-platform')); ?>');
         alert(res && res.data && res.data.message ? res.data.message : '<?php echo esc_js(__('Error', 'travel-agency-platform')); ?>');
       }
     }).fail(function() {
-      $btn.prop('disabled', false).text('<?php echo esc_js(__('Book Now', 'travel-agency-platform')); ?>');
+      $btn.prop('disabled', false).text('<?php echo TAP_Booking::booking_mode($pt, $id) === 'request' ? esc_js(__('Solicitar reserva', 'travel-agency-platform')) : esc_js(__('Book Now', 'travel-agency-platform')); ?>');
       alert('<?php echo esc_js(__('Error', 'travel-agency-platform')); ?>');
     });
   });

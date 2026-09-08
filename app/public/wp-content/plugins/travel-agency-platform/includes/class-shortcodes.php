@@ -582,12 +582,13 @@ class TAP_Shortcodes {
         $service = get_post(intval($atts['service_id']));
         if (!$service) return '<p>' . __('Service not found.', 'travel-agency-platform') . '</p>';
 
+        $is_request = TAP_Booking::booking_mode($atts['service_type'], $atts['service_id']) === 'request';
         $prefix = '_tap_' . TAP_Post_Types::meta_prefix($atts['service_type']);
 
         ob_start();
         ?>
         <div class="tap-booking-form">
-            <h3><?php esc_html_e('Book Now', 'travel-agency-platform'); ?></h3>
+            <h3><?php echo $is_request ? esc_html__('Solicitar reserva', 'travel-agency-platform') : esc_html__('Book Now', 'travel-agency-platform'); ?></h3>
             <form id="tap-booking-form" class="tap-form" method="post">
                 <input type="hidden" name="action" value="tap_booking_create">
                 <input type="hidden" name="service_type" value="<?php echo esc_attr($atts['service_type']); ?>">
@@ -622,7 +623,7 @@ class TAP_Shortcodes {
                     <span class="tap-total-display"><?php esc_html_e('Total: ', 'travel-agency-platform'); ?>$<span id="tap-total-amount">0.00</span></span>
                 </div>
                 <div class="tap-form-group">
-                    <button type="submit" class="tap-btn tap-btn-primary tap-btn-lg"><?php esc_html_e('Book Now', 'travel-agency-platform'); ?></button>
+                    <button type="submit" class="tap-btn tap-btn-primary tap-btn-lg"><?php echo $is_request ? esc_html__('Enviar solicitud', 'travel-agency-platform') : esc_html__('Book Now', 'travel-agency-platform'); ?></button>
                 </div>
                 <div class="tap-booking-message"></div>
             </form>
@@ -671,9 +672,9 @@ class TAP_Shortcodes {
                 $.post(tap_ajax.ajax_url, data, function(res) {
                     if (res.success) {
                         msg.removeClass('tap-error').addClass('tap-success')
-                           .html('<p><?php echo esc_js(__('Booking created! Redirecting to payment...', 'travel-agency-platform')); ?></p>');
+                           .html('<p><?php echo $is_request ? esc_js(__('Solicitud enviada. La agencia la revisará y te avisaremos.', 'travel-agency-platform')) : esc_js(__('Booking created! Redirecting to payment...', 'travel-agency-platform')); ?></p>');
                         setTimeout(function() {
-                            window.location.href = '<?php echo esc_js(home_url('/checkout')); ?>?code=' + res.data.booking_code;
+                            window.location.href = res.data.redirect || '<?php echo esc_js(home_url('/checkout')); ?>?code=' + res.data.booking_code;
                         }, 1000);
                     } else {
                         msg.removeClass('tap-success').addClass('tap-error')
@@ -737,16 +738,19 @@ class TAP_Shortcodes {
                             <td><?php echo $service ? esc_html($service->post_title) : 'N/A'; ?></td>
                             <td><?php echo esc_html($booking->check_in . ($booking->check_out ? ' - ' . $booking->check_out : '')); ?></td>
                             <td><?php echo esc_html(TAP_Currency::fmt($booking->total_amount)); ?></td>
-                            <td><span class="tap-status tap-status-<?php echo esc_attr($booking->status); ?>"><?php echo esc_html(ucfirst($booking->status)); ?></span></td>
+<td><span class="tap-status tap-status-<?php echo esc_attr($booking->status); ?>"><?php echo esc_html(TAP_Emails::STATUS_LABELS[$booking->status] ?? ucfirst($booking->status)); ?></span></td>
                             <td><span class="tap-status tap-status-<?php echo esc_attr($booking->payment_status); ?>"><?php echo esc_html(ucfirst($booking->payment_status)); ?></span></td>
                             <td>
                                 <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(home_url('/booking-detail/?code=' . $booking->booking_code)); ?>"><?php esc_html_e('Ver voucher', 'travel-agency-platform'); ?></a>
+                                <?php if (TAP_Booking::is_payable($booking)): ?>
+                                    <a class="tap-btn tap-btn-sm tap-btn-primary" href="<?php echo esc_url(home_url('/checkout?code=' . $booking->booking_code)); ?>"><?php esc_html_e('Pagar ahora', 'travel-agency-platform'); ?></a>
+                                <?php endif; ?>
                                 <?php if ($can_review): ?>
                                     <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(add_query_arg('tap_review', $booking->booking_code, get_permalink($booking->service_id))); ?>"><?php esc_html_e('Deja una reseña ★', 'travel-agency-platform'); ?></a>
                                 <?php elseif ('completed' === $booking->status && in_array($service_marker, $reviewed, true)): ?>
                                     <span class="tap-review-done"><?php esc_html_e('✓ Reseña enviada', 'travel-agency-platform'); ?></span>
                                 <?php endif; ?>
-                                <?php if (in_array($booking->status, ['pending', 'confirmed'], true) && (!$booking->check_in || $booking->check_in >= gmdate('Y-m-d'))): ?>
+                                <?php if (in_array($booking->status, ['pending', 'confirmed', 'request'], true) && (!$booking->check_in || $booking->check_in >= gmdate('Y-m-d'))): ?>
                                     <button type="button" class="tap-btn tap-btn-sm tap-btn-danger tap-cancel-booking-btn" data-booking-id="<?php echo (int) $booking->id; ?>" data-confirm="<?php echo esc_attr($booking->booking_code); ?>"><?php esc_html_e('Cancelar', 'travel-agency-platform'); ?></button>
                                 <?php endif; ?>
                             </td>
@@ -836,7 +840,7 @@ class TAP_Shortcodes {
         )) : [];
 
         $ab_status = sanitize_key($_GET['ab_status'] ?? 'all');
-        if (!in_array($ab_status, ['all', 'pending', 'confirmed', 'completed', 'cancelled', 'refunded'], true)) {
+        if (!in_array($ab_status, ['all', 'request', 'pending', 'confirmed', 'completed', 'cancelled', 'refunded'], true)) {
             $ab_status = 'all';
         }
         $ab_page    = max(1, intval($_GET['ab_page'] ?? 1));
@@ -851,7 +855,7 @@ class TAP_Shortcodes {
             "SELECT status, COUNT(*) c FROM {$wpdb->prefix}tap_bookings WHERE agency_id = %d GROUP BY status",
             $agency_id
         )) : [];
-        $ab_map = ['all' => 0, 'pending' => 0, 'confirmed' => 0, 'completed' => 0, 'cancelled' => 0, 'refunded' => 0];
+        $ab_map = ['all' => 0, 'request' => 0, 'pending' => 0, 'confirmed' => 0, 'completed' => 0, 'cancelled' => 0, 'refunded' => 0];
         foreach ($ab_count_rows as $rc) {
             $ab_map[$rc->status] = (int) $rc->c;
         }
@@ -944,6 +948,7 @@ class TAP_Shortcodes {
             <div class="tap-stats-grid">
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html($stats['total']); ?></span><span class="tap-stat-label"><?php esc_html_e('Total Bookings', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html($stats['pending']); ?></span><span class="tap-stat-label"><?php esc_html_e('Pending', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b45309;"><?php echo esc_html($stats['request'] ?? 0); ?></span><span class="tap-stat-label"><?php esc_html_e('Solicitudes', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html($stats['confirmed']); ?></span><span class="tap-stat-label"><?php esc_html_e('Confirmed', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(number_format($stats['completed'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Completed', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(TAP_Currency::fmt($stats['revenue'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Revenue', 'travel-agency-platform'); ?></span></div>
@@ -959,6 +964,7 @@ class TAP_Shortcodes {
                     <?php
                     $tab_labels = [
                         'all'       => __('All', 'travel-agency-platform'),
+                        'request'   => __('Solicitudes', 'travel-agency-platform'),
                         'pending'   => __('Pending', 'travel-agency-platform'),
                         'confirmed' => __('Confirmed', 'travel-agency-platform'),
                         'completed' => __('Completed', 'travel-agency-platform'),
@@ -1018,7 +1024,12 @@ class TAP_Shortcodes {
                             <td><?php echo esc_html(TAP_Currency::fmt(max(0, (float) $b->total_amount - (float) ($b->booking_fee ?? 0) - (float) $b->commission_amount))); ?></td>
                             <td><span class="tap-status tap-status-<?php echo esc_attr($b->status); ?>"><?php echo esc_html(TAP_Emails::STATUS_LABELS[$b->status] ?? ucfirst($b->status)); ?></span></td>
                             <td class="tap-actions">
-                                <?php if (in_array($b->status, ['pending', 'confirmed'])):
+                                <?php if ($b->status === 'request'):
+                                    $options = ['pending' => __('Aceptar', 'travel-agency-platform'), 'cancelled' => __('Rechazar', 'travel-agency-platform')];
+                                    foreach ($options as $s => $label):
+                                ?>
+                                    <button class="tap-btn tap-status-btn" data-booking-id="<?php echo intval($b->id); ?>" data-status="<?php echo esc_attr($s); ?>"><?php echo esc_html($label); ?></button>
+                                <?php endforeach; elseif (in_array($b->status, ['pending', 'confirmed'])):
                                     $options = ['confirmed' => __('Confirm', 'travel-agency-platform'), 'completed' => __('Complete', 'travel-agency-platform'), 'cancelled' => __('Cancel', 'travel-agency-platform')];
                                     foreach ($options as $s => $label):
                                         if ($b->status === $s) continue;
@@ -1858,6 +1869,16 @@ class TAP_Shortcodes {
                 <?php return ob_get_clean(); ?>
             <?php endif; ?>
 
+            <?php if ($booking->status === 'request'): ?>
+                <div class="tap-booking-message tap-success">
+                    <p><?php esc_html_e('Tu solicitud de reserva está pendiente de confirmación de la agencia. Te avisaremos por correo cuando sea aceptada para que completes el pago.', 'travel-agency-platform'); ?></p>
+                </div>
+            <?php elseif (in_array($booking->status, ['cancelled', 'refunded'], true)): ?>
+                <div class="tap-error">
+                    <p><?php esc_html_e('Esta reserva fue cancelada o rechazada y ya no puede pagarse.', 'travel-agency-platform'); ?></p>
+                </div>
+            <?php endif; ?>
+
             <div class="tap-checkout-summary">
                 <h3><?php esc_html_e('Booking Summary', 'travel-agency-platform'); ?></h3>
                 <table class="tap-table">
@@ -1876,7 +1897,7 @@ class TAP_Shortcodes {
                 </table>
             </div>
 
-<?php if ($booking->total_amount > 0 && $booking->payment_status !== 'paid'): ?>
+<?php if ($booking->total_amount > 0 && $booking->payment_status !== 'paid' && $booking->status !== 'request'): ?>
                 <div class="tap-checkout-payment">
                     <h3><?php esc_html_e('Pay with PayPal', 'travel-agency-platform'); ?></h3>
                     <?php if (TAP_PayPal::is_ready()): ?>
@@ -2192,6 +2213,13 @@ class TAP_Shortcodes {
                         echo TAP_Destinations::render_picker($dest_sel, 'destination');
                         ?>
                     </div>
+                    <div class="tap-field">
+                        <label><?php esc_html_e('Modo de reserva', 'travel-agency-platform'); ?></label>
+                        <select name="booking_mode">
+                            <option value="instant" <?php selected(TAP_Booking::booking_mode($type, $listing_id), 'instant'); ?>><?php esc_html_e('Reserva directa (pago inmediato)', 'travel-agency-platform'); ?></option>
+                            <option value="request" <?php selected(TAP_Booking::booking_mode($type, $listing_id), 'request'); ?>><?php esc_html_e('Solicitud de reserva (la agencia confirma antes del pago)', 'travel-agency-platform'); ?></option>
+                        </select>
+                    </div>
                 </div>
                 <button type="submit" class="tap-btn tap-btn-primary"><?php echo $is_edit ? esc_html__('Guardar cambios', 'travel-agency-platform') : esc_html__('Crear servicio', 'travel-agency-platform'); ?></button>
                 <span class="tap-form-msg"></span>
@@ -2448,8 +2476,11 @@ class TAP_Shortcodes {
             <div class="tap-voucher-tools">
                 <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(home_url('/my-bookings/')); ?>">&larr; <?php esc_html_e('Mis reservas', 'travel-agency-platform'); ?></a>
                 <button type="button" class="tap-btn tap-btn-sm" onclick="window.print()">🖨 <?php esc_html_e('Imprimir voucher', 'travel-agency-platform'); ?></button>
-                <?php if ((int) $booking->client_id === $uid && in_array($booking->status, ['pending', 'confirmed'], true) && (!$booking->check_in || $booking->check_in >= gmdate('Y-m-d'))): ?>
+                <?php if ((int) $booking->client_id === $uid && in_array($booking->status, ['pending', 'confirmed', 'request'], true) && (!$booking->check_in || $booking->check_in >= gmdate('Y-m-d'))): ?>
                     <button type="button" class="tap-btn tap-btn-sm tap-btn-danger tap-cancel-booking-btn" data-booking-id="<?php echo (int) $booking->id; ?>" data-confirm="<?php echo esc_attr($booking->booking_code); ?>" data-guest-email="<?php echo !$uid ? esc_attr($booking->guest_email) : ''; ?>"><?php esc_html_e('Cancelar reserva', 'travel-agency-platform'); ?></button>
+                <?php endif; ?>
+                <?php if ($uid && (int) $booking->client_id === $uid && TAP_Booking::is_payable($booking) && $booking->total_amount > 0): ?>
+                    <a class="tap-btn tap-btn-sm tap-btn-primary" href="<?php echo esc_url(home_url('/checkout?code=' . $booking->booking_code)); ?>"><?php esc_html_e('Pagar ahora', 'travel-agency-platform'); ?></a>
                 <?php endif; ?>
             </div>
             <div class="tap-voucher-inner">
@@ -2463,6 +2494,12 @@ class TAP_Shortcodes {
                         <span class="tap-badge"><?php echo esc_html($pstatus[$booking->payment_status] ?? ucfirst($booking->payment_status)); ?></span>
                     </div>
                 </div>
+
+                <?php if ($booking->status === 'request'): ?>
+                    <div class="tap-booking-message tap-success">
+                        <p><?php esc_html_e('Tu solicitud está pendiente de confirmación de la agencia. Te avisaremos por correo cuando sea aceptada para que completes el pago.', 'travel-agency-platform'); ?></p>
+                    </div>
+                <?php endif; ?>
 
                 <div class="tap-voucher-body">
                     <div class="tap-voucher-service">

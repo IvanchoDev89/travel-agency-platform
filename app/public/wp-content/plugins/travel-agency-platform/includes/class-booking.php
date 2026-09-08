@@ -17,6 +17,41 @@ class TAP_Booking {
         return 0.0;
     }
 
+    /**
+     * Booking mode of a listing: 'instant' (direct booking + payment) or
+     * 'request' (request-to-book: the agency must first accept the request).
+     */
+    public static function booking_mode($service_type = '', $service_id = 0) {
+        $service_id = intval($service_id);
+        if ($service_id && get_post_type($service_id) === sanitize_text_field($service_type)) {
+            if (get_post_meta($service_id, '_tap_booking_mode', true) === 'request') {
+                return 'request';
+            }
+        }
+        return 'instant';
+    }
+
+    /**
+     * A booking is payable once the agency has accepted it (status 'pending'
+     * after a request, or a direct instant booking) and no payment was made.
+     */
+    public static function is_payable($booking) {
+        if (!$booking) return false;
+        if ('paid' === $booking->payment_status) return false;
+        return in_array($booking->status, ['pending', 'confirmed'], true);
+    }
+
+    /**
+     * Front-end redirect a cancelled/request booking should land on after
+     * being created or accepted.
+     */
+    public static function redirect_target($booking) {
+        if ($booking && $booking->status === 'request') {
+            return home_url('/booking-detail/?code=' . rawurlencode($booking->booking_code));
+        }
+        return home_url('/checkout?code=' . rawurlencode($booking->booking_code));
+    }
+
     public static function create($data) {
         global $wpdb;
 
@@ -130,7 +165,7 @@ class TAP_Booking {
                 'booking_fee'       => $booking_fee,
                 'commission_amount' => $commission_amount,
                 'commission_percent'=> $commission_percent,
-                'status'            => 'pending',
+                'status'            => self::booking_mode($data['service_type'], $data['service_id']) === 'request' ? 'request' : 'pending',
                 'payment_status'    => 'pending',
                 'notes'             => !empty($data['notes']) ? sanitize_textarea_field($data['notes']) : '',
                 'guest_name'        => !empty($data['guest_name']) ? sanitize_text_field($data['guest_name']) : null,
@@ -172,6 +207,7 @@ class TAP_Booking {
         return [
             'booking_id'   => $booking_id,
             'booking_code' => $booking_code,
+            'status'       => $wpdb->get_var($wpdb->prepare("SELECT status FROM {$wpdb->prefix}tap_bookings WHERE id = %d", $booking_id)) ?: 'pending',
             'message'      => __('Booking created successfully', 'travel-agency-platform'),
         ];
     }
@@ -200,7 +236,7 @@ class TAP_Booking {
         $booked = 0;
         if ($date) {
             $booked = intval($wpdb->get_var($wpdb->prepare(
-                "SELECT COALESCE(SUM(adults + children), 0) FROM {$wpdb->prefix}tap_bookings WHERE service_type = 'tap_tour' AND service_id = %d AND check_in = %s AND status NOT IN ('cancelled', 'refunded')",
+                "SELECT COALESCE(SUM(adults + children), 0) FROM {$wpdb->prefix}tap_bookings WHERE service_type = 'tap_tour' AND service_id = %d AND check_in = %s AND status NOT IN ('cancelled', 'refunded', 'request')",
                 $service_id, $date
             )));
         }
@@ -229,13 +265,14 @@ class TAP_Booking {
         } elseif ((int) $booking->client_id !== (int) $user_id) {
             return new WP_Error('forbidden', __('No tienes permiso para cancelar esta reserva.', 'travel-agency-platform'));
         }
-        if (!in_array($booking->status, ['pending', 'confirmed'], true)) {
+        if (!in_array($booking->status, ['pending', 'confirmed', 'request'], true)) {
             return new WP_Error('bad_status', __('Esta reserva ya no puede cancelarse.', 'travel-agency-platform'));
         }
         if ($booking->check_in && $booking->check_in < gmdate('Y-m-d')) {
             return new WP_Error('started', __('La reserva ya comenzó.', 'travel-agency-platform'));
         }
 
+        $prev_status = $booking->status;
         $wpdb->update(
             $wpdb->prefix . 'tap_bookings',
             [
@@ -250,16 +287,22 @@ class TAP_Booking {
             self::update_payment_status($booking_id, 'refunded');
         }
 
-        do_action('tap_booking_status_updated', $booking_id, 'cancelled');
+        do_action('tap_booking_status_updated', $booking_id, 'cancelled', $prev_status);
         return true;
     }
 
     public static function update_status($booking_id, $status) {
         global $wpdb;
 
-        $valid_statuses = ['pending', 'confirmed', 'cancelled', 'completed', 'refunded'];
+        $valid_statuses = ['pending', 'request', 'confirmed', 'cancelled', 'completed', 'refunded'];
         if (!in_array($status, $valid_statuses)) {
             return new WP_Error('invalid_status', __('Invalid status', 'travel-agency-platform'));
+        }
+
+        $prev = $wpdb->get_var($wpdb->prepare("SELECT status FROM {$wpdb->prefix}tap_bookings WHERE id = %d", $booking_id));
+        $booking = $prev ? TAP_Booking::get_booking($booking_id) : null;
+        if (!$booking) {
+            return new WP_Error('not_found', __('Booking not found', 'travel-agency-platform'));
         }
 
         $wpdb->update(
@@ -268,7 +311,7 @@ class TAP_Booking {
             ['id' => $booking_id]
         );
 
-        do_action('tap_booking_status_updated', $booking_id, $status);
+        do_action('tap_booking_status_updated', $booking_id, $status, $prev);
 
         return true;
     }
@@ -633,6 +676,7 @@ class TAP_Booking {
         return [
             'total'      => $wpdb->get_var("SELECT COUNT(*) FROM $table $where"),
             'pending'    => $wpdb->get_var("SELECT COUNT(*) FROM $table $where AND status = 'pending'"),
+            'request'    => $wpdb->get_var("SELECT COUNT(*) FROM $table $where AND status = 'request'"),
             'confirmed'  => $wpdb->get_var("SELECT COUNT(*) FROM $table $where AND status = 'confirmed'"),
             'completed'  => $wpdb->get_var("SELECT COUNT(*) FROM $table $where AND status = 'completed'"),
             'cancelled'  => $wpdb->get_var("SELECT COUNT(*) FROM $table $where AND status = 'cancelled'"),
@@ -726,7 +770,7 @@ class TAP_Booking {
         global $wpdb;
         $table = $wpdb->prefix . 'tap_bookings';
         $rows = $wpdb->get_results("SELECT status, COUNT(*) as cnt FROM $table GROUP BY status");
-        $out = ['pending' => 0, 'confirmed' => 0, 'completed' => 0, 'cancelled' => 0, 'refunded' => 0];
+        $out = ['pending' => 0, 'request' => 0, 'confirmed' => 0, 'completed' => 0, 'cancelled' => 0, 'refunded' => 0];
         foreach ($rows as $r) {
             if (isset($out[$r->status])) $out[$r->status] = (int) $r->cnt;
         }

@@ -78,7 +78,7 @@ class TAP_Ajax {
             self::set_guest_pay_token($result['booking_code']);
         }
 
-        wp_send_json_success($result);
+        wp_send_json_success($result + ['redirect' => TAP_Booking::redirect_target(TAP_Booking::get_booking($result['booking_id']))]);
     }
 
     /* ===== Guest checkout helpers (testable, no die) ===== */
@@ -223,7 +223,11 @@ class TAP_Ajax {
                 wp_send_json_error(['message' => __('You can only manage bookings from your own agency.', 'travel-agency-platform')]);
             }
 
-            if (!in_array($status, ['confirmed', 'completed', 'cancelled'], true)) {
+            if ($booking->status === 'request') {
+                if (!in_array($status, ['pending', 'cancelled'], true)) {
+                    wp_send_json_error(['message' => __('Solo puedes Aceptar (pasa a pendiente de pago) o Rechazar una solicitud.', 'travel-agency-platform')]);
+                }
+            } elseif (!in_array($status, ['confirmed', 'completed', 'cancelled'], true)) {
                 wp_send_json_error(['message' => __('Invalid status.', 'travel-agency-platform')]);
             }
         }
@@ -259,6 +263,10 @@ class TAP_Ajax {
 
         if ($booking->payment_status === 'paid') {
             wp_send_json_error(['message' => __('Booking already paid', 'travel-agency-platform')]);
+        }
+
+        if (!TAP_Booking::is_payable($booking)) {
+            wp_send_json_error(['message' => __('Esta solicitud aún no ha sido aceptada por la agencia. Cuando sea confirmada podrás pagar.', 'travel-agency-platform')]);
         }
 
         $return_url = home_url('/checkout?code=' . $booking->booking_code . '&status=success');
@@ -1201,6 +1209,11 @@ class TAP_Ajax {
             $dest  = absint($input['destination']);
             $valid = $dest && term_exists($dest, 'tap_location');
             wp_set_object_terms($new_id, $valid ? [$dest] : [], 'tap_location', false);
+        }
+
+        $booking_mode = isset($input['booking_mode']) ? sanitize_key($input['booking_mode']) : '';
+        if (in_array($booking_mode, ['instant', 'request'], true)) {
+            update_post_meta($new_id, '_tap_booking_mode', $booking_mode);
         }
 
         return true;

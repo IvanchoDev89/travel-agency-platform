@@ -1323,3 +1323,75 @@ msgstr "Unfortunately your agency <strong>%s</strong> was not approved in this r
 
 msgid "La agencia que ofrece este servicio aún está en revisión y no puede recibir reservas."
 msgstr "The agency offering this service is still under review and cannot receive bookings yet."
+
+msgid "Solicitar reserva"
+msgstr "Request to Book"
+
+msgid "Enviar solicitud"
+msgstr "Send request"
+
+msgid "Solicitud enviada. La agencia la revisará y te avisaremos."
+msgstr "Request sent. The agency will review it and we will let you know."
+
+msgid "Tu solicitud de reserva está pendiente de confirmación de la agencia. Te avisaremos por correo cuando sea aceptada para que completes el pago."
+msgstr "Your booking request is pending confirmation from the agency. We will email you once it is accepted so you can complete payment."
+
+msgid "Esta reserva fue cancelada o rechazada y ya no puede pagarse."
+msgstr "This booking was cancelled or rejected and can no longer be paid."
+
+msgid "Pagar ahora"
+msgstr "Pay now"
+
+msgid "Solicitudes"
+msgstr "Requests"
+
+msgid "Aceptar"
+msgstr "Accept"
+
+msgid "Modo de reserva"
+msgstr "Booking mode"
+
+msgid "Reserva directa (pago inmediato)"
+msgstr "Direct booking (immediate payment)"
+
+msgid "Solicitud de reserva (la agencia confirma antes del pago)"
+msgstr "Request to book (the agency confirms before payment)"
+
+msgid "Esta solicitud aún no ha sido aceptada por la agencia. Cuando sea confirmada podrás pagar."
+msgstr "This request has not been accepted by the agency yet. Once it is confirmed you will be able to pay."
+
+msgid "Solo puedes Aceptar (pasa a pendiente de pago) o Rechazar una solicitud."
+msgstr "You can only Accept (moves to pending payment) or Reject a request."
+
+msgid "Solicitud de reserva %s recibida"
+msgstr "Booking request %s received"
+
+msgid "¡Gracias %s! Hemos recibido tu solicitud."
+msgstr "Thank you %s! We have received your request."
+
+msgid "La agencia revisará tu solicitud y te avisaremos por correo cuando sea aceptada. No se realizará ningún cobro hasta entonces."
+msgstr "The agency will review your request and we will email you when it is accepted. No charge will be made until then."
+
+msgid "¡Tu solicitud fue aceptada!"
+msgstr "Your request has been accepted!"
+
+msgid "La agencia aceptó tu solicitud de reserva. Completa el pago para confirmar: <a href=\"%s\" style=\"color:#0d9488;\">Pagar ahora</a>."
+msgstr "The agency has accepted your booking request. Complete payment to confirm: <a href=\"%s\" style=\"color:#0d9488;\">Pay now</a>."
+
+msgid "Solicitud rechazada"
+msgstr "Request rejected"
+
+msgid "La agencia no pudo aceptar tu solicitud de reserva. No se realizó ningún cobro. Contacta a la agencia o prueba con otras fechas."
+msgstr "The agency could not accept your booking request. No charge was made. Contact the agency or try different dates."
+
+msgid "[Nueva solicitud] %s — %s"
+msgstr "[New request] %s — %s"
+
+msgid "Nueva solicitud de reserva"
+msgstr "New booking request"
+
+msgid "Tienes una nueva solicitud de reserva (<strong>%s</strong>) por un total de <strong>%s</strong>. Revisa el panel para aceptarla o rechazarla."
+msgstr "You have a new booking request (<strong>%s</strong>) totaling <strong>%s</strong>. Review it in your dashboard to accept or reject it."
+
+msgid "solicitudes"
+msgstr "requests"

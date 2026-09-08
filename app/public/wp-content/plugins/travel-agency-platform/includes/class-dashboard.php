@@ -182,7 +182,7 @@ class TAP_Dashboard {
         }
         $currency = get_option('tap_currency', 'USD');
 
-        $status_labels = ['pending' => __('Pending', 'travel-agency-platform'), 'confirmed' => __('Confirmed', 'travel-agency-platform'), 'completed' => __('Completed', 'travel-agency-platform'), 'cancelled' => __('Cancelled', 'travel-agency-platform'), 'refunded' => __('Refunded', 'travel-agency-platform')];
+        $status_labels = ['pending' => __('Pending', 'travel-agency-platform'), 'request' => __('Solicitudes', 'travel-agency-platform'), 'confirmed' => __('Confirmed', 'travel-agency-platform'), 'completed' => __('Completed', 'travel-agency-platform'), 'cancelled' => __('Cancelled', 'travel-agency-platform'), 'refunded' => __('Refunded', 'travel-agency-platform')];
 
         $service_labels = ['tap_accommodation' => __('Accommodation', 'travel-agency-platform'), 'tap_tour' => __('Tour', 'travel-agency-platform'), 'tap_transport' => __('Transport', 'travel-agency-platform'), 'tap_car_rental' => __('Car Rental', 'travel-agency-platform'), 'tap_boat' => __('Boat', 'travel-agency-platform'), 'tap_package' => __('Package', 'travel-agency-platform')];
 
@@ -212,7 +212,7 @@ class TAP_Dashboard {
                 <div class="tap-dash-card tap-accent-amber">
                     <span class="tap-dash-card-label"><?php esc_html_e('Reservas totales', 'travel-agency-platform'); ?></span>
                     <span class="tap-dash-card-value"><?php echo esc_html($stats['total']); ?></span>
-                    <span class="tap-dash-card-foot"><?php echo esc_html($status['pending']); ?> <?php esc_html_e('pendientes', 'travel-agency-platform'); ?></span>
+                    <span class="tap-dash-card-foot"><?php echo esc_html($status['pending']); ?> <?php esc_html_e('pendientes', 'travel-agency-platform'); ?> · <?php echo esc_html($status['request']); ?> <?php esc_html_e('solicitudes', 'travel-agency-platform'); ?></span>
                 </div>
                 <div class="tap-dash-card tap-accent-violet">
                     <span class="tap-dash-card-label"><?php esc_html_e('Comisiones', 'travel-agency-platform'); ?></span>
@@ -311,7 +311,7 @@ class TAP_Dashboard {
         $where    = '1=1';
         $params   = [];
 
-        if (in_array($f_status, ['pending', 'confirmed', 'completed', 'cancelled', 'refunded'], true)) {
+        if (in_array($f_status, ['pending', 'request', 'confirmed', 'completed', 'cancelled', 'refunded'], true)) {
             $where .= ' AND b.status = %s';
             $params[] = $f_status;
         }
@@ -367,7 +367,7 @@ class TAP_Dashboard {
         $where    = '1=1';
         $params   = [];
 
-        if (in_array($f_status, ['pending', 'confirmed', 'completed', 'cancelled', 'refunded'], true)) {
+        if (in_array($f_status, ['pending', 'request', 'confirmed', 'completed', 'cancelled', 'refunded'], true)) {
             $where .= ' AND b.status = %s';
             $params[] = $f_status;
         }
@@ -409,7 +409,7 @@ class TAP_Dashboard {
                 <input type="text" name="s" value="<?php echo esc_attr($s); ?>" placeholder="<?php esc_attr_e('Código, cliente o email', 'travel-agency-platform'); ?>">
                 <select name="f_status">
                     <option value=""><?php esc_html_e('Todos los estados', 'travel-agency-platform'); ?></option>
-                    <?php foreach (['pending', 'confirmed', 'completed', 'cancelled', 'refunded'] as $st): ?>
+                    <?php foreach (['pending', 'request', 'confirmed', 'completed', 'cancelled', 'refunded'] as $st): ?>
                     <option value="<?php echo esc_attr($st); ?>" <?php selected($f_status, $st); ?>><?php echo esc_html(ucfirst($st)); ?></option>
                     <?php endforeach; ?>
                 </select>

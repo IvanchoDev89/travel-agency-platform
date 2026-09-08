@@ -4,6 +4,7 @@ defined('ABSPATH') || exit;
 class TAP_Emails {
     const STATUS_LABELS = [
         'pending'   => 'Pendiente',
+        'request'   => 'Solicitud',
         'confirmed' => 'Confirmada',
         'cancelled' => 'Cancelada',
         'completed' => 'Completada',
@@ -19,7 +20,7 @@ class TAP_Emails {
 
     public static function init() {
         add_action('tap_booking_created', [__CLASS__, 'on_booking_created'], 10, 2);
-        add_action('tap_booking_status_updated', [__CLASS__, 'on_status_updated'], 10, 2);
+        add_action('tap_booking_status_updated', [__CLASS__, 'on_status_updated'], 10, 3);
         add_action('tap_payment_completed', [__CLASS__, 'on_payment_completed'], 10, 3);
         add_action('tap_agency_registered', [__CLASS__, 'on_agency_registered'], 10, 2);
         add_action('tap_agency_approved', [__CLASS__, 'on_agency_approved'], 10, 1);
@@ -54,8 +55,8 @@ class TAP_Emails {
         }
     }
 
-    public static function on_status_updated($booking_id, $status) {
-        self::send_user_status_update($booking_id, $status);
+    public static function on_status_updated($booking_id, $status, $prev = '') {
+        self::send_user_status_update($booking_id, $status, $prev);
     }
 
     public static function on_payment_completed($booking_id, $gateway, $transaction_id) {
@@ -223,6 +224,18 @@ class TAP_Emails {
         if (!$email) return;
 
         $ctx = self::build_context($booking);
+        if ($booking->status === 'request') {
+            $subject = sprintf(__('Solicitud de reserva %s recibida', 'travel-agency-platform'), $booking->booking_code);
+            $body = self::template(
+                sprintf(__('¡Gracias %s! Hemos recibido tu solicitud.', 'travel-agency-platform'), $name),
+                __('La agencia revisará tu solicitud y te avisaremos por correo cuando sea aceptada. No se realizará ningún cobro hasta entonces.', 'travel-agency-platform'),
+                $ctx,
+                'request'
+            );
+            self::send($email, $subject, $body);
+            return;
+        }
+
         $subject = sprintf(__('Reserva %s recibida', 'travel-agency-platform'), $booking->booking_code);
         $body = self::template(
             sprintf(__('¡Gracias %s! Tu reserva ha sido recibida.', 'travel-agency-platform'), $name),
@@ -234,7 +247,7 @@ class TAP_Emails {
         self::send($email, $subject, $body);
     }
 
-    public static function send_user_status_update($booking_id, $status) {
+    public static function send_user_status_update($booking_id, $status, $prev = '') {
         $booking = TAP_Booking::get_booking($booking_id);
         if (!$booking) return;
 
@@ -257,6 +270,17 @@ class TAP_Emails {
             'completed' => __('Esperamos que hayas disfrutado tu viaje. Te invitamos a dejar una reseña.', 'travel-agency-platform'),
             'refunded'  => __('El monto pagado ha sido reembolsado a tu cuenta.', 'travel-agency-platform'),
         ][$status] ?? '';
+
+        if ($status === 'pending' && $prev === 'request') {
+            $headline = __('¡Tu solicitud fue aceptada!', 'travel-agency-platform');
+            $intro = sprintf(
+                __('La agencia aceptó tu solicitud de reserva. Completa el pago para confirmar: <a href="%s" style="color:#0d9488;">Pagar ahora</a>.', 'travel-agency-platform'),
+                esc_url(home_url('/checkout?code=' . rawurlencode($booking->booking_code)))
+            );
+        } elseif ($status === 'cancelled' && $prev === 'request') {
+            $headline = __('Solicitud rechazada', 'travel-agency-platform');
+            $intro = __('La agencia no pudo aceptar tu solicitud de reserva. No se realizó ningún cobro. Contacta a la agencia o prueba con otras fechas.', 'travel-agency-platform');
+        }
 
         $subject = sprintf(__('Actualización de reserva %s: %s', 'travel-agency-platform'), $booking->booking_code, $label);
         $body = self::template($headline, $intro, $ctx, $status);
@@ -295,6 +319,21 @@ class TAP_Emails {
         if (!$booking) return;
 
         $ctx = self::build_context($booking, true);
+        if ($booking->status === 'request') {
+            $subject = sprintf(__('[Nueva solicitud] %s — %s', 'travel-agency-platform'), $booking->booking_code, $booking->service_type);
+            $body = self::template(
+                __('Nueva solicitud de reserva', 'travel-agency-platform'),
+                sprintf(__('Tienes una nueva solicitud de reserva (<strong>%s</strong>) por un total de <strong>%s</strong>. Revisa el panel para aceptarla o rechazarla.', 'travel-agency-platform'),
+                    $booking->booking_code,
+                    self::money($booking->total_amount)),
+                $ctx,
+                'request',
+                true
+            );
+            self::send($to, $subject, $body);
+            return;
+        }
+
         $subject = sprintf(__('[Nueva reserva] %s — %s', 'travel-agency-platform'), $booking->booking_code, $booking->service_type);
         $body = self::template(
             __('Nueva reserva recibida', 'travel-agency-platform'),

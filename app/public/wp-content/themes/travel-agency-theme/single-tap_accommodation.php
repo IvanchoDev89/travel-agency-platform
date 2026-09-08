@@ -360,7 +360,7 @@ while (have_posts()): the_post();
                 <small><?php _e('Room:', 'travel-agency-platform'); ?> <strong id="bw-room-name"></strong></small>
               </div>
               <button type="submit" class="tap-btn tap-btn-primary tap-btn-block" id="bw-submit" disabled>
-                <?php _e('Book Now', 'travel-agency-platform'); ?>
+                <?php echo TAP_Booking::booking_mode('tap_accommodation', $id) === 'request' ? esc_html__('Solicitar reserva', 'travel-agency-platform') : esc_html__('Book Now', 'travel-agency-platform'); ?>
               </button>
             </div>
           </form>
@@ -533,10 +533,10 @@ jQuery(document).ready(function($) {
     }, function(res) {
       if (!res.success) {
         alert(res.data && res.data.message ? res.data.message : 'Error');
-        btn.prop('disabled', false).text('<?php echo esc_js(__('Book Now', 'travel-agency-platform')); ?>');
+        btn.prop('disabled', false).text('<?php echo TAP_Booking::booking_mode('tap_accommodation', $id) === 'request' ? esc_js(__('Solicitar reserva', 'travel-agency-platform')) : esc_js(__('Book Now', 'travel-agency-platform')); ?>');
         return;
       }
-      window.location.href = '<?php echo esc_url(home_url('/checkout')); ?>?code=' + res.data.booking_code;
+      window.location.href = (res.data.redirect || '<?php echo esc_url(home_url('/checkout')); ?>?code=' + res.data.booking_code);
     });
   });
 });
