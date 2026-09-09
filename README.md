@@ -28,8 +28,8 @@ Built as a custom WordPress plugin (`travel-agency-platform`) paired with a dedi
 | **Product** | Travel Agency Platform |
 | **Type** | WordPress plugin + companion theme |
 | **Model** | B2B & B2C multi-agency marketplace |
-| **Current version** | `1.3.0` |
-| **Schema version** | `1.3.0` |
+| **Current version** | `1.4.6` |
+| **Schema version** | `1.4.6` |
 | **Text domain** | `travel-agency-platform` |
 | **Companion theme** | `travel-agency-theme` |
 | **License** | Proprietary (IvanchoDev) |

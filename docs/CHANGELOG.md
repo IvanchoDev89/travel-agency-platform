@@ -10,6 +10,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ### Added
 
+- **Fase 8 — full i18n coverage + QA (v1.4.6)**:
+  - Closed every translation gap across both catalogs: re-extracted all 1,349 runtime strings from the plugin (domain-matched), kept the ES→EN (`en_US.po`) and EN→ES (`es_ES.po`) catalogs fully translated — 492 brand-new bilingual strings authored (placeholders `%s`/`%1$s` and inline HTML preserved), plus 329 English-identity entries in `en_US` and 527 Spanish-identity entries in `es_ES`; every string in the plugin now exists in both catalogs (0 missing).
+  - `.po` books rewritten with correct quote/backslash escaping and de-duplicated by unescaped `msgid` (first definition wins) so `msgfmt --check` compiles clean; both `.mo` recompiled and verified at runtime in ES and EN modes (`TAP_Localization::set_lang`).
+  - Plugin header `Version: 1.4.6` synced with `TAP_VERSION`.
+  - Full battery **29/29 suites / 725 asserts PASS** on travel.
+  - **Hotfix:** `TAP_Privacy::ensure_privacy_page()` now guarantees a `WP_Rewrite` instance before `wp_insert_post()` — a fresh-install migration (which runs on `plugins_loaded`, before rewrites exist) used to die with `Call to a member function get_page_permastruct() on null`. Reproduced on ivanchodev (rollback to 1.4.5 + page deletion) and verified the migration recreates the privacy page; both installs green **29/29** (commit `9ab9008`).
+
+- **Fase 7 — Ley 8968 personal-data protection (v1.4.6)**:
+  - New `TAP_Privacy` (`includes/class-privacy.php`): public **Privacy Notice** page (`[tap_privacy]`, shortcode-rendered policy covering the 8 Ley 8968 sections: data controller, data collected, purpose/legal basis, retention, transfers, rights, cookies, notice updates) plus an **ARCO request form** (access, rectification, update, erasure, opposition, consent withdrawal) handled via `admin_post` with nonce and consent logging.
+  - **Consent capture** enforced everywhere personal data is submitted: booking creation (AJAX + REST `tap/v1/booking`), agency registration and the theme templates all require the consent checkbox; each consent is recorded in `wp_tap_consents` (`tap_privacy_consent` param, `TAP_Leads`/booking payloads) and refusal blocks the operation with a translated message.
+  - New `wp_tap_consents` + `wp_tap_privacy_requests` tables (installer/migrate, `tap_version` 1.4.6) and an admin **Privacidad** panel (`Travel Platform`, `tap_manage_settings`) with Pending/Handled request tabs, consent log and privacy contact email setting.
+  - Emails (booking flow, agency lifecycle) now carry a privacy note + data-rights contact footer.
+  - `suite_privacy` (44 assertions) covering consent gating, ARCO submission/marking, admin render, email footer and page auto-provision; battery **29/29 / 725 asserts**.
+
+- **Fase 6 — payouts & disputes (v1.4.5)**:
+  - Settlement lifecycle `pending → completed|cancelled` in `wp_tap_commissions` (`paid`/`paid_at` columns): cancelling a settlement returns the commissions to "por cobrar"; admin **Comisiones** panel gains settlement selection, confirm/cancel and CSV export.
+  - **Traveler disputes** freezing the commission (`disputed`) from the booking voucher and resolved for/against the agency or withdrawn; new `wp_tap_disputes` table, admin **Disputas** panel and agency-facing "Disputas de tus reservas" section.
+  - `suite_disputes` green; TAP_VERSION 1.4.5.
+
+- **Fase 5 — verified reviews (v1.4.4)**:
+  - Only guests with a confirmed/completed booking can review (`TAP_Reviews` eligible/latest/match server-side); reviews are stored `is_verified=1` and carry a **"Reseña verificada"** badge on the front-end and admin; `get_reviews` no longer leaks email or moderation fields.
+  - Migration adds `is_verified` column; `suite_reviews_verified` green.
+
 - **Fase 4 — Lote C: public support-chat widget, i18n and phase close**:
   - New `[tap_chatbot]` shortcode (`TAP_Shortcodes::chatbot`, bufferized return): self-contained collapsible `.tap-chat` block (role=dialog, `aria-hidden` panel, focus handling) with 5 translated quick-question chips, bilingual placeholder/send labels and a `tapI18n` bundle (`chatLabel`, `chatOpen`, `chatClose`, `chatPlaceholder`, `chatSend`, `chatIntro`, `chatThinking`, `chatError`).
   - `public.js` `Chat` module: toggle + caret state, keyboard-safe send, AJAX POST to `tap_chatbot_message` (nonce), DOM-safe message rendering (no user input through `innerHTML`), thinking/error states and graceful rate-limit handling; widget CSS in `public.css` matching the audit visual language.
