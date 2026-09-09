@@ -219,6 +219,13 @@ if ($deepest && class_exists('TAP_Destinations')) {
               <div class="tap-capacity-note" id="bw-capacity" style="display:none;"></div>
             </div>
 
+            <div class="tap-bw-actions tap-bw-consent">
+              <label class="tap-check-label tap-privacy-consent">
+                <input type="checkbox" name="tap_privacy_consent" value="1" required>
+                <?php printf(__('Acepto el <a href="%s" target="_blank" rel="noopener">Aviso de Privacidad</a> y consiento el tratamiento de mis datos personales para gestionar esta solicitud.', 'travel-agency-platform'), esc_url(TAP_Privacy::policy_url())); ?>
+              </label>
+            </div>
+
             <div class="tap-bw-actions">
               <button type="submit" class="tap-btn tap-btn-primary tap-btn-block" id="bw-submit" disabled>
                 <?php echo TAP_Booking::booking_mode($pt, $id) === 'request' ? esc_html__('Solicitar reserva', 'travel-agency-platform') : esc_html__('Book Now', 'travel-agency-platform'); ?>
@@ -301,8 +308,13 @@ jQuery(document).ready(function($) {
   $('#tap-booking-form').on('submit', function(e) {
     e.preventDefault();
     var $btn = $('#bw-submit');
+    var $form = $('#tap-booking-form');
     if (tapFull) {
       alert('<?php echo esc_js(__('El tour está completo para esta fecha.', 'travel-agency-platform')); ?>');
+      return;
+    }
+    if (!$form.find('input[name="tap_privacy_consent"]').is(':checked')) {
+      alert('<?php echo esc_js(__('Debes aceptar el Aviso de Privacidad para continuar.', 'travel-agency-platform')); ?>');
       return;
     }
     $btn.prop('disabled', true).text('...');
@@ -317,7 +329,8 @@ jQuery(document).ready(function($) {
       children: parseInt($('#bw-children').val() || '0', 10),
       guest_name: $('#bw-guest-name').val() || '',
       guest_email: $('#bw-guest-email').val() || '',
-      guest_phone: $('#bw-guest-phone').val() || ''
+      guest_phone: $('#bw-guest-phone').val() || '',
+      tap_privacy_consent: $form.find('input[name="tap_privacy_consent"]').is(':checked') ? '1' : ''
     }).done(function(res) {
       if (res && res.success && res.data.booking_code) {
         window.location.href = (res.data.redirect || '<?php echo esc_url(home_url('/checkout')); ?>?code=' + res.data.booking_code);

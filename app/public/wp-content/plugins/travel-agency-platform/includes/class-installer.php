@@ -171,6 +171,37 @@ class TAP_Installer {
                 KEY email (email),
                 KEY created_at (created_at)
             ) $charset;",
+
+            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_consents (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                user_id bigint(20) NOT NULL DEFAULT 0,
+                email varchar(150) NOT NULL,
+                scope varchar(40) NOT NULL,
+                policy_version varchar(20) DEFAULT NULL,
+                ip varchar(45) DEFAULT NULL,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY email (email),
+                KEY scope (scope),
+                KEY created_at (created_at)
+            ) $charset;",
+
+            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_privacy_requests (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                user_id bigint(20) NOT NULL DEFAULT 0,
+                email varchar(150) NOT NULL,
+                name varchar(150) DEFAULT NULL,
+                rights varchar(100) NOT NULL,
+                details text,
+                status varchar(20) DEFAULT 'pending',
+                ip varchar(45) DEFAULT NULL,
+                handled_by bigint(20) DEFAULT 0,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                handled_at datetime DEFAULT NULL,
+                PRIMARY KEY (id),
+                KEY email (email),
+                KEY status (status)
+            ) $charset;",
         ];
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -439,6 +470,10 @@ $cols_bookings = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
         }
         if (!in_array('lead_id', $cols_bookings)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN lead_id bigint(20) DEFAULT NULL AFTER cancelled_by");
+        }
+
+        if (class_exists('TAP_Privacy')) {
+            TAP_Privacy::ensure_privacy_page();
         }
     }
 }

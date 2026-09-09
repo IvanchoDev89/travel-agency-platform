@@ -309,6 +309,10 @@ class TAP_API {
     public static function create_booking($request) {
         $params = $request->get_params();
 
+        if (empty($params['privacy_consent'])) {
+            return new WP_Error('consent_required', __('Debes aceptar el Aviso de Privacidad.', 'travel-agency-platform'), ['status' => 400]);
+        }
+
         $required = ['service_type', 'service_id', 'total_amount'];
         foreach ($required as $field) {
             if (empty($params[$field])) {
@@ -320,6 +324,11 @@ class TAP_API {
 
         if (is_wp_error($booking)) {
             return $booking;
+        }
+
+        $user = wp_get_current_user();
+        if ($user && is_email($user->user_email)) {
+            TAP_Privacy::record_consent($user->user_email, 'booking', $user->ID);
         }
 
         return rest_ensure_response($booking);

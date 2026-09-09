@@ -623,6 +623,9 @@ class TAP_Shortcodes {
                     <span class="tap-total-display"><?php esc_html_e('Total: ', 'travel-agency-platform'); ?>$<span id="tap-total-amount">0.00</span></span>
                 </div>
                 <div class="tap-form-group">
+                    <?php echo TAP_Privacy::consent_field('booking'); ?>
+                </div>
+                <div class="tap-form-group">
                     <button type="submit" class="tap-btn tap-btn-primary tap-btn-lg"><?php echo $is_request ? esc_html__('Enviar solicitud', 'travel-agency-platform') : esc_html__('Book Now', 'travel-agency-platform'); ?></button>
                 </div>
                 <div class="tap-booking-message"></div>
@@ -661,6 +664,12 @@ class TAP_Shortcodes {
                 if (total <= 0) {
                     msg.removeClass('tap-success').addClass('tap-error')
                        .html('<p><?php echo esc_js(__('Please select dates to calculate the price.', 'travel-agency-platform')); ?></p>');
+                    return;
+                }
+
+                if (!form.find('input[name="tap_privacy_consent"]').is(':checked')) {
+                    msg.removeClass('tap-success').addClass('tap-error')
+                       .html('<p><?php echo esc_js(__('Debes aceptar el Aviso de Privacidad para continuar.', 'travel-agency-platform')); ?></p>');
                     return;
                 }
 
@@ -1796,6 +1805,9 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                         <div class="tap-input-group tap-span-2">
                             <label class="tap-check-label"><input type="checkbox" name="kyc_accept" value="1" required> <?php esc_html_e('Confirmo que los datos son verídicos y acepto los términos y condiciones de verificación.', 'travel-agency-platform'); ?></label>
                         </div>
+                        <div class="tap-input-group tap-span-2">
+                            <?php echo TAP_Privacy::consent_field('agency_registration'); ?>
+                        </div>
                     </div>
                 </div>
                 <div class="tap-span-2">
@@ -2681,6 +2693,10 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
 
                     <div class="tap-voucher-notes">
                         <small><?php esc_html_e('Presenta este voucher el día del check-in. Cualquier cambio debe gestionarse con la agencia.', 'travel-agency-platform'); ?></small>
+                    </div>
+
+                    <div class="tap-voucher-notes tap-voucher-privacy">
+                        <small><?php echo wp_kses_post(sprintf(__('Consulta nuestro <a href="%s" target="_blank" rel="noopener">Aviso de Privacidad</a> para saber cómo tratamos tus datos y cómo ejercer tus derechos.', 'travel-agency-platform'), esc_url(TAP_Privacy::policy_url()))); ?></small>
                     </div>
 
                     <?php $is_traveler = ($uid && (int) $booking->client_id === $uid) || ((int) $booking->client_id === 0 && '' !== $email); ?>

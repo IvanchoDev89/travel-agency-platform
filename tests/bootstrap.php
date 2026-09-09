@@ -75,6 +75,21 @@ if (!function_exists('tap_t_pass')) {
             $wpdb->query($wpdb->prepare("DELETE FROM {$t} WHERE listing_id = %d", $listing_id));
         }
     }
+
+    /** Unique throwaway email for one suite run. */
+    function tap_t_unique_email() {
+        return 'tap_e2e_' . wp_generate_password(8, false) . '@example.test';
+    }
+
+    /** Unique username/label suffix for one suite run. */
+    function tap_t_suffix() {
+        return strtolower(wp_generate_password(8, false));
+    }
+
+    /** Throwaway strong password. */
+    function tap_t_unique_pass() {
+        return wp_generate_password(16, false);
+    }
 }
 
 if (!function_exists('tap_t_find_service')) {

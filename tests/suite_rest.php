@@ -86,6 +86,7 @@ $bk = tap_t_rest('POST', '/tap/v1/booking', [
     'check_in'     => $in,
     'check_out'    => $out,
     'adults'       => 2,
+    'privacy_consent' => 1,
 ]);
 wp_set_current_user(0);
 tap_t_assert(tap_t_rest_error_code($bk) === '', 'authenticated booking created via REST');

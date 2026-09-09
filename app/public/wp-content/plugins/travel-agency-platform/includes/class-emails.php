@@ -418,6 +418,7 @@ class TAP_Emails {
     /* ===== Helpers ===== */
 
     private static function send($to, $subject, $body) {
+        $body .= TAP_Privacy::email_footer();
         wp_mail($to, $subject, $body);
     }
 

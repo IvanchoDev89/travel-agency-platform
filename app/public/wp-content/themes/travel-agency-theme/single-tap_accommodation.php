@@ -355,6 +355,13 @@ while (have_posts()): the_post();
               </div>
             </div>
 
+            <div class="tap-bw-actions tap-bw-consent">
+              <label class="tap-check-label tap-privacy-consent">
+                <input type="checkbox" name="tap_privacy_consent" value="1" required>
+                <?php printf(__('Acepto el <a href="%s" target="_blank" rel="noopener">Aviso de Privacidad</a> y consiento el tratamiento de mis datos personales para gestionar esta solicitud.', 'travel-agency-platform'), esc_url(TAP_Privacy::policy_url())); ?>
+              </label>
+            </div>
+
             <div class="tap-bw-actions">
               <div id="bw-room-selected" style="display:none;margin-bottom:12px;">
                 <small><?php _e('Room:', 'travel-agency-platform'); ?> <strong id="bw-room-name"></strong></small>
@@ -513,6 +520,10 @@ jQuery(document).ready(function($) {
     e.preventDefault();
 
     if (!selectedRoomId) { alert('<?php echo esc_js(__('Please select a room type', 'travel-agency-platform')); ?>'); return; }
+    if (!$('#tap-booking-form input[name="tap_privacy_consent"]').is(':checked')) {
+      alert('<?php echo esc_js(__('Debes aceptar el Aviso de Privacidad para continuar.', 'travel-agency-platform')); ?>');
+      return;
+    }
 
     var btn = $('#bw-submit');
     btn.prop('disabled', true).text('<?php echo esc_js(__('Processing...', 'travel-agency-platform')); ?>');
@@ -529,7 +540,8 @@ jQuery(document).ready(function($) {
       children: $('#bw-children').val(),
       guest_name: $('#bw-guest-name').val() || '',
       guest_email: $('#bw-guest-email').val() || '',
-      guest_phone: $('#bw-guest-phone').val() || ''
+      guest_phone: $('#bw-guest-phone').val() || '',
+      tap_privacy_consent: $('#tap-booking-form input[name="tap_privacy_consent"]').is(':checked') ? '1' : ''
     }, function(res) {
       if (!res.success) {
         alert(res.data && res.data.message ? res.data.message : 'Error');

@@ -1089,3 +1089,66 @@ msgstr "Tu plataforma de viajes multiagencia de confianza. Descubre, compara y r
 
 msgid "Disputes"
 msgstr "Disputas"
+
+msgid "Version %s"
+msgstr "Versión %s"
+
+msgid "%s (hereinafter \"the Platform\") is responsible for the processing of the personal data collected through this website."
+msgstr "%s (en adelante \"la Plataforma\") es responsable del tratamiento de los datos personales que se recogen a través de este sitio web."
+
+msgid "Contact for data protection matters: <a href=\"mailto:%s\">%s</a>."
+msgstr "Contacto para asuntos de protección de datos: <a href=\"mailto:%s\">%s</a>."
+
+msgid "You may exercise the rights of information, access, rectification, update, erasure and objection, as well as withdraw your consent, through the form on this page or by writing to <a href=\"mailto:%s\">%s</a>."
+msgstr "Puede ejercer los derechos de información, acceso, rectificación, actualización, supresión y oposición, así como revocar su consentimiento, mediante el formulario de esta página o escribiendo a <a href=\"mailto:%s\">%s</a>."
+
+msgid "Request submitted. We will review it and respond to you as soon as possible."
+msgstr "Solicitud enviada. La revisaremos y le responderemos a la mayor brevedad."
+
+msgid "The request could not be submitted. Please review the data and try again."
+msgstr "No se pudo enviar la solicitud. Revise los datos e intente nuevamente."
+
+msgid "I accept the <a href=\"%s\" target=\"_blank\" rel=\"noopener\">Privacy Notice</a> and consent to the processing of my personal data to manage this request."
+msgstr "Acepto el <a href=\"%s\" target=\"_blank\" rel=\"noopener\">Aviso de Privacidad</a> y consiento el tratamiento de mis datos personales para gestionar esta solicitud."
+
+msgid "Enter a valid email address."
+msgstr "Ingresa un correo electrónico válido."
+
+msgid "Select at least one right."
+msgstr "Selecciona al menos un derecho."
+
+msgid "Briefly describe your request."
+msgstr "Describe brevemente tu solicitud."
+
+msgid "The request could not be saved."
+msgstr "No se pudo guardar la solicitud."
+
+msgid "We process your personal data in accordance with our <a href=\"%1$s\">Privacy Notice</a>. You can exercise your rights of access, rectification, erasure or objection by writing to <a href=\"mailto:%2$s\">%2$s</a>."
+msgstr "Procesamos tus datos personales de acuerdo con nuestro <a href=\"%1$s\">Aviso de Privacidad</a>. Puedes ejercer tus derechos de acceso, rectificación, supresión u oposición escribiendo a <a href=\"mailto:%2$s\">%2$s</a>."
+
+msgid "Privacy"
+msgstr "Privacidad"
+
+msgid "You do not have permission to access this page."
+msgstr "No tienes permisos para acceder."
+
+msgid "Handled"
+msgstr "Atendidas"
+
+msgid "Handled request"
+msgstr "Atendida"
+
+msgid "Read our <a href=\"%s\" target=\"_blank\" rel=\"noopener\">Privacy Notice</a> to learn how we process your data and how to exercise your rights."
+msgstr "Consulta nuestro <a href=\"%s\" target=\"_blank\" rel=\"noopener\">Aviso de Privacidad</a> para saber cómo tratamos tus datos y cómo ejercer tus derechos."
+
+msgid "You must accept the Privacy Notice."
+msgstr "Debes aceptar el Aviso de Privacidad."
+
+msgid "You must accept the Privacy Notice to continue."
+msgstr "Debes aceptar el Aviso de Privacidad para continuar."
+
+msgid "You must accept the Privacy Notice and consent to the processing of your data to complete the booking."
+msgstr "Debes aceptar el Aviso de Privacidad y consentir el tratamiento de tus datos para completar la reserva."
+
+msgid "You must accept the Privacy Notice and consent to the processing of your data to register your agency."
+msgstr "Debes aceptar el Aviso de Privacidad y consentir el tratamiento de tus datos para registrar tu agencia."

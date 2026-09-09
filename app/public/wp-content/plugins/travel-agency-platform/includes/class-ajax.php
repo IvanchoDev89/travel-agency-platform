@@ -23,6 +23,10 @@ class TAP_Ajax {
         $guest_name  = sanitize_text_field($_POST['guest_name'] ?? '');
         $guest_email = sanitize_email($_POST['guest_email'] ?? '');
 
+        if (empty($_POST['tap_privacy_consent'])) {
+            wp_send_json_error(['message' => __('Debes aceptar el Aviso de Privacidad y consentir el tratamiento de tus datos para completar la reserva.', 'travel-agency-platform')]);
+        }
+
         if (!is_user_logged_in()) {
             if ('' === $guest_name || !is_email($guest_email)) {
                 wp_send_json_error(['message' => __('Indica tu nombre y un correo electrónico válido para completar la reserva.', 'travel-agency-platform')]);
@@ -76,6 +80,11 @@ class TAP_Ajax {
         if (!is_user_logged_in() && is_email($guest_email)) {
             self::guest_book_rate_bump($guest_email);
             self::set_guest_pay_token($result['booking_code']);
+        }
+
+        $consent_email = is_user_logged_in() ? wp_get_current_user()->user_email : $guest_email;
+        if (is_email($consent_email)) {
+            TAP_Privacy::record_consent($consent_email, 'booking', get_current_user_id());
         }
 
         wp_send_json_success($result + ['redirect' => TAP_Booking::redirect_target(TAP_Booking::get_booking($result['booking_id']))]);
@@ -717,6 +726,9 @@ class TAP_Ajax {
         if (!$kyc_accept) {
             wp_send_json_error(['message' => __('Debes aceptar los términos y condiciones.', 'travel-agency-platform')]);
         }
+        if (empty($_POST['tap_privacy_consent'])) {
+            wp_send_json_error(['message' => __('Debes aceptar el Aviso de Privacidad y consentir el tratamiento de tus datos para registrar tu agencia.', 'travel-agency-platform')]);
+        }
 
         $user_id = wp_insert_user([
             'user_login'   => $username,
@@ -789,6 +801,10 @@ class TAP_Ajax {
         );
 
         do_action('tap_agency_registered', $user_id, $agency_id);
+
+        if (is_email($email)) {
+            TAP_Privacy::record_consent($email, 'agency_registration', $user_id);
+        }
 
         wp_set_current_user($user_id);
         wp_set_auth_cookie($user_id, true);
