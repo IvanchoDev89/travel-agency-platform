@@ -71,6 +71,15 @@ class TAP_Dashboard {
 
         add_submenu_page(
             'travel-platform',
+            __('Disputes', 'travel-agency-platform'),
+            __('Disputes', 'travel-agency-platform'),
+            'tap_manage_disputes',
+            'tap-disputes',
+            [__CLASS__, 'disputes_page']
+        );
+
+        add_submenu_page(
+            'travel-platform',
             __('Agencies', 'travel-agency-platform'),
             __('Agencies', 'travel-agency-platform'),
             'tap_manage_agencies',
@@ -535,8 +544,25 @@ class TAP_Dashboard {
             wp_safe_redirect(admin_url('admin.php?page=tap-commissions&status=' . sanitize_key($_POST['filter'] ?? 'all')));
             exit;
         }
+
+        if (isset($_POST['tap_payout_action']) && isset($_POST['_wpnonce'])) {
+            $payment_id = intval($_POST['payout_id'] ?? 0);
+            $action     = sanitize_key($_POST['tap_payout_action'] ?? '');
+            if ($payment_id && in_array($action, ['complete', 'cancel'], true) && wp_verify_nonce($_POST['_wpnonce'], 'tap_payout_action_' . $payment_id)) {
+                if ('complete' === $action) {
+                    TAP_Payouts::complete($payment_id);
+                    set_transient('tap_commission_notice', __('Liquidación marcada como completada.', 'travel-agency-platform'), 60);
+                } elseif ('cancel' === $action) {
+                    TAP_Payouts::cancel($payment_id);
+                    set_transient('tap_commission_notice', __('Liquidación cancelada y comisiones devueltas a "por cobrar".', 'travel-agency-platform'), 60);
+                }
+            }
+            wp_safe_redirect(admin_url('admin.php?page=tap-commissions&status=' . sanitize_key($_POST['filter'] ?? 'all') . '&payout_status=' . sanitize_key($_POST['payout_filter'] ?? 'all')));
+            exit;
+        }
+
         $filter = sanitize_key($_GET['status'] ?? 'all');
-        if (!in_array($filter, ['all', 'owed', 'paid'], true)) {
+        if (!in_array($filter, ['all', 'owed', 'paid', 'disputed', 'void'], true)) {
             $filter = 'all';
         }
         $where = 'b.commission_amount > 0';
@@ -544,6 +570,10 @@ class TAP_Dashboard {
             $where .= " AND b.commission_status = 'owed'";
         } elseif ('paid' === $filter) {
             $where .= " AND b.commission_status = 'paid'";
+        } elseif ('disputed' === $filter) {
+            $where .= " AND b.commission_status = 'disputed'";
+        } elseif ('void' === $filter) {
+            $where .= " AND b.commission_status = 'void'";
         }
         $commissions = $wpdb->get_results(
             "SELECT b.*, a.post_title as agency_name
@@ -552,16 +582,27 @@ class TAP_Dashboard {
              WHERE {$where}
              ORDER BY b.created_at DESC LIMIT 200"
         );
-        $payments = $wpdb->get_results($wpdb->prepare(
+        $payout_filter = sanitize_key($_GET['payout_status'] ?? 'all');
+        if (!in_array($payout_filter, ['all', 'pending', 'completed', 'cancelled'], true)) {
+            $payout_filter = 'all';
+        }
+        $pwhere = '1=1';
+        if ('all' !== $payout_filter) {
+            $pwhere = $wpdb->prepare("p.status = %s", $payout_filter);
+        }
+        $payments = $wpdb->get_results(
             "SELECT p.*, a.post_title agency_name
              FROM {$p_table} p
              LEFT JOIN {$wpdb->posts} a ON p.agency_id = a.ID
+             WHERE {$pwhere}
              ORDER BY p.created_at DESC LIMIT 50"
-        ));
+        );
         $totals = $wpdb->get_row(
             "SELECT
                 COALESCE(SUM(CASE WHEN commission_status = 'owed' THEN commission_amount END), 0) owed,
-                COALESCE(SUM(CASE WHEN commission_status = 'paid' THEN commission_amount END), 0) paid
+                COALESCE(SUM(CASE WHEN commission_status = 'paid' THEN commission_amount END), 0) paid,
+                COALESCE(SUM(CASE WHEN commission_status = 'disputed' THEN commission_amount END), 0) disputed,
+                COALESCE(SUM(CASE WHEN commission_status = 'void' THEN commission_amount END), 0) void
              FROM {$b_table} WHERE commission_amount > 0"
         );
         ?>
@@ -576,7 +617,9 @@ class TAP_Dashboard {
             <nav class="nav-tab-wrapper">
                 <a href="admin.php?page=tap-commissions&status=all" class="nav-tab <?php echo 'all' === $filter ? 'nav-tab-active' : ''; ?>"><?php esc_html_e('Todas', 'travel-agency-platform'); ?></a>
                 <a href="admin.php?page=tap-commissions&status=owed" class="nav-tab <?php echo 'owed' === $filter ? 'nav-tab-active' : ''; ?>"><?php esc_html_e('Por cobrar', 'travel-agency-platform'); ?> (<?php echo esc_html(TAP_Currency::fmt($totals->owed)); ?>)</a>
+                <a href="admin.php?page=tap-commissions&status=disputed" class="nav-tab <?php echo 'disputed' === $filter ? 'nav-tab-active' : ''; ?>"><?php esc_html_e('En disputa', 'travel-agency-platform'); ?> (<?php echo esc_html(TAP_Currency::fmt($totals->disputed)); ?>)</a>
                 <a href="admin.php?page=tap-commissions&status=paid" class="nav-tab <?php echo 'paid' === $filter ? 'nav-tab-active' : ''; ?>"><?php esc_html_e('Pagadas', 'travel-agency-platform'); ?> (<?php echo esc_html(TAP_Currency::fmt($totals->paid)); ?>)</a>
+                <a href="admin.php?page=tap-commissions&status=void" class="nav-tab <?php echo 'void' === $filter ? 'nav-tab-active' : ''; ?>"><?php esc_html_e('Canceladas', 'travel-agency-platform'); ?> (<?php echo esc_html(TAP_Currency::fmt($totals->void)); ?>)</a>
             </nav>
 
             <form method="post" action="">
@@ -602,18 +645,28 @@ class TAP_Dashboard {
                         <?php foreach ($commissions as $c): ?>
                         <tr>
                             <th scope="row" class="check-column">
-                                <input type="checkbox" name="booking_ids[]" value="<?php echo esc_attr($c->id); ?>" <?php disabled('paid', $c->commission_status); ?>>
+                                <input type="checkbox" name="booking_ids[]" value="<?php echo esc_attr($c->id); ?>" <?php echo 'owed' === $c->commission_status ? '' : 'disabled'; ?>>
                             </th>
                             <td><?php echo esc_html($c->booking_code); ?></td>
                             <td><?php echo esc_html($c->agency_name ?? 'N/A'); ?></td>
                             <td><?php echo esc_html(TAP_Currency::fmt($c->total_amount)); ?></td>
                             <td><?php echo esc_html($c->commission_percent); ?>%</td>
                             <td><?php echo esc_html(TAP_Currency::fmt($c->commission_amount)); ?></td>
-                            <td><?php echo 'paid' === $c->commission_status ? '<span style="color:#047857;font-weight:600;" class="tap-status-confirmed">' . esc_html__('Cobrada', 'travel-agency-platform') . '</span>' : '<span style="color:#b45309;font-weight:600;">' . esc_html__('Por cobrar', 'travel-agency-platform') . '</span>'; ?>
-                                <?php if ('owned' !== $c->commission_status && 'paid' !== $c->commission_status): ?>
-                                    <button type="button" class="button-link" data-settle="<?php echo (int) $c->id; ?>" data-code="<?php echo esc_attr($c->booking_code); ?>" data-amount="<?php echo esc_attr(TAP_Currency::fmt($c->commission_amount)); ?>"><?php esc_html_e('Liquidar', 'travel-agency-platform'); ?></button>
-                                <?php endif; ?>
-                            </td>
+                            <td><?php
+                                $estado_label = [
+                                    'owed'     => __('Por cobrar', 'travel-agency-platform'),
+                                    'paid'     => __('Cobrada', 'travel-agency-platform'),
+                                    'disputed' => __('En disputa', 'travel-agency-platform'),
+                                    'void'     => __('Comisión no pagada', 'travel-agency-platform'),
+                                ];
+                                $estado_color = [
+                                    'owed'     => '#b45309',
+                                    'paid'     => '#047857',
+                                    'disputed' => '#b91c1c',
+                                    'void'     => '#64748b',
+                                ];
+                                echo '<span style="color:' . esc_attr($estado_color[$c->commission_status] ?? '#374151') . ';font-weight:600;">' . esc_html($estado_label[$c->commission_status] ?? $c->commission_status) . '</span>';
+                            ?></td>
                             <td><?php echo esc_html($c->created_at); ?></td>
                         </tr>
                         <?php endforeach; ?>
@@ -642,6 +695,12 @@ class TAP_Dashboard {
             </form>
 
             <h2 style="margin-top:32px;"><?php esc_html_e('Historial de liquidaciones', 'travel-agency-platform'); ?></h2>
+            <nav class="nav-tab-wrapper" style="margin-bottom:12px;">
+                <?php foreach (['all' => __('Todas', 'travel-agency-platform'), 'pending' => __('Pendientes', 'travel-agency-platform'), 'completed' => __('Completadas', 'travel-agency-platform'), 'cancelled' => __('Canceladas', 'travel-agency-platform')] as $pk => $plabel):
+                    $pclass = $payout_filter === $pk ? ' nav-tab-active' : ''; ?>
+                    <a class="nav-tab<?php echo $pclass; ?>" href="<?php echo esc_url(admin_url('admin.php?page=tap-commissions&status=' . $filter . '&payout_status=' . $pk)); ?>"><?php echo esc_html($plabel); ?></a>
+                <?php endforeach; ?>
+            </nav>
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
@@ -651,12 +710,14 @@ class TAP_Dashboard {
                         <th><?php esc_html_e('Método', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Bookings', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Nota', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Estado', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Fecha', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Acciones', 'travel-agency-platform'); ?></th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php if (!$payments): ?>
-                        <tr><td colspan="7"><?php esc_html_e('Aún no se han registrado liquidaciones.', 'travel-agency-platform'); ?></td></tr>
+                        <tr><td colspan="9"><?php esc_html_e('Aún no se han registrado liquidaciones.', 'travel-agency-platform'); ?></td></tr>
                     <?php endif; ?>
                     <?php foreach ($payments as $p): ?>
                     <tr>
@@ -675,7 +736,28 @@ class TAP_Dashboard {
                             }
                         ?></td>
                         <td><?php echo esc_html($p->note); ?></td>
+                        <td><span style="font-weight:600;color:<?php echo 'pending' === $p->status ? '#b45309' : ('completed' === $p->status ? '#047857' : '#64748b'); ?>;"><?php echo esc_html(TAP_Payouts::status_label($p->status)); ?></span><?php if ($p->paid_at): ?><br><span class="description"><?php echo esc_html__('Pagada el', 'travel-agency-platform') . ' ' . esc_html($p->paid_at); ?></span><?php endif; ?></td>
                         <td><?php echo esc_html($p->created_at); ?></td>
+                        <td>
+                            <?php if ('pending' === $p->status): ?>
+                            <form method="post" style="display:inline-block;margin:0;">
+                                <?php wp_nonce_field('tap_payout_action_' . (int) $p->id); ?>
+                                <input type="hidden" name="payout_id" value="<?php echo (int) $p->id; ?>">
+                                <input type="hidden" name="filter" value="<?php echo esc_attr($filter); ?>">
+                                <input type="hidden" name="payout_filter" value="<?php echo esc_attr($payout_filter); ?>">
+                                <button type="submit" name="tap_payout_action" value="complete" class="button button-small button-primary"><?php esc_html_e('Marcar pagada', 'travel-agency-platform'); ?></button>
+                            </form>
+                            <form method="post" style="display:inline-block;margin:0 0 0 4px;">
+                                <?php wp_nonce_field('tap_payout_action_' . (int) $p->id); ?>
+                                <input type="hidden" name="payout_id" value="<?php echo (int) $p->id; ?>">
+                                <input type="hidden" name="filter" value="<?php echo esc_attr($filter); ?>">
+                                <input type="hidden" name="payout_filter" value="<?php echo esc_attr($payout_filter); ?>">
+                                <button type="submit" name="tap_payout_action" value="cancel" class="button button-small button-link-delete" onclick="return confirm('<?php echo esc_js(__('Cancelar esta liquidación y devolver las comisiones a por cobrar?', 'travel-agency-platform')); ?>');"><?php esc_html_e('Cancelar', 'travel-agency-platform'); ?></button>
+                            </form>
+                            <?php else: ?>
+                                —
+                            <?php endif; ?>
+                        </td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -731,6 +813,130 @@ class TAP_Dashboard {
             modal.addEventListener('click', function(e){ if (e.target === modal) modal.style.display = 'none'; });
         })(document);
         </script>
+        <?php
+    }
+
+    public static function disputes_page() {
+        global $wpdb;
+        $table = $wpdb->prefix . 'tap_disputes';
+
+        if (isset($_POST['tap_resolve_dispute']) && isset($_POST['_wpnonce'])) {
+            $dispute_id = intval($_POST['dispute_id'] ?? 0);
+            $outcome    = sanitize_key($_POST['outcome'] ?? '');
+            if ($dispute_id && wp_verify_nonce($_POST['_wpnonce'], 'tap_resolve_dispute_' . $dispute_id)) {
+                $note = sanitize_textarea_field(wp_unslash($_POST['resolution_note'] ?? ''));
+                $res  = TAP_Disputes::resolve($dispute_id, $outcome, $note);
+                if (is_wp_error($res)) {
+                    set_transient('tap_dispute_notice', __($res->get_error_message(), 'travel-agency-platform'), 60);
+                } else {
+                    set_transient('tap_dispute_notice', __('Disputa resuelta. Comisión liberada o anulada según el resultado.', 'travel-agency-platform'), 60);
+                }
+            }
+            wp_safe_redirect(admin_url('admin.php?page=tap-disputes&dfilter=' . sanitize_key($_POST['dfilter'] ?? 'all')));
+            exit;
+        }
+
+        $filter = sanitize_key($_GET['dfilter'] ?? 'all');
+        $counts = $wpdb->get_row("SELECT
+            COALESCE(SUM(status='open'),0) open_c,
+            COALESCE(SUM(status!='open'),0) closed_c FROM {$table}");
+
+        $where = '1=1';
+        if ('open' === $filter) {
+            $where = "status = 'open'";
+        } elseif ('closed' === $filter) {
+            $where = "status != 'open'";
+        }
+        $disputes = $wpdb->get_results(
+            "SELECT d.*, b.booking_code, b.guest_name, b.guest_email AS bmail, a.post_title AS agency_name
+             FROM {$table} d
+             LEFT JOIN {$wpdb->prefix}tap_bookings b ON d.booking_id = b.id
+             LEFT JOIN {$wpdb->posts} a ON d.agency_id = a.ID
+             WHERE {$where}
+             ORDER BY d.created_at DESC LIMIT 200"
+        );
+        ?>
+        <div class="wrap">
+            <h1><?php esc_html_e('Disputas de reservas', 'travel-agency-platform'); ?></h1>
+
+            <?php $tap_dnotice = get_transient('tap_dispute_notice'); if ($tap_dnotice): ?>
+                <div class="notice notice-success is-dismissible"><p><?php echo esc_html($tap_dnotice); ?></p></div>
+                <?php delete_transient('tap_dispute_notice'); ?>
+            <?php endif; ?>
+
+            <div class="notice notice-info inline" style="margin:10px 0;">
+                <p><?php esc_html_e('Mientras una disputa está abierta, la comisión de la reserva queda retenida y no puede liquidarse. Al resolver a favor de la agencia la comisión se libera; en contra, se anula.', 'travel-agency-platform'); ?></p>
+            </div>
+
+            <nav class="nav-tab-wrapper">
+                <a href="admin.php?page=tap-disputes&dfilter=all" class="nav-tab <?php echo 'all' === $filter ? 'nav-tab-active' : ''; ?>"><?php esc_html_e('Todas', 'travel-agency-platform'); ?> (<?php echo (int) (($counts->open_c ?? 0) + ($counts->closed_c ?? 0)); ?>)</a>
+                <a href="admin.php?page=tap-disputes&dfilter=open" class="nav-tab <?php echo 'open' === $filter ? 'nav-tab-active' : ''; ?>"><?php esc_html_e('Abiertas', 'travel-agency-platform'); ?> (<?php echo (int) ($counts->open_c ?? 0); ?>)</a>
+                <a href="admin.php?page=tap-disputes&dfilter=closed" class="nav-tab <?php echo 'closed' === $filter ? 'nav-tab-active' : ''; ?>"><?php esc_html_e('Resueltas', 'travel-agency-platform'); ?> (<?php echo (int) ($counts->closed_c ?? 0); ?>)</a>
+            </nav>
+
+            <table class="wp-list-table widefat fixed striped">
+                <thead>
+                    <tr>
+                        <th><?php esc_html_e('Reserva', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Agencia', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Huésped', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Motivo', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Estado', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Fecha', 'travel-agency-platform'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (!$disputes): ?>
+                    <tr><td colspan="6"><em><?php esc_html_e('No hay disputas.', 'travel-agency-platform'); ?></em></td></tr>
+                    <?php endif; ?>
+                    <?php foreach ($disputes as $d): ?>
+                    <tr>
+                        <td>
+                            <a href="<?php echo esc_url(home_url('/booking-detail/?code=' . rawurlencode($d->booking_code))); ?>" target="_blank"><?php echo esc_html($d->booking_code); ?></a>
+                            #<?php echo (int) $d->booking_id; ?>
+                        </td>
+                        <td><?php echo esc_html($d->agency_name ?? 'N/A'); ?></td>
+                        <td><?php echo esc_html($d->guest_name ?: $d->bmail ?: ($d->client_id ? '#' . (int) $d->client_id : '—')); ?></td>
+                        <td><?php echo esc_html(TAP_Disputes::reasons()[$d->reason] ?? $d->reason); ?>
+                            <?php if ($d->details): ?><div class="description" style="margin-top:4px;"><?php echo esc_html($d->details); ?></div><?php endif; ?>
+                        </td>
+                        <td><span class="tap-status <?php echo 'open' === $d->status ? 'tap-status-pending' : 'tap-status-confirmed'; ?>"><?php echo esc_html(TAP_Disputes::status_label($d->status)); ?></span></td>
+                        <td><?php echo esc_html($d->created_at); ?></td>
+                    </tr>
+                    <tr>
+                        <td style="background:#f9fafb;"></td>
+                        <td colspan="5" style="background:#f9fafb;">
+                            <?php if ('open' === $d->status): ?>
+                            <details>
+                                <summary style="cursor:pointer;font-weight:600;color:#0a84ff;"><?php esc_html_e('Resolver disputa', 'travel-agency-platform'); ?></summary>
+                                <form method="post" style="margin-top:8px;">
+                                    <input type="hidden" name="tap_resolve_dispute" value="1">
+                                    <input type="hidden" name="dispute_id" value="<?php echo (int) $d->id; ?>">
+                                    <input type="hidden" name="dfilter" value="<?php echo esc_attr($filter); ?>">
+                                    <?php wp_nonce_field('tap_resolve_dispute_' . $d->id); ?>
+                                    <p>
+                                        <label><input type="radio" name="outcome" value="for_agency" checked> <?php esc_html_e('A favor de la agencia (liberar comisión)', 'travel-agency-platform'); ?></label><br>
+                                        <label><input type="radio" name="outcome" value="against_agency"> <?php esc_html_e('En contra de la agencia (comisión no pagada)', 'travel-agency-platform'); ?></label><br>
+                                        <label><input type="radio" name="outcome" value="withdrawn"> <?php esc_html_e('Retirar disputa', 'travel-agency-platform'); ?></label>
+                                    </p>
+                                    <textarea name="resolution_note" rows="2" class="large-text" placeholder="<?php esc_attr_e('Nota de resolución', 'travel-agency-platform'); ?>"></textarea>
+                                    <p>
+                                        <button class="button button-primary"><?php esc_html_e('Guardar resolución', 'travel-agency-platform'); ?></button>
+                                    </p>
+                                </form>
+                            </details>
+                            <?php elseif ($d->resolution_note): ?>
+                            <blockquote style="margin:6px 0;padding:8px 12px;border-left:4px solid #94a3b8;background:#fff;">
+                                <?php echo nl2br(esc_html($d->resolution_note)); ?>
+                                <div class="description" style="color:#64748b;"><?php echo esc_html((string) $d->resolved_at); ?></div>
+                            </blockquote>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
         <?php
     }
 

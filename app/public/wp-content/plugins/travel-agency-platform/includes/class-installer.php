@@ -220,6 +220,34 @@ class TAP_Installer {
             ) {$wpdb->get_charset_collate()}");
         }
 
+        $cols_payouts = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_commission_payments");
+        if (!in_array('status', $cols_payouts)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_commission_payments ADD COLUMN status varchar(20) DEFAULT 'pending' AFTER method");
+        }
+        if (!in_array('paid_at', $cols_payouts)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_commission_payments ADD COLUMN paid_at datetime DEFAULT NULL AFTER status");
+        }
+
+        if ($wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}tap_disputes'") !== "{$wpdb->prefix}tap_disputes") {
+            $wpdb->query("CREATE TABLE {$wpdb->prefix}tap_disputes (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                booking_id bigint(20) NOT NULL,
+                agency_id bigint(20) NOT NULL,
+                client_id bigint(20) NOT NULL,
+                guest_email varchar(190) DEFAULT NULL,
+                reason varchar(50) NOT NULL,
+                details text,
+                status varchar(30) DEFAULT 'open',
+                resolution_note text,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                resolved_at datetime DEFAULT NULL,
+                PRIMARY KEY (id),
+                KEY booking_id (booking_id),
+                KEY agency_id (agency_id),
+                KEY status (status)
+            ) {$wpdb->get_charset_collate()}");
+        }
+
         if ($wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}tap_chat_events'") !== "{$wpdb->prefix}tap_chat_events") {
             $wpdb->query("CREATE TABLE {$wpdb->prefix}tap_chat_events (
                 id bigint(20) NOT NULL AUTO_INCREMENT,

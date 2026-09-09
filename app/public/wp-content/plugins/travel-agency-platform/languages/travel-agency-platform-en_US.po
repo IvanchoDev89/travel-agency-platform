@@ -1428,3 +1428,159 @@ msgstr "Verified review"
 
 msgid "Basada en una reserva confirmada"
 msgstr "Based on a confirmed booking"
+
+msgid "Completada"
+msgstr "Completed"
+
+msgid "Completadas"
+msgstr "Completed"
+
+msgid "Cancelada"
+msgstr "Cancelled"
+
+msgid "Canceladas"
+msgstr "Cancelled"
+
+msgid "Marcar pagada"
+msgstr "Mark as paid"
+
+msgid "Pagada el"
+msgstr "Paid on"
+
+msgid "Liquidación marcada como completada."
+msgstr "Settlement marked as completed."
+
+msgid "Liquidación cancelada y comisiones devueltas a por cobrar."
+msgstr "Settlement cancelled and commissions returned to owed."
+
+msgid "Comisión no pagada"
+msgstr "Commission not paid"
+
+msgid "En disputa"
+msgstr "In dispute"
+
+msgid "Cancelar esta liquidación y devolver las comisiones a por cobrar?"
+msgstr "Cancel this settlement and return the commissions to owed?"
+
+msgid "Disputas"
+msgstr "Disputes"
+
+msgid "Disputas de reservas"
+msgstr "Booking disputes"
+
+msgid "Mientras una disputa está abierta, la comisión de la reserva queda retenida y no puede liquidarse. Al resolver a favor de la agencia la comisión se libera; en contra, se anula."
+msgstr "While a dispute is open, the booking commission is held and cannot be settled. Resolving in favour of the agency releases the commission; resolving against it voids it."
+
+msgid "Abiertas"
+msgstr "Open"
+
+msgid "Resueltas"
+msgstr "Resolved"
+
+msgid "Huésped"
+msgstr "Guest"
+
+msgid "Motivo"
+msgstr "Reason"
+
+msgid "No hay disputas."
+msgstr "There are no disputes."
+
+msgid "Resolver disputa"
+msgstr "Resolve dispute"
+
+msgid "A favor de la agencia (liberar comisión)"
+msgstr "In favour of the agency (release commission)"
+
+msgid "En contra de la agencia (comisión no pagada)"
+msgstr "Against the agency (commission not paid)"
+
+msgid "Retirar disputa"
+msgstr "Withdraw dispute"
+
+msgid "Nota de resolución"
+msgstr "Resolution note"
+
+msgid "Guardar resolución"
+msgstr "Save resolution"
+
+msgid "Disputa resuelta. Comisión liberada o anulada según el resultado."
+msgstr "Dispute resolved. Commission released or voided depending on the outcome."
+
+msgid "Disputas de tus reservas"
+msgstr "Disputes on your bookings"
+
+msgid "No hay disputas en tus reservas."
+msgstr "There are no disputes on your bookings."
+
+msgid "Mientras una disputa está abierta, la comisión de esa reserva queda retenida."
+msgstr "While a dispute is open, that booking's commission is held."
+
+msgid "Calidad del servicio"
+msgstr "Service quality"
+
+msgid "Publicidad engañosa"
+msgstr "Misleading advertising"
+
+msgid "Cancelación o modificación"
+msgstr "Cancellation or modification"
+
+msgid "Disputa abierta"
+msgstr "Dispute open"
+
+msgid "Resuelta a favor de la agencia"
+msgstr "Resolved in favour of the agency"
+
+msgid "Resuelta en contra de la agencia"
+msgstr "Resolved against the agency"
+
+msgid "Retirada"
+msgstr "Withdrawn"
+
+msgid "La reserva no existe."
+msgstr "The booking does not exist."
+
+msgid "Solo puedes disputar una reserva confirmada y pagada."
+msgstr "You can only dispute a confirmed and paid booking."
+
+msgid "Ya existe una disputa abierta para esta reserva."
+msgstr "There is already an open dispute for this booking."
+
+msgid "Motivo de disputa no válido."
+msgstr "Invalid dispute reason."
+
+msgid "La disputa no está abierta."
+msgstr "The dispute is not open."
+
+msgid "Resultado de la disputa no válido."
+msgstr "Invalid dispute outcome."
+
+msgid "Abrir una disputa"
+msgstr "Open a dispute"
+
+msgid "Si el servicio no coincidió con lo prometido, cuéntanos qué pasó. Revisaremos tu reserva y ayudaremos a resolverlo."
+msgstr "If the service did not match what was promised, tell us what happened. We will review your booking and help sort it out."
+
+msgid "Motivo de la disputa"
+msgstr "Dispute reason"
+
+msgid "Detalles"
+msgstr "Details"
+
+msgid "Describe el problema..."
+msgstr "Describe the problem..."
+
+msgid "Enviar disputa"
+msgstr "Submit dispute"
+
+msgid "Disputa abierta. La comisión de esta reserva queda retenida hasta resolver."
+msgstr "Dispute opened. This booking's commission is held until it is resolved."
+
+msgid "Hay una disputa abierta para esta reserva. El equipo revisará el caso y la resolverá lo antes posible."
+msgstr "There is an open dispute on this booking. Our team will review the case and resolve it as soon as possible."
+
+msgid "Otro"
+msgstr "Other"
+
+msgid "Liquidación cancelada y comisiones devueltas a \"por cobrar\"."
+msgstr "Settlement cancelled and commissions returned to \"owed\"."

@@ -91,6 +91,7 @@ class TAP_Roles {
         $admin->add_cap('tap_manage_agencies', true);
         $admin->add_cap('tap_manage_commissions', true);
         $admin->add_cap('tap_manage_reviews', true);
+        $admin->add_cap('tap_manage_disputes', true);
         $admin->add_cap('tap_view_reports', true);
         $admin->add_cap('tap_manage_settings', true);
 

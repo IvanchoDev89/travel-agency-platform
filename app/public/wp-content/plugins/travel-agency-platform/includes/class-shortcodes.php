@@ -819,13 +819,14 @@ class TAP_Shortcodes {
         $commission = $agency_id ? TAP_Booking::get_agency_commission($agency_id) : 10;
         $stats      = TAP_Booking::get_booking_stats($agency_id);
 
-        $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
+$comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
             "SELECT
-                COALESCE(SUM(CASE WHEN commission_status != 'paid' THEN commission_amount ELSE 0 END),0) owed,
-                COALESCE(SUM(CASE WHEN commission_status = 'paid' THEN commission_amount ELSE 0 END),0) settled
+                COALESCE(SUM(CASE WHEN commission_status = 'owed' THEN commission_amount END),0) owed,
+                COALESCE(SUM(CASE WHEN commission_status = 'disputed' THEN commission_amount END),0) disputed,
+                COALESCE(SUM(CASE WHEN commission_status = 'paid' THEN commission_amount END),0) settled
              FROM {$wpdb->prefix}tap_bookings WHERE agency_id = %d AND commission_amount > 0",
             $agency_id
-        )) : (object) ['owed' => 0, 'settled' => 0];
+        )) : (object) ['owed' => 0, 'disputed' => 0, 'settled' => 0];
         $settlements = $agency_id ? $wpdb->get_results($wpdb->prepare(
             "SELECT * FROM {$wpdb->prefix}tap_commission_payments WHERE agency_id = %d ORDER BY created_at DESC LIMIT 10",
             $agency_id
@@ -955,6 +956,7 @@ class TAP_Shortcodes {
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(TAP_Currency::fmt($stats['commission'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Commission', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number" style="color:#047857;"><?php echo esc_html(TAP_Currency::fmt($stats['net'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Net to you', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b45309;"><?php echo esc_html(TAP_Currency::fmt($comm_rows->owed)); ?></span><span class="tap-stat-label"><?php esc_html_e('Por cobrar', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b91c1c;"><?php echo esc_html(TAP_Currency::fmt($comm_rows->disputed)); ?></span><span class="tap-stat-label"><?php esc_html_e('En disputa', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number" style="color:#047857;"><?php echo esc_html(TAP_Currency::fmt($comm_rows->settled)); ?></span><span class="tap-stat-label"><?php esc_html_e('Cobrado', 'travel-agency-platform'); ?></span></div>
             </div>
 
@@ -1274,6 +1276,7 @@ class TAP_Shortcodes {
                             <th><?php esc_html_e('Método', 'travel-agency-platform'); ?></th>
                             <th><?php esc_html_e('Bookings', 'travel-agency-platform'); ?></th>
                             <th><?php esc_html_e('Nota', 'travel-agency-platform'); ?></th>
+                            <th><?php esc_html_e('Estado', 'travel-agency-platform'); ?></th>
                             <th><?php esc_html_e('Fecha', 'travel-agency-platform'); ?></th>
                         </tr>
                     </thead>
@@ -1294,11 +1297,53 @@ class TAP_Shortcodes {
                                 }
                             ?></td>
                             <td><?php echo esc_html($s->note); ?></td>
+                            <td>
+                                <span class="tap-status <?php echo 'completed' === $s->status ? 'tap-status-confirmed' : ('pending' === $s->status ? 'tap-status-pending' : 'tap-muted'); ?>"><?php echo esc_html(TAP_Payouts::status_label($s->status)); ?></span>
+                                <?php if ($s->paid_at): ?><div class="tap-muted"><?php echo esc_html__('Pagada el', 'travel-agency-platform') . ' ' . esc_html($s->paid_at); ?></div><?php endif; ?>
+                            </td>
                             <td><?php echo esc_html($s->created_at); ?></td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                <?php endif; ?>
+            </div>
+
+            <div class="tap-panel-section">
+                <h3><?php esc_html_e('Disputas de tus reservas', 'travel-agency-platform'); ?></h3>
+                <?php $agency_disputes = $agency_id ? TAP_Disputes::for_agency($agency_id) : []; ?>
+                <?php $has_open = array_filter($agency_disputes, fn($d) => 'open' === $d->status); ?>
+                <?php if (!$agency_disputes): ?>
+                    <p class="tap-agency-meta"><?php esc_html_e('No hay disputas en tus reservas.', 'travel-agency-platform'); ?></p>
+                <?php else: ?>
+                <div class="tap-table-scroll">
+                <table class="tap-agency-table">
+                    <thead>
+                        <tr>
+                            <th><?php esc_html_e('Reserva', 'travel-agency-platform'); ?></th>
+                            <th><?php esc_html_e('Motivo', 'travel-agency-platform'); ?></th>
+                            <th><?php esc_html_e('Estado', 'travel-agency-platform'); ?></th>
+                            <th><?php esc_html_e('Fecha', 'travel-agency-platform'); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($agency_disputes as $ad):
+                            $ad_code = $wpdb->get_var($wpdb->prepare("SELECT booking_code FROM {$wpdb->prefix}tap_bookings WHERE id = %d", $ad->booking_id));
+                        ?>
+                        <tr>
+                            <td><?php echo esc_html($ad_code ?: '#' . (int) $ad->booking_id); ?></td>
+                            <td><?php echo esc_html(TAP_Disputes::reasons()[$ad->reason] ?? $ad->reason); ?>
+                                <?php if ($ad->details): ?><div class="tap-muted"><?php echo esc_html($ad->details); ?></div><?php endif; ?></td>
+                            <td><span class="tap-status <?php echo 'open' === $ad->status ? 'tap-status-pending' : 'tap-status-confirmed'; ?>"><?php echo esc_html(TAP_Disputes::status_label($ad->status)); ?></span></td>
+                            <td><?php echo esc_html($ad->created_at); ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                </div>
+                <?php endif; ?>
+                <?php if ($has_open): ?>
+                    <p class="tap-agency-meta"><?php esc_html_e('Mientras una disputa está abierta, la comisión de esa reserva queda retenida.', 'travel-agency-platform'); ?></p>
                 <?php endif; ?>
             </div>
 
@@ -1325,7 +1370,15 @@ class TAP_Shortcodes {
                             <td><?php echo esc_html($cl->created_at); ?></td>
                             <td><?php echo esc_html(TAP_Currency::fmt($cl->total_amount)); ?></td>
                             <td><?php echo esc_html(TAP_Currency::fmt($cl->commission_amount)); ?></td>
-                            <td><?php echo 'paid' === $cl->commission_status ? '<span class="tap-status tap-status-confirmed">' . esc_html__('Cobrada', 'travel-agency-platform') . '</span>' : '<span class="tap-status tap-status-pending">' . esc_html__('Por cobrar', 'travel-agency-platform') . '</span>'; ?></td>
+                            <td><?php
+                                $cl_label = [
+                                    'paid'     => __('Cobrada', 'travel-agency-platform'),
+                                    'disputed' => __('En disputa', 'travel-agency-platform'),
+                                    'void'     => __('Comisión no pagada', 'travel-agency-platform'),
+                                ];
+                                $cl_ok = 'paid' === $cl->commission_status;
+                                echo '<span class="tap-status ' . ($cl_ok ? 'tap-status-confirmed' : ($cl->commission_status === 'owed' ? 'tap-status-pending' : 'tap-muted')) . '">' . esc_html($cl_label[$cl->commission_status] ?? __('Por cobrar', 'travel-agency-platform')) . '</span>';
+                            ?></td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -2461,6 +2514,23 @@ class TAP_Shortcodes {
         }
 
         $user    = get_userdata($booking->client_id);
+        $dispute_msg  = '';
+        $dispute_err  = '';
+        $dispute_open = $booking->id ? TAP_Disputes::active_for_booking($booking->id) : null;
+
+        if (isset($_POST['tap_open_dispute']) && $can
+            && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'] ?? '')), 'tap_open_dispute_' . $booking->booking_code)) {
+            $reason  = sanitize_key(wp_unslash($_POST['reason'] ?? ''));
+            $details = sanitize_textarea_field(wp_unslash($_POST['details'] ?? ''));
+            $res = TAP_Disputes::open($booking->id, $uid ? $uid : 0, $uid ? '' : (string) $booking->guest_email, $reason, $details);
+            if (is_wp_error($res)) {
+                $dispute_err = $res->get_error_message();
+            } else {
+                $dispute_msg  = __('Disputa abierta. La comisión de esta reserva queda retenida hasta resolver.', 'travel-agency-platform');
+                $dispute_open = TAP_Disputes::active_for_booking($booking->id);
+            }
+        }
+
         $service = get_post($booking->service_id);
         $room    = $booking->room_id ? get_post($booking->room_id) : null;
         $agency  = $booking->agency_id ? get_post($booking->agency_id) : null;
@@ -2612,6 +2682,47 @@ class TAP_Shortcodes {
                     <div class="tap-voucher-notes">
                         <small><?php esc_html_e('Presenta este voucher el día del check-in. Cualquier cambio debe gestionarse con la agencia.', 'travel-agency-platform'); ?></small>
                     </div>
+
+                    <?php $is_traveler = ($uid && (int) $booking->client_id === $uid) || ((int) $booking->client_id === 0 && '' !== $email); ?>
+                    <?php if ($is_traveler): ?>
+                    <div class="tap-voucher-dispute">
+                        <?php if ($dispute_msg): ?>
+                            <div class="tap-booking-message tap-success"><p><?php echo esc_html($dispute_msg); ?></p></div>
+                        <?php endif; ?>
+                        <?php if ($dispute_err): ?>
+                            <div class="tap-booking-message tap-error"><p><?php echo esc_html($dispute_err); ?></p></div>
+                        <?php endif; ?>
+                        <?php if ($dispute_open): ?>
+                            <div class="tap-booking-message">
+                                <p><?php esc_html_e('Hay una disputa abierta para esta reserva. El equipo revisará el caso y la resolverá lo antes posible.', 'travel-agency-platform'); ?></p>
+                                <p><strong><?php echo esc_html(TAP_Disputes::status_label($dispute_open->status)); ?></strong> — <?php echo esc_html(TAP_Disputes::reasons()[$dispute_open->reason] ?? $dispute_open->reason); ?></p>
+                            </div>
+                        <?php elseif (in_array($booking->status, ['confirmed', 'completed'], true) && 'paid' === $booking->payment_status): ?>
+                            <h3><?php esc_html_e('Abrir una disputa', 'travel-agency-platform'); ?></h3>
+                            <p class="tap-agency-meta"><?php esc_html_e('Si el servicio no coincidió con lo prometido, cuéntanos qué pasó. Revisaremos tu reserva y ayudaremos a resolverlo.', 'travel-agency-platform'); ?></p>
+                            <form method="post" class="tap-manage-form">
+                                <?php wp_nonce_field('tap_open_dispute_' . $booking->booking_code); ?>
+                                <div class="tap-form-grid">
+                                    <div class="tap-field">
+                                        <label><?php esc_html_e('Motivo de la disputa', 'travel-agency-platform'); ?></label>
+                                        <select name="reason" required>
+                                            <?php foreach (TAP_Disputes::reasons() as $rk => $rl): ?>
+                                                <option value="<?php echo esc_attr($rk); ?>"><?php echo esc_html($rl); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="tap-field tap-span-2">
+                                        <label><?php esc_html_e('Detalles', 'travel-agency-platform'); ?></label>
+                                        <textarea name="details" rows="3" required placeholder="<?php esc_attr_e('Describe el problema...', 'travel-agency-platform'); ?>"></textarea>
+                                    </div>
+                                    <div class="tap-field tap-field-actions">
+                                        <button type="submit" name="tap_open_dispute" value="1" class="tap-btn tap-btn-primary"><?php esc_html_e('Enviar disputa', 'travel-agency-platform'); ?></button>
+                                    </div>
+                                </div>
+                            </form>
+                        <?php endif; ?>
+                    </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

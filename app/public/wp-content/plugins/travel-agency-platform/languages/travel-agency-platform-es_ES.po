@@ -1086,3 +1086,6 @@ msgstr "Tu reseña no pasó las verificaciones de seguridad. Corrige el contenid
 
 msgid "Your trusted multi-agency travel platform. Discover, compare, and book the best travel experiences from verified local agencies."
 msgstr "Tu plataforma de viajes multiagencia de confianza. Descubre, compara y reserva las mejores experiencias de viaje de agencias locales verificadas."
+
+msgid "Disputes"
+msgstr "Disputas"

@@ -11,7 +11,7 @@
 
 defined('ABSPATH') || exit;
 
-define('TAP_VERSION', '1.4.4');
+define('TAP_VERSION', '1.4.5');
 define('TAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -49,6 +49,8 @@ final class TravelAgencyPlatform {
         require_once TAP_PLUGIN_DIR . 'includes/class-chatbot.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-moderation.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-reviews.php';
+        require_once TAP_PLUGIN_DIR . 'includes/class-payouts.php';
+        require_once TAP_PLUGIN_DIR . 'includes/class-disputes.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-dashboard.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-paypal.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-payment.php';
