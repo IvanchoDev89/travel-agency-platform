@@ -41,6 +41,10 @@ class TAP_Privacy {
             return (int) $existing[0];
         }
 
+        if (!isset($GLOBALS['wp_rewrite']) || !($GLOBALS['wp_rewrite'] instanceof WP_Rewrite)) {
+            $GLOBALS['wp_rewrite'] = new WP_Rewrite();
+        }
+
         $new_id = wp_insert_post([
             'post_type'   => 'page',
             'post_status' => 'publish',
