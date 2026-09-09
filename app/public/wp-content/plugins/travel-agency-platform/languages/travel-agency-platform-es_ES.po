@@ -13,1142 +13,4577 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 
+
 msgid "About this property"
 msgstr "Acerca de esta propiedad"
+
 
 msgid "About this service"
 msgstr "Acerca de este servicio"
 
+
 msgid "Abusive language"
 msgstr "Lenguaje abusivo"
+
 
 msgid "Access denied"
 msgstr "Acceso denegado"
 
+
 msgid "Accommodations"
 msgstr "Alojamientos"
+
 
 msgid "Actions"
 msgstr "Acciones"
 
+
 msgid "Address"
 msgstr "Dirección"
+
 
 msgid "Address:"
 msgstr "Dirección:"
 
+
 msgid "adults"
 msgstr "adultos"
+
 
 msgid "Adults"
 msgstr "Adultos"
 
+
 msgid "Adults:"
 msgstr "Adultos:"
+
 
 msgid "After booking you get a code like TAP-XXXXXXXX-XXXXXX. Open the checkout or voucher page with that code to see the total (including the service fee) and pay by card or PayPal. If you have an account, the booking also appears in My Bookings."
 msgstr "Tras reservar recibirás un código tipo TAP-XXXXXXXX-XXXXXX. Abre la página de checkout o bono con ese código para ver el total (incluye la tarifa de servicio) y paga con tarjeta o PayPal. Si tienes cuenta, la reserva también aparece en Mis reservas."
 
+
 msgid "Agencies"
 msgstr "Agencias"
+
 
 msgid "Agencies can join from the site: register as an agency, complete your profile (verification), and publish your own catalogue from your dashboard — stays, tours, transfers, cars, boats and packages. The free plan lets you publish; upgrade opens more listings."
 msgstr "Las agencias pueden unirse desde el sitio: regístrate como agencia, completa tu perfil (verificación) y publica tu propio catálogo desde tu panel — alojamientos, tours, traslados, autos, barcos y paquetes. El plan gratuito te permite publicar; mejorar el plan abre más anuncios."
 
+
 msgid "Agency Dashboard"
 msgstr "Panel de la agencia"
+
 
 msgid "Agency Name"
 msgstr "Nombre de la agencia"
 
+
 msgid "Agency name is required."
 msgstr "El nombre de la agencia es obligatorio."
+
 
 msgid "Agency not found"
 msgstr "Agencia no encontrada"
 
+
 msgid "Agency not found."
 msgstr "Agencia no encontrada."
+
 
 msgid "Agency not specified."
 msgstr "Agencia no especificada."
 
+
 msgid "Agency Profile"
 msgstr "Perfil de la agencia"
+
 
 msgid "<a href=\"%s\">Log in</a> to leave a review."
 msgstr "<a href=\"%s\">Inicia sesión</a> para dejar una reseña."
 
+
 msgid "All"
 msgstr "Todos"
+
 
 msgid "All rights reserved."
 msgstr "Todos los derechos reservados."
 
+
 msgid "Amenities"
 msgstr "Comodidades"
+
 
 msgid "An error occurred with PayPal."
 msgstr "Ocurrió un error con PayPal."
 
+
 msgid "Authentication required"
 msgstr "Autenticación requerida"
+
 
 msgid "Availability & Prices"
 msgstr "Disponibilidad y precios"
 
+
 msgid "Availability works by dates: minimum-night stays and blocked days show on the property calendar. Pick your check-in and check-out dates first — the booking widget recalculates the total and shows which room types are free."
 msgstr "La disponibilidad funciona por fechas: las estancias de mínima duración y los días bloqueados aparecen en el calendario de la propiedad. Elige primero las fechas de entrada y salida: el widget de reserva recalcula el total y muestra qué habitaciones están libres."
+
 
 msgid "Available Room Types"
 msgstr "Tipos de habitación disponibles"
 
+
 msgid "Bathrooms"
 msgstr "Baños"
+
 
 msgid "Bedrooms"
 msgstr "Dormitorios"
 
+
 msgid "Boats"
 msgstr "Barcos"
+
 
 msgid "Booking"
 msgstr "Reserva"
 
+
 msgid "Booking already paid"
 msgstr "La reserva ya fue pagada"
+
 
 msgid "Booking Code:"
 msgstr "Código de reserva:"
 
+
 msgid "Booking created! Redirecting to payment..."
 msgstr "¡Reserva creada! Redirigiendo al pago..."
+
 
 msgid "Booking created successfully"
 msgstr "Reserva creada correctamente"
 
+
 msgid "Booking not found"
 msgstr "Reserva no encontrada"
+
 
 msgid "Booking not found."
 msgstr "Reserva no encontrada."
 
+
 msgid "bookings"
 msgstr "reservas"
+
 
 msgid "Bookings"
 msgstr "Reservas"
 
+
 msgid "Booking %s - %s"
 msgstr "Reserva %s - %s"
+
 
 msgid "Booking Summary"
 msgstr "Resumen de la reserva"
 
+
 msgid "Book Now"
 msgstr "Reservar ahora"
+
 
 msgid "Book with confidence from our verified travel agencies"
 msgstr "Reserva con confianza en nuestras agencias de viaje verificadas"
 
+
 msgid "Breadcrumb"
 msgstr "Migas de pan"
+
 
 msgid "Browse Services"
 msgstr "Explorar servicios"
 
+
 msgid "Bunk"
 msgstr "Camarote"
+
 
 msgid "Cancel"
 msgstr "Cancelar"
 
+
 msgid "Cancellation"
 msgstr "Cancelación"
+
 
 msgid "Cancelled"
 msgstr "Cancelada"
 
+
 msgid "Car Rental"
 msgstr "Alquiler de autos"
+
 
 msgid "Car Rentals"
 msgstr "Renta de Autos"
 
+
 msgid "Check back soon for new featured listings."
 msgstr "Vuelve pronto para ver nuevos listados destacados."
+
 
 msgid "Check-in"
 msgstr "Entrada"
 
+
 msgid "Check-in:"
 msgstr "Entrada:"
+
 
 msgid "Check-in / Check-out"
 msgstr "Entrada / Salida"
 
+
 msgid "Check-in Date"
 msgstr "Fecha de entrada"
+
 
 msgid "Check-in from %s — Check-out until %s"
 msgstr "Check-in desde %s — Check-out hasta %s"
 
+
 msgid "Check-out"
 msgstr "Salida"
+
 
 msgid "Check-out:"
 msgstr "Salida:"
 
+
 msgid "Check-out Date"
 msgstr "Fecha de salida"
+
 
 msgid "children"
 msgstr "niños"
 
+
 msgid "Children"
 msgstr "Niños"
+
 
 msgid "Children:"
 msgstr "Niños:"
 
+
 msgid "Choose from a wide range of travel services"
 msgstr "Elige entre una amplia gama de servicios de viaje"
+
 
 msgid "City"
 msgstr "Ciudad"
 
+
 msgid "Close image gallery"
 msgstr "Cerrar galería de imágenes"
+
 
 msgid "Close search"
 msgstr "Cerrar búsqueda"
 
+
 msgid "Code"
 msgstr "Código"
+
 
 msgid "Code:"
 msgstr "Código:"
 
+
 msgid "Commission"
 msgstr "Comisión"
+
 
 msgid "Complete"
 msgstr "Completar"
 
+
 msgid "Completed"
 msgstr "Completada"
+
 
 msgid "Complete Your Payment"
 msgstr "Completa tu pago"
 
+
 msgid "Confirm"
 msgstr "Confirmar"
+
 
 msgid "Confirmed"
 msgstr "Confirmada"
 
+
 msgid "Connection error."
 msgstr "Error de conexión."
+
 
 msgid "Contact Information"
 msgstr "Información de contacto"
 
+
 msgid "Contact Us"
 msgstr "Contáctanos"
+
 
 msgid "Contained links"
 msgstr "Contenía enlaces"
 
+
 msgid "Could not capture PayPal order"
 msgstr "No se pudo capturar el pedido de PayPal"
+
 
 msgid "Could not create booking"
 msgstr "No se pudo crear la reserva"
 
+
 msgid "Could not create PayPal order"
 msgstr "No se pudo crear el pedido de PayPal"
+
 
 msgid "Could not create the agency. Please try again."
 msgstr "No se pudo crear la agencia. Inténtalo de nuevo."
 
+
 msgid "Could not get PayPal access token"
 msgstr "No se pudo obtener el token de acceso de PayPal"
+
 
 msgid "Could not process refund"
 msgstr "No se pudo procesar el reembolso"
 
+
 msgid "Could not save the listing"
 msgstr "No se pudo guardar el listado"
+
 
 msgid "Could not save the room"
 msgstr "No se pudo guardar la habitación"
 
+
 msgid "Country"
 msgstr "País"
+
 
 msgid "Create Account"
 msgstr "Crear cuenta"
 
+
 msgid "Create and edit your services from the front-end."
 msgstr "Crea y edita tus servicios desde el front-end."
+
 
 msgid "Creating booking..."
 msgstr "Creando reserva..."
 
+
 msgid "Crib"
 msgstr "Cuna"
+
 
 msgid "Dashboard"
 msgstr "Panel"
 
+
 msgid "Dates"
 msgstr "Fechas"
+
 
 msgid "day"
 msgstr "día"
 
+
 msgid "Deleted listing"
 msgstr "Listado eliminado"
+
 
 msgid "Deleted user"
 msgstr "Usuario eliminado"
 
+
 msgid "Destination"
 msgstr "Destino"
+
 
 msgid "Discover Your Next Adventure"
 msgstr "Descubre tu próxima aventura"
 
+
 msgid "Double"
 msgstr "Doble"
+
 
 msgid "%d results found"
 msgstr "%d resultados encontrados"
 
+
 msgid "Each agency profile and service page includes a contact form; the message goes straight to the agency by email. For anything else, use the platform support channels or the language switch."
 msgstr "Cada perfil de agencia y página de servicio incluye un formulario de contacto; el mensaje llega directamente a la agencia por correo. Para cualquier otra cosa, usa los canales de soporte de la plataforma o el selector de idioma."
+
 
 msgid "Edit listing"
 msgstr "Editar listado"
 
+
 msgid "Email"
 msgstr "Correo"
+
 
 msgid "Email:"
 msgstr "Correo:"
 
+
 msgid "Enter your booking code to view the detail and voucher."
 msgstr "Ingresa el código de tu reserva para ver el detalle y el voucher."
+
 
 msgid "Equipment"
 msgstr "Equipo"
 
+
 msgid "Equipment & Rentals"
 msgstr "Equipos y Alquileres"
+
 
 msgid "Error"
 msgstr "Error"
 
+
 msgid "Error creating booking."
 msgstr "Error al crear la reserva."
+
 
 msgid "Error creating PayPal order"
 msgstr "Error al crear el pedido de PayPal"
 
+
 msgid "Explore curated accommodations, tours, and travel experiences from trusted local agencies."
 msgstr "Explora alojamientos, tours y experiencias de viaje seleccionados de agencias locales de confianza."
+
 
 msgid "Favorites"
 msgstr "Favoritos"
 
+
 msgid "Featured"
 msgstr "Destacado"
+
 
 msgid "Featured Services"
 msgstr "Servicios destacados"
 
+
 msgid "Field %s is required"
 msgstr "El campo %s es obligatorio"
+
 
 msgid "Footer Column 1"
 msgstr "Columna de pie 1"
 
+
 msgid "Footer Column 2"
 msgstr "Columna de pie 2"
+
 
 msgid "Footer Column 3"
 msgstr "Columna de pie 3"
 
+
 msgid "Footer Menu"
 msgstr "Menú de pie de página"
+
 
 msgid "For Agencies"
 msgstr "Para agencias"
 
+
 msgid "Futon"
 msgstr "Futón"
+
 
 msgid "Go Home"
 msgstr "Ir al inicio"
 
+
 msgid "Go to the site"
 msgstr "Ir al sitio"
+
 
 msgid "Guest"
 msgstr "Huésped"
 
+
 msgid "Guests"
 msgstr "Huéspedes"
+
 
 msgid "half day"
 msgstr "medio día"
 
+
 msgid "Hand-picked experiences our top agencies recommend"
 msgstr "Experiencias seleccionadas que recomiendan nuestras mejores agencias"
+
 
 msgid "Help Center"
 msgstr "Centro de ayuda"
 
+
 msgid "Here are a few services from the platform right now:"
 msgstr "Aquí tienes algunos servicios de la plataforma en este momento:"
+
 
 msgid "Home"
 msgstr "Inicio"
 
+
 msgid "Hosted by"
 msgstr "Operado por"
+
 
 msgid "Hotels & Stays"
 msgstr "Hoteles y alojamientos"
 
+
 msgid "House Rules"
 msgstr "Normas de la casa"
+
 
 msgid "How do I book a stay?"
 msgstr "¿Cómo reservo un alojamiento?"
 
+
 msgid "How do I cancel a booking?"
 msgstr "¿Cómo cancelo una reserva?"
+
 
 msgid "How do I join as an agency?"
 msgstr "¿Cómo me uno como agencia?"
 
+
 msgid "How do I pay my voucher?"
 msgstr "¿Cómo pago mi bono?"
+
 
 msgid "How do I search trips?"
 msgstr "¿Cómo busco salidas?"
 
+
 msgid "I am not sure I understood that question. Try one of the quick questions below, use the search page, or contact an agency directly through a profile page."
 msgstr "No estoy seguro de haber entendido tu pregunta. Prueba una de las preguntas rápidas de abajo, usa la página de búsqueda o contacta a una agencia directamente desde su perfil."
+
 
 msgid "I could not find any published services right now. Use the search page to explore the catalogue."
 msgstr "No pude encontrar servicios publicados en este momento. Usa la página de búsqueda para explorar el catálogo."
 
+
 msgid "ID"
 msgstr "ID"
+
 
 msgid "Image gallery"
 msgstr "Galería de imágenes"
 
+
 msgid "Invalid accommodation"
 msgstr "Alojamiento inválido"
+
 
 msgid "Invalid booking"
 msgstr "Reserva inválida"
 
+
 msgid "Invalid listing."
 msgstr "Listado inválido."
+
 
 msgid "Invalid order"
 msgstr "Pedido inválido"
 
+
 msgid "Invalid payment status"
 msgstr "Estado de pago inválido"
+
 
 msgid "Invalid PayPal order"
 msgstr "Pedido de PayPal inválido"
 
+
 msgid "Invalid plan."
 msgstr "Plan inválido."
+
 
 msgid "Invalid request"
 msgstr "Solicitud inválida"
 
+
 msgid "Invalid room"
 msgstr "Habitación inválida"
+
 
 msgid "Invalid service."
 msgstr "Servicio inválido."
 
+
 msgid "Invalid service configuration."
 msgstr "Configuración de servicio inválida."
+
 
 msgid "Invalid service type"
 msgstr "Tipo de servicio inválido"
 
+
 msgid "Invalid status"
 msgstr "Estado inválido"
+
 
 msgid "Invalid status."
 msgstr "Estado inválido."
 
+
 msgid "Join as Agency"
 msgstr "Únete como agencia"
+
 
 msgid "Join our community of travelers and discover amazing experiences curated by local experts."
 msgstr "Únete a nuestra comunidad de viajeros y descubre experiencias increíbles seleccionadas por expertos locales."
 
+
 msgid "King"
 msgstr "King"
+
 
 msgid "Listing created"
 msgstr "Listado creado"
 
+
 msgid "Listing not found."
 msgstr "Listado no encontrado."
+
 
 msgid "listings"
 msgstr "listados"
 
+
 msgid "Listing updated"
 msgstr "Listado actualizado"
+
 
 msgid "Log in"
 msgstr "Iniciar sesión"
 
+
 msgid "Log In"
 msgstr "Iniciar sesión"
+
 
 msgid "Log in to manage your listings"
 msgstr "Inicia sesión para gestionar tus listados"
 
+
 msgid "Log in to view your booking voucher"
 msgstr "Inicia sesión para ver el voucher de tu reserva"
+
 
 msgid "Log Out"
 msgstr "Cerrar sesión"
 
+
 msgid "Manage"
 msgstr "Gestionar"
+
 
 msgid "Manage your listings"
 msgstr "Gestiona tus listados"
 
+
 msgid "Manually blocked"
 msgstr "Bloqueo manual"
+
 
 msgid "Max $"
 msgstr "Máx. $"
 
+
 msgid "Menu"
 msgstr "Menú"
+
 
 msgid "Min $"
 msgstr "Mín. $"
 
+
 msgid "Min %d nights"
 msgstr "Mínimo %d noches"
+
 
 msgid "Moderation"
 msgstr "Moderación"
 
+
 msgid "More"
 msgstr "Más"
+
 
 msgid "More menu"
 msgstr "Más opciones del menú"
 
+
 msgid "Murphy"
 msgstr "Murphy"
+
 
 msgid "My bookings"
 msgstr "Mis reservas"
 
+
 msgid "My Bookings"
 msgstr "Mis reservas"
+
 
 msgid "Name is required"
 msgstr "El nombre es obligatorio"
 
+
 msgid "Net"
 msgstr "Neto"
+
 
 msgid "Net to you"
 msgstr "Neto para ti"
 
+
 msgid "Network error. Please try again."
 msgstr "Error de red. Inténtalo de nuevo."
+
 
 msgid "New %s"
 msgstr "Nuevo %s"
 
+
 msgid "Next image"
 msgstr "Imagen siguiente"
+
 
 msgid "night"
 msgstr "noche"
 
+
 msgid "Nights"
 msgstr "Noches"
+
 
 msgid "No agencies found."
 msgstr "No se encontraron agencias."
 
+
 msgid "No agency linked to your account."
 msgstr "No hay una agencia vinculada a tu cuenta."
+
 
 msgid "No bookings found."
 msgstr "No se encontraron reservas."
 
+
 msgid "No booking specified."
 msgstr "No se especificó la reserva."
+
 
 msgid "No bookings yet. Share your listing and start receiving reservations. Commission: %s%%"
 msgstr "Aún no tienes reservas. Comparte tu listado y empieza a recibir reservas. Comisión: %s%%"
 
+
 msgid "No featured services yet"
 msgstr "Aún no hay servicios destacados"
+
 
 msgid "No plans configured yet."
 msgstr "Aún no hay planes configurados."
 
+
 msgid "No results found"
 msgstr "No se encontraron resultados"
+
 
 msgid "No results found. Try different keywords."
 msgstr "No se encontraron resultados. Prueba con otras palabras clave."
 
+
 msgid "No results found. Try different search terms."
 msgstr "No se encontraron resultados. Prueba con otros términos de búsqueda."
+
 
 msgid "No services found."
 msgstr "No se encontraron servicios."
 
+
 msgid "No services from this agency."
 msgstr "No hay servicios de esta agencia."
+
 
 msgid "Online payment is not configured."
 msgstr "El pago online no está configurado."
 
+
 msgid "Online payment is temporarily unavailable. Your reservation is registered and will be confirmed by the agency."
 msgstr "El pago online no está disponible temporalmente. Tu reserva está registrada y será confirmada por la agencia."
+
 
 msgid "Only agencies can promote listings."
 msgstr "Solo las agencias pueden destacar listados."
 
+
 msgid "Only agencies can subscribe to a plan."
 msgstr "Solo las agencias pueden suscribirse a un plan."
+
 
 msgid "Only agency accounts can manage listings."
 msgstr "Solo las cuentas de agencia pueden gestionar listados."
 
+
 msgid "Open the dashboard"
 msgstr "Abrir el panel"
+
 
 msgid "Open the search page"
 msgstr "Abrir la página de búsqueda"
 
+
 msgid "Order not found"
 msgstr "Pedido no encontrado"
+
 
 msgid "Our Services"
 msgstr "Nuestros servicios"
 
+
 msgid "Packages"
 msgstr "Paquetes"
+
 
 msgid "Page Not Found"
 msgstr "Página no encontrada"
 
+
 msgid "passengers"
 msgstr "pasajeros"
+
 
 msgid "Password"
 msgstr "Contraseña"
 
+
 msgid "Password must be at least 8 characters."
 msgstr "La contraseña debe tener al menos 8 caracteres."
+
 
 msgid "Payment"
 msgstr "Pago"
 
+
 msgid "Payment cancelled."
 msgstr "Pago cancelado."
+
 
 msgid "Payment completed successfully!"
 msgstr "¡Pago completado correctamente!"
 
+
 msgid "Payment completed! Thank you for your booking."
 msgstr "¡Pago completado! Gracias por tu reserva."
+
 
 msgid "Payment failed."
 msgstr "Pago fallido."
 
+
 msgid "Payment successful! Your booking is confirmed."
 msgstr "¡Pago exitoso! Tu reserva está confirmada."
+
 
 msgid "Payment was cancelled. You can try again."
 msgstr "El pago fue cancelado. Puedes intentarlo de nuevo."
 
+
 msgid "Pay with PayPal"
 msgstr "Pagar con PayPal"
+
 
 msgid "Pending"
 msgstr "Pendiente"
 
+
 msgid "per adult"
 msgstr "por adulto"
+
 
 msgid "per day"
 msgstr "por día"
 
+
 msgid "per person"
 msgstr "por persona"
+
 
 msgid "person"
 msgstr "persona"
 
+
 msgid "Personal data"
 msgstr "Datos personales"
+
 
 msgid "Phone"
 msgstr "Teléfono"
 
+
 msgid "Phone:"
 msgstr "Teléfono:"
+
 
 msgid "Plans are not available."
 msgstr "Los planes no están disponibles."
 
+
 msgid "Please enter a valid email address."
 msgstr "Ingresa un correo electrónico válido."
+
 
 msgid "Please enter a valid username (letters and numbers only)."
 msgstr "Ingresa un nombre de usuario válido (solo letras y números)."
 
+
 msgid "Please log in to access the dashboard."
 msgstr "Inicia sesión para acceder al panel."
+
 
 msgid "Please log in to save favorites."
 msgstr "Inicia sesión para guardar favoritos."
 
+
 msgid "Please log in to view this booking."
 msgstr "Inicia sesión para ver esta reserva."
+
 
 msgid "Please log in to view your bookings."
 msgstr "Inicia sesión para ver tus reservas."
 
+
 msgid "Please select a room type"
 msgstr "Selecciona un tipo de habitación"
+
 
 msgid "Please select dates to calculate the price."
 msgstr "Selecciona las fechas para calcular el precio."
 
+
 msgid "Policies"
 msgstr "Políticas"
+
 
 msgid "Previous image"
 msgstr "Imagen anterior"
 
+
 msgid "Price per night must be greater than 0"
 msgstr "El precio por noche debe ser mayor que 0"
+
 
 msgid "Prices show per night (stays) or per person or adult (tours, trips) in the site currency. The final total adds the platform service fee. The booking widget updates the total live as you choose dates and guests."
 msgstr "Los precios se muestran por noche (alojamientos) o por persona o adulto (tours, salidas) en la moneda del sitio. Al total final se suma la tarifa de servicio de la plataforma. El widget de reserva actualiza el total en vivo al elegir fechas y huéspedes."
 
+
 msgid "Primary Menu"
 msgstr "Menú principal"
+
 
 msgid "Privacy Policy"
 msgstr "Política de privacidad"
 
+
 msgid "Processing..."
 msgstr "Procesando..."
+
 
 msgid "Processing payment..."
 msgstr "Procesando el pago..."
 
+
 msgid "Queen"
 msgstr "Queen"
+
 
 msgid "Ready to Start Your Journey?"
 msgstr "¿Listo para comenzar tu viaje?"
 
+
 msgid "Ref"
 msgstr "Ref"
+
 
 msgid "results found"
 msgstr "resultados encontrados"
 
+
 msgid "Revenue"
 msgstr "Ingresos"
+
 
 msgid "Reviews"
 msgstr "Reseñas"
 
+
 msgid "Review submitted"
 msgstr "Reseña enviada"
+
 
 msgid "Review submitted and pending approval"
 msgstr "Reseña enviada y pendiente de aprobación"
 
+
 msgid "Review submitted and pending moderation"
 msgstr "Reseña enviada y en revisión de moderación"
+
 
 msgid "Review title"
 msgstr "Título de la reseña"
 
+
 msgid "Room:"
 msgstr "Habitación:"
+
 
 msgid "Room created"
 msgstr "Habitación creada"
 
+
 msgid "Room deleted"
 msgstr "Habitación eliminada"
+
 
 msgid "Room name is required"
 msgstr "El nombre de la habitación es obligatorio"
 
+
 msgid "Room updated"
 msgstr "Habitación actualizada"
+
 
 msgid "Search"
 msgstr "Buscar"
 
+
 msgid "Search destinations, tours, accommodations..."
 msgstr "Busca destinos, tours y alojamientos..."
+
 
 msgid "Search Results"
 msgstr "Resultados de búsqueda"
 
+
 msgid "Search Results for: %s"
 msgstr "Resultados de búsqueda para: %s"
+
 
 msgid "Search services"
 msgstr "Buscar servicios"
 
+
 msgid "Security check failed."
 msgstr "Falló la verificación de seguridad."
+
 
 msgid "Select"
 msgstr "Seleccionar"
 
+
 msgid "Select dates & room"
 msgstr "Selecciona fechas y habitación"
+
 
 msgid "Service"
 msgstr "Servicio"
 
+
 msgid "Service:"
 msgstr "Servicio:"
+
 
 msgid "Service not found"
 msgstr "Servicio no encontrado"
 
+
 msgid "Service not found."
 msgstr "Servicio no encontrado."
+
 
 msgid "Services"
 msgstr "Servicios"
 
+
 msgid "Sign Up"
 msgstr "Regístrate"
+
 
 msgid "Sofa Bed"
 msgstr "Sofá cama"
 
+
 msgid "Sold out"
 msgstr "Agotado"
+
 
 msgid "Spam"
 msgstr "Spam"
 
+
 msgid "Special Requests"
 msgstr "Solicitudes especiales"
+
 
 msgid "starting"
 msgstr "desde"
 
+
 msgid "Status"
 msgstr "Estado"
+
 
 msgid "Status:"
 msgstr "Estado:"
 
+
 msgid "Status updated"
 msgstr "Estado actualizado"
+
 
 msgid "Submit Review"
 msgstr "Enviar reseña"
 
+
 msgid "Subscription requested. An administrator will confirm the payment to activate your plan."
 msgstr "Solicitud de suscripción enviada. Un administrador confirmará el pago para activar tu plan."
+
 
 msgid "Summarize your experience"
 msgstr "Resume tu experiencia"
 
+
 msgid "Support"
 msgstr "Soporte"
+
 
 msgid "Tap the heart on any service to save it to Favorites. You need a free user account — you will be taken to log in if you are not. Your saved list lives on the Favorites page."
 msgstr "Toca el corazón de cualquier servicio para guardarlo en Favoritos. Necesitas una cuenta gratuita de usuario: si no la tienes, irás a iniciar sesión. Tu lista guardada está en la página de Favoritos."
 
+
 msgid "Tell others about your experience..."
 msgstr "Comparte tu experiencia con otros..."
+
 
 msgid "Terms of Service"
 msgstr "Términos del servicio"
 
+
 msgid "That email is already registered."
 msgstr "Ese correo ya está registrado."
+
 
 msgid "That username is already taken."
 msgstr "Ese nombre de usuario ya está en uso."
 
+
 msgid "The page you are looking for might have been removed or is temporarily unavailable."
 msgstr "La página que buscas puede haber sido eliminada o no estar disponible temporalmente."
+
 
 msgid "The payment could not be completed."
 msgstr "El pago no pudo completarse."
 
+
 msgid "The room is not available for the selected dates."
 msgstr "La habitación no está disponible para las fechas seleccionadas."
+
 
 msgid "This booking has been paid."
 msgstr "Esta reserva ha sido pagada."
 
+
 msgid "This room has future bookings and cannot be deleted."
 msgstr "Esta habitación tiene reservas futuras y no puede eliminarse."
+
 
 msgid "To book a stay: open the property, choose check-in and check-out dates, pick a room type (if it has rooms) and send the reservation. You can book without an account — you will get a booking code to confirm and pay. Use the search page to find options with your dates."
 msgstr "Para reservar un alojamiento: abre la propiedad, elige las fechas de entrada y salida, selecciona el tipo de habitación (si tiene) y envía la reserva. Puedes reservar sin cuenta: recibirás un código para confirmar y pagar. Usa la página de búsqueda para encontrar opciones con tus fechas."
 
+
 msgid "To cancel: open My Bookings, open the booking and press Cancel; the agency is notified and keeps the record. Refunds depend on the agency cancellation policy. Without an account, enter your booking code on the voucher page."
 msgstr "Para cancelar: abre Mis reservas, abre la reserva y pulsa Cancelar; la agencia recibe la notificación y conserva el registro. Los reembolsos dependen de la política de cancelación de la agencia. Sin cuenta, introduce tu código en la página de bono."
+
 
 msgid "Toggle search"
 msgstr "Alternar búsqueda"
 
+
 msgid "Toggle submenu"
 msgstr "Alternar submenú"
+
 
 msgid "Too many messages. Try again in a moment."
 msgstr "Demasiados mensajes. Inténtalo de nuevo en un momento."
 
+
 msgid "Top Agencies"
 msgstr "Principales agencias"
+
 
 msgid "Total Bookings"
 msgstr "Reservas totales"
 
+
 msgid "Tour"
 msgstr "Tour"
+
 
 msgid "Tours"
 msgstr "Tours"
 
+
 msgid "Transfers"
 msgstr "Traslados"
+
 
 msgid "Transport"
 msgstr "Transporte"
 
+
 msgid "Transports"
 msgstr "Transportes"
+
 
 msgid "travel-agency-platform"
 msgstr "travel-agency-platform"
 
+
 msgid "Travel Agency Platform"
 msgstr "Plataforma de Agencias de Viaje"
+
 
 msgid "Travel Service"
 msgstr "Servicio de viaje"
 
+
 msgid "Twin"
 msgstr "Twin"
+
 
 msgid "Type your question..."
 msgstr "Escribe tu pregunta..."
 
+
 msgid "Unauthorized"
 msgstr "No autorizado"
+
 
 msgid "Unavailable"
 msgstr "No disponible"
 
+
 msgid "Unreadable text"
 msgstr "Texto ilegible"
+
 
 msgid "Up to %d guests"
 msgstr "Hasta %d huéspedes"
 
+
 msgid "Username"
 msgstr "Nombre de usuario"
+
 
 msgid "Verified"
 msgstr "Verificada"
 
+
 msgid "Verified agency"
 msgstr "Agencia verificada"
+
 
 msgid "View Details"
 msgstr "Ver detalles"
 
+
 msgid "View Profile"
 msgstr "Ver perfil"
+
 
 msgid "View Public Profile"
 msgstr "Ver perfil público"
 
+
 msgid "View voucher"
 msgstr "Ver voucher"
+
 
 msgid "Voucher page"
 msgstr "Página de bono"
 
+
 msgid "We accept secure card or PayPal payments when you confirm a booking; agency plans also subscribe via PayPal. The total always includes the service fee. For refunds, check the cancellation policy of the agency (see My Bookings)."
 msgstr "Aceptamos pagos seguros con tarjeta o PayPal al confirmar una reserva; los planes de agencia también se suscriben por PayPal. El total siempre incluye la tarifa de servicio. Para reembolsos, consulta la política de cancelación de la agencia (ver Mis reservas)."
+
 
 msgid "Website"
 msgstr "Sitio web"
 
+
 msgid "Website:"
 msgstr "Sitio web:"
+
 
 msgid "Welcome, %s!"
 msgstr "¡Bienvenido, %s!"
 
+
 msgid "Welcome to the travel assistant! Ask me about booking a stay, finding tours, paying your voucher, cancelling a booking, or joining as an agency. Use one of the quick questions below."
 msgstr "¡Bienvenido al asistente de viajes! Pregunta cómo reservar alojamiento, encontrar tours, pagar tu bono, cancelar una reserva o unirte como agencia. Usa una de las preguntas rápidas de abajo."
+
 
 msgid "What are you looking for?"
 msgstr "¿Qué estás buscando?"
 
+
 msgid "WhatsApp"
 msgstr "WhatsApp"
+
 
 msgid "WhatsApp:"
 msgstr "WhatsApp:"
 
+
 msgid "Where do you want to go?"
 msgstr "¿A dónde vas?"
+
 
 msgid "Write a Review"
 msgstr "Escribir una reseña"
 
+
 msgid "You already have an account. Go to your"
 msgstr "Ya tienes una cuenta. Ve a tu"
+
 
 msgid "You already reviewed this service"
 msgstr "Ya dejaste una reseña para este servicio"
 
+
 msgid "You can only manage bookings from your own agency."
 msgstr "Solo puedes gestionar reservas de tu propia agencia."
+
 
 msgid "You can only manage your own listings."
 msgstr "Solo puedes gestionar tus propios listados."
 
+
 msgid "You can only promote your own listings."
 msgstr "Solo puedes destacar tus propios listados."
+
 
 msgid "You can search the whole catalogue from the search page: type a destination, name, or service type (stays, tours, transfers, car rental, boats, packages) and refine by type, location, price, and sort order. The search box suggests destinations as you type."
 msgstr "Puedes buscar en todo el catálogo desde la página de búsqueda: escribe un destino, nombre o tipo de servicio (alojamientos, tours, traslados, alquiler de autos, barcos, paquetes) y filtra por tipo, ubicación, precio y orden. El buscador sugiere destinos mientras escribes."
 
+
 msgid "You do not have permission to view this booking."
 msgstr "No tienes permiso para ver esta reserva."
+
 
 msgid "You have no listings yet. Use \"Nuevo\" to create your first service."
 msgstr "Aún no tienes listados. Usa \"Nuevo\" para crear tu primer servicio."
 
+
 msgid "Your Agency"
 msgstr "Tu agencia"
+
 
 msgid "Your agency account is ready!"
 msgstr "¡Tu cuenta de agencia está lista!"
 
+
 msgid "Your Listings"
 msgstr "Tus listados"
+
 
 msgid "Your plan allows a maximum of %d listings. Upgrading your plan unlocks more."
 msgstr "Tu plan permite un máximo de %d listados. Mejorar tu plan desbloquea más."
 
+
 msgid "Your rating"
 msgstr "Tu calificación"
+
 
 msgid "Your review"
 msgstr "Tu reseña"
 
+
 msgid "Your review did not pass our safety checks. Please adjust it and try again."
 msgstr "Tu reseña no pasó las verificaciones de seguridad. Corrige el contenido e inténtalo de nuevo."
+
 
 msgid "Your trusted multi-agency travel platform. Discover, compare, and book the best travel experiences from verified local agencies."
 msgstr "Tu plataforma de viajes multiagencia de confianza. Descubre, compara y reserva las mejores experiencias de viaje de agencias locales verificadas."
 
+
 msgid "Disputes"
 msgstr "Disputas"
+
 
 msgid "Version %s"
 msgstr "Versión %s"
 
+
 msgid "%s (hereinafter \"the Platform\") is responsible for the processing of the personal data collected through this website."
 msgstr "%s (en adelante \"la Plataforma\") es responsable del tratamiento de los datos personales que se recogen a través de este sitio web."
+
 
 msgid "Contact for data protection matters: <a href=\"mailto:%s\">%s</a>."
 msgstr "Contacto para asuntos de protección de datos: <a href=\"mailto:%s\">%s</a>."
 
+
 msgid "You may exercise the rights of information, access, rectification, update, erasure and objection, as well as withdraw your consent, through the form on this page or by writing to <a href=\"mailto:%s\">%s</a>."
 msgstr "Puede ejercer los derechos de información, acceso, rectificación, actualización, supresión y oposición, así como revocar su consentimiento, mediante el formulario de esta página o escribiendo a <a href=\"mailto:%s\">%s</a>."
+
 
 msgid "Request submitted. We will review it and respond to you as soon as possible."
 msgstr "Solicitud enviada. La revisaremos y le responderemos a la mayor brevedad."
 
+
 msgid "The request could not be submitted. Please review the data and try again."
 msgstr "No se pudo enviar la solicitud. Revise los datos e intente nuevamente."
+
 
 msgid "I accept the <a href=\"%s\" target=\"_blank\" rel=\"noopener\">Privacy Notice</a> and consent to the processing of my personal data to manage this request."
 msgstr "Acepto el <a href=\"%s\" target=\"_blank\" rel=\"noopener\">Aviso de Privacidad</a> y consiento el tratamiento de mis datos personales para gestionar esta solicitud."
 
+
 msgid "Enter a valid email address."
 msgstr "Ingresa un correo electrónico válido."
+
 
 msgid "Select at least one right."
 msgstr "Selecciona al menos un derecho."
 
+
 msgid "Briefly describe your request."
 msgstr "Describe brevemente tu solicitud."
+
 
 msgid "The request could not be saved."
 msgstr "No se pudo guardar la solicitud."
 
+
 msgid "We process your personal data in accordance with our <a href=\"%1$s\">Privacy Notice</a>. You can exercise your rights of access, rectification, erasure or objection by writing to <a href=\"mailto:%2$s\">%2$s</a>."
 msgstr "Procesamos tus datos personales de acuerdo con nuestro <a href=\"%1$s\">Aviso de Privacidad</a>. Puedes ejercer tus derechos de acceso, rectificación, supresión u oposición escribiendo a <a href=\"mailto:%2$s\">%2$s</a>."
+
 
 msgid "Privacy"
 msgstr "Privacidad"
 
+
 msgid "You do not have permission to access this page."
 msgstr "No tienes permisos para acceder."
+
 
 msgid "Handled"
 msgstr "Atendidas"
 
+
 msgid "Handled request"
 msgstr "Atendida"
+
 
 msgid "Read our <a href=\"%s\" target=\"_blank\" rel=\"noopener\">Privacy Notice</a> to learn how we process your data and how to exercise your rights."
 msgstr "Consulta nuestro <a href=\"%s\" target=\"_blank\" rel=\"noopener\">Aviso de Privacidad</a> para saber cómo tratamos tus datos y cómo ejercer tus derechos."
 
+
 msgid "You must accept the Privacy Notice."
 msgstr "Debes aceptar el Aviso de Privacidad."
+
 
 msgid "You must accept the Privacy Notice to continue."
 msgstr "Debes aceptar el Aviso de Privacidad para continuar."
 
+
 msgid "You must accept the Privacy Notice and consent to the processing of your data to complete the booking."
 msgstr "Debes aceptar el Aviso de Privacidad y consentir el tratamiento de tus datos para completar la reserva."
 
+
 msgid "You must accept the Privacy Notice and consent to the processing of your data to register your agency."
 msgstr "Debes aceptar el Aviso de Privacidad y consentir el tratamiento de tus datos para registrar tu agencia."
+
+
+msgid "%d items"
+msgstr "%d elementos"
+
+msgid "%s (en adelante \"la Plataforma\") es responsable del tratamiento de los datos personales que se recogen a través de este sitio web."
+msgstr "%s (en adelante \"la Plataforma\") es responsable del tratamiento de los datos personales que se recogen a través de este sitio web."
+
+msgid "+ Add Bed Type"
+msgstr "+ Agregar tipo de cama"
+
+msgid "-- Select --"
+msgstr "-- Seleccionar --"
+
+msgid "1. Responsable del tratamiento"
+msgstr "1. Responsable del tratamiento"
+
+msgid "2. Datos que recopilamos"
+msgstr "2. Datos que recopilamos"
+
+msgid "3. Finalidad y base legal"
+msgstr "3. Finalidad y base legal"
+
+msgid "4. Conservación"
+msgstr "4. Conservación"
+
+msgid "5. Transferencias"
+msgstr "5. Transferencias"
+
+msgid "6. Sus derechos"
+msgstr "6. Sus derechos"
+
+msgid "7. Cookies"
+msgstr "7. Cookies"
+
+msgid "8. Actualización del aviso"
+msgstr "8. Actualización del aviso"
+
+msgid "Acceso: conocer qué datos tenemos y cómo los tratamos."
+msgstr "Acceso: conocer qué datos tenemos y cómo los tratamos."
+
+msgid "Acciones"
+msgstr "Acciones"
+
+msgid "Acción"
+msgstr "Acción"
+
+msgid "Accommodation"
+msgstr "Alojamiento"
+
+msgid "Accommodation Details"
+msgstr "Detalles del alojamiento"
+
+msgid "Acepto el <a href=\"%s\" target=\"_blank\" rel=\"noopener\">Aviso de Privacidad</a> y consiento el tratamiento de mis datos personales para gestionar esta solicitud."
+msgstr "Acepto el <a href=\"%s\" target=\"_blank\" rel=\"noopener\">Aviso de Privacidad</a> y consiento el tratamiento de mis datos personales para gestionar esta solicitud."
+
+msgid "Activar"
+msgstr "Activar"
+
+msgid "Activas"
+msgstr "Activas"
+
+msgid "Active"
+msgstr "Activo"
+
+msgid "Activos"
+msgstr "Activos"
+
+msgid "Add Accommodation"
+msgstr "Agregar alojamiento"
+
+msgid "Add Agency"
+msgstr "Agregar agencia"
+
+msgid "Add Boat"
+msgstr "Agregar barco"
+
+msgid "Add Car Rental"
+msgstr "Agregar alquiler de auto"
+
+msgid "Add Equipment"
+msgstr "Agregar equipo"
+
+msgid "Add Images"
+msgstr "Agregar imágenes"
+
+msgid "Add New Accommodation"
+msgstr "Agregar nuevo alojamiento"
+
+msgid "Add New Agency"
+msgstr "Agregar nueva agencia"
+
+msgid "Add New Amenity"
+msgstr "Agregar nueva comodidad"
+
+msgid "Add New Boat"
+msgstr "Agregar nuevo barco"
+
+msgid "Add New Boat Type"
+msgstr "Agregar nuevo tipo de barco"
+
+msgid "Add New Car Rental"
+msgstr "Agregar nuevo alquiler de auto"
+
+msgid "Add New Category"
+msgstr "Agregar nueva categoría"
+
+msgid "Add New Destination"
+msgstr "Agregar nuevo destino"
+
+msgid "Add New Difficulty"
+msgstr "Agregar nueva dificultad"
+
+msgid "Add New Equipment"
+msgstr "Agregar nuevo equipo"
+
+msgid "Add New Package"
+msgstr "Agregar nuevo paquete"
+
+msgid "Add New Property Type"
+msgstr "Agregar nuevo tipo de propiedad"
+
+msgid "Add New Room Type"
+msgstr "Agregar nuevo tipo de habitación"
+
+msgid "Add New Tour"
+msgstr "Agregar nuevo tour"
+
+msgid "Add New Tour Type"
+msgstr "Agregar nuevo tipo de tour"
+
+msgid "Add New Transport"
+msgstr "Agregar nuevo transporte"
+
+msgid "Add New Vehicle Type"
+msgstr "Agregar nuevo tipo de vehículo"
+
+msgid "Add Package"
+msgstr "Agregar paquete"
+
+msgid "Add Photos"
+msgstr "Agregar fotos"
+
+msgid "Add Room Type"
+msgstr "Agregar tipo de habitación"
+
+msgid "Add Tour"
+msgstr "Agregar tour"
+
+msgid "Add Transport"
+msgstr "Agregar transporte"
+
+msgid "Add bed types available in this room:"
+msgstr "Agrega los tipos de cama disponibles en esta habitación:"
+
+msgid "Add to Gallery"
+msgstr "Agregar a la galería"
+
+msgid "Agencias activas"
+msgstr "Agencias activas"
+
+msgid "Agency"
+msgstr "Agencia"
+
+msgid "Agency Admin"
+msgstr "Administrador de agencia"
+
+msgid "Agency Details"
+msgstr "Detalles de la agencia"
+
+msgid "Agency Employee"
+msgstr "Empleado de agencia"
+
+msgid "Agency Subscriptions"
+msgstr "Suscripciones de agencias"
+
+msgid "Air Conditioning"
+msgstr "Aire acondicionado"
+
+msgid "All Accommodations"
+msgstr "Todos los alojamientos"
+
+msgid "All Agencies"
+msgstr "Todas las agencias"
+
+msgid "All Amenities"
+msgstr "Todas las comodidades"
+
+msgid "All Boat Types"
+msgstr "Todos los tipos de barco"
+
+msgid "All Boats"
+msgstr "Todos los barcos"
+
+msgid "All Car Rentals"
+msgstr "Todos los alquileres de auto"
+
+msgid "All Categories"
+msgstr "Todas las categorías"
+
+msgid "All Destinations"
+msgstr "Todos los destinos"
+
+msgid "All Difficulties"
+msgstr "Todas las dificultades"
+
+msgid "All Equipment"
+msgstr "Todos los equipos"
+
+msgid "All Packages"
+msgstr "Todos los paquetes"
+
+msgid "All Property Types"
+msgstr "Todos los tipos de propiedad"
+
+msgid "All Room Types"
+msgstr "Todos los tipos de habitación"
+
+msgid "All Tour Types"
+msgstr "Todos los tipos de tour"
+
+msgid "All Tours"
+msgstr "Todos los tours"
+
+msgid "All Transports"
+msgstr "Todos los transportes"
+
+msgid "All Vehicle Types"
+msgstr "Todos los tipos de vehículo"
+
+msgid "Amenity"
+msgstr "Comodidad"
+
+msgid "Analytics"
+msgstr "Analíticas"
+
+msgid "Aprobadas"
+msgstr "Aprobadas"
+
+msgid "Aprobar publica la reseña / limpia el mensaje; bloquear los oculta; eliminar los borra."
+msgstr "Aprobar publica la reseña / limpia el mensaje; bloquear los oculta; eliminar los borra."
+
+msgid "Auto-confirm Bookings"
+msgstr "Confirmar reservas automáticamente"
+
+msgid "Aviso de Privacidad"
+msgstr "Aviso de Privacidad"
+
+msgid "Avistamiento de fauna"
+msgstr "Avistamiento de fauna"
+
+msgid "Awaiting manual payment confirmation"
+msgstr "Pendiente de confirmación manual del pago"
+
+msgid "Añadir rango"
+msgstr "Añadir rango"
+
+msgid "Aún no hay reservas."
+msgstr "Aún no hay reservas."
+
+msgid "Aún no se han registrado liquidaciones."
+msgstr "Aún no se han registrado liquidaciones."
+
+msgid "Bed Configuration"
+msgstr "Configuración de camas"
+
+msgid "Bed Type"
+msgstr "Tipo de cama"
+
+msgid "Bloquear"
+msgstr "Bloquear"
+
+msgid "Boat"
+msgstr "Barco"
+
+msgid "Boat Details"
+msgstr "Detalles del barco"
+
+msgid "Boat Type"
+msgstr "Tipo de barco"
+
+msgid "Boat Types"
+msgstr "Tipos de barco"
+
+msgid "Booking Code"
+msgstr "Código de reserva"
+
+msgid "Booking Details"
+msgstr "Detalles de la reserva"
+
+msgid "Booking Fee (client)"
+msgstr "Tarifa de reserva (cliente)"
+
+msgid "Booking Fees"
+msgstr "Tarifas de reserva"
+
+msgid "Booking details not found."
+msgstr "No se encontraron los detalles de la reserva."
+
+msgid "Booking fees"
+msgstr "Tarifas de reserva"
+
+msgid "Booking fees (plataforma)"
+msgstr "Tarifas de reserva (plataforma)"
+
+msgid "Brand"
+msgstr "Marca"
+
+msgid "Bunk Bed"
+msgstr "Cama litera"
+
+msgid "Cancelar pendientes tras (horas)"
+msgstr "Cancelar pendientes tras (horas)"
+
+msgid "Cancellation Policy"
+msgstr "Política de cancelación"
+
+msgid "Captain Included"
+msgstr "Capitán incluido"
+
+msgid "Car Rental Details"
+msgstr "Detalles del alquiler de auto"
+
+msgid "Car Type"
+msgstr "Tipo de auto"
+
+msgid "Categories"
+msgstr "Categorías"
+
+msgid "Category"
+msgstr "Categoría"
+
+msgid "Charged to the client on top of the booking total. This revenue belongs to the platform (not the agency)."
+msgstr "Se cobra al cliente sobre el total de la reserva. Este ingreso pertenece a la plataforma (no a la agencia)."
+
+msgid "Client"
+msgstr "Cliente"
+
+msgid "Client ID"
+msgstr "ID de cliente"
+
+msgid "Comisiones"
+msgstr "Comisiones"
+
+msgid "Comisiones (plataforma)"
+msgstr "Comisiones (plataforma)"
+
+msgid "Comisión liquidada individualmente."
+msgstr "Comisión liquidada individualmente."
+
+msgid "Commission %"
+msgstr "Comisión %"
+
+msgid "Commission rate (%) is used while the plan is active; leave blank to keep the agency/global commission. Listing limit -1 = unlimited."
+msgstr "La tasa de comisión (%) se usa mientras el plan está activo; déjala vacía para conservar la comisión de la agencia/global. Límite de listados -1 = ilimitado."
+
+msgid "Commissions"
+msgstr "Comisiones"
+
+msgid "Commissions — Liquidación"
+msgstr "Comisiones — Liquidación"
+
+msgid "Complete este formulario para ejercer sus derechos ante la Plataforma. Los campos con * son obligatorios."
+msgstr "Complete este formulario para ejercer sus derechos ante la Plataforma. Los campos con * son obligatorios."
+
+msgid "Configura promociones globales. Los alojamientos pueden desactivar o personalizar estos valores en su ficha."
+msgstr "Configura promociones globales. Los alojamientos pueden desactivar o personalizar estos valores en su ficha."
+
+msgid "Configuración de contacto"
+msgstr "Configuración de contacto"
+
+msgid "Confirmada el %s por el administrador"
+msgstr "Confirmada el %s por el administrador"
+
+msgid "Confirmar liquidación"
+msgstr "Confirmar liquidación"
+
+msgid "Conservamos los datos mientras sean necesarios para las finalidades descritas y, posteriormente, por los plazos exigidos por la legislación aplicable (incluida la Ley 8968 y normas tributarias)."
+msgstr "Conservamos los datos mientras sean necesarios para las finalidades descritas y, posteriormente, por los plazos exigidos por la legislación aplicable (incluida la Ley 8968 y normas tributarias)."
+
+msgid "Consulta nuestro <a href=\"%s\" target=\"_blank\" rel=\"noopener\">Aviso de Privacidad</a> para saber cómo tratamos tus datos y cómo ejercer tus derechos."
+msgstr "Consulta nuestro <a href=\"%s\" target=\"_blank\" rel=\"noopener\">Aviso de Privacidad</a> para saber cómo tratamos tus datos y cómo ejercer tus derechos."
+
+msgid "Contacto para asuntos de protección de datos: <a href=\"mailto:%s\">%s</a>."
+msgstr "Contacto para asuntos de protección de datos: <a href=\"mailto:%s\">%s</a>."
+
+msgid "Contenido"
+msgstr "Contenido"
+
+msgid "Conversión vistas→reserva"
+msgstr "Conversión vistas→reserva"
+
+msgid "Correo de contacto para datos personales"
+msgstr "Correo de contacto para datos personales"
+
+msgid "Correo electrónico"
+msgstr "Correo electrónico"
+
+msgid "Could not start the subscription. Please try again."
+msgstr "No se pudo iniciar la suscripción. Inténtalo de nuevo."
+
+msgid "Count"
+msgstr "Cantidad"
+
+msgid "Created"
+msgstr "Creado"
+
+msgid "Crew Included"
+msgstr "Tripulación incluida"
+
+msgid "Cupos por fecha (capacidad)"
+msgstr "Cupos por fecha (capacidad)"
+
+msgid "Currency"
+msgstr "Moneda"
+
+msgid "Código, cliente o email"
+msgstr "Código, cliente o email"
+
+msgid "Date"
+msgstr "Fecha"
+
+msgid "Default Check-in Time"
+msgstr "Hora de entrada predeterminada"
+
+msgid "Default Check-out Time"
+msgstr "Hora de salida predeterminada"
+
+msgid "Default Commission %"
+msgstr "Comisión predeterminada %"
+
+msgid "Default Currency"
+msgstr "Moneda predeterminada"
+
+msgid "Default Payment Gateway"
+msgstr "Pasarela de pago predeterminada"
+
+msgid "Departure Point"
+msgstr "Punto de salida"
+
+msgid "Derechos"
+msgstr "Derechos"
+
+msgid "Derechos que desea ejercer"
+msgstr "Derechos que desea ejercer"
+
+msgid "Desactivada"
+msgstr "Desactivada"
+
+msgid "Desactivar"
+msgstr "Desactivar"
+
+msgid "Desaprobar"
+msgstr "Desaprobar"
+
+msgid "Descuento anticipado (Early Bird)"
+msgstr "Descuento anticipado (Early Bird)"
+
+msgid "Descuento de última hora"
+msgstr "Descuento de última hora"
+
+msgid "Descuento por estadía larga"
+msgstr "Descuento por estadía larga"
+
+msgid "Descuentos"
+msgstr "Descuentos"
+
+msgid "Descuentos y Promociones"
+msgstr "Descuentos y Promociones"
+
+msgid "Destacados"
+msgstr "Destacados"
+
+msgid "Destacados (confirmados)"
+msgstr "Destacados (confirmados)"
+
+msgid "Destacados activos"
+msgstr "Destacados activos"
+
+msgid "Destination hierarchy: país → provincia → cantón → distrito → lugar."
+msgstr "Destination hierarchy: país → provincia → cantón → distrito → lugar."
+
+msgid "Destinations"
+msgstr "Destinos"
+
+msgid "Detalles de su solicitud"
+msgstr "Detalles de su solicitud"
+
+msgid "Difficulties"
+msgstr "Dificultades"
+
+msgid "Difficulty"
+msgstr "Dificultad"
+
+msgid "Doors"
+msgstr "Puertas"
+
+msgid "Double / Full"
+msgstr "Doble / Full"
+
+msgid "Drop-off Location"
+msgstr "Lugar de entrega"
+
+msgid "Duration"
+msgstr "Duración"
+
+msgid "Early Bird"
+msgstr "Early Bird"
+
+msgid "Early Bird (%d+ días)"
+msgstr "Early Bird (%d+ días)"
+
+msgid "Edit Accommodation"
+msgstr "Editar alojamiento"
+
+msgid "Edit Agency"
+msgstr "Editar agencia"
+
+msgid "Edit Amenity"
+msgstr "Editar comodidad"
+
+msgid "Edit Boat"
+msgstr "Editar barco"
+
+msgid "Edit Boat Type"
+msgstr "Editar tipo de barco"
+
+msgid "Edit Car Rental"
+msgstr "Editar alquiler de auto"
+
+msgid "Edit Category"
+msgstr "Editar categoría"
+
+msgid "Edit Destination"
+msgstr "Editar destino"
+
+msgid "Edit Difficulty"
+msgstr "Editar dificultad"
+
+msgid "Edit Equipment"
+msgstr "Editar equipo"
+
+msgid "Edit Package"
+msgstr "Editar paquete"
+
+msgid "Edit Property Type"
+msgstr "Editar tipo de propiedad"
+
+msgid "Edit Room Type"
+msgstr "Editar tipo de habitación"
+
+msgid "Edit Tour"
+msgstr "Editar tour"
+
+msgid "Edit Tour Type"
+msgstr "Editar tipo de tour"
+
+msgid "Edit Transport"
+msgstr "Editar transporte"
+
+msgid "Edit Vehicle Type"
+msgstr "Editar tipo de vehículo"
+
+msgid "Efectivo"
+msgstr "Efectivo"
+
+msgid "Ejercer sus derechos de datos personales"
+msgstr "Ejercer sus derechos de datos personales"
+
+msgid "El registro se sincroniza automáticamente al abrir esta página."
+msgstr "El registro se sincroniza automáticamente al abrir esta página."
+
+msgid "Enable PayPal"
+msgstr "Habilitar PayPal"
+
+msgid "Enable to test payments in PayPal Sandbox"
+msgstr "Habilítalo para probar pagos en PayPal Sandbox"
+
+msgid "End Time"
+msgstr "Hora de fin"
+
+msgid "Equipment Details"
+msgstr "Detalles del equipo"
+
+msgid "Equipo"
+msgstr "Equipo"
+
+msgid "Escribe tu respuesta como agencia…"
+msgstr "Escribe tu respuesta como agencia…"
+
+msgid "Estados de reserva"
+msgstr "Estados de reserva"
+
+msgid "Estadía larga"
+msgstr "Estadía larga"
+
+msgid "Estadía larga (%d+ noches)"
+msgstr "Estadía larga (%d+ noches)"
+
+msgid "Estadía mínima base (noches)"
+msgstr "Estadía mínima base (noches)"
+
+msgid "Este sitio utiliza cookies técnicas necesarias para su funcionamiento y, cuando usted lo permite, cookies analíticas."
+msgstr "Este sitio utiliza cookies técnicas necesarias para su funcionamiento y, cuando usted lo permite, cookies analíticas."
+
+msgid "Expirar"
+msgstr "Expirar"
+
+msgid "Exportar reservas (CSV)"
+msgstr "Exportar reservas (CSV)"
+
+msgid "Exportar resumen (CSV)"
+msgstr "Exportar resumen (CSV)"
+
+msgid "Facturado en destacados"
+msgstr "Facturado en destacados"
+
+msgid "Falls back to post title"
+msgstr "Usa el título del post como alternativa"
+
+msgid "Fee"
+msgstr "Tarifa"
+
+msgid "Fee Type"
+msgstr "Tipo de tarifa"
+
+msgid "Fee Value"
+msgstr "Valor de la tarifa"
+
+msgid "Fixed amount"
+msgstr "Monto fijo"
+
+msgid "Flexible — Free cancellation 24h before"
+msgstr "Flexible — Cancelación gratis 24 h antes"
+
+msgid "Floor"
+msgstr "Piso"
+
+msgid "Formato: noches:porcentaje, separado por comas"
+msgstr "Formato: noches:porcentaje, separado por comas"
+
+msgid "Fuentes de ingreso (12 meses)"
+msgstr "Fuentes de ingreso (12 meses)"
+
+msgid "Full Day Price ($)"
+msgstr "Precio día completo ($)"
+
+msgid "GMV"
+msgstr "GMV"
+
+msgid "GMV (filtro)"
+msgstr "GMV (filtro)"
+
+msgid "GPS Included"
+msgstr "GPS incluido"
+
+msgid "Gratis"
+msgstr "Gratis"
+
+msgid "Guardar respuesta"
+msgstr "Guardar respuesta"
+
+msgid "Habilitar"
+msgstr "Habilitar"
+
+msgid "Half Day Price ($)"
+msgstr "Precio medio día ($)"
+
+msgid "Historial de liquidaciones"
+msgstr "Historial de liquidaciones"
+
+msgid "Hourly Price ($)"
+msgstr "Precio por hora ($)"
+
+msgid "IP"
+msgstr "IP"
+
+msgid "Ingresos"
+msgstr "Ingresos"
+
+msgid "Ingresos de la plataforma por mes (12 meses)"
+msgstr "Ingresos de la plataforma por mes (12 meses)"
+
+msgid "Ingresos plataforma (12m)"
+msgstr "Ingresos plataforma (12m)"
+
+msgid "Ingresos y reservas mensuales"
+msgstr "Ingresos y reservas mensuales"
+
+msgid "Insurance Included"
+msgstr "Seguro incluido"
+
+msgid "La agencia <strong>%s</strong> (%s) se registró y espera la verificación de sus datos.<br>KYC: %s<br><br><a href=\"%s\" style=\"color:#0d9488;\">Revisar en el panel de agencias</a>."
+msgstr "La agencia <strong>%s</strong> (%s) se registró y espera la verificación de sus datos.<br>KYC: %s<br><br><a href=\"%s\" style=\"color:#0d9488;\">Revisar en el panel de agencias</a>."
+
+msgid "La agencia aceptó tu solicitud de reserva. Completa el pago para confirmar: <a href=\"%s\" style=\"color:#0d9488;\">Pagar ahora</a>."
+msgstr "La agencia aceptó tu solicitud de reserva. Completa el pago para confirmar: <a href=\"%s\" style=\"color:#0d9488;\">Pagar ahora</a>."
+
+msgid "Lamentablemente tu agencia <strong>%s</strong> no fue aprobada en esta revisión.<br><br>Contacta a soporte en <a href=\"%s\" style=\"color:#0d9488;\">info@visitnuevoarenal.com</a> para corregir los datos de identificación y volver a intentarlo."
+msgstr "Lamentablemente tu agencia <strong>%s</strong> no fue aprobada en esta revisión.<br><br>Contacta a soporte en <a href=\"%s\" style=\"color:#0d9488;\">info@visitnuevoarenal.com</a> para corregir los datos de identificación y volver a intentarlo."
+
+msgid "Latitude"
+msgstr "Latitud"
+
+msgid "Length"
+msgstr "Largo"
+
+msgid "Liquidación cancelada y comisiones devueltas a \"por cobrar\"."
+msgstr "Liquidación cancelada y comisiones devueltas a \"por cobrar\"."
+
+msgid "Liquidación individual"
+msgstr "Liquidación individual"
+
+msgid "Liquidación registrada y comisiones marcadas como pagadas."
+msgstr "Liquidación registrada y comisiones marcadas como pagadas."
+
+msgid "Liquidar comisión"
+msgstr "Liquidar comisión"
+
+msgid "Listado Promotions (Destacados)"
+msgstr "Listado Promotions (Destacados)"
+
+msgid "Listado borrado"
+msgstr "Listado borrado"
+
+msgid "Listados publicados"
+msgstr "Listados publicados"
+
+msgid "Location & Address"
+msgstr "Ubicación y dirección"
+
+msgid "Longitude"
+msgstr "Longitud"
+
+msgid "MRR suscripciones"
+msgstr "MRR suscripciones"
+
+msgid "Marcar activo"
+msgstr "Marcar activo"
+
+msgid "Marcar atendida"
+msgstr "Marcar atendida"
+
+msgid "Marcar pagado"
+msgstr "Marcar pagado"
+
+msgid "Max Adults"
+msgstr "Máx. adultos"
+
+msgid "Max Children"
+msgstr "Máx. niños"
+
+msgid "Max Guests"
+msgstr "Máx. huéspedes"
+
+msgid "Max Passengers"
+msgstr "Máx. pasajeros"
+
+msgid "Max People"
+msgstr "Máx. personas"
+
+msgid "Max People per Group"
+msgstr "Máx. personas por grupo"
+
+msgid "Max Total Occupancy"
+msgstr "Capacidad máxima total"
+
+msgid "Meeting Point"
+msgstr "Punto de encuentro"
+
+msgid "Meta Description (SEO)"
+msgstr "Meta descripción (SEO)"
+
+msgid "Minimum Age"
+msgstr "Edad mínima"
+
+msgid "Model"
+msgstr "Modelo"
+
+msgid "Moderación de contenido"
+msgstr "Moderación de contenido"
+
+msgid "Moderate — Free cancellation 5 days before"
+msgstr "Moderada — Cancelación gratis 5 días antes"
+
+msgid "Month"
+msgstr "Mes"
+
+msgid "Murphy Bed"
+msgstr "Cama abatible"
+
+msgid "Método de pago"
+msgstr "Método de pago"
+
+msgid "New Destination Name"
+msgstr "Nombre del nuevo destino"
+
+msgid "No accommodations found"
+msgstr "No se encontraron alojamientos"
+
+msgid "No agencies found"
+msgstr "No se encontraron agencias"
+
+msgid "No boats found"
+msgstr "No se encontraron barcos"
+
+msgid "No car rentals found"
+msgstr "No se encontraron alquileres de auto"
+
+msgid "No configuration fields found."
+msgstr "No se encontraron campos de configuración."
+
+msgid "No equipment found"
+msgstr "No se encontraron equipos"
+
+msgid "No fee"
+msgstr "Sin tarifa"
+
+msgid "No hay comisiones."
+msgstr "No hay comisiones."
+
+msgid "No hay consentimientos registrados."
+msgstr "No hay consentimientos registrados."
+
+msgid "No hay contenido en la cola de moderación."
+msgstr "No hay contenido en la cola de moderación."
+
+msgid "No hay reseñas."
+msgstr "No hay reseñas."
+
+msgid "No hay solicitudes."
+msgstr "No hay solicitudes."
+
+msgid "No packages found"
+msgstr "No se encontraron paquetes"
+
+msgid "No promotions yet."
+msgstr "Aún no hay promociones."
+
+msgid "No room types found"
+msgstr "No se encontraron tipos de habitación"
+
+msgid "No se pudo procesar la solicitud. Inténtalo de nuevo."
+msgstr "No se pudo procesar la solicitud. Inténtalo de nuevo."
+
+msgid "No subscriptions yet."
+msgstr "Aún no hay suscripciones."
+
+msgid "No tours found"
+msgstr "No se encontraron tours"
+
+msgid "No transports found"
+msgstr "No se encontraron transportes"
+
+msgid "No vendemos ni compartimos sus datos personales con terceros ajenos a la Plataforma, salvo: agencias responsables de su reserva, procesadores de pago, proveedores de servicios técnicos y cuando la ley lo exija."
+msgstr "No vendemos ni compartimos sus datos personales con terceros ajenos a la Plataforma, salvo: agencias responsables de su reserva, procesadores de pago, proveedores de servicios técnicos y cuando la ley lo exija."
+
+msgid "Nombre (opcional)"
+msgstr "Nombre (opcional)"
+
+msgid "Non-Refundable"
+msgstr "No reembolsable"
+
+msgid "Notes"
+msgstr "Notas"
+
+msgid "Number of Rooms"
+msgstr "Número de habitaciones"
+
+msgid "Number of Rooms of This Type"
+msgstr "Número de habitaciones de este tipo"
+
+msgid "Oposición: oponerse al tratamiento por interés legítimo."
+msgstr "Oposición: oponerse al tratamiento por interés legítimo."
+
+msgid "Package"
+msgstr "Paquete"
+
+msgid "Package Details"
+msgstr "Detalles del paquete"
+
+msgid "Pagadas"
+msgstr "Pagadas"
+
+msgid "Paid %d month(s) on %s"
+msgstr "Pagado %d mes(es) el %s"
+
+msgid "Paid via PayPal (capture %s)"
+msgstr "Pagado vía PayPal (capture %s)"
+
+msgid "Parent Accommodation"
+msgstr "Alojamiento principal"
+
+msgid "Parent Destination"
+msgstr "Destino principal"
+
+msgid "Parent Destination:"
+msgstr "Destino principal:"
+
+msgid "Passenger Capacity"
+msgstr "Capacidad de pasajeros"
+
+msgid "PayPal"
+msgstr "PayPal"
+
+msgid "PayPal Settings"
+msgstr "Configuración de PayPal"
+
+msgid "Payment Method"
+msgstr "Método de pago"
+
+msgid "Payment Status"
+msgstr "Estado del pago"
+
+msgid "Pendientes de pago"
+msgstr "Pendientes de pago"
+
+msgid "Percentage of total"
+msgstr "Porcentaje del total"
+
+msgid "Personalizar promociones"
+msgstr "Personalizar promociones"
+
+msgid "Photo Gallery"
+msgstr "Galería de fotos"
+
+msgid "Pick-up / Delivery Location"
+msgstr "Lugar de recogida / entrega"
+
+msgid "Pick-up Location"
+msgstr "Lugar de recogida"
+
+msgid "Plans"
+msgstr "Planes"
+
+msgid "Plans saved."
+msgstr "Planes guardados."
+
+msgid "Podemos actualizar este aviso. Le notificaremos los cambios relevantes publicando la versión vigente en esta página."
+msgstr "Podemos actualizar este aviso. Le notificaremos los cambios relevantes publicando la versión vigente en esta página."
+
+msgid "Policies & Rules"
+msgstr "Políticas y reglas"
+
+msgid "Porcentaje"
+msgstr "Porcentaje"
+
+msgid "Precio base por noche ($)"
+msgstr "Precio base por noche ($)"
+
+msgid "Precio por destacado: %s/mes por listado. Confirma el pago para activar la promoción hasta la fecha correspondiente."
+msgstr "Precio por destacado: %s/mes por listado. Confirma el pago para activar la promoción hasta la fecha correspondiente."
+
+msgid "Price ($)"
+msgstr "Precio ($)"
+
+msgid "Price Type"
+msgstr "Tipo de precio"
+
+msgid "Price per Adult ($)"
+msgstr "Precio por adulto ($)"
+
+msgid "Price per Child ($)"
+msgstr "Precio por niño ($)"
+
+msgid "Price per Day ($)"
+msgstr "Precio por día ($)"
+
+msgid "Price per Hour ($)"
+msgstr "Precio por hora ($)"
+
+msgid "Price per Night ($) — fallback if no room types"
+msgstr "Precio por noche ($) — alternativa si no hay tipos de habitación"
+
+msgid "Price per Person ($)"
+msgstr "Precio por persona ($)"
+
+msgid "Privacidad y Datos Personales (Ley 8968)"
+msgstr "Privacidad y Datos Personales (Ley 8968)"
+
+msgid "Procesamos tus datos personales de acuerdo con nuestro <a href=\"%1$s\">Aviso de Privacidad</a>. Puedes ejercer tus derechos de acceso, rectificación, supresión u oposición escribiendo a <a href=\"mailto:%2$s\">%2$s</a>."
+msgstr "Procesamos tus datos personales de acuerdo con nuestro <a href=\"%1$s\">Aviso de Privacidad</a>. Puedes ejercer tus derechos de acceso, rectificación, supresión u oposición escribiendo a <a href=\"mailto:%2$s\">%2$s</a>."
+
+msgid "Promociones"
+msgstr "Promociones"
+
+msgid "Promoción de %d mes(es) solicitada"
+msgstr "Promoción de %d mes(es) solicitada"
+
+msgid "Promotion activated until "
+msgstr "Promoción activa hasta el "
+
+msgid "Promotion expired."
+msgstr "Promoción expirada."
+
+msgid "Promotion not found."
+msgstr "Promoción no encontrada."
+
+msgid "Promotions"
+msgstr "Promociones"
+
+msgid "Property Type"
+msgstr "Tipo de propiedad"
+
+msgid "Property Types"
+msgstr "Tipos de propiedad"
+
+msgid "Puede ejercer los derechos de información, acceso, rectificación, actualización, supresión y oposición, así como revocar su consentimiento, mediante el formulario de esta página o escribiendo a <a href=\"mailto:%s\">%s</a>."
+msgstr "Puede ejercer los derechos de información, acceso, rectificación, actualización, supresión y oposición, así como revocar su consentimiento, mediante el formulario de esta página o escribiendo a <a href=\"mailto:%s\">%s</a>."
+
+msgid "Quitar verificación"
+msgstr "Quitar verificación"
+
+msgid "Rating"
+msgstr "Calificación"
+
+msgid "Recopilamos únicamente los datos necesarios para prestar el servicio de reservas: nombre, correo electrónico, teléfono, datos de la reserva (fechas, servicio, montos), datos de la agencia y, cuando aplica, datos de identificación requeridos para la verificación de agencias y la facturación."
+msgstr "Recopilamos únicamente los datos necesarios para prestar el servicio de reservas: nombre, correo electrónico, teléfono, datos de la reserva (fechas, servicio, montos), datos de la agencia y, cuando aplica, datos de identificación requeridos para la verificación de agencias y la facturación."
+
+msgid "Rectificación y actualización: corregir o actualizar sus datos."
+msgstr "Rectificación y actualización: corregir o actualizar sus datos."
+
+msgid "Refunded"
+msgstr "Reembolsado"
+
+msgid "Registrar pago de comisiones seleccionadas"
+msgstr "Registrar pago de comisiones seleccionadas"
+
+msgid "Registro de consentimientos"
+msgstr "Registro de consentimientos"
+
+msgid "Rental Conditions"
+msgstr "Condiciones de alquiler"
+
+msgid "Reports"
+msgstr "Reportes"
+
+msgid "Reservas"
+msgstr "Reservas"
+
+msgid "Reservas por servicio"
+msgstr "Reservas por servicio"
+
+msgid "Reservas recientes"
+msgstr "Reservas recientes"
+
+msgid "Reservas totales"
+msgstr "Reservas totales"
+
+msgid "Reservas vigentes"
+msgstr "Reservas vigentes"
+
+msgid "Reseña"
+msgstr "Reseña"
+
+msgid "Reseñas pendientes de aprobación: %d"
+msgstr "Reseñas pendientes de aprobación: %d"
+
+msgid "Reseñas y mensajes marcados automáticamente: %d en revisión, %d bloqueados."
+msgstr "Reseñas y mensajes marcados automáticamente: %d en revisión, %d bloqueados."
+
+msgid "Responder a esta reseña"
+msgstr "Responder a esta reseña"
+
+msgid "Resumen general de tu plataforma."
+msgstr "Resumen general de tu plataforma."
+
+msgid "Revenue (GMV)"
+msgstr "Ingresos (GMV)"
+
+msgid "Room"
+msgstr "Habitación"
+
+msgid "Room Details"
+msgstr "Detalles de la habitación"
+
+msgid "Room Photos"
+msgstr "Fotos de la habitación"
+
+msgid "Room Size (e.g. 35 m²)"
+msgstr "Tamaño de la habitación (p. ej. 35 m²)"
+
+msgid "Room Type"
+msgstr "Tipo de habitación"
+
+msgid "Room Types"
+msgstr "Tipos de habitación"
+
+msgid "SEO Title"
+msgstr "Título SEO"
+
+msgid "Sandbox Mode"
+msgstr "Modo sandbox"
+
+msgid "Save plans"
+msgstr "Guardar planes"
+
+msgid "Search Accommodations"
+msgstr "Buscar alojamientos"
+
+msgid "Search Agencies"
+msgstr "Buscar agencias"
+
+msgid "Search Amenities"
+msgstr "Buscar comodidades"
+
+msgid "Search Boat Types"
+msgstr "Buscar tipos de barco"
+
+msgid "Search Boats"
+msgstr "Buscar barcos"
+
+msgid "Search Car Rentals"
+msgstr "Buscar alquileres de auto"
+
+msgid "Search Categories"
+msgstr "Buscar categorías"
+
+msgid "Search Destinations"
+msgstr "Buscar destinos"
+
+msgid "Search Difficulties"
+msgstr "Buscar dificultades"
+
+msgid "Search Equipment"
+msgstr "Buscar equipos"
+
+msgid "Search Packages"
+msgstr "Buscar paquetes"
+
+msgid "Search Property Types"
+msgstr "Buscar tipos de propiedad"
+
+msgid "Search Room Types"
+msgstr "Buscar tipos de habitación"
+
+msgid "Search Tour Types"
+msgstr "Buscar tipos de tour"
+
+msgid "Search Tours"
+msgstr "Buscar tours"
+
+msgid "Search Transports"
+msgstr "Buscar transportes"
+
+msgid "Search Vehicle Types"
+msgstr "Buscar tipos de vehículo"
+
+msgid "Seats"
+msgstr "Asientos"
+
+msgid "Secret Key"
+msgstr "Clave secreta"
+
+msgid "Security Deposit ($)"
+msgstr "Depósito de seguridad ($)"
+
+msgid "Select Images"
+msgstr "Seleccionar imágenes"
+
+msgid "Select Photos"
+msgstr "Seleccionar fotos"
+
+msgid "Service Categories"
+msgstr "Categorías de servicio"
+
+msgid "Service Category"
+msgstr "Categoría de servicio"
+
+msgid "Service Type"
+msgstr "Tipo de servicio"
+
+msgid "Settings"
+msgstr "Configuración"
+
+msgid "Si se deja vacío se usa el correo del administrador del sitio."
+msgstr "Si se deja vacío se usa el correo del administrador del sitio."
+
+msgid "Sin datos en el periodo."
+msgstr "Sin datos en el periodo."
+
+msgid "Solicitudes de derechos de datos"
+msgstr "Solicitudes de derechos de datos"
+
+msgid "Solo las aprobadas se muestran en el sitio público."
+msgstr "Solo las aprobadas se muestran en el sitio público."
+
+msgid "Stars"
+msgstr "Estrellas"
+
+msgid "Start Time"
+msgstr "Hora de inicio"
+
+msgid "State / Province"
+msgstr "Estado / Provincia"
+
+msgid "Street Address"
+msgstr "Dirección"
+
+msgid "Strict — 50% refund up to 7 days before"
+msgstr "Estricta — Reembolso del 50% hasta 7 días antes"
+
+msgid "Subscription Plans"
+msgstr "Planes de suscripción"
+
+msgid "Subscription expired."
+msgstr "Suscripción expirada."
+
+msgid "Subscription marked as paid until "
+msgstr "Suscripción marcada como pagada hasta el "
+
+msgid "Subscription not found."
+msgstr "Suscripción no encontrada."
+
+msgid "Subscriptions"
+msgstr "Suscripciones"
+
+msgid "Supresión: solicitar la eliminación de sus datos cuando ya no sean necesarios."
+msgstr "Supresión: solicitar la eliminación de sus datos cuando ya no sean necesarios."
+
+msgid "Suscripciones"
+msgstr "Suscripciones"
+
+msgid "Terms & Conditions Page"
+msgstr "Página de términos y condiciones"
+
+msgid "The listing is not available for promotion."
+msgstr "El listado no está disponible para promocionar."
+
+msgid "The selected plan is not available."
+msgstr "El plan seleccionado no está disponible."
+
+msgid "Ticket promedio"
+msgstr "Ticket promedio"
+
+msgid "Todas las agencias"
+msgstr "Todas las agencias"
+
+msgid "Todos los estados"
+msgstr "Todos los estados"
+
+msgid "Todos los tipos"
+msgstr "Todos los tipos"
+
+msgid "Top agencias"
+msgstr "Top agencias"
+
+msgid "Top listados"
+msgstr "Top listados"
+
+msgid "Total Amount"
+msgstr "Monto total"
+
+msgid "Total Price ($)"
+msgstr "Precio total ($)"
+
+msgid "Tour Details"
+msgstr "Detalles del tour"
+
+msgid "Tour Difficulties"
+msgstr "Dificultades del tour"
+
+msgid "Tour Difficulty"
+msgstr "Dificultad del tour"
+
+msgid "Tour Type"
+msgstr "Tipo de tour"
+
+msgid "Tour Types"
+msgstr "Tipos de tour"
+
+msgid "Transferencia bancaria"
+msgstr "Transferencia bancaria"
+
+msgid "Transmission"
+msgstr "Transmisión"
+
+msgid "Transport Details"
+msgstr "Detalles del transporte"
+
+msgid "Tratamos sus datos para: (a) gestionar reservas y su pago; (b) comunicarse sobre el estado de sus reservas; (c) verificar y administrar las agencias; (d) prevenir fraude y atender reclamaciones; y (e) cumplir obligaciones legales. La base legal es el consentimiento que usted otorga, la ejecución del contrato de reserva y el interés legítimo de la Plataforma."
+msgstr "Tratamos sus datos para: (a) gestionar reservas y su pago; (b) comunicarse sobre el estado de sus reservas; (c) verificar y administrar las agencias; (d) prevenir fraude y atender reclamaciones; y (e) cumplir obligaciones legales. La base legal es el consentimiento que usted otorga, la ejecución del contrato de reserva y el interés legítimo de la Plataforma."
+
+msgid "Travel Platform"
+msgstr "Plataforma de viajes"
+
+msgid "Travel Platform Dashboard"
+msgstr "Panel de la Plataforma de viajes"
+
+msgid "Travel Platform Settings"
+msgstr "Configuración de la Plataforma de viajes"
+
+msgid "Trip Duration"
+msgstr "Duración del viaje"
+
+msgid "Tu agencia <strong>%s</strong> fue aprobada y ya es visible para los viajeros.<br><br>Ya puedes publicar servicios y recibir reservas desde tu <a href=\"%s\" style=\"color:#0d9488;\">panel de agencia</a>."
+msgstr "Tu agencia <strong>%s</strong> fue aprobada y ya es visible para los viajeros.<br><br>Ya puedes publicar servicios y recibir reservas desde tu <a href=\"%s\" style=\"color:#0d9488;\">panel de agencia</a>."
+
+msgid "Tu agencia <strong>%s</strong> ha sido registrada y ahora está <strong>en revisión</strong>.<br><br>Un administrador verificará tus datos de identificación. En cuanto tu agencia sea aprobada te avisaremos por correo y podrás publicar tus servicios y recibir reservas. Accede a tu <a href=\"%s\" style=\"color:#0d9488;\">panel de agencia</a> para adelantar tus listados."
+msgstr "Tu agencia <strong>%s</strong> ha sido registrada y ahora está <strong>en revisión</strong>.<br><br>Un administrador verificará tus datos de identificación. En cuanto tu agencia sea aprobada te avisaremos por correo y podrás publicar tus servicios y recibir reservas. Accede a tu <a href=\"%s\" style=\"color:#0d9488;\">panel de agencia</a> para adelantar tus listados."
+
+msgid "Tu mensaje no pasó las verificaciones de seguridad. Inténtalo de nuevo."
+msgstr "Tu mensaje no pasó las verificaciones de seguridad. Inténtalo de nuevo."
+
+msgid "Tu plan actual (%s) no incluye destacados. Mejora tu plan para promocionar tus listados."
+msgstr "Tu plan actual (%s) no incluye destacados. Mejora tu plan para promocionar tus listados."
+
+msgid "Tu solicitud está pendiente de confirmación de la agencia. Te avisaremos por correo cuando sea aceptada para que completes el pago."
+msgstr "Tu solicitud está pendiente de confirmación de la agencia. Te avisaremos por correo cuando sea aceptada para que completes el pago."
+
+msgid "Twin / Single"
+msgstr "Dos camas / Individual"
+
+msgid "Type"
+msgstr "Tipo"
+
+msgid "Units Available"
+msgstr "Unidades disponibles"
+
+msgid "Update Amenity"
+msgstr "Actualizar comodidad"
+
+msgid "Update Boat Type"
+msgstr "Actualizar tipo de barco"
+
+msgid "Update Category"
+msgstr "Actualizar categoría"
+
+msgid "Update Destination"
+msgstr "Actualizar destino"
+
+msgid "Update Difficulty"
+msgstr "Actualizar dificultad"
+
+msgid "Update Property Type"
+msgstr "Actualizar tipo de propiedad"
+
+msgid "Update Tour Type"
+msgstr "Actualizar tipo de tour"
+
+msgid "Update Vehicle Type"
+msgstr "Actualizar tipo de vehículo"
+
+msgid "Upload or select images for the property gallery."
+msgstr "Sube o selecciona imágenes para la galería de la propiedad."
+
+msgid "Usuario"
+msgstr "Usuario"
+
+msgid "Vehicle Type"
+msgstr "Tipo de vehículo"
+
+msgid "Vehicle Types"
+msgstr "Tipos de vehículo"
+
+msgid "Ver respuesta de la agencia"
+msgstr "Ver respuesta de la agencia"
+
+msgid "Verificar"
+msgstr "Verificar"
+
+msgid "Verified Agency"
+msgstr "Agencia verificada"
+
+msgid "Versión"
+msgstr "Versión"
+
+msgid "View (e.g. Ocean View, City View)"
+msgstr "Vista (p. ej. Vista al mar, Vista a la ciudad)"
+
+msgid "View Accommodation"
+msgstr "Ver alojamiento"
+
+msgid "View Agency"
+msgstr "Ver agencia"
+
+msgid "View Boat"
+msgstr "Ver barco"
+
+msgid "View Car Rental"
+msgstr "Ver alquiler de auto"
+
+msgid "View Equipment"
+msgstr "Ver equipo"
+
+msgid "View Package"
+msgstr "Ver paquete"
+
+msgid "View Room Type"
+msgstr "Ver tipo de habitación"
+
+msgid "View Tour"
+msgstr "Ver tour"
+
+msgid "View Transport"
+msgstr "Ver transporte"
+
+msgid "Vistas (filtro)"
+msgstr "Vistas (filtro)"
+
+msgid "Webhook ID"
+msgstr "ID del webhook"
+
+msgid "Webhook URL:"
+msgstr "URL del webhook:"
+
+msgid "What to Bring"
+msgstr "Qué llevar"
+
+msgid "What's Included"
+msgstr "Qué incluye"
+
+msgid "What's Not Included"
+msgstr "Qué no incluye"
+
+msgid "WiFi on Board"
+msgstr "WiFi a bordo"
+
+msgid "WordPress User ID"
+msgstr "ID de usuario de WordPress"
+
+msgid "Ya tienes %d destacados activos (el máximo de tu plan). Espera a que expire uno o mejora de plan."
+msgstr "Ya tienes %d destacados activos (el máximo de tu plan). Espera a que expire uno o mejora de plan."
+
+msgid "Ya tienes una solicitud de destacado pendiente para este listado. El administrador confirmará el pago."
+msgstr "Ya tienes una solicitud de destacado pendiente para este listado. El administrador confirmará el pago."
+
+msgid "Year"
+msgstr "Año"
+
+msgid "You already have a pending subscription. An administrator will confirm the payment."
+msgstr "Ya tienes una suscripción pendiente. Un administrador confirmará el pago."
+
+msgid "You won't be charged yet"
+msgstr "Aún no se te cobrará"
+
+msgid "ZIP / Postal Code"
+msgstr "Código postal"
+
+msgid "acumuladas"
+msgstr "acumuladas"
+
+msgid "comisión"
+msgstr "comisión"
+
+msgid "días"
+msgstr "días"
+
+msgid "días de antelación"
+msgstr "días de antelación"
+
+msgid "pendientes"
+msgstr "pendientes"
+
+msgid "reservando con al menos"
+msgstr "reservando con al menos"
+
+msgid "reservando con máximo"
+msgstr "reservando con máximo"
+
+msgid "reservas efectivas"
+msgstr "reservas efectivas"
+
+msgid "servicios activos"
+msgstr "servicios activos"
+
+msgid "Ámbito"
+msgstr "Ámbito"
+
+msgid "Última hora"
+msgstr "Última hora"
+
+msgid "Última hora (%d días)"
+msgstr "Última hora (%d días)"
+
+msgid "%d destacado(s)"
+msgstr "%d destacado(s)"
+
+msgid "%s es la agencia de viajes verificada que opera este listado."
+msgstr "%s es la agencia de viajes verificada que opera este listado."
+
+msgid "%s — suscripción mensual (agencia)"
+msgstr "%s — suscripción mensual (agencia)"
+
+msgid "/ noche"
+msgstr "/ noche"
+
+msgid "/mes"
+msgstr "/mes"
+
+msgid "/noche"
+msgstr "/noche"
+
+msgid "0 reseñas"
+msgstr "0 reseñas"
+
+msgid "1 huésped"
+msgstr "1 huésped"
+
+msgid "2 huéspedes"
+msgstr "2 huéspedes"
+
+msgid "3 huéspedes"
+msgstr "3 huéspedes"
+
+msgid "4 huéspedes"
+msgstr "4 huéspedes"
+
+msgid "5 huéspedes"
+msgstr "5 huéspedes"
+
+msgid "6+ huéspedes"
+msgstr "6+ huéspedes"
+
+msgid "A favor de la agencia (liberar comisión)"
+msgstr "A favor de la agencia (liberar comisión)"
+
+msgid "Abiertas"
+msgstr "Abiertas"
+
+msgid "Abrir asistente"
+msgstr "Abrir asistente"
+
+msgid "Abrir una disputa"
+msgstr "Abrir una disputa"
+
+msgid "Acceso denegado."
+msgstr "Acceso denegado."
+
+msgid "Aceptamos pago online seguro con tarjeta o PayPal al confirmar la reserva."
+msgstr "Aceptamos pago online seguro con tarjeta o PayPal al confirmar la reserva."
+
+msgid "Aceptar"
+msgstr "Aceptar"
+
+msgid "Activa"
+msgstr "Activa"
+
+msgid "Activo"
+msgstr "Activo"
+
+msgid "Actualización de reserva %s: %s"
+msgstr "Actualización de reserva %s: %s"
+
+msgid "Agencia"
+msgstr "Agencia"
+
+msgid "Agencia en revisión — %s"
+msgstr "Agencia en revisión — %s"
+
+msgid "Agencia verificada"
+msgstr "Agencia verificada"
+
+msgid "Agencias"
+msgstr "Agencias"
+
+msgid "Agencias de viaje y operadores turísticos verificados en la plataforma."
+msgstr "Agencias de viaje y operadores turísticos verificados en la plataforma."
+
+msgid "Ahorras %s"
+msgstr "Ahorras %s"
+
+msgid "Alcanzaste el límite de %d listados de tu plan. Mejora de plan para publicar más."
+msgstr "Alcanzaste el límite de %d listados de tu plan. Mejora de plan para publicar más."
+
+msgid "Alojamiento"
+msgstr "Alojamiento"
+
+msgid "Alojamientos"
+msgstr "Alojamientos"
+
+msgid "Alojamientos Destacados"
+msgstr "Alojamientos Destacados"
+
+msgid "Alquiler de Autos"
+msgstr "Alquiler de Autos"
+
+msgid "Alquiler de auto"
+msgstr "Alquiler de auto"
+
+msgid "Alquiler de autos"
+msgstr "Alquiler de autos"
+
+msgid "Alquiler de autos y vehículos para viajar con libertad."
+msgstr "Alquiler de autos y vehículos para viajar con libertad."
+
+msgid "Alquiler de equipo: kayaks, snorkel, bicicletas, surf y más para tu viaje."
+msgstr "Alquiler de equipo: kayaks, snorkel, bicicletas, surf y más para tu viaje."
+
+msgid "Amenidades"
+msgstr "Amenidades"
+
+msgid "Anónimo"
+msgstr "Anónimo"
+
+msgid "Aplicar"
+msgstr "Aplicar"
+
+msgid "Aprobada"
+msgstr "Aprobada"
+
+msgid "Aprobada — %s"
+msgstr "Aprobada — %s"
+
+msgid "Aprobar"
+msgstr "Aprobar"
+
+msgid "Asientos"
+msgstr "Asientos"
+
+msgid "Asistente de viajes"
+msgstr "Asistente de viajes"
+
+msgid "Atendida"
+msgstr "Atendida"
+
+msgid "Atendidas"
+msgstr "Atendidas"
+
+msgid "Atribución de leads"
+msgstr "Atribución de leads"
+
+msgid "Aventura"
+msgstr "Aventura"
+
+msgid "Aéreo"
+msgstr "Aéreo"
+
+msgid "Añadir habitación"
+msgstr "Añadir habitación"
+
+msgid "Aún no has recibido mensajes de contacto. Cuando un visitante envíe el formulario de tu perfil o de un servicio, aparecerá aquí."
+msgstr "Aún no has recibido mensajes de contacto. Cuando un visitante envíe el formulario de tu perfil o de un servicio, aparecerá aquí."
+
+msgid "Aún no hay comisiones generadas."
+msgstr "Aún no hay comisiones generadas."
+
+msgid "Aún no hay liquidaciones registradas. El administrador procesa los pagos de tus comisiones."
+msgstr "Aún no hay liquidaciones registradas. El administrador procesa los pagos de tus comisiones."
+
+msgid "Aún no hay reseñas."
+msgstr "Aún no hay reseñas."
+
+msgid "Aún no hay reseñas. Sé el primero en compartir tu experiencia."
+msgstr "Aún no hay reseñas. Sé el primero en compartir tu experiencia."
+
+msgid "Aún no tienes favoritos. Toca el corazón ♥ en cualquier servicio para guardarlo aquí."
+msgstr "Aún no tienes favoritos. Toca el corazón ♥ en cualquier servicio para guardarlo aquí."
+
+msgid "Aún no tienes listados publicados para destacar."
+msgstr "Aún no tienes listados publicados para destacar."
+
+msgid "Barco"
+msgstr "Barco"
+
+msgid "Barcos y Paseos"
+msgstr "Barcos y Paseos"
+
+msgid "Basada en una reserva confirmada"
+msgstr "Basada en una reserva confirmada"
+
+msgid "Bienvenido, %s!"
+msgstr "Bienvenido, %s!"
+
+msgid "Bloqueado"
+msgstr "Bloqueado"
+
+msgid "Busca servicios por destino, nombre o tipo para ver resultados."
+msgstr "Busca servicios por destino, nombre o tipo para ver resultados."
+
+msgid "Buscar"
+msgstr "Buscar"
+
+msgid "C. jurídica"
+msgstr "C. jurídica"
+
+msgid "Calidad del servicio"
+msgstr "Calidad del servicio"
+
+msgid "Cancelación o modificación"
+msgstr "Cancelación o modificación"
+
+msgid "Cancelada"
+msgstr "Cancelada"
+
+msgid "Canceladas"
+msgstr "Canceladas"
+
+msgid "Cancelar"
+msgstr "Cancelar"
+
+msgid "Cancelar esta liquidación y devolver las comisiones a por cobrar?"
+msgstr "Cancelar esta liquidación y devolver las comisiones a por cobrar?"
+
+msgid "Cancelar reserva"
+msgstr "Cancelar reserva"
+
+msgid "Cant."
+msgstr "Cant."
+
+msgid "Cantidad de esta habitación"
+msgstr "Cantidad de esta habitación"
+
+msgid "Cantón"
+msgstr "Cantón"
+
+msgid "Capacidad"
+msgstr "Capacidad"
+
+msgid "Cerrar asistente"
+msgstr "Cerrar asistente"
+
+msgid "Ciudad, propiedad..."
+msgstr "Ciudad, propiedad..."
+
+msgid "Cliente"
+msgstr "Cliente"
+
+msgid "Cobrada"
+msgstr "Cobrada"
+
+msgid "Cobrado"
+msgstr "Cobrado"
+
+msgid "Comisión"
+msgstr "Comisión"
+
+msgid "Comisión estándar"
+msgstr "Comisión estándar"
+
+msgid "Comisión no pagada"
+msgstr "Comisión no pagada"
+
+msgid "Comisión solo %s%%"
+msgstr "Comisión solo %s%%"
+
+msgid "Completa el pago con PayPal para activar el destacado."
+msgstr "Completa el pago con PayPal para activar el destacado."
+
+msgid "Completa el pago con PayPal para activar tu plan."
+msgstr "Completa el pago con PayPal para activar tu plan."
+
+msgid "Completa tu nombre y correo."
+msgstr "Completa tu nombre y correo."
+
+msgid "Completada"
+msgstr "Completada"
+
+msgid "Completadas"
+msgstr "Completadas"
+
+msgid "Completá el formulario de reserva en la página, elegí fechas y cantidad de huéspedes, y confirmá el pago para recibir tu voucher."
+msgstr "Completá el formulario de reserva en la página, elegí fechas y cantidad de huéspedes, y confirmá el pago para recibir tu voucher."
+
+msgid "Confirmo que los datos son verídicos y acepto los términos y condiciones de verificación."
+msgstr "Confirmo que los datos son verídicos y acepto los términos y condiciones de verificación."
+
+msgid "Contactar a la agencia"
+msgstr "Contactar a la agencia"
+
+msgid "Contacto"
+msgstr "Contacto"
+
+msgid "Contacto protegido — visible tras una reserva confirmada."
+msgstr "Contacto protegido — visible tras una reserva confirmada."
+
+msgid "Continuar al pago"
+msgstr "Continuar al pago"
+
+msgid "Conversiones (reservas confirmadas)"
+msgstr "Conversiones (reservas confirmadas)"
+
+msgid "Correo"
+msgstr "Correo"
+
+msgid "Correo de la reserva"
+msgstr "Correo de la reserva"
+
+msgid "Correo electrónico de la reserva"
+msgstr "Correo electrónico de la reserva"
+
+msgid "Correo: "
+msgstr "Correo: "
+
+msgid "Crea una cuenta de agencia, publica tus alojamientos y tours, y empieza a recibir reservas de miles de viajeros."
+msgstr "Crea una cuenta de agencia, publica tus alojamientos y tours, y empieza a recibir reservas de miles de viajeros."
+
+msgid "Crear mi cuenta de agencia"
+msgstr "Crear mi cuenta de agencia"
+
+msgid "Crear servicio"
+msgstr "Crear servicio"
+
+msgid "Cuadrícula"
+msgstr "Cuadrícula"
+
+msgid "Cualquier"
+msgstr "Cualquier"
+
+msgid "Cultural"
+msgstr "Cultural"
+
+msgid "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
+msgstr "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
+
+msgid "Cupos disponibles: %s de %s"
+msgstr "Cupos disponibles: %s de %s"
+
+msgid "Cédula"
+msgstr "Cédula"
+
+msgid "Cédula jurídica"
+msgstr "Cédula jurídica"
+
+msgid "Código"
+msgstr "Código"
+
+msgid "Código de reserva"
+msgstr "Código de reserva"
+
+msgid "Debes aceptar el Aviso de Privacidad para continuar."
+msgstr "Debes aceptar el Aviso de Privacidad para continuar."
+
+msgid "Debes aceptar el Aviso de Privacidad y consentir el tratamiento de tus datos para completar la reserva."
+msgstr "Debes aceptar el Aviso de Privacidad y consentir el tratamiento de tus datos para completar la reserva."
+
+msgid "Debes aceptar el Aviso de Privacidad y consentir el tratamiento de tus datos para registrar tu agencia."
+msgstr "Debes aceptar el Aviso de Privacidad y consentir el tratamiento de tus datos para registrar tu agencia."
+
+msgid "Debes aceptar el Aviso de Privacidad."
+msgstr "Debes aceptar el Aviso de Privacidad."
+
+msgid "Debes aceptar los términos y condiciones."
+msgstr "Debes aceptar los términos y condiciones."
+
+msgid "Debes indicar un correo electrónico válido para completar la reserva."
+msgstr "Debes indicar un correo electrónico válido para completar la reserva."
+
+msgid "Debes iniciar sesión."
+msgstr "Debes iniciar sesión."
+
+msgid "Debes verificar el correo de la reserva para cancelarla."
+msgstr "Debes verificar el correo de la reserva para cancelarla."
+
+msgid "Deja una reseña ★"
+msgstr "Deja una reseña ★"
+
+msgid "Demasiadas reservas en poco tiempo. Intenta nuevamente más tarde."
+msgstr "Demasiadas reservas en poco tiempo. Intenta nuevamente más tarde."
+
+msgid "Deportivo"
+msgstr "Deportivo"
+
+msgid "Describe brevemente tu solicitud."
+msgstr "Describe brevemente tu solicitud."
+
+msgid "Describe el problema..."
+msgstr "Describe el problema..."
+
+msgid "Describe tu agencia"
+msgstr "Describe tu agencia"
+
+msgid "Descripción"
+msgstr "Descripción"
+
+msgid "Descubre tu próxima aventura"
+msgstr "Descubre tu próxima aventura"
+
+msgid "Desde"
+msgstr "Desde"
+
+msgid "Desde "
+msgstr "Desde "
+
+msgid "Destacado"
+msgstr "Destacado"
+
+msgid "Destacado %d mes(es) — listing #%d"
+msgstr "Destacado %d mes(es) — listing #%d"
+
+msgid "Destacado hasta"
+msgstr "Destacado hasta"
+
+msgid "Destacados (promociones)"
+msgstr "Destacados (promociones)"
+
+msgid "Destacar"
+msgstr "Destacar"
+
+msgid "Destino"
+msgstr "Destino"
+
+msgid "Detalles"
+msgstr "Detalles"
+
+msgid "Devolución"
+msgstr "Devolución"
+
+msgid "Dificultad"
+msgstr "Dificultad"
+
+msgid "Difícil"
+msgstr "Difícil"
+
+msgid "Disponible"
+msgstr "Disponible"
+
+msgid "Disponibles: %d de %d · %s/mes por listado"
+msgstr "Disponibles: %d de %d · %s/mes por listado"
+
+msgid "Disputa abierta"
+msgstr "Disputa abierta"
+
+msgid "Disputa abierta. La comisión de esta reserva queda retenida hasta resolver."
+msgstr "Disputa abierta. La comisión de esta reserva queda retenida hasta resolver."
+
+msgid "Disputa resuelta. Comisión liberada o anulada según el resultado."
+msgstr "Disputa resuelta. Comisión liberada o anulada según el resultado."
+
+msgid "Disputas de reservas"
+msgstr "Disputas de reservas"
+
+msgid "Disputas de tus reservas"
+msgstr "Disputas de tus reservas"
+
+msgid "Distrito"
+msgstr "Distrito"
+
+msgid "Duración"
+msgstr "Duración"
+
+msgid "Editar"
+msgstr "Editar"
+
+msgid "El correo introducido no coincide con el de la reserva."
+msgstr "El correo introducido no coincide con el de la reserva."
+
+msgid "El mensaje es demasiado largo (máximo 2000 caracteres)."
+msgstr "El mensaje es demasiado largo (máximo 2000 caracteres)."
+
+msgid "El monto pagado ha sido reembolsado a tu cuenta."
+msgstr "El monto pagado ha sido reembolsado a tu cuenta."
+
+msgid "El nombre es demasiado largo."
+msgstr "El nombre es demasiado largo."
+
+msgid "El precio publicado es %s, sujeto a disponibilidad y a las tarifas por fechas seleccionadas. El total se calcula al elegir fechas en el formulario."
+msgstr "El precio publicado es %s, sujeto a disponibilidad y a las tarifas por fechas seleccionadas. El total se calcula al elegir fechas en el formulario."
+
+msgid "El servicio no está disponible para reseñar."
+msgstr "El servicio no está disponible para reseñar."
+
+msgid "El servicio no pertenece a esta agencia."
+msgstr "El servicio no pertenece a esta agencia."
+
+msgid "El tour está completo para esta fecha."
+msgstr "El tour está completo para esta fecha."
+
+msgid "El tour está completo para la fecha seleccionada. Quedan %1$d cupos y solicitaste %2$d."
+msgstr "El tour está completo para la fecha seleccionada. Quedan %1$d cupos y solicitaste %2$d."
+
+msgid "Eliminar"
+msgstr "Eliminar"
+
+msgid "Email de contacto"
+msgstr "Email de contacto"
+
+msgid "En contra de la agencia (comisión no pagada)"
+msgstr "En contra de la agencia (comisión no pagada)"
+
+msgid "En disputa"
+msgstr "En disputa"
+
+msgid "Enviando..."
+msgstr "Enviando..."
+
+msgid "Enviando…"
+msgstr "Enviando…"
+
+msgid "Enviar"
+msgstr "Enviar"
+
+msgid "Enviar disputa"
+msgstr "Enviar disputa"
+
+msgid "Enviar mensaje"
+msgstr "Enviar mensaje"
+
+msgid "Enviar solicitud"
+msgstr "Enviar solicitud"
+
+msgid "Equipos y Alquileres"
+msgstr "Equipos y Alquileres"
+
+msgid "Error al enviar"
+msgstr "Error al enviar"
+
+msgid "Error al enviar la reseña"
+msgstr "Error al enviar la reseña"
+
+msgid "Error de conexión. Inténtalo de nuevo."
+msgstr "Error de conexión. Inténtalo de nuevo."
+
+msgid "Escribe tu pregunta…"
+msgstr "Escribe tu pregunta…"
+
+msgid "Esperamos que hayas disfrutado tu viaje. Te invitamos a dejar una reseña."
+msgstr "Esperamos que hayas disfrutado tu viaje. Te invitamos a dejar una reseña."
+
+msgid "Esta agencia está en revisión y aún no es visible públicamente."
+msgstr "Esta agencia está en revisión y aún no es visible públicamente."
+
+msgid "Esta reserva fue cancelada o rechazada y ya no puede pagarse."
+msgstr "Esta reserva fue cancelada o rechazada y ya no puede pagarse."
+
+msgid "Esta reserva ya no puede cancelarse."
+msgstr "Esta reserva ya no puede cancelarse."
+
+msgid "Esta solicitud aún no ha sido aceptada por la agencia. Cuando sea confirmada podrás pagar."
+msgstr "Esta solicitud aún no ha sido aceptada por la agencia. Cuando sea confirmada podrás pagar."
+
+msgid "Estado"
+msgstr "Estado"
+
+msgid "Estado de tu reserva: %s"
+msgstr "Estado de tu reserva: %s"
+
+msgid "Estadía mínima"
+msgstr "Estadía mínima"
+
+msgid "Estamos procesando tu solicitud. En breve recibirás la confirmación una vez el pago sea verificado."
+msgstr "Estamos procesando tu solicitud. En breve recibirás la confirmación una vez el pago sea verificado."
+
+msgid "Este es un correo automático. Por favor no respondas a este mensaje."
+msgstr "Este es un correo automático. Por favor no respondas a este mensaje."
+
+msgid "Este servicio aún no está disponible públicamente."
+msgstr "Este servicio aún no está disponible públicamente."
+
+msgid "Estimado cliente"
+msgstr "Estimado cliente"
+
+msgid "Estrellas"
+msgstr "Estrellas"
+
+msgid "Experiencias guiadas y aventuras"
+msgstr "Experiencias guiadas y aventuras"
+
+msgid "Exportar CSV"
+msgstr "Exportar CSV"
+
+msgid "Extremo"
+msgstr "Extremo"
+
+msgid "Fallido"
+msgstr "Fallido"
+
+msgid "Familiar"
+msgstr "Familiar"
+
+msgid "Fecha"
+msgstr "Fecha"
+
+msgid "Fechas"
+msgstr "Fechas"
+
+msgid "Filtrar"
+msgstr "Filtrar"
+
+msgid "Fácil"
+msgstr "Fácil"
+
+msgid "Física"
+msgstr "Física"
+
+msgid "Gastronómico"
+msgstr "Gastronómico"
+
+msgid "Gestionar reserva"
+msgstr "Gestionar reserva"
+
+msgid "Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!"
+msgstr "Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!"
+
+msgid "Gracias por tu interés."
+msgstr "Gracias por tu interés."
+
+msgid "Gracias por tu mensaje."
+msgstr "Gracias por tu mensaje."
+
+msgid "Guardado en favoritos"
+msgstr "Guardado en favoritos"
+
+msgid "Guardar"
+msgstr "Guardar"
+
+msgid "Guardar cambios"
+msgstr "Guardar cambios"
+
+msgid "Guardar en favoritos"
+msgstr "Guardar en favoritos"
+
+msgid "Guardar resolución"
+msgstr "Guardar resolución"
+
+msgid "Habitaciones"
+msgstr "Habitaciones"
+
+msgid "Habitación"
+msgstr "Habitación"
+
+msgid "Has enviado demasiados mensajes. Inténtalo de nuevo más tarde."
+msgstr "Has enviado demasiados mensajes. Inténtalo de nuevo más tarde."
+
+msgid "Hasta"
+msgstr "Hasta"
+
+msgid "Hasta %d listados"
+msgstr "Hasta %d listados"
+
+msgid "Hay una disputa abierta para esta reserva. El equipo revisará el caso y la resolverá lo antes posible."
+msgstr "Hay una disputa abierta para esta reserva. El equipo revisará el caso y la resolverá lo antes posible."
+
+msgid "Hemos recibido tu pago correctamente. Tu reserva ha sido confirmada y los detalles están a continuación."
+msgstr "Hemos recibido tu pago correctamente. Tu reserva ha sido confirmada y los detalles están a continuación."
+
+msgid "Hemos registrado una liquidación de comisiones por <strong>%s</strong> (referencia #%d).<br><br>Los montos ya figuran como cobrados en tu panel de agencia. Si necesitas el comprobante, contacta a soporte."
+msgstr "Hemos registrado una liquidación de comisiones por <strong>%s</strong> (referencia #%d).<br><br>Los montos ya figuran como cobrados en tu panel de agencia. Si necesitas el comprobante, contacta a soporte."
+
+msgid "Hoteles, hostales, cabañas y más alojamientos verificados para tu viaje."
+msgstr "Hoteles, hostales, cabañas y más alojamientos verificados para tu viaje."
+
+msgid "Hoteles, villas, cabañas y apartamentos"
+msgstr "Hoteles, villas, cabañas y apartamentos"
+
+msgid "Hoteles, villas, tours y más — todo en un solo lugar"
+msgstr "Hoteles, villas, tours y más — todo en un solo lugar"
+
+msgid "Hubo un problema. Inténtalo de nuevo."
+msgstr "Hubo un problema. Inténtalo de nuevo."
+
+msgid "Huésped"
+msgstr "Huésped"
+
+msgid "Huésped de contacto"
+msgstr "Huésped de contacto"
+
+msgid "Huéspedes"
+msgstr "Huéspedes"
+
+msgid "Identificación (verificación de la agencia)"
+msgstr "Identificación (verificación de la agencia)"
+
+msgid "Ilimitados"
+msgstr "Ilimitados"
+
+msgid "Imprimir voucher"
+msgstr "Imprimir voucher"
+
+msgid "Inactivo"
+msgstr "Inactivo"
+
+msgid "Indica el nombre del representante legal o de la empresa."
+msgstr "Indica el nombre del representante legal o de la empresa."
+
+msgid "Indica el tipo y número de documento (cédula)."
+msgstr "Indica el tipo y número de documento (cédula)."
+
+msgid "Indica tu nombre y un correo electrónico válido para completar la reserva."
+msgstr "Indica tu nombre y un correo electrónico válido para completar la reserva."
+
+msgid "Ingresa un correo electrónico válido."
+msgstr "Ingresa un correo electrónico válido."
+
+msgid "Ingresa un correo válido."
+msgstr "Ingresa un correo válido."
+
+msgid "Inicia sesión como agencia para seleccionar un plan."
+msgstr "Inicia sesión como agencia para seleccionar un plan."
+
+msgid "Inicia sesión para ver tus favoritos."
+msgstr "Inicia sesión para ver tus favoritos."
+
+msgid "Inicio"
+msgstr "Inicio"
+
+msgid "Intentá con otros filtros o fechas diferentes."
+msgstr "Intentá con otros filtros o fechas diferentes."
+
+msgid "Jurídica"
+msgstr "Jurídica"
+
+msgid "KYC:"
+msgstr "KYC:"
+
+msgid "La agencia no acepta mensajes en este momento."
+msgstr "La agencia no acepta mensajes en este momento."
+
+msgid "La agencia no pudo aceptar tu solicitud de reserva. No se realizó ningún cobro. Contacta a la agencia o prueba con otras fechas."
+msgstr "La agencia no pudo aceptar tu solicitud de reserva. No se realizó ningún cobro. Contacta a la agencia o prueba con otras fechas."
+
+msgid "La agencia que ofrece este servicio aún está en revisión y no puede recibir reservas."
+msgstr "La agencia que ofrece este servicio aún está en revisión y no puede recibir reservas."
+
+msgid "La agencia revisará tu solicitud y te avisaremos por correo cuando sea aceptada. No se realizará ningún cobro hasta entonces."
+msgstr "La agencia revisará tu solicitud y te avisaremos por correo cuando sea aceptada. No se realizará ningún cobro hasta entonces."
+
+msgid "La disputa no está abierta."
+msgstr "La disputa no está abierta."
+
+msgid "La fecha de salida debe ser posterior a la de entrada."
+msgstr "La fecha de salida debe ser posterior a la de entrada."
+
+msgid "La reserva no existe."
+msgstr "La reserva no existe."
+
+msgid "La reserva ya comenzó."
+msgstr "La reserva ya comenzó."
+
+msgid "Lamentablemente tu reserva ha sido cancelada. Si realizaste un pago, el reembolso se procesará según la política de cancelación."
+msgstr "Lamentablemente tu reserva ha sido cancelada. Si realizaste un pago, el reembolso se procesará según la política de cancelación."
+
+msgid "Lead"
+msgstr "Lead"
+
+msgid "Leads de contacto"
+msgstr "Leads de contacto"
+
+msgid "Libro de comisiones (30 últimas)"
+msgstr "Libro de comisiones (30 últimas)"
+
+msgid "Limpiar"
+msgstr "Limpiar"
+
+msgid "Liquidaciones de comisiones"
+msgstr "Liquidaciones de comisiones"
+
+msgid "Liquidación de comisiones"
+msgstr "Liquidación de comisiones"
+
+msgid "Liquidación marcada como completada."
+msgstr "Liquidación marcada como completada."
+
+msgid "Liquidación registrada — %s"
+msgstr "Liquidación registrada — %s"
+
+msgid "Lista"
+msgstr "Lista"
+
+msgid "Listado"
+msgstr "Listado"
+
+msgid "Listados"
+msgstr "Listados"
+
+msgid "Listados en %s."
+msgstr "Listados en %s."
+
+msgid "Listados ilimitados"
+msgstr "Listados ilimitados"
+
+msgid "Llegada"
+msgstr "Llegada"
+
+msgid "Lugar"
+msgstr "Lugar"
+
+msgid "Mapa"
+msgstr "Mapa"
+
+msgid "Marcar pagada"
+msgstr "Marcar pagada"
+
+msgid "Mejor calificación"
+msgstr "Mejor calificación"
+
+msgid "Mejor valorados"
+msgstr "Mejor valorados"
+
+msgid "Mensaje"
+msgstr "Mensaje"
+
+msgid "Mensaje enviado. La agencia te contactará pronto."
+msgstr "Mensaje enviado. La agencia te contactará pronto."
+
+msgid "Mientras una disputa está abierta, la comisión de esa reserva queda retenida."
+msgstr "Mientras una disputa está abierta, la comisión de esa reserva queda retenida."
+
+msgid "Mientras una disputa está abierta, la comisión de la reserva queda retenida y no puede liquidarse. Al resolver a favor de la agencia la comisión se libera; en contra, se anula."
+msgstr "Mientras una disputa está abierta, la comisión de la reserva queda retenida y no puede liquidarse. Al resolver a favor de la agencia la comisión se libera; en contra, se anula."
+
+msgid "Mis reservas"
+msgstr "Mis reservas"
+
+msgid "Moderado"
+msgstr "Moderado"
+
+msgid "Modo de reserva"
+msgstr "Modo de reserva"
+
+msgid "Monto"
+msgstr "Monto"
+
+msgid "Motivo"
+msgstr "Motivo"
+
+msgid "Motivo de disputa no válido."
+msgstr "Motivo de disputa no válido."
+
+msgid "Motivo de la disputa"
+msgstr "Motivo de la disputa"
+
+msgid "Más recientes"
+msgstr "Más recientes"
+
+msgid "Más relevantes"
+msgstr "Más relevantes"
+
+msgid "Máx. adultos"
+msgstr "Máx. adultos"
+
+msgid "Máx. ocupación"
+msgstr "Máx. ocupación"
+
+msgid "Método"
+msgstr "Método"
+
+msgid "Naturaleza"
+msgstr "Naturaleza"
+
+msgid "No"
+msgstr "No"
+
+msgid "No destacado"
+msgstr "No destacado"
+
+msgid "No encontramos propiedades"
+msgstr "No encontramos propiedades"
+
+msgid "No encontramos resultados para tu búsqueda. Probá con otro destino, palabra clave o ajustá los filtros."
+msgstr "No encontramos resultados para tu búsqueda. Probá con otro destino, palabra clave o ajustá los filtros."
+
+msgid "No hay disponibilidad para las fechas seleccionadas."
+msgstr "No hay disponibilidad para las fechas seleccionadas."
+
+msgid "No hay disputas en tus reservas."
+msgstr "No hay disputas en tus reservas."
+
+msgid "No hay disputas."
+msgstr "No hay disputas."
+
+msgid "No puedes reservar para una fecha pasada. Revisa la fecha de inicio."
+msgstr "No puedes reservar para una fecha pasada. Revisa la fecha de inicio."
+
+msgid "No se encontraron servicios favoritos."
+msgstr "No se encontraron servicios favoritos."
+
+msgid "No se pudo enviar el mensaje."
+msgstr "No se pudo enviar el mensaje."
+
+msgid "No se pudo enviar la solicitud. Revise los datos e intente nuevamente."
+msgstr "No se pudo enviar la solicitud. Revise los datos e intente nuevamente."
+
+msgid "No se pudo guardar el mensaje."
+msgstr "No se pudo guardar el mensaje."
+
+msgid "No se pudo guardar la solicitud."
+msgstr "No se pudo guardar la solicitud."
+
+msgid "No tienes permiso para cancelar esta reserva."
+msgstr "No tienes permiso para cancelar esta reserva."
+
+msgid "No tienes permisos para acceder."
+msgstr "No tienes permisos para acceder."
+
+msgid "No verificada"
+msgstr "No verificada"
+
+msgid "Noches"
+msgstr "Noches"
+
+msgid "Nombre"
+msgstr "Nombre"
+
+msgid "Nombre *"
+msgstr "Nombre *"
+
+msgid "Nombre A-Z"
+msgstr "Nombre A-Z"
+
+msgid "Nombre del huésped principal"
+msgstr "Nombre del huésped principal"
+
+msgid "Nota"
+msgstr "Nota"
+
+msgid "Nota de resolución"
+msgstr "Nota de resolución"
+
+msgid "Notas"
+msgstr "Notas"
+
+msgid "Notificación interna"
+msgstr "Notificación interna"
+
+msgid "Nueva agencia pendiente de aprobación"
+msgstr "Nueva agencia pendiente de aprobación"
+
+msgid "Nueva habitación — nombre *"
+msgstr "Nueva habitación — nombre *"
+
+msgid "Nueva reserva recibida"
+msgstr "Nueva reserva recibida"
+
+msgid "Nueva solicitud de reserva"
+msgstr "Nueva solicitud de reserva"
+
+msgid "Nuevo alojamiento"
+msgstr "Nuevo alojamiento"
+
+msgid "Nuevo mensaje de contacto"
+msgstr "Nuevo mensaje de contacto"
+
+msgid "Nuevo:"
+msgstr "Nuevo:"
+
+msgid "Náutico"
+msgstr "Náutico"
+
+msgid "Número de documento (cédula)"
+msgstr "Número de documento (cédula)"
+
+msgid "Opcional"
+msgstr "Opcional"
+
+msgid "Operada por"
+msgstr "Operada por"
+
+msgid "Operado por"
+msgstr "Operado por"
+
+msgid "Ordenar"
+msgstr "Ordenar"
+
+msgid "Otro"
+msgstr "Otro"
+
+msgid "Pagada"
+msgstr "Pagada"
+
+msgid "Pagada el"
+msgstr "Pagada el"
+
+msgid "Pagado"
+msgstr "Pagado"
+
+msgid "Pagar ahora"
+msgstr "Pagar ahora"
+
+msgid "Pagar con PayPal"
+msgstr "Pagar con PayPal"
+
+msgid "Pago pendiente de confirmación"
+msgstr "Pago pendiente de confirmación"
+
+msgid "Pago recibido para la reserva %s"
+msgstr "Pago recibido para la reserva %s"
+
+msgid "Pago recibido. Tu listing está destacado."
+msgstr "Pago recibido. Tu listing está destacado."
+
+msgid "Pago recibido. Tu plan está activo."
+msgstr "Pago recibido. Tu plan está activo."
+
+msgid "Paquete"
+msgstr "Paquete"
+
+msgid "Paquetes"
+msgstr "Paquetes"
+
+msgid "Paquetes Turísticos"
+msgstr "Paquetes Turísticos"
+
+msgid "Paquetes turísticos todo incluido y experiencias combinadas."
+msgstr "Paquetes turísticos todo incluido y experiencias combinadas."
+
+msgid "Para pagar tu reserva, verifica el correo electrónico con el que la realizaste."
+msgstr "Para pagar tu reserva, verifica el correo electrónico con el que la realizaste."
+
+msgid "Para persona jurídica indica la cédula jurídica."
+msgstr "Para persona jurídica indica la cédula jurídica."
+
+msgid "Parcial"
+msgstr "Parcial"
+
+msgid "Paseo en bote"
+msgstr "Paseo en bote"
+
+msgid "Paseos en barco, lanchas y actividades acuáticas con operadores verificados."
+msgstr "Paseos en barco, lanchas y actividades acuáticas con operadores verificados."
+
+msgid "País"
+msgstr "País"
+
+msgid "Pendiente"
+msgstr "Pendiente"
+
+msgid "Pendiente de pago"
+msgstr "Pendiente de pago"
+
+msgid "Pendientes"
+msgstr "Pendientes"
+
+msgid "Pensando…"
+msgstr "Pensando…"
+
+msgid "Plan"
+msgstr "Plan"
+
+msgid "Plan actual"
+msgstr "Plan actual"
+
+msgid "Playa"
+msgstr "Playa"
+
+msgid "Podés cancelar desde tu panel de reservas según la política de cancelación del operador. Las reservas pendientes se cancelan automáticamente tras un tiempo sin confirmación."
+msgstr "Podés cancelar desde tu panel de reservas según la política de cancelación del operador. Las reservas pendientes se cancelan automáticamente tras un tiempo sin confirmación."
+
+msgid "Por cobrar"
+msgstr "Por cobrar"
+
+msgid "Por favor ingresa tu correo."
+msgstr "Por favor ingresa tu correo."
+
+msgid "Por favor ingresa tu nombre."
+msgstr "Por favor ingresa tu nombre."
+
+msgid "Precio"
+msgstr "Precio"
+
+msgid "Precio medio día"
+msgstr "Precio medio día"
+
+msgid "Precio máx."
+msgstr "Precio máx."
+
+msgid "Precio mín."
+msgstr "Precio mín."
+
+msgid "Precio por adulto"
+msgstr "Precio por adulto"
+
+msgid "Precio por día"
+msgstr "Precio por día"
+
+msgid "Precio por noche"
+msgstr "Precio por noche"
+
+msgid "Precio total"
+msgstr "Precio total"
+
+msgid "Precio/noche ($) *"
+msgstr "Precio/noche ($) *"
+
+msgid "Precio: mayor a menor"
+msgstr "Precio: mayor a menor"
+
+msgid "Precio: menor a mayor"
+msgstr "Precio: menor a mayor"
+
+msgid "Presenta este voucher el día del check-in. Cualquier cambio debe gestionarse con la agencia."
+msgstr "Presenta este voucher el día del check-in. Cualquier cambio debe gestionarse con la agencia."
+
+msgid "Privacidad"
+msgstr "Privacidad"
+
+msgid "Promoción"
+msgstr "Promoción"
+
+msgid "Provincia"
+msgstr "Provincia"
+
+msgid "Publicidad engañosa"
+msgstr "Publicidad engañosa"
+
+msgid "Puedes preparar tus listados, pero serán visibles para los viajeros solo cuando el administrador apruebe tu agencia."
+msgstr "Puedes preparar tus listados, pero serán visibles para los viajeros solo cuando el administrador apruebe tu agencia."
+
+msgid "Punto de encuentro"
+msgstr "Punto de encuentro"
+
+msgid "Quitado de favoritos"
+msgstr "Quitado de favoritos"
+
+msgid "Quitar"
+msgstr "Quitar"
+
+msgid "Quitar de favoritos"
+msgstr "Quitar de favoritos"
+
+msgid "Rechazada"
+msgstr "Rechazada"
+
+msgid "Rechazar"
+msgstr "Rechazar"
+
+msgid "Rechazar esta agencia y ocultarla del sitio?"
+msgstr "Rechazar esta agencia y ocultarla del sitio?"
+
+msgid "Recibiste un mensaje de <strong>%s</strong>."
+msgstr "Recibiste un mensaje de <strong>%s</strong>."
+
+msgid "Recogida"
+msgstr "Recogida"
+
+msgid "Reembolsado"
+msgstr "Reembolsado"
+
+msgid "Registra tu agencia"
+msgstr "Registra tu agencia"
+
+msgid "Relax"
+msgstr "Relax"
+
+msgid "Renta de Autos"
+msgstr "Renta de Autos"
+
+msgid "Representante legal / razón social"
+msgstr "Representante legal / razón social"
+
+msgid "Reserva"
+msgstr "Reserva"
+
+msgid "Reserva %s recibida"
+msgstr "Reserva %s recibida"
+
+msgid "Reserva directa (pago inmediato)"
+msgstr "Reserva directa (pago inmediato)"
+
+msgid "Reserva inválida."
+msgstr "Reserva inválida."
+
+msgid "Reserva no encontrada."
+msgstr "Reserva no encontrada."
+
+msgid "Reseña verificada"
+msgstr "Reseña verificada"
+
+msgid "Resolver disputa"
+msgstr "Resolver disputa"
+
+msgid "Resuelta a favor de la agencia"
+msgstr "Resuelta a favor de la agencia"
+
+msgid "Resuelta en contra de la agencia"
+msgstr "Resuelta en contra de la agencia"
+
+msgid "Resueltas"
+msgstr "Resueltas"
+
+msgid "Resultado de la disputa no válido."
+msgstr "Resultado de la disputa no válido."
+
+msgid "Retirada"
+msgstr "Retirada"
+
+msgid "Retirar disputa"
+msgstr "Retirar disputa"
+
+msgid "Ruta"
+msgstr "Ruta"
+
+msgid "Salida"
+msgstr "Salida"
+
+msgid "Se confirmó el pago de tu promoción para <strong>%s</strong>. El listado estará destacado hasta el <strong>%s</strong> (monto: %s)."
+msgstr "Se confirmó el pago de tu promoción para <strong>%s</strong>. El listado estará destacado hasta el <strong>%s</strong> (monto: %s)."
+
+msgid "Se confirmó el pago de tu suscripción al plan <strong>%s</strong>. Tu plan es válido hasta el <strong>%s</strong>. Gracias por confiar en la plataforma."
+msgstr "Se confirmó el pago de tu suscripción al plan <strong>%s</strong>. Tu plan es válido hasta el <strong>%s</strong>. Gracias por confiar en la plataforma."
+
+msgid "Se ha registrado una nueva reserva (<strong>%s</strong>) por un total de <strong>%s</strong>. Revisa el panel para gestionarla."
+msgstr "Se ha registrado una nueva reserva (<strong>%s</strong>) por un total de <strong>%s</strong>. Revisa el panel para gestionarla."
+
+msgid "Selecciona al menos un derecho."
+msgstr "Selecciona al menos un derecho."
+
+msgid "Seleccionado"
+msgstr "Seleccionado"
+
+msgid "Seleccionar plan"
+msgstr "Seleccionar plan"
+
+msgid "Seleccionar tipo…"
+msgstr "Seleccionar tipo…"
+
+msgid "Senderismo"
+msgstr "Senderismo"
+
+msgid "Servicio"
+msgstr "Servicio"
+
+msgid "Servicio de interés: <strong>%s</strong>"
+msgstr "Servicio de interés: <strong>%s</strong>"
+
+msgid "Servicios"
+msgstr "Servicios"
+
+msgid "Si el servicio no coincidió con lo prometido, cuéntanos qué pasó. Revisaremos tu reserva y ayudaremos a resolverlo."
+msgstr "Si el servicio no coincidió con lo prometido, cuéntanos qué pasó. Revisaremos tu reserva y ayudaremos a resolverlo."
+
+msgid "Sin reserva vinculada"
+msgstr "Sin reserva vinculada"
+
+msgid "Solicitar información"
+msgstr "Solicitar información"
+
+msgid "Solicitar reserva"
+msgstr "Solicitar reserva"
+
+msgid "Solicitud de destacado enviada. Un administrador confirmará el pago para activarlo."
+msgstr "Solicitud de destacado enviada. Un administrador confirmará el pago para activarlo."
+
+msgid "Solicitud de reserva %s recibida"
+msgstr "Solicitud de reserva %s recibida"
+
+msgid "Solicitud de reserva (la agencia confirma antes del pago)"
+msgstr "Solicitud de reserva (la agencia confirma antes del pago)"
+
+msgid "Solicitud enviada. La agencia la revisará y te avisaremos."
+msgstr "Solicitud enviada. La agencia la revisará y te avisaremos."
+
+msgid "Solicitud enviada. La revisaremos y le responderemos a la mayor brevedad."
+msgstr "Solicitud enviada. La revisaremos y le responderemos a la mayor brevedad."
+
+msgid "Solicitud rechazada"
+msgstr "Solicitud rechazada"
+
+msgid "Solicitudes"
+msgstr "Solicitudes"
+
+msgid "Solo puedes Aceptar (pasa a pendiente de pago) o Rechazar una solicitud."
+msgstr "Solo puedes Aceptar (pasa a pendiente de pago) o Rechazar una solicitud."
+
+msgid "Solo puedes dejar reseñas después de una reserva confirmada o completada."
+msgstr "Solo puedes dejar reseñas después de una reserva confirmada o completada."
+
+msgid "Solo puedes disputar una reserva confirmada y pagada."
+msgstr "Solo puedes disputar una reserva confirmada y pagada."
+
+msgid "Suscripción"
+msgstr "Suscripción"
+
+msgid "Sí"
+msgstr "Sí"
+
+msgid "Tamaño"
+msgstr "Tamaño"
+
+msgid "Tarifa de servicio"
+msgstr "Tarifa de servicio"
+
+msgid "Tasa de conversión"
+msgstr "Tasa de conversión"
+
+msgid "Teléfono"
+msgstr "Teléfono"
+
+msgid "Teléfono: "
+msgstr "Teléfono: "
+
+msgid "Tienes solicitudes de destacado pendientes de confirmación de pago."
+msgstr "Tienes solicitudes de destacado pendientes de confirmación de pago."
+
+msgid "Tienes una nueva solicitud de reserva (<strong>%s</strong>) por un total de <strong>%s</strong>. Revisa el panel para aceptarla o rechazarla."
+msgstr "Tienes una nueva solicitud de reserva (<strong>%s</strong>) por un total de <strong>%s</strong>. Revisa el panel para aceptarla o rechazarla."
+
+msgid "Tienes una suscripción pendiente de confirmación de pago."
+msgstr "Tienes una suscripción pendiente de confirmación de pago."
+
+msgid "Tipo"
+msgstr "Tipo"
+
+msgid "Tipo de documento"
+msgstr "Tipo de documento"
+
+msgid "Tipo de tour"
+msgstr "Tipo de tour"
+
+msgid "Titular"
+msgstr "Titular"
+
+msgid "Todas"
+msgstr "Todas"
+
+msgid "Todo está listo. Tu estancia ha sido confirmada por la agencia."
+msgstr "Todo está listo. Tu estancia ha sido confirmada por la agencia."
+
+msgid "Todos"
+msgstr "Todos"
+
+msgid "Todos los servicios"
+msgstr "Todos los servicios"
+
+msgid "Total"
+msgstr "Total"
+
+msgid "Total:"
+msgstr "Total:"
+
+msgid "Total: "
+msgstr "Total: "
+
+msgid "Total: %1$d · Pendientes: %2$d · Verificadas: %3$d · Activas: %4$d · Comisiones acumuladas: %5$s"
+msgstr "Total: %1$d · Pendientes: %2$d · Verificadas: %3$d · Activas: %4$d · Comisiones acumuladas: %5$s"
+
+msgid "Tours y Excursiones"
+msgstr "Tours y Excursiones"
+
+msgid "Tours y excursiones guiadas, privadas y de día completo con operadores verificados."
+msgstr "Tours y excursiones guiadas, privadas y de día completo con operadores verificados."
+
+msgid "Transmisión"
+msgstr "Transmisión"
+
+msgid "Transporte"
+msgstr "Transporte"
+
+msgid "Transportes"
+msgstr "Transportes"
+
+msgid "Traslados y transportación"
+msgstr "Traslados y transportación"
+
+msgid "Traslados y transporte turístico entre destinos con operadores verificados."
+msgstr "Traslados y transporte turístico entre destinos con operadores verificados."
+
+msgid "Tu agencia está en revisión"
+msgstr "Tu agencia está en revisión"
+
+msgid "Tu agencia está en revisión. Te avisaremos por correo cuando sea aprobada."
+msgstr "Tu agencia está en revisión. Te avisaremos por correo cuando sea aprobada."
+
+msgid "Tu agencia no fue aprobada"
+msgstr "Tu agencia no fue aprobada"
+
+msgid "Tu agencia usa el plan Gratis. Elige un plan para desbloquear más listados y una comisión menor."
+msgstr "Tu agencia usa el plan Gratis. Elige un plan para desbloquear más listados y una comisión menor."
+
+msgid "Tu listado ahora es destacado"
+msgstr "Tu listado ahora es destacado"
+
+msgid "Tu nombre"
+msgstr "Tu nombre"
+
+msgid "Tu plan actual no incluye listados destacados. Mejora tu plan para destacar tus servicios en la plataforma."
+msgstr "Tu plan actual no incluye listados destacados. Mejora tu plan para destacar tus servicios en la plataforma."
+
+msgid "Tu plan está activo"
+msgstr "Tu plan está activo"
+
+msgid "Tu reserva ha sido cancelada"
+msgstr "Tu reserva ha sido cancelada"
+
+msgid "Tu reserva ha sido cancelada."
+msgstr "Tu reserva ha sido cancelada."
+
+msgid "Tu reserva ha sido reembolsada"
+msgstr "Tu reserva ha sido reembolsada"
+
+msgid "Tu reserva se ha completado"
+msgstr "Tu reserva se ha completado"
+
+msgid "Tu solicitud de reserva está pendiente de confirmación de la agencia. Te avisaremos por correo cuando sea aceptada para que completes el pago."
+msgstr "Tu solicitud de reserva está pendiente de confirmación de la agencia. Te avisaremos por correo cuando sea aceptada para que completes el pago."
+
+msgid "Tus datos de identificación solo los revisa el administrador para aprobar tu agencia."
+msgstr "Tus datos de identificación solo los revisa el administrador para aprobar tu agencia."
+
+msgid "Ubicación"
+msgstr "Ubicación"
+
+msgid "Vehículo"
+msgstr "Vehículo"
+
+msgid "Vehículos para tu viaje"
+msgstr "Vehículos para tu viaje"
+
+msgid "Ver detalle y voucher"
+msgstr "Ver detalle y voucher"
+
+msgid "Ver detalles"
+msgstr "Ver detalles"
+
+msgid "Ver lista"
+msgstr "Ver lista"
+
+msgid "Ver planes"
+msgstr "Ver planes"
+
+msgid "Ver todos"
+msgstr "Ver todos"
+
+msgid "Ver voucher"
+msgstr "Ver voucher"
+
+msgid "Verifica el correo con el que hiciste la reserva para ver tu voucher."
+msgstr "Verifica el correo con el que hiciste la reserva para ver tu voucher."
+
+msgid "Verificada"
+msgstr "Verificada"
+
+msgid "Versión %s"
+msgstr "Versión %s"
+
+msgid "Vista"
+msgstr "Vista"
+
+msgid "Volver"
+msgstr "Volver"
+
+msgid "Voucher de Reserva"
+msgstr "Voucher de Reserva"
+
+msgid "Válido hasta"
+msgstr "Válido hasta"
+
+msgid "Ya existe una disputa abierta para esta reserva."
+msgstr "Ya existe una disputa abierta para esta reserva."
+
+msgid "[Aprobar agencia] %s"
+msgstr "[Aprobar agencia] %s"
+
+msgid "[Destacado activado] Tu listado está promocionado"
+msgstr "[Destacado activado] Tu listado está promocionado"
+
+msgid "[Nueva reserva] %s — %s"
+msgstr "[Nueva reserva] %s — %s"
+
+msgid "[Nueva solicitud] %s — %s"
+msgstr "[Nueva solicitud] %s — %s"
+
+msgid "[Nuevo lead] Mensaje de contacto en tu agencia"
+msgstr "[Nuevo lead] Mensaje de contacto en tu agencia"
+
+msgid "[Plan activado] %s"
+msgstr "[Plan activado] %s"
+
+msgid "adultos"
+msgstr "adultos"
+
+msgid "dashboard"
+msgstr "dashboard"
+
+msgid "desde"
+msgstr "desde"
+
+msgid "e.g. Habitación Doble Estándar"
+msgstr "e.g. Habitación Doble Estándar"
+
+msgid "estrellas"
+msgstr "estrellas"
+
+msgid "mes(es)"
+msgstr "mes(es)"
+
+msgid "niños"
+msgstr "niños"
+
+msgid "noches"
+msgstr "noches"
+
+msgid "propiedades en el mapa"
+msgstr "propiedades en el mapa"
+
+msgid "propiedades encontradas"
+msgstr "propiedades encontradas"
+
+msgid "reseña"
+msgstr "reseña"
+
+msgid "reseñas"
+msgstr "reseñas"
+
+msgid "resultados"
+msgstr "resultados"
+
+msgid "solicitudes"
+msgstr "solicitudes"
+
+msgid "su listado"
+msgstr "su listado"
+
+msgid "total"
+msgstr "total"
+
+msgid "tu plan"
+msgstr "tu plan"
+
+msgid "¡Gracias %s! Hemos recibido tu solicitud."
+msgstr "¡Gracias %s! Hemos recibido tu solicitud."
+
+msgid "¡Gracias %s! Tu reserva ha sido recibida."
+msgstr "¡Gracias %s! Tu reserva ha sido recibida."
+
+msgid "¡Hola! Soy el asistente de viajes. Pregunta por alojamientos, tours, bonos o agencias, o toca una sugerencia."
+msgstr "¡Hola! Soy el asistente de viajes. Pregunta por alojamientos, tours, bonos o agencias, o toca una sugerencia."
+
+msgid "¡Pago confirmado!"
+msgstr "¡Pago confirmado!"
+
+msgid "¡Reseña enviada! Pendiente de aprobación."
+msgstr "¡Reseña enviada! Pendiente de aprobación."
+
+msgid "¡Tu agencia fue aprobada!"
+msgstr "¡Tu agencia fue aprobada!"
+
+msgid "¡Tu reserva ha sido confirmada!"
+msgstr "¡Tu reserva ha sido confirmada!"
+
+msgid "¡Tu solicitud fue aceptada!"
+msgstr "¡Tu solicitud fue aceptada!"
+
+msgid "¿A dónde vas?"
+msgstr "¿A dónde vas?"
+
+msgid "¿Cancelar la reserva "
+msgstr "¿Cancelar la reserva "
+
+msgid "¿Cuánto cuesta?"
+msgstr "¿Cuánto cuesta?"
+
+msgid "¿Cómo pago?"
+msgstr "¿Cómo pago?"
+
+msgid "¿Cómo reservar %s?"
+msgstr "¿Cómo reservar %s?"
+
+msgid "¿Eres agencia de viajes?"
+msgstr "¿Eres agencia de viajes?"
+
+msgid "¿Puedo cancelar o modificar mi reserva?"
+msgstr "¿Puedo cancelar o modificar mi reserva?"
+
+msgid "¿Quién opera este servicio?"
+msgstr "¿Quién opera este servicio?"
+
+msgid "Únete a nuestra plataforma y llega a miles de viajeros"
+msgstr "Únete a nuestra plataforma y llega a miles de viajeros"
+
+msgid "—"
+msgstr "—"
+
+msgid "✓ Reseña enviada"
+msgstr "✓ Reseña enviada"

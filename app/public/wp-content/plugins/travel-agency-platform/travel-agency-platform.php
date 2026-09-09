@@ -3,7 +3,7 @@
  * Plugin Name: Travel Agency Platform
  * Plugin URI: https://ivanchodev.com
  * Description: Multi-agency travel platform B2B & B2C. Manage accommodations, tours, transports, car rentals, boats and packages.
- * Version: 1.4.0
+ * Version: 1.4.6
  * Author: IvanchoDev
  * Text Domain: travel-agency-platform
  * Domain Path: /languages
