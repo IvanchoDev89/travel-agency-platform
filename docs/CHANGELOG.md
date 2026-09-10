@@ -10,6 +10,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ### Added
 
+- **Fase 9 — Landing (T1):**
+  - New `front-page.php`: modern, light, original, bilingual landing (ES default, EN via `?lang=en`; domain `travel-agency-platform`), mobile-first, SSL-safe.
+  - Sections with graceful fallbacks: hero + dual search-card (destination/check-in/check-out/guests, keeps `.tap-hero-bg` parallax + `tap-hs-*` autosuggest), stats strip (services/agencies/tours/countries), "explore by interest" chips (real `tap_tour_type` terms → filtered `search-results`), selected experiences (real published services, E2E fixtures filtered out; image or styled placeholder; per-type price via `TAP_API::get_price_key` + `TAP_Currency::fmt0`; star rating via `get_rating_stats`), 3-step itinerary CTA, verified agencies (fixture-free, initials avatar fallback), traveler reviews (approved `wp_tap_reviews` only), articles, agency CTA.
+  - All landing CSS scoped `.tap-landing-*` in the theme `style.css` (tokens `--tap-primary`/`--tap-secondary`), composed with existing plugin `public.css`; no section depends on JS to be visible.
+  - i18n: 46 new strings authored in both catalogs (44 landing + 2 legacy email/booking msgs), `.po` de-duplicated, `.mo` recompiled; full battery **29/29 suites / 725 asserts PASS**.
+
 - **Fase 8 — full i18n coverage + QA (v1.4.6)**:
   - Closed every translation gap across both catalogs: re-extracted all 1,349 runtime strings from the plugin (domain-matched), kept the ES→EN (`en_US.po`) and EN→ES (`es_ES.po`) catalogs fully translated — 492 brand-new bilingual strings authored (placeholders `%s`/`%1$s` and inline HTML preserved), plus 329 English-identity entries in `en_US` and 527 Spanish-identity entries in `es_ES`; every string in the plugin now exists in both catalogs (0 missing).
   - `.po` books rewritten with correct quote/backslash escaping and de-duplicated by unescaped `msgid` (first definition wins) so `msgfmt --check` compiles clean; both `.mo` recompiled and verified at runtime in ES and EN modes (`TAP_Localization::set_lang`).

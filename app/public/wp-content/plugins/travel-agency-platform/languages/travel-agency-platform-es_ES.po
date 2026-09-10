@@ -4587,3 +4587,138 @@ msgstr "—"
 
 msgid "✓ Reseña enviada"
 msgstr "✓ Reseña enviada"
+
+msgid "/día"
+msgstr "/día"
+
+msgid "/persona"
+msgstr "/persona"
+
+msgid "/trayecto"
+msgstr "/trayecto"
+
+msgid "Agencias verificadas en la plataforma"
+msgstr "Agencias verificadas en la plataforma"
+
+msgid "Armá tu plan día a día con tours y alojamientos reales."
+msgstr "Armá tu plan día a día con tours y alojamientos reales."
+
+msgid "Aventura, naturaleza, gastronomía… cada interés abre una forma distinta de viajar por Costa Rica."
+msgstr "Aventura, naturaleza, gastronomía… cada interés abre una forma distinta de viajar por Costa Rica."
+
+msgid "Comenzar mi itinerario"
+msgstr "Comenzar mi itinerario"
+
+msgid "Conocé más"
+msgstr "Conocé más"
+
+msgid "Correo:"
+msgstr "Correo:"
+
+msgid "Costa Rica, de verdad"
+msgstr "Costa Rica, de verdad"
+
+msgid "Cotización"
+msgstr "Cotización"
+
+msgid "Descubrí lo que tu viaje puede ser"
+msgstr "Descubrí lo que tu viaje puede ser"
+
+msgid "Destinos"
+msgstr "Destinos"
+
+msgid "Destinos que inspiran"
+msgstr "Destinos que inspiran"
+
+msgid "Diseñá tu propio viaje en 3 pasos"
+msgstr "Diseñá tu propio viaje en 3 pasos"
+
+msgid "Elegí tus intereses, destinos y presupuesto."
+msgstr "Elegí tus intereses, destinos y presupuesto."
+
+msgid "Empezá por lo que te apasiona"
+msgstr "Empezá por lo que te apasiona"
+
+msgid "Experiencias de quienes ya viajaron"
+msgstr "Experiencias de quienes ya viajaron"
+
+msgid "Experiencias seleccionadas"
+msgstr "Experiencias seleccionadas"
+
+msgid "Explorá por interés"
+msgstr "Explorá por interés"
+
+msgid "Gente local, servicios reales"
+msgstr "Gente local, servicios reales"
+
+msgid "Hecho para viajeros reales"
+msgstr "Hecho para viajeros reales"
+
+msgid "Ideas e inspiración"
+msgstr "Ideas e inspiración"
+
+msgid "Intereses"
+msgstr "Intereses"
+
+msgid "Lo que dicen los viajeros"
+msgstr "Lo que dicen los viajeros"
+
+msgid "Pago seguro"
+msgstr "Pago seguro"
+
+msgid "Pedí tu cotización y reservá directo con la agencia."
+msgstr "Pedí tu cotización y reservá directo con la agencia."
+
+msgid "Registrar mi agencia"
+msgstr "Registrar mi agencia"
+
+msgid "Renta de auto"
+msgstr "Renta de auto"
+
+msgid "Servicios publicados por agencias verificadas, con precio claro y reserva directa."
+msgstr "Servicios publicados por agencias verificadas, con precio claro y reserva directa."
+
+msgid "Solo agencias verificadas"
+msgstr "Solo agencias verificadas"
+
+msgid "Soporte local"
+msgstr "Soporte local"
+
+msgid "Sumá tus servicios a la plataforma y llegá a viajeros que buscan experiencias reales."
+msgstr "Sumá tus servicios a la plataforma y llegá a viajeros que buscan experiencias reales."
+
+msgid "Teléfono:"
+msgstr "Teléfono:"
+
+msgid "Tours, alojamientos y experiencias de agencias locales verificadas. Elegí tus intereses y armá tu propio itinerario."
+msgstr "Tours, alojamientos y experiencias de agencias locales verificadas. Elegí tus intereses y armá tu propio itinerario."
+
+msgid "Tu itinerario, tu forma de viajar"
+msgstr "Tu itinerario, tu forma de viajar"
+
+msgid "Ver experiencia"
+msgstr "Ver experiencia"
+
+msgid "Ver todas las experiencias"
+msgstr "Ver todas las experiencias"
+
+msgid "Ver todo"
+msgstr "Ver todo"
+
+msgid "agencias locales"
+msgstr "agencias locales"
+
+msgid "contacto sin intermediarios"
+msgstr "contacto sin intermediarios"
+
+msgid "servicios listados"
+msgstr "servicios listados"
+
+msgid "tours y experiencias"
+msgstr "tours y experiencias"
+
+msgid "¿A dónde querés ir?"
+msgstr "¿A dónde querés ir?"
+
+msgid "¿Tenés una agencia de viajes?"
+msgstr "¿Tenés una agencia de viajes?"

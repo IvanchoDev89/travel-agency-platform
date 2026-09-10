@@ -4627,3 +4627,138 @@ msgstr "results found"
 
 msgid "starting"
 msgstr "starting"
+
+msgid "/día"
+msgstr "/day"
+
+msgid "/persona"
+msgstr "/person"
+
+msgid "/trayecto"
+msgstr "/ride"
+
+msgid "Agencias verificadas en la plataforma"
+msgstr "Verified agencies on the platform"
+
+msgid "Armá tu plan día a día con tours y alojamientos reales."
+msgstr "Build your day-by-day plan with real tours and stays."
+
+msgid "Aventura, naturaleza, gastronomía… cada interés abre una forma distinta de viajar por Costa Rica."
+msgstr "Adventure, nature, food… every interest opens a different way to travel Costa Rica."
+
+msgid "Comenzar mi itinerario"
+msgstr "Start my itinerary"
+
+msgid "Conocé más"
+msgstr "Learn more"
+
+msgid "Correo:"
+msgstr "Email:"
+
+msgid "Costa Rica, de verdad"
+msgstr "The real Costa Rica"
+
+msgid "Cotización"
+msgstr "Quote"
+
+msgid "Descubrí lo que tu viaje puede ser"
+msgstr "Discover what your trip could be"
+
+msgid "Destinos"
+msgstr "Destinations"
+
+msgid "Destinos que inspiran"
+msgstr "Destinations that inspire"
+
+msgid "Diseñá tu propio viaje en 3 pasos"
+msgstr "Design your own trip in 3 steps"
+
+msgid "Elegí tus intereses, destinos y presupuesto."
+msgstr "Pick your interests, destinations and budget."
+
+msgid "Empezá por lo que te apasiona"
+msgstr "Start with what you love"
+
+msgid "Experiencias de quienes ya viajaron"
+msgstr "Stories from travelers"
+
+msgid "Experiencias seleccionadas"
+msgstr "Selected experiences"
+
+msgid "Explorá por interés"
+msgstr "Explore by interest"
+
+msgid "Gente local, servicios reales"
+msgstr "Local people, real services"
+
+msgid "Hecho para viajeros reales"
+msgstr "Made for real travelers"
+
+msgid "Ideas e inspiración"
+msgstr "Ideas & inspiration"
+
+msgid "Intereses"
+msgstr "Interests"
+
+msgid "Lo que dicen los viajeros"
+msgstr "What travelers say"
+
+msgid "Pago seguro"
+msgstr "Secure payment"
+
+msgid "Pedí tu cotización y reservá directo con la agencia."
+msgstr "Request your quote and book directly with the agency."
+
+msgid "Registrar mi agencia"
+msgstr "Register my agency"
+
+msgid "Renta de auto"
+msgstr "Car rental"
+
+msgid "Servicios publicados por agencias verificadas, con precio claro y reserva directa."
+msgstr "Services listed by verified agencies, with clear pricing and direct booking."
+
+msgid "Solo agencias verificadas"
+msgstr "Only verified agencies"
+
+msgid "Soporte local"
+msgstr "Local support"
+
+msgid "Sumá tus servicios a la plataforma y llegá a viajeros que buscan experiencias reales."
+msgstr "List your services on the platform and reach travelers looking for real experiences."
+
+msgid "Teléfono:"
+msgstr "Phone:"
+
+msgid "Tours, alojamientos y experiencias de agencias locales verificadas. Elegí tus intereses y armá tu propio itinerario."
+msgstr "Tours, stays and experiences from verified local agencies. Pick your interests and build your own itinerary."
+
+msgid "Tu itinerario, tu forma de viajar"
+msgstr "Your itinerary, your way to travel"
+
+msgid "Ver experiencia"
+msgstr "View experience"
+
+msgid "Ver todas las experiencias"
+msgstr "View all experiences"
+
+msgid "Ver todo"
+msgstr "View all"
+
+msgid "agencias locales"
+msgstr "local agencies"
+
+msgid "contacto sin intermediarios"
+msgstr "direct contact"
+
+msgid "servicios listados"
+msgstr "services listed"
+
+msgid "tours y experiencias"
+msgstr "tours & experiences"
+
+msgid "¿A dónde querés ir?"
+msgstr "Where would you like to go?"
+
+msgid "¿Tenés una agencia de viajes?"
+msgstr "Do you have a travel agency?"
