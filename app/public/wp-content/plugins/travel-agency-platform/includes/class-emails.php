@@ -29,6 +29,14 @@ class TAP_Emails {
         add_action('tap_promo_active', [__CLASS__, 'on_promo_active'], 10, 4);
         add_action('tap_commission_paid', [__CLASS__, 'on_commission_paid'], 10, 2);
         add_action('tap_lead_created', [__CLASS__, 'on_lead_created'], 10, 1);
+        add_action('tap_payment_failed', [__CLASS__, 'on_payment_failed'], 10, 3);
+        add_action('tap_payment_refunded', [__CLASS__, 'on_payment_refunded'], 10, 3);
+        add_action('tap_dispute_opened', [__CLASS__, 'on_dispute_opened'], 10, 3);
+        add_action('tap_dispute_resolved', [__CLASS__, 'on_dispute_resolved'], 10, 3);
+        add_action('tap_payout_completed', [__CLASS__, 'on_payout_changed'], 10, 1);
+        add_action('tap_payout_cancelled', [__CLASS__, 'on_payout_changed'], 10, 1);
+        add_action('tap_subscription_requested', [__CLASS__, 'on_subscription_requested'], 10, 2);
+        add_action('tap_promo_requested', [__CLASS__, 'on_promo_requested'], 10, 3);
         add_filter('wp_mail_content_type', [__CLASS__, 'set_html_content_type']);
         add_action('wp_mail_failed', function ($error) {
             error_log('TAP email failed: ' . $error->get_error_message());
@@ -187,6 +195,21 @@ class TAP_Emails {
             __('[Nuevo lead] Mensaje de contacto en tu agencia', 'travel-agency-platform'),
             self::info_template($headline, $intro)
         );
+
+        if ('1' === (string) get_option('tap_auto_lead_ack', '1') && is_email($lead->email)) {
+            self::send(
+                $lead->email,
+                __('Recibimos tu mensaje', 'travel-agency-platform'),
+                self::info_template(
+                    __('Gracias por contactarnos', 'travel-agency-platform'),
+                    sprintf(
+                        __('Recibimos tu mensaje sobre <strong>%s</strong>. La agencia te responderá lo antes posible.<br><br>Mientras tanto, puedes seguir explorando nuestras <a href="%s" style="color:#0d9488;">experiencias y alojamientos</a>.', 'travel-agency-platform'),
+                        esc_html($service_name ?: __('nuestros servicios', 'travel-agency-platform')),
+                        esc_url(home_url('/search-results/'))
+                    )
+                )
+            );
+        }
     }
 
     private static function info_template($headline, $intro) {
@@ -416,6 +439,288 @@ class TAP_Emails {
     }
 
     /* ===== Helpers ===== */
+
+    /* =========================================================
+     * Orphaned-hook notifications (Fase 4 / T4)
+     * ========================================================= */
+
+    public static function on_payment_failed($booking_id, $gateway = '', $txn = '') {
+        $booking = TAP_Booking::get_booking($booking_id);
+        if (!$booking) {
+            return;
+        }
+        list($email, $name) = self::client_contact($booking);
+        if ($email) {
+            self::send(
+                $email,
+                sprintf(__('El pago de la reserva %s no pudo completarse', 'travel-agency-platform'), $booking->booking_code),
+                self::info_template(
+                    __('No pudimos procesar tu pago', 'travel-agency-platform'),
+                    sprintf(
+                        __('Tu reserva <strong>%s</strong> sigue activa, pero su pago falló. Puedes intentarlo de nuevo desde el <a href="%s" style="color:#0d9488;">checkout</a>.', 'travel-agency-platform'),
+                        esc_html($booking->booking_code),
+                        esc_url(home_url('/checkout?code=' . rawurlencode($booking->booking_code)))
+                    )
+                )
+            );
+        }
+        $admin = get_option('admin_email');
+        if (is_email($admin)) {
+            self::send(
+                $admin,
+                sprintf(__('[Pago fallido] Reserva %s', 'travel-agency-platform'), $booking->booking_code),
+                self::info_template(
+                    __('Fallo de pago', 'travel-agency-platform'),
+                    sprintf(
+                        __('El pago de la reserva <strong>%s</strong> (%s) falló y requiere revisión.', 'travel-agency-platform'),
+                        esc_html($booking->booking_code),
+                        esc_html(self::get_service_name($booking))
+                    )
+                )
+            );
+        }
+    }
+
+    public static function on_payment_refunded($booking_id, $gateway = '', $txn = '') {
+        $booking = TAP_Booking::get_booking($booking_id);
+        if (!$booking) {
+            return;
+        }
+        list($email, $name) = self::client_contact($booking);
+        if (!$email) {
+            return;
+        }
+        self::send(
+            $email,
+            sprintf(__('Reembolso de la reserva %s', 'travel-agency-platform'), $booking->booking_code),
+            self::info_template(
+                __('Reembolso procesado', 'travel-agency-platform'),
+                sprintf(
+                    __('Hemos reembolsado <strong>%s</strong> por la reserva <strong>%s</strong>. El dinero regresará a tu cuenta en los próximos días.', 'travel-agency-platform'),
+                    esc_html(self::money($booking->total_amount)),
+                    esc_html($booking->booking_code)
+                )
+            )
+        );
+    }
+
+    public static function on_dispute_opened($dispute_id, $booking_id, $agency_id) {
+        $to = self::get_agency_email($agency_id);
+        if (!$to) {
+            return;
+        }
+        $booking = TAP_Booking::get_booking($booking_id);
+        self::send(
+            $to,
+            __('Se abrió una disputa en una de tus reservas', 'travel-agency-platform'),
+            self::info_template(
+                __('Disputa abierta', 'travel-agency-platform'),
+                sprintf(
+                    __('Un viajero abrió una disputa sobre la reserva <strong>%s</strong>. La revisaremos y te notificaremos el resultado.', 'travel-agency-platform'),
+                    esc_html($booking ? $booking->booking_code : (string) $booking_id)
+                )
+            )
+        );
+    }
+
+    public static function on_dispute_resolved($dispute_id, $outcome, $booking_id) {
+        global $wpdb;
+        $dispute = $wpdb->get_row($wpdb->prepare("SELECT agency_id FROM {$wpdb->prefix}tap_disputes WHERE id = %d", $dispute_id));
+        if (!$dispute) {
+            return;
+        }
+        $to = self::get_agency_email($dispute->agency_id);
+        if (!$to) {
+            return;
+        }
+        $labels = [
+            'for_agency'     => __('Resuelta a favor de la agencia', 'travel-agency-platform'),
+            'against_agency' => __('Resuelta a favor del viajero', 'travel-agency-platform'),
+            'withdrawn'      => __('Retirada por el viajero', 'travel-agency-platform'),
+        ];
+        $label = $labels[$outcome] ?? $outcome;
+        self::send(
+            $to,
+            __('Actualización de tu disputa', 'travel-agency-platform'),
+            self::info_template(
+                __('Disputa resuelta', 'travel-agency-platform'),
+                sprintf(
+                    __('La disputa asociada a la reserva <strong>%s</strong> fue resuelta: <strong>%s</strong>.', 'travel-agency-platform'),
+                    esc_html((string) $booking_id),
+                    esc_html($label)
+                )
+            )
+        );
+    }
+
+    public static function on_payout_changed($payment_id) {
+        global $wpdb;
+        $payment = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_commission_payments WHERE id = %d", $payment_id));
+        if (!$payment) {
+            return;
+        }
+        $to = self::get_agency_email($payment->agency_id);
+        if (!$to) {
+            return;
+        }
+        $completed = ('completed' === $payment->status);
+        self::send(
+            $to,
+            $completed ? __('Pago de comisiones confirmado', 'travel-agency-platform') : __('Liquidación cancelada', 'travel-agency-platform'),
+            self::info_template(
+                $completed ? __('Liquidación transferida', 'travel-agency-platform') : __('Liquidación cancelada', 'travel-agency-platform'),
+                $completed
+                    ? sprintf(
+                        __('Tu liquidación de comisiones por <strong>%s</strong> (referencia #%d) fue confirmada como transferida.', 'travel-agency-platform'),
+                        esc_html(self::money($payment->amount)),
+                        (int) $payment->id
+                    )
+                    : sprintf(
+                        __('La liquidación de comisiones por <strong>%s</strong> (referencia #%d) fue cancelada y los montos volvieron a estado "por cobrar".', 'travel-agency-platform'),
+                        esc_html(self::money($payment->amount)),
+                        (int) $payment->id
+                    )
+            )
+        );
+    }
+
+    public static function on_subscription_requested($agency_id, $plan_id) {
+        $admin = get_option('admin_email');
+        if (!is_email($admin)) {
+            return;
+        }
+        $agency = get_post($agency_id);
+        $plan   = get_the_title($plan_id) ?: __('Plan', 'travel-agency-platform');
+        self::send(
+            $admin,
+            __('Solicitud de suscripción pendiente', 'travel-agency-platform'),
+            self::info_template(
+                __('Nueva suscripción por revisar', 'travel-agency-platform'),
+                sprintf(
+                    __('La agencia <strong>%s</strong> solicitó el plan <strong>%s</strong>. Revisa su pago en el <a href="%s" style="color:#0d9488;">panel de suscripciones</a>.', 'travel-agency-platform'),
+                    esc_html($agency ? $agency->post_title : (string) $agency_id),
+                    esc_html($plan),
+                    esc_url(admin_url('admin.php?page=tap-subscriptions'))
+                )
+            )
+        );
+    }
+
+    public static function on_promo_requested($agency_id, $listing_id, $promo_id) {
+        $admin = get_option('admin_email');
+        if (!is_email($admin)) {
+            return;
+        }
+        $agency = get_post($agency_id);
+        $listing = get_the_title($listing_id) ?: __('Servicio', 'travel-agency-platform');
+        self::send(
+            $admin,
+            __('Solicitud de promoción pendiente', 'travel-agency-platform'),
+            self::info_template(
+                __('Nueva promoción por revisar', 'travel-agency-platform'),
+                sprintf(
+                    __('La agencia <strong>%s</strong> solicitó destacar <strong>%s</strong>. Revisa su pago en el <a href="%s" style="color:#0d9488;">panel de promociones</a>.', 'travel-agency-platform'),
+                    esc_html($agency ? $agency->post_title : (string) $agency_id),
+                    esc_html($listing),
+                    esc_url(admin_url('admin.php?page=tap-promotions'))
+                )
+            )
+        );
+    }
+
+    /* =========================================================
+     * Automation senders (driven by TAP_Automations cron)
+     * ========================================================= */
+
+    public static function send_payment_reminder($booking) {
+        list($email, $name) = self::client_contact($booking);
+        if (!$email) {
+            return false;
+        }
+        $subject = sprintf(__('Recordatorio de pago — reserva %s', 'travel-agency-platform'), $booking->booking_code);
+        $body = self::template(
+            sprintf(__('Hola %s, tu reserva está esperando pago', 'travel-agency-platform'), $name),
+            sprintf(
+                __('Tienes una reserva pendiente de pago. Completa el pago para mantenerla confirmada: <a href="%s" style="color:#0d9488;">Pagar ahora</a>.', 'travel-agency-platform'),
+                esc_url(home_url('/checkout?code=' . rawurlencode($booking->booking_code)))
+            ),
+            self::build_context($booking),
+            'pending'
+        );
+        self::send($email, $subject, $body);
+        return true;
+    }
+
+    public static function send_prearrival_msg($booking) {
+        list($email, $name) = self::client_contact($booking);
+        if (!$email) {
+            return false;
+        }
+        $ctx = self::build_context($booking);
+        $subject = sprintf(__('Tu viaje comienza muy pronto — %s', 'travel-agency-platform'), $booking->booking_code);
+        $body = self::template(
+            sprintf(__('¡Hola %s! Tu viaje está por comenzar', 'travel-agency-platform'), $name),
+            sprintf(
+                __('Tu estancia en <strong>%s</strong> comienza el <strong>%s</strong>. Ten a mano el código <strong>%s</strong> y tu <a href="%s" style="color:#0d9488;">voucher</a> para el check-in.', 'travel-agency-platform'),
+                esc_html($ctx['service_name']),
+                esc_html($ctx['check_in']),
+                esc_html($booking->booking_code),
+                esc_url(home_url('/booking-detail/?code=' . rawurlencode($booking->booking_code)))
+            ),
+            $ctx,
+            'confirmed'
+        );
+        self::send($email, $subject, $body);
+        return true;
+    }
+
+    public static function send_review_request($booking) {
+        list($email, $name) = self::client_contact($booking);
+        if (!$email) {
+            return false;
+        }
+        $review_url = add_query_arg('tap_review', $booking->booking_code, get_permalink($booking->service_id));
+        $service = self::get_service_name($booking);
+        $subject = sprintf(__('¿Cómo fue tu experiencia en %s?', 'travel-agency-platform'), $service);
+        $body = self::info_template(
+            __('Gracias por viajar con nosotros', 'travel-agency-platform'),
+            sprintf(
+                __('¡Hola %s! Esperamos que hayas disfrutado tu estancia en <strong>%s</strong>. Tu opinión ayuda a otros viajeros: <a href="%s" style="color:#0d9488;">Deja tu reseña</a>.', 'travel-agency-platform'),
+                esc_html($name),
+                esc_html($service),
+                esc_url($review_url)
+            )
+        );
+        self::send($email, $subject, $body);
+        return true;
+    }
+
+    public static function send_expiry_warning($agency_id, $type, $label, $until) {
+        $to = self::get_agency_email($agency_id);
+        if (!$to) {
+            return false;
+        }
+        $date = self::format_date($until);
+        if ('subscription' === $type) {
+            $headline = __('Tu plan está por vencer', 'travel-agency-platform');
+            $intro = sprintf(
+                __('Tu suscripción al plan <strong>%s</strong> finaliza el <strong>%s</strong>. Renueva para no perder el acceso a sus funciones.', 'travel-agency-platform'),
+                esc_html($label),
+                esc_html($date)
+            );
+            $subject = __('Tu plan está por vencer', 'travel-agency-platform');
+        } else {
+            $headline = __('Tu destacado está por vencer', 'travel-agency-platform');
+            $intro = sprintf(
+                __('El servicio <strong>%s</strong> dejará de estar destacado el <strong>%s</strong>. Puedes renovar su promoción desde tu panel de agencia.', 'travel-agency-platform'),
+                esc_html($label),
+                esc_html($date)
+            );
+            $subject = __('Tu promoción está por vencer', 'travel-agency-platform');
+        }
+        self::send($to, $subject, self::info_template($headline, $intro));
+        return true;
+    }
 
     private static function send($to, $subject, $body) {
         $body .= TAP_Privacy::email_footer();

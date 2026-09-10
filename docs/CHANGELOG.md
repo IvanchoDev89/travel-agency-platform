@@ -10,6 +10,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ### Added
 
+- **Fase 11 — Internal automations (T4, v1.4.8):**
+  - New `TAP_Automations` + `tap_auto_hook` daily WP-Cron task with four independently toggleable workflows, each with an option-backed sent-log so nothing is actioned twice:
+    1. **Payment reminders** — guests with `pending`/`request` bookings that never got paid (window between `tap_payment_reminder_hours` and the stale-booking cutoff, which now safely tolerates an empty stored value).
+    2. **Pre-arrival messages** — guests with confirmed bookings whose check-in starts within 48h (code + voucher link).
+    3. **Post-stay review requests** — guests whose completed stay ended 2–14 days ago (review link via `?tap_review=`).
+    4. **Expiry warnings** — agencies whose active plan subscription or featured listing ends within N days.
+  - Wired the previously orphaned `TAP_Emails` notification hooks: `tap_payment_failed`, `tap_payment_refunded`, `tap_dispute_opened`, `tap_dispute_resolved`, `tap_payout_completed`, `tap_payout_cancelled` (agency notified of the payout outcome), `tap_subscription_requested`, `tap_promo_requested` (both admin), plus a contact-form auto-reply to the lead (`tap_auto_lead_ack`, on by default).
+  - New platform settings section **Automations** (`register_setting` + settings page deltas) with the toggles and thresholds; cron is cleared on plugin deactivation.
+  - i18n: 58 new strings compiled into both `.mo` catalogs (handlers + automation emails + settings labels).
+  - QA: new `suite_automations` (17 asserts) added to the battery — full battery **31/31 suites / 773 asserts PASS** in `travel`; live home verified 200 / 0 PHP warnings.
+
 - **Fase 10 — Mobile-first hardening (T2):**
   - Full responsive audit of every front-end surface (theme templates + plugin `public.css`/JS).
   - Data tables (My Bookings, agency Settlements, booking voucher) wrapped in `.tap-table-scroll` so they scroll horizontally instead of overflowing on phones.

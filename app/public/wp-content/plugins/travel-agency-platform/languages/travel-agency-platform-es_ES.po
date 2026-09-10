@@ -4830,3 +4830,177 @@ msgstr "Vaciar"
 
 msgid "Ver mi itinerario"
 msgstr "Ver mi itinerario"
+
+msgid "El pago de la reserva %s no pudo completarse"
+msgstr "El pago de la reserva %s no pudo completarse"
+
+msgid "No pudimos procesar tu pago"
+msgstr "No pudimos procesar tu pago"
+
+msgid "Tu reserva <strong>%s</strong> sigue activa, pero su pago falló. Puedes intentarlo de nuevo desde el <a href=\"%s\" style=\"color:#0d9488;\">checkout</a>."
+msgstr "Tu reserva <strong>%s</strong> sigue activa, pero su pago falló. Puedes intentarlo de nuevo desde el <a href=\"%s\" style=\"color:#0d9488;\">checkout</a>."
+
+msgid "[Pago fallido] Reserva %s"
+msgstr "[Pago fallido] Reserva %s"
+
+msgid "Fallo de pago"
+msgstr "Fallo de pago"
+
+msgid "El pago de la reserva <strong>%s</strong> (%s) falló y requiere revisión."
+msgstr "El pago de la reserva <strong>%s</strong> (%s) falló y requiere revisión."
+
+msgid "Reembolso de la reserva %s"
+msgstr "Reembolso de la reserva %s"
+
+msgid "Reembolso procesado"
+msgstr "Reembolso procesado"
+
+msgid "Hemos reembolsado <strong>%s</strong> por la reserva <strong>%s</strong>. El dinero regresará a tu cuenta en los próximos días."
+msgstr "Hemos reembolsado <strong>%s</strong> por la reserva <strong>%s</strong>. El dinero regresará a tu cuenta en los próximos días."
+
+msgid "Se abrió una disputa en una de tus reservas"
+msgstr "Se abrió una disputa en una de tus reservas"
+
+msgid "Un viajero abrió una disputa sobre la reserva <strong>%s</strong>. La revisaremos y te notificaremos el resultado."
+msgstr "Un viajero abrió una disputa sobre la reserva <strong>%s</strong>. La revisaremos y te notificaremos el resultado."
+
+msgid "Actualización de tu disputa"
+msgstr "Actualización de tu disputa"
+
+msgid "Disputa resuelta"
+msgstr "Disputa resuelta"
+
+msgid "La disputa asociada a la reserva <strong>%s</strong> fue resuelta: <strong>%s</strong>."
+msgstr "La disputa asociada a la reserva <strong>%s</strong> fue resuelta: <strong>%s</strong>."
+
+msgid "Resuelta a favor del viajero"
+msgstr "Resuelta a favor del viajero"
+
+msgid "Retirada por el viajero"
+msgstr "Retirada por el viajero"
+
+msgid "Pago de comisiones confirmado"
+msgstr "Pago de comisiones confirmado"
+
+msgid "Liquidación cancelada"
+msgstr "Liquidación cancelada"
+
+msgid "Liquidación transferida"
+msgstr "Liquidación transferida"
+
+msgid "Tu liquidación de comisiones por <strong>%s</strong> (referencia #%d) fue confirmada como transferida."
+msgstr "Tu liquidación de comisiones por <strong>%s</strong> (referencia #%d) fue confirmada como transferida."
+
+msgid "La liquidación de comisiones por <strong>%s</strong> (referencia #%d) fue cancelada y los montos volvieron a estado \"por cobrar\"."
+msgstr "La liquidación de comisiones por <strong>%s</strong> (referencia #%d) fue cancelada y los montos volvieron a estado \"por cobrar\"."
+
+msgid "Solicitud de suscripción pendiente"
+msgstr "Solicitud de suscripción pendiente"
+
+msgid "Nueva suscripción por revisar"
+msgstr "Nueva suscripción por revisar"
+
+msgid "La agencia <strong>%s</strong> solicitó el plan <strong>%s</strong>. Revisa su pago en el <a href=\"%s\" style=\"color:#0d9488;\">panel de suscripciones</a>."
+msgstr "La agencia <strong>%s</strong> solicitó el plan <strong>%s</strong>. Revisa su pago en el <a href=\"%s\" style=\"color:#0d9488;\">panel de suscripciones</a>."
+
+msgid "Solicitud de promoción pendiente"
+msgstr "Solicitud de promoción pendiente"
+
+msgid "Nueva promoción por revisar"
+msgstr "Nueva promoción por revisar"
+
+msgid "La agencia <strong>%s</strong> solicitó destacar <strong>%s</strong>. Revisa su pago en el <a href=\"%s\" style=\"color:#0d9488;\">panel de promociones</a>."
+msgstr "La agencia <strong>%s</strong> solicitó destacar <strong>%s</strong>. Revisa su pago en el <a href=\"%s\" style=\"color:#0d9488;\">panel de promociones</a>."
+
+msgid "Recordatorio de pago — reserva %s"
+msgstr "Recordatorio de pago — reserva %s"
+
+msgid "Hola %s, tu reserva está esperando pago"
+msgstr "Hola %s, tu reserva está esperando pago"
+
+msgid "Tienes una reserva pendiente de pago. Completa el pago para mantenerla confirmada: <a href=\"%s\" style=\"color:#0d9488;\">Pagar ahora</a>."
+msgstr "Tienes una reserva pendiente de pago. Completa el pago para mantenerla confirmada: <a href=\"%s\" style=\"color:#0d9488;\">Pagar ahora</a>."
+
+msgid "Tu viaje comienza muy pronto — %s"
+msgstr "Tu viaje comienza muy pronto — %s"
+
+msgid "¡Hola %s! Tu viaje está por comenzar"
+msgstr "¡Hola %s! Tu viaje está por comenzar"
+
+msgid "Tu estancia en <strong>%s</strong> comienza el <strong>%s</strong>. Ten a mano el código <strong>%s</strong> y tu <a href=\"%s\" style=\"color:#0d9488;\">voucher</a> para el check-in."
+msgstr "Tu estancia en <strong>%s</strong> comienza el <strong>%s</strong>. Ten a mano el código <strong>%s</strong> y tu <a href=\"%s\" style=\"color:#0d9488;\">voucher</a> para el check-in."
+
+msgid "¿Cómo fue tu experiencia en %s?"
+msgstr "¿Cómo fue tu experiencia en %s?"
+
+msgid "Gracias por viajar con nosotros"
+msgstr "Gracias por viajar con nosotros"
+
+msgid "¡Hola %s! Esperamos que hayas disfrutado tu estancia en <strong>%s</strong>. Tu opinión ayuda a otros viajeros: <a href=\"%s\" style=\"color:#0d9488;\">Deja tu reseña</a>."
+msgstr "¡Hola %s! Esperamos que hayas disfrutado tu estancia en <strong>%s</strong>. Tu opinión ayuda a otros viajeros: <a href=\"%s\" style=\"color:#0d9488;\">Deja tu reseña</a>."
+
+msgid "Tu plan está por vencer"
+msgstr "Tu plan está por vencer"
+
+msgid "Tu suscripción al plan <strong>%s</strong> finaliza el <strong>%s</strong>. Renueva para no perder el acceso a sus funciones."
+msgstr "Tu suscripción al plan <strong>%s</strong> finaliza el <strong>%s</strong>. Renueva para no perder el acceso a sus funciones."
+
+msgid "Tu destacado está por vencer"
+msgstr "Tu destacado está por vencer"
+
+msgid "El servicio <strong>%s</strong> dejará de estar destacado el <strong>%s</strong>. Puedes renovar su promoción desde tu panel de agencia."
+msgstr "El servicio <strong>%s</strong> dejará de estar destacado el <strong>%s</strong>. Puedes renovar su promoción desde tu panel de agencia."
+
+msgid "Tu promoción está por vencer"
+msgstr "Tu promoción está por vencer"
+
+msgid "Recibimos tu mensaje sobre <strong>%s</strong>. La agencia te responderá lo antes posible.<br><br>Mientras tanto, puedes seguir explorando nuestras <a href=\"%s\" style=\"color:#0d9488;\">experiencias y alojamientos</a>."
+msgstr "Recibimos tu mensaje sobre <strong>%s</strong>. La agencia te responderá lo antes posible.<br><br>Mientras tanto, puedes seguir explorando nuestras <a href=\"%s\" style=\"color:#0d9488;\">experiencias y alojamientos</a>."
+
+msgid "Servicio destacado"
+msgstr "Servicio destacado"
+
+msgid "Recibimos tu mensaje"
+msgstr "Recibimos tu mensaje"
+
+msgid "Gracias por contactarnos"
+msgstr "Gracias por contactarnos"
+
+msgid "Automations (T4, daily cron)"
+msgstr "Automatizaciones (T4, cron diario)"
+
+msgid "Payment reminders"
+msgstr "Recordatorios de pago"
+
+msgid "Email guests with pending/request bookings that never got paid."
+msgstr "Envía un correo a los huéspedes con reservas pendientes por pagar."
+
+msgid "Remind after (hours)"
+msgstr "Recordar después de (horas)"
+
+msgid "Pre-arrival message"
+msgstr "Mensaje previo a la llegada"
+
+msgid "Send guests a heads-up when their confirmed stay starts within 48h."
+msgstr "Avisa a los huéspedes cuando su estancia confirmada comienza en 48h."
+
+msgid "Post-stay review request"
+msgstr "Solicitud de reseña post-estancia"
+
+msgid "Ask guests to leave a review a few days after a completed stay."
+msgstr "Pide a los huéspedes que dejen una reseña unos días después de la estancia."
+
+msgid "Expiry warnings"
+msgstr "Avisos de vencimiento"
+
+msgid "Email agencies when their plan subscription or a featured listing is near expiry."
+msgstr "Correo a las agencias cuando su plan o un listado destacado está por vencer."
+
+msgid "Warn days before expiry"
+msgstr "Días de anticipación del aviso"
+
+msgid "Contact auto-reply"
+msgstr "Auto-respuesta de contacto"
+
+msgid "Send an acknowledgment email to people who use the contact form."
+msgstr "Envía un correo de confirmación a quienes usan el formulario de contacto."

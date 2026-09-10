@@ -15,6 +15,7 @@ class TAP_Installer {
     public static function deactivate() {
         TAP_Roles::remove();
         wp_clear_scheduled_hook('tap_maintenance_hook');
+        wp_clear_scheduled_hook('tap_auto_hook');
         flush_rewrite_rules();
     }
 

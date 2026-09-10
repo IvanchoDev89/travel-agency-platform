@@ -3,7 +3,7 @@
  * Plugin Name: Travel Agency Platform
  * Plugin URI: https://ivanchodev.com
  * Description: Multi-agency travel platform B2B & B2C. Manage accommodations, tours, transports, car rentals, boats and packages.
- * Version: 1.4.7
+ * Version: 1.4.8
  * Author: IvanchoDev
  * Text Domain: travel-agency-platform
  * Domain Path: /languages
@@ -11,7 +11,7 @@
 
 defined('ABSPATH') || exit;
 
-define('TAP_VERSION', '1.4.7');
+define('TAP_VERSION', '1.4.8');
 define('TAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -64,6 +64,7 @@ final class TravelAgencyPlatform {
         require_once TAP_PLUGIN_DIR . 'includes/class-attribution.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-privacy.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-itinerary.php';
+        require_once TAP_PLUGIN_DIR . 'includes/class-automations.php';
     }
 
     private function init_hooks() {
@@ -143,6 +144,7 @@ final class TravelAgencyPlatform {
         add_action('init', ['TAP_Approval', 'init'], 19);
         add_action('init', ['TAP_Attribution', 'init'], 20);
         add_action('init', ['TAP_Privacy', 'init'], 21);
+        add_action('init', ['TAP_Automations', 'init'], 22);
         add_action('wp_ajax_tap_lead_submit', ['TAP_Ajax', 'submit_lead']);
         add_action('wp_ajax_nopriv_tap_lead_submit', ['TAP_Ajax', 'submit_lead']);
         add_action('admin_post_tap_export_leads', ['TAP_Leads', 'csv_download']);

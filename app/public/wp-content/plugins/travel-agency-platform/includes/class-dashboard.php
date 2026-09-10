@@ -173,6 +173,23 @@ class TAP_Dashboard {
                 return max(0, floatval($value));
             },
         ]);
+        register_setting('tap_settings', 'tap_auto_payment_reminders');
+        register_setting('tap_settings', 'tap_payment_reminder_hours', [
+            'type' => 'number',
+            'sanitize_callback' => function ($value) {
+                return max(1, (int) $value);
+            },
+        ]);
+        register_setting('tap_settings', 'tap_auto_prearrival');
+        register_setting('tap_settings', 'tap_auto_review_request');
+        register_setting('tap_settings', 'tap_auto_expiry_warnings');
+        register_setting('tap_settings', 'tap_expiry_warn_days', [
+            'type' => 'number',
+            'sanitize_callback' => function ($value) {
+                return max(1, (int) $value);
+            },
+        ]);
+        register_setting('tap_settings', 'tap_auto_lead_ack');
     }
 
     public static function dashboard_page() {
@@ -2046,6 +2063,53 @@ class TAP_Dashboard {
                     <tr>
                         <th><label for="tap_booking_fee_value"><?php esc_html_e('Fee Value', 'travel-agency-platform'); ?></label></th>
                         <td><input type="number" id="tap_booking_fee_value" name="tap_booking_fee_value" min="0" step="0.01" value="<?php echo esc_attr(get_option('tap_booking_fee_value', '0')); ?>" class="regular-text" style="width: 140px;"></td>
+                    </tr>
+                </table>
+
+                <h2 style="margin-top: 30px;"><?php esc_html_e('Automations (T4, daily cron)', 'travel-agency-platform'); ?></h2>
+                <table class="form-table">
+                    <tr>
+                        <th><label for="tap_auto_payment_reminders"><?php esc_html_e('Payment reminders', 'travel-agency-platform'); ?></label></th>
+                        <td>
+                            <input type="checkbox" id="tap_auto_payment_reminders" name="tap_auto_payment_reminders" value="1" <?php checked('1', get_option('tap_auto_payment_reminders', '0')); ?>>
+                            <p class="description"><?php esc_html_e('Email guests with pending/request bookings that never got paid.', 'travel-agency-platform'); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="tap_payment_reminder_hours"><?php esc_html_e('Remind after (hours)', 'travel-agency-platform'); ?></label></th>
+                        <td><input type="number" id="tap_payment_reminder_hours" name="tap_payment_reminder_hours" min="1" step="1" value="<?php echo esc_attr(get_option('tap_payment_reminder_hours', '12')); ?>" class="regular-text"></td>
+                    </tr>
+                    <tr>
+                        <th><label for="tap_auto_prearrival"><?php esc_html_e('Pre-arrival message', 'travel-agency-platform'); ?></label></th>
+                        <td>
+                            <input type="checkbox" id="tap_auto_prearrival" name="tap_auto_prearrival" value="1" <?php checked('1', get_option('tap_auto_prearrival', '0')); ?>>
+                            <p class="description"><?php esc_html_e('Send guests a heads-up when their confirmed stay starts within 48h.', 'travel-agency-platform'); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="tap_auto_review_request"><?php esc_html_e('Post-stay review request', 'travel-agency-platform'); ?></label></th>
+                        <td>
+                            <input type="checkbox" id="tap_auto_review_request" name="tap_auto_review_request" value="1" <?php checked('1', get_option('tap_auto_review_request', '0')); ?>>
+                            <p class="description"><?php esc_html_e('Ask guests to leave a review a few days after a completed stay.', 'travel-agency-platform'); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="tap_auto_expiry_warnings"><?php esc_html_e('Expiry warnings', 'travel-agency-platform'); ?></label></th>
+                        <td>
+                            <input type="checkbox" id="tap_auto_expiry_warnings" name="tap_auto_expiry_warnings" value="1" <?php checked('1', get_option('tap_auto_expiry_warnings', '0')); ?>>
+                            <p class="description"><?php esc_html_e('Email agencies when their plan subscription or a featured listing is near expiry.', 'travel-agency-platform'); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="tap_expiry_warn_days"><?php esc_html_e('Warn days before expiry', 'travel-agency-platform'); ?></label></th>
+                        <td><input type="number" id="tap_expiry_warn_days" name="tap_expiry_warn_days" min="1" step="1" value="<?php echo esc_attr(get_option('tap_expiry_warn_days', '3')); ?>" class="regular-text"></td>
+                    </tr>
+                    <tr>
+                        <th><label for="tap_auto_lead_ack"><?php esc_html_e('Contact auto-reply', 'travel-agency-platform'); ?></label></th>
+                        <td>
+                            <input type="checkbox" id="tap_auto_lead_ack" name="tap_auto_lead_ack" value="1" <?php checked('1', get_option('tap_auto_lead_ack', '1')); ?>>
+                            <p class="description"><?php esc_html_e('Send an acknowledgment email to people who use the contact form.', 'travel-agency-platform'); ?></p>
+                        </td>
                     </tr>
                 </table>
 
