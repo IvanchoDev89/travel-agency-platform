@@ -10,6 +10,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ### Added
 
+- **Fase 10 — Mobile-first hardening (T2):**
+  - Full responsive audit of every front-end surface (theme templates + plugin `public.css`/JS).
+  - Data tables (My Bookings, agency Settlements, booking voucher) wrapped in `.tap-table-scroll` so they scroll horizontally instead of overflowing on phones.
+  - Hero search bar no longer clips its controls between 481-700px (fields wrap and the button goes full-width); the mobile hero-height override was being silently defeated by a later `80vh` base rule — fixed.
+  - Itinerary cards stack their media block on top and budget inputs fill the width on phones; accommodation gallery no longer forces a huge `380px` image min-height on mobile.
+  - Reviews summary and review items wrap/stack on narrow screens; categories grid collapses to 2 columns between 481-600px.
+  - Unified the `.tap-status-*` palette (pending/confirmed/paid/completed/cancelled/refunded/unpaid) to the design tokens used on booking cards, so the same status looks identical across the whole UI.
+  - QA: full battery **30/30 suites / 756 asserts PASS**; live renders (home, wizard, voucher, my-bookings) verified with 0 PHP warnings.
+
 - **Fase 9 — Landing (T1) + Itinerary Builder (T3):**
   - **T1 Landing:** new `front-page.php` — bilingual modern landing (hero+search with parallax `.tap-hero-bg` and `tap-hs-*` autosuggest), stats strip, "explore by interest" chips (real `tap_tour_type` terms), selected experiences (real content, E2E fixtures filtered, per-type price + rating), 3-step itinerary CTA, verified agencies, approved reviews, articles, agency CTA; `.tap-landing-*` scoped CSS in theme `style.css` (mobile-first, tokens, no JS needed for visibility); every section hides when its data is empty. CTA now links to the itinerary builder page (`/armar-mi-viaje/`).
   - **T3 Itinerary builder (v1.4.7):**

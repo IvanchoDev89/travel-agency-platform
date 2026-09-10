@@ -1261,13 +1261,13 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
   font-weight: 600;
   line-height: 1.4;
 }
-.tap-status-pending { background: #fef3c7; color: #92400e; }
-.tap-status-confirmed { background: #dcfce7; color: #166534; }
-.tap-status-completed { background: #dbeafe; color: #1e40af; }
-.tap-status-cancelled { background: #fee2e2; color: #991b1b; }
-.tap-status-refunded { background: #f3e8ff; color: #6b21a8; }
-.tap-status-paid { background: #dcfce7; color: #166534; }
-.tap-status-unpaid { background: #fef3c7; color: #92400e; }
+.tap-status-pending { background: var(--tap-warning-bg); color: var(--tap-secondary-dark); }
+.tap-status-confirmed,
+.tap-status-paid { background: var(--tap-success-bg); color: #065f46; }
+.tap-status-completed { background: var(--tap-info-bg); color: #1e40af; }
+.tap-status-cancelled { background: var(--tap-error-bg); color: var(--tap-accent-dark); }
+.tap-status-refunded { background: var(--tap-neutral-100); color: var(--tap-neutral-600); }
+.tap-status-unpaid { background: var(--tap-warning-bg); color: var(--tap-secondary-dark); }
 
 /* ===== Theme UI surfaces (Lote 3): forms, leads, voucher & booking summary ===== */
 .tap-booking-form .tap-form-group { margin-bottom: var(--tap-space-4); }
@@ -1589,4 +1589,47 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 @media (min-width: 900px) {
   .tap-itin-layout { grid-template-columns: 2fr 1fr; align-items: start; }
   .tap-itin-side { position: sticky; top: calc(var(--tap-header-height, 76px) + var(--tap-space-4)); }
+}
+
+/* ===== T2 — Mobile-first fixes (responsive hardening) ===== */
+
+/* Hero search: stop the bar clipping its controls between 481-700px */
+@media (max-width: 700px) {
+  .tap-hs-form { flex-wrap: wrap; }
+  .tap-hs-field { flex: 1 1 45%; min-width: 0; border-right: none; border-bottom: 1px solid var(--tap-neutral-200); }
+  .tap-hs-btn { flex: 1 1 100%; min-width: 0; border-radius: var(--tap-radius-xl); justify-content: center; }
+}
+
+/* Hero height: make the mobile override win over the later 80vh base rule */
+@media (max-width: 768px) {
+  .tap-hero { min-height: 70vh; }
+}
+
+/* Galleries: don't force huge main images on phones */
+@media (max-width: 768px) {
+  .tap-acc-gallery > img { min-height: 220px; }
+}
+
+/* Reviews summary can wrap on narrow screens */
+.tap-reviews-summary { flex-wrap: wrap; }
+@media (max-width: 480px) {
+  .tap-reviews-summary { flex-direction: column; text-align: center; gap: var(--tap-space-3); }
+  .tap-review-item { flex-direction: column; }
+}
+
+/* Categories: 3 columns is too cramped between 480 and 600px */
+@media (max-width: 600px) {
+  .tap-categories-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Itinerary cards: stack the media block on top on phones */
+@media (max-width: 480px) {
+  .tap-itin-item { flex-direction: column; }
+  .tap-itin-item-media { flex: none; width: 100%; aspect-ratio: 16 / 9; }
+}
+
+/* Itinerary budget inputs fill available width on phones */
+@media (max-width: 480px) {
+  .tap-itin-budget { flex-direction: column; align-items: stretch; }
+  .tap-itin-budget input { width: 100%; }
 }

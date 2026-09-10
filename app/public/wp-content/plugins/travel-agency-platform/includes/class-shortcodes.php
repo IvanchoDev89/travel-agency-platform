@@ -721,7 +721,7 @@ class TAP_Shortcodes {
             <?php if (empty($bookings)): ?>
                 <p><?php esc_html_e('No bookings found.', 'travel-agency-platform'); ?></p>
             <?php else: ?>
-                <table class="tap-table">
+                <div class="tap-table-scroll"><table class="tap-table">
                     <thead>
                         <tr>
                             <th><?php esc_html_e('Code', 'travel-agency-platform'); ?></th>
@@ -1265,9 +1265,9 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                                 </td>
                             </tr>
                             <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                    </div>
+</tbody>
+                </table></div>
+        </div>
                 <?php endif; ?>
             </div>
             <?php endif; ?>
@@ -1277,7 +1277,7 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                 <?php if (!$settlements): ?>
                     <p class="tap-agency-meta"><?php esc_html_e('Aún no hay liquidaciones registradas. El administrador procesa los pagos de tus comisiones.', 'travel-agency-platform'); ?></p>
                 <?php else: ?>
-                <table class="tap-agency-table">
+                <div class="tap-table-scroll"><table class="tap-agency-table">
                     <thead>
                         <tr>
                             <th><?php esc_html_e('ID', 'travel-agency-platform'); ?></th>
@@ -1314,7 +1314,7 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
-                </table>
+                </table></div>
                 <?php endif; ?>
             </div>
 
@@ -2631,7 +2631,7 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                         </div>
                     </div>
 
-                    <table class="tap-voucher-table">
+                    <div class="tap-table-scroll"><table class="tap-voucher-table">
                         <thead>
                             <tr>
                                 <th><?php esc_html_e('Descripción', 'travel-agency-platform'); ?></th>
@@ -2662,7 +2662,7 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                                 <td class="tap-voucher-total"><?php echo esc_html(TAP_Currency::fmt((float) $booking->total_amount)); ?></td>
                             </tr>
                         </tfoot>
-                    </table>
+                    </table></div>
 
                     <div class="tap-voucher-two-col">
                         <div class="tap-voucher-info">
