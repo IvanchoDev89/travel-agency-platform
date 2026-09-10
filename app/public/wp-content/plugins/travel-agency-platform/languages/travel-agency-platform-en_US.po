@@ -4762,3 +4762,111 @@ msgstr "Where would you like to go?"
 
 msgid "¿Tenés una agencia de viajes?"
 msgstr "Do you have a travel agency?"
+
+msgid "1. Lo que te apasiona"
+msgstr "1. What you love"
+
+msgid "2. ¿Hacia dónde viajás?"
+msgstr "2. Where are you heading?"
+
+msgid "3. Presupuesto y tipo de servicio"
+msgstr "3. Budget & service type"
+
+msgid "Activá JavaScript para usar el constructor paso a paso, o usá la búsqueda por destino si preferís un flujo simple."
+msgstr "Enable JavaScript to use the step-by-step builder, or use the destination search if you prefer a simpler flow."
+
+msgid "Agregado ✓"
+msgstr "Added ✓"
+
+msgid "Anterior"
+msgstr "Back"
+
+msgid "Armá tu itinerario"
+msgstr "Build your itinerary"
+
+msgid "Así queda tu viaje"
+msgstr "Here's your trip"
+
+msgid "Añadir al itinerario"
+msgstr "Add to itinerary"
+
+msgid "Buscar mi itinerario"
+msgstr "Search my itinerary"
+
+msgid "Consultar precio"
+msgstr "Request price"
+
+msgid "Continuar"
+msgstr "Continue"
+
+msgid "Dejá libre el rango si querés que te mostremos todo."
+msgstr "Leave the range empty to see everything."
+
+msgid "El itinerario que intentás abrir está vacío o ya no está disponible."
+msgstr "The itinerary you're trying to open is empty or no longer available."
+
+msgid "Elegí tus intereses, destinos y presupuesto. En segundos encontrás experiencias que matchean con tu plan."
+msgstr "Pick your interests, destinations and budget. In seconds you'll get experiences that match your plan."
+
+msgid "Elegí uno o más intereses. Podés cambiar de idea cuando quieras."
+msgstr "Choose one or more interests. You can change your mind anytime."
+
+msgid "Hubo un problema al cargar los resultados. Reintentá en unos segundos."
+msgstr "There was a problem loading results. Please try again in a few seconds."
+
+msgid "Imprimir itinerario"
+msgstr "Print itinerary"
+
+msgid "Incluir"
+msgstr "Include"
+
+msgid "La búsqueda se hace en servicios activos publicados por agencias verificadas."
+msgstr "Searches only active services listed by verified agencies."
+
+msgid "La reserva final se hace directo con cada agencia."
+msgstr "Final booking is made directly with each agency."
+
+msgid "Mi itinerario"
+msgstr "My itinerary"
+
+msgid "Monto estimado según tarifas publicadas por persona/noche. La reserva y el pago se gestionan directo con cada agencia."
+msgstr "Estimated based on published per-person/per-night rates. Booking and payment are handled directly with each agency."
+
+msgid "No encontramos servicios que matchen exactamente con tus intereses. Probá ampliar el presupuesto, quitar algún interés o elegir otro destino."
+msgstr "We didn't find services that exactly match your interests. Try widening your budget, removing an interest, or picking another destination."
+
+msgid "Podés combinar varios destinos en un mismo itinerario."
+msgstr "You can combine several destinations in one itinerary."
+
+msgid "Presupuesto máximo"
+msgstr "Maximum budget"
+
+msgid "Presupuesto mínimo"
+msgstr "Minimum budget"
+
+msgid "Servicios seleccionados según tus intereses, destinos y presupuesto."
+msgstr "Services selected by your interests, destinations and budget."
+
+msgid "Todavía no agregaste ninguna experiencia."
+msgstr "You haven't added any experiences yet."
+
+msgid "Todavía no hay destinos publicados. Podés continuar igual y explorar por intereses."
+msgstr "No destinations published yet. Keep going and explore by interest instead."
+
+msgid "Total estimado"
+msgstr "Estimated total"
+
+msgid "Tours y experiencias"
+msgstr "Tours & experiences"
+
+msgid "Tu itinerario"
+msgstr "Your itinerary"
+
+msgid "Tu viaje, paso a paso"
+msgstr "Your trip, step by step"
+
+msgid "Vaciar"
+msgstr "Clear"
+
+msgid "Ver mi itinerario"
+msgstr "View my itinerary"

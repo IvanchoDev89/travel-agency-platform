@@ -165,6 +165,8 @@ $articles = $postsQuery->have_posts() ? array_map(function ($p) {
 wp_reset_postdata();
 
 $searchUrl  = home_url('/search-results/');
+$builderPage = get_page_by_path('armar-mi-viaje');
+$itinUrl    = $builderPage ? get_permalink($builderPage) : $searchUrl;
 $fest     = function ($n) { return (int) $n; };
 ?>
 
@@ -324,7 +326,7 @@ $fest     = function ($n) { return (int) $n; };
           <li><?php esc_html_e('Armá tu plan día a día con tours y alojamientos reales.', 'travel-agency-platform'); ?></li>
           <li><?php esc_html_e('Pedí tu cotización y reservá directo con la agencia.', 'travel-agency-platform'); ?></li>
         </ol>
-        <a class="tap-btn tap-btn-lg tap-btn-secondary" href="<?php echo esc_url($searchUrl); ?>"><?php esc_html_e('Comenzar mi itinerario', 'travel-agency-platform'); ?></a>
+        <a class="tap-btn tap-btn-lg tap-btn-secondary" href="<?php echo esc_url($itinUrl); ?>"><?php esc_html_e('Comenzar mi itinerario', 'travel-agency-platform'); ?></a>
       </div>
       <div class="tap-landing-itinerary-art" aria-hidden="true">
         <div class="tap-landing-itinerary-art-inner">

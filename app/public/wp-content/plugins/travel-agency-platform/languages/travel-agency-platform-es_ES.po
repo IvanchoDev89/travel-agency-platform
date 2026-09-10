@@ -4722,3 +4722,111 @@ msgstr "¿A dónde querés ir?"
 
 msgid "¿Tenés una agencia de viajes?"
 msgstr "¿Tenés una agencia de viajes?"
+
+msgid "1. Lo que te apasiona"
+msgstr "1. Lo que te apasiona"
+
+msgid "2. ¿Hacia dónde viajás?"
+msgstr "2. ¿Hacia dónde viajás?"
+
+msgid "3. Presupuesto y tipo de servicio"
+msgstr "3. Presupuesto y tipo de servicio"
+
+msgid "Activá JavaScript para usar el constructor paso a paso, o usá la búsqueda por destino si preferís un flujo simple."
+msgstr "Activá JavaScript para usar el constructor paso a paso, o usá la búsqueda por destino si preferís un flujo simple."
+
+msgid "Agregado ✓"
+msgstr "Agregado ✓"
+
+msgid "Anterior"
+msgstr "Anterior"
+
+msgid "Armá tu itinerario"
+msgstr "Armá tu itinerario"
+
+msgid "Así queda tu viaje"
+msgstr "Así queda tu viaje"
+
+msgid "Añadir al itinerario"
+msgstr "Añadir al itinerario"
+
+msgid "Buscar mi itinerario"
+msgstr "Buscar mi itinerario"
+
+msgid "Consultar precio"
+msgstr "Consultar precio"
+
+msgid "Continuar"
+msgstr "Continuar"
+
+msgid "Dejá libre el rango si querés que te mostremos todo."
+msgstr "Dejá libre el rango si querés que te mostremos todo."
+
+msgid "El itinerario que intentás abrir está vacío o ya no está disponible."
+msgstr "El itinerario que intentás abrir está vacío o ya no está disponible."
+
+msgid "Elegí tus intereses, destinos y presupuesto. En segundos encontrás experiencias que matchean con tu plan."
+msgstr "Elegí tus intereses, destinos y presupuesto. En segundos encontrás experiencias que matchean con tu plan."
+
+msgid "Elegí uno o más intereses. Podés cambiar de idea cuando quieras."
+msgstr "Elegí uno o más intereses. Podés cambiar de idea cuando quieras."
+
+msgid "Hubo un problema al cargar los resultados. Reintentá en unos segundos."
+msgstr "Hubo un problema al cargar los resultados. Reintentá en unos segundos."
+
+msgid "Imprimir itinerario"
+msgstr "Imprimir itinerario"
+
+msgid "Incluir"
+msgstr "Incluir"
+
+msgid "La búsqueda se hace en servicios activos publicados por agencias verificadas."
+msgstr "La búsqueda se hace en servicios activos publicados por agencias verificadas."
+
+msgid "La reserva final se hace directo con cada agencia."
+msgstr "La reserva final se hace directo con cada agencia."
+
+msgid "Mi itinerario"
+msgstr "Mi itinerario"
+
+msgid "Monto estimado según tarifas publicadas por persona/noche. La reserva y el pago se gestionan directo con cada agencia."
+msgstr "Monto estimado según tarifas publicadas por persona/noche. La reserva y el pago se gestionan directo con cada agencia."
+
+msgid "No encontramos servicios que matchen exactamente con tus intereses. Probá ampliar el presupuesto, quitar algún interés o elegir otro destino."
+msgstr "No encontramos servicios que matchen exactamente con tus intereses. Probá ampliar el presupuesto, quitar algún interés o elegir otro destino."
+
+msgid "Podés combinar varios destinos en un mismo itinerario."
+msgstr "Podés combinar varios destinos en un mismo itinerario."
+
+msgid "Presupuesto máximo"
+msgstr "Presupuesto máximo"
+
+msgid "Presupuesto mínimo"
+msgstr "Presupuesto mínimo"
+
+msgid "Servicios seleccionados según tus intereses, destinos y presupuesto."
+msgstr "Servicios seleccionados según tus intereses, destinos y presupuesto."
+
+msgid "Todavía no agregaste ninguna experiencia."
+msgstr "Todavía no agregaste ninguna experiencia."
+
+msgid "Todavía no hay destinos publicados. Podés continuar igual y explorar por intereses."
+msgstr "Todavía no hay destinos publicados. Podés continuar igual y explorar por intereses."
+
+msgid "Total estimado"
+msgstr "Total estimado"
+
+msgid "Tours y experiencias"
+msgstr "Tours y experiencias"
+
+msgid "Tu itinerario"
+msgstr "Tu itinerario"
+
+msgid "Tu viaje, paso a paso"
+msgstr "Tu viaje, paso a paso"
+
+msgid "Vaciar"
+msgstr "Vaciar"
+
+msgid "Ver mi itinerario"
+msgstr "Ver mi itinerario"
