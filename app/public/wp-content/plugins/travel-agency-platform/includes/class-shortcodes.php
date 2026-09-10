@@ -363,10 +363,11 @@ class TAP_Shortcodes {
         }
 
         ob_start();
+        $tap_prev_post = $GLOBALS['post'] ?? null;
         ?>
         <div class="tap-services-grid" style="display: grid; grid-template-columns: repeat(<?php echo intval($atts['columns']); ?>, 1fr); gap: 20px;">
             <?php foreach ($all_posts as $post):
-                setup_postdata($post); ?>
+                setup_postdata($post); $GLOBALS['post'] = $post; ?>
                 <div class="tap-service-card">
                     <?php if (has_post_thumbnail()): ?>
                         <a href="<?php the_permalink(); ?>"><?php the_post_thumbnail('medium'); ?></a>
@@ -377,7 +378,7 @@ class TAP_Shortcodes {
                         <a href="<?php the_permalink(); ?>" class="tap-btn tap-btn-outline"><?php esc_html_e('View Details', 'travel-agency-platform'); ?></a>
                     </div>
                 </div>
-            <?php endforeach; wp_reset_postdata(); ?>
+            <?php endforeach; wp_reset_postdata(); $GLOBALS['post'] = $tap_prev_post; ?>
         </div>
         <?php
         return ob_get_clean();
@@ -389,7 +390,9 @@ class TAP_Shortcodes {
 
         if (!$post) return '<p>' . __('Service not found.', 'travel-agency-platform') . '</p>';
 
+        $tap_prev_post = $GLOBALS['post'] ?? null;
         setup_postdata($post);
+        $GLOBALS['post'] = $post;
         $type = $post->post_type;
         $prefix = '_tap_' . TAP_Post_Types::meta_prefix($type);
 
@@ -465,6 +468,7 @@ class TAP_Shortcodes {
         </div>
         <?php
         wp_reset_postdata();
+        $GLOBALS['post'] = $tap_prev_post;
         return ob_get_clean();
     }
 
@@ -1631,9 +1635,10 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
         }
 
         ob_start();
+        $tap_prev_post = $GLOBALS['post'] ?? null;
         ?>
         <div class="tap-grid tap-grid-auto">
-            <?php foreach ($all_posts as $post): setup_postdata($post);
+            <?php foreach ($all_posts as $post): setup_postdata($post); $GLOBALS['post'] = $post;
                 $pt = $post->post_type;
                 $price_key = TAP_API::get_price_key($pt);
                 $price = $price_key ? floatval(get_post_meta($post->ID, $price_key, true)) : 0;
@@ -1659,7 +1664,7 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                     <a href="<?php the_permalink(); ?>" class="tap-btn tap-btn-outline tap-btn-block"><?php esc_html_e('View Details', 'travel-agency-platform'); ?></a>
                 </div>
             </div>
-            <?php endforeach; wp_reset_postdata(); ?>
+            <?php endforeach; wp_reset_postdata(); $GLOBALS['post'] = $tap_prev_post; ?>
         </div>
         <?php
         return ob_get_clean();

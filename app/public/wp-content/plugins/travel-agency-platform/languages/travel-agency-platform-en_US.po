@@ -5044,3 +5044,38 @@ msgstr "Contact auto-reply"
 
 msgid "Send an acknowledgment email to people who use the contact form."
 msgstr "Send an acknowledgment email to people who use the contact form."
+
+msgid "%d experiencia"
+msgid_plural "%d experiencias"
+msgstr[0] "%d experiencia"
+msgstr[1] "%d experiencia"
+
+msgid "Arma tu viaje a tu medida"
+msgstr "Arma tu viaje a tu medida"
+
+msgid "Aún no hay publicaciones."
+msgstr "Aún no hay publicaciones."
+
+msgid "Blog"
+msgstr "Blog"
+
+msgid "Combina tours, alojamientos y transportes en un itinerario propio."
+msgstr "Combina tours, alojamientos y transportes en un itinerario propio."
+
+msgid "Comenzar a planear"
+msgstr "Comenzar a planear"
+
+msgid "Descubre otros rincones de la zona"
+msgstr "Descubre otros rincones de la zona"
+
+msgid "Experiencias en %s"
+msgstr "Experiencias en %s"
+
+msgid "Leer más"
+msgstr "Leer más"
+
+msgid "Siguientes →"
+msgstr "Siguientes →"
+
+msgid "← Anteriores"
+msgstr "← Anteriores"

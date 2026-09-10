@@ -10,6 +10,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ### Added
 
+- **Fase 12 — Base content & SEO (T5, v1.4.9):**
+  - Seeded the production site with real content for Costa Rica's Lago Arenal region:
+    - **Services:** 6 tours, 2 transports, 1 boat, 2 packages, 1 equipment — each with GD-generated cover images, approved-agency assignment, location terms, pricing and SEO descriptions.
+    - **Accommodations:** 6 existing listings enriched with agency, price-per-night, SEO descriptions and thumbnails.
+    - **Destinations:** Nuevo Arenal, Lago Arenal, La Fortuna and Río Celeste as child terms under their parent regions, each with GD-generated cover images.
+    - **Blog:** 8 seed articles with categories (Destinos, Aventura, Consejos de viaje, Cultura y gastronomía) and GD cover images.
+    - **Pages:** Cómo Funciona, Términos y Condiciones, Blog — all with SEO descriptions and GD covers.
+    - **Menus:** Primary Menu (12 items including destination sub-menu) and Footer Menu rebuilt with real page links.
+  - New theme templates:
+    - `taxonomy-tap_location.php` — SEO-facing destination landing page with hero, breadcrumbs, `[tap_services location=…]` grid, child-destination cards and itinerary CTA.
+    - `home.php` — blog index with post-card grid and pagination.
+    - CSS blocks for `.tap-dest-*` and `.tap-blog-*` in theme `style.css`.
+  - New `suite_content` (28 asserts) validates all seeded content, menus, reading options, i18n and WP 7.1 compatibility.
+  - Full battery **32/32 suites PASS**; live smoke: home, tours, destinations, blog, individual tour/accommodation/agency detail pages all 200 / 0 PHP warnings.
+
+### Fixed
+
+- **WP 7.1 compat (`setup_postdata` global `$post` regression):** WordPress 7.1 changed `setup_postdata()` to no longer set the global `$post` variable. This broke all plugin shortcodes (`tap_services`, `tap_service_detail`, `tap_featured`) which relied on `the_title()`, `the_permalink()`, `the_post_thumbnail()` etc. reading the global. Fixed in `class-shortcodes.php` by explicitly setting `$GLOBALS['post'] = $post` after each `setup_postdata()` call and restoring the previous global after the loop — all three locations patched with backup/restore guards.
+  - Symptom: destination pages showed the same service card 9 times; tour detail pages showed empty titles and broken links; blog index showed no posts.
+  - Verified on WP 7.1 / PHP 8.3.6.
+
 - **Fase 11 — Internal automations (T4, v1.4.8):**
   - New `TAP_Automations` + `tap_auto_hook` daily WP-Cron task with four independently toggleable workflows, each with an option-backed sent-log so nothing is actioned twice:
     1. **Payment reminders** — guests with `pending`/`request` bookings that never got paid (window between `tap_payment_reminder_hours` and the stale-booking cutoff, which now safely tolerates an empty stored value).
