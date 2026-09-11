@@ -2,6 +2,181 @@
 defined('ABSPATH') || exit;
 
 class TAP_Booking {
+
+    /**
+     * Allowed booking status transitions (state machine).
+     * Keys = current status, values = statuses reachable from it.
+     * Filterable via 'tap_booking_status_transitions'.
+     */
+    public static $transitions = [
+        'request'   => ['pending', 'confirmed', 'cancelled'],
+        'pending'   => ['confirmed', 'completed', 'cancelled', 'refunded'],
+        'confirmed' => ['completed', 'cancelled', 'refunded'],
+        'completed' => ['refunded', 'cancelled'],
+        'cancelled' => [],
+        'refunded'  => [],
+    ];
+
+    /**
+     * Supported cancellation policies with their human labels.
+     */
+    public static function cancellation_policies() {
+        return [
+            'flexible'       => __('Flexible — reembolso total hasta 24h antes', 'travel-agency-platform'),
+            'moderate'       => __('Moderada — reembolso total 5 días antes, 50% hasta 2 días', 'travel-agency-platform'),
+            'strict'         => __('Estricta — 50% de reembolso hasta 7 días antes', 'travel-agency-platform'),
+            'non_refundable' => __('No reembolsable', 'travel-agency-platform'),
+        ];
+    }
+
+    /**
+     * Default policy per service type (overridable via tap_cancel_policy_* options).
+     */
+    public static function default_cancellation_policy($service_type = '') {
+        $map = [
+            'tap_accommodation' => 'flexible',
+            'tap_tour'          => 'strict',
+            'tap_transport'     => 'moderate',
+            'tap_car_rental'    => 'moderate',
+            'tap_boat'          => 'strict',
+            'tap_package'       => 'strict',
+            'tap_equipment'     => 'flexible',
+        ];
+        return $map[$service_type] ?? 'flexible';
+    }
+
+    /**
+     * Resolve the effective cancellation policy for a service.
+     * Priority: listing meta -> accommodation legacy meta -> per-type option -> 'flexible'.
+     */
+    public static function cancellation_policy($service_type = '', $service_id = 0) {
+        $service_id = intval($service_id);
+        $policies = array_keys(self::cancellation_policies());
+
+        if ($service_id && get_post_type($service_id) === $service_type) {
+            $meta = get_post_meta($service_id, '_tap_cancellation_policy', true);
+            if ($meta && in_array($meta, $policies, true)) {
+                return $meta;
+            }
+            if ($service_type === 'tap_accommodation') {
+                $legacy = get_post_meta($service_id, '_tap_acc_cancellation', true);
+                if ($legacy && in_array($legacy, $policies, true)) {
+                    return $legacy;
+                }
+            }
+        }
+
+        $opt = $service_type ? get_option('tap_cancel_policy_' . $service_type, '') : '';
+        if ($opt && in_array($opt, $policies, true)) {
+            return $opt;
+        }
+
+        return self::default_cancellation_policy($service_type);
+    }
+
+    /**
+     * Refund percentage (0-100) for a policy given whole days before check-in.
+     */
+    public static function refund_percent($policy, $days_before) {
+        $days_before = intval($days_before);
+        switch ($policy) {
+            case 'moderate':
+                if ($days_before >= 5) return 100;
+                if ($days_before >= 2) return 50;
+                return 0;
+            case 'strict':
+                return $days_before >= 7 ? 50 : 0;
+            case 'non_refundable':
+                return 0;
+            case 'flexible':
+            default:
+                return $days_before >= 1 ? 100 : 0;
+        }
+    }
+
+    /**
+     * Compute the refund a client is entitled to for a (paid) booking,
+     * based on the service's cancellation policy and the days left to check-in.
+     *
+     * @return array{policy:string,days_before:int,refund_percent:int,refund_amount:float}
+     */
+    public static function cancellation_refund($booking) {
+        $policy = self::cancellation_policy($booking->service_type ?? '', (int) ($booking->service_id ?? 0));
+
+        $days_before = PHP_INT_MAX;
+        if (!empty($booking->check_in)) {
+            $check_in = strtotime((string) $booking->check_in);
+            $days_before = $check_in ? (int) floor(($check_in - strtotime(gmdate('Y-m-d'))) / DAY_IN_SECONDS) : PHP_INT_MAX;
+            $days_before = max(0, $days_before);
+        }
+
+        $pct  = self::refund_percent($policy, $days_before);
+        $total = floatval($booking->total_amount ?? 0);
+
+        return [
+            'policy'         => $policy,
+            'days_before'    => $days_before,
+            'refund_percent' => $pct,
+            'refund_amount'  => round($total * ($pct / 100), 2),
+        ];
+    }
+
+    /**
+     * Short human summary of a refund decision (used in emails / dashboards).
+     */
+    public static function refund_summary($booking) {
+        $info = self::cancellation_refund($booking);
+        $policies = self::cancellation_policies();
+        $label = $policies[$info['policy']] ?? $info['policy'];
+        $line = sprintf(
+            __('Política de cancelación: %s', 'travel-agency-platform'),
+            $label
+        );
+        $refund = isset($booking->refund_amount) && (float) $booking->refund_amount > 0
+            ? floatval($booking->refund_amount)
+            : $info['refund_amount'];
+        if ($refund > 0) {
+            $line .= ' · ' . sprintf(
+                __('Reembolso: %s (remaining %d%%)', 'travel-agency-platform'),
+                TAP_Currency::fmt($refund),
+                $info['refund_percent']
+            );
+        } else {
+            $line .= ' · ' . __('Sin reembolso', 'travel-agency-platform');
+        }
+        return $line;
+    }
+
+    /**
+     * Supported service type slugs (used by settings and policy resolution).
+     */
+    public static function service_type_slugs() {
+        return [
+            'tap_accommodation',
+            'tap_tour',
+            'tap_transport',
+            'tap_car_rental',
+            'tap_boat',
+            'tap_package',
+            'tap_equipment',
+        ];
+    }
+
+    /**
+     * Human readable labels for service types.
+     */
+    public static function service_type_labels() {
+        return [
+            'tap_accommodation' => __('Alojamiento', 'travel-agency-platform'),
+            'tap_tour'          => __('Tour', 'travel-agency-platform'),
+            'tap_transport'     => __('Transporte', 'travel-agency-platform'),
+            'tap_car_rental'    => __('Alquiler de coches', 'travel-agency-platform'),
+            'tap_boat'          => __('Barco', 'travel-agency-platform'),
+            'tap_package'       => __('Paquete', 'travel-agency-platform'),
+            'tap_equipment'     => __('Equipo', 'travel-agency-platform'),
+        ];
+    }
+
     public static function get_booking_fee($subtotal) {
         $type  = get_option('tap_booking_fee_type', 'none');
         $value = floatval(get_option('tap_booking_fee_value', 0));
@@ -273,19 +448,31 @@ class TAP_Booking {
         }
 
         $prev_status = $booking->status;
+        $refund = self::cancellation_refund($booking);
+
         $wpdb->update(
             $wpdb->prefix . 'tap_bookings',
             [
                 'status'               => 'cancelled',
                 'cancel_requested_at'  => current_time('mysql'),
                 'cancelled_by'         => 'client',
+                'cancellation_policy'  => $refund['policy'],
+                'refund_amount'        => round($refund['refund_amount'], 2),
+                'refund_percent'       => $refund['refund_percent'],
+                'refunded_at'          => $refund['refund_amount'] > 0 ? current_time('mysql') : null,
             ],
             ['id' => $booking_id]
         );
 
         if ('paid' === $booking->payment_status) {
-            self::update_payment_status($booking_id, 'refunded');
+            // Mark as refunded only when the policy actually returns money.
+            if ($refund['refund_amount'] > 0) {
+                self::update_payment_status($booking_id, 'refunded');
+            }
         }
+
+        // A cancelled booking must never keep earning commission.
+        self::void_commission($booking_id);
 
         do_action('tap_booking_status_updated', $booking_id, 'cancelled', $prev_status);
         return true;
@@ -305,15 +492,114 @@ class TAP_Booking {
             return new WP_Error('not_found', __('Booking not found', 'travel-agency-platform'));
         }
 
+        if ($status === $prev) {
+            return true;
+        }
+
+        $transitions = apply_filters('tap_booking_status_transitions', self::$transitions);
+        $allowed = $transitions[$prev] ?? [];
+        if (!in_array($status, $allowed, true)) {
+            return new WP_Error(
+                'invalid_transition',
+                sprintf(
+                    __('No se puede pasar el estado de "%1$s" a "%2$s".', 'travel-agency-platform'),
+                    $prev,
+                    $status
+                )
+            );
+        }
+
         $wpdb->update(
             $wpdb->prefix . 'tap_bookings',
             ['status' => $status],
             ['id' => $booking_id]
         );
 
+        // Cancelling / refunding a booking voids any still-owed commission.
+        if (in_array($status, ['cancelled', 'refunded'], true)) {
+            self::void_commission($booking_id);
+        }
+
         do_action('tap_booking_status_updated', $booking_id, $status, $prev);
 
         return true;
+    }
+
+    /**
+     * Commission can only become payable once the client has actually paid.
+     * Called on successful payment capture.
+     */
+    public static function mark_commission_owed($booking_id) {
+        global $wpdb;
+        $booking_id = intval($booking_id);
+        if (!$booking_id) return;
+
+        $current = $wpdb->get_var($wpdb->prepare(
+            "SELECT commission_status FROM {$wpdb->prefix}tap_bookings WHERE id = %d",
+            $booking_id
+        ));
+
+        if (in_array($current, ['owed', 'waiting'], true)) {
+            $wpdb->update(
+                $wpdb->prefix . 'tap_bookings',
+                ['commission_status' => 'owed'],
+                ['id' => $booking_id]
+            );
+        }
+    }
+
+    /**
+     * Revert a booking's commission to void when it can no longer be collected,
+     * but never touch commissions already settled or frozen by a dispute.
+     */
+    public static function void_commission($booking_id) {
+        global $wpdb;
+        $booking_id = intval($booking_id);
+        if (!$booking_id) return;
+
+        $current = $wpdb->get_var($wpdb->prepare(
+            "SELECT commission_status FROM {$wpdb->prefix}tap_bookings WHERE id = %d",
+            $booking_id
+        ));
+
+        if (in_array($current, ['owed', 'waiting'], true)) {
+            $wpdb->update(
+                $wpdb->prefix . 'tap_bookings',
+                ['commission_status' => 'void'],
+                ['id' => $booking_id]
+            );
+        }
+    }
+
+    /**
+     * Auto-complete bookings whose stay has already ended so the flow
+     * (reviews, settlement) can move on without manual agency action.
+     */
+    public static function complete_past_bookings() {
+        if (get_option('tap_booking_auto_complete', '1') !== '1') {
+            return;
+        }
+        global $wpdb;
+        $ids = $wpdb->get_col($wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}tap_bookings
+             WHERE status = 'confirmed' AND check_out IS NOT NULL AND check_out < %s",
+            gmdate('Y-m-d')
+        ));
+
+        foreach ($ids as $id) {
+            self::update_status(intval($id), 'completed');
+        }
+    }
+
+    /**
+     * Whether a booking's commission is payable right now
+     * (paid by the client and not cancelled/refunded).
+     */
+    public static function is_commission_payable($booking) {
+        if (!$booking) return false;
+        if ($booking->commission_status !== 'owed') return false;
+        if ($booking->payment_status !== 'paid') return false;
+        return !in_array($booking->status, ['cancelled', 'refunded'], true);
     }
 
     public static function update_payment_status($booking_id, $payment_status) {

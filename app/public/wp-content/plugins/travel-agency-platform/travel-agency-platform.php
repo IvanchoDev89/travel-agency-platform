@@ -3,7 +3,7 @@
  * Plugin Name: Travel Agency Platform
  * Plugin URI: https://ivanchodev.com
  * Description: Multi-agency travel platform B2B & B2C. Manage accommodations, tours, transports, car rentals, boats and packages.
- * Version: 1.5.0
+* Version:           1.5.1
  * Author: IvanchoDev
  * Text Domain: travel-agency-platform
  * Domain Path: /languages
@@ -11,7 +11,7 @@
 
 defined('ABSPATH') || exit;
 
-define('TAP_VERSION', '1.5.0');
+define('TAP_VERSION', '1.5.1');
 define('TAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -99,6 +99,8 @@ final class TravelAgencyPlatform {
             }
         });
         add_action('tap_maintenance_hook', ['TAP_Booking', 'cancel_stale_bookings']);
+        add_action('tap_maintenance_hook', ['TAP_Booking', 'complete_past_bookings']);
+        add_action('tap_payment_completed', ['TAP_Booking', 'mark_commission_owed'], 20, 1);
         add_action('add_meta_boxes', ['TAP_Metaboxes', 'register']);
         add_action('save_post', ['TAP_Metaboxes', 'save'], 10, 2);
         add_action('rest_api_init', ['TAP_API', 'register_routes']);

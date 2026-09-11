@@ -10,6 +10,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ### Added
 
+- **Fase 14 — Booking lifecycle & cancellations (T7, v1.5.1):**
+  - **Cancellation policies with penalties**, resolved per service with a clear priority: listing metadata (`_tap_cancellation_policy`) → legacy accommodation metadata (`_tap_acc_cancellation`) → per-service-type setting → `flexible` default.
+    - `flexible`: 100% refund if cancelling at least 24h before check-in.
+    - `moderate`: 100% up to 5 days before, 50% between 2–5 days, 0% below 2 days.
+    - `strict`: 50% up to 7 days before, 0% after.
+    - `non_refundable`: 0% always.
+  - New columns on `tap_bookings`: `refund_amount`, `refund_percent`, `cancellation_policy`, `refunded_at` (idempotent migration). Client cancellations now store the computed refund and only flip `payment_status` to `refunded` when money is actually returned.
+  - **Booking status state machine** in `TAP_Booking::update_status()`: `request → pending/confirmed/cancelled`, `pending → confirmed/completed/cancelled/refunded`, `confirmed → completed/cancelled/refunded`, `completed → refunded/cancelled`; `cancelled`/`refunded` are terminal. Transitions are filterable via `tap_booking_status_transitions` and reject illegal moves with a `WP_Error`.
+  - **Auto-complete after check-out**: `complete_past_bookings()` converts confirmed bookings whose `check_out` has passed to `completed`, riding the existing hourly `tap_maintenance_hook` and toggleable via the new `tap_booking_auto_complete` option.
+  - **Commission lifecycle corrected**: bookings now earn commission only after payment (`tap_payment_completed` → `mark_commission_owed()`) and cancel/refund voids any still-owed commission (`void_commission()`), while never touching disputed or already-settled amounts. Agency settlement and self-service totals only count `payment_status='paid'` bookings that aren't cancelled/refunded.
+  - Settings UI section "Cancellation policies" with a policy selector per service type + auto-complete toggle; cancellation emails include the applied policy/refund amount; `my_bookings` and the voucher page show the applied refund; the agency ledger shows `—` for voided commission.
+  - New `suite_booking_lifecycle` (60+ asserts) covers policy resolution, refund tables, client-cancel penalties, state-machine guards, auto-complete, commission void/payable rules and settlement filtering. Full battery **34/34 suites PASS**.
+  - i18n: ~45 new translatable strings in both catalogues (compiled to `.mo`); plugin version bumped to **1.5.1**.
+
 - **Fase 13 — Role dashboards (T6, v1.5.0):**
   - New unified `/mi-cuenta/` hub (`[tap_front_dash]` shortcode) with role-based routing:
     - **Anonymous** users get a styled login card with signup CTA.
@@ -41,6 +55,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ### Fixed
 
+- **Payout/settlement integrity (T7):** the admin settlement select and the agency commission totals over-counted — they only filtered by `commission_status='owed'`, so unpaid and cancelled/refunded bookings still showed as collectable commission. Both paths now require `payment_status='paid' AND status NOT IN ('cancelled','refunded')`.
 - **WP 7.1 compat (`setup_postdata` global `$post` regression):** WordPress 7.1 changed `setup_postdata()` to no longer set the global `$post` variable. This broke all plugin shortcodes (`tap_services`, `tap_service_detail`, `tap_featured`) which relied on `the_title()`, `the_permalink()`, `the_post_thumbnail()` etc. reading the global. Fixed in `class-shortcodes.php` by explicitly setting `$GLOBALS['post'] = $post` after each `setup_postdata()` call and restoring the previous global after the loop — all three locations patched with backup/restore guards.
   - Symptom: destination pages showed the same service card 9 times; tour detail pages showed empty titles and broken links; blog index showed no posts.
   - Verified on WP 7.1 / PHP 8.3.6.

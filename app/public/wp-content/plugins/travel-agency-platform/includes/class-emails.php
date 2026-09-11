@@ -303,6 +303,17 @@ class TAP_Emails {
         } elseif ($status === 'cancelled' && $prev === 'request') {
             $headline = __('Solicitud rechazada', 'travel-agency-platform');
             $intro = __('La agencia no pudo aceptar tu solicitud de reserva. No se realizó ningún cobro. Contacta a la agencia o prueba con otras fechas.', 'travel-agency-platform');
+        } elseif ($status === 'cancelled' && (float) ($booking->refund_amount ?? 0) > 0) {
+            $intro .= '<br><br>' . sprintf(
+                __('Reembolso aplicado según la política de cancelación: %s.', 'travel-agency-platform'),
+                esc_html(TAP_Currency::fmt((float) $booking->refund_amount))
+            );
+        } elseif ($status === 'cancelled' && !empty($booking->cancellation_policy)) {
+            $policies = TAP_Booking::cancellation_policies();
+            $intro .= '<br><br>' . sprintf(
+                __('Política aplicada: %s.', 'travel-agency-platform'),
+                esc_html($policies[$booking->cancellation_policy] ?? $booking->cancellation_policy)
+            );
         }
 
         $subject = sprintf(__('Actualización de reserva %s: %s', 'travel-agency-platform'), $booking->booking_code, $label);

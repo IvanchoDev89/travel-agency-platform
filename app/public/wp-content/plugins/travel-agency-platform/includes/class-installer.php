@@ -472,6 +472,37 @@ $cols_bookings = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
         if (!in_array('lead_id', $cols_bookings)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN lead_id bigint(20) DEFAULT NULL AFTER cancelled_by");
         }
+        if (!in_array('refund_amount', $cols_bookings)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN refund_amount decimal(15,2) DEFAULT 0.00 AFTER lead_id");
+        }
+        if (!in_array('refund_percent', $cols_bookings)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN refund_percent decimal(5,2) DEFAULT 0.00 AFTER refund_amount");
+        }
+        if (!in_array('cancellation_policy', $cols_bookings)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN cancellation_policy varchar(30) DEFAULT NULL AFTER refund_percent");
+        }
+        if (!in_array('refunded_at', $cols_bookings)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN refunded_at datetime DEFAULT NULL AFTER cancellation_policy");
+        }
+
+        // Default cancellation policies per service type (1.5.1).
+        $policy_defaults = [
+            'tap_cancel_policy_tap_accommodation' => 'flexible',
+            'tap_cancel_policy_tap_tour'          => 'strict',
+            'tap_cancel_policy_tap_transport'     => 'moderate',
+            'tap_cancel_policy_tap_car_rental'    => 'moderate',
+            'tap_cancel_policy_tap_boat'          => 'strict',
+            'tap_cancel_policy_tap_package'       => 'strict',
+            'tap_cancel_policy_tap_equipment'     => 'flexible',
+        ];
+        foreach ($policy_defaults as $opt => $value) {
+            if (!get_option($opt, false)) {
+                add_option($opt, $value);
+            }
+        }
+        if (!get_option('tap_booking_auto_complete', false)) {
+            add_option('tap_booking_auto_complete', '1');
+        }
 
         if (class_exists('TAP_Privacy')) {
             TAP_Privacy::ensure_privacy_page();

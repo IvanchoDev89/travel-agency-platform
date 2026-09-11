@@ -750,7 +750,14 @@ class TAP_Shortcodes {
                             <td><?php echo esc_html($booking->booking_code); ?></td>
                             <td><?php echo $service ? esc_html($service->post_title) : 'N/A'; ?></td>
                             <td><?php echo esc_html($booking->check_in . ($booking->check_out ? ' - ' . $booking->check_out : '')); ?></td>
-                            <td><?php echo esc_html(TAP_Currency::fmt($booking->total_amount)); ?></td>
+                            <td>
+                                <?php echo esc_html(TAP_Currency::fmt($booking->total_amount)); ?>
+                                <?php if ((float) ($booking->refund_amount ?? 0) > 0): ?>
+                                    <br><span class="tap-refund-note"><?php echo esc_html(sprintf(__('Reembolso: %s', 'travel-agency-platform'), TAP_Currency::fmt((float) $booking->refund_amount))); ?></span>
+                                <?php elseif (in_array($booking->status, ['cancelled', 'refunded'], true) && !empty($booking->cancellation_policy) && in_array($booking->service_type, TAP_Booking::service_type_slugs(), true)): ?>
+                                    <br><span class="tap-refund-note"><?php esc_html_e('Política no reembolsable', 'travel-agency-platform'); ?></span>
+                                <?php endif; ?>
+                            </td>
 <td><span class="tap-status tap-status-<?php echo esc_attr($booking->status); ?>"><?php echo esc_html(TAP_Emails::STATUS_LABELS[$booking->status] ?? ucfirst($booking->status)); ?></span></td>
                             <td><span class="tap-status tap-status-<?php echo esc_attr($booking->payment_status); ?>"><?php echo esc_html(ucfirst($booking->payment_status)); ?></span></td>
                             <td>
@@ -837,7 +844,11 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                 COALESCE(SUM(CASE WHEN commission_status = 'owed' THEN commission_amount END),0) owed,
                 COALESCE(SUM(CASE WHEN commission_status = 'disputed' THEN commission_amount END),0) disputed,
                 COALESCE(SUM(CASE WHEN commission_status = 'paid' THEN commission_amount END),0) settled
-             FROM {$wpdb->prefix}tap_bookings WHERE agency_id = %d AND commission_amount > 0",
+             FROM {$wpdb->prefix}tap_bookings
+             WHERE agency_id = %d
+               AND commission_amount > 0
+               AND payment_status = 'paid'
+               AND status NOT IN ('cancelled', 'refunded')",
             $agency_id
         )) : (object) ['owed' => 0, 'disputed' => 0, 'settled' => 0];
         $settlements = $agency_id ? $wpdb->get_results($wpdb->prepare(
@@ -1052,8 +1063,14 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                             </td>
                             <td><?php echo esc_html($date_label); ?></td>
                             <td><?php echo esc_html(TAP_Currency::fmt($b->total_amount)); ?></td>
-                            <td><?php echo esc_html(TAP_Currency::fmt($b->commission_amount)); ?></td>
-                            <td><?php echo esc_html(TAP_Currency::fmt(max(0, (float) $b->total_amount - (float) ($b->booking_fee ?? 0) - (float) $b->commission_amount))); ?></td>
+                            <td>
+                                <?php if ($b->commission_status === 'void'): ?>
+                                    <span class="tap-muted">—</span>
+                                <?php else: ?>
+                                    <?php echo esc_html(TAP_Currency::fmt($b->commission_amount)); ?>
+                                <?php endif; ?>
+                            </td>
+                            <td><?php echo esc_html(TAP_Currency::fmt(max(0, (float) $b->total_amount - (float) ($b->booking_fee ?? 0) - ($b->commission_status === 'void' ? 0 : (float) $b->commission_amount)))); ?></td>
                             <td><span class="tap-status tap-status-<?php echo esc_attr($b->status); ?>"><?php echo esc_html(TAP_Emails::STATUS_LABELS[$b->status] ?? ucfirst($b->status)); ?></span></td>
                             <td class="tap-actions">
                                 <?php if ($b->status === 'request'):
@@ -1984,6 +2001,9 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                     <tr><td><strong><?php esc_html_e('Adults:', 'travel-agency-platform'); ?></strong></td><td><?php echo esc_html($booking->adults); ?></td></tr>
                     <tr><td><strong><?php esc_html_e('Children:', 'travel-agency-platform'); ?></strong></td><td><?php echo esc_html($booking->children); ?></td></tr>
                     <tr><td><strong><?php esc_html_e('Total:', 'travel-agency-platform'); ?></strong></td><td><strong><?php echo esc_html(TAP_Currency::fmt($booking->total_amount)); ?></strong></td></tr>
+                    <?php if ((float) ($booking->refund_amount ?? 0) > 0): ?>
+                    <tr><td><strong><?php esc_html_e('Reembolso aplicado:', 'travel-agency-platform'); ?></strong></td><td><span class="tap-refund-note">-<?php echo esc_html(TAP_Currency::fmt((float) $booking->refund_amount)); ?></span></td></tr>
+                    <?php endif; ?>
                     <tr><td><strong><?php esc_html_e('Status:', 'travel-agency-platform'); ?></strong></td><td><span class="tap-status tap-status-<?php echo esc_attr($booking->status); ?>"><?php echo esc_html(ucfirst($booking->status)); ?></span></td></tr>
                 </table>
             </div>

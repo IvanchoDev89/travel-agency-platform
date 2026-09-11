@@ -50,7 +50,7 @@ On activation the plugin automatically:
 
 - Registers custom post types, taxonomies, and user roles.
 - **Creates/updates** the custom database tables.
-- Runs schema migrations to the current `1.5.0` layout (idempotent).
+- Runs schema migrations to the current `1.5.1` layout (idempotent).
 - Flushes rewrite rules and schedules the hourly maintenance task.
 
 No manual SQL is required.
@@ -112,7 +112,21 @@ The PayPal gateway requires credentials.
 Commissions are calculated as a percentage of the booking total.
 
 - Default commission: **10%** per agency (configurable per agency).
-- Each booking stores the applied `commission_percent`, `commission_amount`, and a `commission_status` (`owed` / settled via the commission ledger).
+- Each booking stores the applied `commission_percent`, `commission_amount`, and a `commission_status`.
+- `commission_status` values: `owed` (**only after the client pays**), `disputed` (frozen by a dispute), `void` (cancelled/refunded booking), `paid` (settled via the commission ledger). Settlement and agency totals only count paid, non-cancelled bookings.
+
+### 4.5 Cancellation policies
+
+Every service type has a default cancellation policy (configurable in **Settings → Cancellation policies**); a listing can override it via its own policy field (legacy accommodation `_tap_acc_cancellation` is honored).
+
+| Policy | Refund |
+| --- | --- |
+| Flexible | 100% if cancelling ≥ 24h before check-in; 0% after |
+| Moderate | 100% (≥ 5 days), 50% (2–5 days), 0% (< 2 days) |
+| Strict | 50% (≥ 7 days), 0% after |
+| Non-refundable | 0% always |
+
+Client cancellations store `refund_amount`, `refund_percent`, `cancellation_policy` and `refunded_at` on the booking; payment only flips to `refunded` when money is actually returned. Confirmed bookings whose check-out has passed are **auto-completed** by the hourly maintenance task (toggleable via `tap_booking_auto_complete`).
 
 ---
 

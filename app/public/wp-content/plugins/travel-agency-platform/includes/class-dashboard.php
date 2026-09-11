@@ -190,6 +190,16 @@ class TAP_Dashboard {
             },
         ]);
         register_setting('tap_settings', 'tap_auto_lead_ack');
+
+        foreach (TAP_Booking::service_type_slugs() as $slug) {
+            register_setting('tap_settings', 'tap_cancel_policy_' . $slug, [
+                'type' => 'string',
+                'sanitize_callback' => function ($value) {
+                    return in_array($value, array_keys(TAP_Booking::cancellation_policies()), true) ? $value : 'flexible';
+                },
+            ]);
+        }
+        register_setting('tap_settings', 'tap_booking_auto_complete');
     }
 
     public static function dashboard_page() {
@@ -509,7 +519,11 @@ class TAP_Dashboard {
             if ($ids) {
                 $placeholders = implode(',', array_fill(0, count($ids), '%d'));
                 $rows = $wpdb->get_results($wpdb->prepare(
-                    "SELECT id, agency_id, commission_amount FROM {$b_table} WHERE id IN ({$placeholders}) AND commission_status = 'owed'",
+                    "SELECT id, agency_id, commission_amount FROM {$b_table}
+                     WHERE id IN ({$placeholders})
+                       AND commission_status = 'owed'
+                       AND payment_status = 'paid'
+                       AND status NOT IN ('cancelled', 'refunded')",
                     $ids
                 ));
                 if ($rows) {
@@ -543,7 +557,7 @@ class TAP_Dashboard {
             $booking_id = intval($_POST['booking_id'] ?? 0);
             $method = sanitize_key($_POST['method'] ?? 'bank_transfer');
             $note   = sanitize_textarea_field($_POST['note'] ?? '');
-            $booking = $booking_id ? $wpdb->get_row($wpdb->prepare("SELECT * FROM {$b_table} WHERE id = %d AND commission_status = 'owed'", $booking_id)) : null;
+            $booking = $booking_id ? $wpdb->get_row($wpdb->prepare("SELECT * FROM {$b_table} WHERE id = %d AND commission_status = 'owed' AND payment_status = 'paid' AND status NOT IN ('cancelled', 'refunded')", $booking_id)) : null;
             if ($booking) {
                 $wpdb->insert($p_table, [
                     'agency_id'   => (int) $booking->agency_id,
@@ -2063,6 +2077,41 @@ class TAP_Dashboard {
                     <tr>
                         <th><label for="tap_booking_fee_value"><?php esc_html_e('Fee Value', 'travel-agency-platform'); ?></label></th>
                         <td><input type="number" id="tap_booking_fee_value" name="tap_booking_fee_value" min="0" step="0.01" value="<?php echo esc_attr(get_option('tap_booking_fee_value', '0')); ?>" class="regular-text" style="width: 140px;"></td>
+                    </tr>
+                </table>
+
+                <h2 style="margin-top: 30px;"><?php esc_html_e('Cancellation policies (T7, booking lifecycle)', 'travel-agency-platform'); ?></h2>
+                <table class="form-table">
+                    <tr>
+                        <th><?php esc_html_e('Definiciones', 'travel-agency-platform'); ?></th>
+                        <td>
+                            <ul style="margin:0;padding-left:18px;list-style:disc;">
+                                <li><?php esc_html_e('Flexible — reembolso total si cancelas al menos 24h antes del check-in.', 'travel-agency-platform'); ?></li>
+                                <li><?php esc_html_e('Moderada — reembolso total 5 días antes; 50% entre 2 y 5 días; 0% menos de 2 días.', 'travel-agency-platform'); ?></li>
+                                <li><?php esc_html_e('Estricta — 50% de reembolso hasta 7 días antes; 0% después.', 'travel-agency-platform'); ?></li>
+                                <li><?php esc_html_e('No reembolsable — sin reembolso.', 'travel-agency-platform'); ?></li>
+                            </ul>
+                            <p class="description"><?php esc_html_e('La política efectiva de un listado se resuelve así: política propia del listado → política por defecto del tipo de servicio (abajo). La agencia puede fijar una política distinta por listado en el editor de su alojamiento/tour.', 'travel-agency-platform'); ?></p>
+                        </td>
+                    </tr>
+                    <?php foreach (TAP_Booking::service_type_slugs() as $slug) : ?>
+                        <tr>
+                            <th><label for="tap_cancel_policy_<?php echo esc_attr($slug); ?>"><?php echo esc_html(TAP_Booking::service_type_labels()[$slug] ?? $slug); ?></label></th>
+                            <td>
+                                <select id="tap_cancel_policy_<?php echo esc_attr($slug); ?>" name="tap_cancel_policy_<?php echo esc_attr($slug); ?>">
+                                    <?php foreach (TAP_Booking::cancellation_policies() as $key => $label) : ?>
+                                        <option value="<?php echo esc_attr($key); ?>" <?php selected($key, get_option('tap_cancel_policy_' . $slug, TAP_Booking::default_cancellation_policy($slug))); ?>><?php echo esc_html($label); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    <tr>
+                        <th><label for="tap_booking_auto_complete"><?php esc_html_e('Auto-completar reservas', 'travel-agency-platform'); ?></label></th>
+                        <td>
+                            <input type="checkbox" id="tap_booking_auto_complete" name="tap_booking_auto_complete" value="1" <?php checked('1', get_option('tap_booking_auto_complete', '1')); ?>>
+                            <p class="description"><?php esc_html_e('Marcar automáticamente como "completada" toda reserva confirmada cuya fecha de salida ya pasó.', 'travel-agency-platform'); ?></p>
+                        </td>
                     </tr>
                 </table>
 
