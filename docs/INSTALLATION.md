@@ -50,7 +50,7 @@ On activation the plugin automatically:
 
 - Registers custom post types, taxonomies, and user roles.
 - **Creates/updates** the custom database tables.
-- Runs schema migrations to the current `1.5.1` layout (idempotent).
+- Runs schema migrations to the current `1.5.2` layout (idempotent).
 - Flushes rewrite rules and schedules the hourly maintenance task.
 
 No manual SQL is required.

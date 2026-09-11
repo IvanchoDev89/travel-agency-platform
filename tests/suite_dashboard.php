@@ -6,6 +6,8 @@
  */
 require __DIR__ . '/bootstrap.php';
 
+global $wpdb;
+
 $uid = wp_get_current_user()->ID;
 $old = $uid ? $uid : 0;
 
@@ -59,9 +61,23 @@ tap_t_assert(strpos($out, 'Mis reservas') !== false, 'client sidebar has Mis res
 tap_t_assert(strpos($out, 'Mis reseñas') !== false, 'client sidebar has Mis reseñas');
 
 // ---- 6) client overview section has stats ----
+$seed_id = 0;
+$listings = get_posts(['post_type' => ['tap_tour', 'tap_package', 'tap_accommodation'], 'post_status' => 'publish', 'posts_per_page' => 1, 'fields' => 'ids']);
+if ($listings) {
+    $seed_ftype = get_post_type($listings[0]);
+    $seed = tap_t_seed_booking([
+        'client_id'    => $client_id,
+        'service_type' => $seed_ftype,
+        'service_id'   => (int) $listings[0],
+    ]);
+    $seed_id = (int) $seed;
+}
 $out = do_shortcode('[tap_front_dash]');
 tap_t_assert(strpos($out, 'tap-dash-stat-card') !== false, 'overview shows stat cards');
 tap_t_assert(strpos($out, 'Reservas recientes') !== false, 'overview shows recent bookings heading');
+if ($seed_id) {
+    $wpdb->delete($wpdb->prefix . 'tap_bookings', ['id' => $seed_id]);
+}
 
 // ---- 7) bookings section ----
 $_GET['seccion'] = 'bookings';

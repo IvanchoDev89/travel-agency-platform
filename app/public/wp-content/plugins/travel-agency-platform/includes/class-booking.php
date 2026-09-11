@@ -238,7 +238,7 @@ class TAP_Booking {
         }
 
         $commission_percent = self::get_agency_commission($agency_id);
-        $total = isset($data['total_amount']) && $data['total_amount'] !== '' ? floatval($data['total_amount']) : self::calculate_price(
+        $total = self::calculate_price(
             sanitize_text_field($data['service_type']),
             intval($data['service_id']),
             $data['check_in'] ?? '',
@@ -249,7 +249,7 @@ class TAP_Booking {
         );
 
         $subtotal = $total;
-        $booking_fee = isset($data['booking_fee']) && $data['booking_fee'] !== '' ? floatval($data['booking_fee']) : self::get_booking_fee($subtotal);
+        $booking_fee = self::get_booking_fee($subtotal);
         $booking_fee = round(max(0, $booking_fee), 2);
         $total = round($subtotal + $booking_fee, 2);
         $commission_amount = round($subtotal * ($commission_percent / 100), 2);
@@ -311,7 +311,7 @@ class TAP_Booking {
 
         // Guest checkout support: logged-out visitors book with client_id = 0 and
         // their contact data in the guest_* columns (no WordPress account required).
-        $client_id = isset($data['client_id']) ? intval($data['client_id']) : get_current_user_id();
+        $client_id = (int) get_current_user_id();
         $guest_email = !empty($data['guest_email']) ? sanitize_email($data['guest_email']) : '';
 
         if (!$client_id && !is_email($guest_email)) {

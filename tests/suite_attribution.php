@@ -162,7 +162,9 @@ tap_t_assert(false !== strpos($csv_open, $lead_phone), 'csv shows the full phone
 $wpu = wp_create_user($token . 'client', wp_generate_password(16, false), $token . 'wpu@example.test');
 $GLOBALS['at_user_ids'][] = (int) $wpu;
 tap_t_assert(false === TAP_Attribution::contact_unlocked($post_a, $token . 'wpu@example.test'), 'account-email contact locked before booking');
-$b3 = at_booking($tour_a, '', $token . 'Client', (int) $wpu, 46);
+wp_set_current_user((int) $wpu);
+$b3 = at_booking($tour_a, '', $token . 'Client', 0, 46);
+wp_set_current_user(0);
 $b3_id = (int) $b3['booking_id'];
 TAP_Booking::update_status($b3_id, 'confirmed');
 tap_t_assert(true === TAP_Attribution::contact_unlocked($post_a, $token . 'wpu@example.test'), 'account-email contact unlocked after confirmed booking');

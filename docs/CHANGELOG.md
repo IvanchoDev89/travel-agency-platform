@@ -10,6 +10,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ### Added
 
+- **Fase 15 — Server-side price authority & input hardening (T8, v1.5.2):**
+  - `TAP_Booking::create()` is now **authoritative for money**: `total_amount`, `booking_fee` and `client_id` are never trusted from client input. Totals are always recomputed from `calculate_price()` (catalogue price, dates, guests, room) plus the server-derived `get_booking_fee()`; the booking is always attributed via `get_current_user_id()` (or `client_id = 0` for guest checkout).
+  - REST `POST /tap/v1/booking` no longer requires (or honours) a client-supplied `total_amount`, closing the vector that let any authenticated user store arbitrary/zero-priced bookings; `privacy_consent` remains mandatory.
+  - The web AJAX flow was already safe (it re-derives prices server-side) and is unchanged.
+  - Audit confirmed `TAP_Promotions` is a featured/boost engine (`get_price()` returns the featured price option) with no discount layer inside `calculate_price()` — no pricing rules to reconcile.
+  - Tests: new `suite_price_authority` (17 asserts) proves forged `total_amount=0.01`, `booking_fee=999` and spoofed `client_id` are rejected/ignored both in `create()` and via REST; `suite_attribution` now simulates a logged-in client (faithful to the real flow), `suite_dashboard` seeds its own booking (removing reliance on ambient data), and `suite_rest`/`suite_guest_checkout` expectations were derived from server computation. Full battery **35/35 suites PASS**.
+  - Plugin version bumped to **1.5.2**.
+
 - **Fase 14 — Booking lifecycle & cancellations (T7, v1.5.1):**
   - **Cancellation policies with penalties**, resolved per service with a clear priority: listing metadata (`_tap_cancellation_policy`) → legacy accommodation metadata (`_tap_acc_cancellation`) → per-service-type setting → `flexible` default.
     - `flexible`: 100% refund if cancelling at least 24h before check-in.

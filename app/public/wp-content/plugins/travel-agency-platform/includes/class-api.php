@@ -313,7 +313,7 @@ class TAP_API {
             return new WP_Error('consent_required', __('Debes aceptar el Aviso de Privacidad.', 'travel-agency-platform'), ['status' => 400]);
         }
 
-        $required = ['service_type', 'service_id', 'total_amount'];
+        $required = ['service_type', 'service_id'];
         foreach ($required as $field) {
             if (empty($params[$field])) {
                 return new WP_Error('missing_field', sprintf(__('Field %s is required', 'travel-agency-platform'), $field), ['status' => 400]);
