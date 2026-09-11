@@ -819,7 +819,7 @@ class TAP_Shortcodes {
         return ob_get_clean();
     }
 
-    private static function agency_panel($user) {
+    public static function agency_panel($user) {
         global $wpdb;
 
         $paypal_ready = class_exists('TAP_PayPal') ? TAP_PayPal::is_ready() : false;

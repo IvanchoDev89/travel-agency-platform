@@ -5079,3 +5079,138 @@ msgstr "Siguientes →"
 
 msgid "← Anteriores"
 msgstr "← Anteriores"
+
+msgid "Mi Cuenta"
+msgstr "My Account"
+
+msgid "Resumen"
+msgstr "Overview"
+
+msgid "Total invertido"
+msgstr "Total Spent"
+
+msgid "Próximas"
+msgstr "Upcoming"
+
+msgid "Explora nuestros tours y alojamientos para planear tu próximo viaje."
+msgstr "Explore our tours and accommodations to plan your next trip."
+
+msgid "Ver todas"
+msgstr "View All"
+
+msgid "Explorar tours"
+msgstr "Explore Tours"
+
+msgid "Sin reservas aún"
+msgstr "No bookings yet"
+
+msgid "Gestiona tus reservas activas, pasadas y pendientes de pago."
+msgstr "Manage your active, past, and pending bookings."
+
+msgid "Reseña ★"
+msgstr "Review ★"
+
+msgid "Sin favoritos"
+msgstr "No favorites yet"
+
+msgid "Guarda servicios haciendo clic en el corazón para encontrarlos fácilmente después."
+msgstr "Save services by clicking the heart to find them easily later."
+
+msgid "Sin reseñas"
+msgstr "No reviews yet"
+
+msgid "Después de completar una reserva, podrás dejar tu reseña para ayudar a otros viajeros."
+msgstr "After completing a booking, you can leave a review to help other travelers."
+
+msgid "Reseñas que publicaste sobre tus experiencias."
+msgstr "Reviews you posted about your experiences."
+
+msgid "Respuesta:"
+msgstr "Reply:"
+
+msgid "Hola, %s"
+msgstr "Hello, %s"
+
+msgid "Gestiona tus reservas, favoritos y perfil desde un solo lugar."
+msgstr "Manage your bookings, favorites, and profile from one place."
+
+msgid "Bienvenido a tu panel personal. Desde aquí puedes gestionar todo tu viaje."
+msgstr "Welcome to your personal dashboard. From here you can manage your entire trip."
+
+msgid "Favoritos"
+msgstr "Favorites"
+
+msgid "Mis reseñas"
+msgstr "My Reviews"
+
+msgid "Cerrar sesión"
+msgstr "Log Out"
+
+msgid "Inicia sesión para acceder a tu panel"
+msgstr "Log in to access your dashboard"
+
+msgid "Iniciar sesión"
+msgstr "Log In"
+
+msgid "Regístrate"
+msgstr "Sign Up"
+
+msgid "¿No tienes cuenta? %s"
+msgstr "Don't have an account? %s"
+
+msgid "Explora experiencias"
+msgstr "Explore Experiences"
+
+msgid "Viajero"
+msgstr "Traveler"
+
+msgid "Empleado"
+msgstr "Employee"
+
+msgid "Mi agencia"
+msgstr "My Agency"
+
+msgid "Gestionar"
+msgstr "Manage"
+
+msgid "Reserva cancelada."
+msgstr "Booking cancelled."
+
+msgid "No se puede cancelar esta reserva."
+msgstr "This booking cannot be cancelled."
+
+msgid "La reserva ya inició."
+msgstr "The booking has already started."
+
+msgid "ID inválido."
+msgstr "Invalid ID."
+
+msgid "No autenticado."
+msgstr "Not authenticated."
+
+msgid "Reseña eliminada."
+msgstr "Review deleted."
+
+msgid "Reseña no encontrada."
+msgstr "Review not found."
+
+msgid "Ocurrió un error. Intenta de nuevo."
+msgstr "An error occurred. Please try again."
+
+msgid "Guardado"
+msgstr "Saved"
+
+msgid "¿Estás seguro de cancelar esta reserva?"
+msgstr "Are you sure you want to cancel this booking?"
+
+msgid "¿Eliminar esta reseña?"
+msgstr "Delete this review?"
+
+msgid "Panel de administración"
+msgstr "Admin Panel"
+
+msgid "Ir al panel admin"
+msgstr "Go to admin panel"
+
+msgid "Como administrador, gestiona la plataforma desde el panel de WordPress."
+msgstr "As an administrator, manage the platform from the WordPress admin panel."

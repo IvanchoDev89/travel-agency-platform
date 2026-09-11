@@ -5039,3 +5039,138 @@ msgstr "Siguientes →"
 
 msgid "← Anteriores"
 msgstr "← Anteriores"
+
+msgid "Mi Cuenta"
+msgstr "Mi Cuenta"
+
+msgid "Resumen"
+msgstr "Resumen"
+
+msgid "Total invertido"
+msgstr "Total invertido"
+
+msgid "Próximas"
+msgstr "Próximas"
+
+msgid "Explora nuestros tours y alojamientos para planear tu próximo viaje."
+msgstr "Explora nuestros tours y alojamientos para planear tu próximo viaje."
+
+msgid "Ver todas"
+msgstr "Ver todas"
+
+msgid "Explorar tours"
+msgstr "Explorar tours"
+
+msgid "Sin reservas aún"
+msgstr "Sin reservas aún"
+
+msgid "Gestiona tus reservas activas, pasadas y pendientes de pago."
+msgstr "Gestiona tus reservas activas, pasadas y pendientes de pago."
+
+msgid "Reseña ★"
+msgstr "Reseña ★"
+
+msgid "Sin favoritos"
+msgstr "Sin favoritos"
+
+msgid "Guarda servicios haciendo clic en el corazón para encontrarlos fácilmente después."
+msgstr "Guarda servicios haciendo clic en el corazón para encontrarlos fácilmente después."
+
+msgid "Sin reseñas"
+msgstr "Sin reseñas"
+
+msgid "Después de completar una reserva, podrás dejar tu reseña para ayudar a otros viajeros."
+msgstr "Después de completar una reserva, podrás dejar tu reseña para ayudar a otros viajeros."
+
+msgid "Reseñas que publicaste sobre tus experiencias."
+msgstr "Reseñas que publicaste sobre tus experiencias."
+
+msgid "Respuesta:"
+msgstr "Respuesta:"
+
+msgid "Hola, %s"
+msgstr "Hola, %s"
+
+msgid "Gestiona tus reservas, favoritos y perfil desde un solo lugar."
+msgstr "Gestiona tus reservas, favoritos y perfil desde un solo lugar."
+
+msgid "Bienvenido a tu panel personal. Desde aquí puedes gestionar todo tu viaje."
+msgstr "Bienvenido a tu panel personal. Desde aquí puedes gestionar todo tu viaje."
+
+msgid "Favoritos"
+msgstr "Favoritos"
+
+msgid "Mis reseñas"
+msgstr "Mis reseñas"
+
+msgid "Cerrar sesión"
+msgstr "Cerrar sesión"
+
+msgid "Inicia sesión para acceder a tu panel"
+msgstr "Inicia sesión para acceder a tu panel"
+
+msgid "Iniciar sesión"
+msgstr "Iniciar sesión"
+
+msgid "Regístrate"
+msgstr "Regístrate"
+
+msgid "¿No tienes cuenta? %s"
+msgstr "¿No tienes cuenta? %s"
+
+msgid "Explora experiencias"
+msgstr "Explora experiencias"
+
+msgid "Viajero"
+msgstr "Viajero"
+
+msgid "Empleado"
+msgstr "Empleado"
+
+msgid "Mi agencia"
+msgstr "Mi agencia"
+
+msgid "Gestionar"
+msgstr "Gestionar"
+
+msgid "Reserva cancelada."
+msgstr "Reserva cancelada."
+
+msgid "No se puede cancelar esta reserva."
+msgstr "No se puede cancelar esta reserva."
+
+msgid "La reserva ya inició."
+msgstr "La reserva ya inició."
+
+msgid "ID inválido."
+msgstr "ID inválido."
+
+msgid "No autenticado."
+msgstr "No autenticado."
+
+msgid "Reseña eliminada."
+msgstr "Reseña eliminada."
+
+msgid "Reseña no encontrada."
+msgstr "Reseña no encontrada."
+
+msgid "Ocurrió un error. Intenta de nuevo."
+msgstr "Ocurrió un error. Intenta de nuevo."
+
+msgid "Guardado"
+msgstr "Guardado"
+
+msgid "¿Estás seguro de cancelar esta reserva?"
+msgstr "¿Estás seguro de cancelar esta reserva?"
+
+msgid "¿Eliminar esta reseña?"
+msgstr "¿Eliminar esta reseña?"
+
+msgid "Panel de administración"
+msgstr "Panel de administración"
+
+msgid "Ir al panel admin"
+msgstr "Ir al panel admin"
+
+msgid "Como administrador, gestiona la plataforma desde el panel de WordPress."
+msgstr "Como administrador, gestiona la plataforma desde el panel de WordPress."

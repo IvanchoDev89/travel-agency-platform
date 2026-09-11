@@ -1,0 +1,604 @@
+/* ================================================================
+   TAP Frontend Dashboard — Design System
+   @since 1.5.0  (T6 role-based dashboards)
+   ================================================================ */
+
+/* ── Layout ─────────────────────────────────────────────────────── */
+.tap-dash {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: 70vh;
+    gap: 0;
+    max-width: 1280px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+.tap-dash-sidebar {
+    background: linear-gradient(195deg, #0f172a 0%, #1e293b 100%);
+    border-radius: 16px;
+    padding: 1.5rem 0;
+    display: flex;
+    flex-direction: column;
+    color: #e2e8f0;
+    position: sticky;
+    top: 2rem;
+    height: fit-content;
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
+}
+.tap-dash-main {
+    padding: 0 2rem;
+    min-width: 0;
+}
+
+/* ── Sidebar header ─────────────────────────────────────────────── */
+.tap-dash-sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0 1.25rem 1.25rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 0.75rem;
+}
+.tap-dash-sidebar-header img {
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.15);
+}
+.tap-dash-sidebar-user strong {
+    display: block;
+    font-size: 0.9rem;
+    color: #f8fafc;
+}
+.tap-dash-sidebar-role {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ── Sidebar nav ────────────────────────────────────────────────── */
+.tap-dash-sidebar-nav {
+    flex: 1;
+    padding: 0 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.tap-dash-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 1rem;
+    border-radius: 10px;
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border: none;
+    background: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+}
+.tap-dash-nav-item:hover {
+    background: rgba(255,255,255,0.06);
+    color: #f1f5f9;
+}
+.tap-dash-nav-active {
+    background: rgba(13,148,136,0.18) !important;
+    color: #2dd4bf !important;
+    font-weight: 600;
+}
+.tap-dash-nav-active svg { stroke: #2dd4bf; }
+.tap-dash-nav-logout {
+    margin-top: 0.5rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding-top: 1rem;
+    border-radius: 0;
+    padding-left: 1.25rem;
+}
+.tap-dash-nav-logout:hover { color: #f87171; }
+.tap-dash-nav-logout:hover svg { stroke: #f87171; }
+.tap-dash-sidebar-footer {
+    padding: 0 0.5rem;
+    margin-top: auto;
+}
+
+/* ── Main header ────────────────────────────────────────────────── */
+.tap-dash-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+.tap-dash-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0;
+    line-height: 1.2;
+}
+.tap-dash-header p {
+    color: #64748b;
+    margin: 0.5rem 0 0;
+    font-size: 0.95rem;
+}
+.tap-dash-header-avatar img {
+    border-radius: 50%;
+    border: 3px solid #e2e8f0;
+}
+
+/* ── Stats grid ─────────────────────────────────────────────────── */
+.tap-dash-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+.tap-dash-stat-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: all 0.2s ease;
+}
+.tap-dash-stat-card:hover {
+    box-shadow: 0 4px 16px rgba(15,23,42,0.08);
+    transform: translateY(-2px);
+}
+.tap-dash-stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.tap-dash-stat-teal   { background: #ccfbf1; color: #0d9488; }
+.tap-dash-stat-amber  { background: #fef3c7; color: #d97706; }
+.tap-dash-stat-violet { background: #ede9fe; color: #7c3aed; }
+.tap-dash-stat-rose   { background: #ffe4e6; color: #e11d48; }
+.tap-dash-stat-body   { min-width: 0; }
+.tap-dash-stat-value  {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.1;
+}
+.tap-dash-stat-label {
+    display: block;
+    font-size: 0.78rem;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+/* ── Section blocks ─────────────────────────────────────────────── */
+.tap-dash-section {
+    margin-bottom: 2rem;
+}
+.tap-dash-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+.tap-dash-section-header h2 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin: 0;
+}
+
+/* ── Explore cards (overview) ───────────────────────────────────── */
+.tap-dash-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+.tap-dash-explore-card {
+    display: block;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.25s ease;
+}
+.tap-dash-explore-card:hover {
+    box-shadow: 0 8px 24px rgba(15,23,42,0.1);
+    transform: translateY(-3px);
+}
+.tap-dash-explore-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+}
+.tap-dash-explore-body {
+    padding: 1rem;
+}
+.tap-dash-explore-body h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+    color: #0f172a;
+}
+.tap-dash-explore-price {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #0d9488;
+}
+
+/* ── Booking cards ──────────────────────────────────────────────── */
+.tap-dash-bookings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.tap-dash-booking-card {
+    display: flex;
+    gap: 1.25rem;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 1.25rem;
+    transition: all 0.2s ease;
+}
+.tap-dash-booking-card:hover {
+    box-shadow: 0 4px 16px rgba(15,23,42,0.06);
+}
+.tap-dash-booking-img {
+    flex-shrink: 0;
+    width: 120px;
+    height: 100px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.tap-dash-booking-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.tap-dash-booking-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.tap-dash-booking-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+.tap-dash-booking-code {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #0d9488;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.tap-dash-booking-top h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0.25rem 0 0;
+    color: #0f172a;
+}
+.tap-dash-booking-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.82rem;
+    color: #64748b;
+}
+.tap-dash-booking-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+.tap-dash-booking-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: auto;
+}
+
+/* ── Favorites grid ─────────────────────────────────────────────── */
+.tap-dash-fav-card {
+    position: relative;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    overflow: hidden;
+    transition: all 0.25s ease;
+}
+.tap-dash-fav-card:hover {
+    box-shadow: 0 8px 24px rgba(15,23,42,0.1);
+    transform: translateY(-3px);
+}
+.tap-dash-fav-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+}
+.tap-dash-fav-body {
+    padding: 1rem;
+    position: relative;
+}
+.tap-dash-fav-body h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+    color: #0f172a;
+}
+.tap-dash-fav-price {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #0d9488;
+}
+.tap-dash-fav-remove {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.5rem;
+    padding: 0.25rem;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    border: none;
+    cursor: pointer;
+    color: #94a3b8;
+    transition: all 0.2s;
+}
+.tap-dash-fav-remove:hover {
+    background: #fee2e2;
+    color: #e11d48;
+}
+
+/* ── Reviews list ───────────────────────────────────────────────── */
+.tap-dash-reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.tap-dash-review-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 1.25rem;
+    transition: all 0.2s ease;
+}
+.tap-dash-review-card:hover {
+    box-shadow: 0 4px 16px rgba(15,23,42,0.06);
+}
+.tap-dash-review-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+.tap-dash-review-stars { font-size: 1rem; }
+.tap-star { color: #d1d5db; }
+.tap-star-filled { color: #f59e0b; }
+.tap-dash-review-date {
+    font-size: 0.8rem;
+    color: #94a3b8;
+}
+.tap-dash-review-card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+    color: #0f172a;
+}
+.tap-dash-review-title {
+    font-weight: 600;
+    color: #334155;
+    margin: 0 0 0.25rem;
+}
+.tap-dash-review-content {
+    color: #475569;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 0 0 0.75rem;
+}
+.tap-dash-review-reply {
+    background: #f0fdfa;
+    border-left: 3px solid #0d9488;
+    padding: 0.75rem 1rem;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.85rem;
+    color: #334155;
+    margin-bottom: 0.75rem;
+}
+
+/* ── Empty state ────────────────────────────────────────────────── */
+.tap-dash-empty {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #64748b;
+}
+.tap-dash-empty svg {
+    color: #cbd5e1;
+    margin-bottom: 1rem;
+}
+.tap-dash-empty h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #334155;
+    margin: 0 0 0.5rem;
+}
+.tap-dash-empty p {
+    max-width: 400px;
+    margin: 0 auto 1.5rem;
+    line-height: 1.6;
+}
+
+/* ── Login card ─────────────────────────────────────────────────── */
+.tap-dash-login, .tap-dash-admin-hint {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 50vh;
+    padding: 2rem;
+}
+.tap-dash-login-card {
+    text-align: center;
+    max-width: 420px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 3rem 2.5rem;
+    box-shadow: 0 4px 24px rgba(15,23,42,0.06);
+}
+.tap-dash-login-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, #ccfbf1, #a7f3d0);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0d9488;
+}
+.tap-dash-login-card h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin: 0 0 0.75rem;
+}
+.tap-dash-login-card > p {
+    color: #64748b;
+    margin: 0 0 1.5rem;
+    line-height: 1.6;
+}
+.tap-dash-login-register {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #94a3b8;
+}
+.tap-dash-login-register a {
+    color: #0d9488;
+    font-weight: 600;
+}
+
+/* ── Status badges (shared) ─────────────────────────────────────── */
+.tap-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+.tap-status-pending    { background: #fef3c7; color: #92400e; }
+.tap-status-confirmed  { background: #dbeafe; color: #1e40af; }
+.tap-status-request    { background: #e0e7ff; color: #3730a3; }
+.tap-status-completed  { background: #d1fae5; color: #065f46; }
+.tap-status-cancelled  { background: #fee2e2; color: #991b1b; }
+.tap-status-paid       { background: #d1fae5; color: #065f46; }
+.tap-status-refunded   { background: #f3e8ff; color: #6b21a8; }
+.tap-status-unpaid     { background: #fef3c7; color: #92400e; }
+
+/* ── Compact table (inside dashboard) ───────────────────────────── */
+.tap-table-compact { font-size: 0.85rem; }
+.tap-table-compact th {
+    font-weight: 600;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.75rem;
+    padding: 0.6rem 0.75rem;
+}
+.tap-table-compact td {
+    padding: 0.75rem;
+    border-top: 1px solid #f1f5f9;
+    color: #334155;
+}
+.tap-table-compact tbody tr:hover {
+    background: #f8fafc;
+}
+.tap-dash-code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-weight: 600;
+    color: #0d9488;
+    font-size: 0.8rem;
+}
+.tap-dash-amount {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+/* ── Danger button variant ──────────────────────────────────────── */
+.tap-btn-danger {
+    color: #e11d48;
+    border-color: #e11d48;
+}
+.tap-btn-danger:hover {
+    background: #e11d48;
+    color: #fff;
+}
+.tap-btn-amber {
+    color: #d97706;
+    border-color: #fbbf24;
+}
+.tap-btn-amber:hover {
+    background: #f59e0b;
+    color: #fff;
+}
+
+/* ── Mobile responsive ──────────────────────────────────────────── */
+@media (max-width: 1024px) {
+    .tap-dash {
+        grid-template-columns: 1fr;
+        margin-top: 1rem;
+    }
+    .tap-dash-sidebar {
+        position: static;
+        flex-direction: row;
+        border-radius: 14px;
+        padding: 0.5rem;
+        overflow-x: auto;
+        gap: 0;
+        max-height: none;
+    }
+    .tap-dash-sidebar-header,
+    .tap-dash-sidebar-footer { display: none; }
+    .tap-dash-sidebar-nav {
+        flex-direction: row;
+        gap: 4px;
+        padding: 0;
+        width: 100%;
+    }
+    .tap-dash-nav-item {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        white-space: nowrap;
+        justify-content: center;
+    }
+    .tap-dash-nav-item span { display: none; }
+    .tap-dash-nav-active { background: rgba(13,148,136,0.18) !important; }
+    .tap-dash-nav-active svg { stroke: #0d9488; }
+    .tap-dash-main { padding: 1.25rem 0.5rem; }
+    .tap-dash-stats { grid-template-columns: repeat(2, 1fr); }
+    .tap-dash-grid-3 { grid-template-columns: 1fr; }
+    .tap-dash-booking-card { flex-direction: column; }
+    .tap-dash-booking-img { width: 100%; height: 160px; }
+    .tap-dash-header { flex-direction: column; }
+}
+@media (max-width: 480px) {
+    .tap-dash-stats { grid-template-columns: 1fr; }
+    .tap-dash-stat-card { padding: 1rem; }
+    .tap-dash-header h1 { font-size: 1.35rem; }
+}

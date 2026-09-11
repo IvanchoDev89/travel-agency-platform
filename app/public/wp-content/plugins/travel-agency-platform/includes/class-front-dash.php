@@ -1,0 +1,734 @@
+<?php
+/**
+ * TAP_Front_Dash — Frontend role-based dashboard system.
+ *
+ * Provides a unified /mi-cuenta/ hub with:
+ *  - Sidebar navigation scoped to the current user's role
+ *  - Client dashboard: overview stats, recent bookings, favorites, reviews
+ *  - Agency dashboard: wraps the existing agency_panel with a sidebar
+ *  - Security: nonce verification on all mutations, capability checks, data sanitization
+ *
+ * @package TravelAgencyPlatform
+ * @since 1.5.0
+ */
+defined('ABSPATH') || exit;
+
+class TAP_Front_Dash {
+
+    /* ── bootstrap ─────────────────────────────────────────────────── */
+
+    public static function init() {
+        add_shortcode('tap_front_dash', [__CLASS__, 'render']);
+
+        // AJAX handlers (client actions)
+        add_action('wp_ajax_tap_dash_cancel_booking', [__CLASS__, 'ajax_cancel_booking']);
+        add_action('wp_ajax_tap_dash_toggle_favorite', [__CLASS__, 'ajax_toggle_favorite']);
+        add_action('wp_ajax_tap_dash_delete_review', [__CLASS__, 'ajax_delete_review']);
+
+        // Enqueue dashboard CSS on front-end dashboard pages
+        add_action('wp_enqueue_scripts', [__CLASS__, 'enqueue_assets'], 20);
+    }
+
+    /* ── assets ────────────────────────────────────────────────────── */
+
+    public static function enqueue_assets() {
+        // Enqueue on singular pages or when the dashboard shortcode is present
+        $should_load = false;
+        if (is_singular()) {
+            $post = get_queried_object();
+            if ($post && !empty($post->post_content) && has_shortcode($post->post_content, 'tap_front_dash')) {
+                $should_load = true;
+            }
+        }
+        // Also load when navigating dashboard sections (the query arg is set)
+        if (!empty($_GET['seccion']) && is_user_logged_in()) {
+            $should_load = true;
+        }
+        if (!$should_load) {
+            return;
+        }
+        wp_enqueue_style(
+            'tap-dashboard',
+            TAP_PLUGIN_URL . 'assets/css/dashboard.css',
+            ['tap-public'],
+            TAP_VERSION
+        );
+        wp_enqueue_script(
+            'tap-dashboard',
+            TAP_PLUGIN_URL . 'assets/js/dashboard.js',
+            ['jquery'],
+            TAP_VERSION,
+            true
+        );
+        wp_localize_script('tap-dashboard', 'tapDash', [
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce'    => wp_create_nonce('tap_front_dash_nonce'),
+            'i18n'     => [
+                'confirm_cancel' => __('¿Estás seguro de cancelar esta reserva?', 'travel-agency-platform'),
+                'confirm_delete' => __('¿Eliminar esta reseña?', 'travel-agency-platform'),
+                'error'          => __('Ocurrió un error. Intenta de nuevo.', 'travel-agency-platform'),
+                'saved'          => __('Guardado', 'travel-agency-platform'),
+            ],
+        ]);
+    }
+
+    /* ── main render ───────────────────────────────────────────────── */
+
+    public static function render($atts) {
+        if (!is_user_logged_in()) {
+            return self::render_login_prompt();
+        }
+
+        $user  = wp_get_current_user();
+        $roles = (array) $user->roles;
+        $role  = current($roles) ?: 'subscriber';
+
+        // Determine active section from query var
+        $section = sanitize_key($_GET['seccion'] ?? 'overview');
+
+        // Route by role
+        if (in_array('tap_agency_admin', $roles, true) || in_array('tap_agency_employee', $roles, true)) {
+            return self::render_agency_dash($user, $role, $section);
+        }
+
+        if (current_user_can('manage_options')) {
+            return self::render_admin_redirect();
+        }
+
+        return self::render_client_dash($user, $section);
+    }
+
+    /* ── login prompt ──────────────────────────────────────────────── */
+
+    private static function render_login_prompt() {
+        ob_start(); ?>
+        <div class="tap-dash-login">
+            <div class="tap-dash-login-card">
+                <div class="tap-dash-login-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <h2><?php esc_html_e('Inicia sesión para acceder a tu panel', 'travel-agency-platform'); ?></h2>
+                <p><?php esc_html_e('Gestiona tus reservas, favoritos y perfil desde un solo lugar.', 'travel-agency-platform'); ?></p>
+                <a href="<?php echo esc_url(wp_login_url(home_url('/mi-cuenta/'))); ?>" class="tap-btn tap-btn-primary tap-btn-lg">
+                    <?php esc_html_e('Iniciar sesión', 'travel-agency-platform'); ?>
+                </a>
+                <p class="tap-dash-login-register">
+                    <?php
+                    printf(
+                        esc_html__('¿No tienes cuenta? %s', 'travel-agency-platform'),
+                        '<a href="' . esc_url(wp_registration_url()) . '">' . esc_html__('Regístrate', 'travel-agency-platform') . '</a>'
+                    );
+                    ?>
+                </p>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /* ── admin redirect ────────────────────────────────────────────── */
+
+    private static function render_admin_redirect() {
+        ob_start(); ?>
+        <div class="tap-dash-admin-hint">
+            <div class="tap-dash-login-card">
+                <div class="tap-dash-login-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15v2m-6 4h12a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2zm10-10V7a4 4 0 0 0-8 0v4h8z"/></svg>
+                </div>
+                <h2><?php esc_html_e('Panel de administración', 'travel-agency-platform'); ?></h2>
+                <p><?php esc_html_e('Como administrador, gestiona la plataforma desde el panel de WordPress.', 'travel-agency-platform'); ?></p>
+                <a href="<?php echo esc_url(admin_url('admin.php?page=travel-platform')); ?>" class="tap-btn tap-btn-primary tap-btn-lg">
+                    <?php esc_html_e('Ir al panel admin', 'travel-agency-platform'); ?>
+                </a>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /* ==================================================================
+     *  CLIENT DASHBOARD
+     * ================================================================== */
+
+    private static function render_client_dash($user, $section) {
+        $sections = self::client_nav($section);
+        $content  = self::client_section($user, $section);
+
+        ob_start(); ?>
+        <div class="tap-dash">
+            <?php self::render_sidebar($user, $sections, $section); ?>
+            <main class="tap-dash-main">
+                <?php echo $content; ?>
+            </main>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    private static function client_nav($active) {
+        $base = home_url('/mi-cuenta/');
+        return [
+            ['key' => 'overview',  'label' => __('Resumen', 'travel-agency-platform'),     'icon' => 'home',      'url' => $base],
+            ['key' => 'bookings',  'label' => __('Mis reservas', 'travel-agency-platform'),  'icon' => 'calendar',  'url' => add_query_arg('seccion', 'bookings', $base)],
+            ['key' => 'favorites', 'label' => __('Favoritos', 'travel-agency-platform'),     'icon' => 'heart',     'url' => add_query_arg('seccion', 'favorites', $base)],
+            ['key' => 'reviews',   'label' => __('Mis reseñas', 'travel-agency-platform'),   'icon' => 'star',      'url' => add_query_arg('seccion', 'reviews', $base)],
+        ];
+    }
+
+    private static function client_section($user, $section) {
+        switch ($section) {
+            case 'bookings':  return self::client_bookings($user);
+            case 'favorites': return self::client_favorites($user);
+            case 'reviews':   return self::client_reviews($user);
+            default:          return self::client_overview($user);
+        }
+    }
+
+    /* ── client: overview ──────────────────────────────────────────── */
+
+    private static function client_overview($user) {
+        global $wpdb;
+
+        $bookings = TAP_Booking::get_client_bookings($user->ID);
+        $total    = count($bookings);
+        $upcoming = 0;
+        $spent    = 0.0;
+        foreach ($bookings as $b) {
+            if (in_array($b->status, ['pending', 'confirmed', 'request'], true)) {
+                $upcoming++;
+            }
+            if (in_array($b->status, ['confirmed', 'completed', 'paid'], true)) {
+                $spent += floatval($b->total_amount);
+            }
+        }
+
+        $favorites = get_user_meta($user->ID, 'tap_favorites', true);
+        $fav_count = is_array($favorites) ? count($favorites) : 0;
+
+        $review_count = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tap_reviews WHERE user_id = %d",
+            $user->ID
+        ));
+
+        $base = home_url('/mi-cuenta/');
+
+        ob_start(); ?>
+        <div class="tap-dash-header">
+            <div class="tap-dash-header-text">
+                <h1><?php printf(esc_html__('Hola, %s', 'travel-agency-platform'), esc_html($user->display_name)); ?></h1>
+                <p><?php esc_html_e('Bienvenido a tu panel personal. Desde aquí puedes gestionar todo tu viaje.', 'travel-agency-platform'); ?></p>
+            </div>
+            <div class="tap-dash-header-avatar">
+                <?php echo get_avatar($user->ID, 72); ?>
+            </div>
+        </div>
+
+        <div class="tap-dash-stats">
+            <div class="tap-dash-stat-card">
+                <div class="tap-dash-stat-icon tap-dash-stat-teal">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </div>
+                <div class="tap-dash-stat-body">
+                    <span class="tap-dash-stat-value"><?php echo (int) $total; ?></span>
+                    <span class="tap-dash-stat-label"><?php esc_html_e('Reservas totales', 'travel-agency-platform'); ?></span>
+                </div>
+            </div>
+            <div class="tap-dash-stat-card">
+                <div class="tap-dash-stat-icon tap-dash-stat-amber">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div class="tap-dash-stat-body">
+                    <span class="tap-dash-stat-value"><?php echo (int) $upcoming; ?></span>
+                    <span class="tap-dash-stat-label"><?php esc_html_e('Próximas', 'travel-agency-platform'); ?></span>
+                </div>
+            </div>
+            <div class="tap-dash-stat-card">
+                <div class="tap-dash-stat-icon tap-dash-stat-violet">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+                <div class="tap-dash-stat-body">
+                    <span class="tap-dash-stat-value"><?php echo esc_html(TAP_Currency::fmt0($spent)); ?></span>
+                    <span class="tap-dash-stat-label"><?php esc_html_e('Total invertido', 'travel-agency-platform'); ?></span>
+                </div>
+            </div>
+            <div class="tap-dash-stat-card">
+                <div class="tap-dash-stat-icon tap-dash-stat-rose">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                </div>
+                <div class="tap-dash-stat-body">
+                    <span class="tap-dash-stat-value"><?php echo (int) $fav_count; ?></span>
+                    <span class="tap-dash-stat-label"><?php esc_html_e('Favoritos', 'travel-agency-platform'); ?></span>
+                </div>
+            </div>
+        </div>
+
+        <?php
+        // Recent bookings (last 5)
+        $recent = array_slice($bookings, 0, 5);
+        if ($recent) : ?>
+            <div class="tap-dash-section">
+                <div class="tap-dash-section-header">
+                    <h2><?php esc_html_e('Reservas recientes', 'travel-agency-platform'); ?></h2>
+                    <a href="<?php echo esc_url(add_query_arg('seccion', 'bookings', $base)); ?>" class="tap-btn tap-btn-ghost tap-btn-sm"><?php esc_html_e('Ver todas', 'travel-agency-platform'); ?></a>
+                </div>
+                <div class="tap-table-scroll">
+                    <table class="tap-table tap-table-compact">
+                        <thead>
+                            <tr>
+                                <th><?php esc_html_e('Código', 'travel-agency-platform'); ?></th>
+                                <th><?php esc_html_e('Servicio', 'travel-agency-platform'); ?></th>
+                                <th><?php esc_html_e('Fechas', 'travel-agency-platform'); ?></th>
+                                <th><?php esc_html_e('Total', 'travel-agency-platform'); ?></th>
+                                <th><?php esc_html_e('Estado', 'travel-agency-platform'); ?></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($recent as $b) :
+                                $svc = get_post($b->service_id); ?>
+                                <tr>
+                                    <td class="tap-dash-code"><?php echo esc_html($b->booking_code); ?></td>
+                                    <td><?php echo $svc ? esc_html($svc->post_title) : '—'; ?></td>
+                                    <td><?php echo esc_html($b->check_in . ($b->check_out ? ' → ' . $b->check_out : '')); ?></td>
+                                    <td class="tap-dash-amount"><?php echo esc_html(TAP_Currency::fmt($b->total_amount)); ?></td>
+                                    <td><span class="tap-status tap-status-<?php echo esc_attr($b->status); ?>"><?php echo esc_html(TAP_Emails::STATUS_LABELS[$b->status] ?? ucfirst($b->status)); ?></span></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <?php // Quick links
+        $services = get_posts(['post_type' => ['tap_tour', 'tap_accommodation'], 'post_status' => 'publish', 'posts_per_page' => 3, 'orderby' => 'rand']);
+        if ($services) : ?>
+            <div class="tap-dash-section">
+                <h2><?php esc_html_e('Explora experiencias', 'travel-agency-platform'); ?></h2>
+                <div class="tap-dash-grid-3">
+                    <?php foreach ($services as $s) :
+                        $img = get_the_post_thumbnail_url($s->ID, 'medium');
+                        $price_key = TAP_API::get_price_key($s->post_type);
+                        $price = $price_key ? floatval(get_post_meta($s->ID, $price_key, true)) : 0; ?>
+                        <a href="<?php echo esc_url(get_permalink($s->ID)); ?>" class="tap-dash-explore-card">
+                            <?php if ($img) : ?>
+                                <img src="<?php echo esc_url($img); ?>" alt="<?php echo esc_attr($s->post_title); ?>" loading="lazy">
+                            <?php endif; ?>
+                            <div class="tap-dash-explore-body">
+                                <h3><?php echo esc_html($s->post_title); ?></h3>
+                                <?php if ($price > 0) : ?>
+                                    <span class="tap-dash-explore-price"><?php echo esc_html(TAP_Currency::fmt($price)); ?></span>
+                                <?php endif; ?>
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        <?php endif;
+
+        return ob_get_clean();
+    }
+
+    /* ── client: bookings ──────────────────────────────────────────── */
+
+    private static function client_bookings($user) {
+        $bookings = TAP_Booking::get_client_bookings($user->ID);
+
+        global $wpdb;
+        $reviewed = $wpdb->get_col($wpdb->prepare(
+            "SELECT CONCAT(service_type, ':', service_id) FROM {$wpdb->prefix}tap_reviews WHERE user_id = %d",
+            $user->ID
+        ));
+
+        ob_start(); ?>
+        <div class="tap-dash-header">
+            <h1><?php esc_html_e('Mis reservas', 'travel-agency-platform'); ?></h1>
+            <p><?php esc_html_e('Gestiona tus reservas activas, pasadas y pendientes de pago.', 'travel-agency-platform'); ?></p>
+        </div>
+
+        <?php if (empty($bookings)) : ?>
+            <div class="tap-dash-empty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <h3><?php esc_html_e('Sin reservas aún', 'travel-agency-platform'); ?></h3>
+                <p><?php esc_html_e('Explora nuestros tours y alojamientos para planear tu próximo viaje.', 'travel-agency-platform'); ?></p>
+                <a href="<?php echo esc_url(home_url('/tours/')); ?>" class="tap-btn tap-btn-primary"><?php esc_html_e('Explorar tours', 'travel-agency-platform'); ?></a>
+            </div>
+        <?php else : ?>
+            <div class="tap-dash-bookings-list">
+                <?php foreach ($bookings as $b) :
+                    $svc   = get_post($b->service_id);
+                    $img   = $svc ? get_the_post_thumbnail_url($svc->ID, 'thumbnail') : '';
+                    $key   = $b->service_type . ':' . $b->service_id;
+                    $can_rev = 'completed' === $b->status
+                        && in_array($b->service_type, ['tap_accommodation','tap_tour','tap_transport','tap_car_rental','tap_boat','tap_package','tap_equipment'], true)
+                        && $svc && !in_array($key, $reviewed, true);
+                    $can_cancel = in_array($b->status, ['pending','confirmed','request'], true)
+                        && (!$b->check_in || $b->check_in >= gmdate('Y-m-d'));
+                    $can_pay = TAP_Booking::is_payable($b); ?>
+                    <div class="tap-dash-booking-card">
+                        <?php if ($img) : ?>
+                            <div class="tap-dash-booking-img">
+                                <img src="<?php echo esc_url($img); ?>" alt="" loading="lazy">
+                            </div>
+                        <?php endif; ?>
+                        <div class="tap-dash-booking-body">
+                            <div class="tap-dash-booking-top">
+                                <div>
+                                    <span class="tap-dash-booking-code"><?php echo esc_html($b->booking_code); ?></span>
+                                    <h3><?php echo $svc ? esc_html($svc->post_title) : '—'; ?></h3>
+                                </div>
+                                <span class="tap-status tap-status-<?php echo esc_attr($b->status); ?>"><?php echo esc_html(TAP_Emails::STATUS_LABELS[$b->status] ?? ucfirst($b->status)); ?></span>
+                            </div>
+                            <div class="tap-dash-booking-meta">
+                                <span>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                    <?php echo esc_html($b->check_in . ($b->check_out ? ' → ' . $b->check_out : '—')); ?>
+                                </span>
+                                <span>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                                    <?php echo esc_html(TAP_Currency::fmt($b->total_amount)); ?>
+                                </span>
+                                <?php if ($b->adults || $b->children) : ?>
+                                    <span>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                        <?php echo esc_html(($b->adults ?: 0) . '+' . ($b->children ?: 0)); ?>
+                                    </span>
+                                <?php endif; ?>
+                            </div>
+                            <div class="tap-dash-booking-actions">
+                                <a href="<?php echo esc_url(home_url('/booking-detail/?code=' . $b->booking_code)); ?>" class="tap-btn tap-btn-outline tap-btn-sm"><?php esc_html_e('Ver detalles', 'travel-agency-platform'); ?></a>
+                                <?php if ($can_pay) : ?>
+                                    <a href="<?php echo esc_url(home_url('/checkout?code=' . $b->booking_code)); ?>" class="tap-btn tap-btn-primary tap-btn-sm"><?php esc_html_e('Pagar ahora', 'travel-agency-platform'); ?></a>
+                                <?php endif; ?>
+                                <?php if ($can_rev) : ?>
+                                    <a href="<?php echo esc_url(add_query_arg('tap_review', $b->booking_code, get_permalink($b->service_id))); ?>" class="tap-btn tap-btn-outline tap-btn-sm tap-btn-amber"><?php esc_html_e('Reseña ★', 'travel-agency-platform'); ?></a>
+                                <?php endif; ?>
+                                <?php if ($can_cancel) : ?>
+                                    <button type="button" class="tap-btn tap-btn-outline tap-btn-sm tap-btn-danger tap-dash-cancel" data-id="<?php echo (int) $b->id; ?>" data-code="<?php echo esc_attr($b->booking_code); ?>"><?php esc_html_e('Cancelar', 'travel-agency-platform'); ?></button>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif;
+
+        return ob_get_clean();
+    }
+
+    /* ── client: favorites ─────────────────────────────────────────── */
+
+    private static function client_favorites($user) {
+        $favorites = get_user_meta($user->ID, 'tap_favorites', true);
+        $favorites = is_array($favorites) ? array_filter(array_map('absint', $favorites)) : [];
+
+        ob_start(); ?>
+        <div class="tap-dash-header">
+            <h1><?php esc_html_e('Favoritos', 'travel-agency-platform'); ?></h1>
+            <p><?php esc_html_e('Los servicios que guardaste para tu próximo viaje.', 'travel-agency-platform'); ?></p>
+        </div>
+
+        <?php if (empty($favorites)) : ?>
+            <div class="tap-dash-empty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                <h3><?php esc_html_e('Sin favoritos', 'travel-agency-platform'); ?></h3>
+                <p><?php esc_html_e('Guarda servicios haciendo clic en el corazón para encontrarlos fácilmente después.', 'travel-agency-platform'); ?></p>
+                <a href="<?php echo esc_url(home_url('/tours/')); ?>" class="tap-btn tap-btn-primary"><?php esc_html_e('Explorar tours', 'travel-agency-platform'); ?></a>
+            </div>
+        <?php else : ?>
+            <div class="tap-dash-grid-3">
+                <?php foreach ($favorites as $fav_id) :
+                    $p = get_post($fav_id);
+                    if (!$p || 'publish' !== $p->post_status) continue;
+                    $img = get_the_post_thumbnail_url($p->ID, 'medium');
+                    $price_key = TAP_API::get_price_key($p->post_type);
+                    $price = $price_key ? floatval(get_post_meta($p->ID, $price_key, true)) : 0; ?>
+                    <div class="tap-dash-fav-card">
+                        <a href="<?php echo esc_url(get_permalink($p->ID)); ?>">
+                            <?php if ($img) : ?>
+                                <img src="<?php echo esc_url($img); ?>" alt="<?php echo esc_attr($p->post_title); ?>" loading="lazy">
+                            <?php endif; ?>
+                        </a>
+                        <div class="tap-dash-fav-body">
+                            <a href="<?php echo esc_url(get_permalink($p->ID)); ?>"><h3><?php echo esc_html($p->post_title); ?></h3></a>
+                            <?php if ($price > 0) : ?>
+                                <span class="tap-dash-fav-price"><?php echo esc_html(TAP_Currency::fmt($price)); ?></span>
+                            <?php endif; ?>
+                            <button type="button" class="tap-dash-fav-remove tap-btn tap-btn-ghost tap-btn-sm" data-id="<?php echo (int) $fav_id; ?>" title="<?php esc_attr_e('Quitar de favoritos', 'travel-agency-platform'); ?>">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif;
+
+        return ob_get_clean();
+    }
+
+    /* ── client: reviews ───────────────────────────────────────────── */
+
+    private static function client_reviews($user) {
+        global $wpdb;
+        $reviews = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}tap_reviews WHERE user_id = %d ORDER BY created_at DESC",
+            $user->ID
+        ));
+
+        ob_start(); ?>
+        <div class="tap-dash-header">
+            <h1><?php esc_html_e('Mis reseñas', 'travel-agency-platform'); ?></h1>
+            <p><?php esc_html_e('Reseñas que publicaste sobre tus experiencias.', 'travel-agency-platform'); ?></p>
+        </div>
+
+        <?php if (empty($reviews)) : ?>
+            <div class="tap-dash-empty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <h3><?php esc_html_e('Sin reseñas', 'travel-agency-platform'); ?></h3>
+                <p><?php esc_html_e('Después de completar una reserva, podrás dejar tu reseña para ayudar a otros viajeros.', 'travel-agency-platform'); ?></p>
+            </div>
+        <?php else : ?>
+            <div class="tap-dash-reviews-list">
+                <?php foreach ($reviews as $r) :
+                    $svc = $r->service_id ? get_post($r->service_id) : null; ?>
+                    <div class="tap-dash-review-card">
+                        <div class="tap-dash-review-header">
+                            <div class="tap-dash-review-stars">
+                                <?php for ($i = 1; $i <= 5; $i++) : ?>
+                                    <span class="tap-star <?php echo $i <= $r->rating ? 'tap-star-filled' : ''; ?>">★</span>
+                                <?php endfor; ?>
+                            </div>
+                            <span class="tap-dash-review-date"><?php echo esc_html(date('d/m/Y', strtotime($r->created_at))); ?></span>
+                        </div>
+                        <h3><?php echo $svc ? esc_html($svc->post_title) : 'Servicio eliminado'; ?></h3>
+                        <?php if ($r->title) : ?>
+                            <p class="tap-dash-review-title"><?php echo esc_html($r->title); ?></p>
+                        <?php endif; ?>
+                        <p class="tap-dash-review-content"><?php echo esc_html($r->content); ?></p>
+                        <?php if ($r->reply) : ?>
+                            <div class="tap-dash-review-reply">
+                                <strong><?php esc_html_e('Respuesta:', 'travel-agency-platform'); ?></strong>
+                                <?php echo esc_html($r->reply); ?>
+                            </div>
+                        <?php endif; ?>
+                        <button type="button" class="tap-btn tap-btn-ghost tap-btn-sm tap-dash-review-delete" data-id="<?php echo (int) $r->id; ?>">
+                            <?php esc_html_e('Eliminar', 'travel-agency-platform'); ?>
+                        </button>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif;
+
+        return ob_get_clean();
+    }
+
+    /* ==================================================================
+     *  AGENCY DASHBOARD
+     * ================================================================== */
+
+    private static function render_agency_dash($user, $role, $section) {
+        // Agency admin/employee get the existing panel wrapped in a sidebar
+        $sections = self::agency_nav($role, $section);
+
+        ob_start(); ?>
+        <div class="tap-dash tap-dash-agency">
+            <?php self::render_sidebar($user, $sections, $section); ?>
+            <main class="tap-dash-main">
+                <?php
+                // Delegate to the existing agency_panel (agency manage) or other sections
+                if ($section === 'overview' || $section === 'manage') {
+                    echo TAP_Shortcodes::agency_panel($user);
+                } elseif ($section === 'bookings') {
+                    echo TAP_Shortcodes::my_bookings([]);
+                } elseif ($section === 'my-bookings') {
+                    echo TAP_Shortcodes::my_bookings([]);
+                } else {
+                    echo TAP_Shortcodes::agency_panel($user);
+                }
+                ?>
+            </main>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    private static function agency_nav($role, $active) {
+        $base = home_url('/mi-cuenta/');
+        $nav = [
+            ['key' => 'overview', 'label' => __('Mi agencia', 'travel-agency-platform'),    'icon' => 'building', 'url' => $base],
+            ['key' => 'manage',   'label' => __('Gestionar', 'travel-agency-platform'),      'icon' => 'settings','url' => add_query_arg('seccion', 'manage', $base)],
+            ['key' => 'my-bookings', 'label' => __('Mis reservas', 'travel-agency-platform'),'icon' => 'calendar','url' => add_query_arg('seccion', 'my-bookings', $base)],
+        ];
+        // Employees see fewer options
+        if ($role === 'tap_agency_employee') {
+            return array_slice($nav, 0, 2);
+        }
+        return $nav;
+    }
+
+    /* ==================================================================
+     *  SIDEBAR
+     * ================================================================== */
+
+    private static function render_sidebar($user, $sections, $active_section) {
+        $role_labels = [
+            'tap_agency_admin'   => __('Agencia', 'travel-agency-platform'),
+            'tap_agency_employee'=> __('Empleado', 'travel-agency-platform'),
+            'tap_client'         => __('Viajero', 'travel-agency-platform'),
+            'subscriber'         => __('Viajero', 'travel-agency-platform'),
+        ];
+        $role = $user->roles[0] ?? 'subscriber';
+        ?>
+        <aside class="tap-dash-sidebar">
+            <div class="tap-dash-sidebar-header">
+                <?php echo get_avatar($user->ID, 48); ?>
+                <div class="tap-dash-sidebar-user">
+                    <strong><?php echo esc_html($user->display_name); ?></strong>
+                    <span class="tap-dash-sidebar-role"><?php echo esc_html($role_labels[$role] ?? __('Usuario', 'travel-agency-platform')); ?></span>
+                </div>
+            </div>
+            <nav class="tap-dash-sidebar-nav">
+                <?php foreach ($sections as $s) :
+                    $is_active = ($s['key'] === $active_section); ?>
+                    <a href="<?php echo esc_url($s['url']); ?>" class="tap-dash-nav-item <?php echo $is_active ? 'tap-dash-nav-active' : ''; ?>">
+                        <?php self::render_nav_icon($s['icon']); ?>
+                        <span><?php echo esc_html($s['label']); ?></span>
+                    </a>
+                <?php endforeach; ?>
+            </nav>
+            <div class="tap-dash-sidebar-footer">
+                <a href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>" class="tap-dash-nav-item tap-dash-nav-logout">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    <span><?php esc_html_e('Cerrar sesión', 'travel-agency-platform'); ?></span>
+                </a>
+            </div>
+        </aside>
+        <?php
+    }
+
+    private static function render_nav_icon($icon) {
+        $icons = [
+            'home'     => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+            'calendar' => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+            'heart'    => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
+            'star'     => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+            'building' => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><line x1="9" y1="6" x2="9" y2="6.01"/><line x1="15" y1="6" x2="15" y2="6.01"/><line x1="9" y1="10" x2="9" y2="10.01"/><line x1="15" y1="10" x2="15" y2="10.01"/><line x1="9" y1="14" x2="9" y2="14.01"/><line x1="15" y1="14" x2="15" y2="14.01"/><line x1="9" y1="18" x2="15" y2="18"/></svg>',
+            'settings' => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+        ];
+        echo $icons[$icon] ?? '';
+    }
+
+    /* ==================================================================
+     *  AJAX HANDLERS (with nonce + capability checks)
+     * ================================================================== */
+
+    public static function ajax_cancel_booking() {
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => __('No autenticado.', 'travel-agency-platform')], 401);
+        }
+
+        $booking_id = absint($_POST['booking_id'] ?? 0);
+        if (!$booking_id) {
+            wp_send_json_error(['message' => __('ID inválido.', 'travel-agency-platform')], 400);
+        }
+
+        global $wpdb;
+        $booking = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}tap_bookings WHERE id = %d AND client_id = %d",
+            $booking_id,
+            get_current_user_id()
+        ));
+
+        if (!$booking) {
+            wp_send_json_error(['message' => __('Reserva no encontrada.', 'travel-agency-platform')], 404);
+        }
+
+        if (!in_array($booking->status, ['pending', 'confirmed', 'request'], true)) {
+            wp_send_json_error(['message' => __('No se puede cancelar esta reserva.', 'travel-agency-platform')], 400);
+        }
+
+        if ($booking->check_in && $booking->check_in < gmdate('Y-m-d')) {
+            wp_send_json_error(['message' => __('La reserva ya inició.', 'travel-agency-platform')], 400);
+        }
+
+        $wpdb->update(
+            "{$wpdb->prefix}tap_bookings",
+            [
+                'status'           => 'cancelled',
+                'cancelled_by'     => 'client',
+                'cancel_requested_at' => current_time('mysql'),
+                'updated_at'       => current_time('mysql'),
+            ],
+            ['id' => $booking_id],
+            ['%s', '%s', '%s', '%s'],
+            ['%d']
+        );
+
+        do_action('tap_booking_cancelled', $booking_id, $booking);
+
+        wp_send_json_success(['message' => __('Reserva cancelada.', 'travel-agency-platform')]);
+    }
+
+    public static function ajax_toggle_favorite() {
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => __('No autenticado.', 'travel-agency-platform')], 401);
+        }
+
+        $post_id = absint($_POST['post_id'] ?? 0);
+        if (!$post_id || !get_post($post_id)) {
+            wp_send_json_error(['message' => __('ID inválido.', 'travel-agency-platform')], 400);
+        }
+
+        $user_id    = get_current_user_id();
+        $favorites  = get_user_meta($user_id, 'tap_favorites', true);
+        $favorites  = is_array($favorites) ? $favorites : [];
+        $key = array_search($post_id, $favorites, true);
+
+        if ($key !== false) {
+            unset($favorites[$key]);
+            $action = 'removed';
+        } else {
+            $favorites[] = $post_id;
+            $action = 'added';
+        }
+
+        update_user_meta($user_id, 'tap_favorites', array_values($favorites));
+
+        wp_send_json_success(['action' => $action]);
+    }
+
+    public static function ajax_delete_review() {
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => __('No autenticado.', 'travel-agency-platform')], 401);
+        }
+
+        $review_id = absint($_POST['review_id'] ?? 0);
+        if (!$review_id) {
+            wp_send_json_error(['message' => __('ID inválido.', 'travel-agency-platform')], 400);
+        }
+
+        global $wpdb;
+        $review = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}tap_reviews WHERE id = %d AND user_id = %d",
+            $review_id,
+            get_current_user_id()
+        ));
+
+        if (!$review) {
+            wp_send_json_error(['message' => __('Reseña no encontrada.', 'travel-agency-platform')], 404);
+        }
+
+        $wpdb->delete(
+            "{$wpdb->prefix}tap_reviews",
+            ['id' => $review_id],
+            ['%d']
+        );
+
+        wp_send_json_success(['message' => __('Reseña eliminada.', 'travel-agency-platform')]);
+    }
+}

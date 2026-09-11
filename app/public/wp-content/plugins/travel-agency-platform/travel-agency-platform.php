@@ -3,7 +3,7 @@
  * Plugin Name: Travel Agency Platform
  * Plugin URI: https://ivanchodev.com
  * Description: Multi-agency travel platform B2B & B2C. Manage accommodations, tours, transports, car rentals, boats and packages.
- * Version: 1.4.9
+ * Version: 1.5.0
  * Author: IvanchoDev
  * Text Domain: travel-agency-platform
  * Domain Path: /languages
@@ -11,7 +11,7 @@
 
 defined('ABSPATH') || exit;
 
-define('TAP_VERSION', '1.4.9');
+define('TAP_VERSION', '1.5.0');
 define('TAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -65,6 +65,7 @@ final class TravelAgencyPlatform {
         require_once TAP_PLUGIN_DIR . 'includes/class-privacy.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-itinerary.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-automations.php';
+        require_once TAP_PLUGIN_DIR . 'includes/class-front-dash.php';
     }
 
     private function init_hooks() {
@@ -87,6 +88,7 @@ final class TravelAgencyPlatform {
         add_action('init', ['TAP_Emails', 'init'], 12);
         add_action('init', ['TAP_SEO', 'init'], 13);
         add_action('init', ['TAP_Itinerary', 'init'], 14);
+        add_action('init', ['TAP_Front_Dash', 'init'], 15);
         add_action('plugins_loaded', [$this, 'maybe_update_tables'], 5);
         add_action('pre_get_posts', ['TAP_Ajax', 'filter_archive_query'], 10);
         add_filter('posts_clauses', ['TAP_Ajax', 'rating_sort_clauses'], 10, 2);

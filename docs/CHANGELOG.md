@@ -10,6 +10,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ### Added
 
+- **Fase 13 — Role dashboards (T6, v1.5.0):**
+  - New unified `/mi-cuenta/` hub (`[tap_front_dash]` shortcode) with role-based routing:
+    - **Anonymous** users get a styled login card with signup CTA.
+    - **Clients** (`tap_client`) get a full personal dashboard: overview (stat cards for total/upcoming/recent bookings and total spent), bookings list with per-status actions (details, pay, review, cancel), favorites grid, and reviews manager.
+    - **Agencies** (`tap_agency_admin`/`tap_agency_employee`) get the existing agency panel wrapped in a color-coded sidebar (employees see a reduced nav).
+    - **Administrators** are pointed to the WP admin panel.
+  - New class `TAP_Front_Dash` (`includes/class-front-dash.php`) with pure-method rendering, `esc_html()`/`esc_url()` everywhere and a nonce on every AJAX mutation.
+  - Dashboard assets: `assets/css/dashboard.css` (sidebar, stat cards, booking/favorite/review cards, empty states, status badges, 100% responsive) and `assets/js/dashboard.js` (AJAX cancel-booking, toggle-favorite, delete-review with confirmations).
+  - AJAX endpoints with ownership checks: `tap_dash_cancel_booking`, `tap_dash_toggle_favorite`, `tap_dash_delete_review` — all via `check_ajax_referer` and scoped to the logged-in user's own rows.
+  - `agency_panel()` made public so `TAP_Front_Dash` can reuse the existing management UI.
+  - New `suite_dashboard` (35 asserts) validates role routing, per-role nav, client sections, asset registration, AJAX hooks and nonce wiring.
+  - i18n: +45 translatable strings in both `es_ES` and `en_US` catalogues (dashboard sections, actions, JS confirmations), compiled to `.mo`.
+  - Plugin version bumped to **1.5.0**.
+
 - **Fase 12 — Base content & SEO (T5, v1.4.9):**
   - Seeded the production site with real content for Costa Rica's Lago Arenal region:
     - **Services:** 6 tours, 2 transports, 1 boat, 2 packages, 1 equipment — each with GD-generated cover images, approved-agency assignment, location terms, pricing and SEO descriptions.
@@ -30,6 +44,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 - **WP 7.1 compat (`setup_postdata` global `$post` regression):** WordPress 7.1 changed `setup_postdata()` to no longer set the global `$post` variable. This broke all plugin shortcodes (`tap_services`, `tap_service_detail`, `tap_featured`) which relied on `the_title()`, `the_permalink()`, `the_post_thumbnail()` etc. reading the global. Fixed in `class-shortcodes.php` by explicitly setting `$GLOBALS['post'] = $post` after each `setup_postdata()` call and restoring the previous global after the loop — all three locations patched with backup/restore guards.
   - Symptom: destination pages showed the same service card 9 times; tour detail pages showed empty titles and broken links; blog index showed no posts.
   - Verified on WP 7.1 / PHP 8.3.6.
+- **Dashboard review dates (T6):** the client reviews section previously called `get_comment_date()` with an object that wasn't a `WP_Comment`, producing a PHP warning. Reviews now render their date from the review table's own `created_at` column. Also made `TAP_Shortcodes::agency_panel()` public so the front dashboard can reuse the management panel.
 
 - **Fase 11 — Internal automations (T4, v1.4.8):**
   - New `TAP_Automations` + `tap_auto_hook` daily WP-Cron task with four independently toggleable workflows, each with an option-backed sent-log so nothing is actioned twice:
