@@ -447,6 +447,18 @@ class TAP_Booking {
             return new WP_Error('started', __('La reserva ya comenzó.', 'travel-agency-platform'));
         }
 
+        return self::apply_cancellation($booking_id, $booking, 'client');
+    }
+
+    /**
+     * Shared cancellation side-effects used by client and agency flows:
+     * applies the policy penalty, flips payment_status to refunded when a
+     * refund is actually due, voids any outstanding commission and fires the
+     * lifecycle hook. Callers are responsible for ownership/business guards.
+     */
+    private static function apply_cancellation($booking_id, $booking, $cancelled_by) {
+        global $wpdb;
+
         $prev_status = $booking->status;
         $refund = self::cancellation_refund($booking);
 
@@ -455,7 +467,7 @@ class TAP_Booking {
             [
                 'status'               => 'cancelled',
                 'cancel_requested_at'  => current_time('mysql'),
-                'cancelled_by'         => 'client',
+                'cancelled_by'         => $cancelled_by,
                 'cancellation_policy'  => $refund['policy'],
                 'refund_amount'        => round($refund['refund_amount'], 2),
                 'refund_percent'       => $refund['refund_percent'],
@@ -475,7 +487,64 @@ class TAP_Booking {
         self::void_commission($booking_id);
 
         do_action('tap_booking_status_updated', $booking_id, 'cancelled', $prev_status);
+        do_action('tap_booking_cancelled', $booking_id, $booking);
         return true;
+    }
+
+    /**
+     * Agency back-office booking operations (Fase 16 / T9).
+     * Acts on a booking owned by the caller's agency. Supported ops:
+     *   confirm   request|pending -> confirmed
+     *   complete  confirmed        -> completed
+     *   mark_paid pending          -> paid  (triggers commission earning)
+     *   cancel    request|pending|confirmed -> cancelled with policy penalty
+     */
+    public static function agency_booking_action($booking_id, $action, $user_id = 0) {
+        $user_id = $user_id ?: get_current_user_id();
+        $user    = get_userdata($user_id);
+        if (!$user) {
+            return new WP_Error('no_user', __('Debes iniciar sesión.', 'travel-agency-platform'));
+        }
+
+        $booking = self::get_booking(intval($booking_id));
+        if (!$booking) {
+            return new WP_Error('not_found', __('Reserva no encontrada.', 'travel-agency-platform'));
+        }
+
+        $is_admin = user_can($user, 'manage_options');
+        $user_agency = (int) self::get_agency_for_user($user_id);
+        if (!$is_admin && !$user_agency) {
+            return new WP_Error('no_agency', __('Solo cuentas de agencia pueden operar reservas.', 'travel-agency-platform'));
+        }
+        if (!$is_admin && (int) $booking->agency_id !== $user_agency) {
+            return new WP_Error('forbidden', __('No tienes permiso sobre esta reserva.', 'travel-agency-platform'));
+        }
+
+        switch ($action) {
+            case 'confirm':
+                return self::update_status($booking->id, 'confirmed');
+            case 'complete':
+                return self::update_status($booking->id, 'completed');
+            case 'mark_paid':
+                if ('paid' === $booking->payment_status) {
+                    return true;
+                }
+                $res = self::update_payment_status($booking->id, 'paid');
+                if (true === $res) {
+                    do_action('tap_payment_completed', $booking->id, 'office', '');
+                }
+                return $res;
+            case 'cancel':
+                if (!in_array($booking->status, ['pending', 'confirmed', 'request'], true)) {
+                    return new WP_Error('bad_status', __('Esta reserva ya no puede cancelarse.', 'travel-agency-platform'));
+                }
+                if ($booking->check_in && $booking->check_in < gmdate('Y-m-d')) {
+                    return new WP_Error('started', __('La reserva ya comenzó.', 'travel-agency-platform'));
+                }
+                return self::apply_cancellation($booking->id, $booking, 'agency');
+            default:
+                return new WP_Error('invalid_action', __('Operación inválida.', 'travel-agency-platform'));
+        }
     }
 
     public static function update_status($booking_id, $status) {

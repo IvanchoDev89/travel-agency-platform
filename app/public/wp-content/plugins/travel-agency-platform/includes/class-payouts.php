@@ -1,11 +1,15 @@
 <?php
 /**
- * TAP_Payouts — commission payout ledger lifecycle (Fase 6).
+ * TAP_Payouts — commission payout ledger lifecycle (Fase 6, self-service Fase 16).
  *
- * A payout row is created when the admin liquidates commissions (bookings are
- * marked paid at that point). The payout itself then moves pending → completed
- * once the transfer actually happens, or pending → cancelled (which reverts the
- * involved commissions to 'owed' so they can be paid later).
+ * Two creation paths:
+ *  - admin   : the administrator liquidates commissions (bookings are marked
+ *              'paid' at creation).
+ *  - agency  : the agency self-serves a payout REQUEST over its OWED commission
+ *              while bookings stay 'oweed' until the admin completes it.
+ * The payout then moves pending → completed once the transfer happens, or
+ * pending → cancelled (reverts the involved commissions so they can be paid
+ * later).
  */
 defined('ABSPATH') || exit;
 
@@ -28,11 +32,83 @@ class TAP_Payouts {
         return $labels[$status] ?? (string) $status;
     }
 
+    public static function sources() {
+        return ['admin', 'agency'];
+    }
+
+    /**
+     * Agency self-service payout request: groups all currently OWED commission
+     * bookings of the agency into a single pending payout row WITHOUT touching
+     * the bookings yet. Bookings already covered by a pending payout (from any
+     * source) are excluded so nothing can be double-liquidated.
+     */
+    public static function request($agency_id, $method = 'bank_transfer', $note = '') {
+        global $wpdb;
+        $agency_id = intval($agency_id);
+        if ($agency_id < 1) {
+            return new WP_Error('no_agency', __('Agencia inválida.', 'travel-agency-platform'));
+        }
+        $method = in_array($method, ['bank_transfer', 'paypal', 'cheque', 'cash'], true) ? $method : 'bank_transfer';
+        $table  = $wpdb->prefix . 'tap_bookings';
+        $ptable = $wpdb->prefix . 'tap_commission_payments';
+
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT b.id, b.commission_amount
+               FROM {$table} b
+              WHERE b.agency_id = %d
+                AND b.commission_status = 'owed'
+                AND b.payment_status = 'paid'
+                AND b.status NOT IN ('cancelled', 'refunded')
+                AND b.commission_amount > 0
+                AND NOT EXISTS (
+                    SELECT 1 FROM {$ptable} p
+                     WHERE p.status = 'pending'
+                       AND FIND_IN_SET(b.id, p.booking_ids)
+                )",
+            $agency_id
+        ));
+        if (!$rows) {
+            return new WP_Error('nothing_owed', __('No tienes comisiones por cobrar disponibles para liquidar.', 'travel-agency-platform'));
+        }
+
+        $amount       = round(array_sum(array_map(fn($r) => (float) $r->commission_amount, $rows)), 2);
+        $booking_ids  = implode(',', array_column($rows, 'id'));
+        $wpdb->insert($ptable, [
+            'agency_id'   => $agency_id,
+            'amount'      => $amount,
+            'booking_ids' => $booking_ids,
+            'method'      => $method,
+            'note'        => sanitize_textarea_field($note) ?: __('Solicitud de liquidación', 'travel-agency-platform'),
+            'source'      => 'agency',
+            'created_by'  => get_current_user_id(),
+        ]);
+        $payment_id = (int) $wpdb->insert_id;
+        if (!$payment_id) {
+            return new WP_Error('db_error', __('No se pudo registrar la solicitud.', 'travel-agency-platform'));
+        }
+
+        do_action('tap_payout_requested', $payment_id, $agency_id, $amount);
+        return $payment_id;
+    }
+
     /** Mark a pending payout as transferred. */
     public static function complete($payment_id) {
         global $wpdb;
+        $row = $wpdb->get_row($wpdb->prepare("SELECT booking_ids FROM {$wpdb->prefix}tap_commission_payments WHERE id = %d", $payment_id));
+        if (!$row) {
+            return false;
+        }
         if (!self::_transition($payment_id, [self::PENDING], self::COMPLETED)) {
             return false;
+        }
+        if ($row->booking_ids) {
+            $ids = array_filter(array_map('intval', explode(',', $row->booking_ids)));
+            if ($ids) {
+                $in = implode(',', $ids);
+                // Agency-source requests keep bookings 'owed' on purpose: only now
+                // that the transfer happened do their commissions become 'paid'.
+                $wpdb->query("UPDATE {$wpdb->prefix}tap_bookings SET commission_status = 'paid' WHERE id IN ({$in}) AND commission_status = 'owed'");
+            }
         }
         $wpdb->update($wpdb->prefix . 'tap_commission_payments', ['paid_at' => current_time('mysql')], ['id' => $payment_id]);
         do_action('tap_payout_completed', (int) $payment_id);

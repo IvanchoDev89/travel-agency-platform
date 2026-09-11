@@ -245,6 +245,7 @@ class TAP_Installer {
                 booking_ids text,
                 method varchar(50) DEFAULT 'bank_transfer',
                 note text,
+                source varchar(10) DEFAULT 'admin',
                 created_by bigint(20) DEFAULT 0,
                 created_at datetime DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (id),
@@ -258,6 +259,9 @@ class TAP_Installer {
         }
         if (!in_array('paid_at', $cols_payouts)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_commission_payments ADD COLUMN paid_at datetime DEFAULT NULL AFTER status");
+        }
+        if (!in_array('source', $cols_payouts)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_commission_payments ADD COLUMN source varchar(10) DEFAULT 'admin' AFTER note");
         }
 
         if ($wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}tap_disputes'") !== "{$wpdb->prefix}tap_disputes") {

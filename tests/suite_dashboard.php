@@ -53,7 +53,7 @@ wp_set_current_user($client_id);
 
 $out = do_shortcode('[tap_front_dash]');
 tap_t_assert(strpos($out, 'tap-dash-sidebar') !== false, 'client sees dashboard sidebar');
-tap_t_assert(strpos($out, 'Mi agencia') === false, 'client has NO agency nav item');
+tap_t_assert(strpos($out, 'Operaciones') === false && strpos($out, 'Finanzas') === false, 'client has NO agency back-office nav items');
 tap_t_assert(strpos($out, 'Cerrar sesión') !== false, 'client sees logout link');
 tap_t_assert(strpos($out, 'tap-dash') !== false, 'client dashboard wrapper present');
 tap_t_assert(strpos($out, 'Favoritos') !== false, 'client sidebar has Favoritos');
@@ -104,9 +104,10 @@ if ($agencies) {
     wp_set_current_user($agency_id);
     $out = do_shortcode('[tap_front_dash]');
     tap_t_assert(strpos($out, 'tap-dash-sidebar') !== false, 'agency admin sees dashboard sidebar');
-    tap_t_assert(strpos($out, 'Mi agencia') !== false, 'agency admin sees agency nav item');
-    tap_t_assert(strpos($out, 'Gestionar') !== false, 'agency admin sees Gestionar nav item');
-    tap_t_assert(strpos($out, 'Mis reservas') !== false, 'agency admin sees bookings nav item');
+    tap_t_assert(strpos($out, 'Resumen') !== false, 'agency admin sees Resumen nav item');
+    tap_t_assert(strpos($out, 'Operaciones') !== false, 'agency admin sees Operaciones nav item');
+    tap_t_assert(strpos($out, 'Finanzas') !== false, 'agency admin sees Finanzas nav item');
+    tap_t_assert(strpos($out, 'Listados') !== false, 'agency admin sees Listados nav item');
 } else {
     tap_t_fail('no tap_agency_admin user to test agency dashboard');
 }
@@ -117,7 +118,7 @@ if ($employees) {
     wp_set_current_user((int) $employees[0]);
     $out = do_shortcode('[tap_front_dash]');
     tap_t_assert(strpos($out, 'tap-dash-sidebar') !== false, 'employee sees dashboard sidebar');
-    tap_t_assert(strpos($out, 'Mis reservas') === false || strpos($out, 'tap-dash') !== false, 'employee has reduced nav (no error)');
+    tap_t_assert(strpos($out, 'Operaciones') !== false && strpos($out, 'Finanzas') === false, 'employee nav shows operaciones but hides finanzas');
 } else {
     tap_t_pass('no employee user available (skipped)');
 }

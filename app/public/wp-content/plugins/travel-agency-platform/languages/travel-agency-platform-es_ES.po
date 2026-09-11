@@ -6637,3 +6637,111 @@ msgstr "← Anteriores"
 
 msgid "Mi Cuenta"
 msgstr "Mi Cuenta"
+
+msgid "Pago"
+msgstr "Pago"
+
+msgid "No tienes permiso sobre esta reserva."
+msgstr "No tienes permiso sobre esta reserva."
+
+msgid "Agencia inválida."
+msgstr "Agencia inválida."
+
+msgid "Solicitar liquidación"
+msgstr "Solicitar liquidación"
+
+msgid "Aún no hay liquidaciones registradas."
+msgstr "Aún no hay liquidaciones registradas."
+
+msgid "Cheque"
+msgstr "Cheque"
+
+msgid "Parámetros inválidos."
+msgstr "Parámetros inválidos."
+
+msgid "Enviar la solicitud de liquidación al administrador?"
+msgstr "Enviar la solicitud de liquidación al administrador?"
+
+msgid "Origen"
+msgstr "Origen"
+
+msgid "No hay reservas en este estado."
+msgstr "No hay reservas en este estado."
+
+msgid "Método de cobro"
+msgstr "Método de cobro"
+
+msgid "Tu comisión por cobrar queda agrupada en una sola solicitud que el administrador confirma antes de transferirte."
+msgstr "Tu comisión por cobrar queda agrupada en una sola solicitud que el administrador confirma antes de transferirte."
+
+msgid "Solo el administrador de la agencia gestiona las finanzas."
+msgstr "Solo el administrador de la agencia gestiona las finanzas."
+
+msgid "Sol. agencia"
+msgstr "Sol. agencia"
+
+msgid "Admin"
+msgstr "Admin"
+
+msgid "Operaciones de reservas"
+msgstr "Operaciones de reservas"
+
+msgid "Operaciones"
+msgstr "Operaciones"
+
+msgid "Solo el administrador de la agencia puede solicitar liquidaciones."
+msgstr "Solo el administrador de la agencia puede solicitar liquidaciones."
+
+msgid "Finanzas de la agencia"
+msgstr "Finanzas de la agencia"
+
+msgid "Solicitud de liquidación"
+msgstr "Solicitud de liquidación"
+
+msgid "Listado eliminado"
+msgstr "Listado eliminado"
+
+msgid "Solicitar %s"
+msgstr "Solicitar %s"
+
+msgid "Reserva actualizada."
+msgstr "Reserva actualizada."
+
+msgid "ad"
+msgstr "ad"
+
+msgid "Solo cuentas de agencia pueden operar reservas."
+msgstr "Solo cuentas de agencia pueden operar reservas."
+
+msgid "Completar"
+msgstr "Completar"
+
+msgid "No tienes comisiones por cobrar disponibles para liquidar."
+msgstr "No tienes comisiones por cobrar disponibles para liquidar."
+
+msgid "Finanzas"
+msgstr "Finanzas"
+
+msgid "¿Realizar esta operación sobre la reserva?"
+msgstr "¿Realizar esta operación sobre la reserva?"
+
+msgid "Tienes una solicitud de liquidación de %s pendiente de confirmación por el administrador (#%d)."
+msgstr "Tienes una solicitud de liquidación de %s pendiente de confirmación por el administrador (#%d)."
+
+msgid "Confirmar"
+msgstr "Confirmar"
+
+msgid "No se pudo registrar la solicitud."
+msgstr "No se pudo registrar la solicitud."
+
+msgid "Solicitud de liquidación enviada al administrador."
+msgstr "Solicitud de liquidación enviada al administrador."
+
+msgid "No tienes una agencia vinculada."
+msgstr "No tienes una agencia vinculada."
+
+msgid "Operación inválida."
+msgstr "Operación inválida."
+
+msgid "Nota (opcional)"
+msgstr "Nota (opcional)"

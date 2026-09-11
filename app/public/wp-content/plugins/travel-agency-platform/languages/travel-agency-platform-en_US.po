@@ -6450,3 +6450,111 @@ msgstr "← Anteriores"
 
 msgid "Mi Cuenta"
 msgstr "My Account"
+
+msgid "Pago"
+msgstr "Payment"
+
+msgid "No tienes permiso sobre esta reserva."
+msgstr "You do not have permission over this booking."
+
+msgid "Agencia inválida."
+msgstr "Invalid agency."
+
+msgid "Solicitar liquidación"
+msgstr "Request payout"
+
+msgid "Aún no hay liquidaciones registradas."
+msgstr "No payouts recorded yet."
+
+msgid "Cheque"
+msgstr "Check"
+
+msgid "Parámetros inválidos."
+msgstr "Invalid parameters."
+
+msgid "Enviar la solicitud de liquidación al administrador?"
+msgstr "Send the payout request to the administrator?"
+
+msgid "Origen"
+msgstr "Source"
+
+msgid "No hay reservas en este estado."
+msgstr "There are no bookings in this status."
+
+msgid "Método de cobro"
+msgstr "Payment method"
+
+msgid "Tu comisión por cobrar queda agrupada en una sola solicitud que el administrador confirma antes de transferirte."
+msgstr "Your owed commission is grouped into a single request that the administrator confirms before transferring to you."
+
+msgid "Solo el administrador de la agencia gestiona las finanzas."
+msgstr "Only the agency administrator manages finances."
+
+msgid "Sol. agencia"
+msgstr "Agency req."
+
+msgid "Admin"
+msgstr "Admin"
+
+msgid "Operaciones de reservas"
+msgstr "Booking operations"
+
+msgid "Operaciones"
+msgstr "Operations"
+
+msgid "Solo el administrador de la agencia puede solicitar liquidaciones."
+msgstr "Only the agency administrator can request payouts."
+
+msgid "Finanzas de la agencia"
+msgstr "Agency finances"
+
+msgid "Solicitud de liquidación"
+msgstr "Payout request"
+
+msgid "Listado eliminado"
+msgstr "Listing deleted"
+
+msgid "Solicitar %s"
+msgstr "Request %s"
+
+msgid "Reserva actualizada."
+msgstr "Booking updated."
+
+msgid "ad"
+msgstr "ad"
+
+msgid "Solo cuentas de agencia pueden operar reservas."
+msgstr "Only agency accounts can operate bookings."
+
+msgid "Completar"
+msgstr "Complete"
+
+msgid "No tienes comisiones por cobrar disponibles para liquidar."
+msgstr "You have no owed commission available to settle."
+
+msgid "Finanzas"
+msgstr "Finances"
+
+msgid "¿Realizar esta operación sobre la reserva?"
+msgstr "Perform this operation on the booking?"
+
+msgid "Tienes una solicitud de liquidación de %s pendiente de confirmación por el administrador (#%d)."
+msgstr "You have a payout request of %s pending confirmation by the administrator (#%d)."
+
+msgid "Confirmar"
+msgstr "Confirm"
+
+msgid "No se pudo registrar la solicitud."
+msgstr "Could not register the request."
+
+msgid "Solicitud de liquidación enviada al administrador."
+msgstr "Payout request sent to the administrator."
+
+msgid "No tienes una agencia vinculada."
+msgstr "You have no linked agency."
+
+msgid "Operación inválida."
+msgstr "Invalid operation."
+
+msgid "Nota (opcional)"
+msgstr "Note (optional)"

@@ -6,9 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
-## [Unreleased] — post-1.3.0 improvements
+## [Unreleased] — post-1.5.2 improvements
 
 ### Added
+
+- **Fase 16 — Agency back-office: operaciones + finanzas + liquidaciones (T9, v1.5.3):**
+  - New `[tap_front_dash]` sections **Operaciones** (`bo-operations`) and **Finanzas** (`bo-finances`), rendered by `TAP_Front_Dash` for agency administrators; agency employees see only Resumen + Operaciones.
+  - `TAP_Booking::agency_booking_action($booking_id, $action)` centralises agency-side operations: `confirm`, `complete`, `mark_paid` and `cancel`; the shared `apply_cancellation()` ensures policy-based penalties and commission voiding are identical for client and agency cancellations.
+  - `TAP_Payouts::request($agency_id, $method, $note)` allows agency administrators to self-request a payout for all `owed` commissions; bookings stay `owed` until an admin calls `complete()`, which now also flips `commission_status` from `owed` → `paid` for every booking in the payout.
+  - New `source` column on `tap_commission_payments` distinguishes settlements created by the admin (`source='admin'`) from those requested by the agency (`source='agency'`).
+  - Front-office JS wiring in `dashboard.js` for `.tap-bo-api` action buttons (confirm/complete/mark_paid/cancel) and the `#tap-bo-payout` payout-request form; i18n labels included.
+  - Tests: new `suite_back_office` (41 asserts) covers ownership isolation, confirm→complete flow, mark_paid commission hook, agency cancellation policy, payout request/complete/cancel lifecycle and the new front-office sections + wiring. Full battery **36/36 suites PASS**.
+  - Plugin version bumped to **1.5.3**.
 
 - **Fase 15 — Server-side price authority & input hardening (T8, v1.5.2):**
   - `TAP_Booking::create()` is now **authoritative for money**: `total_amount`, `booking_fee` and `client_id` are never trusted from client input. Totals are always recomputed from `calculate_price()` (catalogue price, dates, guests, room) plus the server-derived `get_booking_fee()`; the booking is always attributed via `get_current_user_id()` (or `client_id = 0` for guest checkout).

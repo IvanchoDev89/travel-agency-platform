@@ -523,7 +523,12 @@ class TAP_Dashboard {
                      WHERE id IN ({$placeholders})
                        AND commission_status = 'owed'
                        AND payment_status = 'paid'
-                       AND status NOT IN ('cancelled', 'refunded')",
+                       AND status NOT IN ('cancelled', 'refunded')
+                       AND NOT EXISTS (
+                           SELECT 1 FROM {$p_table} p
+                            WHERE p.status = 'pending'
+                              AND FIND_IN_SET({$b_table}.id, p.booking_ids)
+                       )",
                     $ids
                 ));
                 if ($rows) {
@@ -539,6 +544,7 @@ class TAP_Dashboard {
                             'booking_ids' => implode(',', $agency_ids),
                             'method'     => $method,
                             'note'       => $note,
+                            'source'     => 'admin',
                             'created_by' => get_current_user_id(),
                         ]);
                         $payment_id = $wpdb->insert_id;
@@ -565,6 +571,7 @@ class TAP_Dashboard {
                     'booking_ids' => (string) $booking_id,
                     'method'      => $method,
                     'note'        => $note ?: __('Liquidación individual', 'travel-agency-platform'),
+                    'source'      => 'admin',
                     'created_by'  => get_current_user_id(),
                 ]);
                 $payment_id = $wpdb->insert_id;
@@ -739,6 +746,7 @@ class TAP_Dashboard {
                         <th><?php esc_html_e('Agency', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Monto', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Método', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Origen', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Bookings', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Nota', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Estado', 'travel-agency-platform'); ?></th>
@@ -748,7 +756,7 @@ class TAP_Dashboard {
                 </thead>
                 <tbody>
                     <?php if (!$payments): ?>
-                        <tr><td colspan="9"><?php esc_html_e('Aún no se han registrado liquidaciones.', 'travel-agency-platform'); ?></td></tr>
+                        <tr><td colspan="10"><?php esc_html_e('Aún no se han registrado liquidaciones.', 'travel-agency-platform'); ?></td></tr>
                     <?php endif; ?>
                     <?php foreach ($payments as $p): ?>
                     <tr>
@@ -756,6 +764,7 @@ class TAP_Dashboard {
                         <td><?php echo esc_html($p->agency_name ?? 'N/A'); ?></td>
                         <td><?php echo esc_html(TAP_Currency::fmt($p->amount)); ?></td>
                         <td><?php echo esc_html($p->method); ?></td>
+                        <td><?php if ('agency' === ($p->source ?? 'admin')): ?><span class="button button-small" style="background:#fffbeb;border-color:#f59e0b;color:#92400e;"><?php esc_html_e('Sol. agencia', 'travel-agency-platform'); ?></span><?php else: ?><span class="button button-small" style="background:#eff6ff;border-color:#3b82f6;color:#1e40af;"><?php esc_html_e('Admin', 'travel-agency-platform'); ?></span><?php endif; ?></td>
                         <td><?php
                             $ids = array_filter(array_map('intval', explode(',', $p->booking_ids)));
                             if ($ids) {
