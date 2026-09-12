@@ -6,9 +6,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
-## [Unreleased] — post-1.5.2 improvements
+## [Unreleased] — post-1.5.3 improvements
 
 ### Added
+
+- **Fase 16b — Unificação del back-office de agencia en un solo panel (T9, v1.5.4):**
+  - New professional **Resumen** section in `/mi-cuenta/` for agencies: agency header (name, verified badge, commission rate), plan summary (subscription status, listing capacity), 12-card stats grid (bookings, revenue, commission, net, owed/disputed/settled), listing counts by type, recent bookings, and a leads inbox with CSV export. Employees see a reduced overview (no finances/leads).
+  - **Consolidation**: `/dashboard/` (the legacy `[tap_dashboard]` page "Panel de Agencia") now issues a **301 redirect to `/mi-cuenta/`**, and all plugin links (welcome/approval emails, agency-register AJAX redirect, chatbot, manage-listings login prompt, register shortcode) point to the unified back-office. `TAP_Shortcodes::agency_panel()` remains for backward compatibility only.
+  - Tests: `suite_back_office` extended with overview assertions (stats grid, quick actions, employee gating, 301 hook, no legacy `/dashboard/` links). Full battery **36/36 suites PASS**.
+  - Plugin version bumped to **1.5.4**.
 
 - **Fase 16 — Agency back-office: operaciones + finanzas + liquidaciones (T9, v1.5.3):**
   - New `[tap_front_dash]` sections **Operaciones** (`bo-operations`) and **Finanzas** (`bo-finances`), rendered by `TAP_Front_Dash` for agency administrators; agency employees see only Resumen + Operaciones.

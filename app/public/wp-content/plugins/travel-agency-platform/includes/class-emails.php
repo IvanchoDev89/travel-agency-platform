@@ -83,7 +83,7 @@ class TAP_Emails {
         $welcome_intro = sprintf(
             __('Tu agencia <strong>%s</strong> ha sido registrada y ahora está <strong>en revisión</strong>.<br><br>Un administrador verificará tus datos de identificación. En cuanto tu agencia sea aprobada te avisaremos por correo y podrás publicar tus servicios y recibir reservas. Accede a tu <a href="%s" style="color:#0d9488;">panel de agencia</a> para adelantar tus listados.', 'travel-agency-platform'),
             esc_html($agency->post_title),
-            esc_url(home_url('/dashboard/'))
+            esc_url(home_url('/mi-cuenta/'))
         );
         self::send($agency_email, __('Tu agencia está en revisión', 'travel-agency-platform'), self::info_template($welcome_headline, $welcome_intro));
 
@@ -121,7 +121,7 @@ class TAP_Emails {
                 sprintf(
                     __('Tu agencia <strong>%s</strong> fue aprobada y ya es visible para los viajeros.<br><br>Ya puedes publicar servicios y recibir reservas desde tu <a href="%s" style="color:#0d9488;">panel de agencia</a>.', 'travel-agency-platform'),
                     esc_html($agency->post_title),
-                    esc_url(home_url('/dashboard/'))
+                    esc_url(home_url('/mi-cuenta/'))
                 )
             )
         );

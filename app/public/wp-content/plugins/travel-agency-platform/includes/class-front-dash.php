@@ -29,8 +29,20 @@ class TAP_Front_Dash {
         add_action('wp_ajax_tap_dash_agency_booking', [__CLASS__, 'ajax_agency_booking']);
         add_action('wp_ajax_tap_dash_agency_payout', [__CLASS__, 'ajax_agency_payout']);
 
+        // 301 redirect legacy /dashboard/ page to the unified /mi-cuenta/ back-office
+        add_action('template_redirect', [__CLASS__, 'dashboard_redirect']);
+
         // Enqueue dashboard CSS on front-end dashboard pages
         add_action('wp_enqueue_scripts', [__CLASS__, 'enqueue_assets'], 20);
+    }
+
+    /* ── legacy dashboard redirect ────────────────────────────── */
+
+    public static function dashboard_redirect() {
+        if (is_page('dashboard') && !is_admin() && !empty($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'GET') {
+            wp_redirect(home_url('/mi-cuenta/'), 301);
+            exit;
+        }
     }
 
     /* ── assets ────────────────────────────────────────────────────── */
@@ -552,7 +564,7 @@ class TAP_Front_Dash {
                         echo TAP_Shortcodes::agency_manage([]);
                         break;
                     default:
-                        echo TAP_Shortcodes::agency_panel($user);
+                        echo self::agency_overview($user);
                 } ?>
             </main>
         </div>
@@ -765,6 +777,224 @@ class TAP_Front_Dash {
                 <?php endforeach; ?>
                 </tbody>
             </table></div>
+            <?php endif; ?>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /* ── agency back-office: overview (resumen) ─────────────────────── */
+
+    private static function agency_overview($user) {
+        global $wpdb;
+        $is_admin  = !in_array('tap_agency_employee', (array) $user->roles, true);
+        $agency_id = TAP_Booking::get_agency_for_user($user->ID);
+        $agency    = $agency_id ? get_post($agency_id) : null;
+        if (!$agency_id && !current_user_can('manage_options')) {
+            return '<p class="tap-empty">' . esc_html__('No tienes una agencia vinculada.', 'travel-agency-platform') . '</p>';
+        }
+
+        $agency_name = $agency ? $agency->post_title : __('Tu agencia', 'travel-agency-platform');
+        $verified    = $agency_id ? get_post_meta($agency_id, '_tap_agency_verified', true) : false;
+        $commission  = $agency_id ? TAP_Booking::get_agency_commission($agency_id) : 10;
+        $stats       = TAP_Booking::get_booking_stats($agency_id);
+
+        $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
+            "SELECT
+                COALESCE(SUM(CASE WHEN commission_status = 'owed' THEN commission_amount END),0) owed,
+                COALESCE(SUM(CASE WHEN commission_status = 'disputed' THEN commission_amount END),0) disputed,
+                COALESCE(SUM(CASE WHEN commission_status = 'paid' THEN commission_amount END),0) settled
+             FROM {$wpdb->prefix}tap_bookings
+             WHERE agency_id = %d
+               AND commission_amount > 0
+               AND payment_status = 'paid'
+               AND status NOT IN ('cancelled', 'refunded')",
+            $agency_id
+        )) : (object) ['owed' => 0, 'disputed' => 0, 'settled' => 0];
+
+        $recent = $agency_id ? $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}tap_bookings WHERE agency_id = %d
+             ORDER BY created_at DESC LIMIT 8",
+            $agency_id
+        )) : [];
+
+        $counts = [];
+        if ($agency_id) {
+            $rows = $wpdb->get_results($wpdb->prepare(
+                "SELECT status, COUNT(*) c FROM {$wpdb->prefix}tap_bookings WHERE agency_id = %d GROUP BY status",
+                $agency_id
+            ));
+            foreach ($rows as $r) {
+                $counts[$r->status] = (int) $r->c;
+            }
+        }
+
+        $listing_types = [
+            'tap_accommodation' => ['meta' => '_tap_acc_agency_id',  'label' => __('Alojamientos', 'travel-agency-platform')],
+            'tap_tour'          => ['meta' => '_tap_tour_agency_id', 'label' => __('Tours', 'travel-agency-platform')],
+            'tap_transport'     => ['meta' => '_tap_trans_agency_id', 'label' => __('Transportes', 'travel-agency-platform')],
+            'tap_car_rental'    => ['meta' => '_tap_car_agency_id',  'label' => __('Alquiler de carros', 'travel-agency-platform')],
+            'tap_boat'          => ['meta' => '_tap_boat_agency_id', 'label' => __('Barcos', 'travel-agency-platform')],
+            'tap_package'       => ['meta' => '_tap_pkg_agency_id',  'label' => __('Paquetes', 'travel-agency-platform')],
+        ];
+        $listings = [];
+        foreach ($listing_types as $type => $cfg) {
+            $ids = get_posts([
+                'post_type'      => $type,
+                'post_status'    => 'any',
+                'posts_per_page' => -1,
+                'meta_key'       => $cfg['meta'],
+                'meta_value'     => $agency_id,
+                'fields'         => 'ids',
+            ]);
+            if ($ids) {
+                $listings[$type] = ['label' => $cfg['label'], 'count' => count($ids)];
+            }
+        }
+
+        $base = home_url('/mi-cuenta/');
+        ob_start(); ?>
+        <div class="tap-dash-section">
+            <div class="tap-agency-header">
+                <div>
+                    <h2><?php echo esc_html($agency_name); ?>
+                        <?php if ($verified): ?>
+                            <span class="tap-verified-badge" title="<?php esc_attr_e('Agencia verificada', 'travel-agency-platform'); ?>">&#10003; <?php esc_html_e('Verificada', 'travel-agency-platform'); ?></span>
+                        <?php endif; ?>
+                    </h2>
+                    <p class="tap-agency-meta"><?php esc_html_e('Comisión', 'travel-agency-platform'); ?>: <strong><?php echo esc_html($commission); ?>%</strong></p>
+                </div>
+                <div class="tap-agency-header-actions">
+                    <?php if ($agency_id): ?>
+                        <a href="<?php echo esc_url(home_url('/agency-profile/?id=' . (int) $agency_id)); ?>" class="tap-btn tap-btn-sm"><?php esc_html_e('Ver perfil público', 'travel-agency-platform'); ?></a>
+                    <?php endif; ?>
+                    <a href="<?php echo esc_url(add_query_arg('seccion', 'bo-listings', $base)); ?>" class="tap-btn tap-btn-sm tap-btn-primary"><?php esc_html_e('Gestionar listados', 'travel-agency-platform'); ?></a>
+                </div>
+            </div>
+
+            <?php if ($agency_id && class_exists('TAP_Subscriptions')):
+                $tap_plan    = TAP_Subscriptions::active_plan($agency_id);
+                $tap_current = TAP_Subscriptions::current_subscription($agency_id);
+                $tap_limit   = TAP_Subscriptions::listing_limit($agency_id);
+                $tap_used    = TAP_Subscriptions::listing_count($agency_id);
+            ?>
+            <div class="tap-plan-summary">
+                <span><?php esc_html_e('Plan', 'travel-agency-platform'); ?>: <strong><?php echo esc_html($tap_plan->name); ?></strong></span>
+                <?php if (!empty($tap_plan->paid_until)): ?>
+                    <span><?php esc_html_e('Válido hasta', 'travel-agency-platform'); ?>: <strong><?php echo esc_html($tap_plan->paid_until); ?></strong></span>
+                <?php endif; ?>
+                <span><?php esc_html_e('Listados', 'travel-agency-platform'); ?>: <strong><?php echo (int) $tap_limit < 0 ? esc_html__('Ilimitados', 'travel-agency-platform') : esc_html($tap_used . ' / ' . $tap_limit); ?></strong></span>
+                <span><?php esc_html_e('Comisión', 'travel-agency-platform'); ?>: <strong><?php echo esc_html($commission); ?>%</strong></span>
+                <a href="<?php echo esc_url(home_url('/planes/')); ?>" class="tap-btn tap-btn-sm"><?php esc_html_e('Ver planes', 'travel-agency-platform'); ?></a>
+            </div>
+            <?php if ($tap_current && 'pending' === $tap_current->status): ?>
+                <div class="tap-capacity-note" style="background:#fffbeb;color:#92400e;font-size:13px;font-weight:600;padding:10px 14px;border-radius:10px;margin-bottom:16px;">
+                    <?php esc_html_e('Tienes una suscripción pendiente de confirmación de pago.', 'travel-agency-platform'); ?>
+                </div>
+            <?php elseif ((int) $tap_limit >= 0 && $tap_used >= (int) $tap_limit): ?>
+                <div class="tap-capacity-note tap-full" style="margin-bottom:16px;">
+                    <?php echo esc_html(sprintf(__('Alcanzaste el límite de %d listados de tu plan. Mejora de plan para publicar más.', 'travel-agency-platform'), (int) $tap_limit)); ?>
+                </div>
+            <?php endif; endif; ?>
+
+            <div class="tap-stats-grid">
+                <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html($stats['total']); ?></span><span class="tap-stat-label"><?php esc_html_e('Reservas totales', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b45309;"><?php echo esc_html($stats['request'] ?? 0); ?></span><span class="tap-stat-label"><?php esc_html_e('Solicitudes', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html($stats['pending']); ?></span><span class="tap-stat-label"><?php esc_html_e('Pendientes', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html($stats['confirmed']); ?></span><span class="tap-stat-label"><?php esc_html_e('Confirmadas', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(number_format((float) $stats['completed'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Completadas', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(TAP_Currency::fmt($stats['revenue'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Ingresos', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(TAP_Currency::fmt($stats['commission'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Comisiones', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number" style="color:#047857;"><?php echo esc_html(TAP_Currency::fmt($stats['net'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Neto para ti', 'travel-agency-platform'); ?></span></div>
+                <?php if ($is_admin): ?>
+                <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b45309;"><?php echo esc_html(TAP_Currency::fmt($comm_rows->owed)); ?></span><span class="tap-stat-label"><?php esc_html_e('Por cobrar', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b91c1c;"><?php echo esc_html(TAP_Currency::fmt($comm_rows->disputed)); ?></span><span class="tap-stat-label"><?php esc_html_e('En disputa', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number" style="color:#047857;"><?php echo esc_html(TAP_Currency::fmt($comm_rows->settled)); ?></span><span class="tap-stat-label"><?php esc_html_e('Cobrado', 'travel-agency-platform'); ?></span></div>
+                <?php endif; ?>
+            </div>
+
+            <?php if ($agency_id && !empty($listings)): ?>
+            <div class="tap-panel-section" style="margin-top:24px;">
+                <div class="tap-section-head">
+                    <h3><?php esc_html_e('Tus listados', 'travel-agency-platform'); ?></h3>
+                    <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(add_query_arg('seccion', 'bo-listings', $base)); ?>"><?php esc_html_e('Ver todos', 'travel-agency-platform'); ?></a>
+                </div>
+                <div class="tap-stats-grid">
+                    <?php foreach ($listings as $ltype => $linfo): ?>
+                        <div class="tap-stat-card"><span class="tap-stat-number"><?php echo (int) $linfo['count']; ?></span><span class="tap-stat-label"><?php echo esc_html($linfo['label']); ?></span></div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <div class="tap-panel-section" style="margin-top:24px;">
+                <div class="tap-section-head">
+                    <h3><?php esc_html_e('Reservas recientes', 'travel-agency-platform'); ?></h3>
+                    <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(add_query_arg('seccion', 'bo-operations', $base)); ?>"><?php esc_html_e('Ver operaciones', 'travel-agency-platform'); ?></a>
+                </div>
+                <?php if (!$recent): ?>
+                    <p class="tap-agency-meta"><?php echo esc_html(sprintf(__('Aún no tienes reservas. Comparte tus listados para empezar a recibir solicitudes. Comisión: %s%%', 'travel-agency-platform'), esc_html($commission))); ?></p>
+                <?php else: ?>
+                <div class="tap-table-scroll"><table class="tap-table tap-table-compact">
+                    <thead><tr>
+                        <th><?php esc_html_e('Código', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Servicio', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Fechas', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Total', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Estado', 'travel-agency-platform'); ?></th>
+                    </tr></thead>
+                    <tbody>
+                    <?php foreach ($recent as $b):
+                        $b_title = get_the_title($b->service_id);
+                        $b_title = $b_title ?: __('Listado eliminado', 'travel-agency-platform'); ?>
+                        <tr>
+                            <td><a class="tap-booking-code" href="<?php echo esc_url(home_url('/booking-detail/?code=' . rawurlencode($b->booking_code))); ?>"><?php echo esc_html($b->booking_code); ?></a></td>
+                            <td><?php echo esc_html($b_title); ?></td>
+                            <td><?php echo esc_html($b->check_in . ($b->check_out ? ' &rarr; ' . $b->check_out : '')); ?></td>
+                            <td><?php echo esc_html(TAP_Currency::fmt($b->total_amount)); ?></td>
+                            <td><span class="tap-status tap-status-<?php echo in_array($b->status, ['confirmed', 'completed'], true) ? 'confirmed' : 'pending'; ?>"><?php echo esc_html(TAP_Emails::STATUS_LABELS[$b->status] ?? ucfirst($b->status)); ?></span></td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table></div>
+                <?php endif; ?>
+            </div>
+
+            <?php if ($is_admin && $agency_id && class_exists('TAP_Leads')): ?>
+            <div class="tap-panel-section" style="margin-top:24px;">
+                <div class="tap-section-head">
+                    <h3><?php esc_html_e('Leads de contacto', 'travel-agency-platform'); ?> <span class="tap-tab-count"><?php echo (int) TAP_Leads::count_for_agency($agency_id); ?></span></h3>
+                    <?php if (TAP_Leads::count_for_agency($agency_id) > 0): ?>
+                        <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php') . '?action=tap_export_leads&agency=' . (int) $agency_id, 'tap_export_leads_' . $user->ID)); ?>"><?php esc_html_e('Exportar CSV', 'travel-agency-platform'); ?></a>
+                    <?php endif; ?>
+                </div>
+                <?php $leads = TAP_Leads::for_agency($agency_id, 10);
+                if (!$leads): ?>
+                    <p class="tap-agency-meta"><?php esc_html_e('Aún no has recibido mensajes de contacto. Cuando un visitante envíe el formulario de tu perfil o de un servicio, aparecerá aquí.', 'travel-agency-platform'); ?></p>
+                <?php else: ?>
+                <div class="tap-table-scroll"><table class="tap-table tap-table-compact">
+                    <thead><tr>
+                        <th><?php esc_html_e('Nombre', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Contacto', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Servicio', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Fecha', 'travel-agency-platform'); ?></th>
+                    </tr></thead>
+                    <tbody>
+                    <?php foreach ($leads as $ld):
+                        $ld_service = $ld->service_id ? get_the_title($ld->service_id) : '';
+                        $ld_open    = class_exists('TAP_Attribution') && TAP_Attribution::contact_unlocked($agency_id, $ld->email);
+                        $ld_email   = $ld_open ? $ld->email : (class_exists('TAP_Attribution') ? TAP_Attribution::mask_email($ld->email) : $ld->email); ?>
+                        <tr>
+                            <td><strong><?php echo esc_html($ld_open ? $ld->name : (class_exists('TAP_Attribution') ? TAP_Attribution::mask_name($ld->name) : $ld->name)); ?></strong></td>
+                            <td><?php echo esc_html($ld_email); ?></td>
+                            <td><?php echo esc_html($ld_service); ?></td>
+                            <td><?php echo esc_html($ld->created_at); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table></div>
+                <?php endif; ?>
+            </div>
             <?php endif; ?>
         </div>
         <?php

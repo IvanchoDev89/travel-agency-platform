@@ -161,6 +161,10 @@ tap_t_assert(has_action('wp_ajax_tap_dash_agency_booking') && has_action('wp_aja
 tap_t_assert(false !== strpos($src, "'bo-operations'") && false !== strpos($src, "'bo-finances'") && false !== strpos($src, "'bo-listings'"), 'back-office sections wired in the dashboard nav/routing');
 
 wp_set_current_user($owner_uid);
+$out = do_shortcode('[tap_front_dash]');
+tap_t_assert(false !== strpos($out, 'Resumen') && false !== strpos($out, 'tap-stats-grid') && false !== strpos($out, 'Reservas recientes'), 'agency admin overview renders the stats grid + recent bookings');
+tap_t_assert(false !== strpos($out, 'Ver perfil público') && false !== strpos($out, 'Gestionar listados'), 'overview offers public profile + listings quick actions');
+
 $b4 = bo_booking($owner_aid, ['status' => 'pending']);
 $_GET['seccion'] = 'bo-operations';
 $out = do_shortcode('[tap_front_dash]');
@@ -178,10 +182,16 @@ $_GET['seccion'] = 'overview';
 $out = do_shortcode('[tap_front_dash]');
 unset($_GET['seccion']);
 tap_t_assert(false !== strpos($out, 'Operaciones') && false === strpos($out, 'bo-finances'), 'employee nav hides the finances section');
+tap_t_assert(false === strpos($out, 'Por cobrar') && false === strpos($out, 'Leads de contacto'), 'employee overview hides finance cards + leads');
 $_GET['seccion'] = 'bo-finances';
 $out = do_shortcode('[tap_front_dash]');
 unset($_GET['seccion']);
 tap_t_assert(false !== strpos($out, 'Solo el administrador de la agencia'), 'employee cannot render the finances section');
+
+// legacy /dashboard/ redirect + unified back-office links
+tap_t_assert(has_action('template_redirect') && false !== strpos($src, 'dashboard_redirect'), 'legacy /dashboard/ page 301-redirects to /mi-cuenta/');
+$all_includes = implode("\n", array_map(function ($f) { return file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/' . $f); }, ['class-emails.php', 'class-ajax.php', 'class-chatbot.php', 'class-shortcodes.php', 'class-front-dash.php']));
+tap_t_assert(false === strpos($all_includes, "home_url('/dashboard/')") && false === strpos($all_includes, 'home_url("/dashboard/")'), 'no plugin code links to the legacy /dashboard/ page anymore');
 
 $cols = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_commission_payments");
 tap_t_assert(in_array('source', $cols, true), 'payout table exposes the source column');

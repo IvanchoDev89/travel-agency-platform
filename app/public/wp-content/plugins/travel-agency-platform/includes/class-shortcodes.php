@@ -1743,7 +1743,7 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
 
     public static function agency_register($atts) {
         if (is_user_logged_in()) {
-            return '<p>' . __('You already have an account. Go to your', 'travel-agency-platform') . ' <a href="' . esc_url(home_url('/dashboard/')) . '">' . __('dashboard', 'travel-agency-platform') . '</a>.</p>';
+            return '<p>' . __('You already have an account. Go to your', 'travel-agency-platform') . ' <a href="' . esc_url(home_url('/mi-cuenta/')) . '">' . __('dashboard', 'travel-agency-platform') . '</a>.</p>';
         }
 
         ob_start();
@@ -2101,7 +2101,7 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
 
     public static function agency_manage($atts) {
         if (!is_user_logged_in()) {
-            return '<p class="tap-empty"><a href="' . esc_url(wp_login_url(home_url('/dashboard/'))) . '">' . esc_html__('Log in to manage your listings', 'travel-agency-platform') . '</a></p>';
+            return '<p class="tap-empty"><a href="' . esc_url(wp_login_url(home_url('/mi-cuenta/'))) . '">' . esc_html__('Log in to manage your listings', 'travel-agency-platform') . '</a></p>';
         }
 
         $user    = wp_get_current_user();

@@ -6745,3 +6745,33 @@ msgstr "Operación inválida."
 
 msgid "Nota (opcional)"
 msgstr "Nota (opcional)"
+
+msgid "Ver operaciones"
+msgstr "Ver operaciones"
+
+msgid "Barcos"
+msgstr "Barcos"
+
+msgid "Aún no tienes reservas. Comparte tus listados para empezar a recibir solicitudes. Comisión: %s%%"
+msgstr "Aún no tienes reservas. Comparte tus listados para empezar a recibir solicitudes. Comisión: %s%%"
+
+msgid "Gestionar listados"
+msgstr "Gestionar listados"
+
+msgid "Alquiler de carros"
+msgstr "Alquiler de carros"
+
+msgid "Confirmadas"
+msgstr "Confirmadas"
+
+msgid "Tu agencia"
+msgstr "Tu agencia"
+
+msgid "Neto para ti"
+msgstr "Neto para ti"
+
+msgid "Tus listados"
+msgstr "Tus listados"
+
+msgid "Ver perfil público"
+msgstr "Ver perfil público"

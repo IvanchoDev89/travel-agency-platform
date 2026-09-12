@@ -97,7 +97,7 @@ class TAP_Chatbot {
         $search = fn () => home_url('/search-results');
         $voucher = fn () => home_url('/booking-detail/');
         $mybookings = fn () => home_url('/my-bookings');
-        $dashboard = fn () => home_url('/dashboard/');
+        $dashboard = fn () => home_url('/mi-cuenta/');
         $login = fn () => wp_login_url(home_url('/my-bookings'));
         $home = fn () => home_url('/');
 

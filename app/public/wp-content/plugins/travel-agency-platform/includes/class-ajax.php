@@ -811,7 +811,7 @@ class TAP_Ajax {
 
         wp_send_json_success([
             'message'  => __('Tu agencia está en revisión. Te avisaremos por correo cuando sea aprobada.', 'travel-agency-platform'),
-            'redirect' => home_url('/dashboard/'),
+            'redirect' => home_url('/mi-cuenta/'),
         ]);
     }
 

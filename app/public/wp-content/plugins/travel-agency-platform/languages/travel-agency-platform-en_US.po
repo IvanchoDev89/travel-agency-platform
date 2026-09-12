@@ -6558,3 +6558,33 @@ msgstr "Invalid operation."
 
 msgid "Nota (opcional)"
 msgstr "Note (optional)"
+
+msgid "Ver operaciones"
+msgstr "View operations"
+
+msgid "Barcos"
+msgstr "Boats"
+
+msgid "Aún no tienes reservas. Comparte tus listados para empezar a recibir solicitudes. Comisión: %s%%"
+msgstr "You have no bookings yet. Share your listings to start receiving requests. Commission: %s%%"
+
+msgid "Gestionar listados"
+msgstr "Manage listings"
+
+msgid "Alquiler de carros"
+msgstr "Car rentals"
+
+msgid "Confirmadas"
+msgstr "Confirmed"
+
+msgid "Tu agencia"
+msgstr "Your agency"
+
+msgid "Neto para ti"
+msgstr "Net for you"
+
+msgid "Tus listados"
+msgstr "Your listings"
+
+msgid "Ver perfil público"
+msgstr "View public profile"
