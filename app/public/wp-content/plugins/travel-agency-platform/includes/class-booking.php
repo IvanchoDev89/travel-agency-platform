@@ -122,6 +122,57 @@ class TAP_Booking {
     }
 
     /**
+     * Execute a real money refund for a paid booking when the cancellation
+     * policy requires it.
+     *
+     * - Bookings with no stored PayPal capture are treated as offline/manual
+     *   payments: there is no gateway amount to reverse, so the ledger simply
+     *   records the intended refund (the caller flips payment_status).
+     * - Online captures are actually refunded through PayPal so the client's
+     *   money really comes back. The result is persisted in
+     *   `_tap_paypal_refund_id` or `_tap_refund_error`.
+     *
+     * @return true|WP_Error  true when refunded (or handled offline);
+     *                        WP_Error when the gateway refund failed.
+     */
+    public static function execute_refund($booking_id, $booking = null, $amount = null) {
+        $booking_id = intval($booking_id);
+        if (!$booking) {
+            $booking = self::get_booking($booking_id);
+        }
+        if (!$booking) {
+            return new WP_Error('not_found', __('Reserva no encontrada.', 'travel-agency-platform'));
+        }
+        if ('paid' !== $booking->payment_status) {
+            return true;
+        }
+
+        $refund_amount = $amount !== null ? round((float) $amount, 2) : round((float) ($booking->refund_amount ?? 0), 2);
+        if ($refund_amount <= 0) {
+            update_post_meta($booking_id, '_tap_refund_error', '');
+            return true;
+        }
+
+        $capture_id = get_post_meta($booking_id, '_tap_paypal_capture_id', true);
+        if (!$capture_id) {
+            // Payment was not captured online (office/cash/manual): nothing to
+            // reverse at the gateway. Treat it as an offline refund.
+            delete_post_meta($booking_id, '_tap_refund_error');
+            return true;
+        }
+
+        $refunded = TAP_PayPal::refund_capture($capture_id, $refund_amount);
+        if (is_wp_error($refunded)) {
+            update_post_meta($booking_id, '_tap_refund_error', $refunded->get_error_message());
+            return $refunded;
+        }
+
+        update_post_meta($booking_id, '_tap_paypal_refund_id', $refunded['refund_id']);
+        update_post_meta($booking_id, '_tap_refund_error', '');
+        return true;
+    }
+
+    /**
      * Short human summary of a refund decision (used in emails / dashboards).
      */
     public static function refund_summary($booking) {
@@ -272,43 +323,6 @@ class TAP_Booking {
             return new WP_Error('bad_range', __('La fecha de salida debe ser posterior a la de entrada.', 'travel-agency-platform'));
         }
 
-        if (!empty($data['room_id']) && $room_check_in && $room_check_out) {
-            $table = $wpdb->prefix . 'tap_bookings';
-            $overlap = $wpdb->get_var($wpdb->prepare(
-                "SELECT COUNT(*) FROM $table
-                 WHERE room_id = %d
-                   AND status NOT IN ('cancelled', 'refunded')
-                   AND check_in < %s AND check_out > %s",
-                intval($data['room_id']),
-                $room_check_out,
-                $room_check_in
-            ));
-
-            $inventory = intval(get_post_meta(intval($data['room_id']), '_tap_room_inventory', true)) ?: 1;
-            if (intval($overlap) >= $inventory) {
-                return new WP_Error('room_unavailable', __('The room is not available for the selected dates.', 'travel-agency-platform'));
-            }
-        }
-
-        if (!empty($data['room_id']) && $room_check_in && $room_check_out) {
-            $avail = self::get_room_availability(intval($data['room_id']), $room_check_in, $room_check_out);
-            if (!$avail['available']) {
-                return new WP_Error('dates_full', __('No hay disponibilidad para las fechas seleccionadas.', 'travel-agency-platform'));
-            }
-        }
-
-        if (sanitize_text_field($data['service_type']) === 'tap_tour') {
-            $check_date = !empty($data['check_in']) ? sanitize_text_field($data['check_in']) : '';
-            $guests = intval($data['adults'] ?? 1) + intval($data['children'] ?? 0);
-            $slots = self::tour_slots(intval($data['service_id']), $check_date);
-            if ($slots['booked'] + $guests > $slots['capacity']) {
-                return new WP_Error(
-                    'tour_full',
-                    sprintf(__('El tour está completo para la fecha seleccionada. Quedan %1$d cupos y solicitaste %2$d.', 'travel-agency-platform'), $slots['remaining'], $guests)
-                );
-            }
-        }
-
         // Guest checkout support: logged-out visitors book with client_id = 0 and
         // their contact data in the guest_* columns (no WordPress account required).
         $client_id = (int) get_current_user_id();
@@ -321,56 +335,120 @@ class TAP_Booking {
             );
         }
 
-        $result = $wpdb->insert(
-            $wpdb->prefix . 'tap_bookings',
-            [
-                'booking_code'      => $booking_code,
-                'agency_id'         => $agency_id,
-                'client_id'         => $client_id,
-                'service_type'      => sanitize_text_field($data['service_type']),
-                'service_id'        => intval($data['service_id']),
-                'room_id'           => !empty($data['room_id']) ? intval($data['room_id']) : null,
-                'package_id'        => !empty($data['package_id']) ? intval($data['package_id']) : null,
-                'check_in'          => !empty($data['check_in']) ? sanitize_text_field($data['check_in']) : null,
-                'check_out'         => !empty($data['check_out']) ? sanitize_text_field($data['check_out']) : null,
-                'adults'            => intval($data['adults'] ?? 1),
-                'children'          => intval($data['children'] ?? 0),
-                'nights'            => $nights,
-                'total_amount'      => $total,
-                'booking_fee'       => $booking_fee,
-                'commission_amount' => $commission_amount,
-                'commission_percent'=> $commission_percent,
-                'status'            => self::booking_mode($data['service_type'], $data['service_id']) === 'request' ? 'request' : 'pending',
-                'payment_status'    => 'pending',
-                'notes'             => !empty($data['notes']) ? sanitize_textarea_field($data['notes']) : '',
-                'guest_name'        => !empty($data['guest_name']) ? sanitize_text_field($data['guest_name']) : null,
-                'guest_email'       => !empty($data['guest_email']) ? sanitize_email($data['guest_email']) : null,
-                'guest_phone'       => !empty($data['guest_phone']) ? sanitize_text_field($data['guest_phone']) : null,
-            ]
-        );
-
-        if ($result === false) {
-            return new WP_Error('booking_error', __('Could not create booking', 'travel-agency-platform'));
+        // Serialize the availability check + insert per room/tour slot so two
+        // simultaneous bookings cannot both pass the COUNT() pre-check and
+        // oversell the same dates (advisory MySQL lock, always released).
+        $locks = [];
+        if (!empty($data['room_id']) && $room_check_in && $room_check_out) {
+            $locks[] = 'tap_room_' . intval($data['room_id']);
+        }
+        if (sanitize_text_field($data['service_type']) === 'tap_tour' && !empty($data['check_in'])) {
+            $locks[] = 'tap_tour_' . intval($data['service_id']) . '_' . sanitize_text_field($data['check_in']);
         }
 
-        $booking_id = $wpdb->insert_id;
+        foreach ($locks as $lock_key) {
+            $wpdb->get_var($wpdb->prepare('SELECT GET_LOCK(%s, 5)', $lock_key));
+        }
 
-        if (!empty($data['items']) && is_array($data['items'])) {
-            foreach ($data['items'] as $item) {
-                $wpdb->insert(
-                    $wpdb->prefix . 'tap_booking_items',
-                    [
-                        'booking_id'   => $booking_id,
-                        'service_type' => sanitize_text_field($item['service_type']),
-                        'service_id'   => intval($item['service_id']),
-                        'quantity'     => intval($item['quantity'] ?? 1),
-                        'unit_price'   => floatval($item['unit_price']),
-                        'subtotal'     => floatval($item['subtotal']),
-                        'date_from'    => !empty($item['date_from']) ? sanitize_text_field($item['date_from']) : null,
-                        'date_to'      => !empty($item['date_to']) ? sanitize_text_field($item['date_to']) : null,
-                    ]
-                );
+        $create_error = null;
+
+        try {
+            if (!empty($data['room_id']) && $room_check_in && $room_check_out) {
+                $table = $wpdb->prefix . 'tap_bookings';
+                $overlap = $wpdb->get_var($wpdb->prepare(
+                    "SELECT COUNT(*) FROM $table
+                     WHERE room_id = %d
+                       AND status NOT IN ('cancelled', 'refunded')
+                       AND check_in < %s AND check_out > %s",
+                    intval($data['room_id']),
+                    $room_check_out,
+                    $room_check_in
+                ));
+
+                $inventory = intval(get_post_meta(intval($data['room_id']), '_tap_room_inventory', true)) ?: 1;
+                if (intval($overlap) >= $inventory) {
+                    $create_error = new WP_Error('room_unavailable', __('The room is not available for the selected dates.', 'travel-agency-platform'));
+                } else {
+                    $avail = self::get_room_availability(intval($data['room_id']), $room_check_in, $room_check_out);
+                    if (!$avail['available']) {
+                        $create_error = new WP_Error('dates_full', __('No hay disponibilidad para las fechas seleccionadas.', 'travel-agency-platform'));
+                    }
+                }
             }
+
+            if (!$create_error && sanitize_text_field($data['service_type']) === 'tap_tour') {
+                $check_date = !empty($data['check_in']) ? sanitize_text_field($data['check_in']) : '';
+                $guests = intval($data['adults'] ?? 1) + intval($data['children'] ?? 0);
+                $slots = self::tour_slots(intval($data['service_id']), $check_date);
+                if ($slots['booked'] + $guests > $slots['capacity']) {
+                    $create_error = new WP_Error(
+                        'tour_full',
+                        sprintf(__('El tour está completo para la fecha seleccionada. Quedan %1$d cupos y solicitaste %2$d.', 'travel-agency-platform'), $slots['remaining'], $guests)
+                    );
+                }
+            }
+
+            if (!$create_error) {
+                $result = $wpdb->insert(
+                $wpdb->prefix . 'tap_bookings',
+                [
+                    'booking_code'      => $booking_code,
+                    'agency_id'         => $agency_id,
+                    'client_id'         => $client_id,
+                    'service_type'      => sanitize_text_field($data['service_type']),
+                    'service_id'        => intval($data['service_id']),
+                    'room_id'           => !empty($data['room_id']) ? intval($data['room_id']) : null,
+                    'package_id'        => !empty($data['package_id']) ? intval($data['package_id']) : null,
+                    'check_in'          => !empty($data['check_in']) ? sanitize_text_field($data['check_in']) : null,
+                    'check_out'         => !empty($data['check_out']) ? sanitize_text_field($data['check_out']) : null,
+                    'adults'            => intval($data['adults'] ?? 1),
+                    'children'          => intval($data['children'] ?? 0),
+                    'nights'            => $nights,
+                    'total_amount'      => $total,
+                    'booking_fee'       => $booking_fee,
+                    'commission_amount' => $commission_amount,
+                    'commission_percent'=> $commission_percent,
+                    'status'            => self::booking_mode($data['service_type'], $data['service_id']) === 'request' ? 'request' : 'pending',
+                    'payment_status'    => 'pending',
+                    'notes'             => !empty($data['notes']) ? sanitize_textarea_field($data['notes']) : '',
+                    'guest_name'        => !empty($data['guest_name']) ? sanitize_text_field($data['guest_name']) : null,
+                    'guest_email'       => !empty($data['guest_email']) ? sanitize_email($data['guest_email']) : null,
+                    'guest_phone'       => !empty($data['guest_phone']) ? sanitize_text_field($data['guest_phone']) : null,
+                ]
+            );
+
+            if ($result === false) {
+                    $create_error = new WP_Error('booking_error', __('Could not create booking', 'travel-agency-platform'));
+                } else {
+                    $booking_id = $wpdb->insert_id;
+
+                    if (!empty($data['items']) && is_array($data['items'])) {
+                        foreach ($data['items'] as $item) {
+                            $wpdb->insert(
+                                $wpdb->prefix . 'tap_booking_items',
+                                [
+                                    'booking_id'   => $booking_id,
+                                    'service_type' => sanitize_text_field($item['service_type']),
+                                    'service_id'   => intval($item['service_id']),
+                                    'quantity'     => intval($item['quantity'] ?? 1),
+                                    'unit_price'   => floatval($item['unit_price']),
+                                    'subtotal'     => floatval($item['subtotal']),
+                                    'date_from'    => !empty($item['date_from']) ? sanitize_text_field($item['date_from']) : null,
+                                    'date_to'      => !empty($item['date_to']) ? sanitize_text_field($item['date_to']) : null,
+                                ]
+                            );
+                        }
+                    }
+                }
+            }
+        } finally {
+            foreach (array_reverse($locks) as $lock_key) {
+                $wpdb->get_var($wpdb->prepare('SELECT RELEASE_LOCK(%s)', $lock_key));
+            }
+        }
+
+        if ($create_error) {
+            return $create_error;
         }
 
         do_action('tap_booking_created', $booking_id, $data);
@@ -462,6 +540,17 @@ class TAP_Booking {
         $prev_status = $booking->status;
         $refund = self::cancellation_refund($booking);
 
+        // Refund the money for real before marking the ledger as refunded.
+        // When the gateway refund fails the booking stays cancelled but the
+        // payment_status remains 'paid' and _tap_refund_error records why.
+        $refund_success = true;
+        if ('paid' === $booking->payment_status && (float) $refund['refund_amount'] > 0) {
+            $refund_result = self::execute_refund($booking_id, $booking, $refund['refund_amount']);
+            if (is_wp_error($refund_result)) {
+                $refund_success = false;
+            }
+        }
+
         $wpdb->update(
             $wpdb->prefix . 'tap_bookings',
             [
@@ -471,15 +560,17 @@ class TAP_Booking {
                 'cancellation_policy'  => $refund['policy'],
                 'refund_amount'        => round($refund['refund_amount'], 2),
                 'refund_percent'       => $refund['refund_percent'],
-                'refunded_at'          => $refund['refund_amount'] > 0 ? current_time('mysql') : null,
+                'refunded_at'          => ($refund['refund_amount'] > 0 && $refund_success) ? current_time('mysql') : null,
             ],
             ['id' => $booking_id]
         );
 
         if ('paid' === $booking->payment_status) {
-            // Mark as refunded only when the policy actually returns money.
-            if ($refund['refund_amount'] > 0) {
+            // Mark as refunded only when the money was actually returned
+            // (online refund executed, or offline payment without a capture).
+            if ($refund['refund_amount'] > 0 && $refund_success) {
                 self::update_payment_status($booking_id, 'refunded');
+                do_action('tap_payment_refunded', $booking_id, 'paypal', get_post_meta($booking_id, '_tap_paypal_refund_id', true));
             }
         }
 
@@ -512,6 +603,10 @@ class TAP_Booking {
         }
 
         $is_admin = user_can($user, 'manage_options');
+        $is_employee = in_array('tap_agency_employee', (array) $user->roles, true);
+        if ($is_employee && !$is_admin) {
+            return new WP_Error('no_agency', __('Solo cuentas de agencia pueden operar reservas.', 'travel-agency-platform'));
+        }
         $user_agency = (int) self::get_agency_for_user($user_id);
         if (!$is_admin && !$user_agency) {
             return new WP_Error('no_agency', __('Solo cuentas de agencia pueden operar reservas.', 'travel-agency-platform'));

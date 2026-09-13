@@ -332,6 +332,21 @@ class TAP_Post_Types {
         return is_array($beds) ? $beds : [];
     }
 
+    /** Bed types accepted for a room, keyed by machine name. */
+    public static function bed_types() {
+        return [
+            'king'   => __('King', 'travel-agency-platform'),
+            'queen'  => __('Queen', 'travel-agency-platform'),
+            'double' => __('Double', 'travel-agency-platform'),
+            'twin'   => __('Twin', 'travel-agency-platform'),
+            'bunk'   => __('Bunk', 'travel-agency-platform'),
+            'sofa'   => __('Sofa Bed', 'travel-agency-platform'),
+            'crib'   => __('Crib', 'travel-agency-platform'),
+            'murphy' => __('Murphy', 'travel-agency-platform'),
+            'futon'  => __('Futon', 'travel-agency-platform'),
+        ];
+    }
+
     public static function get_room_amenities($room_id) {
         $amenities = get_post_meta($room_id, '_tap_room_amenities', true);
         if (is_string($amenities)) $amenities = json_decode($amenities, true);

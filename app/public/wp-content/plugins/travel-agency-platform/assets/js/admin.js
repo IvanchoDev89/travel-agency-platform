@@ -3,15 +3,16 @@ jQuery(document).ready(function($) {
         var select = $(this);
         var bookingId = select.data('booking-id');
         var status = select.val();
+        if (!window.tapAdmin || !tapAdmin.nonce) return;
 
         $.ajax({
-            url: ajaxurl,
+            url: tapAdmin.ajax_url || ajaxurl,
             type: 'POST',
             data: {
                 action: 'tap_update_booking_status',
                 booking_id: bookingId,
                 status: status,
-                _ajax_nonce: tap_ajax ? tap_ajax.nonce : ''
+                _ajax_nonce: tapAdmin.nonce
             },
             success: function(res) {
                 if (res.success) {

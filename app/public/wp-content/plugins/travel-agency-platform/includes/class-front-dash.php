@@ -580,6 +580,7 @@ class TAP_Front_Dash {
         if (!$agency) {
             return '<p class="tap-empty">' . esc_html__('No tienes una agencia vinculada.', 'travel-agency-platform') . '</p>';
         }
+        $is_admin = !in_array('tap_agency_employee', (array) $user->roles, true);
 
         $filters = ['all', 'request', 'pending', 'confirmed', 'completed', 'cancelled', 'refunded'];
         $status  = sanitize_key($_GET['bo_status'] ?? 'all');
@@ -652,6 +653,9 @@ class TAP_Front_Dash {
                         <td><span class="tap-status tap-status-<?php echo 'paid' === $b->payment_status ? 'confirmed' : 'pending'; ?>"><?php echo esc_html($b->payment_status); ?></span></td>
                         <td><span class="tap-status tap-status-<?php echo in_array($b->status, ['confirmed', 'completed'], true) ? 'confirmed' : 'pending'; ?>"><?php echo esc_html($b->status); ?></span></td>
                         <td>
+                            <?php if (!$is_admin): ?>
+                                <span class="tap-agency-meta"><?php esc_html_e('Solo lectura para empleados.', 'travel-agency-platform'); ?></span>
+                            <?php else: ?>
                             <?php if (in_array($b->status, ['request', 'pending'], true)): ?>
                                 <button class="tap-btn tap-btn-sm tap-bo-api" data-op="confirm" data-name="<?php echo esc_attr($b->booking_code); ?>" data-id="<?php echo (int) $b->id; ?>"><?php esc_html_e('Confirmar', 'travel-agency-platform'); ?></button>
                             <?php endif; ?>
@@ -663,6 +667,7 @@ class TAP_Front_Dash {
                             <?php endif; ?>
                             <?php if (in_array($b->status, ['request', 'pending', 'confirmed'], true) && (!$b->check_in || $b->check_in >= $today)): ?>
                                 <button class="tap-btn tap-btn-sm tap-btn-danger tap-bo-api" data-op="cancel" data-name="<?php echo esc_attr($b->booking_code); ?>" data-id="<?php echo (int) $b->id; ?>"><?php esc_html_e('Cancelar', 'travel-agency-platform'); ?></button>
+                            <?php endif; ?>
                             <?php endif; ?>
                         </td>
                     </tr>
@@ -1086,39 +1091,13 @@ class TAP_Front_Dash {
             wp_send_json_error(['message' => __('ID inválido.', 'travel-agency-platform')], 400);
         }
 
-        global $wpdb;
-        $booking = $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM {$wpdb->prefix}tap_bookings WHERE id = %d AND client_id = %d",
-            $booking_id,
-            get_current_user_id()
-        ));
+        // Full cancellation pipeline: ownership guard, policy penalty, real
+        // refund when the client already paid, and commission voiding.
+        $result = TAP_Booking::client_cancel_request($booking_id, get_current_user_id());
 
-        if (!$booking) {
-            wp_send_json_error(['message' => __('Reserva no encontrada.', 'travel-agency-platform')], 404);
+        if (is_wp_error($result)) {
+            wp_send_json_error(['message' => $result->get_error_message()], 400);
         }
-
-        if (!in_array($booking->status, ['pending', 'confirmed', 'request'], true)) {
-            wp_send_json_error(['message' => __('No se puede cancelar esta reserva.', 'travel-agency-platform')], 400);
-        }
-
-        if ($booking->check_in && $booking->check_in < gmdate('Y-m-d')) {
-            wp_send_json_error(['message' => __('La reserva ya inició.', 'travel-agency-platform')], 400);
-        }
-
-        $wpdb->update(
-            "{$wpdb->prefix}tap_bookings",
-            [
-                'status'           => 'cancelled',
-                'cancelled_by'     => 'client',
-                'cancel_requested_at' => current_time('mysql'),
-                'updated_at'       => current_time('mysql'),
-            ],
-            ['id' => $booking_id],
-            ['%s', '%s', '%s', '%s'],
-            ['%d']
-        );
-
-        do_action('tap_booking_cancelled', $booking_id, $booking);
 
         wp_send_json_success(['message' => __('Reserva cancelada.', 'travel-agency-platform')]);
     }

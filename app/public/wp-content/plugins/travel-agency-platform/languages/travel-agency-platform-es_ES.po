@@ -6775,3 +6775,51 @@ msgstr "Tus listados"
 
 msgid "Ver perfil público"
 msgstr "Ver perfil público"
+
+#: plugin dynamic string
+msgid "El precio %s debe ser mayor que 0."
+msgstr "El precio %s debe ser mayor que 0."
+
+#: plugin dynamic string
+msgid "Solo lectura para empleados."
+msgstr "Solo lectura para empleados."
+
+#: plugin dynamic string
+msgid "Foto principal (URL de la imagen)"
+msgstr "Foto principal (URL de la imagen)"
+
+#: plugin dynamic string
+msgid "Galería (URLs de imágenes, una por línea)"
+msgstr "Galería (URLs de imágenes, una por línea)"
+
+#: plugin dynamic string
+msgid "https://…\nhttps://…"
+msgstr "https://…\nhttps://…"
+
+#: plugin dynamic string
+msgid "Descripción de la habitación"
+msgstr "Descripción de la habitación"
+
+#: plugin dynamic string
+msgid "Piso"
+msgstr "Piso"
+
+#: plugin dynamic string
+msgid "Comodidades (separadas por coma)"
+msgstr "Comodidades (separadas por coma)"
+
+#: plugin dynamic string
+msgid "Camas"
+msgstr "Camas"
+
+#: plugin dynamic string
+msgid "Quitar cama"
+msgstr "Quitar cama"
+
+#: plugin dynamic string
+msgid "Añadir cama"
+msgstr "Añadir cama"
+
+#: plugin dynamic string
+msgid "Fotos de la habitación (URLs, una por línea)"
+msgstr "Fotos de la habitación (URLs, una por línea)"

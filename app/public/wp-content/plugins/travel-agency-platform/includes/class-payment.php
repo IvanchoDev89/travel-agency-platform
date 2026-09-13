@@ -158,7 +158,7 @@ class TAP_Payment {
             TAP_Booking::update_payment_status($booking_id, 'paid');
             TAP_Booking::update_status($booking_id, 'confirmed');
             update_post_meta($booking_id, '_tap_paypal_capture_id', $capture->id ?? '');
-            update_post_meta($booking_id, '_tap_payment_details', json_encode($capture));
+            update_post_meta($booking_id, '_tap_payment_details', json_encode($capture, JSON_UNESCAPED_UNICODE));
 
             do_action('tap_payment_completed', $booking_id, 'paypal', $capture->id ?? '');
             return;
@@ -240,8 +240,15 @@ class TAP_Payment {
         ));
 
         if ($booking_id) {
-            TAP_Booking::update_payment_status($booking_id, 'refunded');
-            do_action('tap_payment_refunded', $booking_id, 'paypal', $capture->id ?? '');
+            // Idempotent: never double-fire when cancellation already refunded.
+            $current = $wpdb->get_var($wpdb->prepare(
+                "SELECT payment_status FROM {$wpdb->prefix}tap_bookings WHERE id = %d",
+                $booking_id
+            ));
+            if ('refunded' !== $current) {
+                TAP_Booking::update_payment_status($booking_id, 'refunded');
+                do_action('tap_payment_refunded', $booking_id, 'paypal', $capture->id ?? '');
+            }
         }
     }
 }

@@ -445,19 +445,19 @@ $cols_bookings = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
             $wpdb->insert($plans_table, [
                 'name' => 'Gratis', 'slug' => 'free', 'price_monthly' => 0,
                 'commission_rate' => null, 'listing_limit' => 3, 'featured_slots' => 0,
-                'features' => wp_json_encode(['3 listados', 'Comisión estándar', 'Sin destacados']),
+                'features' => json_encode(['3 listados', 'Comisión estándar', 'Sin destacados'], JSON_UNESCAPED_UNICODE),
                 'is_active' => 1,
             ]);
             $wpdb->insert($plans_table, [
                 'name' => 'Básico', 'slug' => 'basic', 'price_monthly' => 9,
                 'commission_rate' => 8, 'listing_limit' => 10, 'featured_slots' => 1,
-                'features' => wp_json_encode(['10 listados', 'Comisión 8%', '1 destacado / mes']),
+                'features' => json_encode(['10 listados', 'Comisión 8%', '1 destacado / mes'], JSON_UNESCAPED_UNICODE),
                 'is_active' => 1,
             ]);
             $wpdb->insert($plans_table, [
                 'name' => 'Pro', 'slug' => 'pro', 'price_monthly' => 19,
                 'commission_rate' => 5, 'listing_limit' => -1, 'featured_slots' => 3,
-                'features' => wp_json_encode(['Listados ilimitados', 'Comisión 5%', '3 destacados / mes', 'Soporte prioritario']),
+                'features' => json_encode(['Listados ilimitados', 'Comisión 5%', '3 destacados / mes', 'Soporte prioritario'], JSON_UNESCAPED_UNICODE),
                 'is_active' => 1,
             ]);
         }

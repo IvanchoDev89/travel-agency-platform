@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.5] — 2026-09-12
+
+### Added
+
+- **Fase 1 — Integridad del dinero (refunds reales + reconciliables):**
+  - **Gateway failure safeguard**: when the PayPal capture fails (via AJAX or REST), the booking is rolled back instead of blindly setting `payment_status = paid`; the payment row is removed or re-acquitted, and a new payment can be retried. Old `3011` rejections that had invoiced a `paid` booking are now visible and correctable in the back-office.
+  - **Offline (manual) refund**: refunds set by the admin now create a real ledger `refund` line whose amount is subtracted from net; `net_totals` moved to `payment_status = paid` only, so settlements can be recomputed precisely and are auditable.
+  - **Webhook idempotency**: `_tap_processed` marks a webhook event so it cannot double-process event notifications (e.g., `payment.capture.completed` twice), and cancellation/refund webhooks update the booking state and ledger atomically in one transaction.
+  - **Admin CSRF + race protection**: all admin actions use `check_admin_referer`; refund-vs-capture races are serialized with `GET_LOCK` and a retry guard so a refund never cancels a captured payment that followed afterwards.
+  - **Books closed**: `_tap_payment_details` and `_tap_room_beds`/`_tap_room_amenities` now persist JSON with `JSON_UNESCAPED_UNICODE` — the previous `wp_json_encode` output was being stripped of its `\u` escapes by the DB layer, silently corrupting accents in Spanish amenities/beds/payment names (a real production data-integrity bug).
+- **Fase 3 — Producto para agencias (front-editor completo):**
+  - Front-end listing editor (shortcode managed by the agency panel) now lets agencies set the **featured image** and a **gallery** via URL (server-side `sideload()` into the media library with extension/type validation), and a **full room editor**: description, floor, amenities (comma separated, deduplicated/trimmed), bed builder (add/remove rows from `bed_types()`), thumbnail and gallery per room.
+  - **Server-side price guard**: any number field whose key contains `price` (including legacy `price_per_night`) must be greater than 0 in `save_listing_data`, protecting catalog pricing.
+  - **Employee hardening**: `tap_agency_employee` users are denied booking operations server-side (`agency_booking_action` returns `no_agency` unless `manage_options`), and the back-office operations table renders **read-only for employees** instead of dead buttons.
+  - `agency_save_room` refactored into a testable core (`TAP_Ajax::save_room_data`) that returns an id or `WP_Error` (`no_title`, `invalid_room`, `invalid_price`, `save_failed`).
+- **Tests (run.sh battery now 38 suites, all PASS):** new `suite_refunds` (34 asserts: gateway-failure rollback, offline refund, webhook idempotency, CSRF, `GET_LOCK`) and `suite_front_editor` (asserts the whole F3 stack: featured/gallery sideload, room save/scan/bed builder, amenities normalization, price guard, employee restrictions, read-only ops table).
+- **i18n:** 12 new strings (room editor, price guard, employee read-only marker) added to both catalogs (es_ES identity / en_US translation); `.mo` recompiled (`msgfmt --check` OK).
+
 ## [Unreleased] — post-1.5.3 improvements
 
 ### Added

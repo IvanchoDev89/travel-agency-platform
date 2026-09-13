@@ -501,6 +501,7 @@ class TAP_Emails {
         if (!$email) {
             return;
         }
+        $amount = (float) ($booking->refund_amount ?? 0) > 0 ? (float) $booking->refund_amount : (float) $booking->total_amount;
         self::send(
             $email,
             sprintf(__('Reembolso de la reserva %s', 'travel-agency-platform'), $booking->booking_code),
@@ -508,7 +509,7 @@ class TAP_Emails {
                 __('Reembolso procesado', 'travel-agency-platform'),
                 sprintf(
                     __('Hemos reembolsado <strong>%s</strong> por la reserva <strong>%s</strong>. El dinero regresará a tu cuenta en los próximos días.', 'travel-agency-platform'),
-                    esc_html(self::money($booking->total_amount)),
+                    esc_html(self::money($amount)),
                     esc_html($booking->booking_code)
                 )
             )

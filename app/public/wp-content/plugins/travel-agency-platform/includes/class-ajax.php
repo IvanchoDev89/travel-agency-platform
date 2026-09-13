@@ -219,6 +219,10 @@ class TAP_Ajax {
             wp_send_json_error(['message' => __('Unauthorized', 'travel-agency-platform')]);
         }
 
+        if ($is_admin && !$is_agency) {
+            check_ajax_referer('tap_admin_booking', '_ajax_nonce');
+        }
+
         if ($is_agency && !$is_admin) {
             check_ajax_referer('tap_agency_nonce', 'nonce');
 
@@ -324,7 +328,10 @@ class TAP_Ajax {
             TAP_Booking::update_payment_status($booking_id, 'paid');
             TAP_Booking::update_status($booking_id, 'confirmed');
             update_post_meta($booking_id, '_tap_paypal_capture_id', $result['capture_id']);
-            update_post_meta($booking_id, '_tap_payment_details', json_encode($result['full_response']));
+            update_post_meta( $booking_id, '_tap_payment_details', json_encode( $result['full_response'], JSON_UNESCAPED_UNICODE ) );
+            // Receipts, agency notification and the owed commission all hang off
+            // this single event (mark_commission_owed subscribes at priority 20).
+            do_action('tap_payment_completed', (int) $booking_id, 'paypal', $result['capture_id']);
         }
 
         wp_send_json_success([
@@ -1128,6 +1135,26 @@ class TAP_Ajax {
             return __('Name is required', 'travel-agency-platform');
         }
 
+        // Money integrity: any price field that is provided must be > 0.
+        $fields = TAP_Metaboxes::get_fields($listing_type);
+        foreach ($fields as $meta_key => $cfg) {
+            if (!isset($cfg['type']) || 'number' !== $cfg['type'] || false === strpos($meta_key, 'price')) {
+                continue;
+            }
+            $raw = isset($input[$meta_key]) ? $input[$meta_key] : null;
+            if ($raw === null && $listing_type === 'tap_accommodation' && $meta_key === '_tap_acc_price_per_night') {
+                $raw = isset($input['price_per_night']) ? $input['price_per_night'] : null;
+            }
+            if ($raw === null) {
+                continue;
+            }
+            $is_decimal = isset($cfg['step']) && false !== strpos($cfg['step'], '.');
+            $value      = $is_decimal ? floatval($raw) : intval($raw);
+            if ($value <= 0) {
+                return sprintf(__('El precio %s debe ser mayor que 0.', 'travel-agency-platform'), isset($cfg['label']) ? $cfg['label'] : $meta_key);
+            }
+        }
+
         if (null !== $agency && class_exists('TAP_Subscriptions')) {
             $limit = TAP_Subscriptions::listing_limit($agency);
             if ($limit >= 0 && !$listing_id && TAP_Subscriptions::listing_count($agency) >= $limit) {
@@ -1172,7 +1199,6 @@ class TAP_Ajax {
             ],
         ];
 
-        $fields = TAP_Metaboxes::get_fields($listing_type);
         foreach ($fields as $meta_key => $cfg) {
             if (strpos($meta_key, '_tap_' . $prefix . '_agency_id') !== false) {
                 continue;
@@ -1232,7 +1258,67 @@ class TAP_Ajax {
             update_post_meta($new_id, '_tap_booking_mode', $booking_mode);
         }
 
+        // Featured image (remote URL is sideloaded into the Media Library).
+        if (array_key_exists('featured_image_url', $input)) {
+            $furl = esc_url_raw(trim((string) ($input['featured_image_url'] ?? '')));
+            if ('' !== $furl) {
+                $att = self::sideload_image($furl);
+                if ($att) {
+                    set_post_thumbnail($new_id, $att);
+                }
+            } else {
+                delete_post_thumbnail($new_id);
+            }
+        }
+
+        // Gallery (one URL per line) for accommodation listings.
+        if ($listing_type === 'tap_accommodation' && array_key_exists('gallery_urls', $input)) {
+            $urls = array_values(array_filter(array_map('trim', explode("\n", (string) $input['gallery_urls']))));
+            $ids  = [];
+            foreach ($urls as $u) {
+                $att = self::sideload_image($u);
+                if ($att) {
+                    $ids[$att] = $att;
+                }
+            }
+            update_post_meta($new_id, '_tap_acc_gallery', implode(',', array_keys($ids)));
+        }
+
         return true;
+    }
+
+    /**
+     * Download a remote image into the Media Library and return its
+     * attachment id (0 on any failure). No-op-safe under wp-cli and tests.
+     */
+    public static function sideload_image($url) {
+        require_once ABSPATH . 'wp-admin/includes/media.php';
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+        require_once ABSPATH . 'wp-admin/includes/image.php';
+
+        $url = esc_url_raw(trim((string) $url));
+        if (!$url || !wp_http_validate_url($url)) {
+            return 0;
+        }
+
+        $tmp = download_url($url, 15);
+        if (is_wp_error($tmp)) {
+            return 0;
+        }
+
+        $parse = wp_parse_url($url);
+        $name  = !empty($parse['path']) ? basename($parse['path']) : '';
+        $file_array = [
+            'name'     => $name ? sanitize_file_name($name) : 'tap-image.jpg',
+            'tmp_name' => $tmp,
+        ];
+
+        $att_id = media_handle_sideload($file_array, 0);
+        if (is_wp_error($att_id)) {
+            @unlink($tmp);
+            return 0;
+        }
+        return (int) $att_id;
     }
 
     public static function agency_save_room() {
@@ -1247,23 +1333,45 @@ class TAP_Ajax {
         }
 
         $room_id = isset( $_POST['room_id'] ) ? intval( $_POST['room_id'] ) : 0;
-        if ( $room_id && (int) get_post_meta( $room_id, '_tap_room_accommodation_id', true ) !== $acc_id ) {
-            wp_send_json_error( [ 'message' => __( 'Invalid room', 'travel-agency-platform' ) ] );
+        $result  = self::save_room_data( $acc_id, $room_id, $_POST );
+        if ( is_wp_error( $result ) ) {
+            wp_send_json_error( [ 'message' => $result->get_error_message() ] );
         }
 
-        $title = isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( $_POST['title'] ) ) : '';
+        wp_send_json_success( [
+            'message' => $room_id ? __( 'Room updated', 'travel-agency-platform' ) : __( 'Room created', 'travel-agency-platform' ),
+            'room_id' => (int) $result,
+        ] );
+    }
+
+    /**
+     * Testable room editor core. Returns the room id on success, or a
+     * WP_Error with a translated message. Reads from a plain $input array
+     * (usually $_POST) and never dies, so it can run under wp-cli.
+     */
+    public static function save_room_data( $acc_id, $room_id, array $input ) {
+        $acc_id  = (int) $acc_id;
+        $room_id = (int) $room_id;
+
+        $title = isset( $input['title'] ) ? sanitize_text_field( wp_unslash( $input['title'] ) ) : '';
         if ( '' === $title ) {
-            wp_send_json_error( [ 'message' => __( 'Room name is required', 'travel-agency-platform' ) ] );
+            return new WP_Error( 'no_title', __( 'Room name is required', 'travel-agency-platform' ) );
         }
-        $price = isset( $_POST['price_per_night'] ) ? floatval( $_POST['price_per_night'] ) : 0;
+
+        if ( $room_id && (int) get_post_meta( $room_id, '_tap_room_accommodation_id', true ) !== $acc_id ) {
+            return new WP_Error( 'invalid_room', __( 'Invalid room', 'travel-agency-platform' ) );
+        }
+
+        $price = isset( $input['price_per_night'] ) ? floatval( $input['price_per_night'] ) : 0;
         if ( $price <= 0 ) {
-            wp_send_json_error( [ 'message' => __( 'Price per night must be greater than 0', 'travel-agency-platform' ) ] );
+            return new WP_Error( 'invalid_price', __( 'Price per night must be greater than 0', 'travel-agency-platform' ) );
         }
 
         $post = [
             'post_type'   => 'tap_room',
             'post_status' => 'publish',
             'post_title'  => $title,
+            'post_excerpt'=> isset( $input['description'] ) ? wp_kses_post( wp_unslash( $input['description'] ) ) : '',
         ];
 
         if ( $room_id ) {
@@ -1274,31 +1382,81 @@ class TAP_Ajax {
         }
 
         if ( is_wp_error( $new_id ) || ! $new_id ) {
-            wp_send_json_error( [ 'message' => __( 'Could not save the room', 'travel-agency-platform' ) ] );
+            return new WP_Error( 'save_failed', __( 'Could not save the room', 'travel-agency-platform' ) );
+        }
+
+        $beds_raw = isset( $input['_tap_room_beds'] ) ? wp_unslash( $input['_tap_room_beds'] ) : '';
+        $beds     = json_decode( (string) $beds_raw, true );
+        $beds_out = [];
+        $bed_types = TAP_Post_Types::bed_types();
+        if ( is_array( $beds ) ) {
+            foreach ( $beds as $bed ) {
+                if ( ! is_array( $bed ) || ! isset( $bed['type'], $bed['count'] ) ) {
+                    continue;
+                }
+                $t = sanitize_key( (string) $bed['type'] );
+                $c = intval( $bed['count'] );
+                if ( $c <= 0 ) {
+                    continue;
+                }
+                if ( ! array_key_exists( $t, $bed_types ) ) {
+                    $t = 'double';
+                }
+                $beds_out[] = [ 'type' => $t, 'count' => $c ];
+            }
+        }
+        if ( $beds_raw !== '' || count( $beds_out ) > 0 ) {
+            update_post_meta( $new_id, '_tap_room_beds', json_encode( $beds_out, JSON_UNESCAPED_UNICODE ) );
+        }
+
+        $amenities_raw = isset( $input['amenities'] ) ? sanitize_text_field( wp_unslash( $input['amenities'] ) ) : '';
+        $amenities = array_values( array_unique( array_filter( array_map( 'trim', explode( ',', $amenities_raw ) ) ) ) );
+        update_post_meta( $new_id, '_tap_room_amenities', json_encode( $amenities, JSON_UNESCAPED_UNICODE ) );
+
+        if ( array_key_exists( 'room_thumbnail_url', $input ) ) {
+            $furl = esc_url_raw( trim( (string) ( $input['room_thumbnail_url'] ?? '' ) ) );
+            if ( '' !== $furl ) {
+                $att = self::sideload_image( $furl );
+                if ( $att ) {
+                    set_post_thumbnail( $new_id, $att );
+                }
+            } else {
+                delete_post_thumbnail( $new_id );
+            }
+        }
+
+        if ( array_key_exists( 'gallery_urls', $input ) ) {
+            $urls = array_values( array_filter( array_map( 'trim', explode( "\n", (string) $input['gallery_urls'] ) ) ) );
+            $ids  = [];
+            foreach ( $urls as $u ) {
+                $att = self::sideload_image( $u );
+                if ( $att ) {
+                    $ids[ $att ] = $att;
+                }
+            }
+            update_post_meta( $new_id, '_tap_room_gallery', implode( ',', array_keys( $ids ) ) );
         }
 
         $fields = [
             '_tap_room_accommodation_id' => $acc_id,
             '_tap_room_price_per_night'  => $price,
-            '_tap_room_min_stay'         => isset( $_POST['min_stay'] ) ? intval( $_POST['min_stay'] ) : 1,
-            '_tap_room_currency'         => isset( $_POST['currency'] ) ? sanitize_text_field( $_POST['currency'] ) : 'USD',
-            '_tap_room_max_adults'       => isset( $_POST['max_adults'] ) ? intval( $_POST['max_adults'] ) : 2,
-            '_tap_room_max_children'    => isset( $_POST['max_children'] ) ? intval( $_POST['max_children'] ) : 0,
-            '_tap_room_max_occupancy'    => isset( $_POST['max_occupancy'] ) ? intval( $_POST['max_occupancy'] ) : 2,
-            '_tap_room_inventory'        => isset( $_POST['inventory'] ) ? intval( $_POST['inventory'] ) : 1,
-            '_tap_room_size'             => isset( $_POST['size'] ) ? sanitize_text_field( $_POST['size'] ) : '',
-            '_tap_room_view'             => isset( $_POST['view'] ) ? sanitize_text_field( $_POST['view'] ) : '',
-            '_tap_room_is_active'        => isset( $_POST['is_active'] ) && '1' === $_POST['is_active'] ? '1' : '0',
+            '_tap_room_min_stay'         => isset( $input['min_stay'] ) ? intval( $input['min_stay'] ) : 1,
+            '_tap_room_currency'         => isset( $input['currency'] ) ? sanitize_text_field( $input['currency'] ) : 'USD',
+            '_tap_room_max_adults'       => isset( $input['max_adults'] ) ? intval( $input['max_adults'] ) : 2,
+            '_tap_room_max_children'     => isset( $input['max_children'] ) ? intval( $input['max_children'] ) : 0,
+            '_tap_room_max_occupancy'    => isset( $input['max_occupancy'] ) ? intval( $input['max_occupancy'] ) : 2,
+            '_tap_room_inventory'        => isset( $input['inventory'] ) ? intval( $input['inventory'] ) : 1,
+            '_tap_room_size'             => isset( $input['size'] ) ? sanitize_text_field( $input['size'] ) : '',
+            '_tap_room_view'             => isset( $input['view'] ) ? sanitize_text_field( $input['view'] ) : '',
+            '_tap_room_floor'            => isset( $input['floor'] ) && '' !== $input['floor'] ? intval( $input['floor'] ) : 0,
+            '_tap_room_is_active'        => isset( $input['is_active'] ) && '1' === $input['is_active'] ? '1' : '0',
         ];
 
         foreach ( $fields as $key => $value ) {
             update_post_meta( $new_id, $key, $value );
         }
 
-        wp_send_json_success( [
-            'message' => $room_id ? __( 'Room updated', 'travel-agency-platform' ) : __( 'Room created', 'travel-agency-platform' ),
-            'room_id' => (int) $new_id,
-        ] );
+        return (int) $new_id;
     }
 
     public static function agency_delete_room() {
