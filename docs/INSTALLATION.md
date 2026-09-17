@@ -50,7 +50,7 @@ On activation the plugin automatically:
 
 - Registers custom post types, taxonomies, and user roles.
 - **Creates/updates** the custom database tables.
-- Runs schema migrations to the current `1.5.4` layout (idempotent).
+- Runs schema migrations to the current `1.5.6` layout (idempotent).
 - Flushes rewrite rules and schedules the hourly maintenance task.
 
 No manual SQL is required.
@@ -79,6 +79,8 @@ Create the following pages and insert the provided shortcodes. Refer to [`docs/D
 | `my-bookings` | `[tap_my_bookings]` |
 | `booking-detail` | `[tap_booking_detail]` (voucher, accepts `?code=`) |
 | `checkout` | `[tap_checkout]` |
+| `mi-cuenta` | Page provided by the plugin's unified agency back-office (`TAP_Front_Dash`); legacy `[tap_dashboard]` (page `dashboard`) redirects here |
+| `armar-mi-viaje` | Trip builder (itinerary UI rendered by `TAP_Itinerary`) |
 | `dashboard` | `[tap_dashboard]` |
 | `agency-register` | `[tap_agency_register]` |
 | `agency-manage` | `[tap_agency_manage]` |

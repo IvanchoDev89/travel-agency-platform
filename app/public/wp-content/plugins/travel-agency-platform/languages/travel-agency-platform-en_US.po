@@ -6636,3 +6636,15 @@ msgstr "Add bed"
 #: plugin dynamic string
 msgid "Fotos de la habitación (URLs, una por línea)"
 msgstr "Room photos (URLs, one per line)"
+
+#: class-dashboard.php
+msgid "Cambiar estado"
+msgstr "Change status"
+
+#: class-api.php
+msgid "La calificación debe estar entre 1 y 5."
+msgstr "The rating must be between 1 and 5."
+
+#: class-ajax.php
+msgid "Payment status does not allow capture"
+msgstr "Payment status does not allow capture"

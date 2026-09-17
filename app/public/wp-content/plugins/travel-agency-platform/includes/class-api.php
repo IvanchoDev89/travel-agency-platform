@@ -421,7 +421,10 @@ class TAP_API {
 
         $service_type = sanitize_text_field($params['service_type']);
         $service_id   = intval($params['service_id']);
-        $rating       = floatval($params['rating']);
+        if (!is_numeric($params['rating']) || (float) $params['rating'] < 1 || (float) $params['rating'] > 5) {
+            return new WP_Error('invalid_rating', __('La calificación debe estar entre 1 y 5.', 'travel-agency-platform'), ['status' => 400]);
+        }
+        $rating = (float) $params['rating'];
 
         // Service must exist, be reviewable and published.
         $svc = get_post($service_id);

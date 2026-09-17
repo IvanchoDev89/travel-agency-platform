@@ -222,7 +222,7 @@ jQuery(document).ready(function($) {
         },
         load: function() {
             var self = this;
-            $.getJSON('/wp-json/tap/v1/reviews/' + this.serviceType + '/' + this.serviceId, function(reviews) {
+            $.getJSON((tap_ajax.rest_url || '/wp-json/tap/v1/') + 'reviews/' + this.serviceType + '/' + this.serviceId, function(reviews) {
                 self.render(reviews);
             });
         },
@@ -247,20 +247,20 @@ jQuery(document).ready(function($) {
             $('.tap-reviews-avg-total').text(reviews.length + ' ' + (reviews.length === 1 ? (tapI18n.reviewOne || 'reseña') : (tapI18n.reviewMany || 'reseñas')));
 
             $.each(reviews, function(i, r) {
+                var $item = $('<div class="tap-review-item"></div>');
+                var avatar = (r.user_name || '?').toString().charAt(0).toUpperCase();
+                var $avatar = $('<div class="tap-review-avatar"></div>').text(avatar);
+                var $body = $('<div class="tap-review-body"></div>');
+                var $header = $('<div class="tap-review-header"></div>');
+                $header.append($('<strong></strong>').text(r.user_name || (tapI18n.anonymous || 'Anónimo')));
                 var date = r.created_at ? r.created_at.split(' ')[0] : '';
-                var html =
-                    '<div class="tap-review-item">' +
-                    '<div class="tap-review-avatar">' + (r.user_name ? r.user_name[0].toUpperCase() : '?') + '</div>' +
-                    '<div class="tap-review-body">' +
-                    '<div class="tap-review-header">' +
-                    '<strong>' + (r.user_name || (tapI18n.anonymous || 'Anónimo')) + '</strong>' +
-                    '<span class="tap-review-date">' + date + '</span>' +
-                    '</div>' +
-                    '<div class="tap-review-stars-display">' + Reviews.starsHtml(r.rating) + '</div>' +
-                    (r.title ? '<h4>' + r.title + '</h4>' : '') +
-                    '<p>' + r.content + '</p>' +
-                    '</div></div>';
-                $list.append(html);
+                $header.append($('<span class="tap-review-date"></span>').text(date));
+                $body.append($header);
+                $body.append($('<div class="tap-review-stars-display"></div>').html(Reviews.starsHtml(r.rating)));
+                if (r.title) { $body.append($('<h4></h4>').text(r.title)); }
+                $body.append($('<p></p>').text(r.content));
+                $item.append($avatar).append($body);
+                $list.append($item);
             });
         },
         starsHtml: function(rating) {
@@ -279,7 +279,7 @@ jQuery(document).ready(function($) {
                 $msg.text(tapI18n.reviewsSending || 'Enviando...');
 
                 $.ajax({
-                    url: '/wp-json/tap/v1/review',
+                    url: (tap_ajax.rest_url || '/wp-json/tap/v1/') + 'review',
                     type: 'POST',
                     beforeSend: function(xhr) {
                         xhr.setRequestHeader('X-WP-Nonce', tap_ajax.rest_nonce);

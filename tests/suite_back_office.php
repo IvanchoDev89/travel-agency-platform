@@ -96,8 +96,23 @@ $cb = function ($booking_id) use (&$hook_hits) { $hook_hits[] = (int) $booking_i
 add_action('tap_payment_completed', $cb);
 $b2 = bo_booking($owner_aid, ['status' => 'confirmed', 'payment_status' => 'pending']);
 $r  = TAP_Booking::agency_booking_action($b2, 'mark_paid');
+tap_t_assert(is_wp_error($r) && 'forbidden' === $r->get_error_code(), 'agency cannot mark a booking as paid');
+tap_t_assert('pending' === TAP_Booking::get_booking($b2)->payment_status && !$hook_hits, 'denied manual payment leaves payment and hooks untouched');
+list($admin_uid, $admin_aid) = bo_make_agency('administrator');
+tap_t_assert($admin_uid > 0, 'created administrator fixture');
+foreach (['request', 'pending', 'completed', 'cancelled', 'refunded'] as $blocked_status) {
+    $blocked = bo_booking($owner_aid, ['status' => $blocked_status]);
+    $denied = TAP_Booking::agency_booking_action($blocked, 'mark_paid', $admin_uid);
+    tap_t_assert(is_wp_error($denied) && 'bad_status' === $denied->get_error_code(), 'admin cannot mark paid from ' . $blocked_status);
+}
+$refunded = bo_booking($owner_aid, ['status' => 'confirmed', 'payment_status' => 'refunded']);
+$denied = TAP_Booking::agency_booking_action($refunded, 'mark_paid', $admin_uid);
+tap_t_assert(is_wp_error($denied) && 'refunded' === TAP_Booking::get_booking($refunded)->payment_status, 'admin cannot reverse a refund using mark_paid');
+$r = TAP_Booking::agency_booking_action($b2, 'mark_paid', $admin_uid);
+$repeat = TAP_Booking::agency_booking_action($b2, 'mark_paid', $admin_uid);
 remove_action('tap_payment_completed', $cb);
-tap_t_assert(true === $r, 'agency marks a booking as paid');
+tap_t_assert(true === $repeat && count($hook_hits) === 1, 'repeated manual payment does not repeat the payment event');
+tap_t_assert(true === $r, 'administrator marks a confirmed booking as paid');
 tap_t_assert('paid' === TAP_Booking::get_booking($b2)->payment_status, 'payment_status becomes paid');
 tap_t_assert(in_array($b2, $hook_hits, true), 'mark_paid triggered tap_payment_completed');
 tap_t_assert('owed' === TAP_Booking::get_booking($b2)->commission_status, 'commission is owed after payment');

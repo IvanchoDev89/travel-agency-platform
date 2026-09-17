@@ -159,11 +159,29 @@ class TAP_Pricing {
 
     public static function ajax_save_pricing() {
         check_ajax_referer('tap_pricing', 'nonce');
+        if (!is_user_logged_in() || !current_user_can('edit_posts')) {
+            wp_send_json(['success' => false, 'message' => 'No autorizado']);
+        }
+
         $room_id = (int) $_POST['room_id'];
         $date    = sanitize_text_field($_POST['date']);
 
         if (!$room_id || !$date) {
             wp_send_json(['success' => false, 'message' => 'Datos inválidos']);
+        }
+
+        // The pricing editor only manages rooms of advertisements the agency
+        // owns; reject rooms that belong to someone else or to a non-accommodation.
+        $acc_id = (int) get_post_meta($room_id, '_tap_room_accommodation_id', true);
+        if (!$acc_id || get_post_type($acc_id) !== 'tap_accommodation') {
+            wp_send_json(['success' => false, 'message' => 'Habitación inválida']);
+        }
+        if (!current_user_can('manage_options')) {
+            $agency   = (int) get_post_meta($acc_id, '_tap_tap_accommodation_agency_id', true);
+            $my_agency = (int) TAP_Booking::get_agency_for_user(get_current_user_id());
+            if (!$agency || !$my_agency || $my_agency !== $agency) {
+                wp_send_json(['success' => false, 'message' => 'No autorizado']);
+            }
         }
 
         $price    = isset($_POST['price']) && $_POST['price'] !== '' ? (float) $_POST['price'] : null;

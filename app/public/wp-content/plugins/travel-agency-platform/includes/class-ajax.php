@@ -219,7 +219,7 @@ class TAP_Ajax {
             wp_send_json_error(['message' => __('Unauthorized', 'travel-agency-platform')]);
         }
 
-        if ($is_admin && !$is_agency) {
+        if ($is_admin) {
             check_ajax_referer('tap_admin_booking', '_ajax_nonce');
         }
 
@@ -303,19 +303,37 @@ class TAP_Ajax {
         }
 
         global $wpdb;
-        $booking_id = $wpdb->get_var($wpdb->prepare(
+        $booking_id = (int) $wpdb->get_var($wpdb->prepare(
             "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_tap_paypal_order_id' AND meta_value = %s",
             $paypal_order_id
         ));
 
-        if ($booking_id) {
-            $booking = TAP_Booking::get_booking((int) $booking_id);
-            $uid = get_current_user_id();
-            $owner_ok = $uid && $booking && (int) $booking->client_id === $uid;
-            $guest_ok = !$uid && $booking && (int) $booking->client_id === 0 && self::get_guest_pay_token($booking->booking_code);
-            if ($booking && !$owner_ok && !$guest_ok) {
-                wp_send_json_error(['message' => __('Booking not found', 'travel-agency-platform')]);
-            }
+        if (!$booking_id) {
+            wp_send_json_error(['message' => __('Booking not found', 'travel-agency-platform')]);
+        }
+
+        $booking = TAP_Booking::get_booking($booking_id);
+        $uid = get_current_user_id();
+        $owner_ok = $uid && $booking && (int) $booking->client_id === $uid;
+        $guest_ok = !$uid && $booking && (int) $booking->client_id === 0 && self::get_guest_pay_token($booking->booking_code);
+        if (!$booking || (!$owner_ok && !$guest_ok)) {
+            wp_send_json_error(['message' => __('Booking not found', 'travel-agency-platform')]);
+        }
+
+        // Idempotency: a booking already marked paid must not be captured or
+        // processed again (protects against retries and double clicks).
+        if ('paid' === $booking->payment_status) {
+            wp_send_json_success([
+                'status'       => 'COMPLETED',
+                'capture_id'   => get_post_meta($booking_id, '_tap_paypal_capture_id', true),
+                'booking_id'   => $booking_id,
+                'message'      => __('Payment completed successfully!', 'travel-agency-platform'),
+            ]);
+        }
+
+        // Only capture payments that are still owed (never a refunded booking).
+        if (!in_array($booking->payment_status, ['pending', 'partial', 'failed'], true)) {
+            wp_send_json_error(['message' => __('Payment status does not allow capture', 'travel-agency-platform')]);
         }
 
         $result = TAP_PayPal::capture_order($paypal_order_id);
@@ -325,13 +343,9 @@ class TAP_Ajax {
         }
 
         if ($booking_id && $result['capture_status'] === 'COMPLETED') {
-            TAP_Booking::update_payment_status($booking_id, 'paid');
-            TAP_Booking::update_status($booking_id, 'confirmed');
-            update_post_meta($booking_id, '_tap_paypal_capture_id', $result['capture_id']);
-            update_post_meta( $booking_id, '_tap_payment_details', json_encode( $result['full_response'], JSON_UNESCAPED_UNICODE ) );
             // Receipts, agency notification and the owed commission all hang off
             // this single event (mark_commission_owed subscribes at priority 20).
-            do_action('tap_payment_completed', (int) $booking_id, 'paypal', $result['capture_id']);
+            TAP_Booking::record_paid_capture($booking_id, 'paypal', $result['capture_id'], $result['full_response'] ?? null);
         }
 
         wp_send_json_success([
@@ -1288,6 +1302,51 @@ class TAP_Ajax {
     }
 
     /**
+     * Reject URLs that point to non-public hosts (SSRF guard for sideload).
+     * Blocks literal private/reserved/metadata IPs and hostnames that resolve
+     * to any non-public address, so agencies cannot proxy requests to
+     * localhost, internal networks or cloud metadata endpoints.
+     */
+    private static function url_is_public_host($url) {
+        $host = wp_parse_url((string) $url, PHP_URL_HOST);
+        if (!$host || !wp_http_validate_url((string) $url)) {
+            return false;
+        }
+
+        $ip = filter_var($host, FILTER_VALIDATE_IP);
+        if ($ip) {
+            return self::is_public_ip($ip);
+        }
+
+        $resolved = gethostbynamel((string) $host);
+        if (!$resolved || !is_array($resolved)) {
+            return false;
+        }
+        foreach ($resolved as $address) {
+            if (!self::is_public_ip($address)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static function is_public_ip($ip) {
+        $long = ip2long((string) $ip);
+        if (false === $long) {
+            return false;
+        }
+        // 100.64.0.0/10 (CGNAT / cloud metadata) is not in the standard ranges.
+        if ($long >= ip2long('100.64.0.0') && $long <= ip2long('100.127.255.255')) {
+            return false;
+        }
+        return (bool) filter_var(
+            $ip,
+            FILTER_VALIDATE_IP,
+            FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+        );
+    }
+
+    /**
      * Download a remote image into the Media Library and return its
      * attachment id (0 on any failure). No-op-safe under wp-cli and tests.
      */
@@ -1297,7 +1356,7 @@ class TAP_Ajax {
         require_once ABSPATH . 'wp-admin/includes/image.php';
 
         $url = esc_url_raw(trim((string) $url));
-        if (!$url || !wp_http_validate_url($url)) {
+        if (!$url || !self::url_is_public_host($url)) {
             return 0;
         }
 

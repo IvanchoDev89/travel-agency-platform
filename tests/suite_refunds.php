@@ -223,9 +223,10 @@ $src_front = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes
 tap_t_assert(false !== strpos($src_front, 'client_cancel_request($booking_id'), 'ajax_cancel_booking delegates to client_cancel_request');
 tap_t_assert(false === strpos($src_front, '"status"           => \'cancelled\',\n                \'cancelled_by\''), 'ajax_cancel_booking no longer writes the raw row');
 $src_ajax = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-ajax.php');
-tap_t_assert(false !== strpos($src_ajax, "do_action('tap_payment_completed', (int) \$booking_id"), 'capture_paypal_order fires tap_payment_completed (receipts + commission)');
+tap_t_assert(false !== strpos($src_ajax, 'record_paid_capture('), 'capture_paypal_order delegates to the idempotent capture path');
 tap_t_assert(false !== strpos($src_ajax, "check_ajax_referer('tap_admin_booking', '_ajax_nonce')"), 'admin branch of update_booking_status is CSRF-protected');
 $src_booking = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-booking.php');
+tap_t_assert(false !== strpos($src_booking, "do_action('tap_payment_completed', (int) \$booking_id, \$method, \$capture_id)"), 'record_paid_capture fires tap_payment_completed (receipts + commission)');
 tap_t_assert(false !== strpos($src_booking, 'GET_LOCK'), 'create() serializes room/tour availability with an advisory MySQL lock');
 tap_t_assert(false !== strpos($src_booking, 'function execute_refund('), 'TAP_Booking::execute_refund exists');
 $main_src = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/travel-agency-platform.php');

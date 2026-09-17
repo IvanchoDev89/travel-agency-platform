@@ -338,6 +338,9 @@ class TAP_Dashboard {
         if (!current_user_can('tap_manage_bookings')) {
             return;
         }
+        if (!check_admin_referer('tap_export_bookings')) {
+            return;
+        }
         global $wpdb;
 
         $f_status = sanitize_key($_GET['f_status'] ?? '');
@@ -433,10 +436,10 @@ class TAP_Dashboard {
         $bookings = $wpdb->get_results($sql . ' ORDER BY b.created_at DESC LIMIT ' . intval($per_page) . ' OFFSET ' . intval($offset));
 
         $agencies = $wpdb->get_results("SELECT ID, post_title FROM {$wpdb->posts} WHERE post_type = 'tap_agency' AND post_status = 'publish' ORDER BY post_title");
-        $export_url = add_query_arg(array_filter([
+        $export_url = wp_nonce_url(add_query_arg(array_filter([
             'page' => 'tap-bookings', 'export' => 1,
             'f_status' => $f_status, 'f_type' => $f_type, 'f_agency' => $f_agency ? $f_agency : null, 's' => $s !== '' ? $s : null,
-        ]), admin_url('admin.php'));
+        ]), admin_url('admin.php')), 'tap_export_bookings');
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Bookings', 'travel-agency-platform'); ?></h1>
@@ -494,7 +497,17 @@ class TAP_Dashboard {
                         <td><?php echo $service ? esc_html($service->post_title) : esc_html($b->service_type); ?></td>
                         <td><?php echo $agency ? esc_html($agency->post_title) : 'N/A'; ?></td>
                         <td><?php echo esc_html(TAP_Currency::fmt($b->total_amount)); ?></td>
-                        <td><?php echo esc_html(ucfirst($b->status)); ?></td>
+                        <td>
+                            <span class="tap-status tap-status-<?php echo esc_attr($b->status); ?> tap-status-display"><?php echo esc_html(ucfirst($b->status)); ?></span>
+                            <?php $next_statuses = TAP_Booking::$transitions[$b->status] ?? []; if ($next_statuses): ?>
+                            <select class="tap-booking-status-select" data-booking-id="<?php echo (int) $b->id; ?>">
+                                <option value="">&mdash; <?php esc_html_e('Cambiar estado', 'travel-agency-platform'); ?> &mdash;</option>
+                                <?php foreach ($next_statuses as $ns): ?>
+                                <option value="<?php echo esc_attr($ns); ?>"><?php echo esc_html(ucfirst($ns)); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <?php endif; ?>
+                        </td>
                         <td><?php echo esc_html(TAP_Currency::fmt($b->commission_amount)) . ' <span style="color:#64748b;">(' . esc_html($b->commission_status) . ')</span>'; ?></td>
                         <td><?php echo esc_html((float) ($b->booking_fee ?? 0) > 0 ? TAP_Currency::fmt($b->booking_fee) : '&mdash;'); ?></td>
                         <td><?php echo esc_html($b->created_at); ?></td>

@@ -621,14 +621,29 @@ class TAP_Booking {
             case 'complete':
                 return self::update_status($booking->id, 'completed');
             case 'mark_paid':
+                if (!$is_admin) {
+                    return new WP_Error('forbidden', __('No tienes permiso sobre esta reserva.', 'travel-agency-platform'));
+                }
+                if ('confirmed' !== $booking->status) {
+                    return new WP_Error('bad_status', __('Invalid status', 'travel-agency-platform'));
+                }
+                if (!in_array($booking->payment_status, ['pending', 'partial', 'failed', 'paid'], true)) {
+                    return new WP_Error('invalid_status', __('Invalid payment status', 'travel-agency-platform'));
+                }
                 if ('paid' === $booking->payment_status) {
                     return true;
                 }
-                $res = self::update_payment_status($booking->id, 'paid');
-                if (true === $res) {
-                    do_action('tap_payment_completed', $booking->id, 'office', '');
+                global $wpdb;
+                $updated = $wpdb->update(
+                    $wpdb->prefix . 'tap_bookings',
+                    ['payment_status' => 'paid'],
+                    ['id' => $booking->id, 'status' => 'confirmed', 'payment_status' => $booking->payment_status]
+                );
+                if (1 !== $updated) {
+                    return new WP_Error('payment_update_failed', __('Invalid payment status', 'travel-agency-platform'));
                 }
-                return $res;
+                do_action('tap_payment_completed', $booking->id, 'office', '');
+                return true;
             case 'cancel':
                 if (!in_array($booking->status, ['pending', 'confirmed', 'request'], true)) {
                     return new WP_Error('bad_status', __('Esta reserva ya no puede cancelarse.', 'travel-agency-platform'));
@@ -780,6 +795,50 @@ class TAP_Booking {
             ['id' => $booking_id]
         );
 
+        return true;
+    }
+
+    /**
+     * Record a captured online payment (PayPal capture completed).
+     *
+     * Atomic + idempotent: the row update only succeeds when the booking is
+     * still unpaid, so a replayed webhook, ajax retry or booker double click
+     * can never mark an already paid booking as paid again or re-fire the
+     * 'tap_payment_completed' event (which re-earns the agency commission).
+     */
+    public static function record_paid_capture($booking_id, $method, $capture_id = '', $details = null) {
+        global $wpdb;
+
+        $booking = self::get_booking((int) $booking_id);
+        if (!$booking) {
+            return false;
+        }
+        if (in_array($booking->payment_status, ['paid', 'refunded'], true)) {
+            return false;
+        }
+        if (in_array($booking->status, ['cancelled', 'refunded'], true)) {
+            return false;
+        }
+
+        $table   = $wpdb->prefix . 'tap_bookings';
+        $updated = $wpdb->update(
+            $table,
+            ['payment_status' => 'paid'],
+            ['id' => (int) $booking_id, 'payment_status' => $booking->payment_status]
+        );
+        if (1 !== $updated) {
+            return false;
+        }
+
+        self::update_status((int) $booking_id, 'confirmed');
+        if ($capture_id) {
+            update_post_meta((int) $booking_id, '_tap_paypal_capture_id', $capture_id);
+        }
+        if (null !== $details) {
+            $payload = is_string($details) ? $details : json_encode($details, JSON_UNESCAPED_UNICODE);
+            update_post_meta((int) $booking_id, '_tap_payment_details', $payload);
+        }
+        do_action('tap_payment_completed', (int) $booking_id, $method, $capture_id);
         return true;
     }
 

@@ -155,12 +155,13 @@ class TAP_Payment {
         ));
 
         if ($booking_id) {
-            TAP_Booking::update_payment_status($booking_id, 'paid');
-            TAP_Booking::update_status($booking_id, 'confirmed');
-            update_post_meta($booking_id, '_tap_paypal_capture_id', $capture->id ?? '');
-            update_post_meta($booking_id, '_tap_payment_details', json_encode($capture, JSON_UNESCAPED_UNICODE));
-
-            do_action('tap_payment_completed', $booking_id, 'paypal', $capture->id ?? '');
+            $booking_id  = (int) $booking_id;
+            $capture_id  = $capture->id ?? '';
+            $prev_capture = get_post_meta($booking_id, '_tap_paypal_capture_id', true);
+            if ($prev_capture && $capture_id && (string) $prev_capture === (string) $capture_id) {
+                return;
+            }
+            TAP_Booking::record_paid_capture($booking_id, 'paypal', $capture_id, $capture);
             return;
         }
 

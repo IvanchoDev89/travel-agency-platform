@@ -662,7 +662,7 @@ class TAP_Front_Dash {
                             <?php if ('confirmed' === $b->status): ?>
                                 <button class="tap-btn tap-btn-sm tap-bo-api" data-op="complete" data-name="<?php echo esc_attr($b->booking_code); ?>" data-id="<?php echo (int) $b->id; ?>"><?php esc_html_e('Completar', 'travel-agency-platform'); ?></button>
                             <?php endif; ?>
-                            <?php if ('paid' !== $b->payment_status): ?>
+                            <?php if (user_can($user, 'manage_options') && 'confirmed' === $b->status && in_array($b->payment_status, ['pending', 'partial', 'failed'], true)): ?>
                                 <button class="tap-btn tap-btn-sm tap-bo-api" data-op="mark_paid" data-name="<?php echo esc_attr($b->booking_code); ?>" data-id="<?php echo (int) $b->id; ?>"><?php esc_html_e('Marcar pagada', 'travel-agency-platform'); ?></button>
                             <?php endif; ?>
                             <?php if (in_array($b->status, ['request', 'pending', 'confirmed'], true) && (!$b->check_in || $b->check_in >= $today)): ?>

@@ -6,15 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.6] — 2026-09-16
+
+### Fixed
+
+- **Fresh-install DB broken**: `tap_bookings` was created without the `guest_name` column, yet the migration queued `ADD COLUMN guest_email ... AFTER guest_name` — every new install crashed with MySQL error 1054. `guest_name` is now in the base `CREATE TABLE` and a guarded `ALTER ... AFTER client_id` migrates existing installs first.
+- **`mark_paid` restricted (office money integrity)**: agencies can no longer mark their own bookings as paid (previously any agency could flip `payment_status` and earn owed commission without real collection). The operation now requires `manage_options`, a `confirmed` booking and a non-refunded payment; it also runs as a single atomic conditional update and ignores already-paid bookings, so repeat submissions cannot re-fire `tap_payment_completed`.
+- **PayPal capture double-charge (C1)**: `capture_paypal_order` now refuses to capture when the PayPal order maps to no booking (instead of charging and still answering "Payment completed successfully!"), and is idempotent: an already `paid` booking returns success without a second capture, and non-payable statuses (`refunded`, etc.) are rejected.
+- **Webhook replay / commission re-earning (C2)**: booking captures now go through `TAP_Booking::record_paid_capture()`, a single atomic + idempotent path (conditional `UPDATE ... WHERE payment_status = prior`), used by both the AJAX capture and `handle_capture_completed`. A replayed capture event (same `capture_id`) or double click can no longer re-mark a booking paid or re-owe the agency commission.
+- **Version bumped to 1.5.6.**
+
+### Removed from 1.5.5 (claims that do not match the code)
+
+- `_tap_processed` webhook marker, transactional cancellation/refund webhooks, `GET_LOCK` refund-vs-capture serialization, and the "3011 visible in back-office" alert are **not implemented**; those bullets were overclaims and have been corrected below.
+
 ## [1.5.5] — 2026-09-12
 
 ### Added
 
 - **Fase 1 — Integridad del dinero (refunds reales + reconciliables):**
-  - **Gateway failure safeguard**: when the PayPal capture fails (via AJAX or REST), the booking is rolled back instead of blindly setting `payment_status = paid`; the payment row is removed or re-acquitted, and a new payment can be retried. Old `3011` rejections that had invoiced a `paid` booking are now visible and correctable in the back-office.
-  - **Offline (manual) refund**: refunds set by the admin now create a real ledger `refund` line whose amount is subtracted from net; `net_totals` moved to `payment_status = paid` only, so settlements can be recomputed precisely and are auditable.
-  - **Webhook idempotency**: `_tap_processed` marks a webhook event so it cannot double-process event notifications (e.g., `payment.capture.completed` twice), and cancellation/refund webhooks update the booking state and ledger atomically in one transaction.
-  - **Admin CSRF + race protection**: all admin actions use `check_admin_referer`; refund-vs-capture races are serialized with `GET_LOCK` and a retry guard so a refund never cancels a captured payment that followed afterwards.
+- **Gateway failure safeguard**: when the PayPal capture fails (via AJAX or REST), the booking is rolled back instead of blindly setting `payment_status = paid`; the payment row is removed or re-acquitted, and a new payment can be retried.
+- **Offline (manual) refund**: refunds set by the admin now create a real ledger `refund` line whose amount is subtracted from net; `net_totals` moved to `payment_status = paid` only, so settlements can be recomputed precisely and are auditable.
+- **Admin CSRF protection**: `suite_refunds` asserts `check_admin_referer` usage on the admin refund action (see 1.5.6 for the refund-vs-capture serialization that remains open).
   - **Books closed**: `_tap_payment_details` and `_tap_room_beds`/`_tap_room_amenities` now persist JSON with `JSON_UNESCAPED_UNICODE` — the previous `wp_json_encode` output was being stripped of its `\u` escapes by the DB layer, silently corrupting accents in Spanish amenities/beds/payment names (a real production data-integrity bug).
 - **Fase 3 — Producto para agencias (front-editor completo):**
   - Front-end listing editor (shortcode managed by the agency panel) now lets agencies set the **featured image** and a **gallery** via URL (server-side `sideload()` into the media library with extension/type validation), and a **full room editor**: description, floor, amenities (comma separated, deduplicated/trimmed), bed builder (add/remove rows from `bed_types()`), thumbnail and gallery per room.

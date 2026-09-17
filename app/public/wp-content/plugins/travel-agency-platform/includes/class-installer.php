@@ -29,6 +29,7 @@ class TAP_Installer {
                 booking_code varchar(20) NOT NULL,
                 agency_id bigint(20) NOT NULL,
                 client_id bigint(20) NOT NULL,
+                guest_name varchar(150) DEFAULT NULL,
                 service_type varchar(50) NOT NULL,
                 service_id bigint(20) NOT NULL,
                 room_id bigint(20) DEFAULT NULL,
@@ -460,6 +461,9 @@ $cols_bookings = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
                 'features' => json_encode(['Listados ilimitados', 'Comisión 5%', '3 destacados / mes', 'Soporte prioritario'], JSON_UNESCAPED_UNICODE),
                 'is_active' => 1,
             ]);
+        }
+        if (!in_array('guest_name', $cols_bookings)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN guest_name varchar(150) DEFAULT NULL AFTER client_id");
         }
         if (!in_array('guest_email', $cols_bookings)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN guest_email varchar(150) DEFAULT NULL AFTER guest_name");

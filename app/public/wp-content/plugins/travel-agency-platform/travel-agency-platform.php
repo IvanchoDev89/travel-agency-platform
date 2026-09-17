@@ -3,7 +3,7 @@
  * Plugin Name: Travel Agency Platform
  * Plugin URI: https://ivanchodev.com
  * Description: Multi-agency travel platform B2B & B2C. Manage accommodations, tours, transports, car rentals, boats and packages.
-* Version:           1.5.5
+* Version:           1.5.6
  * Author: IvanchoDev
  * Text Domain: travel-agency-platform
  * Domain Path: /languages
@@ -11,7 +11,7 @@
 
 defined('ABSPATH') || exit;
 
-define('TAP_VERSION', '1.5.5');
+define('TAP_VERSION', '1.5.6');
 define('TAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -168,7 +168,8 @@ final class TravelAgencyPlatform {
     }
 
     public function enqueue_public_assets() {
-        wp_enqueue_style('tap-public', TAP_PLUGIN_URL . 'assets/css/public.css', [], TAP_VERSION);
+        wp_enqueue_style('tap-tokens', TAP_PLUGIN_URL . 'assets/css/tokens.css', [], TAP_VERSION);
+        wp_enqueue_style('tap-public', TAP_PLUGIN_URL . 'assets/css/public.css', ['tap-tokens'], TAP_VERSION);
         wp_enqueue_script('tap-public', TAP_PLUGIN_URL . 'assets/js/public.js', ['jquery'], TAP_VERSION, true);
         if (is_singular('tap_accommodation')) {
             wp_enqueue_script('tap-calendar', TAP_PLUGIN_URL . 'assets/js/public-calendar.js', ['jquery'], TAP_VERSION, true);
@@ -197,6 +198,7 @@ final class TravelAgencyPlatform {
             'currency_decimals' => TAP_Currency::decimals(),
             'is_logged_in' => is_user_logged_in() ? '1' : '0',
             'login_url' => wp_login_url(),
+            'rest_url' => esc_url_raw(rest_url('tap/v1/')),
         ]);
 
         wp_localize_script('tap-public', 'tapI18n', [

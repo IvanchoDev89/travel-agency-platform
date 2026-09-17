@@ -52,37 +52,45 @@ class TAP_Payouts {
         $table  = $wpdb->prefix . 'tap_bookings';
         $ptable = $wpdb->prefix . 'tap_commission_payments';
 
-        $rows = $wpdb->get_results($wpdb->prepare(
-            "SELECT b.id, b.commission_amount
-               FROM {$table} b
-              WHERE b.agency_id = %d
-                AND b.commission_status = 'owed'
-                AND b.payment_status = 'paid'
-                AND b.status NOT IN ('cancelled', 'refunded')
-                AND b.commission_amount > 0
-                AND NOT EXISTS (
-                    SELECT 1 FROM {$ptable} p
-                     WHERE p.status = 'pending'
-                       AND FIND_IN_SET(b.id, p.booking_ids)
-                )",
-            $agency_id
-        ));
-        if (!$rows) {
-            return new WP_Error('nothing_owed', __('No tienes comisiones por cobrar disponibles para liquidar.', 'travel-agency-platform'));
-        }
+        // Serialize the whole select-and-insert so two simultaneous requests
+        // cannot pay out the same still-owed commissions twice.
+        $lock = 'tap_payout_request_' . $agency_id;
+        $wpdb->query("SELECT GET_LOCK('{$lock}', 5)");
+        try {
+            $rows = $wpdb->get_results($wpdb->prepare(
+                "SELECT b.id, b.commission_amount
+                   FROM {$table} b
+                  WHERE b.agency_id = %d
+                    AND b.commission_status = 'owed'
+                    AND b.payment_status = 'paid'
+                    AND b.status NOT IN ('cancelled', 'refunded')
+                    AND b.commission_amount > 0
+                    AND NOT EXISTS (
+                        SELECT 1 FROM {$ptable} p
+                         WHERE p.status = 'pending'
+                           AND FIND_IN_SET(b.id, p.booking_ids)
+                    )",
+                $agency_id
+            ));
+            if (!$rows) {
+                return new WP_Error('nothing_owed', __('No tienes comisiones por cobrar disponibles para liquidar.', 'travel-agency-platform'));
+            }
 
-        $amount       = round(array_sum(array_map(fn($r) => (float) $r->commission_amount, $rows)), 2);
-        $booking_ids  = implode(',', array_column($rows, 'id'));
-        $wpdb->insert($ptable, [
-            'agency_id'   => $agency_id,
-            'amount'      => $amount,
-            'booking_ids' => $booking_ids,
-            'method'      => $method,
-            'note'        => sanitize_textarea_field($note) ?: __('Solicitud de liquidación', 'travel-agency-platform'),
-            'source'      => 'agency',
-            'created_by'  => get_current_user_id(),
-        ]);
-        $payment_id = (int) $wpdb->insert_id;
+            $amount       = round(array_sum(array_map(fn($r) => (float) $r->commission_amount, $rows)), 2);
+            $booking_ids  = implode(',', array_column($rows, 'id'));
+            $wpdb->insert($ptable, [
+                'agency_id'   => $agency_id,
+                'amount'      => $amount,
+                'booking_ids' => $booking_ids,
+                'method'      => $method,
+                'note'        => sanitize_textarea_field($note) ?: __('Solicitud de liquidación', 'travel-agency-platform'),
+                'source'      => 'agency',
+                'created_by'  => get_current_user_id(),
+            ]);
+            $payment_id = (int) $wpdb->insert_id;
+        } finally {
+            $wpdb->query("SELECT RELEASE_LOCK('{$lock}')");
+        }
         if (!$payment_id) {
             return new WP_Error('db_error', __('No se pudo registrar la solicitud.', 'travel-agency-platform'));
         }
