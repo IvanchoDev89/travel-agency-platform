@@ -659,8 +659,7 @@ class TAP_Emails {
             self::build_context($booking),
             'pending'
         );
-        self::send($email, $subject, $body);
-        return true;
+        return self::send($email, $subject, $body);
     }
 
     public static function send_prearrival_msg($booking) {
@@ -682,8 +681,7 @@ class TAP_Emails {
             $ctx,
             'confirmed'
         );
-        self::send($email, $subject, $body);
-        return true;
+        return self::send($email, $subject, $body);
     }
 
     public static function send_review_request($booking) {
@@ -703,8 +701,7 @@ class TAP_Emails {
                 esc_url($review_url)
             )
         );
-        self::send($email, $subject, $body);
-        return true;
+        return self::send($email, $subject, $body);
     }
 
     public static function send_expiry_warning($agency_id, $type, $label, $until) {
@@ -730,13 +727,12 @@ class TAP_Emails {
             );
             $subject = __('Tu promoción está por vencer', 'travel-agency-platform');
         }
-        self::send($to, $subject, self::info_template($headline, $intro));
-        return true;
+        return self::send($to, $subject, self::info_template($headline, $intro));
     }
 
     private static function send($to, $subject, $body) {
         $body .= TAP_Privacy::email_footer();
-        wp_mail($to, $subject, $body);
+        return (bool) wp_mail($to, $subject, $body);
     }
 
     private static function money($amount, $currency = '') {

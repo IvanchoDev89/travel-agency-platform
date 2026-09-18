@@ -29,7 +29,7 @@ class TAP_Reviews {
         $rows = $wpdb->get_results($wpdb->prepare(
             "SELECT id, booking_code, service_type, service_id, check_in, total_amount
              FROM {$wpdb->prefix}tap_bookings
-             WHERE client_id = %d AND status IN ({$placeholders})
+             WHERE client_id = %d AND status IN ({$placeholders}) AND payment_status = 'paid'
              ORDER BY check_in DESC, id DESC",
             array_merge([$user_id], $status)
         ));
@@ -68,7 +68,7 @@ class TAP_Reviews {
         return $wpdb->get_row($wpdb->prepare(
             "SELECT id, booking_code, service_type, service_id, check_in, total_amount
              FROM {$wpdb->prefix}tap_bookings
-             WHERE id = %d AND client_id = %d AND status IN ({$placeholders})",
+             WHERE id = %d AND client_id = %d AND status IN ({$placeholders}) AND payment_status = 'paid'",
             array_merge([$booking_id, $user_id], $status)
         ));
     }
@@ -80,6 +80,6 @@ class TAP_Reviews {
 
     /** Human message shared by the form gate and REST rejection. */
     public static function verified_only_message() {
-        return __('Solo puedes dejar reseñas después de una reserva confirmada o completada.', 'travel-agency-platform');
+        return __('Solo puedes dejar reseñas después de una reserva confirmada o completada y pagada.', 'travel-agency-platform');
     }
 }

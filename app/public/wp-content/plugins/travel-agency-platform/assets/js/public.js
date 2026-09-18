@@ -1,5 +1,16 @@
 jQuery(document).ready(function($) {
 
+    // Escape untrusted strings before any HTML string interpolation. Used for
+    // server-supplied values (titles, urls, cities) that flow into innerHTML.
+    function tapEscape(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
     var Favorites = {
         init: function() {
             if (typeof tap_ajax === 'undefined') return;
@@ -95,11 +106,11 @@ jQuery(document).ready(function($) {
                                 $.each(res.data.results, function(i, item) {
                                     var html = '<div class="tap-search-result-item">';
                                     if (item.thumbnail) {
-                                        html += '<img src="' + item.thumbnail + '" alt="' + item.title + '">';
+                                        html += '<img src="' + tapEscape(item.thumbnail) + '" alt="' + tapEscape(item.title) + '" loading="lazy" decoding="async">';
                                     }
                                     html += '<div class="tap-search-result-info">';
-                                    html += '<a href="' + item.permalink + '"><strong>' + item.title + '</strong></a>';
-                                    html += '<span class="tap-search-type">' + item.type_name + '</span>';
+                                    html += '<a href="' + tapEscape(item.permalink) + '"><strong>' + tapEscape(item.title) + '</strong></a>';
+                                    html += '<span class="tap-search-type">' + tapEscape(item.type_name) + '</span>';
                                     html += '</div></div>';
                                     container.append(html);
                                 });
@@ -384,13 +395,13 @@ jQuery(document).ready(function($) {
             var html = '';
             $.each(results, function(i, r) {
                 var imgHtml = r.img
-                    ? '<img class="tap-hs-suggestion-img" src="' + r.img + '" alt="">'
+                    ? '<img class="tap-hs-suggestion-img" src="' + tapEscape(r.img) + '" alt="">'
                     : '<div class="tap-hs-suggestion-img-placeholder">' + (r.type === 'Destino' ? '&#128205;' : '&#127983;') + '</div>';
-                html += '<a class="tap-hs-suggestion-item" href="' + r.url + '" role="option" id="tap-hs-opt-' + i + '">' +
+                html += '<a class="tap-hs-suggestion-item" href="' + tapEscape(r.url) + '" role="option" id="tap-hs-opt-' + i + '">' +
                     imgHtml +
                     '<div class="tap-hs-suggestion-info">' +
-                    '<div class="tap-hs-suggestion-title">' + r.label + '</div>' +
-                    '<div class="tap-hs-suggestion-type">' + r.type + '</div>' +
+                    '<div class="tap-hs-suggestion-title">' + tapEscape(r.label) + '</div>' +
+                    '<div class="tap-hs-suggestion-type">' + tapEscape(r.type) + '</div>' +
                     '</div></a>';
             });
             $box.attr('role', 'listbox').html(html).show();

@@ -21,28 +21,31 @@ class TAP_Analytics {
         if (get_transient($bucket)) return;
         set_transient($bucket, 1, 5 * MINUTE_IN_SECONDS);
 
-        global $wpdb;
-        $table = self::views_table();
-        $date  = current_time('Y-m-d');
-
-        $row = $wpdb->get_var($wpdb->prepare(
-            "SELECT id FROM {$table} WHERE listing_id = %d AND view_date = %s",
-            $post_id, $date
-        ));
-        if ($row) {
+        $write = function () use ($post_id, $type) {
+            global $wpdb;
+            $table = self::views_table();
+            $date  = current_time('Y-m-d');
             $wpdb->query($wpdb->prepare(
-                "UPDATE {$table} SET views = views + 1 WHERE id = %d",
-                (int) $row
+                "INSERT INTO {$table} (listing_id, service_type, view_date, views)
+                 VALUES (%d, %s, %s, 1)
+                 ON DUPLICATE KEY UPDATE views = views + 1
+                 /* listing_date unique key guards the atomic increment */",
+                (int) $post_id, $type, $date
             ));
-        } else {
-            $wpdb->insert($table, [
-                'listing_id'  => (int) $post_id,
-                'service_type' => $type,
-                'view_date'   => $date,
-                'views'       => 1,
-            ]);
+            do_action('tap_listing_view', $post_id);
+        };
+
+        if (defined('WP_CLI') && WP_CLI) {
+            // No HTTP response is being served (CLI/cron-style run), so the
+            // counter write cannot slow a page render and is applied now.
+            $write();
+            return;
         }
-        do_action('tap_listing_view', $post_id);
+
+        // Non-blocking: the counter write is deferred to PHP shutdown, after
+        // the response has already been flushed, so a busy listing page never
+        // waits on the stats INSERT/UPDATE.
+        add_action('shutdown', $write);
     }
 
     public static function total_views($from = '', $to = '') {
@@ -57,7 +60,10 @@ class TAP_Analytics {
         global $wpdb;
         $where = self::date_where($from, $to);
         $rows = $wpdb->get_results(
-            "SELECT listing_id, COALESCE(SUM(views),0) views FROM " . self::views_table() . " WHERE {$where} GROUP BY listing_id",
+            "SELECT listing_id, COALESCE(SUM(views),0) views
+             FROM " . self::views_table() . " WHERE {$where}
+             GROUP BY listing_id
+             LIMIT 1000",
             OBJECT_K
         );
         return $rows ?: [];

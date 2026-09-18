@@ -16,6 +16,12 @@ defined('ABSPATH') || exit;
 
 class TAP_Automations {
 
+    /** Max items any single cron run processes per task (keeps runs short). */
+    const BATCH = 100;
+
+    /** How long sent-log entries are retained before pruning. */
+    const LOG_DAYS = 60;
+
     public static function init() {
         if (!wp_next_scheduled('tap_auto_hook')) {
             wp_schedule_event(time() + HOUR_IN_SECONDS, 'daily', 'tap_auto_hook');
@@ -46,14 +52,20 @@ class TAP_Automations {
 
         global $wpdb;
         $t = $wpdb->prefix . 'tap_bookings';
-        $ids = $wpdb->get_col($wpdb->prepare(
-            "SELECT id FROM {$t}
-             WHERE status IN ('pending','request')
-               AND created_at BETWEEN %s AND %s
-             ORDER BY created_at ASC",
-            date('Y-m-d H:i:s', $now - $stale * HOUR_IN_SECONDS),
-            date('Y-m-d H:i:s', $now - $hours * HOUR_IN_SECONDS)
-        ));
+        list($ids, $finished) = self::batch_run('pay', function ($wpdb, $after_id, $limit) use ($t, $now, $stale, $hours) {
+            return $wpdb->get_col($wpdb->prepare(
+                "SELECT id FROM {$t}
+                 WHERE status IN ('pending','request')
+                   AND created_at BETWEEN %s AND %s
+                   AND id > %d
+                 ORDER BY created_at ASC, id ASC
+                 LIMIT %d",
+                date('Y-m-d H:i:s', $now - $stale * HOUR_IN_SECONDS),
+                date('Y-m-d H:i:s', $now - $hours * HOUR_IN_SECONDS),
+                $after_id,
+                $limit
+            ));
+        });
 
         foreach ($ids as $id) {
             $id = (int) $id;
@@ -68,6 +80,7 @@ class TAP_Automations {
                 self::mark('pay', $id);
             }
         }
+        self::end_batch('pay', $ids, $finished);
     }
 
     /* =========================================================
@@ -83,14 +96,20 @@ class TAP_Automations {
 
         global $wpdb;
         $t = $wpdb->prefix . 'tap_bookings';
-        $ids = $wpdb->get_col($wpdb->prepare(
-            "SELECT id FROM {$t}
-             WHERE status = 'confirmed'
-               AND check_in BETWEEN %s AND %s
-             ORDER BY check_in ASC",
-            $today,
-            $soon
-        ));
+        list($ids, $finished) = self::batch_run('pre', function ($wpdb, $after_id, $limit) use ($t, $today, $soon) {
+            return $wpdb->get_col($wpdb->prepare(
+                "SELECT id FROM {$t}
+                 WHERE status = 'confirmed'
+                   AND check_in BETWEEN %s AND %s
+                   AND id > %d
+                 ORDER BY check_in ASC, id ASC
+                 LIMIT %d",
+                $today,
+                $soon,
+                $after_id,
+                $limit
+            ));
+        });
 
         foreach ($ids as $id) {
             $id = (int) $id;
@@ -105,6 +124,7 @@ class TAP_Automations {
                 self::mark('pre', $id);
             }
         }
+        self::end_batch('pre', $ids, $finished);
     }
 
     /* =========================================================
@@ -120,14 +140,20 @@ class TAP_Automations {
 
         global $wpdb;
         $t = $wpdb->prefix . 'tap_bookings';
-        $ids = $wpdb->get_col($wpdb->prepare(
-            "SELECT id FROM {$t}
-             WHERE status = 'completed'
-               AND check_out BETWEEN %s AND %s
-             ORDER BY check_out ASC",
-            $from,
-            $to
-        ));
+        list($ids, $finished) = self::batch_run('rev', function ($wpdb, $after_id, $limit) use ($t, $from, $to) {
+            return $wpdb->get_col($wpdb->prepare(
+                "SELECT id FROM {$t}
+                 WHERE status = 'completed'
+                   AND check_out BETWEEN %s AND %s
+                   AND id > %d
+                 ORDER BY check_out ASC, id ASC
+                 LIMIT %d",
+                $from,
+                $to,
+                $after_id,
+                $limit
+            ));
+        });
 
         foreach ($ids as $id) {
             $id = (int) $id;
@@ -145,6 +171,7 @@ class TAP_Automations {
                 self::mark('rev', $id);
             }
         }
+        self::end_batch('rev', $ids, $finished);
     }
 
     /* =========================================================
@@ -161,12 +188,14 @@ class TAP_Automations {
 
         global $wpdb;
 
-        $subs = $wpdb->get_results($wpdb->prepare(
-            "SELECT id, agency_id, plan_id, paid_until FROM {$wpdb->prefix}tap_agency_subscriptions
-             WHERE status = 'active' AND paid_until BETWEEN %s AND %s",
-            $today,
-            $until
-        ));
+        list($subs, $sub_done) = self::batch_run('exp_sub', function ($wpdb, $after_id, $limit) use ($today, $until) {
+            return $wpdb->get_results($wpdb->prepare(
+                "SELECT id, agency_id, plan_id, paid_until FROM {$wpdb->prefix}tap_agency_subscriptions
+                 WHERE status = 'active' AND paid_until BETWEEN %s AND %s AND id > %d
+                 ORDER BY paid_until ASC, id ASC LIMIT %d",
+                $today, $until, $after_id, $limit
+            ));
+        });
         foreach ($subs as $s) {
             $key = 'sub:' . (int) $s->id . ':' . $s->paid_until;
             if (self::sent('exp', $key)) {
@@ -177,13 +206,16 @@ class TAP_Automations {
                 self::mark('exp', $key);
             }
         }
+        self::end_batch('exp_sub', $subs, $sub_done);
 
-        $promos = $wpdb->get_results($wpdb->prepare(
-            "SELECT id, agency_id, listing_id, paid_until FROM {$wpdb->prefix}tap_promos
-             WHERE status = 'active' AND paid_until BETWEEN %s AND %s",
-            $today,
-            $until
-        ));
+        list($promos, $promo_done) = self::batch_run('exp_prom', function ($wpdb, $after_id, $limit) use ($today, $until) {
+            return $wpdb->get_results($wpdb->prepare(
+                "SELECT id, agency_id, listing_id, paid_until FROM {$wpdb->prefix}tap_promos
+                 WHERE status = 'active' AND paid_until BETWEEN %s AND %s AND id > %d
+                 ORDER BY paid_until ASC, id ASC LIMIT %d",
+                $today, $until, $after_id, $limit
+            ));
+        });
         foreach ($promos as $p) {
             $key = 'prom:' . (int) $p->id . ':' . $p->paid_until;
             if (self::sent('exp', $key)) {
@@ -194,10 +226,49 @@ class TAP_Automations {
                 self::mark('exp', $key);
             }
         }
+        self::end_batch('exp_prom', $promos, $promo_done);
     }
 
     /* =========================================================
-     * Sent-log helpers (option-backed arrays)
+     * Batching: each task walks its rows in id order a bounded
+     * batch at a time, persisting a cursor so a huge table is
+     * drained across daily runs instead of one long cron.
+     * ========================================================= */
+
+    /**
+     * Fetch the next batch of rows for a task past $cursor.
+     * Returns [rows, finished] where finished tells end_batch()
+     * whether a cursor should be persisted.
+     */
+    private static function batch_run($task, callable $query) {
+        global $wpdb;
+        $cursor = (int) get_option('tap_auto_cursor_' . $task, 0);
+        $rows = $query($wpdb, $cursor, self::BATCH);
+        $rows = is_array($rows) ? $rows : [];
+        $finished = count($rows) < self::BATCH;
+        return [$rows, $finished];
+    }
+
+    private static function end_batch($task, array $rows, $finished) {
+        if ($finished) {
+            delete_option('tap_auto_cursor_' . $task);
+            return;
+        }
+        $last = 0;
+        foreach ($rows as $row) {
+            $id = is_object($row) ? $row->id : $row;
+            if ((int) $id > $last) {
+                $last = (int) $id;
+            }
+        }
+        if ($last > 0) {
+            update_option('tap_auto_cursor_' . $task, $last, false);
+        }
+    }
+
+    /* =========================================================
+     * Sent-log helpers (option-backed arrays) — stored without
+     * autoload and pruned so they never grow without bound.
      * ========================================================= */
 
     private static function log_key($task) {
@@ -210,8 +281,15 @@ class TAP_Automations {
     }
 
     private static function mark($task, $id) {
+        $cutoff = gmdate('Y-m-d H:i:s', time() - self::LOG_DAYS * DAY_IN_SECONDS);
         $log = (array) get_option(self::log_key($task), []);
         $log[(string) $id] = current_time('Y-m-d H:i:s');
-        update_option(self::log_key($task), $log);
+        foreach ($log as $key => $when) {
+            if (strcmp((string) $when, $cutoff) < 0) {
+                unset($log[$key]);
+            }
+        }
+        // autoload=no: these lists are maintenance state, not per-request data.
+        update_option(self::log_key($task), $log, false);
     }
 }

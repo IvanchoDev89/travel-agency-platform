@@ -64,8 +64,8 @@ update_option('tap_currency', 'USD');
 
 // 2) create_order_generic records a payment order ------------------------------
 $generic = TAP_PayPal::create_order_generic(15, 'Sub e2e', 'REF-SUB-1', 'subscription', 987);
-tap_t_assert(is_array($generic) && $generic['order_id'] === 'ORD-PP-1', 'generic order created');
-$ord_row = TAP_Payment::resolve_order('ORD-PP-1');
+tap_t_assert(is_array($generic) && strpos((string) $generic['order_id'], 'ORD-PP-') === 0, 'generic order created');
+$ord_row = TAP_Payment::resolve_order($generic['order_id']);
 tap_t_assert($ord_row && $ord_row->object_type === 'subscription' && (int) $ord_row->object_id === 987, 'record_order tracked the subscription payment');
 tap_t_assert($ord_row && abs((float) $ord_row->amount - 15.0) < 0.001 && $ord_row->status === 'created', 'order amount/status persisted');
 
@@ -90,7 +90,8 @@ update_option('tap_paypal_client_id', $orig_client_id);
 update_option('tap_paypal_secret', $orig_secret);
 update_option('tap_paypal_sandbox', $orig_sandbox);
 update_option('tap_currency', $orig_currency);
-$wpdb->delete(TAP_Payment::orders_table(), ['paypal_order_id' => 'ORD-PP-1']);
+$wpdb->delete(TAP_Payment::orders_table(), ['object_type' => 'booking']);
+$wpdb->delete(TAP_Payment::orders_table(), ['paypal_order_id' => 'ORD-PP-3']);
 tap_t_cleanup_bookings($booking_ids);
 wp_delete_user($payer);
 tap_t_finish();

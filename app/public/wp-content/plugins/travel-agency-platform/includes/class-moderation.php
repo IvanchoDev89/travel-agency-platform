@@ -127,6 +127,11 @@ class TAP_Moderation {
         if (empty($_GET['page']) || 'tap-moderation' !== sanitize_key($_GET['page'])) {
             return;
         }
+        // The moderation queue is only reachable through the admin page, but
+        // the GET-driven actions must still verify capabilities on their own.
+        if (!current_user_can('manage_options')) {
+            return;
+        }
         $action = sanitize_key($_GET['mod_action'] ?? '');
         $kind   = ('review' === sanitize_key($_GET['kind'] ?? '')) ? 'review' : 'lead';
         $id     = intval($_GET['item_id'] ?? 0);

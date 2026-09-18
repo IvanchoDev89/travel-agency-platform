@@ -88,54 +88,71 @@ class TAP_Shortcodes {
 
         $service_types = ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
         $types = $type && in_array($type, $service_types, true) ? [$type] : $service_types;
-        $rows  = [];
+        $types = array_values(array_filter($types, function ($pt) {
+            return (bool) TAP_Promotions::keys_for_type($pt);
+        }));
 
-        foreach ($types as $pt) {
-            $keys = TAP_Promotions::keys_for_type($pt);
-            if (!$keys) {
-                continue;
-            }
-            $args = [
-                'post_type'      => $pt,
-                'posts_per_page' => intval($atts['per_page']) * 3,
-                'post_status'    => 'publish',
-                's'              => $keyword,
-                'meta_query'     => [
-                    ['key' => $keys['active_key'], 'value' => '1'],
-                ],
-                'suppress_filters' => true,
-            ];
+        $args = [
+            'post_type'      => $types,
+            'posts_per_page' => intval($atts['per_page']) * count($types),
+            'post_status'    => 'publish',
+            'suppress_filters' => true,
+            'no_found_rows'  => true,
+        ];
 
-            $tax_query = [];
-            if ($location) {
-                $tax_query[] = ['taxonomy' => 'tap_location', 'field' => 'term_id', 'terms' => $location];
-            }
-            if ($difficulty && $pt === 'tap_tour' && term_exists($difficulty, 'tap_tour_difficulty')) {
-                $tax_query[] = ['taxonomy' => 'tap_tour_difficulty', 'field' => 'slug', 'terms' => $difficulty];
-            }
-            if ($tour_type && $pt === 'tap_tour' && term_exists($tour_type, 'tap_tour_type')) {
-                $tax_query[] = ['taxonomy' => 'tap_tour_type', 'field' => 'slug', 'terms' => $tour_type];
-            }
-            if (!empty($tax_query)) {
-                $args['tax_query'] = $tax_query;
-            }
+        $tax_query = [];
+        if ($location) {
+            $tax_query[] = ['taxonomy' => 'tap_location', 'field' => 'term_id', 'terms' => $location];
+        }
+        if ($difficulty && in_array('tap_tour', $types, true) && term_exists($difficulty, 'tap_tour_difficulty')) {
+            $tax_query[] = ['taxonomy' => 'tap_tour_difficulty', 'field' => 'slug', 'terms' => $difficulty];
+        }
+        if ($tour_type && in_array('tap_tour', $types, true) && term_exists($tour_type, 'tap_tour_type')) {
+            $tax_query[] = ['taxonomy' => 'tap_tour_type', 'field' => 'slug', 'terms' => $tour_type];
+        }
+        if (!empty($tax_query)) {
+            $args['tax_query'] = $tax_query;
+        }
 
-            $price_key = TAP_API::get_price_key($pt);
-            if ($price_key) {
-                if ($min_price !== null) {
-                    $args['meta_query'][] = ['key' => $price_key, 'value' => $min_price, 'type' => 'NUMERIC', 'compare' => '>='];
+        $args = TAP_Approval::exclude_from_query($args, $types);
+
+        if ($min_price !== null || $max_price !== null) {
+            // Price bounds use a per-type price key, so resolve them with one
+            // indexed query per type (identical to the legacy behaviour).
+            $args['s'] = $keyword;
+            $rows = [];
+            foreach ($types as $pt) {
+                $keys = TAP_Promotions::keys_for_type($pt);
+                $pt_args = array_merge($args, [
+                    'post_type'  => $pt,
+                    'meta_query' => [
+                        ['key' => $keys['active_key'], 'compare' => '=', 'value' => '1'],
+                    ],
+                ]);
+                $price_key = TAP_API::get_price_key($pt);
+                if ($price_key) {
+                    if ($min_price !== null) {
+                        $pt_args['meta_query'][] = ['key' => $price_key, 'value' => $min_price, 'type' => 'NUMERIC', 'compare' => '>='];
+                    }
+                    if ($max_price !== null) {
+                        $pt_args['meta_query'][] = ['key' => $price_key, 'value' => $max_price, 'type' => 'NUMERIC', 'compare' => '<='];
+                    }
                 }
-                if ($max_price !== null) {
-                    $args['meta_query'][] = ['key' => $price_key, 'value' => $max_price, 'type' => 'NUMERIC', 'compare' => '<='];
+                $q = new WP_Query($pt_args);
+                foreach ($q->posts as $p) {
+                    $rows[] = $p;
                 }
+                wp_reset_postdata();
             }
-
-            $args = TAP_Approval::exclude_from_query($args, [$pt]);
-
+        } else {
+            // Common case: a single main query over every requested type. The
+            // active flag is resolved to a post list with one indexed scan on
+            // wp_postmeta (avoiding the multi-way meta JOIN that makes the OR
+            // meta_query impractical on large tables).
+            $args['s'] = $keyword;
+            $args['post__in'] = self::active_listing_ids($types) ?: [0];
             $q = new WP_Query($args);
-            foreach ($q->posts as $p) {
-                $rows[] = $p;
-            }
+            $rows = $q->posts ?: [];
             wp_reset_postdata();
         }
 
@@ -293,7 +310,7 @@ class TAP_Shortcodes {
         ?>
         <article class="tap-service-card">
             <?php if (has_post_thumbnail($post->ID)): ?>
-                <a href="<?php echo esc_url(get_permalink($post->ID)); ?>"><?php echo get_the_post_thumbnail($post->ID, 'medium'); ?></a>
+                <a href="<?php echo esc_url(get_permalink($post->ID)); ?>"><?php echo get_the_post_thumbnail($post->ID, 'medium', ['loading' => 'lazy', 'decoding' => 'async']); ?></a>
             <?php endif; ?>
             <div class="tap-service-card-body">
                 <span class="tap-service-type"><?php echo esc_html($type_name); ?></span>
@@ -370,7 +387,7 @@ class TAP_Shortcodes {
                 setup_postdata($post); $GLOBALS['post'] = $post; ?>
                 <div class="tap-service-card">
                     <?php if (has_post_thumbnail()): ?>
-                        <a href="<?php the_permalink(); ?>"><?php the_post_thumbnail('medium'); ?></a>
+                        <a href="<?php the_permalink(); ?>"><?php the_post_thumbnail('medium', ['loading' => 'lazy', 'decoding' => 'async']); ?></a>
                     <?php endif; ?>
                     <div class="tap-service-card-body">
                         <h3><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
@@ -424,7 +441,7 @@ class TAP_Shortcodes {
                 </div>
             </header>
             <?php if (has_post_thumbnail()): ?>
-                <div class="tap-featured-image"><?php the_post_thumbnail('large'); ?></div>
+                <div class="tap-featured-image"><?php the_post_thumbnail('large', ['decoding' => 'async']); ?></div>
             <?php endif; ?>
             <div class="tap-content"><?php the_content(); ?></div>
             <div class="tap-meta-grid">
@@ -498,7 +515,7 @@ class TAP_Shortcodes {
             <?php foreach ($agencies as $agency): ?>
                 <div class="tap-agency-card">
                     <?php if (has_post_thumbnail($agency->ID)): ?>
-                        <?php echo get_the_post_thumbnail($agency->ID, 'medium'); ?>
+                        <?php echo get_the_post_thumbnail($agency->ID, 'medium', ['loading' => 'lazy', 'decoding' => 'async']); ?>
                     <?php endif; ?>
                     <h3><a href="<?php echo esc_url(get_permalink($agency->ID)); ?>"><?php echo esc_html($agency->post_title); ?></a></h3>
                     <p><?php echo esc_html(wp_trim_words($agency->post_excerpt ?: wp_trim_words($agency->post_content, 30), 20)); ?></p>
@@ -544,7 +561,7 @@ class TAP_Shortcodes {
         <div class="tap-agency-detail">
             <div class="tap-agency-header">
                 <?php if (has_post_thumbnail($post->ID)): ?>
-                    <div class="tap-agency-logo"><?php echo get_the_post_thumbnail($post->ID, 'medium'); ?></div>
+                    <div class="tap-agency-logo"><?php echo get_the_post_thumbnail($post->ID, 'medium', ['loading' => 'lazy', 'decoding' => 'async']); ?></div>
                 <?php endif; ?>
                 <div class="tap-agency-info">
                     <h1><?php echo esc_html($post->post_title); ?></h1>
@@ -788,7 +805,7 @@ class TAP_Shortcodes {
                 var code = $btn.data('confirm') || '';
                 if (!confirm('<?php echo esc_js(__('¿Cancelar la reserva ', 'travel-agency-platform')); ?>' + code + '?')) return;
                 $btn.prop('disabled', true).text('...');
-                $.post(tap_ajax.ajax_url, { action: 'tap_cancel_booking', nonce: nonce, booking_id: id })
+                $.post(tap_ajax.ajax_url, { action: 'tap_cancel_booking', nonce: nonce, booking_id: id, booking_code: code })
                     .done(function(res) {
                         if (res && res.success) { location.reload(); }
                         else { alert(res && res.data && res.data.message ? res.data.message : '<?php echo esc_js(__('Error', 'travel-agency-platform')); ?>'); $btn.prop('disabled', false).text('<?php echo esc_js(__('Cancelar', 'travel-agency-platform')); ?>'); }
@@ -1630,25 +1647,34 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
         $atts = shortcode_atts(['type' => '', 'limit' => 6], $atts);
 
         $types = $atts['type'] ? (array) $atts['type'] : ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
-        $all_posts = [];
-
-        foreach ($types as $pt) {
-            $prefix = '_tap_' . TAP_Post_Types::meta_prefix($pt);
-            $q_args = [
-                'post_type'      => $pt,
-                'posts_per_page' => intval($atts['limit']),
-                'post_status'    => 'publish',
-                'meta_query'     => [
-                    ['key' => $prefix . '_is_featured', 'value' => '1'],
-                ],
-            ];
-            $q_args = TAP_Approval::exclude_from_query($q_args, [$pt]);
-            $q = new WP_Query($q_args);
-            foreach ($q->posts as $p) { $all_posts[] = $p; }
+        $types = array_values(array_filter($types, function ($pt) {
+            return (bool) TAP_Promotions::keys_for_type($pt);
+        }));
+        if (empty($types)) {
+            return self::featured_services_empty();
         }
 
+        // One main query for every requested type. The featured flag is
+        // resolved with a single indexed scan on wp_postmeta instead of an
+        // N-way OR meta_query JOIN.
+        $flag_keys = [];
+        foreach ($types as $pt) {
+            $keys = TAP_Promotions::keys_for_type($pt);
+            $flag_keys[] = $keys['flag_key'];
+        }
+        $q_args = [
+            'post_type'      => $types,
+            'posts_per_page' => intval($atts['limit']) * count($types),
+            'post_status'    => 'publish',
+            'post__in'       => self::exclude_pending(self::ids_by_meta($flag_keys, '1')) ?: [0],
+            'no_found_rows'  => true,
+        ];
+        $q = new WP_Query($q_args);
+        $all_posts = $q->posts ?: [];
+        wp_reset_postdata();
+
         if (empty($all_posts)) {
-            return '<div class="tap-empty"><div class="tap-empty-icon">🏝️</div><h3>' . __('No featured services yet', 'travel-agency-platform') . '</h3><p>' . __('Check back soon for new featured listings.', 'travel-agency-platform') . '</p></div>';
+            return self::featured_services_empty();
         }
 
         ob_start();
@@ -1663,7 +1689,7 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
             <div class="tap-card tap-service-card">
                 <div class="tap-card-img-wrapper">
                     <?php if (has_post_thumbnail($post->ID)): ?>
-                        <?php echo get_the_post_thumbnail($post->ID, 'medium', ['class' => 'tap-card-img']); ?>
+                        <?php echo get_the_post_thumbnail($post->ID, 'medium', ['class' => 'tap-card-img', 'loading' => 'lazy', 'decoding' => 'async']); ?>
                     <?php else: ?>
                         <div class="tap-card-img" style="background: var(--tap-neutral-200); display: flex; align-items: center; justify-content: center; color: var(--tap-neutral-400); font-size: 2rem;">🏖️</div>
                     <?php endif; ?>
@@ -1687,6 +1713,50 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
         return ob_get_clean();
     }
 
+    private static function featured_services_empty() {
+        return '<div class="tap-empty"><div class="tap-empty-icon">🏝️</div><h3>' . __('No featured services yet', 'travel-agency-platform') . '</h3><p>' . __('Check back soon for new featured listings.', 'travel-agency-platform') . '</p></div>';
+    }
+
+    /**
+     * Post IDs whose wp_postmeta has any of $meta_keys set to $value.
+     * One indexed scan instead of an N-way meta JOIN per service type.
+     */
+    private static function ids_by_meta(array $meta_keys, $value) {
+        global $wpdb;
+        $meta_keys = array_values(array_filter(array_map('strval', $meta_keys)));
+        if (empty($meta_keys)) {
+            return [];
+        }
+        $placeholders = implode(',', array_fill(0, count($meta_keys), '%s'));
+        return array_map('intval', $wpdb->get_col($wpdb->prepare(
+            "SELECT DISTINCT post_id FROM {$wpdb->postmeta} WHERE meta_value = %s AND meta_key IN ($placeholders)",
+            array_merge([(string) $value], $meta_keys)
+        )));
+    }
+
+    private static function active_listing_ids(array $types) {
+        $active_keys = [];
+        foreach ($types as $pt) {
+            $keys = TAP_Promotions::keys_for_type($pt);
+            if ($keys) {
+                $active_keys[] = $keys['active_key'];
+            }
+        }
+        return self::exclude_pending(self::ids_by_meta($active_keys, '1'));
+    }
+
+    /**
+     * Pending-agency listings are hidden by exclusion (post__in + post__not_in
+     * cannot be combined in WP_Query, so the exclusion is folded into the id list).
+     */
+    private static function exclude_pending(array $ids) {
+        $excluded = array_map('intval', TAP_Approval::excluded_listing_ids());
+        if (empty($excluded)) {
+            return $ids;
+        }
+        return array_values(array_diff($ids, $excluded));
+    }
+
     public static function agency_services($atts) {
         $atts = shortcode_atts(['agency' => 0, 'limit' => -1], $atts);
         $agency_id = intval($atts['agency']);
@@ -1706,19 +1776,22 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
         $all_services = [];
         $types = ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
 
+        // IDs resolved per type with indexed meta lookups (no OR meta_query).
+        $ids = [];
         foreach ($types as $type) {
             $prefix = '_tap_' . TAP_Post_Types::meta_prefix($type) . '_agency_id';
-            $posts = get_posts([
-                'post_type'      => $type,
-                'posts_per_page' => intval($atts['limit']),
-                'post_status'    => 'publish',
-                'meta_key'       => $prefix,
-                'meta_value'     => $agency_id,
-            ]);
+            $ids = array_merge($ids, self::ids_by_meta([$prefix], $agency_id));
+        }
+        $posts = get_posts([
+            'post_type'      => $types,
+            'posts_per_page' => intval($atts['limit']),
+            'post_status'    => 'publish',
+            'post__in'       => array_values(array_unique($ids)) ?: [0],
+            'no_found_rows'  => true,
+        ]);
 
-            foreach ($posts as $p) {
-                $all_services[] = $p;
-            }
+        foreach ($posts as $p) {
+            $all_services[] = $p;
         }
 
         if (empty($all_services)) {
@@ -2870,7 +2943,7 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                 var code = $btn.data('confirm') || '';
                 if (!confirm('<?php echo esc_js(__('¿Cancelar la reserva ', 'travel-agency-platform')); ?>' + code + '?')) return;
                 $btn.prop('disabled', true).text('...');
-                var data = { action: 'tap_cancel_booking', nonce: nonce, booking_id: id };
+                var data = { action: 'tap_cancel_booking', nonce: nonce, booking_id: id, booking_code: $btn.data('confirm') || '' };
                 var gemail = $btn.data('guest-email') || '';
                 if (gemail) data.guest_email = gemail;
                 $.post(tap_ajax.ajax_url, data)
@@ -2924,7 +2997,7 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                 $type  = $post->post_type;
                 $price = floatval(get_post_meta($post->ID, TAP_API::get_price_key($type) ?: '', true));
                 $rat   = TAP_API::get_rating_stats($type, $post->ID);
-                $img   = get_the_post_thumbnail($post->ID, 'medium');
+                $img   = get_the_post_thumbnail($post->ID, 'medium', ['loading' => 'lazy', 'decoding' => 'async']);
                 ?>
                 <article class="tap-service-card tap-fav-card">
                     <?php if ($img): ?>

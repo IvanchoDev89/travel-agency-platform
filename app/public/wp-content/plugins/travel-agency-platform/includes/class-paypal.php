@@ -131,6 +131,14 @@ class TAP_PayPal {
 
         update_post_meta($booking_id, '_tap_paypal_order_id', $result->id);
 
+        // Keep every created order in the payment ledger (not only the latest
+        // postmeta reference). Orders from abandoned checkouts must still
+        // resolve to their booking so a later capture webhook credits the
+        // right reservation instead of being dropped as an orphan.
+        if (class_exists('TAP_Payment')) {
+            TAP_Payment::record_order($result->id, 'booking', (int) $booking_id, (float) $booking->total_amount, 'created');
+        }
+
         $approval_url = '';
         foreach ($result->links as $link) {
             if ($link->rel === 'payer-action') {

@@ -8,14 +8,17 @@ class TAP_Installer {
         TAP_Roles::setup();
         flush_rewrite_rules();
 
-        add_option('tap_version', TAP_VERSION);
+        // Only stamp the version after the schema really exists: bumping it
+        // before a failed create_tables() would silently skip future upgrades.
         self::create_tables();
+        add_option('tap_version', TAP_VERSION);
     }
 
     public static function deactivate() {
         TAP_Roles::remove();
         wp_clear_scheduled_hook('tap_maintenance_hook');
         wp_clear_scheduled_hook('tap_auto_hook');
+        wp_clear_scheduled_hook('tap_refund_retry_hook');
         flush_rewrite_rules();
     }
 
@@ -26,7 +29,7 @@ class TAP_Installer {
         $tables = [
             "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_bookings (
                 id bigint(20) NOT NULL AUTO_INCREMENT,
-                booking_code varchar(20) NOT NULL,
+                booking_code varchar(32) NOT NULL,
                 agency_id bigint(20) NOT NULL,
                 client_id bigint(20) NOT NULL,
                 guest_name varchar(150) DEFAULT NULL,
@@ -39,7 +42,7 @@ class TAP_Installer {
                 adults int(11) DEFAULT 1,
                 children int(11) DEFAULT 0,
                 nights int(11) DEFAULT 0,
-                bed_config text DEFAULT NULL,
+                bed_config text,
                 total_amount decimal(15,2) NOT NULL,
                 commission_amount decimal(15,2) DEFAULT 0.00,
                 commission_percent decimal(5,2) DEFAULT 0.00,
@@ -50,12 +53,16 @@ class TAP_Installer {
                 created_at datetime DEFAULT CURRENT_TIMESTAMP,
                 updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 PRIMARY KEY (id),
-                KEY booking_code (booking_code),
+                UNIQUE KEY booking_code (booking_code),
                 KEY agency_id (agency_id),
                 KEY client_id (client_id),
                 KEY service_type (service_type),
                 KEY room_id (room_id),
-                KEY status (status)
+                KEY status (status),
+                KEY created_at (created_at),
+                KEY check_in (check_in),
+                KEY check_out (check_out),
+                KEY status_payment (status, payment_status)
             ) $charset;",
 
             "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_booking_items (
@@ -225,7 +232,7 @@ class TAP_Installer {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN nights int(11) DEFAULT 0 AFTER children");
         }
         if (!in_array('bed_config', $columns)) {
-            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN bed_config text DEFAULT NULL AFTER nights");
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN bed_config text AFTER nights");
         }
 
         $columns_items = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_booking_items");
@@ -285,21 +292,9 @@ class TAP_Installer {
             ) {$wpdb->get_charset_collate()}");
         }
 
-        if ($wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}tap_chat_events'") !== "{$wpdb->prefix}tap_chat_events") {
-            $wpdb->query("CREATE TABLE {$wpdb->prefix}tap_chat_events (
-                id bigint(20) NOT NULL AUTO_INCREMENT,
-                intent varchar(40) NOT NULL,
-                lang varchar(10) DEFAULT NULL,
-                created_at datetime DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY (id),
-                KEY intent (intent),
-                KEY created_at (created_at)
-            ) {$wpdb->get_charset_collate()}");
-        }
-
         $cols_reviews = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_reviews");
         if (!in_array('reply', $cols_reviews)) {
-            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_reviews ADD COLUMN reply text DEFAULT NULL AFTER content");
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_reviews ADD COLUMN reply text AFTER content");
         }
         if (!in_array('reply_author', $cols_reviews)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_reviews ADD COLUMN reply_author varchar(100) DEFAULT NULL AFTER reply");
@@ -421,26 +416,6 @@ $cols_bookings = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
 
         add_option('tap_featured_price', 5.00);
 
-        $leads_table = $wpdb->prefix . 'tap_leads';
-        if ($wpdb->get_var("SHOW TABLES LIKE '{$leads_table}'") !== $leads_table) {
-            $wpdb->query("CREATE TABLE {$leads_table} (
-                id bigint(20) NOT NULL AUTO_INCREMENT,
-                agency_id bigint(20) NOT NULL,
-                service_id bigint(20) DEFAULT NULL,
-                name varchar(150) NOT NULL,
-                email varchar(150) NOT NULL,
-                phone varchar(50) DEFAULT NULL,
-                message text,
-                ip varchar(45) DEFAULT NULL,
-                source varchar(30) DEFAULT 'agency',
-                created_at datetime DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY (id),
-                KEY agency_id (agency_id),
-                KEY email (email),
-                KEY created_at (created_at)
-            ) {$wpdb->get_charset_collate()}");
-        }
-
         $plan_count = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$plans_table}");
         if (0 === $plan_count) {
             $wpdb->insert($plans_table, [
@@ -491,6 +466,68 @@ $cols_bookings = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
         }
         if (!in_array('refunded_at', $cols_bookings)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN refunded_at datetime DEFAULT NULL AFTER cancellation_policy");
+        }
+
+        // 1.5.6+: enforce UNIQUE on booking_code. The column widens (codes went
+        // from 22 to 30 chars), any pre-existing duplicates from the old 24-bit
+        // generator are regenerated, then the unique key is applied (idempotent).
+        $bc_col = $wpdb->get_row("SHOW COLUMNS FROM {$wpdb->prefix}tap_bookings LIKE 'booking_code'");
+        if ($bc_col && false !== strpos($bc_col->Type, 'varchar(20)')) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings MODIFY booking_code varchar(32) NOT NULL");
+        }
+        $duplicates = $wpdb->get_results("SELECT booking_code FROM {$wpdb->prefix}tap_bookings GROUP BY booking_code HAVING COUNT(*) > 1");
+        $gen_free_code = function ($wpdb) {
+            for ($i = 0; $i < 50; $i++) {
+                $code = class_exists('TAP_Booking') ? TAP_Booking::generate_booking_code() : ('TAP-' . strtoupper(wp_generate_password(12, false, false)) . '-' . date('ymd'));
+                $exists = $wpdb->get_var($wpdb->prepare(
+                    "SELECT id FROM {$wpdb->prefix}tap_bookings WHERE booking_code = %s LIMIT 1",
+                    $code
+                ));
+                if (!$exists) return $code;
+            }
+            return 'TAP-' . strtoupper(wp_generate_password(12, false, false)) . '-' . date('ymd');
+        };
+        foreach ($duplicates as $dup) {
+            $rows = $wpdb->get_results($wpdb->prepare(
+                "SELECT id FROM {$wpdb->prefix}tap_bookings WHERE booking_code = %s ORDER BY id ASC",
+                $dup->booking_code
+            ));
+            foreach (array_slice($rows, 1) as $row) {
+                $wpdb->update(
+                    $wpdb->prefix . 'tap_bookings',
+                    ['booking_code' => $gen_free_code($wpdb)],
+                    ['id' => (int) $row->id]
+                );
+            }
+        }
+        $bc_unique = $wpdb->get_var("SHOW INDEX FROM {$wpdb->prefix}tap_bookings WHERE Key_name = 'booking_code' AND Not_unique = 0");
+        if (!$bc_unique) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings DROP INDEX booking_code");
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD UNIQUE KEY booking_code (booking_code)");
+        }
+
+        // Cover the analytics / availability lookups that run per pageview.
+        $book_indexes = [];
+        foreach ($wpdb->get_results("SHOW INDEX FROM {$wpdb->prefix}tap_bookings") as $idx) {
+            $book_indexes[] = $idx->Key_name;
+        }
+        foreach (['created_at' => 'created_at', 'check_in' => 'check_in', 'check_out' => 'check_out'] as $key => $col) {
+            if (!in_array($key, $book_indexes, true)) {
+                $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD KEY {$key} ({$col})");
+            }
+        }
+        if (!in_array('status_payment', $book_indexes, true)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD KEY status_payment (status, payment_status)");
+        }
+
+        $cols_disputes = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_disputes");
+        if (!in_array('prev_commission', $cols_disputes)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_disputes ADD COLUMN prev_commission varchar(20) DEFAULT NULL AFTER status");
+        }
+
+        $subs_idx = $wpdb->get_var("SHOW INDEX FROM {$wpdb->prefix}tap_agency_subscriptions WHERE Key_name = 'status_paid_until'");
+        if (!$subs_idx) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_agency_subscriptions ADD KEY status_paid_until (status, paid_until)");
         }
 
         // Default cancellation policies per service type (1.5.1).

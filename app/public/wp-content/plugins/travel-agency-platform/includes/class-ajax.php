@@ -116,15 +116,20 @@ class TAP_Ajax {
     public static function cancel_booking() {
         check_ajax_referer('tap_booking_nonce', 'nonce');
 
-        $booking_id = intval($_POST['booking_id'] ?? 0);
-        if (!$booking_id) {
+        $booking_id   = intval($_POST['booking_id'] ?? 0);
+        $booking_code = sanitize_text_field($_POST['booking_code'] ?? '');
+
+        if (!$booking_id && !$booking_code) {
             wp_send_json_error(['message' => __('Reserva inválida.', 'travel-agency-platform')]);
         }
 
         $uid = get_current_user_id();
         $guest_email = $uid ? '' : sanitize_email($_POST['guest_email'] ?? '');
 
-        $result = TAP_Booking::client_cancel_request($booking_id, $uid, $guest_email);
+        // Guests should always present the printed booking code along with the
+        // numeric id (see client_cancel_request), but a valid id + matching
+        // email (proving ownership) remains accepted for older clients.
+        $result = TAP_Booking::client_cancel_request($booking_id, $uid, $guest_email, $booking_code);
 
         if (is_wp_error($result)) {
             wp_send_json_error(['message' => $result->get_error_message()]);
@@ -236,6 +241,13 @@ class TAP_Ajax {
                 wp_send_json_error(['message' => __('You can only manage bookings from your own agency.', 'travel-agency-platform')]);
             }
 
+            // A paid booking cannot be cancelled by agency staff: cancelling it
+            // triggers a real PayPal refund, which only platform managers may
+            // authorise.
+            if (in_array($status, ['cancelled', 'refunded'], true) && $booking->payment_status === 'paid') {
+                wp_send_json_error(['message' => __('Solo los administradores pueden cancelar reservas pagadas.', 'travel-agency-platform')]);
+            }
+
             if ($booking->status === 'request') {
                 if (!in_array($status, ['pending', 'cancelled'], true)) {
                     wp_send_json_error(['message' => __('Solo puedes Aceptar (pasa a pendiente de pago) o Rechazar una solicitud.', 'travel-agency-platform')]);
@@ -303,10 +315,14 @@ class TAP_Ajax {
         }
 
         global $wpdb;
-        $booking_id = (int) $wpdb->get_var($wpdb->prepare(
-            "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_tap_paypal_order_id' AND meta_value = %s",
-            $paypal_order_id
-        ));
+        if (class_exists('TAP_Payment')) {
+            $booking_id = (int) TAP_Payment::find_booking_by_order($paypal_order_id);
+        } else {
+            $booking_id = (int) $wpdb->get_var($wpdb->prepare(
+                "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_tap_paypal_order_id' AND meta_value = %s",
+                $paypal_order_id
+            ));
+        }
 
         if (!$booking_id) {
             wp_send_json_error(['message' => __('Booking not found', 'travel-agency-platform')]);
@@ -318,6 +334,14 @@ class TAP_Ajax {
         $guest_ok = !$uid && $booking && (int) $booking->client_id === 0 && self::get_guest_pay_token($booking->booking_code);
         if (!$booking || (!$owner_ok && !$guest_ok)) {
             wp_send_json_error(['message' => __('Booking not found', 'travel-agency-platform')]);
+        }
+
+        // Never capture for a reservation that is no longer active: the client
+        // is still taken to PayPal's approval, but their money must not reach
+        // us for a dead booking (a capture that slips through this guard is
+        // auto-refunded by record_paid_capture).
+        if (in_array($booking->status, ['cancelled', 'refunded'], true)) {
+            wp_send_json_error(['message' => __('La reserva ya no está vigente; el pago no será procesado.', 'travel-agency-platform')]);
         }
 
         // Idempotency: a booking already marked paid must not be captured or
@@ -426,29 +450,35 @@ class TAP_Ajax {
     }
 
     public static function get_public_pricing() {
-        $room_id = (int) ($_POST['room_id'] ?? 0);
-        $year    = (int) ($_POST['year'] ?? 0);
-        $month   = (int) ($_POST['month'] ?? 0);
+        $year     = (int) ($_POST['year'] ?? 0);
+        $month    = (int) ($_POST['month'] ?? 0);
+        $single   = (int) ($_POST['room_id'] ?? 0);
+        $room_ids = array_values(array_unique(array_filter(array_map('intval', explode(',', (string) ($_POST['room_ids'] ?? ''))), function ($id) {
+            return $id > 0;
+        })));
+        if ($single) {
+            $room_ids[] = $single;
+        }
+        $room_ids = array_values(array_unique($room_ids));
 
-        if (!$room_id || !$year || !$month) {
+        if (!$year || !$month || empty($room_ids)) {
             wp_send_json_error(['message' => 'Parámetros inválidos']);
         }
 
-        $base_price = (float) get_post_meta($room_id, '_tap_room_price_per_night', true) ?: 0;
-        $base_min   = (int) get_post_meta($room_id, '_tap_room_min_stay', true) ?: 1;
         $days_in_month = cal_days_in_month(CAL_GREGORIAN, $month, $year);
         $start = sprintf('%04d-%02d-01', $year, $month);
         $end   = sprintf('%04d-%02d-%02d', $year, $month, $days_in_month);
 
         global $wpdb;
-        $rows = $wpdb->get_results($wpdb->prepare(
-            "SELECT date, price, min_stay, is_blocked, label FROM {$wpdb->prefix}tap_daily_pricing WHERE room_id = %d AND date BETWEEN %s AND %s",
-            $room_id, $start, $end
+        $placeholders = implode(',', array_fill(0, count($room_ids), '%d'));
+        $pricing_rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT room_id, date, price, min_stay, is_blocked, label FROM {$wpdb->prefix}tap_daily_pricing WHERE room_id IN ($placeholders) AND date BETWEEN %s AND %s ORDER BY room_id, date",
+            array_merge($room_ids, [$start, $end])
         ));
 
         $overrides = [];
-        foreach ($rows as $r) {
-            $overrides[$r->date] = [
+        foreach ($pricing_rows as $r) {
+            $overrides[$r->room_id][$r->date] = [
                 'price'      => $r->price !== null ? (float) $r->price : null,
                 'min_stay'   => $r->min_stay !== null ? (int) $r->min_stay : null,
                 'is_blocked' => (int) $r->is_blocked,
@@ -456,27 +486,47 @@ class TAP_Ajax {
             ];
         }
 
-        $days = [];
-        for ($d = 1; $d <= $days_in_month; $d++) {
-            $date = sprintf('%04d-%02d-%02d', $year, $month, $d);
-            $has = isset($overrides[$date]);
-            $day = $has ? $overrides[$date] : [];
-            $days[] = [
-                'date'       => $date,
-                'day'        => $d,
-                'price'      => $has && $day['price'] !== null ? $day['price'] : $base_price,
-                'is_blocked' => $has ? $day['is_blocked'] : 0,
-                'label'      => $has ? $day['label'] : '',
+        // Prefetch base price / min-stay for every requested room in one pass.
+        $meta_rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT post_id, meta_key, meta_value FROM {$wpdb->postmeta} WHERE post_id IN ($placeholders) AND meta_key IN ('_tap_room_price_per_night', '_tap_room_min_stay')",
+            $room_ids
+        ));
+        $base_meta = [];
+        foreach ($meta_rows as $m) {
+            $base_meta[$m->post_id][$m->meta_key] = $m->meta_value;
+        }
+
+        $out = [];
+        foreach ($room_ids as $rid) {
+            $base_price = isset($base_meta[$rid]['_tap_room_price_per_night']) ? (float) $base_meta[$rid]['_tap_room_price_per_night'] : 0;
+            $base_min   = isset($base_meta[$rid]['_tap_room_min_stay']) ? (int) $base_meta[$rid]['_tap_room_min_stay'] : 1;
+            $days = [];
+            for ($d = 1; $d <= $days_in_month; $d++) {
+                $date = sprintf('%04d-%02d-%02d', $year, $month, $d);
+                $has = isset($overrides[$rid][$date]);
+                $day = $has ? $overrides[$rid][$date] : [];
+                $days[] = [
+                    'date'       => $date,
+                    'day'        => $d,
+                    'price'      => $has && $day['price'] !== null ? $day['price'] : $base_price,
+                    'is_blocked' => $has ? $day['is_blocked'] : 0,
+                    'label'      => $has ? $day['label'] : '',
+                ];
+            }
+            $out[$rid] = [
+                'days'       => $days,
+                'base_price' => $base_price,
+                'base_min'   => $base_min,
+                'month'      => $month,
+                'year'       => $year,
             ];
         }
 
-        wp_send_json_success([
-            'days'       => $days,
-            'base_price' => $base_price,
-            'base_min'   => $base_min,
-            'month'      => $month,
-            'year'       => $year,
-        ]);
+        if ($single) {
+            // Backward-compatible single-room response.
+            wp_send_json_success($out[$single]);
+        }
+        wp_send_json_success(['rooms' => $out, 'month' => $month, 'year' => $year]);
     }
 
     public static function filter_archive_query($query) {
@@ -850,6 +900,7 @@ class TAP_Ajax {
             'message'    => $_POST['tap_message'] ?? '',
             'agency_id'  => (int) ($_POST['agency_id'] ?? 0),
             'service_id' => (int) ($_POST['service_id'] ?? 0),
+            'consent'    => $_POST['tap_privacy_consent'] ?? '',
             'source'     => isset($_POST['service_id']) && (int) $_POST['service_id'] > 0 ? 'service' : 'agency',
         ]);
 
@@ -1176,17 +1227,26 @@ class TAP_Ajax {
             }
         }
 
+        $can_publish = current_user_can('publish_' . $listing_type . 's') || current_user_can('manage_options');
+
         $post = [
             'post_type'    => $listing_type,
-            'post_status'  => 'publish',
             'post_title'   => $title,
             'post_content' => isset($input['description']) ? wp_kses_post(wp_unslash($input['description'])) : '',
         ];
 
         if ($listing_id) {
             $post['ID'] = $listing_id;
+            // Editing an existing listing: preserve its current status unless
+            // the user actually holds the publish capability for this type.
+            if ($can_publish) {
+                $post['post_status'] = 'publish';
+            }
             $new_id     = wp_update_post($post, true);
         } else {
+            // Creating: only publish when the user can; otherwise it goes to
+            // review so an employee cannot self-publish.
+            $post['post_status'] = $can_publish ? 'publish' : 'pending';
             $new_id = wp_insert_post($post, true);
         }
 

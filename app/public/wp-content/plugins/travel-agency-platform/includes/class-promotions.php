@@ -175,6 +175,14 @@ class TAP_Promotions {
         if (!$promo) {
             return new WP_Error('promo_not_found', __('Promotion not found.', 'travel-agency-platform'));
         }
+
+        // Already activated for this payment: a duplicated confirmation click
+        // must never stack extra months onto the same promo. Extensions after
+        // expiry come through a fresh request(), never by re-activating.
+        if ('active' === $promo->status && 'paid' === $promo->payment_status) {
+            return (string) ($promo->paid_until ?: current_time('Y-m-d'));
+        }
+
         $months = min(24, max(1, (int) $months ?: (int) $promo->months));
 
         $keys = self::listing_meta_keys($promo->listing_id);

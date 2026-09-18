@@ -98,14 +98,25 @@ class TAP_Roles {
         $post_types = ['tap_agency', 'tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
 
         foreach ($post_types as $pt) {
+            // 'tap_agency' pluralises irregularly (tap_agencies, not
+            // tap_agencys) and the CPT capability_type matches exactly that.
+            $plural = ('tap_agency' === $pt) ? 'tap_agencies' : $pt . 's';
             $admin->add_cap("edit_{$pt}", true);
-            $admin->add_cap("edit_{$pt}s", true);
-            $admin->add_cap("edit_others_{$pt}s", true);
-            $admin->add_cap("publish_{$pt}s", true);
+            $admin->add_cap("edit_{$plural}", true);
+            $admin->add_cap("edit_others_{$plural}", true);
+            $admin->add_cap("publish_{$plural}", true);
             $admin->add_cap("read_{$pt}", true);
             $admin->add_cap("delete_{$pt}", true);
-            $admin->add_cap("delete_{$pt}s", true);
-            $admin->add_cap("delete_others_{$pt}s", true);
+            $admin->add_cap("delete_{$plural}", true);
+            $admin->add_cap("delete_others_{$plural}", true);
+        }
+
+        // Drop the misspelled plurals granted by earlier versions.
+        foreach ($post_types as $pt) {
+            $bad = $pt . 's';
+            foreach (["edit_{$bad}", "edit_others_{$bad}", "publish_{$bad}", "delete_{$bad}", "delete_others_{$bad}"] as $cap) {
+                $admin->remove_cap($cap);
+            }
         }
     }
 

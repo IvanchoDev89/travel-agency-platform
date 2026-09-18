@@ -127,16 +127,40 @@ class TAP_Payment {
         return $headers;
     }
 
-    private static function handle_order_approved($event) {
-        $paypal_order_id = $event->resource->id ?? '';
-        if (!$paypal_order_id) return;
-
+    /**
+     * Resolve the booking that owns a PayPal order id.
+     *
+     * Ledger-first: every order created for a booking is recorded in
+     * tap_payment_orders, so multi-order bookings (retries, abandoned
+     * checkouts) still map each order back to their booking. Falls back to
+     * the legacy single postmeta reference for bookings created before the
+     * ledger existed.
+     */
+    public static function find_booking_by_order($paypal_order_id) {
         global $wpdb;
+
+        $booking_id = $wpdb->get_var($wpdb->prepare(
+            "SELECT object_id FROM " . self::orders_table() . "
+             WHERE paypal_order_id = %s AND object_type = 'booking' AND object_id > 0 LIMIT 1",
+            $paypal_order_id
+        ));
+        if ($booking_id) {
+            return (int) $booking_id;
+        }
+
+        // Legacy fallback: single postmeta reference written by create_order.
         $booking_id = $wpdb->get_var($wpdb->prepare(
             "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_tap_paypal_order_id' AND meta_value = %s",
             $paypal_order_id
         ));
+        return $booking_id ? (int) $booking_id : 0;
+    }
 
+    private static function handle_order_approved($event) {
+        $paypal_order_id = $event->resource->id ?? '';
+        if (!$paypal_order_id) return;
+
+        $booking_id = self::find_booking_by_order($paypal_order_id);
         if ($booking_id) {
             do_action('tap_payment_approved', $booking_id, 'paypal', $paypal_order_id);
         }
@@ -148,12 +172,7 @@ class TAP_Payment {
 
         if (!$paypal_order_id) return;
 
-        global $wpdb;
-        $booking_id = $wpdb->get_var($wpdb->prepare(
-            "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_tap_paypal_order_id' AND meta_value = %s",
-            $paypal_order_id
-        ));
-
+        $booking_id = self::find_booking_by_order($paypal_order_id);
         if ($booking_id) {
             $booking_id  = (int) $booking_id;
             $capture_id  = $capture->id ?? '';
@@ -161,6 +180,8 @@ class TAP_Payment {
             if ($prev_capture && $capture_id && (string) $prev_capture === (string) $capture_id) {
                 return;
             }
+            $booking = TAP_Booking::get_booking($booking_id);
+            self::record_order($paypal_order_id, 'booking', $booking_id, $booking ? (float) $booking->total_amount : 0, 'completed', $capture_id);
             TAP_Booking::record_paid_capture($booking_id, 'paypal', $capture_id, $capture);
             return;
         }
@@ -216,11 +237,7 @@ class TAP_Payment {
 
         if (!$paypal_order_id) return;
 
-        global $wpdb;
-        $booking_id = $wpdb->get_var($wpdb->prepare(
-            "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_tap_paypal_order_id' AND meta_value = %s",
-            $paypal_order_id
-        ));
+        $booking_id = self::find_booking_by_order($paypal_order_id);
 
         if ($booking_id) {
             TAP_Booking::update_payment_status($booking_id, 'failed');
@@ -229,16 +246,14 @@ class TAP_Payment {
     }
 
     private static function handle_capture_refunded($event) {
+        global $wpdb;
+
         $capture = $event->resource;
         $paypal_order_id = $capture->supplementary_data->related_ids->order_id ?? '';
 
         if (!$paypal_order_id) return;
 
-        global $wpdb;
-        $booking_id = $wpdb->get_var($wpdb->prepare(
-            "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_tap_paypal_order_id' AND meta_value = %s",
-            $paypal_order_id
-        ));
+        $booking_id = self::find_booking_by_order($paypal_order_id);
 
         if ($booking_id) {
             // Idempotent: never double-fire when cancellation already refunded.
@@ -248,8 +263,21 @@ class TAP_Payment {
             ));
             if ('refunded' !== $current) {
                 TAP_Booking::update_payment_status($booking_id, 'refunded');
+                update_post_meta($booking_id, '_tap_paypal_refund_id', $capture->id ?? '');
                 do_action('tap_payment_refunded', $booking_id, 'paypal', $capture->id ?? '');
             }
+
+            // Money is back with the client: keep the ledger consistent by
+            // stamping refunded_at (for an already-cancelled row) and voiding
+            // any commission this capture had earned.
+            $row = $wpdb->get_row($wpdb->prepare(
+                "SELECT status, refunded_at FROM {$wpdb->prefix}tap_bookings WHERE id = %d",
+                $booking_id
+            ));
+            if ($row && empty($row->refunded_at) && ('cancelled' === $row->status || 'refunded' === $row->status)) {
+                $wpdb->update($wpdb->prefix . 'tap_bookings', ['refunded_at' => current_time('mysql')], ['id' => $booking_id]);
+            }
+            TAP_Booking::void_commission($booking_id, true);
         }
     }
 }

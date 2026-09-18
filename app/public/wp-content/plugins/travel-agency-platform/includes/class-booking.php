@@ -281,7 +281,10 @@ class TAP_Booking {
     public static function create($data) {
         global $wpdb;
 
-        $booking_code = self::generate_booking_code();
+        // High-entropy booking code with a uniqueness retry loop (the column
+        // is UNIQUE, so a birthday collision must never resolve to another
+        // booking's voucher).
+        $booking_code = self::unique_booking_code();
         $agency_id = self::resolve_agency_id($data['service_type'], $data['service_id']);
 
         if ($agency_id && !TAP_Approval::is_approved($agency_id)) {
@@ -453,7 +456,11 @@ class TAP_Booking {
 
         do_action('tap_booking_created', $booking_id, $data);
 
-        if (get_option('tap_booking_auto_confirm', '0') === '1') {
+        // Only auto-confirm when the listing accepts direct bookings. A
+        // request-to-book listing must await the agency's approval; skipping
+        // this would bypass the request workflow entirely.
+        if (get_option('tap_booking_auto_confirm', '0') === '1'
+            && self::booking_mode($data['service_type'], $data['service_id']) !== 'request') {
             self::update_status($booking_id, 'confirmed');
         }
 
@@ -500,24 +507,46 @@ class TAP_Booking {
         ];
     }
 
-    public static function client_cancel_request($booking_id, $user_id = 0, $guest_email = '') {
+    public static function client_cancel_request($booking_id, $user_id = 0, $guest_email = '', $booking_code = '') {
         global $wpdb;
         $user_id = $user_id ?: get_current_user_id();
-        $booking = self::get_booking($booking_id);
-        if (!$booking) {
-            return new WP_Error('not_found', __('Reserva no encontrada.', 'travel-agency-platform'));
-        }
-        if (!$user_id) {
+
+        $booking = null;
+        if ($user_id) {
+            // Logged-in: the numeric id is a fine handle for the owner.
+            $booking = self::get_booking($booking_id);
+            if (!$booking) {
+                return new WP_Error('not_found', __('Reserva no encontrada.', 'travel-agency-platform'));
+            }
+            if ((int) $booking->client_id !== (int) $user_id) {
+                return new WP_Error('forbidden', __('No tienes permiso para cancelar esta reserva.', 'travel-agency-platform'));
+            }
+        } else {
+            // Guest flow. The printed booking code is high entropy and
+            // unguessable, so it is the preferred handle; a numeric id alone
+            // (enumerable) is never enough on its own.
+            $guest_email = sanitize_email($guest_email);
+            $booking_code = sanitize_text_field((string) $booking_code);
+            if ($booking_code) {
+                $booking = self::get_booking_by_code($booking_code);
+                if (!$booking) {
+                    return new WP_Error('not_found', __('Reserva no encontrada.', 'travel-agency-platform'));
+                }
+                $booking_id = (int) $booking->id;
+            } else {
+                $booking = self::get_booking($booking_id);
+                if (!$booking) {
+                    return new WP_Error('not_found', __('Reserva no encontrada.', 'travel-agency-platform'));
+                }
+            }
             if ((int) $booking->client_id !== 0) {
                 return new WP_Error('no_user', __('Debes iniciar sesión.', 'travel-agency-platform'));
             }
-            $guest_email = sanitize_email($guest_email);
             if (!$guest_email || strcasecmp($guest_email, (string) $booking->guest_email) !== 0) {
                 return new WP_Error('no_email', __('Debes verificar el correo de la reserva para cancelarla.', 'travel-agency-platform'));
             }
-        } elseif ((int) $booking->client_id !== (int) $user_id) {
-            return new WP_Error('forbidden', __('No tienes permiso para cancelar esta reserva.', 'travel-agency-platform'));
         }
+
         if (!in_array($booking->status, ['pending', 'confirmed', 'request'], true)) {
             return new WP_Error('bad_status', __('Esta reserva ya no puede cancelarse.', 'travel-agency-platform'));
         }
@@ -533,8 +562,13 @@ class TAP_Booking {
      * applies the policy penalty, flips payment_status to refunded when a
      * refund is actually due, voids any outstanding commission and fires the
      * lifecycle hook. Callers are responsible for ownership/business guards.
+     *
+     * @param string $target_status 'cancelled' (default) or 'refunded'. When
+     *                              'refunded' is requested but no money was
+     *                              actually returned, the booking falls back
+     *                              to 'cancelled' to keep the ledger honest.
      */
-    private static function apply_cancellation($booking_id, $booking, $cancelled_by) {
+    private static function apply_cancellation($booking_id, $booking, $cancelled_by, $target_status = 'cancelled') {
         global $wpdb;
 
         $prev_status = $booking->status;
@@ -542,42 +576,48 @@ class TAP_Booking {
 
         // Refund the money for real before marking the ledger as refunded.
         // When the gateway refund fails the booking stays cancelled but the
-        // payment_status remains 'paid' and _tap_refund_error records why.
+        // payment_status remains 'paid' and _tap_refund_error/_tap_refund_pending
+        // record why so the nightly cron can retry and reconcile.
         $refund_success = true;
         if ('paid' === $booking->payment_status && (float) $refund['refund_amount'] > 0) {
             $refund_result = self::execute_refund($booking_id, $booking, $refund['refund_amount']);
             if (is_wp_error($refund_result)) {
                 $refund_success = false;
+                update_post_meta($booking_id, '_tap_refund_pending', current_time('mysql'));
+            } else {
+                delete_post_meta($booking_id, '_tap_refund_pending');
             }
         }
+
+        $money_returned = 'paid' === $booking->payment_status && (float) $refund['refund_amount'] > 0 && $refund_success;
+        $final_status   = ('refunded' === $target_status)
+            ? ($money_returned ? 'refunded' : 'cancelled')
+            : 'cancelled';
 
         $wpdb->update(
             $wpdb->prefix . 'tap_bookings',
             [
-                'status'               => 'cancelled',
+                'status'               => $final_status,
                 'cancel_requested_at'  => current_time('mysql'),
                 'cancelled_by'         => $cancelled_by,
                 'cancellation_policy'  => $refund['policy'],
                 'refund_amount'        => round($refund['refund_amount'], 2),
                 'refund_percent'       => $refund['refund_percent'],
-                'refunded_at'          => ($refund['refund_amount'] > 0 && $refund_success) ? current_time('mysql') : null,
+                'refunded_at'          => $money_returned ? current_time('mysql') : null,
             ],
             ['id' => $booking_id]
         );
 
-        if ('paid' === $booking->payment_status) {
-            // Mark as refunded only when the money was actually returned
-            // (online refund executed, or offline payment without a capture).
-            if ($refund['refund_amount'] > 0 && $refund_success) {
-                self::update_payment_status($booking_id, 'refunded');
-                do_action('tap_payment_refunded', $booking_id, 'paypal', get_post_meta($booking_id, '_tap_paypal_refund_id', true));
-            }
+        if ($money_returned) {
+            self::update_payment_status($booking_id, 'refunded');
+            do_action('tap_payment_refunded', $booking_id, 'paypal', get_post_meta($booking_id, '_tap_paypal_refund_id', true));
         }
 
-        // A cancelled booking must never keep earning commission.
-        self::void_commission($booking_id);
+        // A cancelled booking must never keep earning commission; force so even
+        // already-paid commissions stop accruing value for this booking.
+        self::void_commission($booking_id, true);
 
-        do_action('tap_booking_status_updated', $booking_id, 'cancelled', $prev_status);
+        do_action('tap_booking_status_updated', $booking_id, $final_status, $prev_status);
         do_action('tap_booking_cancelled', $booking_id, $booking);
         return true;
     }
@@ -688,6 +728,14 @@ class TAP_Booking {
             );
         }
 
+        // Money-aware cancellation: a paid booking must never be cancelled on
+        // paper without returning the client's money first. This routes the
+        // whole cancellation (policy refund + ledger + commission voiding)
+        // through apply_cancellation() so no caller can skip the refund.
+        if (in_array($status, ['cancelled', 'refunded'], true) && 'paid' === $booking->payment_status) {
+            return self::apply_cancellation($booking_id, $booking, 'system', $status);
+        }
+
         $wpdb->update(
             $wpdb->prefix . 'tap_bookings',
             ['status' => $status],
@@ -696,12 +744,59 @@ class TAP_Booking {
 
         // Cancelling / refunding a booking voids any still-owed commission.
         if (in_array($status, ['cancelled', 'refunded'], true)) {
-            self::void_commission($booking_id);
+            self::void_commission($booking_id, true);
         }
 
         do_action('tap_booking_status_updated', $booking_id, $status, $prev);
 
         return true;
+    }
+
+    /**
+     * Nightly reconciliation for refunds that failed at the gateway. Finds
+     * paid-but-cancelled bookings flagged with a refund error and retries the
+     * gateway refund; on success the ledger marks the payment refunded.
+     */
+    public static function retry_pending_refunds() {
+        global $wpdb;
+
+        $rows = $wpdb->get_results(
+            "SELECT id FROM {$wpdb->prefix}tap_bookings
+             WHERE payment_status = 'paid' AND status IN ('cancelled', 'refunded')
+             ORDER BY updated_at ASC LIMIT 50"
+        );
+
+        foreach ($rows as $row) {
+            $booking_id = (int) $row->id;
+            $booking    = self::get_booking($booking_id);
+            if (!$booking || !get_post_meta($booking_id, '_tap_refund_error', true)) {
+                continue;
+            }
+
+            $amount = (float) ($booking->refund_amount ?? 0);
+            if ($amount <= 0) {
+                $amount = self::cancellation_refund($booking)['refund_amount'];
+            }
+            if ($amount <= 0) {
+                continue;
+            }
+
+            $result = self::execute_refund($booking_id, $booking, $amount);
+            if (is_wp_error($result)) {
+                continue;
+            }
+
+            delete_post_meta($booking_id, '_tap_refund_pending');
+            delete_post_meta($booking_id, '_tap_refund_error');
+            self::update_payment_status($booking_id, 'refunded');
+            $wpdb->update(
+                $wpdb->prefix . 'tap_bookings',
+                ['refunded_at' => current_time('mysql')],
+                ['id' => $booking_id]
+            );
+            do_action('tap_payment_refunded', $booking_id, 'paypal', get_post_meta($booking_id, '_tap_paypal_refund_id', true));
+            do_action('tap_booking_refund_retried', $booking_id);
+        }
     }
 
     /**
@@ -730,8 +825,13 @@ class TAP_Booking {
     /**
      * Revert a booking's commission to void when it can no longer be collected,
      * but never touch commissions already settled or frozen by a dispute.
+     *
+     * @param bool $force When true, also voids 'paid' commissions (used when a
+     *                    paid booking is cancelled/refunded so the commission
+     *                    stops accruing; the payout amount is reconciled by
+     *                    TAP_Payouts::complete() for pending payouts).
      */
-    public static function void_commission($booking_id) {
+    public static function void_commission($booking_id, $force = false) {
         global $wpdb;
         $booking_id = intval($booking_id);
         if (!$booking_id) return;
@@ -741,7 +841,12 @@ class TAP_Booking {
             $booking_id
         ));
 
-        if (in_array($current, ['owed', 'waiting'], true)) {
+        $targets = ['owed', 'waiting'];
+        if ($force) {
+            $targets[] = 'paid';
+        }
+
+        if (in_array($current, $targets, true)) {
             $wpdb->update(
                 $wpdb->prefix . 'tap_bookings',
                 ['commission_status' => 'void'],
@@ -761,7 +866,8 @@ class TAP_Booking {
         global $wpdb;
         $ids = $wpdb->get_col($wpdb->prepare(
             "SELECT id FROM {$wpdb->prefix}tap_bookings
-             WHERE status = 'confirmed' AND check_out IS NOT NULL AND check_out < %s",
+             WHERE status = 'confirmed' AND payment_status = 'paid'
+               AND check_out IS NOT NULL AND check_out < %s",
             gmdate('Y-m-d')
         ));
 
@@ -813,14 +919,61 @@ class TAP_Booking {
         if (!$booking) {
             return false;
         }
-        if (in_array($booking->payment_status, ['paid', 'refunded'], true)) {
-            return false;
-        }
+
+        // A charge arriving for a booking that the system already cancelled
+        // means real money hit PayPal for a dead reservation: give it back
+        // immediately instead of swallowing the capture.
         if (in_array($booking->status, ['cancelled', 'refunded'], true)) {
+            if ($capture_id) {
+                self::auto_refund_capture(
+                    (int) $booking_id,
+                    $capture_id,
+                    __('La reserva fue cancelada antes de procesar la captura; el pago fue reembolsado automáticamente.', 'travel-agency-platform')
+                );
+            }
             return false;
         }
 
-        $table   = $wpdb->prefix . 'tap_bookings';
+        if (in_array($booking->payment_status, ['paid', 'refunded'], true)) {
+            return false;
+        }
+
+        $table = $wpdb->prefix . 'tap_bookings';
+
+        // Verify the captured amount and currency against the stored total.
+        // A shortfall becomes a 'partial' payment (no full commission earned),
+        // a currency mismatch is refunded back to the client on the spot.
+        $expected = round((float) $booking->total_amount, 2);
+        $captured = self::capture_amount($details);
+        if ($captured) {
+            $currency_ok = empty($captured['currency_code'])
+                || strtoupper((string) $captured['currency_code']) === strtoupper((string) TAP_Currency::code());
+            if (!$currency_ok) {
+                self::auto_refund_capture(
+                    (int) $booking_id,
+                    $capture_id,
+                    __('La moneda del pago capturado no coincide con la moneda configurada; el pago fue reembolsado automáticamente.', 'travel-agency-platform')
+                );
+                $wpdb->update($table, ['payment_status' => 'failed'], ['id' => (int) $booking_id, 'payment_status' => $booking->payment_status]);
+                do_action('tap_payment_failed', (int) $booking_id, $method, $capture_id);
+                return false;
+            }
+
+            if (null !== $captured['value'] && $captured['value'] < $expected - 0.005) {
+                // Partial capture (funding shortfall / rounding): record the
+                // details but keep the booking unpaid — no full commission.
+                if ($capture_id) {
+                    update_post_meta((int) $booking_id, '_tap_paypal_capture_id', $capture_id);
+                }
+                if (null !== $details) {
+                    $payload = is_string($details) ? $details : json_encode($details, JSON_UNESCAPED_UNICODE);
+                    update_post_meta((int) $booking_id, '_tap_payment_details', $payload);
+                }
+                $wpdb->update($table, ['payment_status' => 'partial'], ['id' => (int) $booking_id, 'payment_status' => $booking->payment_status]);
+                return false;
+            }
+        }
+
         $updated = $wpdb->update(
             $table,
             ['payment_status' => 'paid'],
@@ -840,6 +993,57 @@ class TAP_Booking {
         }
         do_action('tap_payment_completed', (int) $booking_id, $method, $capture_id);
         return true;
+    }
+
+    /**
+     * Extract captured {value, currency_code} from either a full capture
+     * response (AJAX) or a webhook capture resource.
+     */
+    public static function capture_amount($details) {
+        if (is_string($details)) {
+            $details = json_decode($details);
+        }
+        if (!is_object($details) && !is_array($details)) {
+            return null;
+        }
+        $details = (object) $details;
+
+        if (isset($details->amount) && isset($details->amount->value)) {
+            return [
+                'value'         => (float) $details->amount->value,
+                'currency_code' => $details->amount->currency_code ?? '',
+            ];
+        }
+        if (isset($details->purchase_units) && is_array($details->purchase_units) && isset($details->purchase_units[0])) {
+            $capture = $details->purchase_units[0]->payments->captures[0] ?? null;
+            if ($capture && isset($capture->amount) && isset($capture->amount->value)) {
+                return [
+                    'value'         => (float) $capture->amount->value,
+                    'currency_code' => $capture->amount->currency_code ?? '',
+                ];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Immediately return a capture that should never have been charged. Keeps
+     * a record and flags the booking for nightly reconciliation when the
+     * gateway refund itself fails.
+     */
+    private static function auto_refund_capture($booking_id, $capture_id, $reason) {
+        if (!$capture_id || !class_exists('TAP_PayPal') || !TAP_PayPal::is_ready()) {
+            return;
+        }
+        update_post_meta((int) $booking_id, '_tap_paypal_capture_id', $capture_id);
+        $result = TAP_PayPal::refund_capture($capture_id);
+        if (is_wp_error($result)) {
+            update_post_meta((int) $booking_id, '_tap_refund_error', '[' . $reason . '] ' . $result->get_error_message());
+            update_post_meta((int) $booking_id, '_tap_refund_pending', current_time('mysql'));
+            return;
+        }
+        update_post_meta((int) $booking_id, '_tap_paypal_refund_id', $result['refund_id']);
+        update_post_meta((int) $booking_id, '_tap_refund_error', $reason);
     }
 
     public static function get_booking($booking_id) {
@@ -910,10 +1114,30 @@ class TAP_Booking {
         ));
     }
 
-    private static function generate_booking_code() {
+    public static function generate_booking_code() {
+        // 12 chars + date ≈ 71 bits of entropy (vs the old 24-bit md5 prefix).
         $prefix = 'TAP';
-        $timestamp = strtoupper(substr(md5(uniqid()), 0, 6));
+        $timestamp = strtoupper(wp_generate_password(12, false, false));
         return $prefix . '-' . $timestamp . '-' . date('ymd');
+    }
+
+    /**
+     * Returns a booking code that is not already used. UNIQUE constraint on
+     * booking_code makes a race safe; here we only pre-empt the common case.
+     */
+    private static function unique_booking_code() {
+        global $wpdb;
+        for ($i = 0; $i < 8; $i++) {
+            $code = self::generate_booking_code();
+            $used = $wpdb->get_var($wpdb->prepare(
+                "SELECT id FROM {$wpdb->prefix}tap_bookings WHERE booking_code = %s LIMIT 1",
+                $code
+            ));
+            if (!$used) {
+                return $code;
+            }
+        }
+        return self::generate_booking_code();
     }
 
     private static function resolve_agency_id($service_type, $service_id) {

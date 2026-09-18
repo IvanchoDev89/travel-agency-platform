@@ -1,3 +1,13 @@
+(function() {
+  function tapMapEsc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
 jQuery(function($) {
   var tapMap = {
     map: null,
@@ -85,12 +95,12 @@ jQuery(function($) {
         var marker = L.marker([lat, lng]);
         var popup =
           '<div class="tap-map-popup">' +
-            (item.img ? '<img class="tap-map-popup-img" src="' + item.img + '" alt="">' : '<div class="tap-map-popup-img-placeholder">🏨</div>') +
+            (item.img ? '<img class="tap-map-popup-img" src="' + tapMapEsc(item.img) + '" alt="" loading="lazy" decoding="async">' : '<div class="tap-map-popup-img-placeholder">🏨</div>') +
             '<div class="tap-map-popup-info">' +
-              '<a class="tap-map-popup-title" href="' + item.url + '">' + item.title + '</a>' +
-              (item.city ? '<span class="tap-map-popup-city">' + item.city + '</span>' : '') +
-              '<span class="tap-map-popup-price">$' + item.price + ' <small>/ noche</small></span>' +
-              '<a class="tap-map-popup-cta" href="' + item.url + '">Ver</a>' +
+              '<a class="tap-map-popup-title" href="' + tapMapEsc(item.url) + '">' + tapMapEsc(item.title) + '</a>' +
+              (item.city ? '<span class="tap-map-popup-city">' + tapMapEsc(item.city) + '</span>' : '') +
+              '<span class="tap-map-popup-price">$' + tapMapEsc(item.price) + ' <small>/ noche</small></span>' +
+              '<a class="tap-map-popup-cta" href="' + tapMapEsc(item.url) + '">Ver</a>' +
             '</div>' +
           '</div>';
         marker.bindPopup(popup, { minWidth: 220 });
@@ -107,3 +117,4 @@ jQuery(function($) {
 
   tapMap.init();
 });
+})();

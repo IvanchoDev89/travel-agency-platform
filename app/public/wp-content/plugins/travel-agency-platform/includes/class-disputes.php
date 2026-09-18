@@ -99,17 +99,23 @@ class TAP_Disputes {
         $wpdb->insert(
             $wpdb->prefix . 'tap_disputes',
             [
-                'booking_id'   => $booking_id,
-                'agency_id'    => (int) $booking->agency_id,
-                'client_id'    => intval($client_id),
-                'guest_email'  => $guest_email ? sanitize_email($guest_email) : null,
-                'reason'       => sanitize_key($reason),
-                'details'      => sanitize_textarea_field($details),
-                'status'       => self::OPEN,
+                'booking_id'      => $booking_id,
+                'agency_id'       => (int) $booking->agency_id,
+                'client_id'       => intval($client_id),
+                'guest_email'     => $guest_email ? sanitize_email($guest_email) : null,
+                'reason'          => sanitize_key($reason),
+                'details'         => sanitize_textarea_field($details),
+                'status'          => self::OPEN,
+                'prev_commission' => (string) $booking->commission_status,
             ]
         );
         $id = (int) $wpdb->insert_id;
-        if ($id && 'owed' === $booking->commission_status) {
+
+        // Freeze any commission the booking may be carrying — including one
+        // already 'paid' by an earlier payout. disputed bookings are excluded
+        // from Payouts::complete(), so the money stays withheld until the
+        // dispute is resolved against the agency.
+        if ($id && 'void' !== $booking->commission_status && 'disputed' !== $booking->commission_status) {
             $wpdb->update($wpdb->prefix . 'tap_bookings', ['commission_status' => 'disputed'], ['id' => $booking_id]);
         }
         do_action('tap_dispute_opened', $id, $booking_id, (int) $booking->agency_id);
@@ -145,7 +151,14 @@ class TAP_Disputes {
             ['id' => $dispute_id]
         );
         if ($booking && 'disputed' === $booking->commission_status) {
-            $next = in_array($outcome, [self::FOR_AGENCY, self::WITHDRAWN], true) ? 'owed' : 'void';
+            if (in_array($outcome, [self::FOR_AGENCY, self::WITHDRAWN], true)) {
+                // Give the commission back the state it had before the dispute
+                // froze it ('owed', 'waiting' or the 'paid' it already was).
+                $prev       = (string) $dispute->prev_commission;
+                $next       = in_array($prev, ['owed', 'waiting', 'paid'], true) ? $prev : 'owed';
+            } else {
+                $next       = 'void';
+            }
             $wpdb->update($wpdb->prefix . 'tap_bookings', ['commission_status' => $next], ['id' => $booking_id]);
         }
         do_action('tap_dispute_resolved', (int) $dispute_id, $outcome, $booking_id);

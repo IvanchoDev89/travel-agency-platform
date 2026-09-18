@@ -177,7 +177,7 @@ class TAP_Pricing {
             wp_send_json(['success' => false, 'message' => 'Habitación inválida']);
         }
         if (!current_user_can('manage_options')) {
-            $agency   = (int) get_post_meta($acc_id, '_tap_tap_accommodation_agency_id', true);
+            $agency   = (int) get_post_meta($acc_id, '_tap_acc_agency_id', true);
             $my_agency = (int) TAP_Booking::get_agency_for_user(get_current_user_id());
             if (!$agency || !$my_agency || $my_agency !== $agency) {
                 wp_send_json(['success' => false, 'message' => 'No autorizado']);

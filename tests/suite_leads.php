@@ -101,6 +101,7 @@ $lid = TAP_Leads::submit([
     'message'    => 'Quiero info del tour.',
     'agency_id'  => $ld_agency_id,
     'service_id' => $ld_service_id,
+    'consent'    => '1',
     'ip'         => $ip,
 ]);
 tap_t_assert(is_int($lid) && $lid > 0, 'submit returns lead id');
@@ -117,9 +118,24 @@ $lid2 = TAP_Leads::submit([
     'email'     => $pref . '_d@example.test',
     'agency_id' => $ld_agency_id,
     'service_id' => $ld_service_id,
+    'consent'   => '1',
     'ip'        => '10.' . (abs(crc32($pref)) % 255 + 1) . '.0.2',
 ]);
 tap_t_assert(is_int($lid2), 'second lead accepted');
+
+// ===== GDPR consent gate =====
+$r = TAP_Leads::submit([
+    'name'      => 'No Consent',
+    'email'     => $pref . '_nocon@example.test',
+    'agency_id' => $ld_agency_id,
+    'ip'        => '10.' . (abs(crc32($pref . 'n')) % 255 + 1) . '.0.2',
+]);
+tap_t_assert(is_wp_error($r) && 'lead_consent_required' === $r->get_error_code(), 'lead without consent rejected');
+$consent_row = $wpdb->get_var($wpdb->prepare(
+    "SELECT COUNT(*) FROM {$wpdb->prefix}tap_consents WHERE email = %s AND scope = %s",
+    $email, 'lead'
+));
+tap_t_assert((int) $consent_row === 1, 'lead consent recorded with scope lead');
 
 // ===== Listing queries =====
 $all = TAP_Leads::for_agency($ld_agency_id, 0);
@@ -134,7 +150,7 @@ $rl_email = $pref . '_rl@example.test';
 $rl_ip    = '10.' . (abs(crc32($pref . 'x')) % 255 + 1) . '.0.9';
 $ok = true;
 for ($i = 0; $i < TAP_Leads::EMAIL_HOURLY_LIMIT; $i++) {
-    $r = TAP_Leads::submit(['name' => 'RL Lead', 'email' => $rl_email, 'agency_id' => $ld_agency_id, 'ip' => $rl_ip]);
+    $r = TAP_Leads::submit(['name' => 'RL Lead', 'email' => $rl_email, 'agency_id' => $ld_agency_id, 'consent' => '1', 'ip' => $rl_ip]);
     if (!is_int($r)) {
         $ok = false;
         break;
@@ -147,7 +163,7 @@ tap_t_assert(is_wp_error($r) && 'lead_rate_limit' === $r->get_error_code(), '6th
 // ===== IP rate limit =====
 $rl_ip2 = '10.' . (abs(crc32($pref . 'y')) % 255 + 1) . '.0.9';
 for ($i = 0; $i < TAP_Leads::IP_HOURLY_LIMIT; $i++) {
-    TAP_Leads::submit(['name' => 'IP Lead ' . $i, 'email' => $pref . '_ip' . $i . '@example.test', 'agency_id' => $ld_agency_id, 'ip' => $rl_ip2]);
+    TAP_Leads::submit(['name' => 'IP Lead ' . $i, 'email' => $pref . '_ip' . $i . '@example.test', 'agency_id' => $ld_agency_id, 'consent' => '1', 'ip' => $rl_ip2]);
 }
 $r = TAP_Leads::submit(['name' => 'IP Lead', 'email' => $pref . '_ipx@example.test', 'agency_id' => $ld_agency_id, 'ip' => $rl_ip2]);
 tap_t_assert(is_wp_error($r) && 'lead_rate_limit' === $r->get_error_code(), '11th lead from same ip refused');

@@ -115,7 +115,18 @@ class TAP_Payouts {
                 $in = implode(',', $ids);
                 // Agency-source requests keep bookings 'owed' on purpose: only now
                 // that the transfer happened do their commissions become 'paid'.
-                $wpdb->query("UPDATE {$wpdb->prefix}tap_bookings SET commission_status = 'paid' WHERE id IN ({$in}) AND commission_status = 'owed'");
+                // Re-check eligibility so a booking disputed, cancelled or
+                // refunded since the request (which froze/voided its commission)
+                // is never paid out on top of the frozen amount.
+                $wpdb->query(
+                    "UPDATE {$wpdb->prefix}tap_bookings
+                        SET commission_status = 'paid'
+                      WHERE id IN ({$in})
+                        AND commission_status = 'owed'
+                        AND payment_status = 'paid'
+                        AND commission_amount > 0
+                        AND status NOT IN ('cancelled', 'refunded')"
+                );
             }
         }
         $wpdb->update($wpdb->prefix . 'tap_commission_payments', ['paid_at' => current_time('mysql')], ['id' => $payment_id]);

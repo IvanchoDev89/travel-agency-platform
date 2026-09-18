@@ -53,6 +53,7 @@ if (!function_exists('tap_t_pass')) {
             'commission_amount'=> 10,
             'commission_percent' => 10,
             'commission_status'=> 'owed',
+            'payment_status'   => 'paid',
             'status'           => 'confirmed',
             'created_at'       => current_time('mysql'),
         ];
@@ -123,6 +124,7 @@ if (!function_exists('tap_t_find_service')) {
     /** Install a pre_http_request mock for PayPal; responses keyed by URL shape. */
     function tap_t_install_paypal_mock() {
         $GLOBALS['tap_pp_log'] = [];
+        $GLOBALS['tap_pp_counter'] = 0;
         $GLOBALS['tap_pp_mock'] = function ($pre, $args, $url) {
             $GLOBALS['tap_pp_log'][] = ['url' => $url, 'args' => $args];
             $json = function ($data) {
@@ -147,7 +149,12 @@ if (!function_exists('tap_t_find_service')) {
                 return $json(['id' => 'REF-PP-1', 'status' => 'COMPLETED', 'amount' => ['value' => '10.00', 'currency_code' => 'USD']]);
             }
             if (strpos($url, '/v2/checkout/orders') !== false) {
-                return $json(['id' => 'ORD-PP-1', 'status' => 'CREATED', 'links' => [['rel' => 'payer-action', 'href' => 'https://pp.test/approve']]]);
+                // Real orders have unique ids — and booking coupons/orders are
+                // now recorded in the payment ledger, so a reused id would
+                // silently overwrite an existing ledger row.
+                $GLOBALS['tap_pp_counter']++;
+                $oid = 'ORD-PP-' . $GLOBALS['tap_pp_counter'];
+                return $json(['id' => $oid, 'status' => 'CREATED', 'links' => [['rel' => 'payer-action', 'href' => 'https://pp.test/approve']]]);
             }
             if (strpos($url, '/verify-webhook-signature') !== false) {
                 return $json(['verification_status' => 'SUCCESS']);

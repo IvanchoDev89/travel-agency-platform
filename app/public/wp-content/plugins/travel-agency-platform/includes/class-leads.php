@@ -56,6 +56,10 @@ class TAP_Leads {
             return new WP_Error('lead_rate_limit', __('Has enviado demasiados mensajes. Inténtalo de nuevo más tarde.', 'travel-agency-platform'));
         }
 
+        if (empty($args['consent']) || '1' !== (string) $args['consent']) {
+            return new WP_Error('lead_consent_required', __('Debes aceptar el Aviso de Privacidad para enviar tu mensaje.', 'travel-agency-platform'));
+        }
+
         $hit = TAP_Moderation::assess($name . ' ' . $message, 'lead');
         if (TAP_Moderation::BLOCK === $hit['status']) {
             return new WP_Error('lead_blocked', __('Tu mensaje no pasó las verificaciones de seguridad. Inténtalo de nuevo.', 'travel-agency-platform'));
@@ -83,6 +87,12 @@ class TAP_Leads {
         }
 
         $lead_id = (int) $wpdb->insert_id;
+
+        // GDPR: record the explicit consent attached to this message.
+        if (class_exists('TAP_Privacy')) {
+            TAP_Privacy::record_consent($email, 'lead');
+        }
+
         do_action('tap_lead_created', $lead_id);
         return $lead_id;
     }
@@ -218,6 +228,11 @@ class TAP_Leads {
                     <input type="text" name="tap_phone"></p>
                 <p><label><?php esc_html_e('Mensaje', 'travel-agency-platform'); ?></label>
                     <textarea name="tap_message" rows="4" maxlength="2000"></textarea></p>
+                <?php if (class_exists('TAP_Privacy')): ?>
+                <p class="tap-check-label">
+                    <?php echo TAP_Privacy::consent_field('lead'); // WPCS: output already escaped in consent_field. ?>
+                </p>
+                <?php endif; ?>
                 <button type="submit" class="tap-btn"><?php esc_html_e('Enviar mensaje', 'travel-agency-platform'); ?></button>
                 <p class="tap-lead-msg" aria-live="polite"></p>
             </form>
@@ -364,7 +379,15 @@ class TAP_Leads {
     }
 
     private static function csv_cell($value) {
+        if (is_int($value) || is_float($value)) {
+            return (string) $value;
+        }
         $value = (string) $value;
+        // Neutralise CSV formula injection (=, +, -, @, tab, CR) that
+        // spreadsheets would otherwise execute when opening the export.
+        if (preg_match('/^[\x00-\x20]*[=+\-@\t\r]/', $value)) {
+            $value = "'" . $value;
+        }
         if (strpbrk($value, ",\"\n\r") !== false) {
             $value = '"' . str_replace('"', '""', $value) . '"';
         }

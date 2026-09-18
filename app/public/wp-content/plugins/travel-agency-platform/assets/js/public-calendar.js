@@ -40,24 +40,24 @@
     function loadAllPricing() {
         var rooms = state.rooms;
         if (!rooms.length) { render(); return; }
-        var loaded = 0;
+        var ids = [];
         $.each(rooms, function(i, room) {
-            loadRoomPricing(room.id, function() {
-                loaded++;
-                if (loaded >= rooms.length) render();
-            });
+            ids.push(room.id);
         });
-    }
-
-    function loadRoomPricing(roomId, cb) {
+        // Single batch request for every room instead of one request per room.
         $.post(tap_ajax.ajax_url, {
             action: 'tap_get_public_pricing',
-            room_id: roomId,
+            room_ids: ids.join(','),
             year: state.year,
             month: state.month
         }, function(res) {
-            if (res.success) state.roomPricing[roomId] = res.data;
-            if (cb) cb();
+            if (res.success && res.data.rooms) {
+                state.roomPricing = {};
+                $.each(res.data.rooms, function(rid, data) {
+                    state.roomPricing[rid] = data;
+                });
+            }
+            render();
         });
     }
 

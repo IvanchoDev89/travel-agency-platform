@@ -161,7 +161,6 @@ class TAP_Subscriptions {
 
     public static function mark_paid($sub_id, $admin_id = 0, $months = 1) {
         global $wpdb;
-        $months = max(1, (int) $months);
         $sub = $wpdb->get_row($wpdb->prepare(
             "SELECT * FROM " . self::subs_table() . " WHERE id = %d",
             (int) $sub_id
@@ -169,6 +168,15 @@ class TAP_Subscriptions {
         if (!$sub) {
             return new WP_Error('sub_not_found', __('Subscription not found.', 'travel-agency-platform'));
         }
+
+        // Already activated for this payment: a duplicated confirmation click
+        // must never extend the same subscription a second time. Renewals come
+        // through new pending rows (see subscribe()), never through re-activating.
+        if ('active' === $sub->status && 'paid' === $sub->payment_status) {
+            return (string) ($sub->paid_until ?: current_time('Y-m-d'));
+        }
+
+        $months = max(1, (int) $months);
         $base = new DateTime('today');
         if ('active' === $sub->status && $sub->paid_until) {
             $existing = DateTime::createFromFormat('Y-m-d', $sub->paid_until);

@@ -85,17 +85,17 @@ $wpdb->insert($wpdb->prefix . 'tap_agencies', [
 $agency_id = (int) $wpdb->insert_id;
 tap_t_assert($agency_id > 0, 'created fixture agency for leads');
 
-$spam = TAP_Leads::submit(['name' => 'MDR Spammer', 'email' => $pref . '_s@example.test', 'message' => 'gana dinero facil ya', 'agency_id' => $agency_id]);
+$spam = TAP_Leads::submit(['name' => 'MDR Spammer', 'email' => $pref . '_s@example.test', 'message' => 'gana dinero facil ya', 'agency_id' => $agency_id, 'consent' => '1']);
 tap_t_assert(is_wp_error($spam) && $spam->get_error_code() === 'lead_blocked', 'spam lead blocked by engine');
 tap_t_assert((int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}tap_leads WHERE email=%s", $pref . '_s@example.test')) === 0, 'blocked lead not stored');
 
-$clean = TAP_Leads::submit(['name' => 'MDR Clean', 'email' => $pref . '_c@example.test', 'message' => 'Quiero información sobre el tour', 'agency_id' => $agency_id]);
+$clean = TAP_Leads::submit(['name' => 'MDR Clean', 'email' => $pref . '_c@example.test', 'message' => 'Quiero información sobre el tour', 'agency_id' => $agency_id, 'consent' => '1']);
 $clean_id = is_wp_error($clean) ? 0 : (int) $clean;
 tap_t_assert($clean_id > 0, 'clean lead stored');
 $clean_row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_leads WHERE id=%d", $clean_id));
 tap_t_assert($clean_row && $clean_row->mod_status === 'ok', 'clean lead stored ok');
 
-$flagged = TAP_Leads::submit(['name' => 'MDR Linker', 'email' => $pref . '_l@example.test', 'message' => 'Revisa mi web http://mdr.example.com', 'agency_id' => $agency_id]);
+$flagged = TAP_Leads::submit(['name' => 'MDR Linker', 'email' => $pref . '_l@example.test', 'message' => 'Revisa mi web http://mdr.example.com', 'agency_id' => $agency_id, 'consent' => '1']);
 $flag_id = is_wp_error($flagged) ? 0 : (int) $flagged;
 $flag_row = $flag_id ? $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_leads WHERE id=%d", $flag_id)) : null;
 tap_t_assert($flag_id > 0 && $flag_row && $flag_row->mod_status === 'review' && $flag_row->mod_reason === 'links', 'URL lead stored flagged for review');

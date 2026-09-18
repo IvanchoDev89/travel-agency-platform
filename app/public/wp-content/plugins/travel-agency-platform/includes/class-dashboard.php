@@ -385,12 +385,12 @@ class TAP_Dashboard {
         foreach ($rows as $b) {
             $agency = get_post($b->agency_id);
             $service = get_post($b->service_id);
-            fputcsv($out, [
+            fputcsv($out, array_map([__CLASS__, 'csv_cell'], [
                 $b->booking_code, $b->status, $b->payment_status, $b->display_name ?? '', $b->user_email ?? '',
                 $agency ? $agency->post_title : '', $b->service_type, $service ? $service->post_title : '',
                 $b->check_in, $b->check_out, $b->adults, $b->children, $b->nights,
                 $b->total_amount, $b->commission_percent, $b->commission_amount, $b->commission_status, $b->created_at,
-            ]);
+            ]));
         }
         fclose($out);
         exit;
@@ -576,7 +576,7 @@ class TAP_Dashboard {
             $booking_id = intval($_POST['booking_id'] ?? 0);
             $method = sanitize_key($_POST['method'] ?? 'bank_transfer');
             $note   = sanitize_textarea_field($_POST['note'] ?? '');
-            $booking = $booking_id ? $wpdb->get_row($wpdb->prepare("SELECT * FROM {$b_table} WHERE id = %d AND commission_status = 'owed' AND payment_status = 'paid' AND status NOT IN ('cancelled', 'refunded')", $booking_id)) : null;
+            $booking = $booking_id ? $wpdb->get_row($wpdb->prepare("SELECT * FROM {$b_table} WHERE id = %d AND commission_status = 'owed' AND payment_status = 'paid' AND commission_amount > 0 AND status NOT IN ('cancelled', 'refunded')", $booking_id)) : null;
             if ($booking) {
                 $wpdb->insert($p_table, [
                     'agency_id'   => (int) $booking->agency_id,
@@ -1822,9 +1822,23 @@ class TAP_Dashboard {
                 $line[] = $promos_map[$line['mes']] ?? 0;
                 $line[] = $views_by_month[$line['mes']] ?? 0;
             }
-            fputcsv($out, $line);
+            fputcsv($out, array_map([__CLASS__, 'csv_cell'], $line));
         }
         fclose($out);
+        exit;
+    }
+
+    /** Sheet-safe CSV cell: numeric stays untouched, anything the spreadsheet
+     * would interpret as a formula gets neutralised with a leading quote. */
+    private static function csv_cell($value) {
+        if (is_int($value) || is_float($value)) {
+            return (string) $value;
+        }
+        $line = (string) $value;
+        if (preg_match('/^[\x00-\x20]*[=+\-@\t\r]/', $line)) {
+            $line = "'" . $line;
+        }
+        return $line;
     }
 
     public static function plans_page() {

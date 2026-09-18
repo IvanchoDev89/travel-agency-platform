@@ -12,12 +12,14 @@ class TAP_Privacy {
         'opposition'   => 'Oposición',
     ];
 
-    const SCOPES = ['booking', 'agency_registration'];
+    const SCOPES = ['booking', 'agency_registration', 'lead'];
 
     public static function init() {
         add_shortcode('tap_privacy', [__CLASS__, 'privacy_shortcode']);
         add_shortcode('tap_privacy_consent', [__CLASS__, 'consent_shortcode']);
         add_action('admin_menu', [__CLASS__, 'add_admin_menu'], 60);
+        add_filter('wp_privacy_personal_data_exporters', [__CLASS__, 'register_exporter']);
+        add_filter('wp_privacy_personal_data_erasers', [__CLASS__, 'register_eraser']);
         add_action('admin_init', [__CLASS__, 'register_settings']);
         add_action('admin_post_tap_privacy_request', [__CLASS__, 'handle_request']);
         add_action('admin_post_nopriv_tap_privacy_request', [__CLASS__, 'handle_request']);
@@ -328,6 +330,182 @@ class TAP_Privacy {
             esc_attr($contact)
         );
         return $sep . '<p style="font-size:12px;color:#6b7280;">' . $note . '</p>';
+    }
+
+    /* ===== WP core privacy (exporters / erasers) ===== */
+
+    public static function register_exporter(array $exporters) {
+        $exporters[] = [
+            'exporter_friendly_name' => __('Travel Agency Platform', 'travel-agency-platform'),
+            'callback'               => [__CLASS__, 'export_personal_data'],
+        ];
+        return $exporters;
+    }
+
+    public static function register_eraser(array $erasers) {
+        $erasers[] = [
+            'eraser_friendly_name' => __('Travel Agency Platform', 'travel-agency-platform'),
+            'callback'             => [__CLASS__, 'erase_personal_data'],
+        ];
+        return $erasers;
+    }
+
+    public static function export_personal_data($email, $page = 1) {
+        global $wpdb;
+        $email  = sanitize_email($email);
+        $user   = get_user_by('email', $email);
+        $user_id = $user ? (int) $user->ID : 0;
+
+        $groups = [];
+
+        // Bookings (linked by account or printed guest email).
+        $bookings = $wpdb->get_results($wpdb->prepare(
+            "SELECT b.*, u.user_email linked_email
+             FROM {$wpdb->prefix}tap_bookings b
+             LEFT JOIN {$wpdb->users} u ON b.client_id = u.ID
+             WHERE (b.client_id = %d AND %d > 0) OR b.guest_email = %s
+             ORDER BY b.id",
+            $user_id, $user_id, $email
+        ));
+        $b_items = [];
+        foreach ((array) $bookings as $b) {
+            $b_items[] = [
+                'group_id'    => 'tap_bookings',
+                'group_label' => __('Travel bookings', 'travel-agency-platform'),
+                'item_id'     => 'booking-' . (int) $b->id,
+                'data'        => [
+                    ['name' => __('Código', 'travel-agency-platform'),   'value' => $b->booking_code],
+                    ['name' => __('Estado', 'travel-agency-platform'),   'value' => $b->status],
+                    ['name' => __('Pago', 'travel-agency-platform'),     'value' => $b->payment_status],
+                    ['name' => __('Servicio', 'travel-agency-platform'), 'value' => $b->service_type . ' #' . (int) $b->service_id],
+                    ['name' => __('Entrada', 'travel-agency-platform'),  'value' => $b->check_in],
+                    ['name' => __('Salida', 'travel-agency-platform'),   'value' => $b->check_out],
+                    ['name' => __('Total', 'travel-agency-platform'),    'value' => (string) $b->total_amount],
+                    ['name' => __('Invitado', 'travel-agency-platform'), 'value' => ($b->guest_name ?? '') . ' ' . ($b->guest_email ?? '')],
+                ],
+            ];
+        }
+        if ($b_items) {
+            $groups[] = ['data' => $b_items, 'done' => true];
+        }
+
+        // Contact leads.
+        $leads = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}tap_leads WHERE email = %s ORDER BY id",
+            $email
+        ));
+        $l_items = [];
+        foreach ((array) $leads as $l) {
+            $l_items[] = [
+                'group_id'    => 'tap_leads',
+                'group_label' => __('Contact messages', 'travel-agency-platform'),
+                'item_id'     => 'lead-' . (int) $l->id,
+                'data'        => [
+                    ['name' => __('Nombre', 'travel-agency-platform'),  'value' => $l->name],
+                    ['name' => __('Correo', 'travel-agency-platform'),  'value' => $l->email],
+                    ['name' => __('Teléfono', 'travel-agency-platform'), 'value' => $l->phone ?? ''],
+                    ['name' => __('Mensaje', 'travel-agency-platform'), 'value' => $l->message ?? ''],
+                    ['name' => __('Fecha', 'travel-agency-platform'),   'value' => $l->created_at],
+                ],
+            ];
+        }
+        if ($l_items) {
+            $groups[] = ['data' => $l_items, 'done' => true];
+        }
+
+        // Explicit consents recorded for this email.
+        $consents = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}tap_consents WHERE email = %s ORDER BY id",
+            $email
+        ));
+        $c_items = [];
+        foreach ((array) $consents as $c) {
+            $c_items[] = [
+                'group_id'    => 'tap_consents',
+                'group_label' => __('Privacy consents', 'travel-agency-platform'),
+                'item_id'     => 'consent-' . (int) $c->id,
+                'data'        => [
+                    ['name' => __('Alcance', 'travel-agency-platform'),       'value' => $c->scope],
+                    ['name' => __('Versión política', 'travel-agency-platform'), 'value' => $c->policy_version],
+                    ['name' => __('Fecha', 'travel-agency-platform'),         'value' => $c->created_at],
+                ],
+            ];
+        }
+        if ($c_items) {
+            $groups[] = ['data' => $c_items, 'done' => true];
+        }
+
+        // Reviews written by the account.
+        if ($user_id) {
+            $reviews = $wpdb->get_results($wpdb->prepare(
+                "SELECT * FROM {$wpdb->prefix}tap_reviews WHERE user_id = %d ORDER BY id",
+                $user_id
+            ));
+            $r_items = [];
+            foreach ((array) $reviews as $r) {
+                $r_items[] = [
+                    'group_id'    => 'tap_reviews',
+                    'group_label' => __('Reviews', 'travel-agency-platform'),
+                    'item_id'     => 'review-' . (int) $r->id,
+                    'data'        => [
+                        ['name' => __('Servicio', 'travel-agency-platform'), 'value' => $r->service_type . ' #' . (int) $r->service_id],
+                        ['name' => __('Valoración', 'travel-agency-platform'), 'value' => (string) $r->rating],
+                        ['name' => __('Título', 'travel-agency-platform'),  'value' => $r->title ?? ''],
+                        ['name' => __('Contenido', 'travel-agency-platform'), 'value' => $r->content ?? ''],
+                        ['name' => __('Fecha', 'travel-agency-platform'),   'value' => $r->created_at],
+                    ],
+                ];
+            }
+            if ($r_items) {
+                $groups[] = ['data' => $r_items, 'done' => true];
+            }
+        }
+
+        return ['data' => $groups, 'done' => true];
+    }
+
+    public static function erase_personal_data($email, $page = 1) {
+        global $wpdb;
+        $email   = sanitize_email($email);
+        $user    = get_user_by('email', $email);
+        $user_id = $user ? (int) $user->ID : 0;
+
+        $removed = 0;
+
+        // Leads: hard delete the row (contact requests are transient data).
+        $removed += (int) $wpdb->delete($wpdb->prefix . 'tap_leads', ['email' => $email]);
+
+        // Consents: the record of the consent itself is deleted with it.
+        $removed += (int) $wpdb->delete($wpdb->prefix . 'tap_consents', ['email' => $email]);
+
+        // Reviews: textual personal data, remove when owned by the account.
+        if ($user_id) {
+            $removed += (int) $wpdb->delete($wpdb->prefix . 'tap_reviews', ['user_id' => $user_id]);
+        }
+
+        // Bookings keep operational rows but all PII is anonymised; guest
+        // bookings owned purely by this email are wiped entirely.
+        $guest_rows = $wpdb->get_col($wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}tap_bookings WHERE client_id = 0 AND guest_email = %s",
+            $email
+        ));
+        foreach ((array) $guest_rows as $bid) {
+            $removed += (int) $wpdb->delete($wpdb->prefix . 'tap_bookings', ['id' => (int) $bid]);
+        }
+        if ($user_id) {
+            $removed += (int) $wpdb->update(
+                $wpdb->prefix . 'tap_bookings',
+                ['guest_name' => '', 'guest_email' => ''],
+                ['client_id' => $user_id]
+            );
+        }
+
+        return [
+            'items_removed'  => (bool) $removed,
+            'items_retained' => false,
+            'messages'       => [],
+            'done'           => true,
+        ];
     }
 
     /* ===== Admin ===== */

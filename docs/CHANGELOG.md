@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.7] — 2026-09-18
+
+### Added
+
+- **`uninstall.php`**: full cleanup on plugin deletion (drops all `tap_*` tables after schema checks, clears cron hooks, deletes `tap_%` options/transients, removes the plugin roles and capabilities, and deletes CPT posts/meta/term relationships unless `tap_uninstall_keep_content` is set).
+- **GDPR (privacy) compliance for leads**: the lead form now requires explicit consent (`tap_privacy_consent`); `TAP_Leads::submit()` rejects missing consent with `lead_consent_required` and stores it via `TAP_Privacy::record_consent($email, 'lead')`. WordPress Privacy exporters/erasers now cover bookings, leads, consents and reviews (erasure anonymises guest data on user-linked bookings, deletes guest bookings, leads and consents).
+- **Agency booking-code cancellation**: guests can cancel with their `booking_code` + email (high-entropy flow), with the legacy `booking_id` + email fallback for older bookings.
+- **Idempotent payment ledger**: PayPal refunds/orders are recorded in `tap_payment_orders` (UPSERT by `paypal_order_id`), live refunded-status sync, and pending refunds are retried every day by cron.
+
+### Changed
+
+- **Performance (Lote D)**: paid analytics views are recorded deferred on `shutdown` (non-blocking `INSERT ... ON DUPLICATE KEY UPDATE`), `listing_views` is capped, calendar pricing is fetched in a single batch AJAX call (`tap_get_public_pricing` with `room_ids`, one meta pre-fetch) instead of one request per room, admin assets load on CPT edit screens too, and the `[tap_search_results]`, `[tap_featured_services]` and `[tap_agency_services]` shortcodes use a single indexed main query (active/featured/agency flags resolved with one `wp_postmeta` scan) instead of an N-way meta JOIN. Listing images render with `loading="lazy"`/`decoding="async"`.
+- **Security (Lote B)**: stored-XSS sinks in the public search, autocomplete and map popups escape output client-side; agencies can only publish listings they can publish (otherwise `pending`); agency staff can no longer cancel/refund paid bookings (admin-only); verified reviews and the auto-complete of past bookings require `payment_status='paid'`; auto-confirm applies only outside `request` booking mode; role capabilities use the correct plural (`tap_agencies`); moderation admin actions require `manage_options`; CSV exports neutralise spreadsheet formula injection; the `_tap_tap_accommodation_agency_id` meta key typo is fixed to `_tap_acc_agency_id`.
+- **Automations/emails**: `TAP_Emails::send()` returns the real result of `wp_mail`, reminder/pre-arrival/review/expiry emails propagate it, and the automation cron runs in bounded batches (100 per task) with cursors and 60-day log pruning.
+
+### Fixed
+
+- Version bumped to 1.5.7 (triggers idempotent schema migrations).
+
 ## [1.5.6] — 2026-09-16
 
 ### Fixed

@@ -67,6 +67,7 @@ function at_lead($agency, $email, $name, $phone) {
         'phone'     => $phone,
         'message'   => 'Fase 4 attribution fixture',
         'agency_id' => $agency,
+        'consent'   => '1',
     ]);
     if (is_int($r) && $r > 0) {
         $GLOBALS['at_lead_ids'][] = (int) $r;
