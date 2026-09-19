@@ -171,7 +171,7 @@ Stores the primary reservation records.
 | `booking_code` | varchar(20) | Unique, human-readable code. |
 | `agency_id` | bigint | Owning agency. |
 | `client_id` | bigint | Booking owner (WP user). |
-| `service_type` | varchar(50) | One of the six service types. |
+| `service_type` | varchar(50) | Bookable service type (`tap_accommodation`, `tap_tour`, `tap_transport`, `tap_car_rental`, `tap_boat`, `tap_package`, `tap_equipment`). |
 | `service_id` | bigint | Service post ID. |
 | `room_id` | bigint NULL | Room post ID (accommodation). |
 | `package_id` | bigint NULL | |
@@ -226,7 +226,7 @@ Agency records.
 
 ### `{prefix}tap_reviews`
 
-Client reviews + agency replies.
+Client reviews + platform (admin) replies.
 
 | Column | Notes |
 | --- | --- |
@@ -236,7 +236,7 @@ Client reviews + agency replies.
 | `rating` | decimal(2,1) star value. |
 | `title` / `content` | |
 | `is_approved` | Moderation flag. |
-| `reply` / `reply_author` / `reply_at` | Agency response (V1). |
+| `reply` / `reply_author` / `reply_at` | Platform reply (admin, V1+). |
 
 ### `{prefix}tap_availability`
 
@@ -433,11 +433,12 @@ Public booking/cancel/paypal endpoints work for **logged-out visitors** too:
 - The voucher (`[tap_booking_detail]`) and checkout (`[tap_checkout]`) only disclose the booking when `?code=` matches **and** the posted email equals `guest_email` ("no coincide" otherwise).
 - Payment is gated behind a short-lived proof token: `TAP_Ajax::set_guest_pay_token($booking_code)` (30-min transient `tap_guest_pay_{code}`) is set after email verification and checked by the PayPal capture flow.
 - Guest cancellation is allowed with `client_cancel_request($id, 0, $guest_email)`; cross-ownership is refused both ways (`forbidden` / `no_user`).
-- Guest checkout is rate-limited by email+IP via `guest_book_rate_bump()` / `guest_book_rate_blocked()` (5 bookings/hour).
+- Guest checkout is rate-limited by email+IP via `guest_book_rate_bump()` / `guest_book_rate_blocked()` (max 5 per 15 minutes, transient `tap_guest_book_{hash}`).
 
 **Nonce handling**
 
 - Booking/cancellation endpoints verify the nonce produced by `wp_create_nonce('tap_booking_nonce')`.
+- Admin back-office booking actions (status change / cancel / mark paid) verify `tap_admin_booking` (`assets/js/admin.js`), while the **front-dash** agency/clients operations (`tap_dash_*` AJAX: cancel, toggle favorite, delete review, agency booking ops, agency payout) verify `tap_front_dash_nonce`.
 - Public endpoints further enforce that guests are logged in where required.
 
 **Anti-spam (H1)**
@@ -459,7 +460,8 @@ Registered in `TAP_Shortcodes::init()`.
 | `[tap_agency_detail]` | Agency page. |
 | `[tap_booking_form]` | Reservation form. |
 | `[tap_my_bookings]` | Client's bookings (+ cancel controls). |
-| `[tap_dashboard]` | Agency/admin dashboard. |
+| `[tap_dashboard]` | Client/legacy dashboard shortcode (page `dashboard` 301-redirects to `/mi-cuenta/`). |
+| `[tap_front_dash]` | Unified user/agency hub at `/mi-cuenta/` (`TAP_Front_Dash`, role-aware: client, agency, admin hint). |
 | `[tap_featured]` | Featured services. |
 | `[tap_agency_services]` | Services of an agency. |
 | `[tap_agency_register]` | Agency registration. |
@@ -471,6 +473,9 @@ Registered in `TAP_Shortcodes::init()`.
 | `[tap_search_results]` | Renders filtered results (reads `keyword`/`type`/`location` GET params) featured-first, cut into cards; used on the `search-results` page with `[tap_search]`. |
 | `[tap_lead_form]` | Contact form for an agency (profile page or service detail); posts to the `tap_lead_submit` AJAX endpoint. |
 | `[tap_chatbot]` | Fase 4 support-chat widget: toggleable dialog with bilingual assistant, quick-question chips, and an input that posts to `tap_chatbot_message` (rate-limited). |
+| `[tap_privacy]` | Privacy rights page (Ley 8968): Access, Rectification, Update, Erasure, Opposition; saves requests into `tap_privacy_requests`. |
+| `[tap_privacy_consent]` | Standalone consent checkbox for forms (records rows in `tap_consents`). |
+| `[tap_itinerary_builder]` | Trip builder UI (page `/armar-mi-viaje`) combining catalog services into a plan. |
 
 > The **search-results** page should contain `[tap_search]` followed by `[tap_search_results]`. Search is a GET to the page; the form's destination field has an autocomplete wired to `tap_search_suggestions` (shared with the hero `#hs-destino`).
 
@@ -513,7 +518,7 @@ Registered in `travel-agency-platform.php` via `add_action('init', ['TAP_SEO','i
 
 Rather than a custom rewrite (which collides with WP Core's `/sitemap.xml` + 301s), the plugin **extends WordPress' native XML sitemaps**:
 
-- `wp_sitemaps_post_types` → ensures all 6 service types are covered.
+- `wp_sitemaps_post_types` → ensures all bookable service types (incl. `tap_equipment`) are covered.
 - `wp_sitemaps_taxonomies` → ensures `tap_location`, `tap_service_cat`, `tap_property_type`, `tap_amenity`, `tap_tour_type`, `tap_vehicle_type`, `tap_boat_type` are covered.
 - Empty post types/taxonomies correctly produce no sitemap pages.
 - `robots.txt` references the sitemap via `do_robots` (`/wp-sitemap.xml`).
