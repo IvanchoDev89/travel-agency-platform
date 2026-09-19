@@ -24,9 +24,20 @@ class TAP_Metaboxes {
         return ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
     }
 
+    /**
+     * register()/get_fields() are also reached from the front-end back-office,
+     * where add_meta_box() (wp-admin/includes/template.php) is not loaded.
+     * The field registry must populate everywhere; the meta box UI is admin-only.
+     */
+    private static function maybe_add_meta_box($id, $title, $callback, $screen, $context = 'advanced', $priority = 'default', $callback_args = null) {
+        if (function_exists('add_meta_box') && is_admin()) {
+            add_meta_box($id, $title, $callback, $screen, $context, $priority, $callback_args);
+        }
+    }
+
     private static function register_destination_metabox() {
         foreach (self::service_types() as $type) {
-            add_meta_box('tap_destination', __('Destination', 'travel-agency-platform'), [__CLASS__, 'render_destination'], $type, 'side', 'default');
+            self::maybe_add_meta_box('tap_destination', __('Destination', 'travel-agency-platform'), [__CLASS__, 'render_destination'], $type, 'side', 'default');
         }
     }
 
@@ -57,7 +68,7 @@ class TAP_Metaboxes {
     }
 
     private static function register_agency_metabox() {
-        add_meta_box('tap_agency_details', __('Agency Details', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_agency', 'normal', 'high');
+        self::maybe_add_meta_box('tap_agency_details', __('Agency Details', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_agency', 'normal', 'high');
         self::$fields['tap_agency'] = [
             '_tap_agency_email'     => ['type' => 'email', 'label' => __('Email', 'travel-agency-platform')],
             '_tap_agency_phone'     => ['type' => 'text', 'label' => __('Phone', 'travel-agency-platform')],
@@ -75,10 +86,10 @@ class TAP_Metaboxes {
     }
 
     private static function register_accommodation_metabox() {
-        add_meta_box('tap_accommodation_details', __('Accommodation Details', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_accommodation', 'normal', 'high');
-        add_meta_box('tap_accommodation_location', __('Location & Address', 'travel-agency-platform'), [__CLASS__, 'render_accommodation_location'], 'tap_accommodation', 'normal', 'high');
-        add_meta_box('tap_accommodation_policies', __('Policies & Rules', 'travel-agency-platform'), [__CLASS__, 'render_accommodation_policies'], 'tap_accommodation', 'normal', 'high');
-        add_meta_box('tap_accommodation_gallery', __('Photo Gallery', 'travel-agency-platform'), [__CLASS__, 'render_accommodation_gallery'], 'tap_accommodation', 'side', 'low');
+        self::maybe_add_meta_box('tap_accommodation_details', __('Accommodation Details', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_accommodation', 'normal', 'high');
+        self::maybe_add_meta_box('tap_accommodation_location', __('Location & Address', 'travel-agency-platform'), [__CLASS__, 'render_accommodation_location'], 'tap_accommodation', 'normal', 'high');
+        self::maybe_add_meta_box('tap_accommodation_policies', __('Policies & Rules', 'travel-agency-platform'), [__CLASS__, 'render_accommodation_policies'], 'tap_accommodation', 'normal', 'high');
+        self::maybe_add_meta_box('tap_accommodation_gallery', __('Photo Gallery', 'travel-agency-platform'), [__CLASS__, 'render_accommodation_gallery'], 'tap_accommodation', 'side', 'low');
 
         self::$fields['tap_accommodation'] = [
             '_tap_acc_agency_id'    => ['type' => 'select_post', 'label' => __('Agency', 'travel-agency-platform'), 'post_type' => 'tap_agency'],
@@ -101,7 +112,7 @@ class TAP_Metaboxes {
     }
 
     private static function register_tour_metabox() {
-        add_meta_box('tap_tour_details', __('Tour Details', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_tour', 'normal', 'high');
+        self::maybe_add_meta_box('tap_tour_details', __('Tour Details', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_tour', 'normal', 'high');
         self::$fields['tap_tour'] = [
             '_tap_tour_agency_id'   => ['type' => 'select_post', 'label' => __('Agency', 'travel-agency-platform'), 'post_type' => 'tap_agency'],
             '_tap_tour_duration'    => ['type' => 'text', 'label' => __('Duration', 'travel-agency-platform'), 'placeholder' => 'e.g. 3 days / 2 nights'],
@@ -127,7 +138,7 @@ class TAP_Metaboxes {
     }
 
     private static function register_equipment_metabox() {
-        add_meta_box('tap_equipment_details', __('Equipment Details', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_equipment', 'normal', 'high');
+        self::maybe_add_meta_box('tap_equipment_details', __('Equipment Details', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_equipment', 'normal', 'high');
         self::$fields['tap_equipment'] = [
             '_tap_eq_agency_id'    => ['type' => 'select_post', 'label' => __('Agency', 'travel-agency-platform'), 'post_type' => 'tap_agency'],
             '_tap_eq_type'         => ['type' => 'select', 'label' => __('Category', 'travel-agency-platform'), 'options' => ['hiking' => 'Senderismo', 'camping' => 'Camping', 'kayak' => 'Kayak', 'snorkel' => 'Snorkel', 'surf' => 'Surf', 'bicicleta' => 'Bicicleta', 'acuatico' => 'Deportes acuáticos', 'fotografia' => 'Fotografía', 'bebe' => 'Equipo para bebés', 'playa' => 'Playa', 'cocina' => 'Cocina / Parrilla', 'otros' => 'Otros']],
@@ -145,7 +156,7 @@ class TAP_Metaboxes {
     }
 
     private static function register_transport_metabox() {
-        add_meta_box('tap_transport_details', __('Transport Details', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_transport', 'normal', 'high');
+        self::maybe_add_meta_box('tap_transport_details', __('Transport Details', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_transport', 'normal', 'high');
         self::$fields['tap_transport'] = [
             '_tap_trans_agency_id'  => ['type' => 'select_post', 'label' => __('Agency', 'travel-agency-platform'), 'post_type' => 'tap_agency'],
             '_tap_trans_type'       => ['type' => 'select', 'label' => __('Service Type', 'travel-agency-platform'), 'options' => ['private' => 'Private', 'shared' => 'Shared', 'shuttle' => 'Shuttle', 'luxury' => 'Luxury']],
@@ -166,7 +177,7 @@ class TAP_Metaboxes {
     }
 
     private static function register_car_rental_metabox() {
-        add_meta_box('tap_car_rental_details', __('Car Rental Details', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_car_rental', 'normal', 'high');
+        self::maybe_add_meta_box('tap_car_rental_details', __('Car Rental Details', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_car_rental', 'normal', 'high');
         self::$fields['tap_car_rental'] = [
             '_tap_car_agency_id'    => ['type' => 'select_post', 'label' => __('Agency', 'travel-agency-platform'), 'post_type' => 'tap_agency'],
             '_tap_car_brand'        => ['type' => 'text', 'label' => __('Brand', 'travel-agency-platform')],
@@ -189,7 +200,7 @@ class TAP_Metaboxes {
     }
 
     private static function register_boat_metabox() {
-        add_meta_box('tap_boat_details', __('Boat Details', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_boat', 'normal', 'high');
+        self::maybe_add_meta_box('tap_boat_details', __('Boat Details', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_boat', 'normal', 'high');
         self::$fields['tap_boat'] = [
             '_tap_boat_agency_id'   => ['type' => 'select_post', 'label' => __('Agency', 'travel-agency-platform'), 'post_type' => 'tap_agency'],
             '_tap_boat_type'        => ['type' => 'select', 'label' => __('Boat Type', 'travel-agency-platform'), 'options' => ['yacht' => 'Yacht', 'catamaran' => 'Catamaran', 'speedboat' => 'Speedboat', 'fishing' => 'Fishing Boat', 'sailboat' => 'Sailboat', 'kayak' => 'Kayak', 'pontoon' => 'Pontoon']],
@@ -210,7 +221,7 @@ class TAP_Metaboxes {
     }
 
     private static function register_package_metabox() {
-        add_meta_box('tap_package_details', __('Package Details', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_package', 'normal', 'high');
+        self::maybe_add_meta_box('tap_package_details', __('Package Details', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_package', 'normal', 'high');
         self::$fields['tap_package'] = [
             '_tap_pkg_agency_id'    => ['type' => 'select_post', 'label' => __('Agency', 'travel-agency-platform'), 'post_type' => 'tap_agency'],
             '_tap_pkg_duration'     => ['type' => 'text', 'label' => __('Duration', 'travel-agency-platform'), 'placeholder' => 'e.g. 5 days / 4 nights'],
@@ -225,13 +236,13 @@ class TAP_Metaboxes {
     }
 
     private static function register_booking_metabox() {
-        add_meta_box('tap_booking_details', __('Booking Details', 'travel-agency-platform'), [__CLASS__, 'render_booking'], 'tap_booking', 'normal', 'high');
+        self::maybe_add_meta_box('tap_booking_details', __('Booking Details', 'travel-agency-platform'), [__CLASS__, 'render_booking'], 'tap_booking', 'normal', 'high');
     }
 
     private static function register_room_metabox() {
-        add_meta_box('tap_room_details', __('Room Details', 'travel-agency-platform'), [__CLASS__, 'render_room'], 'tap_room', 'normal', 'high');
-        add_meta_box('tap_room_beds', __('Bed Configuration', 'travel-agency-platform'), [__CLASS__, 'render_room_beds'], 'tap_room', 'normal', 'high');
-        add_meta_box('tap_room_gallery', __('Room Photos', 'travel-agency-platform'), [__CLASS__, 'render_room_gallery'], 'tap_room', 'side', 'low');
+        self::maybe_add_meta_box('tap_room_details', __('Room Details', 'travel-agency-platform'), [__CLASS__, 'render_room'], 'tap_room', 'normal', 'high');
+        self::maybe_add_meta_box('tap_room_beds', __('Bed Configuration', 'travel-agency-platform'), [__CLASS__, 'render_room_beds'], 'tap_room', 'normal', 'high');
+        self::maybe_add_meta_box('tap_room_gallery', __('Room Photos', 'travel-agency-platform'), [__CLASS__, 'render_room_gallery'], 'tap_room', 'side', 'low');
     }
 
     public static function render($post) {
