@@ -1,240 +1,187 @@
-# User Guide
+# Guía del Usuario (Viajeros)
 
-A practical manual for the people using the **Travel Agency Platform** every day: **clients**, **agency staff**, and **administrators**.
+Manual práctico para **viajeros, visitantes y clientes** que usan el **Travel Agency Platform**: buscar servicios, reservar, pagar, cancelar, reseñar y ejercer sus derechos de privacidad.
+
+> Si usted es una **agencia de turismo**, consulte [`AGENCY_GUIDE.md`](AGENCY_GUIDE.md).
+> Si usted es el **administrador** del sitio, consulte [`ADMIN_GUIDE.md`](ADMIN_GUIDE.md).
 
 ---
 
 ## Contents
 
-- [For Clients](#for-clients)
-  - [Create an account & sign in](#create-an-account--sign-in)
-  - [Search & discover services](#search--discover-services)
-  - [Favorites (wishlist)](#favorites-wishlist)
-  - [Book a service](#book-a-service)
-  - [Manage your bookings](#manage-your-bookings)
-  - [Cancelling a booking](#cancelling-a-booking)
-  - [Vouchers](#vouchers)
-  - [Leave a review](#leave-a-review)
-- [For Agencies](#for-agencies)
-  - [Register & complete your profile](#register--complete-your-profile)
-  - [Publish & price inventory](#publish--price-inventory)
-  - [Respond to reviews](#respond-to-reviews)
-  - [Track bookings & commissions](#track-bookings--commissions)
-- [For Administrators](#for-administrators)
-  - [Moderate agencies & reviews](#moderate-agencies--reviews)
-  - [Manage commissions](#manage-commissions)
+- [Crear una cuenta e iniciar sesión](#crear-una-cuenta-e-iniciar-sesión)
+- [Buscar y descubrir servicios](#buscar-y-descubrir-servicios)
+- [Páginas de detalle de servicios](#páginas-de-detalle-de-servicios)
+- [SEO y resultados enriquecidos](#seo-y-resultados-enriquecidos)
+- [Favoritos (lista de deseos)](#favoritos-lista-de-deseos)
+- [Reservar un servicio](#reservar-un-servicio)
+- [Checkout como invitado](#checkout-como-invitado)
+- [Estados y modos de reserva](#estados-y-modos-de-reserva)
+- [Gestionar mis reservas](#gestionar-mis-reservas)
+- [Cancelar una reserva](#cancelar-una-reserva)
+- [Vouchers (comprobante)](#vouchers-comprobante)
+- [Dejar una reseña](#dejar-una-reseña)
+- [Chat asistente de viajes](#chat-asistente-de-viajes)
+- [Constructor de itinerarios](#constructor-de-itinerarios)
+- [Idiomas: español e inglés](#idiomas-español-e-inglés)
+- [Privacidad y datos personales](#privacidad-y-datos-personales)
 
 ---
 
-# For Clients
+## Crear una cuenta e iniciar sesión
 
-## Create an account & sign in
+1. Abra el sitio y seleccione **Registrarse** (o el enlace de alta) o deje un **formulario de contacto** de agencia sin registrarse.
+2. Complete el formulario y envíelo; el nuevo usuario recibe el rol de **cliente** (`tap_client`).
+3. Inicie sesión para usar funciones personalizadas (favoritos, panel `tap_dashboard`, reseñas, etc.).
 
-1. Open the platform and select **Register** (or the sign-up link).
-2. Complete the registration form and submit.
-3. Sign in with your credentials to access personalized features.
+> Los formularios públicos incluyen un campo **anti-spam** invisible: si una automatización lo rellena, la petición se descarta en silencio. Los formularios de **contacto a agencias** además exigen **consentimiento** explícito — sin él no se envían (ver [Privacidad](#privacidad-y-datos-personales)).
 
-> Public forms include an invisible **anti-spam** field. It is hidden from humans; if it is filled by automation, the request is silently discarded.
+## Buscar y descubrir servicios
 
-## Search & discover services
+- Use el **buscador** por destino/keyword — mientras escribe, aparecen **sugerencias en vivo** (destinos y servicios).
+- La búsqueda aterriza en **Resultados de Búsqueda**: lista los servicios con los **destacados ★ primero**, después los más nuevos, cada uno con tipo, precio, ciudad, foto y enlace a su página.
+- Refine con la **barra de filtros** (se abre desde los resultados):
+  - **Tipo de servicio** (Tours, Alojamientos, Transporte, Alquiler de Autos, Alquiler de Botes, Paquetes, Equipos y Alquileres)
+  - **Ubicación** (destino/ciudad)
+  - **Rango de precios** (mín / máx)
+- **Ordenar** resultados por: Relevancia (los ★ siempre primero), Más nuevos, Precio ↑, Precio ↓, Mejor valoración.
+- Use **Aplicar** para aplicar filtros y **Limpiar** para resetearlos. Filtros y orden se aplican al instante.
 
-- Use the **search box** by destination/keyword — type to see live suggestions (destinations and services) as you type.
-- Searching lands on the **Resultados de Búsqueda** page, which lists matching services **featured-first** (★ highlighted first), newest after, each with its type, price, city, photo and a link to its page.
-- Refine results with the **filter bar** (opens from the results page):
-  - **Service type** (Tours, Accommodations, Transport, Car Rentals, Boat Rentals, Packages)
-  - **Location** (destination/city)
-  - **Price range** (min / max)
-- **Sort** results by:
-  - Relevance (default; featured results ★ always appear first)
-  - Newest
-  - Price — lowest to highest
-  - Price — highest to lowest
-  - Best rating
-- Use **Aplicar** to apply the filters and **Limpiar** to reset them. Filters and sort are applied instantly and reflected in the results list.
-- Each listing shows its type, price, city, photo, rating and a link to its page.
+## Páginas de detalle de servicios
 
-## Service detail pages
+- **Migas de pan** (breadcrumbs) muestran su ruta (Inicio › Tours y Excursiones › …) y permiten volver.
+- Aparecen el **badge tipo** (p. ej. "Tours y Excursiones"), el badge **★ Destacado** y la **valoración** (promedio + nº de reseñas).
+- Cuando el listado pertenece a una agencia, la línea **"Operado por"** enlaza al perfil de esa agencia (con la marca **✓ Verificada** si procede).
+- El **precio** se destaca, seguido de la ficha de metadatos y el **formulario de reserva**.
 
-- **Breadcrumbs** show your path (e.g. Inicio › Tours y Excursiones › current tour) and let you navigate back.
-- **Type badge** (e.g. "Tours y Excursiones"), **featured badge** (★ Destacado), and **rating** (average + number of reviews) appear at the top.
-- When a listing belongs to an agency, the **"Operado por"** line links to that agency's profile (with a ✓ verified mark when applicable).
-- The **price** is highlighted, followed by the full spec/metadata grid and the booking form.
+## SEO y resultados enriquecidos
 
-## SEO & rich results
+Las páginas de servicio y archivos se optimizan automáticamente:
 
-Service pages and archives are automatically optimized for search engines:
+- Títulos limpios, meta descripciones, **canónicas**, **Open Graph** y **Twitter Cards** para compartir en redes.
+- **Datos estructurados** (JSON-LD) de breadcrumbs, FAQ, datos de contacto, hoteles, tours y agencias de viajes — candidatos a **rich results** de Google.
+- **Sitemap** (`/wp-sitemap.xml`) extendido para cubrir todos los tipos de servicio y categorías; `robots.txt` lo referencia.
 
-- Clean titles, meta descriptions, **canonical URLs**, **Open Graph** and **Twitter Cards** for rich social sharing.
-- **Structured data** (JSON-LD) for breadcrumbs, FAQs, contact details, hotels, tours, and travel agencies — which may surface **rich results** in Google (FAQ, breadcrumbs, hotel pricing, etc.).
-- A **sitemap** (`/wp-sitemap.xml`) is generated by WordPress Core and extended by this plugin so all service types and categories are crawlable; `robots.txt` references it.
+## Favoritos (lista de deseos)
 
-## Favorites (wishlist)
+Con sesión iniciada:
 
-While signed in:
+1. Abra cualquier tarjeta de servicio.
+2. Haga clic en el **corazón (♥)**.
+3. Acceda a sus guardados desde la página **Favoritos** (`[tap_favorites]`).
 
-1. Open any service card.
-2. Click the **heart** (♥) icon.
-3. Access saved services from the **Favorites** page.
+## Reservar un servicio
 
-## Book a service
+1. Abra la página de detalle del servicio.
+2. Elija fechas y número de huéspedes.
+   - **Alojamientos**: seleccione una **habitación**.
+   - **Tours**: seleccione una **fecha** (se respeta la capacidad por fecha).
+3. Añada **nombre**, **email** de contacto del titular y (opcional) **teléfono**.
+4. Revise el **desglose de precio** en vivo: noches, precio por noche, subtotal, **descuentos** (Early Bird, Last Minute, Long Stay — con ahorro `savings`), booking fee cuando aplique, y **total**.
+5. Confirme: **no se le cobra hasta completar el pago**.
+6. Siga el **checkout** para finalizar (cuando aplique).
 
-1. Open the service detail page.
-2. Choose your dates and number of guests.
-   - For **accommodations**, select a room.
-   - For **tours**, select a date (capacity is enforced per date).
-3. Add the main guest's **name**, **contact email**, and (optionally) **phone**.
-4. Review the live **price breakdown** (nights, per-night price, subtotal, discounts, service fee when applicable, and total).
-5. Confirm — you will not be charged until you complete pay.
-6. Follow the **checkout** flow to finalize payment (when applicable).
+> La plataforma rechaza reservas a fechas pasadas, rangos inválidos y fechas sin capacidad/inventario. Según la configuración de la agencia, su reserva será **normal** (confirmación inmediata al pagar) o **request** (la agencia debe confirmarla; queda en espera) — ver [Estados y modos de reserva](#estados-y-modos-de-reserva).
 
-> The platform refuses bookings for past dates, invalid date ranges, and dates when capacity/inventory is full.
+### Cómo se paga
 
-## Manage your bookings
+- El gate de pago actual es **PayPal** (cuando el administrador lo habilita). Tras el pago, su reserva queda **confirmada**.
+- Si el pago no está habilitado o usted prefiere otro canal, la reserva se registra como **pendiente** y la agencia/administrador la confirma.
+- **Métodos de transferencia directa**: coordínelo con la agencia; la plataforma reembolsa a PayPal automáticamente si se cancela un pago.
 
-- Go to **My Bookings** to view your current and past reservations.
-- Each booking shows its status, dates, service, and total.
-- Open a booking to view its **voucher**.
+## Checkout como invitado
 
-## Cancelling a booking
+**No necesita cuenta para reservar.** Al confirmar creará una reserva de **guest** (huésped):
 
-A **Cancel** action is available on bookings that can still be cancelled:
+- Recibirá su **booking code** (`TAP-XXXXXXXX-XXXXXX`) en pantalla y por email.
+- El voucher público (`/booking-detail/?code=…`) le permite ver y gestionar la reserva sin sesión.
+- El sistema busca de forma **verificada** el booking por código (sin exponer datos de terceros).
 
-- Status must be **Pending** or **Confirmed**.
-- The check-in date must not have passed.
+## Estados y modos de reserva
 
-To cancel:
+**Estados del booking:** `pending` (pendiente de pago/confirmación), `request` (solicitada), `confirmed` (confirmada), `completed` (completada), `cancelled` (cancelada), `refunded` (reembolsada).
 
-1. Open **My Bookings** (or the booking's voucher).
-2. Select **Cancel** and confirm.
+**Modo de reserva** (`booking_mode`):
 
-After cancellation the booking is marked **Cancelled** (and any paid payment is flagged for refund). You cannot cancel a booking that is not yours; you cannot cancel a stay that has already started.
+- **Normal**: con auto-confirm activo, al pagar queda `confirmed` de inmediato.
+- **Request**: deja una `request`; la agencia la confirma o la rechaza. Mientras tanto, queda en estado `request` a la espera. Las reservas **pending** (normal sin pagar) se cancelan automáticamente si no se confirman en la ventana configurada (24 h por defecto).
 
-## Vouchers
+**Automatizaciones automáticas** (por cron): recordatorios de pago, mensaje pre-arrival, solicitud de reseña; las reservas **pagadas** completadas se marcan `completed` automáticamente.
 
-Each booking has a **booking code** and a dedicated voucher page that contains:
+## Gestionar mis reservas
 
-- Booking code and status
-- Service details and price breakdown (with per-line items)
-- **Titular** (account holder) and **contact guest** (name, email, phone)
-- Agency contact information
+- **Mis reservas** (`[tap_my_bookings]`) muestra sus reservas actuales y pasadas con estado, fechas, servicio y total.
+- Abra una reserva para ver su **voucher**.
+- Con sesión iniciada, su panel **Mi cuenta** (`/mi-cuenta`) ofrece las pestañas **Resumen**, **Mis reservas**, **Favoritos** y **Mis reseñas**.
 
-Present this voucher at check-in. Any changes must be coordinated with the agency.
+## Cancelar una reserva
 
-## Leave a review
+Se ofrece la acción **Cancelar** cuando la reserva puede cancelarse:
 
-After completing a service:
+- Estado **Pending**, **Request** o **Confirmed** y la fecha de check-in no ha pasado.
 
-1. Open the service and select **Leave a review ★**.
-2. Choose a **star rating**, add a **title** and **comment**.
-3. Submit. Reviews are shown publicly once approved by an administrator.
+Para cancelar:
 
----
+1. Abra **Mis reservas** (o el voucher de la reserva).
+2. Seleccione **Cancelar** y confirme.
 
-## Support chat
+**Sin cuenta (invitado):** desde el voucher puede cancelar introduciendo su **código de reserva + email de contacto** (`booking_code + email`). Para reservas antiguas sin código también se acepta el **ID de reserva + email**.
 
-The built-in travel assistant (Fase 4) answers questions about **bookings, availability, payments, cancellations, agencies, favorites and recommendations** in Spanish or English (use the site's **EN** switcher for English).
+Tras la cancelación, la reserva queda **Cancelled** (o **Refunded** cuando el reembolso se ejecutó) y, si tenía un **pago realizado**, se **reembolsa por PayPal** según la **política de cancelación** del servicio; los reembolsos que fallen se reintentan a diario. No puede cancelar reservas ajenas, ni un alojamiento ya iniciado. La restricción de *“solo administradores”* se aplica a los **operadores de agencias** (que no pueden cancelar reservas pagadas); el propio cliente sí cancela su reserva pagada y recibe el reembolso que corresponda.
 
-1. Open the **chat** block and click its header to expand it; five quick-question suggestions are shown.
-2. Type a question — for example *"¿cómo reservo un alojamiento?"* — and press **Enviar**.
-3. The assistant responds with a plain-language answer and links to the relevant sections (or 2–3 recommended published services for *"recomiéndame…"*).
+> La **política de cancelación** (y en su caso la penalidad) se aplica según la configuración de cada servicio.
 
-Notes:
+## Vouchers (comprobante)
 
-- The chat is rate-limited (12 messages per 10 minutes) to prevent abuse.
-- The assistant is offline/rule-based; for anything not covered, it invites you to use an agency's contact form, and a **Modérate**/admin keeps flagged messages under control. It never asks for or logs personal data.
+Cada reserva tiene un **código de reserva** y una página de voucher con:
 
----
+- Código y estado
+- Detalle del servicio y desglose de precio (con líneas itemizadas)
+- **Titular** (titular de la cuenta) y **contacto** del huésped (nombre, email, teléfono)
+- Información de contacto de la agencia
 
-# For Agencies
+Preséntelo en el check-in. Cualquier cambio debe coordinarse con la agencia.
 
-## Register & complete your profile
+## Dejar una reseña
 
-1. Submit the **agency registration** form.
-2. Once an administrator activates your agency, complete your **profile**:
-   - Name and slug
-   - Description and logo
-   - Contact details (email, phone, WhatsApp, website)
-   - Location (city, country)
-   - Commission rate (set by the administrator)
+Las reseñas solo se pueden dejar cuando usted tiene una reserva **confirmada o completada** y **pagada** (verificación real de la experiencia):
 
-## Publish & price inventory
+1. Abra el servicio y seleccione **Dejar reseña ★** (o desde **Mis reseñas** en el panel).
+2. Elija una **valoración** (1–5 estrellas), un **título** y un **comentario**.
+3. Envíe. La reseña aparece públicamente una vez el administrador la **aprueba**; mientras tanto puede estar en moderación o bloquearse (abuso, spam, datos personales). Las reseñas aprobadas de reservas **confirmadas o completadas** y **pagadas** lucen el sello **Verificada**.
 
-From your agency dashboard **manage** your listings across every service type:
+Las agencias no responden directamente a las reseñas: la **plataforma** (administrador) puede añadir una **respuesta oficial** junto a la reseña, y usted puede **eliminar su propia reseña** desde **Mis reseñas** en `/mi-cuenta`.
 
-- **Accommodations** — create rooms, set nightly prices, occupancy, and inventory per room.
-- **Tours** — set per-date capacity and availability.
-- **Transports / car rentals / boats / packages** — configure pricing and availability.
+## Chat asistente de viajes
 
-Use availability controls to block dates, apply seasonal pricing, or enforce minimum stays where supported.
+El asistente integrado (Fase 4) responde sobre **reservas, disponibilidad, pagos, cancelaciones, agencias, favoritos y recomendaciones** en español e inglés (use el **EN switcher** del sitio para inglés).
 
-## Respond to reviews
+1. Abra el bloque **chat** y haga clic en su cabecera para expandirlo; se muestran 5 preguntas rápidas sugeridas.
+2. Escriba, por ejemplo, *"¿cómo reservo un alojamiento?"* y pulse **Enviar**.
+3. El asistente contesta en lenguaje claro con enlaces a las secciones relevantes (o 2–3 servicios publicados recomendados para *"recomiéndame…"*).
 
-Agencies can **reply** to client reviews on their services:
+Notas:
 
-1. Open the **Reviews** panel for a service.
-2. Select **Reply**.
-3. Write your response and save.
+- Límite de uso: **12 mensajes por 10 minutos**.
+- El asistente es offline (basado en reglas): si no cubre su consulta, le invita a usar el formulario de contacto de una agencia. **Nunca pide ni registra datos personales.**
 
-The reply (with author and timestamp) is shown alongside the original review. Replies are nonce-protected to prevent unauthorized edits.
+## Constructor de itinerarios
 
-## Track bookings & commissions
+El **constructor de itinerarios** (`/armar-mi-viaje`, shortcode `[tap_itinerary_builder]`) le permite armar un plan de viaje combinando los servicios del catálogo (alojamiento + tours + transporte…) y guardarlo/exportarlo para su viaje.
 
-- Monitor incoming bookings and their statuses.
-- Review generated commissions per booking (calculated on the service subtotal, before the client booking fee).
-- Commission totals are tracked in the platform's commission ledger for settlement.
-- The agency panel shows your **current plan** (plan name, valid until, listings used, and commission rate).
-- The **Destacados (promociones)** section lets you promote a listing: choose the number of months and pay. If online payment is configured, an inline **PayPal** button charges and activates the listing instantly; otherwise a manual request is sent for an administrator to confirm. Promotions count against your plan's featured slots; the free plan has none. A **★** badge appears on the listing while it is featured, and it is removed automatically when the promotion expires.
+## Idiomas: español e inglés
 
-### Paying for a plan / promotion with PayPal
+El tema ofrece un selector de idioma **ES / EN**. Con el switcher, las secciones principales del catálogo y el asistente responden en el idioma seleccionado.
 
-- On the **planes** page, paid plans show a **Pagar con PayPal** button. Completing the PayPal flow activates your plan for a month immediately — no manual confirmation needed. If PayPal is not configured, the **Seleccionar plan** button remains and an administrator confirms the manual payment.
-- Promotions are charged the same way: pick months and pay inline with the PayPal button; the listing becomes featured right away.
-- PayPal must be configured by an administrator in **Ajustes → PayPal Settings** (Client ID + Secret). Until then, the manual flow is used.
-- **Featured** listings appear **first** in archives and search results, ahead of non-featured ones in the same sort order.
-- The **Libro de comisiones** section lists your last 30 commission-generating bookings with a status pill per booking: **Cobrada** (settled) or **Por cobrar** (outstanding). Settlement history shows booking codes instead of raw IDs.
+## Privacidad y datos personales
+
+- **Consentimiento**: todo formulario de contacto exige su consentimiento explícito (checkbox); se guarda un registro con finalidad (`booking`, `agency_registration`, `lead`). Sin consentimiento, el envío se rechaza.
+- **Derechos (Ley 8968)**: en la página **Privacidad** (`[tap_privacy]`) puede ejercer **Acceso, Rectificación, Actualización, Supresión** y **Oposición**. Su solicitud se envía al administrador, que la resuelve.
+- **Exportar / Borrar**: la plataforma integra los **exportadores/borradores** de WordPress (Herramientas → Exportar datos personales / Borrar datos personales). Le permiten exportar o eliminar sus **reservas, leads, consentimientos y reseñas**.
+- **Guest bookings**: si reservó como invitado, su reserva se localiza por **email de huésped** y puede borrarse/anonimizarse igualmente.
+- Los mensajes de contacto a agencias se **enmascaran** públicamente (nombre y email) hasta que el contactante genere una reserva **confirmada** — entonces se muestran en claro a la agencia. Si un mensaje entra en **moderación**, el administrador lo audita desde *Travel Platform → Moderation*; los envíos marcados como abuso/spam se **rechazan en el acto**. Ver también [Reseñas](#dejar-una-reseña).
 
 ---
 
-# For Administrators
-
-## Moderate agencies & reviews
-
-- **Agencies**: activate/deactivate accounts and set commission rates.
-- **Reviews**: approve or reject client reviews before they become visible, and monitor agency replies.
-
-## Manage commissions
-
-- Review commission amounts owed per agency and per booking.
-- Record commission settlements in the ledger — either **select bookings and register payment**, or click **Liquidar** on an individual booking to settle it directly (opens a dialog for method + note).
-- Track `owed` vs. settled commission across the platform.
-- Settlement history resolves each payment to the concrete booking codes it covers.
-
-## Manage subscription plans
-
-- **Plans** (admin → Plans): edit each plan's price, commission rate, listing limit, and featured slots.
-- **Subscriptions** (admin → Subscriptions): see every agency's current/past subscriptions. When an agency requests a plan, its subscription is **Pending** until a payment is received. With PayPal enabled, agencies pay online and the subscription activates automatically; otherwise confirm the manual payment with **Mark paid** (select renewal months) to activate it, or **Expire** to cancel it. Confirmed payments notify the agency by email, and the plan takes effect immediately.
-
-## Manage featured promotions
-
-- **Promotions** (admin → Promotions): review agency requests (price = months × `tap_featured_price`). With PayPal enabled, agencies pay online and the listing activates automatically; otherwise confirm the manual payment with **Marcar activo**, or **Expirar** promotions early.
-- Active promotions mark the listing as **featured** (★) for the paid period; expired promotions remove the badge automatically. Confirmed promotion amounts are shown in **Reports**.
-
-## Configure online payments (PayPal)
-
-- **Ajustes → PayPal Settings** (`travel-agency-platform`): enable **PayPal**, set it to **Sandbox** or **Live** mode, and paste the **Client ID** and **Secret** from your PayPal app (developer dashboard, or live REST API app). Save and set **Webhook ID** to the verification value.
-- Webhook URL to register in PayPal: `https://<your-site>/wp-json/tap/v1/paypal-webhook`.
-- When ready, agencies see PayPal buttons for plan subscriptions and promotions and pay instantly; the platform records the charge in `tap_commission_payments`/ledger and activates the subscription/promotion automatically.
-
-## View platform analytics
-
-- **Analytics** (admin → Analytics) gives a financial overview of the platform:
-  - KPI cards: platform revenue (last 12 months), subscription MRR, filtered GMV, active promotion value, live bookings, average ticket, active agencies, and published listings.
-  - A 12-month stacked chart of platform revenue split by **Comisiones**, **Booking fees**, **Suscripciones**, and **Destacados**, plus a revenue-source breakdown table.
-  - **Top agencias** (bookings, GMV, platform commission, fees) and **Top listados** (bookings, GMV, **Vistas**, **Conversión**).
-  - Use **Desde**/**Hasta** to filter by month (format `YYYY-MM`); KPIs, top tables, and exports respect the filter.
-  - **Vistas** counts singular-page views per listing (tracked with a 5-minute throttle per visitor) and **Conversión vistas → reservas** is the ratio of bookings to views.
-  - **Exportar reservas (CSV)** downloads booking-level detail (with fee, commission, and net). **Exportar resumen (CSV)** downloads the monthly financial summary including subscriptions, promotions, and views.
-
----
-
-> For developer-focused details (architecture, hooks, APIs, shortcodes), see [`docs/DEVELOPER_GUIDE.md`](DEVELOPER_GUIDE.md).
+> Para detalles técnicos (arquitectura, hooks, APIs, shortcodes), vea [`docs/DEVELOPER_GUIDE.md`](DEVELOPER_GUIDE.md).
+> Historias y changelog completos: [`docs/CHANGELOG.md`](CHANGELOG.md).

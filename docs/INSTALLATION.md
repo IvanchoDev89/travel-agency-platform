@@ -79,12 +79,15 @@ Create the following pages and insert the provided shortcodes. Refer to [`docs/D
 | `my-bookings` | `[tap_my_bookings]` |
 | `booking-detail` | `[tap_booking_detail]` (voucher, accepts `?code=`) |
 | `checkout` | `[tap_checkout]` |
-| `mi-cuenta` | Page provided by the plugin's unified agency back-office (`TAP_Front_Dash`); legacy `[tap_dashboard]` (page `dashboard`) redirects here |
+| `mi-cuenta` | `[tap_front_dash]` (unified user/agency hub rendered by `TAP_Front_Dash`); legacy `[tap_dashboard]` page `dashboard` 301-redirects here |
 | `armar-mi-viaje` | Trip builder (itinerary UI rendered by `TAP_Itinerary`) |
 | `dashboard` | `[tap_dashboard]` |
 | `agency-register` | `[tap_agency_register]` |
 | `agency-manage` | `[tap_agency_manage]` |
 | `favorites` | `[tap_favorites]` |
+| `planes` | `[tap_plans]` |
+| `privacidad` | `[tap_privacy]` (rights: Acceso, Rectificación, Actualización, Supresión, Oposición) + `[tap_privacy_consent]` on contact forms |
+| `chat` | `[tap_chatbot]` (travel assistant) |
 
 ### 4.2 Currency
 
@@ -130,6 +133,13 @@ Every service type has a default cancellation policy (configurable in **Settings
 
 Client cancellations store `refund_amount`, `refund_percent`, `cancellation_policy` and `refunded_at` on the booking; payment only flips to `refunded` when money is actually returned. Confirmed bookings whose check-out has passed are **auto-completed** by the hourly maintenance task (toggleable via `tap_booking_auto_complete`).
 
+### 4.6 Booking modes & automation
+
+- `booking_mode`: **normal** (auto-confirm on payment when enabled) or **request** (agency must confirm or cancel; the booking stays `request` until the agency acts).
+- `tap_stale_booking_hours`: window (default **24 h**) after which `pending` bookings are auto-cancelled by the maintenance task.
+- Automation toggles (settings) control email reminders, pre-arrival messages, review requests, subscription/promotion expiry warnings, etc.
+- Failed PayPal refunds are retried daily by cron (`tap_refund_retry_hook`).
+
 ---
 
 ## 5. Roles & Permissions
@@ -138,21 +148,44 @@ The plugin registers three roles on activation:
 
 | Role | Capabilities |
 | --- | --- |
-| `tap_agency_admin` | Manage agency inventory, bookings, and listings. |
-| `tap_agency_employee` | Staff-level access to agency resources. |
+| `tap_agency_admin` | Manage agency inventory (publish/edit/delete) and panels; must be **approved** (KYC) by an admin before publishing/reserving. |
+| `tap_agency_employee` | Staff-level access: can **edit** agency listings; cannot publish, delete, or manage money. |
 | `tap_client` | Standard customer: favorites, bookings, reviews. |
 
-Administrators receive all platform management capabilities (`tap_manage_bookings`, `tap_manage_agencies`, `tap_manage_commissions`, `tap_manage_reviews`, `tap_view_reports`, `tap_manage_settings`, and custom post-type CRUD).
+Administrators receive all platform management capabilities (`tap_manage_bookings`, `tap_manage_agencies`, `tap_manage_commissions`, `tap_manage_reviews`, `tap_manage_disputes`, `tap_view_reports`, `tap_manage_settings`, and custom post-type CRUD).
+
+> **Consent & moderation**: contact leads require explicit consent (GDPR / Ley 8968); the platform blocks/queues abusive or spam leads automatically. Configure the **Privacy** page and let WordPress manage data requests (Tools → Export/Erase personal data) — the plugin registers its own exporters/erasers for bookings, leads, consents and reviews.
 
 ---
 
 ## 6. Maintenance
 
-A scheduled task runs every hour and automatically **cancels stale pending bookings** (defined by the platform policy). No user action is required.
+A scheduled task runs every hour and automatically:
+
+- **Cancels stale `pending` bookings** (after `tap_stale_booking_hours`).
+- **Auto-completes past `paid` bookings** (when auto-complete is enabled).
+- Runs other automation toggles (payment reminders, pre-arrival messages, review requests, expiry warnings).
+
+A separate daily task retries failed PayPal refunds. No user action is required.
 
 ---
 
-## 7. Upgrades
+## 7. Uninstall
+
+Deleting the plugin (via WordPress admin) runs an uninstaller that removes **all** platform data:
+
+- **Custom tables** (17, each verified against the schema before `DROP`): `tap_agencies`, `tap_agency_subscriptions`, `tap_availability`, `tap_booking_items`, `tap_bookings`, `tap_chat_events`, `tap_commission_payments`, `tap_consents`, `tap_daily_pricing`, `tap_disputes`, `tap_leads`, `tap_listing_views`, `tap_payment_orders`, `tap_plans`, `tap_privacy_requests`, `tap_promos`, `tap_reviews`.
+- **Cron events**: `tap_maintenance_hook`, `tap_auto_hook`, `tap_refund_retry_hook`.
+- **Options & transients** (`tap_%`, `_transient_tap_%`, `_transient_timeout_tap_%`).
+- **Roles & caps**: removes `tap_agency_admin`, `tap_agency_employee`, `tap_client` and the `tap_manage_*` caps from `administrator`.
+- **Content**: deletes posts of `tap_agency`, `tap_accommodation`, `tap_room`, `tap_tour`, `tap_transport`, `tap_car_rental`, `tap_boat`, `tap_package`, `tap_equipment` plus their postmeta and taxonomy links, and any leftover `_tap_%` postmeta.
+
+> Set the option `tap_uninstall_keep_content = 1` **before** deleting the plugin to keep the `tap_*` posts (tables are still removed).
+> ⚠️ Backup before uninstalling: this removes customer bookings, leads and financial records permanently.
+
+---
+
+## 8. Upgrades
 
 1. Back up the site (files + database).
 2. Replace the plugin/theme files with the new version (or deploy via the repository).
@@ -163,7 +196,7 @@ See [`docs/CHANGELOG.md`](CHANGELOG.md) for per-version notes and migration impl
 
 ---
 
-## 8. Common Issues
+## 9. Common Issues
 
 | Symptom | Likely cause | Resolution |
 | --- | --- | --- |

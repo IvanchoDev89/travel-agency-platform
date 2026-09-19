@@ -28,24 +28,24 @@ Built as a custom WordPress plugin (`travel-agency-platform`) paired with a dedi
 | **Product** | Travel Agency Platform |
 | **Type** | WordPress plugin + companion theme |
 | **Model** | B2B & B2C multi-agency marketplace |
-| **Current version** | `1.4.6` |
-| **Schema version** | `1.4.6` |
+| **Current version** | `1.5.7` |
+| **Schema version** | `1.5.7` |
 | **Text domain** | `travel-agency-platform` |
 | **Companion theme** | `travel-agency-theme` |
 | **License** | Proprietary (IvanchoDev) |
 
 The platform orchestrates three core actors:
 
-- **Clients** — browse available services, request bookings, manage reservations, submit reviews, and administer their own bookings.
-- **Agencies** — publish and price their inventory, respond to client reviews, and track booking activity and commissions.
-- **Administrators** — govern agencies, moderate reviews, manage commissions, and control platform-wide settings.
+- **Clients** — browse available services, book (as account or guest), pay online, cancel by booking code, manage reservations, submit reviews, and exercise their privacy rights.
+- **Agencies** — publish and price their inventory, capture consented leads, and track bookings, commissions, promotions and payouts. (Reviews are posted by clients and replied to officially by the platform admin; agencies are not the ones replying.)
+- **Administrators** — govern agencies (approval/KYC, commission %, verification), moderate reviews & leads, manage the commission ledger, disputes, plans/subscriptions/promotions, reports/analytics and platform settings.
 
 ---
 
 ## Feature Set
 
 ### Catalogue & Inventory
-- Six service types: **accommodation**, **tour**, **transport**, **car rental**, **boat**, **package**.
+- Six agency-facing service types: **accommodation**, **tour**, **transport**, **car rental**, **boat**, **package** — plus **equipment rentals** (`tap_equipment`) as a bookable category (admin-managed).
 - Sub-classes for accommodation (**rooms**) with per-room nightly pricing, occupancy limits, and inventory.
 - Custom taxonomies: location, service category, property type, amenity, tour type, vehicle type, and boat type.
 
@@ -54,9 +54,9 @@ The platform orchestrates three core actors:
 - Date-range validation (no past check-in, valid check-out ordering).
 - **Capacity/inventory control** — tours use per-date slots; rooms enforce inventory and blocked dates; overlapping stays are refused.
 - **Guest data capture** (name, email, phone) persisted per booking.
-- **Guest checkout** — logged-out visitors book, pay and manage their reservation using `?code=` + their email, with 5/hour rate limiting.
-- **Client-side cancellation** with ownership enforcement and lifecycle guards (`pending`/`confirmed` → `cancelled`, past stays refused, paid orders flagged for refund).
-- Automatic cancellation of **stale/pending** bookings via a scheduled maintenance task.
+- **Guest checkout** — logged-out visitors book, pay and manage their reservation using `?code=` + their email, with per email+IP rate limiting (max 5 per 15 minutes; a short-lived payment token lets them pay on `/checkout`).
+- **Client-side cancellation** with ownership enforcement and lifecycle guards (`pending`/`request`/`confirmed` before check-in → `cancelled`, past stays refused; guest cancels by **booking code + email**, legacy booking **ID + email**). A paid client cancellation triggers a real PayPal refund (failed refunds are retried daily by cron); **agency operators cannot cancel paid bookings on their own** — only an administrator can (with a real PayPal refund).
+- Automatic cancellation of **stale `pending` bookings** via a scheduled maintenance task; past **paid** bookings auto-complete; failed refunds are retried daily.
 
 ### Pricing & Money
 - Multi-currency display with configurable symbols and **decimal rules** (e.g. JPY → 0 decimals).
@@ -70,21 +70,31 @@ The platform orchestrates three core actors:
 - Sandbox configuration for development.
 
 ### Reviews & Trust
-- Star ratings with average aggregation.
-- Approval workflow for moderation.
-- **Agency replies** to reviews (author, timestamp, nonce-protected).
+- Star ratings with average aggregation; **only confirmed/completed + paid** bookings may leave a review (verified badge).
+- Approval workflow with **automated moderation** (abuse/spam/≥3 links → blocked; PII on reviews → blocked; 1–2 links, gibberish and PII on leads → queued for review).
+- **Platform responses** to reviews by the admin (author + timestamp, nonce-protected), and clients can delete their own review.
 - SEO-friendly rating markup (schema.org `AggregateRating`, `Offer`).
 
 ### Search & Discovery
 - Faceted search: keyword, dates, guests, property type, amenities, star level, and price range.
-- Sortable results: relevance, price (asc/desc), rating, name.
+- Sortable results: relevance (featured first), price (asc/desc), rating.
 - **Interactive map** built on Leaflet with marker clustering.
 - Favorites (wishlist) for logged-in clients.
 
 ### Agencies & Monetization
 - Self-service inventory manager for all **six service types** (plan-limit and ownership enforced).
-- **Contact leads** from visitors, with agency email alerts and CSV export.
-- Agency subscriptions with commission overrides, featured promotions, booking fees, commission settlement, and financial analytics.
+- **Contact leads** from visitors with mandatory GDPR/Ley 8968 **consent**, automated spam/moderation engine, rate limits (5 email/h, 10 IP/h), masked public display until confirmation, attribution until a booking is confirmed, and CSV export.
+- Agency **KYC** (approval/rejection/verification/activation/deactivation, commission % per agency).
+- Agency subscriptions (`tap_plans`) with commission overrides, **PayPal** online payment and featured-promotion slots.
+- **Featured / ★ Destacado** promotions — months paid online or marked active by admin; automatically expire.
+- Commission ledger with settlement (manual bulk or per-booking), **dispute** flow, payout requests, and PayPal webhook sync.
+- **Discount engine**: global Early Bird, Last Minute, Long Stay rules and per-accommodation overrides.
+
+### Privacy & Uninstall
+- **Ley 8968** (Costa Rica) compliance page: Access, Rectification, Update, Deletion and Opposition rights.
+- Native **WordPress Privacy** exporters/erasers covering bookings, leads, consents and reviews.
+- Consent recording per form (`consent_scope`: booking/agency_registration/lead).
+- **Uninstall** removes all plugin data (17 tables, transients, options, crons and roles); plugin post content is removed after a confirmation step unless `tap_uninstall_keep_content` is enabled.
 
 ### Content, SEO & Engagement
 - Per-service SEO **meta title & description** fields rendered as `<meta>`, Open Graph, and JSON-LD (`Product`, `AggregateRating`, `Offer`, `BreadcrumbList`).
@@ -118,7 +128,9 @@ travel-agency/
 ├── README.md                           # This document
 ├── docs/
 │   ├── INSTALLATION.md                 # Setup, configuration, deployment
-│   ├── USER_GUIDE.md                   # End-user manual (clients & agencies)
+│   ├── USER_GUIDE.md                   # End-user manual (travelers / guests)
+│   ├── AGENCY_GUIDE.md                 # Agency manual (agency admin & employees)
+│   ├── ADMIN_GUIDE.md                  # Administrator manual (back office)
 │   ├── DEVELOPER_GUIDE.md              # Architecture, schema, hooks, APIs
 │   └── CHANGELOG.md                    # Version history
 └── app/
@@ -134,7 +146,9 @@ travel-agency/
 | Guide | Audience | Purpose |
 | --- | --- | --- |
 | [`docs/INSTALLATION.md`](docs/INSTALLATION.md) | Administrators / DevOps | Install, configure, and deploy the platform. |
-| [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md) | Clients & agency staff | How to use the marketplace day-to-day. |
+| [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md) | Travelers & visitors | Search, book, pay, cancel, review, privacy rights. |
+| [`docs/AGENCY_GUIDE.md`](docs/AGENCY_GUIDE.md) | Agency staff | Register, publish inventory, manage bookings, leads, commissions and plans. |
+| [`docs/ADMIN_GUIDE.md`](docs/ADMIN_GUIDE.md) | Administrators | Full back office: bookings, commissions, reviews, moderation, disputes, agencies, reports, analytics, plans/promotions, settings, discounts and privacy. |
 | [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md) | Developers | Architecture, database schema, custom hooks, AJAX and REST APIs, and shortcodes. |
 | [`docs/FASE1_PLAN.md`](docs/FASE1_PLAN.md) | Product/engineering | Technical plan for the multi-agency marketplace roadmap (P1–P4 status). |
 | [`docs/INTEGRATION_PLAN.md`](docs/INTEGRATION_PLAN.md) | Integrators | How to embed the plugin into an existing WordPress site (child-theme strategy). |
