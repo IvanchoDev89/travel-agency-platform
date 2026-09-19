@@ -1,0 +1,244 @@
+/* TAP agency back-office wizard + pricing/availability calendar. */
+
+/* ── wizard stepper ─────────────────────────────────────────────── */
+
+.tap-wizard-steps {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    list-style: none;
+    margin: 0 0 20px;
+    padding: 0;
+    counter-reset: none;
+}
+
+.tap-wizard-step {
+    flex: 1 1 0;
+    min-width: 120px;
+    text-align: center;
+    padding: 0;
+}
+
+.tap-wizard-step a,
+.tap-wizard-step > span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 8px;
+    border-radius: 8px;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+}
+.tap-wizard-step > span { cursor: default; }
+
+.tap-wizard-step .tap-wizard-step-num {
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
+    flex: 0 0 22px;
+    border-radius: 50%;
+    background: #cbd5e1;
+    color: #fff;
+    font-size: 12px;
+    text-align: center;
+}
+
+.tap-wizard-step a:hover { background: #e2e8f0; }
+.tap-wizard-step.active a,
+.tap-wizard-step.active > span { background: #0d9488; color: #fff; }
+.tap-wizard-step.active .tap-wizard-step-num { background: #fff; color: #0d9488; }
+.tap-wizard-step.locked { opacity: 0.5; }
+
+.tap-wizard-body { margin-top: 4px; }
+.tap-wizard-section { display: grid; gap: 12px; }
+.tap-wizard-section .tap-panel-title { margin: 0; }
+.tap-wizard-section .tap-panel-sub { margin: 2px 0 8px; color: #64748b; }
+
+.tap-wizard-callout {
+    padding: 18px 20px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+.tap-wizard-callout p { margin: 0; }
+
+/* Review / publish card */
+.tap-review-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #fff;
+    overflow: hidden;
+}
+.tap-review-rows { display: grid; grid-template-columns: 1fr; }
+.tap-review-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 14px;
+}
+.tap-review-row span { color: #64748b; }
+.tap-review-row strong { text-align: right; }
+.tap-review-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 14px 16px;
+    background: #f8fafc;
+}
+
+/* ── room tabs ──────────────────────────────────────────────────── */
+
+.tap-ac-cal { display: grid; gap: 12px; }
+.tap-ac-cal-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.tap-ac-room-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.tap-ac-room-tab {
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+}
+.tap-ac-room-tab:hover { border-color: #0d9488; }
+.tap-ac-room-tab.active { background: #0d9488; border-color: #0d9488; color: #fff; }
+
+/* ── calendar layout ────────────────────────────────────────────── */
+
+.tap-ac-cal-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 16px;
+    align-items: start;
+}
+@media (max-width: 860px) {
+    .tap-ac-cal-body { grid-template-columns: 1fr; }
+}
+
+.tap-ac-month-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+.tap-ac-month-label {
+    font-size: 15px;
+    font-weight: 700;
+    min-width: 150px;
+    text-align: center;
+    display: inline-block;
+}
+.tap-ac-legend { display: flex; gap: 12px; font-size: 12px; color: #64748b; margin-left: auto; }
+.tap-ac-legend span { display: inline-flex; align-items: center; gap: 4px; }
+.tap-ac-swatch { display: inline-block; width: 12px; height: 12px; border-radius: 3px; border: 1px solid rgba(0, 0, 0, 0.12); }
+.tap-ac-legend .swatch-base { background: #fff; }
+.tap-ac-legend .swatch-override { background: #dbeafe; border-color: #93c5fd; }
+.tap-ac-legend .swatch-blocked { background: #fce4e4; border-color: #fca5a5; }
+
+.tap-ac-loading { text-align: center; padding: 40px; color: #64748b; font-style: italic; }
+
+.tap-ac-weekdays,
+.tap-ac-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.tap-ac-weekdays { margin-bottom: 6px; }
+.tap-ac-weekday { text-align: center; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #94a3b8; padding: 6px 0; }
+
+.tap-ac-day {
+    min-height: 66px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    cursor: pointer;
+    padding: 5px 3px;
+    position: relative;
+    text-align: center;
+    transition: box-shadow 0.15s;
+}
+.tap-ac-day:hover { box-shadow: 0 0 0 2px #0d9488; z-index: 1; }
+.tap-ac-day-ghost { opacity: 0; pointer-events: none; border-color: transparent; background: transparent; }
+
+.tap-ac-day.tap-ac-day-override { background: #dbeafe; border-color: #93c5fd; }
+.tap-ac-day.tap-ac-day-blocked {
+    background: #fce4e4;
+    border-color: #fca5a5;
+    cursor: pointer;
+}
+.tap-ac-day.tap-ac-day-blocked .tap-ac-day-price { color: #b91c1c; text-decoration: line-through; }
+.tap-ac-day.tap-ac-day-today { font-weight: 700; }
+.tap-ac-day.tap-ac-day-selected { box-shadow: 0 0 0 2px #0d9488; background: #ccfbf1; border-color: #0d9488; }
+
+.tap-ac-day-number { font-size: 13px; line-height: 1.2; }
+.tap-ac-day-price { font-size: 11px; color: #0d9488; font-weight: 700; line-height: 1.2; }
+.tap-ac-day-label { font-size: 9px; color: #64748b; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tap-ac-day-meta { font-size: 9px; color: #b45309; line-height: 1; font-weight: 600; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tap-ac-day-booked-dot {
+    display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+    background: #f59e0b; margin-right: 2px; vertical-align: 1px;
+}
+.tap-ac-day-blocked .tap-ac-day-meta { color: #b91c1c; }
+
+/* ── side panels ────────────────────────────────────────────────── */
+
+.tap-ac-cal-side { display: grid; gap: 12px; }
+
+.tap-ac-panel {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #fff;
+    padding: 14px;
+    display: grid;
+    gap: 8px;
+}
+.tap-ac-panel-title { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin: 0; }
+.tap-ac-panel-title strong { font-size: 14px; }
+.tap-ac-panel-title .tap-ac-edit-date { font-size: 12px; color: #64748b; }
+
+.tap-ac-panel label { font-size: 12px; font-weight: 600; color: #475569; }
+.tap-ac-panel .input {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 7px 9px;
+    font-size: 13px;
+    background: #fff;
+    color: #0f172a;
+}
+.tap-ac-panel .input:focus { outline: none; border-color: #0d9488; box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.15); }
+
+.tap-ac-range-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tap-ac-range-group label { display: grid; gap: 3px; }
+
+.tap-ac-dow-group { display: flex; flex-wrap: wrap; gap: 6px; }
+.tap-ac-dow {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    background: #f8fafc;
+}
+
+.tap-ac-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.tap-ac-msg { font-size: 12px; font-style: italic; color: #10b981; }
+.tap-ac-hint { font-size: 12px; color: #64748b; margin: 0; }

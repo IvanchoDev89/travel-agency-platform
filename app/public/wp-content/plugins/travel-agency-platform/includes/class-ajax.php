@@ -1332,6 +1332,20 @@ class TAP_Ajax {
             update_post_meta($new_id, '_tap_booking_mode', $booking_mode);
         }
 
+        // Policies (accommodation): not part of the generic field map, but the
+        // agency wizard lets users set them from the front-end back-office.
+        if ($listing_type === 'tap_accommodation') {
+            if (array_key_exists('_tap_acc_cancellation', $input)) {
+                $pol = sanitize_key((string) $input['_tap_acc_cancellation']);
+                if (in_array($pol, array_keys(TAP_Booking::cancellation_policies()), true)) {
+                    update_post_meta($new_id, '_tap_acc_cancellation', $pol);
+                }
+            }
+            if (array_key_exists('_tap_acc_house_rules', $input)) {
+                update_post_meta($new_id, '_tap_acc_house_rules', sanitize_textarea_field(wp_unslash((string) $input['_tap_acc_house_rules'])));
+            }
+        }
+
         // Featured image (remote URL is sideloaded into the Media Library).
         if (array_key_exists('featured_image_url', $input)) {
             $furl = esc_url_raw(trim((string) ($input['featured_image_url'] ?? '')));

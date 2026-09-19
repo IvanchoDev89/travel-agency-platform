@@ -53,7 +53,7 @@ if [ "$?" -ne 0 ]; then
 fi
 
 if [ -z "$SUITES" ]; then
-  SUITES="suite_core suite_bookings suite_commissions suite_promotions suite_views suite_analytics suite_payments suite_guest_checkout suite_leads suite_booking_flow suite_pricing suite_paypal suite_rest suite_reviews suite_i18n suite_bugs suite_seo suite_agency_manage suite_chatbot suite_moderation suite_destinations suite_tour_catalog suite_equipment suite_agency_approval suite_request_to_book suite_attribution suite_reviews_verified suite_disputes suite_privacy suite_itinerary suite_automations suite_content suite_dashboard suite_booking_lifecycle suite_price_authority suite_back_office suite_refunds suite_front_editor"
+  SUITES="suite_core suite_bookings suite_commissions suite_promotions suite_views suite_analytics suite_payments suite_guest_checkout suite_leads suite_booking_flow suite_pricing suite_paypal suite_rest suite_reviews suite_i18n suite_bugs suite_seo suite_agency_manage suite_chatbot suite_moderation suite_destinations suite_tour_catalog suite_equipment suite_agency_approval suite_request_to_book suite_attribution suite_reviews_verified suite_disputes suite_privacy suite_itinerary suite_automations suite_content suite_dashboard suite_booking_lifecycle suite_price_authority suite_back_office suite_refunds suite_front_editor suite_agency_calendar"
 fi
 
 fails=0

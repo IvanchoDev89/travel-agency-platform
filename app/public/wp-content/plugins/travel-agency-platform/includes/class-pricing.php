@@ -12,6 +12,10 @@ class TAP_Pricing {
         add_action('wp_ajax_tap_save_pricing', [__CLASS__, 'ajax_save_pricing']);
         add_action('wp_ajax_tap_get_pricing', [__CLASS__, 'ajax_get_pricing']);
         add_action('admin_enqueue_scripts', [__CLASS__, 'enqueue_assets']);
+
+        // Agency back-office calendar (front-end): reuses the same core.
+        add_action('wp_ajax_tap_agency_get_pricing', [__CLASS__, 'ajax_agency_get_pricing']);
+        add_action('wp_ajax_tap_agency_save_pricing', [__CLASS__, 'ajax_agency_save_pricing']);
     }
 
     public static function enqueue_assets($hook) {
@@ -100,12 +104,41 @@ class TAP_Pricing {
 
     public static function ajax_get_pricing() {
         check_ajax_referer('tap_pricing', 'nonce');
-        $room_id = (int) $_POST['room_id'];
-        $year    = (int) $_POST['year'];
-        $month   = (int) $_POST['month'];
+        $room_id = (int) ($_POST['room_id'] ?? 0);
+        $year    = (int) ($_POST['year'] ?? 0);
+        $month   = (int) ($_POST['month'] ?? 0);
+
+        wp_send_json(array_merge(['success' => true], self::month_data($room_id, $year, $month)));
+    }
+
+    /**
+     * Shared calendar payload for a room/month. Used by the admin metabox and
+     * by the agency back-office so both views stay perfectly in sync.
+     */
+    public static function month_data($room_id, $year, $month, $with_booked = false) {
+        $room_id = (int) $room_id;
+        $year    = (int) $year;
+        $month   = (int) $month;
+        $return  = [
+            'days'          => [],
+            'base_price'    => 0,
+            'base_min'      => 1,
+            'inventory'     => 1,
+            'year'          => $year,
+            'month'         => $month,
+            'days_in_month' => 0,
+        ];
+
+        if ($room_id <= 0 || $month < 1 || $month > 12 || $year < 1970 || $year > 2100) {
+            return $return;
+        }
+        if (get_post_type($room_id) !== 'tap_room') {
+            return $return;
+        }
 
         $base_price = (float) get_post_meta($room_id, '_tap_room_price_per_night', true) ?: 0;
         $base_min   = (int) get_post_meta($room_id, '_tap_room_min_stay', true) ?: 1;
+        $inventory  = max(1, (int) get_post_meta($room_id, '_tap_room_inventory', true) ?: 1);
 
         $days_in_month = cal_days_in_month(CAL_GREGORIAN, $month, $year);
         $start = sprintf('%04d-%02d-01', $year, $month);
@@ -127,6 +160,41 @@ class TAP_Pricing {
             ];
         }
 
+        // Booked nights per date (nights that overlap any active booking).
+        $booked = [];
+        if ($with_booked) {
+            $month_end = gmdate('Y-m-t', strtotime($start));
+            $next      = gmdate('Y-m-d', strtotime($month_end . ' +1 day'));
+            $book_rows = $wpdb->get_results($wpdb->prepare(
+                "SELECT check_in, check_out FROM {$wpdb->prefix}tap_bookings
+                 WHERE room_id = %d AND check_in < %s AND check_out > %s
+                   AND status NOT IN ('cancelled','refunded')",
+                $room_id, $next, $start
+            ));
+            foreach ($book_rows as $b) {
+                $from = max($start, (string) $b->check_in);
+                $to   = min($next, (string) $b->check_out);
+                $d = new DateTime($from);
+                $limit = new DateTime($to);
+                while ($d < $limit) {
+                    $y = (int) $d->format('Y');
+                    $m = (int) $d->format('n');
+                    $dm = (int) $d->format('j');
+                    if ($y === $year && $m === $month) {
+                        $booked[$d->format('Y-m-d')] = (int) ($booked[$d->format('Y-m-d')] ?? 0) + 1;
+                    }
+                    $d->modify('+1 day');
+                }
+            }
+            // Normalize so every valid date of the month has a key.
+            $booked_days = $booked;
+            $booked = [];
+            for ($d = 1; $d <= $days_in_month; $d++) {
+                $date = sprintf('%04d-%02d-%02d', $year, $month, $d);
+                $booked[$date] = (int) ($booked_days[$date] ?? 0);
+            }
+        }
+
         $days = [];
         for ($d = 1; $d <= $days_in_month; $d++) {
             $date = sprintf('%04d-%02d-%02d', $year, $month, $d);
@@ -143,18 +211,18 @@ class TAP_Pricing {
                 'label'      => $has_override ? $overrides[$date]['label'] : '',
                 'overridden' => $has_override,
             ];
+            if ($with_booked) {
+                $day['booked'] = $booked[$date];
+            }
             $days[] = $day;
         }
 
-        wp_send_json([
-            'success'      => true,
-            'days'         => $days,
-            'base_price'   => $base_price,
-            'base_min'     => $base_min,
-            'year'         => $year,
-            'month'        => $month,
-            'days_in_month' => $days_in_month,
-        ]);
+        $return['days']          = $days;
+        $return['base_price']    = $base_price;
+        $return['base_min']      = $base_min;
+        $return['inventory']     = $inventory;
+        $return['days_in_month'] = $days_in_month;
+        return $return;
     }
 
     public static function ajax_save_pricing() {
@@ -163,8 +231,8 @@ class TAP_Pricing {
             wp_send_json(['success' => false, 'message' => 'No autorizado']);
         }
 
-        $room_id = (int) $_POST['room_id'];
-        $date    = sanitize_text_field($_POST['date']);
+        $room_id = (int) ($_POST['room_id'] ?? 0);
+        $date    = sanitize_text_field(wp_unslash($_POST['date'] ?? ''));
 
         if (!$room_id || !$date) {
             wp_send_json(['success' => false, 'message' => 'Datos inválidos']);
@@ -172,22 +240,65 @@ class TAP_Pricing {
 
         // The pricing editor only manages rooms of advertisements the agency
         // owns; reject rooms that belong to someone else or to a non-accommodation.
-        $acc_id = (int) get_post_meta($room_id, '_tap_room_accommodation_id', true);
-        if (!$acc_id || get_post_type($acc_id) !== 'tap_accommodation') {
-            wp_send_json(['success' => false, 'message' => 'Habitación inválida']);
-        }
-        if (!current_user_can('manage_options')) {
-            $agency   = (int) get_post_meta($acc_id, '_tap_acc_agency_id', true);
-            $my_agency = (int) TAP_Booking::get_agency_for_user(get_current_user_id());
-            if (!$agency || !$my_agency || $my_agency !== $agency) {
-                wp_send_json(['success' => false, 'message' => 'No autorizado']);
-            }
+        if (!self::can_manage_room($room_id)) {
+            wp_send_json(['success' => false, 'message' => 'No autorizado']);
         }
 
         $price    = isset($_POST['price']) && $_POST['price'] !== '' ? (float) $_POST['price'] : null;
         $min_stay = isset($_POST['min_stay']) && $_POST['min_stay'] !== '' ? (int) $_POST['min_stay'] : null;
         $blocked  = isset($_POST['is_blocked']) ? (int) $_POST['is_blocked'] : 0;
-        $label    = isset($_POST['label']) ? sanitize_text_field($_POST['label']) : '';
+        $label    = isset($_POST['label']) ? sanitize_text_field(wp_unslash($_POST['label'])) : '';
+
+        $result = self::save_cell($room_id, $date, $price, $min_stay, $blocked, $label);
+        wp_send_json($result);
+    }
+
+    /**
+     * True when the given user (default: current) may edit a room's daily
+     * pricing. Admins always may; agency staff must own the room via the
+     * accommodation's agency ownership meta.
+     */
+    public static function can_manage_room($room_id, $user_id = 0) {
+        $room_id = (int) $room_id;
+        $user_id = (int) $user_id ?: get_current_user_id();
+        if (!$user_id || $room_id <= 0) {
+            return false;
+        }
+        if (user_can($user_id, 'manage_options')) {
+            return true;
+        }
+        $acc_id = (int) get_post_meta($room_id, '_tap_room_accommodation_id', true);
+        if (!$acc_id || get_post_type($acc_id) !== 'tap_accommodation') {
+            return false;
+        }
+        $agency    = (int) get_post_meta($acc_id, '_tap_acc_agency_id', true);
+        $my_agency = (int) TAP_Booking::get_agency_for_user($user_id);
+        return $agency > 0 && $my_agency > 0 && $my_agency === $agency;
+    }
+
+    /**
+     * Shared daily-cell upsert. Clears the override when every field is empty,
+     * otherwise creates/updates the row. Returns a result array; never dies.
+     */
+    public static function save_cell($room_id, $date, $price, $min_stay, $blocked, $label) {
+        $room_id = (int) $room_id;
+        $date    = (string) $date;
+
+        if (!$room_id || !$date || !preg_match('#^\d{4}-\d{2}-\d{2}$#', $date) || !checkdate((int) substr($date, 5, 2), (int) substr($date, 8, 2), (int) substr($date, 0, 4))) {
+            return ['ok' => false, 'success' => false, 'message' => 'Datos inválidos'];
+        }
+        $acc_id = (int) get_post_meta($room_id, '_tap_room_accommodation_id', true);
+        if (!$acc_id || get_post_type($acc_id) !== 'tap_accommodation') {
+            return ['ok' => false, 'success' => false, 'message' => 'Habitación inválida'];
+        }
+
+        $price    = $price !== null && $price !== '' ? (float) $price : null;
+        $min_stay = $min_stay !== null && $min_stay !== '' ? max(0, (int) $min_stay) : null;
+        $blocked  = (int) $blocked ? 1 : 0;
+        $label    = sanitize_text_field((string) $label);
+        if (mb_strlen($label) > 100) {
+            $label = mb_substr($label, 0, 100);
+        }
 
         global $wpdb;
         $existing = $wpdb->get_var($wpdb->prepare(
@@ -195,30 +306,119 @@ class TAP_Pricing {
             $room_id, $date
         ));
 
-        if ($price === null && $min_stay === null && !$blocked && !$label) {
+        if ($price === null && $min_stay === null && !$blocked && '' === $label) {
             if ($existing) {
                 $wpdb->delete($wpdb->prefix . 'tap_daily_pricing', ['room_id' => $room_id, 'date' => $date]);
+                return ['ok' => true, 'success' => true, 'action' => 'deleted', 'date' => $date];
             }
-            wp_send_json(['success' => true, 'action' => 'deleted']);
-            return;
+            return ['ok' => true, 'success' => true, 'action' => 'noop', 'date' => $date];
         }
 
         $data = [
-            'room_id' => $room_id,
-            'date'    => $date,
-            'price'   => $price,
-            'min_stay' => $min_stay,
-            'is_blocked' => $blocked,
-            'label'   => $label,
+            'room_id'   => $room_id,
+            'date'      => $date,
+            'price'     => $price,
+            'min_stay'  => $min_stay,
+            'is_blocked'=> $blocked,
+            'label'     => $label,
         ];
 
         if ($existing) {
             $wpdb->update($wpdb->prefix . 'tap_daily_pricing', $data, ['id' => $existing]);
-        } else {
-            $wpdb->insert($wpdb->prefix . 'tap_daily_pricing', $data);
+            return ['ok' => true, 'success' => true, 'action' => 'updated', 'date' => $date];
+        }
+        $wpdb->insert($wpdb->prefix . 'tap_daily_pricing', $data);
+        return ['ok' => true, 'success' => true, 'action' => 'created', 'date' => $date];
+    }
+
+    /**
+     * Agency back-office calendar load. Same payload as the admin view plus
+     * booked-night counts and room inventory so the grid is truly usable.
+     */
+    public static function ajax_agency_get_pricing() {
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'No autorizado']);
+        }
+        $room_id = (int) ($_POST['room_id'] ?? 0);
+        if (!self::can_manage_room($room_id)) {
+            wp_send_json_error(['message' => 'No autorizado']);
+        }
+        $year  = (int) ($_POST['year'] ?? 0);
+        $month = (int) ($_POST['month'] ?? 0);
+        wp_send_json_success(self::month_data($room_id, $year, $month, true));
+    }
+
+    /**
+     * Agency back-office calendar save. Accepts either a single date-cell or a
+     * bulk payload (bulk=1 + cells JSON: [{date,price,min_stay,is_blocked,label}]).
+     * All writes go through save_cell() so admin and agency behave identically.
+     */
+    public static function ajax_agency_save_pricing() {
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'No autorizado']);
+        }
+        $room_id = (int) ($_POST['room_id'] ?? 0);
+        if (!self::can_manage_room($room_id)) {
+            wp_send_json_error(['message' => 'No autorizado']);
         }
 
-        wp_send_json(['success' => true, 'action' => $existing ? 'updated' : 'created', 'date' => $date]);
+        $applied = ['created' => 0, 'updated' => 0, 'deleted' => 0, 'noop' => 0, 'failed' => 0];
+        $bad     = [];
+
+        $save_one = function ($date, $price, $min_stay, $blocked, $label) use ($room_id, &$applied, &$bad) {
+            $date = sanitize_text_field((string) $date);
+            $res  = self::save_cell($room_id, $date, $price, $min_stay, $blocked, $label);
+            if ($res['ok']) {
+                $applied[$res['action']]++;
+                return true;
+            }
+            $bad[] = $date;
+            $applied['failed']++;
+            return false;
+        };
+
+        if (!empty($_POST['bulk']) && isset($_POST['cells'])) {
+            $cells = json_decode(wp_unslash((string) $_POST['cells']), true);
+            if (!is_array($cells)) {
+                wp_send_json_error(['message' => 'Datos inválidos']);
+            }
+            $count = 0;
+            foreach ($cells as $cell) {
+                if (!is_array($cell) || !isset($cell['date'])) {
+                    continue;
+                }
+                $save_one(
+                    $cell['date'],
+                    isset($cell['price']) && $cell['price'] !== '' ? (float) $cell['price'] : null,
+                    isset($cell['min_stay']) && $cell['min_stay'] !== '' ? (int) $cell['min_stay'] : null,
+                    isset($cell['is_blocked']) ? (int) $cell['is_blocked'] : 0,
+                    isset($cell['label']) ? (string) $cell['label'] : ''
+                );
+                $count++;
+            }
+            $applied['cells'] = $count;
+        } else {
+            $date = sanitize_text_field(wp_unslash($_POST['date'] ?? ''));
+            if (!$date) {
+                wp_send_json_error(['message' => 'Datos inválidos']);
+            }
+            $save_one(
+                $date,
+                isset($_POST['price']) && $_POST['price'] !== '' ? (float) $_POST['price'] : null,
+                isset($_POST['min_stay']) && $_POST['min_stay'] !== '' ? (int) $_POST['min_stay'] : null,
+                isset($_POST['is_blocked']) ? (int) $_POST['is_blocked'] : 0,
+                isset($_POST['label']) ? sanitize_text_field(wp_unslash($_POST['label'])) : ''
+            );
+        }
+
+        wp_send_json_success([
+            'message' => $applied['failed'] > 0
+                ? __('Algunas fechas no pudieron guardarse.', 'travel-agency-platform')
+                : __('Guardado', 'travel-agency-platform'),
+            'applied' => $applied,
+        ]);
     }
 
     public static function get_price_for_night($room_id, $date) {

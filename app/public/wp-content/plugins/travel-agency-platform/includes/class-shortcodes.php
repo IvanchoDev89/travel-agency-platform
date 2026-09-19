@@ -2306,6 +2306,10 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
         $fields    = TAP_Metaboxes::get_fields($type);
         $action    = $is_edit ? __('Edit listing', 'travel-agency-platform') : sprintf(__('New %s', 'travel-agency-platform'), $type_label);
 
+        if ('tap_accommodation' === $type) {
+            return self::render_acc_wizard($listing_id, $type);
+        }
+
         ob_start();
         ?>
         <div class="tap-agency-panel tap-manage-wrap">
@@ -2629,6 +2633,696 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
         });
         })();
         </script>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
+     * B2B property wizard for accommodations: a guided 5-step flow
+     * (Información → Unidades → Precios y disponibilidad → Políticas → Publicar)
+     * that reuses the existing save handlers and the shared pricing core.
+     */
+    private static function render_acc_wizard($listing_id, $type) {
+        $is_edit   = (bool) $listing_id;
+        $listing   = $is_edit ? get_post($listing_id) : null;
+        $type_label = TAP_Post_Types::get_service_types()[$type] ?? ucfirst($type);
+
+        $step = isset($_GET['step']) ? (int) $_GET['step'] : 1;
+        if ($step < 1 || $step > 5) {
+            $step = 1;
+        }
+        if ($step > 1 && !$is_edit) {
+            $step = 1;
+        }
+
+        $edit_base = home_url('/manage-listing/?id=' . (int) $listing_id);
+        $steps     = [
+            1 => __('Información', 'travel-agency-platform'),
+            2 => __('Unidades', 'travel-agency-platform'),
+            3 => __('Precios y disponibilidad', 'travel-agency-platform'),
+            4 => __('Políticas', 'travel-agency-platform'),
+            5 => __('Publicar', 'travel-agency-platform'),
+        ];
+
+        wp_enqueue_style('tap-agency-calendar', TAP_PLUGIN_URL . 'assets/css/agency-calendar.css', ['tap-public'], TAP_VERSION);
+
+        ob_start();
+        ?>
+        <div class="tap-agency-panel tap-manage-wrap tap-wizard">
+            <div class="tap-panel-head">
+                <div>
+                    <h2 class="tap-panel-title"><?php echo $is_edit ? esc_html__('Editar alojamiento', 'travel-agency-platform') : esc_html__('Nuevo alojamiento', 'travel-agency-platform'); ?></h2>
+                    <p class="tap-panel-sub"><?php echo esc_html($type_label); ?></p>
+                </div>
+                <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(home_url('/manage-listing/')); ?>">&larr; <?php esc_html_e('Volver', 'travel-agency-platform'); ?></a>
+            </div>
+
+            <ol class="tap-wizard-steps">
+                <?php foreach ($steps as $n => $label):
+                    $locked = !$is_edit && $n > 1;
+                    $cls    = $n === $step ? ' active' : ($locked ? ' locked' : '');
+                    $href   = $n === 1
+                        ? ($is_edit ? $edit_base . '&step=1' : home_url('/manage-listing/?new=tap_accommodation'))
+                        : $edit_base . '&step=' . $n;
+                    ?>
+                    <li class="tap-wizard-step<?php echo $cls; ?>">
+                        <?php if ($locked): ?>
+                            <span class="tap-wizard-step-num"><?php echo (int) $n; ?></span>
+                            <span class="tap-wizard-step-label"><?php echo esc_html($label); ?></span>
+                        <?php else: ?>
+                            <a href="<?php echo esc_url($href); ?>">
+                                <span class="tap-wizard-step-num"><?php echo (int) $n; ?></span>
+                                <span class="tap-wizard-step-label"><?php echo esc_html($label); ?></span>
+                            </a>
+                        <?php endif; ?>
+                    </li>
+                <?php endforeach; ?>
+            </ol>
+
+            <div class="tap-wizard-body">
+                <?php
+                if ($step === 1) {
+                    echo self::render_acc_step_info($listing_id, $type);
+                } elseif ($step === 2) {
+                    echo self::render_acc_step_rooms($listing_id);
+                } elseif ($step === 3) {
+                    echo self::render_acc_step_calendar($listing_id);
+                } elseif ($step === 4) {
+                    echo self::render_acc_step_policies($listing_id);
+                } else {
+                    echo self::render_acc_step_publish($listing_id);
+                }
+                ?>
+            </div>
+        </div>
+        <?php
+        echo self::render_acc_wizard_script($listing_id);
+        return ob_get_clean();
+    }
+
+    private static function render_acc_wizard_script($listing_id) {
+        $is_edit = (bool) $listing_id;
+        $edit_url = $is_edit ? home_url('/manage-listing/?id=' . (int) $listing_id) : '';
+        ob_start();
+        ?>
+        <script>
+        (function(){
+            'use strict';
+            var url = tap_ajax.ajax_url;
+            var nonce = tap_ajax.listing_nonce;
+            var isEdit = <?php echo $is_edit ? 'true' : 'false'; ?>;
+            var stepUrl = function(s){ return '<?php echo esc_js($edit_url); ?>&step=' + s; };
+            var msgBox = function(f, m){ var el = f.querySelector('.tap-form-msg'); if(el){ el.textContent = m; } };
+
+            var listing = document.getElementById('tap-listing-form');
+            if(listing){
+                listing.addEventListener('submit', function(ev){
+                    ev.preventDefault();
+                    var btn = listing.querySelector('button[type=submit]'); btn.disabled = true;
+                    var data = new FormData(listing); data.append('action','tap_agency_save_listing');
+                    data.set('nonce', nonce);
+                    fetch(url, {method:'POST', body:data, credentials:'same-origin'})
+                    .then(function(r){return r.json();})
+                    .then(function(j){
+                        btn.disabled = false;
+                        if(j.success){
+                            // New listing: continue on the freshly created id.
+                            var target = isEdit ? stepUrl(2) : (j.data.edit_url || '') + '&step=2';
+                            window.location.href = target;
+                        }
+                        else { msgBox(listing, (j.data && j.data.message) || 'Error'); }
+                    })
+                    .catch(function(){ btn.disabled = false; msgBox(listing, 'Network error'); });
+                });
+            }
+
+            var policies = document.getElementById('tap-policies-form');
+            if(policies){
+                policies.addEventListener('submit', function(ev){
+                    ev.preventDefault();
+                    var btn = policies.querySelector('button[type=submit]'); btn.disabled = true;
+                    var data = new FormData(policies); data.append('action','tap_agency_save_listing');
+                    data.set('nonce', nonce);
+                    fetch(url, {method:'POST', body:data, credentials:'same-origin'})
+                    .then(function(r){return r.json();})
+                    .then(function(j){
+                        btn.disabled = false;
+                        if(j.success){ window.location.href = stepUrl(4); }
+                        else { msgBox(policies, (j.data && j.data.message) || 'Error'); }
+                    })
+                    .catch(function(){ btn.disabled = false; msgBox(policies, 'Network error'); });
+                });
+            }
+
+            var bedTypes = ['king','queen','double','twin','bunk','sofa','crib','murphy','futon'];
+            var bedLabels = {king:'King',queen:'Queen',double:'Double',twin:'Twin',bunk:'Bunk',sofa:'Sofa Bed',crib:'Crib',murphy:'Murphy',futon:'Futon'};
+            function bedRowHTML(type, count){
+                var opts = bedTypes.map(function(t){ return '<option value="'+t+'"'+(t===type?' selected':'')+'>'+(bedLabels[t]||t)+'</option>'; }).join('');
+                return '<div class="tap-bed-row"><select class="tap-bed-type">'+opts+'</select>'+
+                       '<input type="number" class="tap-bed-count" min="1" value="'+(count||1)+'">'+
+                       '<button type="button" class="tap-bed-remove" aria-label="Quitar cama">&times;</button></div>';
+            }
+            function bindBedBuilder(form){
+                var rows = form.querySelector('.tap-beds-rows');
+                if(!rows){ return; }
+                var json = form.querySelector('.tap-beds-json');
+                var add = form.querySelector('.tap-bed-add');
+                if(add){ add.addEventListener('click', function(){ rows.insertAdjacentHTML('beforeend', bedRowHTML('double',1)); }); }
+                rows.addEventListener('click', function(e){ if(e.target.classList.contains('tap-bed-remove')){ e.target.parentNode.remove(); } });
+                function serialize(){
+                    var arr = [];
+                    rows.querySelectorAll('.tap-bed-row').forEach(function(row){
+                        var t = row.querySelector('.tap-bed-type').value;
+                        var c = parseInt(row.querySelector('.tap-bed-count').value, 10) || 0;
+                        if(c > 0){ arr.push({type:t, count:c}); }
+                    });
+                    if(json){ json.value = JSON.stringify(arr); }
+                }
+                form.addEventListener('submit', serialize);
+                serialize();
+            }
+
+            // Room save / delete: return to Step 2 (Unidades) so the list refreshes.
+            document.querySelectorAll('.tap-room-form[data-room]').forEach(function(form){
+                bindBedBuilder(form);
+                form.addEventListener('submit', function(ev){
+                    ev.preventDefault();
+                    var btn = form.querySelector('button[type=submit]'); btn.disabled = true;
+                    var data = new FormData(form); data.append('action','tap_agency_save_room');
+                    data.set('nonce', nonce);
+                    fetch(url, {method:'POST', body:data, credentials:'same-origin'})
+                    .then(function(r){return r.json();})
+                    .then(function(j){
+                        btn.disabled = false;
+                        if(j.success){ window.location.href = stepUrl(2); }
+                        else { msgBox(form, (j.data && j.data.message) || 'Error'); }
+                    })
+                    .catch(function(){ btn.disabled = false; msgBox(form, 'Network error'); });
+                });
+                var del = form.querySelector('.tap-delete-room');
+                if(del){
+                    del.addEventListener('click', function(){
+                        if(!window.confirm('Delete this room?')){ return; }
+                        var data = new FormData(); data.append('action','tap_agency_delete_room');
+                        data.append('room_id', form.getAttribute('data-room'));
+                        data.append('nonce', nonce);
+                        fetch(url, {method:'POST', body:data, credentials:'same-origin'})
+                        .then(function(r){return r.json();})
+                        .then(function(j){ if(j.success){ window.location.href = stepUrl(2); } else { window.alert((j.data && j.data.message) || 'Error'); } });
+                    });
+                }
+            });
+
+            var addRoom = document.getElementById('tap-room-add');
+            if(addRoom){
+                bindBedBuilder(addRoom);
+                addRoom.addEventListener('submit', function(ev){
+                    ev.preventDefault();
+                    var btn = addRoom.querySelector('button[type=submit]'); btn.disabled = true;
+                    var data = new FormData(addRoom); data.append('action','tap_agency_save_room');
+                    data.set('nonce', nonce);
+                    fetch(url, {method:'POST', body:data, credentials:'same-origin'})
+                    .then(function(r){return r.json();})
+                    .then(function(j){
+                        btn.disabled = false;
+                        if(j.success){ window.location.href = stepUrl(2); }
+                        else { msgBox(addRoom, (j.data && j.data.message) || 'Error'); }
+                    })
+                    .catch(function(){ btn.disabled = false; msgBox(addRoom, 'Network error'); });
+                });
+            }
+        })();
+        </script>
+        <?php
+        return ob_get_clean();
+    }
+
+    private static function acc_rooms_for($listing_id) {
+        return get_posts([
+            'post_type'      => 'tap_room',
+            'post_status'    => ['publish', 'draft'],
+            'posts_per_page' => -1,
+            'orderby'        => 'ID',
+            'order'          => 'ASC',
+            'meta_key'       => '_tap_room_accommodation_id',
+            'meta_value'     => $listing_id,
+        ]);
+    }
+
+    private static function render_acc_step_info($listing_id, $type) {
+        $is_edit = (bool) $listing_id;
+        $listing = $is_edit ? get_post($listing_id) : null;
+        $prefix  = TAP_Post_Types::meta_prefix($type);
+        $fields  = TAP_Metaboxes::get_fields($type);
+        ob_start();
+        ?>
+        <form class="tap-manage-form" id="tap-listing-form" data-wizard="acc" data-step="1">
+            <?php wp_nonce_field('tap_agency_listing_nonce', 'nonce'); ?>
+            <input type="hidden" name="listing_id" value="<?php echo (int) $listing_id; ?>">
+            <input type="hidden" name="listing_type" value="<?php echo esc_attr($type); ?>">
+            <div class="tap-form-grid">
+                <div class="tap-field tap-span-2">
+                    <label><?php esc_html_e('Nombre *', 'travel-agency-platform'); ?></label>
+                    <input type="text" name="title" required value="<?php echo esc_attr($listing ? $listing->post_title : ''); ?>">
+                </div>
+                <div class="tap-field tap-span-2">
+                    <label><?php esc_html_e('Descripción', 'travel-agency-platform'); ?></label>
+                    <textarea name="description" rows="5"><?php echo esc_textarea($listing ? $listing->post_content : ''); ?></textarea>
+                </div>
+                <div class="tap-field tap-span-2">
+                    <label><?php esc_html_e('Foto principal (URL de la imagen)', 'travel-agency-platform'); ?></label>
+                    <input type="url" name="featured_image_url" placeholder="https://…" value="<?php echo esc_url($is_edit ? (string) get_the_post_thumbnail_url($listing_id, 'full') : ''); ?>">
+                    <?php if ($is_edit && get_the_post_thumbnail_url($listing_id)): ?>
+                        <img class="tap-img-preview" src="<?php echo esc_url(get_the_post_thumbnail_url($listing_id, 'medium')); ?>" alt="" style="max-width:180px;height:auto;margin-top:6px;border-radius:6px;">
+                    <?php endif; ?>
+                </div>
+                <div class="tap-field tap-span-2">
+                    <label><?php esc_html_e('Galería (URLs de imágenes, una por línea)', 'travel-agency-platform'); ?></label>
+                    <?php
+                    $gal_val = '';
+                    if ($is_edit) {
+                        $gal_ids = array_filter(array_map('trim', explode(',', (string) get_post_meta($listing_id, '_tap_acc_gallery', true))));
+                        $gal_urls = array_map(function ($id) {
+                            $u = wp_get_attachment_image_url((int) $id, 'full');
+                            return $u ? $u : '';
+                        }, $gal_ids);
+                        $gal_val = implode("\n", array_filter($gal_urls));
+                    }
+                    ?>
+                    <textarea name="gallery_urls" rows="4" placeholder="<?php esc_attr_e('https://…\nhttps://…', 'travel-agency-platform'); ?>"><?php echo esc_textarea($gal_val); ?></textarea>
+                </div>
+                <?php
+                foreach ($fields as $meta_key => $cfg) {
+                    if (strpos($meta_key, '_tap_' . $prefix . '_agency_id') !== false) {
+                        continue;
+                    }
+                    if ($meta_key === '_tap_seo_title' || $meta_key === '_tap_seo_description') {
+                        continue;
+                    }
+                    $ftype  = isset($cfg['type']) ? $cfg['type'] : 'text';
+                    $label  = isset($cfg['label']) ? $cfg['label'] : $meta_key;
+                    $value  = $is_edit ? get_post_meta($listing_id, $meta_key, true) : (isset($cfg['default']) ? $cfg['default'] : '');
+                    $span   = ($ftype === 'textarea') ? ' tap-span-2' : '';
+                    echo '<div class="tap-field' . $span . '">';
+                    switch ($ftype) {
+                        case 'checkbox':
+                            echo '<label class="tap-check-label"><input type="checkbox" name="' . esc_attr($meta_key) . '" value="1" ' . checked('1', (string) $value, false) . '> ' . esc_html($label) . '</label>';
+                            break;
+                        case 'select':
+                            echo '<label>' . esc_html($label) . '</label><select name="' . esc_attr($meta_key) . '"><option value="">—</option>';
+                            foreach ($cfg['options'] as $k => $v) {
+                                $sel = (string) $value !== '' && (string) $k === (string) $value ? ' selected' : '';
+                                echo '<option value="' . esc_attr($k) . '"' . $sel . '>' . esc_html($v) . '</option>';
+                            }
+                            echo '</select>';
+                            break;
+                        case 'number':
+                            $step = isset($cfg['step']) ? ' step="' . esc_attr($cfg['step']) . '"' : '';
+                            echo '<label>' . esc_html($label) . '</label><input type="number" name="' . esc_attr($meta_key) . '" min="0"' . $step . ' value="' . esc_attr($value) . '">';
+                            break;
+                        case 'time':
+                            echo '<label>' . esc_html($label) . '</label><input type="time" name="' . esc_attr($meta_key) . '" value="' . esc_attr($value) . '">';
+                            break;
+                        default:
+                            echo '<label>' . esc_html($label) . '</label><input type="text" name="' . esc_attr($meta_key) . '" value="' . esc_attr($value) . '">';
+                    }
+                    echo '</div>';
+                }
+                ?>
+                <div class="tap-field tap-span-2">
+                    <label><?php esc_html_e('Destino', 'travel-agency-platform'); ?></label>
+                    <?php
+                    $dest_sel = 0;
+                    if ($is_edit) {
+                        $dterms = get_the_terms($listing_id, 'tap_location');
+                        $highest_level = -1;
+                        if (is_array($dterms)) {
+                            foreach ($dterms as $dt) {
+                                $dl = TAP_Destinations::term_level($dt->term_id);
+                                $dl = $dl !== null ? $dl : TAP_Destinations::term_depth($dt->term_id);
+                                if ($dl > $highest_level) {
+                                    $highest_level = $dl;
+                                    $dest_sel = (int) $dt->term_id;
+                                }
+                            }
+                        }
+                    }
+                    echo TAP_Destinations::render_picker($dest_sel, 'destination');
+                    ?>
+                </div>
+                <div class="tap-field">
+                    <label><?php esc_html_e('Modo de reserva', 'travel-agency-platform'); ?></label>
+                    <select name="booking_mode">
+                        <option value="instant" <?php selected(TAP_Booking::booking_mode($type, $listing_id), 'instant'); ?>><?php esc_html_e('Reserva directa (pago inmediato)', 'travel-agency-platform'); ?></option>
+                        <option value="request" <?php selected(TAP_Booking::booking_mode($type, $listing_id), 'request'); ?>><?php esc_html_e('Solicitud de reserva (la agencia confirma antes del pago)', 'travel-agency-platform'); ?></option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="tap-btn tap-btn-primary"><?php echo $is_edit ? esc_html__('Guardar y continuar', 'travel-agency-platform') : esc_html__('Crear alojamiento y continuar', 'travel-agency-platform'); ?></button>
+            <span class="tap-form-msg"></span>
+        </form>
+        <?php
+        return ob_get_clean();
+    }
+
+    private static function render_acc_step_rooms($listing_id) {
+        if (!$listing_id) {
+            return '<p class="tap-empty">' . esc_html__('Guarda primero la información del alojamiento.', 'travel-agency-platform') . '</p>';
+        }
+        $acc_id = (int) $listing_id;
+        $rooms  = self::acc_rooms_for($acc_id);
+        ob_start();
+        ?>
+        <div class="tap-wizard-section">
+            <h3 class="tap-panel-title"><?php esc_html_e('Unidades (habitaciones y tipos)', 'travel-agency-platform'); ?></h3>
+            <p class="tap-panel-sub"><?php esc_html_e('Cada unidad define su propio precio base, capacidad, camas y disponibilidad. Puedes añadir tantas como necesites.', 'travel-agency-platform'); ?></p>
+
+            <?php if ($rooms): ?>
+            <div class="tap-rooms-list">
+                <?php foreach ($rooms as $r): ?>
+                <form class="tap-manage-form tap-room-form" data-room="<?php echo (int) $r->ID; ?>">
+                    <?php wp_nonce_field('tap_agency_listing_nonce', 'nonce'); ?>
+                    <input type="hidden" name="room_id" value="<?php echo (int) $r->ID; ?>">
+                    <input type="hidden" name="accommodation_id" value="<?php echo (int) $acc_id; ?>">
+                    <div class="tap-form-grid">
+                        <div class="tap-field"><label><?php esc_html_e('Nombre *', 'travel-agency-platform'); ?></label><input type="text" name="title" required value="<?php echo esc_attr($r->post_title); ?>"></div>
+                        <div class="tap-field"><label><?php esc_html_e('Precio/noche ($) *', 'travel-agency-platform'); ?></label><input type="number" name="price_per_night" min="0.01" step="0.01" required value="<?php echo esc_attr(get_post_meta($r->ID, '_tap_room_price_per_night', true)); ?>"></div>
+                        <div class="tap-field tap-span-2"><label><?php esc_html_e('Descripción de la unidad', 'travel-agency-platform'); ?></label><textarea name="description" rows="3"><?php echo esc_textarea($r->post_excerpt); ?></textarea></div>
+                        <div class="tap-field"><label><?php esc_html_e('Máx. adultos', 'travel-agency-platform'); ?></label><input type="number" name="max_adults" min="1" value="<?php echo esc_attr(get_post_meta($r->ID, '_tap_room_max_adults', true)); ?>"></div>
+                        <div class="tap-field"><label><?php esc_html_e('Máx. ocupación', 'travel-agency-platform'); ?></label><input type="number" name="max_occupancy" min="1" value="<?php echo esc_attr(get_post_meta($r->ID, '_tap_room_max_occupancy', true)); ?>"></div>
+                        <div class="tap-field"><label><?php esc_html_e('Cantidad de esta unidad', 'travel-agency-platform'); ?></label><input type="number" name="inventory" min="1" value="<?php echo esc_attr(get_post_meta($r->ID, '_tap_room_inventory', true)); ?>"></div>
+                        <div class="tap-field"><label><?php esc_html_e('Estadía mínima', 'travel-agency-platform'); ?></label><input type="number" name="min_stay" min="1" value="<?php echo esc_attr(get_post_meta($r->ID, '_tap_room_min_stay', true)); ?>"></div>
+                        <div class="tap-field"><label><?php esc_html_e('Tamaño', 'travel-agency-platform'); ?></label><input type="text" name="size" value="<?php echo esc_attr(get_post_meta($r->ID, '_tap_room_size', true)); ?>"></div>
+                        <div class="tap-field"><label><?php esc_html_e('Vista', 'travel-agency-platform'); ?></label><input type="text" name="view" value="<?php echo esc_attr(get_post_meta($r->ID, '_tap_room_view', true)); ?>"></div>
+                        <div class="tap-field"><label><?php esc_html_e('Piso', 'travel-agency-platform'); ?></label><input type="number" name="floor" min="0" value="<?php echo esc_attr(get_post_meta($r->ID, '_tap_room_floor', true)); ?>"></div>
+                        <div class="tap-field"><label><?php esc_html_e('Comodidades (separadas por coma)', 'travel-agency-platform'); ?></label><input type="text" name="amenities" placeholder="WiFi, Aire acondicionado, Desayuno" value="<?php echo esc_attr(implode(', ', (array) TAP_Post_Types::get_room_amenities($r->ID))); ?>"></div>
+                        <?php $room_beds = TAP_Post_Types::get_room_beds($r->ID); ?>
+                        <div class="tap-field tap-span-2">
+                            <label><?php esc_html_e('Camas', 'travel-agency-platform'); ?></label>
+                            <div class="tap-beds-rows" data-beds>
+                                <?php foreach ((array) $room_beds as $bed): ?>
+                                <div class="tap-bed-row">
+                                    <select class="tap-bed-type"><?php foreach (TAP_Post_Types::bed_types() as $bt => $bl): ?><option value="<?php echo esc_attr($bt); ?>" <?php selected($bt, $bed['type'] ?? ''); ?>><?php echo esc_html($bl); ?></option><?php endforeach; ?></select>
+                                    <input type="number" class="tap-bed-count" min="1" value="<?php echo esc_attr($bed['count'] ?? 1); ?>">
+                                    <button type="button" class="tap-bed-remove" aria-label="<?php esc_attr_e('Quitar cama', 'travel-agency-platform'); ?>">&times;</button>
+                                </div>
+                                <?php endforeach; ?>
+                            </div>
+                            <button type="button" class="tap-btn tap-btn-sm tap-bed-add">+ <?php esc_html_e('Añadir cama', 'travel-agency-platform'); ?></button>
+                            <input type="hidden" name="_tap_room_beds" class="tap-beds-json">
+                        </div>
+                        <div class="tap-field tap-span-2"><label><?php esc_html_e('Foto principal (URL de la imagen)', 'travel-agency-platform'); ?></label><input type="url" name="room_thumbnail_url" placeholder="https://…" value="<?php echo esc_url((string) get_the_post_thumbnail_url($r->ID, 'full')); ?>"></div>
+                        <div class="tap-field tap-span-2">
+                            <label><?php esc_html_e('Fotos de la unidad (URLs, una por línea)', 'travel-agency-platform'); ?></label>
+                            <?php
+                            $rgal_val = '';
+                            $rgal_ids = array_filter(array_map('trim', explode(',', (string) get_post_meta($r->ID, '_tap_room_gallery', true))));
+                            $rgal_urls = array_map(function ($id) { $u = wp_get_attachment_image_url((int) $id, 'full'); return $u ? $u : ''; }, $rgal_ids);
+                            $rgal_val = implode("\n", array_filter($rgal_urls));
+                            ?>
+                            <textarea name="gallery_urls" rows="4" placeholder="<?php esc_attr_e('https://…\nhttps://…', 'travel-agency-platform'); ?>"><?php echo esc_textarea($rgal_val); ?></textarea>
+                        </div>
+                        <div class="tap-field">
+                            <label class="tap-check-label"><input type="checkbox" name="is_active" value="1" <?php checked('1', get_post_meta($r->ID, '_tap_room_is_active', true)); ?>> <?php esc_html_e('Activa', 'travel-agency-platform'); ?></label>
+                        </div>
+                        <div class="tap-field tap-field-actions">
+                            <button type="submit" class="tap-btn tap-btn-primary tap-btn-sm"><?php esc_html_e('Guardar', 'travel-agency-platform'); ?></button>
+                            <button type="button" class="tap-btn tap-btn-danger tap-btn-sm tap-delete-room"><?php esc_html_e('Eliminar', 'travel-agency-platform'); ?></button>
+                        </div>
+                    </div>
+                </form>
+                <?php endforeach; ?>
+            </div>
+            <?php else: ?>
+                <div class="tap-wizard-callout">
+                    <?php esc_html_e('Aún no hay unidades. Añade la primera para poder configurar sus precios y disponibilidad.', 'travel-agency-platform'); ?>
+                </div>
+            <?php endif; ?>
+
+            <form class="tap-manage-form tap-room-form" id="tap-room-add">
+                <?php wp_nonce_field('tap_agency_listing_nonce', 'nonce'); ?>
+                <input type="hidden" name="room_id" value="0">
+                <input type="hidden" name="accommodation_id" value="<?php echo (int) $acc_id; ?>">
+                <div class="tap-form-grid">
+                    <div class="tap-field"><label><?php esc_html_e('Nueva unidad — nombre *', 'travel-agency-platform'); ?></label><input type="text" name="title" required placeholder="<?php esc_attr_e('p.ej. Habitación Doble Estándar', 'travel-agency-platform'); ?>"></div>
+                    <div class="tap-field"><label><?php esc_html_e('Precio/noche ($) *', 'travel-agency-platform'); ?></label><input type="number" name="price_per_night" min="0.01" step="0.01" required></div>
+                    <div class="tap-field tap-span-2"><label><?php esc_html_e('Descripción', 'travel-agency-platform'); ?></label><textarea name="description" rows="3"></textarea></div>
+                    <div class="tap-field"><label><?php esc_html_e('Máx. adultos', 'travel-agency-platform'); ?></label><input type="number" name="max_adults" min="1" value="2"></div>
+                    <div class="tap-field"><label><?php esc_html_e('Máx. ocupación', 'travel-agency-platform'); ?></label><input type="number" name="max_occupancy" min="1" value="2"></div>
+                    <div class="tap-field"><label><?php esc_html_e('Cantidad de esta unidad', 'travel-agency-platform'); ?></label><input type="number" name="inventory" min="1" value="1"></div>
+                    <div class="tap-field"><label><?php esc_html_e('Piso', 'travel-agency-platform'); ?></label><input type="number" name="floor" min="0" value="0"></div>
+                    <div class="tap-field"><label><?php esc_html_e('Comodidades (separadas por coma)', 'travel-agency-platform'); ?></label><input type="text" name="amenities" placeholder="WiFi, Aire acondicionado, Desayuno"></div>
+                    <div class="tap-field tap-span-2">
+                        <label><?php esc_html_e('Camas', 'travel-agency-platform'); ?></label>
+                        <div class="tap-beds-rows" data-beds></div>
+                        <button type="button" class="tap-btn tap-btn-sm tap-bed-add">+ <?php esc_html_e('Añadir cama', 'travel-agency-platform'); ?></button>
+                        <input type="hidden" name="_tap_room_beds" class="tap-beds-json">
+                    </div>
+                    <div class="tap-field tap-span-2"><label><?php esc_html_e('Foto principal (URL de la imagen)', 'travel-agency-platform'); ?></label><input type="url" name="room_thumbnail_url" placeholder="https://…"></div>
+                    <div class="tap-field tap-field-actions"><button type="submit" class="tap-btn tap-btn-primary">+ <?php esc_html_e('Añadir unidad', 'travel-agency-platform'); ?></button><span class="tap-form-msg"></span></div>
+                </div>
+            </form>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    private static function render_acc_step_calendar($listing_id) {
+        if (!$listing_id) {
+            return '<p class="tap-empty">' . esc_html__('Guarda primero la información del alojamiento.', 'travel-agency-platform') . '</p>';
+        }
+        $rooms = self::acc_rooms_for($listing_id);
+        if (!$rooms) {
+            $rooms_url = home_url('/manage-listing/?id=' . (int) $listing_id . '&step=2');
+            return '<div class="tap-wizard-callout"><p>' . esc_html__('Necesitas al menos una unidad para configurar precios y disponibilidad.', 'travel-agency-platform') . '</p><a class="tap-btn tap-btn-primary" href="' . esc_url($rooms_url) . '">' . esc_html__('Ir a Unidades', 'travel-agency-platform') . '</a></div>';
+        }
+
+        wp_enqueue_script('tap-agency-calendar', TAP_PLUGIN_URL . 'assets/js/agency-calendar.js', [], TAP_VERSION, true);
+        wp_localize_script('tap-agency-calendar', 'tapAgencyCal', [
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce'   => wp_create_nonce('tap_front_dash_nonce'),
+            'rooms'   => array_map(function ($r) {
+                return [
+                    'id'        => (int) $r->ID,
+                    'title'     => $r->post_title,
+                    'price'     => (float) get_post_meta($r->ID, '_tap_room_price_per_night', true),
+                    'min_stay'  => (int) get_post_meta($r->ID, '_tap_room_min_stay', true),
+                    'inventory' => max(1, (int) get_post_meta($r->ID, '_tap_room_inventory', true)),
+                ];
+            }, $rooms),
+            'manageUrl' => home_url('/manage-listing/?id=' . (int) $listing_id),
+            'i18n' => [
+                'base'             => __('Base', 'travel-agency-platform'),
+                'override'         => __('Modificado', 'travel-agency-platform'),
+                'blocked'          => __('Bloqueado', 'travel-agency-platform'),
+                'booked'           => __('Ocupado', 'travel-agency-platform'),
+                'available'        => __('disponible(s)', 'travel-agency-platform'),
+                'save'             => __('Guardar', 'travel-agency-platform'),
+                'delete'           => __('Eliminar', 'travel-agency-platform'),
+                'saved'            => __('Guardado', 'travel-agency-platform'),
+                'error'            => __('Error', 'travel-agency-platform'),
+                'loading'          => __('Cargando calendario…', 'travel-agency-platform'),
+                'noOverrideTarget' => __('Selecciona al menos un día de la semana.', 'travel-agency-platform'),
+            ],
+        ]);
+
+        ob_start();
+        ?>
+        <div class="tap-wizard-section">
+            <h3 class="tap-panel-title"><?php esc_html_e('Precios y disponibilidad', 'travel-agency-platform'); ?></h3>
+            <p class="tap-panel-sub"><?php esc_html_e('Haz clic en un día para ajustar su precio, estadía mínima o bloquearlo. También puedes fijar rangos completos y reglas por día de semana.', 'travel-agency-platform'); ?></p>
+
+            <div id="tap-ac-cal" class="tap-ac-cal">
+                <div class="tap-ac-cal-head">
+                    <div class="tap-ac-room-tabs" id="tap-ac-room-tabs"></div>
+                    <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(home_url('/manage-listing/?id=' . (int) $listing_id . '&step=2')); ?>">+ <?php esc_html_e('Añadir unidad', 'travel-agency-platform'); ?></a>
+                </div>
+
+                <div class="tap-ac-cal-body">
+                    <div class="tap-ac-cal-main">
+                        <div class="tap-ac-month-nav">
+                            <button type="button" class="tap-btn tap-btn-sm tap-ac-prev" aria-label="<?php esc_attr_e('Mes anterior', 'travel-agency-platform'); ?>">&larr;</button>
+                            <span class="tap-ac-month-label">--</span>
+                            <button type="button" class="tap-btn tap-btn-sm tap-ac-next" aria-label="<?php esc_attr_e('Mes siguiente', 'travel-agency-platform'); ?>">&rarr;</button>
+                            <span class="tap-ac-legend">
+                                <span><span class="tap-ac-swatch swatch-base"></span> <?php esc_html_e('Base', 'travel-agency-platform'); ?></span>
+                                <span><span class="tap-ac-swatch swatch-override"></span> <?php esc_html_e('Modificado', 'travel-agency-platform'); ?></span>
+                                <span><span class="tap-ac-swatch swatch-blocked"></span> <?php esc_html_e('Bloqueado', 'travel-agency-platform'); ?></span>
+                            </span>
+                        </div>
+                        <div class="tap-ac-calendar" id="tap-ac-calendar"><div class="tap-ac-loading"><?php esc_html_e('Cargando calendario…', 'travel-agency-platform'); ?></div></div>
+                    </div>
+
+                    <div class="tap-ac-cal-side">
+                        <div class="tap-ac-panel" id="tap-ac-edit" hidden>
+                            <div class="tap-ac-panel-title"><strong><?php esc_html_e('Editar día', 'travel-agency-platform'); ?></strong> <span class="tap-ac-edit-date"></span></div>
+                            <input type="hidden" class="tap-ac-field tap-ac-edit-date-input">
+                            <label><?php esc_html_e('Precio ($) — vacío = usar base', 'travel-agency-platform'); ?></label>
+                            <input type="number" step="0.01" min="0" class="tap-ac-field tap-ac-edit-price input">
+                            <label><?php esc_html_e('Estadía mínima (noches) — vacío = usar base', 'travel-agency-platform'); ?></label>
+                            <input type="number" min="0" step="1" class="tap-ac-field tap-ac-edit-minstay input">
+                            <label><?php esc_html_e('Disponible', 'travel-agency-platform'); ?></label>
+                            <select class="tap-ac-field tap-ac-edit-avail input">
+                                <option value=""><?php esc_html_e('Usar base', 'travel-agency-platform'); ?></option>
+                                <option value="yes"><?php esc_html_e('Sí', 'travel-agency-platform'); ?></option>
+                                <option value="no"><?php esc_html_e('No (bloquear)', 'travel-agency-platform'); ?></option>
+                            </select>
+                            <label><?php esc_html_e('Etiqueta', 'travel-agency-platform'); ?></label>
+                            <input type="text" maxlength="100" class="tap-ac-field tap-ac-edit-label input" placeholder="p.ej. Temporada Alta">
+                            <div class="tap-ac-actions">
+                                <button type="button" class="tap-btn tap-btn-primary tap-btn-sm tap-ac-save"><?php esc_html_e('Guardar', 'travel-agency-platform'); ?></button>
+                                <button type="button" class="tap-btn tap-btn-danger tap-btn-sm tap-ac-clear"><?php esc_html_e('Eliminar', 'travel-agency-platform'); ?></button>
+                            </div>
+                            <span class="tap-ac-msg"></span>
+                        </div>
+
+                        <div class="tap-ac-panel">
+                            <div class="tap-ac-panel-title"><strong><?php esc_html_e('Fijar rango', 'travel-agency-platform'); ?></strong></div>
+                            <div class="tap-ac-range-group">
+                                <label><?php esc_html_e('Desde', 'travel-agency-platform'); ?><input type="date" class="tap-ac-field tap-ac-range-from input"></label>
+                                <label><?php esc_html_e('Hasta', 'travel-agency-platform'); ?><input type="date" class="tap-ac-field tap-ac-range-to input"></label>
+                            </div>
+                            <label><?php esc_html_e('Precio ($) — vacío = no cambiar', 'travel-agency-platform'); ?></label>
+                            <input type="number" step="0.01" min="0" class="tap-ac-field tap-ac-range-price input">
+                            <label><?php esc_html_e('Estadía mínima — vacío = no cambiar', 'travel-agency-platform'); ?></label>
+                            <input type="number" min="0" step="1" class="tap-ac-field tap-ac-range-minstay input">
+                            <label><?php esc_html_e('Disponibilidad', 'travel-agency-platform'); ?></label>
+                            <select class="tap-ac-field tap-ac-range-avail input">
+                                <option value=""><?php esc_html_e('No cambiar', 'travel-agency-platform'); ?></option>
+                                <option value="yes"><?php esc_html_e('Disponible', 'travel-agency-platform'); ?></option>
+                                <option value="no"><?php esc_html_e('Bloquear', 'travel-agency-platform'); ?></option>
+                            </select>
+                            <label><?php esc_html_e('Etiqueta — vacío = no cambiar', 'travel-agency-platform'); ?></label>
+                            <input type="text" maxlength="100" class="tap-ac-field tap-ac-range-label input">
+                            <div class="tap-ac-actions" id="tap-ac-range-actions"><button type="button" class="tap-btn tap-btn-primary tap-btn-sm tap-ac-range-apply"><?php esc_html_e('Aplicar rango', 'travel-agency-platform'); ?></button><span class="tap-ac-msg"></span></div>
+                        </div>
+
+                        <div class="tap-ac-panel">
+                            <div class="tap-ac-panel-title"><strong><?php esc_html_e('Regla por día de semana', 'travel-agency-platform'); ?></strong></div>
+                            <p class="tap-ac-hint"><?php esc_html_e('Se aplica a todos los días de la semana elegidos dentro del mes visible.', 'travel-agency-platform'); ?></p>
+                            <div class="tap-ac-dow-group" id="tap-ac-dow">
+                                <?php
+                                $dow_labels = [1 => __('Lun', 'travel-agency-platform'), 2 => __('Mar', 'travel-agency-platform'), 3 => __('Mié', 'travel-agency-platform'), 4 => __('Jue', 'travel-agency-platform'), 5 => __('Vie', 'travel-agency-platform'), 6 => __('Sáb', 'travel-agency-platform'), 7 => __('Dom', 'travel-agency-platform')];
+                                foreach ($dow_labels as $d => $dl): ?>
+                                    <label class="tap-ac-dow"><input type="checkbox" value="<?php echo (int) $d; ?>"> <?php echo esc_html($dl); ?></label>
+                                <?php endforeach; ?>
+                            </div>
+                            <label><?php esc_html_e('Operación', 'travel-agency-platform'); ?></label>
+                            <select class="tap-ac-field tap-ac-dow-op input">
+                                <option value="set"><?php esc_html_e('Fijar precio', 'travel-agency-platform'); ?></option>
+                                <option value="add_pct"><?php esc_html_e('Sumar % sobre el precio', 'travel-agency-platform'); ?></option>
+                                <option value="sub_pct"><?php esc_html_e('Restar % sobre el precio', 'travel-agency-platform'); ?></option>
+                                <option value="clear"><?php esc_html_e('Limpiar ajuste del día', 'travel-agency-platform'); ?></option>
+                            </select>
+                            <label><?php esc_html_e('Cantidad (precio $ o %)', 'travel-agency-platform'); ?></label>
+                            <input type="number" step="0.01" class="tap-ac-field tap-ac-dow-amount input">
+                            <label><?php esc_html_e('Estadía mínima — vacío = no cambiar', 'travel-agency-platform'); ?></label>
+                            <input type="number" min="0" step="1" class="tap-ac-field tap-ac-dow-minstay input">
+                            <label><?php esc_html_e('Disponibilidad', 'travel-agency-platform'); ?></label>
+                            <select class="tap-ac-field tap-ac-dow-avail input">
+                                <option value=""><?php esc_html_e('No cambiar', 'travel-agency-platform'); ?></option>
+                                <option value="yes"><?php esc_html_e('Disponible', 'travel-agency-platform'); ?></option>
+                                <option value="no"><?php esc_html_e('Bloquear', 'travel-agency-platform'); ?></option>
+                            </select>
+                            <div class="tap-ac-actions" id="tap-ac-dow-actions"><button type="button" class="tap-btn tap-btn-primary tap-btn-sm tap-ac-dow-apply"><?php esc_html_e('Aplicar regla', 'travel-agency-platform'); ?></button><span class="tap-ac-msg"></span></div>
+                        </div>
+
+                        <div class="tap-ac-panel">
+                            <div class="tap-ac-actions" id="tap-ac-clear-actions">
+                                <button type="button" class="tap-btn tap-btn-danger tap-btn-sm tap-ac-clear-all"><?php esc_html_e('Limpiar ajustes del mes', 'travel-agency-platform'); ?></button>
+                                <span class="tap-ac-msg"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    private static function render_acc_step_policies($listing_id) {
+        if (!$listing_id) {
+            return '<p class="tap-empty">' . esc_html__('Guarda primero la información del alojamiento.', 'travel-agency-platform') . '</p>';
+        }
+        $listing = get_post($listing_id);
+        $policy  = get_post_meta($listing_id, '_tap_acc_cancellation', true);
+        $rules   = get_post_meta($listing_id, '_tap_acc_house_rules', true);
+        ob_start();
+        ?>
+        <div class="tap-wizard-section">
+            <h3 class="tap-panel-title"><?php esc_html_e('Políticas de la propiedad', 'travel-agency-platform'); ?></h3>
+            <p class="tap-panel-sub"><?php esc_html_e('Estas condiciones se muestran a los viajeros antes de reservar y determinan los reembolsos en las cancelaciones.', 'travel-agency-platform'); ?></p>
+            <form class="tap-manage-form" id="tap-policies-form">
+                <?php wp_nonce_field('tap_agency_listing_nonce', 'nonce'); ?>
+                <input type="hidden" name="listing_id" value="<?php echo (int) $listing_id; ?>">
+                <input type="hidden" name="listing_type" value="tap_accommodation">
+                <input type="hidden" name="title" value="<?php echo esc_attr($listing ? $listing->post_title : ''); ?>">
+                <input type="hidden" name="description" value="<?php echo esc_attr($listing ? $listing->post_content : ''); ?>">
+                <div class="tap-form-grid">
+                    <div class="tap-field tap-span-2">
+                        <label><?php esc_html_e('Política de cancelación', 'travel-agency-platform'); ?></label>
+                        <select name="_tap_acc_cancellation">
+                            <?php foreach (TAP_Booking::cancellation_policies() as $key => $label): ?>
+                                <option value="<?php echo esc_attr($key); ?>" <?php selected($policy, $key); ?>><?php echo esc_html($label); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="tap-field tap-span-2">
+                        <label><?php esc_html_e('Reglas de la casa', 'travel-agency-platform'); ?></label>
+                        <textarea name="_tap_acc_house_rules" rows="5" placeholder="<?php esc_attr_e('p.ej. No se permiten mascotas · Check-in desde las 15:00 · No se fuma en interiores', 'travel-agency-platform'); ?>"><?php echo esc_textarea($rules); ?></textarea>
+                    </div>
+                </div>
+                <button type="submit" class="tap-btn tap-btn-primary"><?php esc_html_e('Guardar políticas', 'travel-agency-platform'); ?></button>
+                <span class="tap-form-msg"></span>
+            </form>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    private static function render_acc_step_publish($listing_id) {
+        if (!$listing_id) {
+            return '<p class="tap-empty">' . esc_html__('Guarda primero la información del alojamiento.', 'travel-agency-platform') . '</p>';
+        }
+        $listing = get_post($listing_id);
+        $rooms   = self::acc_rooms_for($listing_id);
+        $prefix  = TAP_Post_Types::meta_prefix('tap_accommodation');
+        $active  = '1' === get_post_meta($listing_id, '_tap_' . $prefix . '_is_active', true);
+        $prices  = array_map(function ($r) {
+            return (float) get_post_meta($r->ID, '_tap_room_price_per_night', true);
+        }, $rooms);
+        $min_p = $prices ? min($prices) : 0;
+        $max_p = $prices ? max($prices) : 0;
+        $policy = get_post_meta($listing_id, '_tap_acc_cancellation', true);
+        $policies = TAP_Booking::cancellation_policies();
+        $mode   = TAP_Booking::booking_mode('tap_accommodation', $listing_id);
+        $edit_base = home_url('/manage-listing/?id=' . (int) $listing_id);
+        ob_start();
+        ?>
+        <div class="tap-wizard-section">
+            <h3 class="tap-panel-title"><?php esc_html_e('Listo para publicar', 'travel-agency-platform'); ?></h3>
+            <div class="tap-review-card">
+                <div class="tap-review-rows">
+                    <div class="tap-review-row"><span><?php esc_html_e('Nombre', 'travel-agency-platform'); ?></span><strong><?php echo esc_html($listing ? $listing->post_title : ''); ?></strong></div>
+                    <div class="tap-review-row"><span><?php esc_html_e('Estado', 'travel-agency-platform'); ?></span><strong><?php echo esc_html('publish' === get_post_status($listing_id) ? __('Publicado', 'travel-agency-platform') : __('En revisión', 'travel-agency-platform')); ?></strong></div>
+                    <div class="tap-review-row"><span><?php esc_html_e('Visible en el sitio', 'travel-agency-platform'); ?></span><strong><?php echo $active ? esc_html__('Sí', 'travel-agency-platform') : esc_html__('No (inactivo)', 'travel-agency-platform'); ?></strong></div>
+                    <div class="tap-review-row"><span><?php esc_html_e('Unidades', 'travel-agency-platform'); ?></span><strong><?php echo (int) count($rooms); ?></strong></div>
+                    <div class="tap-review-row"><span><?php esc_html_e('Precio/noche', 'travel-agency-platform'); ?></span><strong><?php echo $prices ? esc_html(TAP_Currency::fmt($min_p) . ($max_p > $min_p ? ' – ' . TAP_Currency::fmt($max_p) : '')) : '—'; ?></strong></div>
+                    <div class="tap-review-row"><span><?php esc_html_e('Modo de reserva', 'travel-agency-platform'); ?></span><strong><?php echo esc_html('request' === $mode ? __('Solicitud (la agencia confirma)', 'travel-agency-platform') : __('Reserva directa', 'travel-agency-platform')); ?></strong></div>
+                    <div class="tap-review-row"><span><?php esc_html_e('Política de cancelación', 'travel-agency-platform'); ?></span><strong><?php echo esc_html(isset($policies[$policy]) ? $policies[$policy] : '—'); ?></strong></div>
+                </div>
+                <div class="tap-review-actions">
+                    <a class="tap-btn tap-btn-sm" href="<?php echo esc_url($edit_base . '&step=1'); ?>"><?php esc_html_e('Información', 'travel-agency-platform'); ?></a>
+                    <a class="tap-btn tap-btn-sm" href="<?php echo esc_url($edit_base . '&step=2'); ?>"><?php esc_html_e('Unidades', 'travel-agency-platform'); ?></a>
+                    <a class="tap-btn tap-btn-sm" href="<?php echo esc_url($edit_base . '&step=3'); ?>"><?php esc_html_e('Precios', 'travel-agency-platform'); ?></a>
+                    <a class="tap-btn tap-btn-sm" href="<?php echo esc_url($edit_base . '&step=4'); ?>"><?php esc_html_e('Políticas', 'travel-agency-platform'); ?></a>
+                    <?php if ('publish' === get_post_status($listing_id) && $active): ?>
+                        <a class="tap-btn tap-btn-primary tap-btn-sm" href="<?php echo esc_url(get_permalink($listing_id)); ?>" target="_blank" rel="noopener"><?php esc_html_e('Ver en la web', 'travel-agency-platform'); ?> &nearr;</a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
         <?php
         return ob_get_clean();
     }
