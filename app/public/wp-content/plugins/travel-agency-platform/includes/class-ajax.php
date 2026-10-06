@@ -1094,7 +1094,8 @@ class TAP_Ajax {
         wp_send_json_error(['message' => __('The payment could not be completed.', 'travel-agency-platform')]);
     }
 
-    private static function current_agency_for( $user_id ) {        if ( user_can( $user_id, 'manage_options' ) ) {
+    private static function current_agency_for( $user_id ) {
+        if ( user_can( $user_id, 'manage_options' ) ) {
             return null;
         }
         return TAP_Booking::get_agency_for_user( $user_id );
@@ -1172,6 +1173,58 @@ class TAP_Ajax {
     }
 
     /**
+     * Filter attachment ids sent by the front-end uploader. Only images the
+     * current user owns (or admins) can be attached, so an agency cannot point
+     * a listing at somebody else's private media.
+     *
+     * @param mixed $raw   Array or comma separated list of attachment ids.
+     * @param int   $limit Max number of ids to keep (0 = unlimited).
+     * @return array<int,int> Ids as values, keyed by id.
+     */
+    private static function usable_attachment_ids($raw, $limit = 0) {
+        $ids = is_array($raw) ? $raw : explode(',', (string) $raw);
+        $uid = get_current_user_id();
+        $is_admin = user_can($uid, 'manage_options');
+        $out = [];
+        foreach ($ids as $id) {
+            $id = absint($id);
+            if (!$id || isset($out[$id])) {
+                continue;
+            }
+            $att = get_post($id);
+            if (!$att || 'attachment' !== $att->post_type) {
+                continue;
+            }
+            if (0 !== strpos((string) get_post_mime_type($id), 'image/')) {
+                continue;
+            }
+            if (!$is_admin && (int) $att->post_author !== $uid) {
+                continue;
+            }
+            $out[$id] = $id;
+            if ($limit > 0 && count($out) >= $limit) {
+                break;
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Map the attachments a post already uses to their URL, so legacy URL
+     * submissions are reused instead of re-downloaded on every save.
+     */
+    private static function attachments_by_url($ids) {
+        $map = [];
+        foreach ((array) $ids as $id) {
+            $url = wp_get_attachment_url((int) $id);
+            if ($url) {
+                $map[$url] = (int) $id;
+            }
+        }
+        return $map;
+    }
+
+    /**
      * Core, testable listing save. Returns TRUE on success (listing id in
      * $GLOBALS['_tap_saved_listing']) or an error message string. Never dies,
      * so it can be exercised directly under wp-cli.
@@ -1237,10 +1290,11 @@ class TAP_Ajax {
 
         if ($listing_id) {
             $post['ID'] = $listing_id;
-            // Editing an existing listing: preserve its current status unless
-            // the user actually holds the publish capability for this type.
-            if ($can_publish) {
-                $post['post_status'] = 'publish';
+            // Editing keeps the current visibility: publishing/unpublishing is an
+            // explicit action (see set_listing_published) instead of a side
+            // effect of saving the form.
+            if (array_key_exists('publish', $input)) {
+                $post['post_status'] = empty($input['publish']) ? 'draft' : ($can_publish ? 'publish' : 'pending');
             }
             $new_id     = wp_update_post($post, true);
         } else {
@@ -1346,11 +1400,23 @@ class TAP_Ajax {
             }
         }
 
-        // Featured image (remote URL is sideloaded into the Media Library).
-        if (array_key_exists('featured_image_url', $input)) {
+        // ── Images ────────────────────────────────────────────────────
+        // The agency wizard uploads through the Media Library and sends
+        // attachment ids, so nothing is re-downloaded. The legacy URL fields
+        // keep working for the older editors and reuse existing attachments.
+        if (array_key_exists('featured_attachment_id', $input)) {
+            $att = self::usable_attachment_ids($input['featured_attachment_id'], 1);
+            if ($att) {
+                set_post_thumbnail($new_id, (int) array_key_first($att));
+            } else {
+                delete_post_thumbnail($new_id);
+            }
+        } elseif (array_key_exists('featured_image_url', $input)) {
             $furl = esc_url_raw(trim((string) ($input['featured_image_url'] ?? '')));
             if ('' !== $furl) {
-                $att = self::sideload_image($furl);
+                $current = (int) get_post_thumbnail_id($new_id);
+                $known   = self::attachments_by_url([$current]);
+                $att     = isset($known[$furl]) ? $known[$furl] : self::sideload_image($furl);
                 if ($att) {
                     set_post_thumbnail($new_id, $att);
                 }
@@ -1359,17 +1425,26 @@ class TAP_Ajax {
             }
         }
 
-        // Gallery (one URL per line) for accommodation listings.
-        if ($listing_type === 'tap_accommodation' && array_key_exists('gallery_urls', $input)) {
-            $urls = array_values(array_filter(array_map('trim', explode("\n", (string) $input['gallery_urls']))));
-            $ids  = [];
-            foreach ($urls as $u) {
-                $att = self::sideload_image($u);
-                if ($att) {
-                    $ids[$att] = $att;
+        if ($listing_type === 'tap_accommodation') {
+            if (array_key_exists('gallery_attachment_ids', $input)) {
+                $ids = self::usable_attachment_ids($input['gallery_attachment_ids']);
+                update_post_meta($new_id, '_tap_acc_gallery', implode(',', array_keys($ids)));
+            } elseif (array_key_exists('gallery_urls', $input)) {
+                $urls  = array_values(array_filter(array_map('trim', explode("\n", (string) $input['gallery_urls']))));
+                $known = self::attachments_by_url(array_filter(array_map('absint', explode(',', (string) get_post_meta($new_id, '_tap_acc_gallery', true)))));
+                $ids   = [];
+                foreach ($urls as $u) {
+                    if (isset($known[$u])) {
+                        $ids[$known[$u]] = $known[$u];
+                        continue;
+                    }
+                    $att = self::sideload_image($u);
+                    if ($att) {
+                        $ids[$att] = $att;
+                    }
                 }
+                update_post_meta($new_id, '_tap_acc_gallery', implode(',', array_keys($ids)));
             }
-            update_post_meta($new_id, '_tap_acc_gallery', implode(',', array_keys($ids)));
         }
 
         return true;
@@ -1452,6 +1527,232 @@ class TAP_Ajax {
             return 0;
         }
         return (int) $att_id;
+    }
+
+    /**
+     * Image extensions accepted by the front-end agency uploader.
+     */
+    public static function allowed_image_extensions() {
+        return apply_filters('tap_allowed_image_extensions', ['jpg', 'jpeg', 'png', 'webp', 'gif']);
+    }
+
+    /**
+     * Max upload size (bytes) accepted by the front-end agency uploader.
+     */
+    public static function agency_image_max_bytes() {
+        return (int) apply_filters('tap_agency_image_max_bytes', 8 * MB_IN_BYTES);
+    }
+
+    /**
+     * Store an image into the Media Library. Testable core: takes a plain
+     * file array (as in $_FILES), never dies, and returns the attachment data
+     * array or a WP_Error. Handles both real uploads (wp_handle_upload) and
+     * local temp files (wp_handle_sideload), which keeps it usable from tests.
+     *
+     * @param array $file      File array with name/tmp_name/size/type/error.
+     * @param int   $parent_id Optional post to attach the media to.
+     * @return array|WP_Error  {attachment_id, url, thumb, width, height}
+     */
+    public static function store_uploaded_image($file, $parent_id = 0) {
+        $file = (array) $file;
+        $name = isset($file['name']) ? sanitize_file_name((string) $file['name']) : '';
+        $tmp  = isset($file['tmp_name']) ? (string) $file['tmp_name'] : '';
+
+        if ('' === $name || '' === $tmp || !file_exists($tmp)) {
+            return new WP_Error('tap_upload_missing', __('No se recibió ningún archivo.', 'travel-agency-platform'));
+        }
+
+        $ext = strtolower((string) pathinfo($name, PATHINFO_EXTENSION));
+        if (!in_array($ext, self::allowed_image_extensions(), true)) {
+            return new WP_Error('tap_upload_type', __('Formato no permitido. Usa JPG, PNG, WEBP o GIF.', 'travel-agency-platform'));
+        }
+
+        $max   = self::agency_image_max_bytes();
+        $bytes = isset($file['size']) && (int) $file['size'] > 0 ? (int) $file['size'] : (int) filesize($tmp);
+        if ($max > 0 && $bytes > $max) {
+            return new WP_Error('tap_upload_size', sprintf(
+                /* translators: %s: formatted size limit */
+                __('La imagen supera el tamaño máximo permitido (%s).', 'travel-agency-platform'),
+                size_format($max)
+            ));
+        }
+
+        // Verify it really is an image (blocks renamed executables).
+        $check = wp_check_filetype_and_ext($tmp, $name);
+        $mime  = !empty($check['type']) ? $check['type'] : '';
+        if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp', 'image/gif'], true)) {
+            return new WP_Error('tap_upload_invalid', __('El archivo no es una imagen válida.', 'travel-agency-platform'));
+        }
+
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+        require_once ABSPATH . 'wp-admin/includes/image.php';
+        require_once ABSPATH . 'wp-admin/includes/media.php';
+
+        $parent_id  = (int) $parent_id;
+        $file_array = [
+            'name'     => $name,
+            'type'     => $mime,
+            'tmp_name' => $tmp,
+            'error'    => 0,
+            'size'     => $bytes,
+        ];
+
+        $overrides = ['test_form' => false];
+        if (function_exists('is_uploaded_file') && is_uploaded_file($tmp)) {
+            $handled = wp_handle_upload($file_array, $overrides);
+            if (isset($handled['error']) && !is_numeric($handled['error'])) {
+                return $handled;
+            }
+            $file_array['tmp_name'] = $handled['file'];
+        }
+
+        $att_id = media_handle_sideload($file_array, $parent_id);
+        if (is_wp_error($att_id)) {
+            return $att_id;
+        }
+
+        $meta = wp_get_attachment_metadata($att_id);
+        $url  = wp_get_attachment_url($att_id);
+        return [
+            'attachment_id' => (int) $att_id,
+            'url'           => $url ? $url : '',
+            'thumb'         => wp_get_attachment_image_url($att_id, 'medium') ?: $url,
+            'width'         => isset($meta['width']) ? (int) $meta['width'] : 0,
+            'height'        => isset($meta['height']) ? (int) $meta['height'] : 0,
+        ];
+    }
+
+    /**
+     * Front-end image upload used by the agency back-office wizard. Auth,
+     * ownership and nonce live here; the storage work is in the core above.
+     */
+    public static function agency_upload_image() {
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => __('Debes iniciar sesión para subir imágenes.', 'travel-agency-platform')], 403);
+        }
+        $user_id = get_current_user_id();
+        if (!user_can($user_id, 'upload_files') && !user_can($user_id, 'manage_options')) {
+            wp_send_json_error(['message' => __('Tu cuenta no tiene permiso para subir imágenes.', 'travel-agency-platform')], 403);
+        }
+
+        $listing_type = isset($_POST['listing_type']) ? sanitize_key($_POST['listing_type']) : 'tap_accommodation';
+        $listing_id   = isset($_POST['listing_id']) ? absint($_POST['listing_id']) : 0;
+        if ($listing_id && !self::agency_owns_listing($listing_id, $listing_type)) {
+            wp_send_json_error(['message' => __('Solo puedes adjuntar imágenes a tus propios listados.', 'travel-agency-platform')], 403);
+        }
+
+        // Unit images are parented to the unit, but ownership is always checked
+        // against the accommodation they belong to.
+        $parent_id = isset($_POST['parent_id']) ? absint($_POST['parent_id']) : 0;
+        if ($parent_id && $parent_id !== $listing_id) {
+            $parent_ok = 'tap_room' === get_post_type($parent_id)
+                && (int) get_post_meta($parent_id, '_tap_room_accommodation_id', true) === $listing_id;
+            if (!$parent_ok) {
+                wp_send_json_error(['message' => __('No puedes adjuntar imágenes a esa unidad.', 'travel-agency-platform')], 403);
+            }
+        } else {
+            $parent_id = $listing_id;
+        }
+
+        if (empty($_FILES['file']) || !is_array($_FILES['file'])) {
+            wp_send_json_error(['message' => __('No se recibió ningún archivo.', 'travel-agency-platform')]);
+        }
+
+        $error = isset($_FILES['file']['error']) ? (int) $_FILES['file']['error'] : UPLOAD_ERR_NO_FILE;
+        if ($error !== UPLOAD_ERR_OK) {
+            $messages = [
+                UPLOAD_ERR_INI_SIZE   => __('La imagen supera el tamaño permitido por el servidor.', 'travel-agency-platform'),
+                UPLOAD_ERR_FORM_SIZE  => __('La imagen supera el tamaño permitido.', 'travel-agency-platform'),
+                UPLOAD_ERR_PARTIAL    => __('La imagen se subió incompleta. Intenta de nuevo.', 'travel-agency-platform'),
+                UPLOAD_ERR_NO_FILE    => __('No se seleccionó ningún archivo.', 'travel-agency-platform'),
+                UPLOAD_ERR_NO_TMP_DIR => __('Error del servidor: no hay carpeta temporal.', 'travel-agency-platform'),
+                UPLOAD_ERR_CANT_WRITE => __('Error del servidor: no se pudo escribir el archivo.', 'travel-agency-platform'),
+                UPLOAD_ERR_EXTENSION  => __('Una extensión de PHP bloqueó la subida.', 'travel-agency-platform'),
+            ];
+            wp_send_json_error(['message' => $messages[$error] ?? __('No se pudo subir la imagen.', 'travel-agency-platform')]);
+        }
+
+        $result = self::store_uploaded_image($_FILES['file'], $parent_id);
+        if (is_wp_error($result)) {
+            wp_send_json_error(['message' => $result->get_error_message()]);
+        }
+
+        wp_send_json_success($result);
+    }
+
+    /**
+     * Core, testable publish/unpublish toggle. Publishing honours the agency
+     * approval rules: users without the publish capability send the listing to
+     * moderation instead of making it public.
+     *
+     * @return array|WP_Error {status, is_active, message}
+     */
+    public static function set_listing_published($listing_id, $publish) {
+        $listing_id = absint($listing_id);
+        $type       = $listing_id ? get_post_type($listing_id) : '';
+        if (!$listing_id || !$type) {
+            return new WP_Error('tap_bad_listing', __('Alojamiento no encontrado.', 'travel-agency-platform'));
+        }
+
+        $prefix      = self::listing_prefix($type);
+        $active_meta = '_tap_' . $prefix . '_is_active';
+        $can_publish = current_user_can('publish_' . $type . 's') || current_user_can('manage_options');
+
+        if (!$publish) {
+            wp_update_post(['ID' => $listing_id, 'post_status' => 'draft']);
+            update_post_meta($listing_id, $active_meta, '0');
+            return [
+                'status'    => 'draft',
+                'is_active' => '0',
+                'message'   => __('Alojamiento despublicado. Ya no aparece en el buscador.', 'travel-agency-platform'),
+            ];
+        }
+
+        update_post_meta($listing_id, $active_meta, '1');
+
+        if ($can_publish) {
+            wp_update_post(['ID' => $listing_id, 'post_status' => 'publish']);
+            return [
+                'status'    => 'publish',
+                'is_active' => '1',
+                'message'   => __('¡Alojamiento publicado! Ya está visible para los viajeros.', 'travel-agency-platform'),
+            ];
+        }
+
+        wp_update_post(['ID' => $listing_id, 'post_status' => 'pending']);
+        return [
+            'status'    => 'pending',
+            'is_active' => '1',
+            'message'   => __('Enviado a revisión. Un administrador lo aprobará y quedará visible.', 'travel-agency-platform'),
+        ];
+    }
+
+    /**
+     * AJAX: explicit publish / unpublish from the wizard.
+     */
+    public static function agency_toggle_publish() {
+        check_ajax_referer('tap_agency_listing_nonce', 'nonce');
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => __('Debes iniciar sesión.', 'travel-agency-platform')], 403);
+        }
+
+        $listing_type = isset($_POST['listing_type']) ? sanitize_key($_POST['listing_type']) : 'tap_accommodation';
+        $listing_id   = isset($_POST['listing_id']) ? absint($_POST['listing_id']) : 0;
+        if (!$listing_id || get_post_type($listing_id) !== $listing_type) {
+            wp_send_json_error(['message' => __('Alojamiento no encontrado.', 'travel-agency-platform')]);
+        }
+        if (!self::agency_owns_listing($listing_id, $listing_type)) {
+            wp_send_json_error(['message' => __('Solo puedes gestionar tus propios alojamientos.', 'travel-agency-platform')], 403);
+        }
+
+        $result = self::set_listing_published($listing_id, !empty($_POST['publish']));
+        if (is_wp_error($result)) {
+            wp_send_json_error(['message' => $result->get_error_message()]);
+        }
+
+        $result['permalink'] = 'publish' === $result['status'] ? (string) get_permalink($listing_id) : '';
+        wp_send_json_success($result);
     }
 
     public static function agency_save_room() {
@@ -1546,10 +1847,20 @@ class TAP_Ajax {
         $amenities = array_values( array_unique( array_filter( array_map( 'trim', explode( ',', $amenities_raw ) ) ) ) );
         update_post_meta( $new_id, '_tap_room_amenities', json_encode( $amenities, JSON_UNESCAPED_UNICODE ) );
 
-        if ( array_key_exists( 'room_thumbnail_url', $input ) ) {
+        // Images: attachment ids from the wizard uploader take precedence over
+        // the legacy URL fields, which are reused when already known.
+        if ( array_key_exists( 'room_attachment_id', $input ) ) {
+            $att = self::usable_attachment_ids( $input['room_attachment_id'], 1 );
+            if ( $att ) {
+                set_post_thumbnail( $new_id, (int) array_key_first( $att ) );
+            } else {
+                delete_post_thumbnail( $new_id );
+            }
+        } elseif ( array_key_exists( 'room_thumbnail_url', $input ) ) {
             $furl = esc_url_raw( trim( (string) ( $input['room_thumbnail_url'] ?? '' ) ) );
             if ( '' !== $furl ) {
-                $att = self::sideload_image( $furl );
+                $known = self::attachments_by_url( [ (int) get_post_thumbnail_id( $new_id ) ] );
+                $att   = isset( $known[ $furl ] ) ? $known[ $furl ] : self::sideload_image( $furl );
                 if ( $att ) {
                     set_post_thumbnail( $new_id, $att );
                 }
@@ -1558,10 +1869,18 @@ class TAP_Ajax {
             }
         }
 
-        if ( array_key_exists( 'gallery_urls', $input ) ) {
-            $urls = array_values( array_filter( array_map( 'trim', explode( "\n", (string) $input['gallery_urls'] ) ) ) );
-            $ids  = [];
+        if ( array_key_exists( 'gallery_attachment_ids', $input ) ) {
+            $ids = self::usable_attachment_ids( $input['gallery_attachment_ids'] );
+            update_post_meta( $new_id, '_tap_room_gallery', implode( ',', array_keys( $ids ) ) );
+        } elseif ( array_key_exists( 'gallery_urls', $input ) ) {
+            $urls  = array_values( array_filter( array_map( 'trim', explode( "\n", (string) $input['gallery_urls'] ) ) ) );
+            $known = self::attachments_by_url( array_filter( array_map( 'absint', explode( ',', (string) get_post_meta( $new_id, '_tap_room_gallery', true ) ) ) ) );
+            $ids   = [];
             foreach ( $urls as $u ) {
+                if ( isset( $known[ $u ] ) ) {
+                    $ids[ $known[ $u ] ] = $known[ $u ];
+                    continue;
+                }
                 $att = self::sideload_image( $u );
                 if ( $att ) {
                     $ids[ $att ] = $att;

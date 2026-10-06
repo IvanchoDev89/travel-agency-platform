@@ -541,11 +541,11 @@
 
 /* ── Danger button variant ──────────────────────────────────────── */
 .tap-btn-danger {
-    color: #e11d48;
-    border-color: #e11d48;
+    color: var(--tap-danger);
+    border-color: var(--tap-danger);
 }
 .tap-btn-danger:hover {
-    background: #e11d48;
+    background: var(--tap-danger);
     color: #fff;
 }
 .tap-btn-amber {

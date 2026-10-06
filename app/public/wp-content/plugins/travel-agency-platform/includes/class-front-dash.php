@@ -728,8 +728,9 @@ class TAP_Front_Dash {
             </div>
 
             <?php if ($pending): ?>
-                <div class="tap-notice" style="background:#fef3c7;border:1px solid #f59e0b;color:#92400e;border-radius:8px;padding:12px 16px;margin:16px 0;">
-                    <?php echo esc_html(sprintf(__('Tienes una solicitud de liquidación de %s pendiente de confirmación por el administrador (#%d).', 'travel-agency-platform'), TAP_Currency::fmt($pending->amount), (int) $pending->id)); ?>
+                <div class="tap-notice">
+                    <span class="tap-notice-icon" aria-hidden="true">⚠</span>
+                    <span><?php echo esc_html(sprintf(__('Tienes una solicitud de liquidación de %s pendiente de confirmación por el administrador (#%d).', 'travel-agency-platform'), TAP_Currency::fmt($pending->amount), (int) $pending->id)); ?></span>
                 </div>
             <?php elseif (isset($totals->owed) && (float) $totals->owed > 0): ?>
                 <div class="tap-dash-card" style="margin-top:16px;">

@@ -52,6 +52,14 @@ class TAP_Currency {
         return $code;
     }
 
+    /**
+     * Symbol as plain UTF-8 text (no HTML entities), safe for json_encode and
+     * javascript contexts such as the agency calendar.
+     */
+    public static function plain_symbol($code = null) {
+        return html_entity_decode(self::symbol($code), ENT_QUOTES, 'UTF-8');
+    }
+
     public static function fmt($amount, $decimals = null) {
         $decimals = $decimals === null ? self::decimals() : $decimals;
         return self::symbol() . ' ' . number_format((float) $amount, $decimals);

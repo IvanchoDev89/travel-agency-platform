@@ -4,6 +4,7 @@
   --tap-primary-dark: #0f766e;
   --tap-primary-light: #14b8a6;
   --tap-primary-bg: #f0fdfa;
+  --tap-primary-border: #99f6e4;
   --tap-secondary: #d97706;
   --tap-secondary-dark: #b45309;
   --tap-accent: #0d9488;
@@ -21,16 +22,36 @@
   --tap-neutral-800: #1e293b;
   --tap-neutral-900: #0f172a;
 
+  /* Surfaces & borders (shared by cards, panels and forms) */
+  --tap-surface: #ffffff;
+  --tap-surface-muted: #f8fafc;
+  --tap-border: #e2e8f0;
+  --tap-border-strong: #cbd5e1;
+
   /* Semantic */
   --tap-success: #10b981;
   --tap-success-bg: #ecfdf5;
+  --tap-success-dark: #047857;
   --tap-error: #ef4444;
   --tap-error-bg: #fef2f2;
-  --tap-danger: #ef4444;
+  --tap-danger: #dc2626;
+  --tap-danger-dark: #b91c1c;
   --tap-danger-bg: #fef2f2;
+  --tap-danger-border: #fecaca;
+  --tap-warning: #d97706;
   --tap-warning-bg: #fffbeb;
+  --tap-warning-border: #f59e0b;
+  --tap-warning-text: #92400e;
   --tap-info: #3b82f6;
   --tap-info-bg: #eff6ff;
+
+  /* Calendar / availability states */
+  --tap-day-override-bg: #dbeafe;
+  --tap-day-override-border: #93c5fd;
+  --tap-day-blocked-bg: #fce4e4;
+  --tap-day-blocked-border: #fca5a5;
+  --tap-day-blocked-text: #b91c1c;
+  --tap-day-selected-bg: #ccfbf1;
 
   /* Typography */
   --tap-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -66,6 +87,9 @@
   --tap-radius-xl: 12px;
   --tap-radius-2xl: 16px;
   --tap-radius-full: 9999px;
+
+  /* Aliases used by panel/card rules (legacy names, now defined) */
+  --tap-radius: var(--tap-radius-xl);
 
   /* Shadows */
   --tap-shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);

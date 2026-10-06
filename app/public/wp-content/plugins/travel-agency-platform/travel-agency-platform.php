@@ -134,6 +134,8 @@ final class TravelAgencyPlatform {
         add_action('wp_ajax_tap_agency_save_listing', ['TAP_Ajax', 'agency_save_listing']);
         add_action('wp_ajax_tap_agency_save_room', ['TAP_Ajax', 'agency_save_room']);
         add_action('wp_ajax_tap_agency_delete_room', ['TAP_Ajax', 'agency_delete_room']);
+        add_action('wp_ajax_tap_agency_upload_image', ['TAP_Ajax', 'agency_upload_image']);
+        add_action('wp_ajax_tap_agency_toggle_publish', ['TAP_Ajax', 'agency_toggle_publish']);
         add_action('wp_ajax_tap_toggle_favorite', ['TAP_Ajax', 'toggle_favorite']);
         add_action('wp_ajax_tap_agency_subscribe', ['TAP_Ajax', 'agency_subscribe']);
         add_action('wp_ajax_tap_subscribe_paypal', ['TAP_Ajax', 'subscribe_paypal']);

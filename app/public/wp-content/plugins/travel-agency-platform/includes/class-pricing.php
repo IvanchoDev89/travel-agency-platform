@@ -112,6 +112,23 @@ class TAP_Pricing {
     }
 
     /**
+     * Total number of daily override rows across the given rooms. Used by the
+     * agency wizard checklist to know whether pricing work has been started.
+     *
+     * @param array $room_ids Room post ids.
+     * @return int
+     */
+    public static function override_count($room_ids) {
+        global $wpdb;
+        $room_ids = array_values(array_filter(array_map('absint', (array) $room_ids)));
+        if (!$room_ids) {
+            return 0;
+        }
+        $ids = implode(',', $room_ids);
+        return (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}tap_daily_pricing WHERE room_id IN ({$ids})");
+    }
+
+    /**
      * Shared calendar payload for a room/month. Used by the admin metabox and
      * by the agency back-office so both views stay perfectly in sync.
      */
