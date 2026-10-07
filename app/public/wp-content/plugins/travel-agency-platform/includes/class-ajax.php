@@ -1149,7 +1149,7 @@ class TAP_Ajax {
         return $owner > 0 && $owner === (int) $agency;
     }
 
-    private static function agency_owns_accommodation($acc_id) {
+    public static function agency_owns_accommodation($acc_id) {
         return self::agency_owns_listing($acc_id, 'tap_accommodation');
     }
 

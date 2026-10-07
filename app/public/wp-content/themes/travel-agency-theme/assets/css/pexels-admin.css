@@ -1,0 +1,76 @@
+/* Appearance → Hero Landing (Pexels) */
+
+.tap-pexels-admin .description { max-width: 780px; }
+
+.tap-pexels-keybox {
+  background: #fff;
+  border: 1px solid #dcdcde;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin: 16px 0;
+  max-width: 780px;
+}
+.tap-pexels-keybox h2 { margin: 0 0 4px; font-size: 14px; }
+.tap-pexels-keybox form { display: flex; gap: 8px; margin-top: 8px; }
+.tap-pexels-keybox input[type="password"] { flex: 1; min-width: 260px; }
+
+.tap-pexels-toolbar {
+  background: #fff;
+  border: 1px solid #dcdcde;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin: 16px 0;
+}
+.tap-pexels-toolbar form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.tap-pexels-toolbar input[type="search"] { min-width: 240px; flex: 1; }
+.tap-pexels-dl { font-size: 13px; display: inline-flex; gap: 6px; align-items: center; color: #444; }
+
+.tap-pexels-msg {
+  min-height: 22px;
+  font-size: 13px;
+  color: #46b450;
+  margin: 8px 0 14px;
+}
+.tap-pexels-msg.is-error { color: #d63638; }
+.tap-pexels-msg .button { margin-left: 8px; vertical-align: middle; }
+
+.tap-pexels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 14px;
+}
+
+.tap-pexels-card {
+  margin: 0;
+  background: #fff;
+  border: 1px solid #dcdcde;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.tap-pexels-card img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  background: #f0f0f1;
+  display: block;
+}
+.tap-pexels-card figcaption {
+  padding: 8px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tap-pexels-meta { font-size: 12px; color: #646970; }
+.tap-pexels-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.tap-pexels-current { font-size: 13px; color: #444; }
+.tap-pexels-current code {
+  display: inline-block;
+  max-width: 420px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}

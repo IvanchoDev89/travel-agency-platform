@@ -16,18 +16,23 @@
             'tap_package'       => __('Packages', 'travel-agency-platform'),
             'tap_agency'        => __('Agencies', 'travel-agency-platform'),
         ];
-        $title = isset($type_labels[$post_type]) ? $type_labels[$post_type] : get_the_archive_title();
+        $title = isset($type_labels[$post_type]) ? $type_labels[$post_type] : wp_strip_all_tags(get_the_archive_title());
+        $is_tap_type_archive = isset($type_labels[$post_type]) || 'tap_equipment' === $post_type;
+        $is_custom_tax       = is_tax() && !is_category() && !is_tag();
+        $is_blog_archive     = !$is_tap_type_archive && !$is_custom_tax;
         ?>
         <h1><?php echo esc_html($title); ?></h1>
     </div>
 </div>
 
-<div class="entry-content">
+<div class="entry-content<?php echo $is_blog_archive ? ' tap-container' : ''; ?>">
     <?php
     if ($post_type === 'tap_agency') {
         echo do_shortcode('[tap_agencies]');
+    } elseif ($is_blog_archive) {
+        get_template_part('template-parts/blog-index');
     } else {
-        echo do_shortcode('[tap_services type="' . $post_type . '" limit="12"]');
+        echo do_shortcode('[tap_services type="' . esc_attr($post_type) . '" limit="12"]');
     }
     ?>
 </div>

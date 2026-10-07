@@ -150,3 +150,10 @@ function tap_card_rating($post_id = 0, $map_type = '') {
     }
     return '<div class="tap-card-rating">' . tap_rating_stars($stats['avg'], $stats['count']) . '<span class="tap-card-rating-count">' . (int) $stats['count'] . '</span></div>';
 }
+
+require get_template_directory() . '/inc/customizer.php';
+
+require get_template_directory() . '/inc/seo.php';
+
+require get_template_directory() . '/inc/pexels.php';
+require get_template_directory() . '/inc/pexels-admin.php';

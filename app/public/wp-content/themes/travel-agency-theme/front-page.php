@@ -150,16 +150,20 @@ if ($tableExists) {
 $postsQuery = new WP_Query([
     'post_type'      => 'post',
     'post_status'    => 'publish',
-    'posts_per_page' => 3,
+    'posts_per_page' => 6,
     'ignore_sticky_posts' => true,
 ]);
 $articles = $postsQuery->have_posts() ? array_map(function ($p) {
+    $cats = get_the_category($p->ID);
     return [
         'title' => get_the_title($p),
         'link'  => get_permalink($p),
         'date'  => get_the_date('', $p),
         'img'   => (string) get_the_post_thumbnail_url($p->ID, 'medium_large'),
-        'excerpt' => wp_trim_words(get_the_excerpt($p) ?: '', 22),
+        'excerpt' => wp_trim_words(get_the_excerpt($p) ?: '', 18),
+        'cat' => $cats ? $cats[0]->name : '',
+        'cat_link' => $cats ? (string) get_category_link($cats[0]) : '',
+        'read' => function_exists('tap_reading_time') ? tap_reading_time($p->ID) : 0,
     ];
 }, $postsQuery->posts) : [];
 wp_reset_postdata();
@@ -168,16 +172,70 @@ $searchUrl  = home_url('/search-results/');
 $builderPage = get_page_by_path('armar-mi-viaje');
 $itinUrl    = $builderPage ? get_permalink($builderPage) : $searchUrl;
 $fest     = function ($n) { return (int) $n; };
-?>
 
+$hero_eyebrow  = get_theme_mod('tap_hero_eyebrow', __('Costa Rica, de verdad', 'travel-agency-platform'));
+$hero_title    = get_theme_mod('tap_hero_title', __('Descubrí lo que tu viaje puede ser', 'travel-agency-platform'));
+$hero_subtitle = get_theme_mod('tap_hero_subtitle', __('Tours, alojamientos y experiencias de agencias locales verificadas. Elegí tus intereses y armá tu propio itinerario.', 'travel-agency-platform'));
+$hero_video    = get_theme_mod('tap_hero_video_url', '');
+$hero_poster   = get_theme_mod('tap_hero_video_poster', '');
+$hero_overlay  = (float) get_theme_mod('tap_hero_overlay_opacity', 0.4);
+$hero_search   = get_theme_mod('tap_hero_show_search', true);
+if ($hero_overlay < 0) { $hero_overlay = 0; }
+if ($hero_overlay > 0.8) { $hero_overlay = 0.8; }
+
+// ---------- Knowledge hub: blog url, pillars, FAQ ----------
+$blogUrl   = get_permalink((int) get_option('page_for_posts')) ?: home_url('/blog/');
+$faqItems  = get_theme_mod('tap_landing_show_faq', true) ? tap_landing_faq_items() : [];
+
+$pillarDefs = [
+    ['slug' => 'destinos', 'blurb' => __('Región por región: Guanacaste, Arenal, Valle Central, Caribe y Península de Osa.', 'travel-agency-platform'), 'icon' => 'pin'],
+    ['slug' => 'planificacion', 'blurb' => __('Mejor época, presupuestos, documentos e itinerarios listos para copiar.', 'travel-agency-platform'), 'icon' => 'calendar'],
+    ['slug' => 'aventura', 'blurb' => __('Parques nacionales, volcanes, selva tropical y deportes extremos.', 'travel-agency-platform'), 'icon' => 'mountain'],
+    ['slug' => 'cultura-y-gastronomia', 'blurb' => __('Ferias, tradiciones, café de altura y la cocina tica de verdad.', 'travel-agency-platform'), 'icon' => 'cup'],
+    ['slug' => 'consejos-de-viaje', 'blurb' => __('Seguridad, transporte, equipaje y todo lo práctico antes de salir.', 'travel-agency-platform'), 'icon' => 'bulb'],
+];
+$faqIcons = [
+    'pin'      => '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+    'calendar' => '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+    'mountain' => '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3l4 8 5-5 5 14H2L8 3z"/></svg>',
+    'cup'      => '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>',
+    'bulb'     => '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5"/></svg>',
+];
+$pillars = [];
+foreach ($pillarDefs as $pDef) {
+    $term = get_category_by_slug($pDef['slug']);
+    if (!$term) { continue; }
+    $pillars[] = [
+        'link'  => get_category_link($term),
+        'name'  => $term->name,
+        'count' => (int) $term->count,
+        'blurb' => $pDef['blurb'],
+        'icon'  => $faqIcons[$pDef['icon']] ?? '',
+    ];
+}
+?>
 <section class="tap-hero tap-landing-hero" id="home">
-  <div class="tap-hero-bg tap-landing-hero-bg" aria-hidden="true"></div>
+  <?php if (!empty($hero_video)): ?>
+    <video class="tap-landing-hero-video" autoplay muted loop playsinline preload="metadata"<?php if (!empty($hero_poster)) echo ' poster="' . esc_url($hero_poster) . '"'; ?> aria-hidden="true">
+      <source src="<?php echo esc_url($hero_video); ?>" type="video/mp4">
+    </video>
+    <div class="tap-landing-hero-overlay" style="opacity:<?php echo esc_attr($hero_overlay); ?>"></div>
+  <?php else: ?>
+    <div class="tap-hero-bg tap-landing-hero-bg" aria-hidden="true"></div>
+  <?php endif; ?>
   <div class="tap-container tap-landing-hero-inner">
     <div class="tap-landing-hero-content">
-      <p class="tap-landing-eyebrow"><?php esc_html_e('Costa Rica, de verdad', 'travel-agency-platform'); ?></p>
-      <h1 class="tap-landing-hero-title"><?php esc_html_e('Descubrí lo que tu viaje puede ser', 'travel-agency-platform'); ?></h1>
-      <p class="tap-landing-hero-sub"><?php esc_html_e('Tours, alojamientos y experiencias de agencias locales verificadas. Elegí tus intereses y armá tu propio itinerario.', 'travel-agency-platform'); ?></p>
+      <?php if ($hero_eyebrow): ?>
+      <p class="tap-landing-eyebrow"><?php echo esc_html($hero_eyebrow); ?></p>
+      <?php endif; ?>
+      <?php if ($hero_title): ?>
+      <h1 class="tap-landing-hero-title"><?php echo esc_html($hero_title); ?></h1>
+      <?php endif; ?>
+      <?php if ($hero_subtitle): ?>
+      <p class="tap-landing-hero-sub"><?php echo wp_kses_post($hero_subtitle); ?></p>
+      <?php endif; ?>
 
+      <?php if ($hero_search): ?>
       <div class="tap-hero-search tap-landing-search">
         <form method="get" action="<?php echo esc_url(get_post_type_archive_link('tap_accommodation')); ?>" class="tap-hs-form tap-landing-hs">
           <div class="tap-hs-field tap-hs-destino">
@@ -217,6 +275,8 @@ $fest     = function ($n) { return (int) $n; };
         </form>
       </div>
 
+      <?php endif; ?>
+
       <ul class="tap-landing-trust">
         <li><?php esc_html_e('Solo agencias verificadas', 'travel-agency-platform'); ?></li>
         <li><?php esc_html_e('Pago seguro', 'travel-agency-platform'); ?></li>
@@ -250,6 +310,17 @@ $fest     = function ($n) { return (int) $n; };
   </div>
 </section>
 <?php endif; ?>
+
+<section class="tap-landing-facts" aria-label="<?php esc_attr_e('Costa Rica en datos', 'travel-agency-platform'); ?>">
+  <div class="tap-container">
+    <ul class="tap-landing-facts-grid">
+      <li><b>6%</b><span><?php esc_html_e('de la biodiversidad del planeta vive aquí', 'travel-agency-platform'); ?></span></li>
+      <li><b>25%+</b><span><?php esc_html_e('del territorio son áreas protegidas', 'travel-agency-platform'); ?></span></li>
+      <li><b>27&nbsp;°C</b><span><?php esc_html_e('de temperatura promedio todo el año', 'travel-agency-platform'); ?></span></li>
+      <li><b>2</b><span><?php esc_html_e('costas: Pacífico y Caribe, mundos distintos', 'travel-agency-platform'); ?></span></li>
+    </ul>
+  </div>
+</section>
 
 <?php if (!empty($interests)): ?>
 <section class="tap-section tap-landing-interests">
@@ -308,6 +379,31 @@ $fest     = function ($n) { return (int) $n; };
               <?php endif; ?>
             </div>
           </div>
+        </a>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</section>
+<?php endif; ?>
+
+<?php if (!empty($pillars)): ?>
+<section class="tap-section tap-landing-pillars">
+  <div class="tap-container">
+    <div class="tap-landing-head">
+      <p class="tap-landing-eyebrow tap-landing-eyebrow-dark"><?php esc_html_e('Antes de armar la maleta', 'travel-agency-platform'); ?></p>
+      <h2><?php esc_html_e('Todo lo que querés saber de Costa Rica', 'travel-agency-platform'); ?></h2>
+      <p class="tap-landing-sub"><?php esc_html_e('Guías escritas con información local: la mejor época, presupuestos reales y cómo moverse pueblo por pueblo.', 'travel-agency-platform'); ?></p>
+    </div>
+    <div class="tap-landing-pillar-grid">
+      <?php foreach ($pillars as $pillar): ?>
+        <a class="tap-landing-pillar-card" href="<?php echo esc_url($pillar['link']); ?>">
+          <span class="tap-landing-pillar-icon" aria-hidden="true"><?php echo $pillar['icon']; // phpcs:ignore WordPress.Security.EscapeOutput -- static SVG ?></span>
+          <h3><?php echo esc_html($pillar['name']); ?></h3>
+          <p><?php echo esc_html($pillar['blurb']); ?></p>
+          <span class="tap-landing-pillar-count">
+            <?php printf(esc_html(_n('%s guía', '%s guías', $pillar['count'], 'travel-agency-platform')), esc_html(number_format_i18n($pillar['count']))); ?>
+            <span aria-hidden="true">→</span>
+          </span>
         </a>
       <?php endforeach; ?>
     </div>
@@ -394,26 +490,62 @@ $fest     = function ($n) { return (int) $n; };
 <?php endif; ?>
 
 <?php if (!empty($articles)): ?>
-<section class="tap-section tap-landing-articles">
+<section class="tap-section tap-section-alt tap-landing-articles">
   <div class="tap-container">
     <div class="tap-landing-head">
-      <p class="tap-landing-eyebrow tap-landing-eyebrow-dark"><?php esc_html_e('Ideas e inspiración', 'travel-agency-platform'); ?></p>
-      <h2><?php esc_html_e('Destinos que inspiran', 'travel-agency-platform'); ?></h2>
+      <p class="tap-landing-eyebrow tap-landing-eyebrow-dark"><?php esc_html_e('Recién publicado', 'travel-agency-platform'); ?></p>
+      <h2><?php esc_html_e('Guías para planificar tu viaje', 'travel-agency-platform'); ?></h2>
+      <p class="tap-landing-sub"><?php esc_html_e('Itinerarios, temporadas y consejos prácticos para viajar mejor por Costa Rica.', 'travel-agency-platform'); ?></p>
+      <a class="tap-btn tap-btn-outline" href="<?php echo esc_url($blogUrl); ?>"><?php esc_html_e('Ver todas las guías', 'travel-agency-platform'); ?></a>
     </div>
     <div class="tap-landing-article-grid">
       <?php foreach ($articles as $art): ?>
         <a class="tap-landing-article-card" href="<?php echo esc_url($art['link']); ?>">
-          <?php if ($art['img']): ?>
-            <img src="<?php echo esc_url($art['img']); ?>" alt="<?php echo esc_attr($art['title']); ?>" loading="lazy">
-          <?php else: ?>
-            <div class="tap-landing-article-ph"><?php echo esc_html(mb_substr($art['title'], 0, 1)); ?></div>
-          <?php endif; ?>
+          <div class="tap-landing-article-media">
+            <?php if ($art['img']): ?>
+              <img src="<?php echo esc_url($art['img']); ?>" alt="<?php echo esc_attr($art['title']); ?>" loading="lazy">
+            <?php else: ?>
+              <div class="tap-landing-article-ph"><?php echo esc_html(mb_substr($art['title'], 0, 1)); ?></div>
+            <?php endif; ?>
+            <?php if ($art['cat']): ?>
+              <span class="tap-landing-article-cat"><?php echo esc_html($art['cat']); ?></span>
+            <?php endif; ?>
+          </div>
           <h3><?php echo esc_html($art['title']); ?></h3>
           <p><?php echo esc_html($art['excerpt']); ?></p>
-          <span class="tap-landing-article-date"><?php echo esc_html($art['date']); ?></span>
+          <span class="tap-landing-article-date">
+            <?php echo esc_html($art['date']); ?>
+            <?php if ($art['read']): ?> · <?php printf(esc_html__('%d min de lectura', 'travel-agency-platform'), (int) $art['read']); ?><?php endif; ?>
+          </span>
         </a>
       <?php endforeach; ?>
     </div>
+  </div>
+</section>
+<?php endif; ?>
+
+<?php if (!empty($faqItems)): ?>
+<section class="tap-section tap-landing-faq" id="preguntas">
+  <div class="tap-container tap-landing-faq-wrap">
+    <div class="tap-landing-head">
+      <p class="tap-landing-eyebrow tap-landing-eyebrow-dark"><?php esc_html_e('Resolvé tus dudas', 'travel-agency-platform'); ?></p>
+      <h2><?php esc_html_e('Preguntas frecuentes sobre viajar a Costa Rica', 'travel-agency-platform'); ?></h2>
+      <p class="tap-landing-sub"><?php esc_html_e('Lo que más nos preguntan, respondido con información actualizada y experiencia local.', 'travel-agency-platform'); ?></p>
+    </div>
+    <div class="tap-landing-faq-list">
+      <?php foreach ($faqItems as $faqIndex => $faqItem): ?>
+        <details class="tap-landing-faq-item"<?php echo 0 === $faqIndex ? ' open' : ''; ?>>
+          <summary>
+            <span class="tap-landing-faq-q"><?php echo esc_html($faqItem['q']); ?></span>
+            <span class="tap-landing-faq-icon" aria-hidden="true"></span>
+          </summary>
+          <div class="tap-landing-faq-a"><p><?php echo esc_html($faqItem['a']); ?></p></div>
+        </details>
+      <?php endforeach; ?>
+    </div>
+    <p class="tap-landing-faq-more">
+      <?php printf(esc_html__('¿Seguís con dudas? Explorá todas nuestras guías: %s', 'travel-agency-platform'), '<a href="' . esc_url($blogUrl) . '">' . esc_html__('ver guías de viaje', 'travel-agency-platform') . '</a>'); ?>
+    </p>
   </div>
 </section>
 <?php endif; ?>
