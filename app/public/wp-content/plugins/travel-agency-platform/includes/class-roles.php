@@ -2,11 +2,20 @@
 defined('ABSPATH') || exit;
 
 class TAP_Roles {
+    /**
+     * Bump when this class adds/removes roles or capabilities so the setup
+     * below re-runs exactly once after each deploy that changes the catalog.
+     */
+    const SETUP_VERSION = 2;
+
     public static function setup() {
-        self::add_agency_admin_role();
-        self::add_agency_employee_role();
-        self::add_client_role();
-        self::add_capabilities();
+        if ((int) get_option('tap_roles_version', 0) !== self::SETUP_VERSION) {
+            self::add_agency_admin_role();
+            self::add_agency_employee_role();
+            self::add_client_role();
+            self::add_capabilities();
+            update_option('tap_roles_version', self::SETUP_VERSION);
+        }
         add_action('user_register', [__CLASS__, 'assign_client_role']);
     }
 
