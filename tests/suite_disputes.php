@@ -102,6 +102,19 @@ tap_t_assert('owed' === $wpdb->get_var($wpdb->prepare("SELECT commission_status 
 tap_t_assert(!TAP_Payouts::cancel($payout), 'completed payout cannot be cancelled');
 tap_t_assert('Pendiente' === TAP_Payouts::status_label('pending'), 'payout status label ES');
 
+// --- failed payout: badge state + commissions released for retry ----------------
+$paid_bk2 = tap_t_seed_booking(['client_id' => $u, 'service_type' => $ftype, 'service_id' => $fid, 'status' => 'confirmed', 'payment_status' => 'paid', 'commission_status' => 'paid', 'commission_amount' => 30]);
+$wpdb->insert($p, ['agency_id' => tap_t_test_agency(), 'amount' => 30, 'booking_ids' => (string) $paid_bk2, 'method' => 'bank_transfer']);
+$payout3 = (int) $wpdb->insert_id;
+tap_t_assert(TAP_Payouts::fail($payout3, 'El banco rechazó el giro'), 'pending payout marked failed');
+tap_t_assert('failed' === $wpdb->get_var($wpdb->prepare("SELECT status FROM {$p} WHERE id=%d", $payout3)), 'payout status failed');
+tap_t_assert($wpdb->get_var($wpdb->prepare("SELECT note FROM {$p} WHERE id=%d", $payout3)) !== '' && false !== strpos($wpdb->get_var($wpdb->prepare("SELECT note FROM {$p} WHERE id=%d", $payout3)), 'El banco rechazó el giro'), 'failure note recorded');
+tap_t_assert('owed' === $wpdb->get_var($wpdb->prepare("SELECT commission_status FROM {$b} WHERE id=%d", $paid_bk2)), 'failed payout frees commission back to owed');
+tap_t_assert(!TAP_Payouts::complete($payout3), 'failed payout cannot be completed');
+tap_t_assert(!TAP_Payouts::fail($payout3, 'de nuevo'), 'double-fail rejected');
+tap_t_assert(!TAP_Payouts::cancel($payout3), 'failed payout cannot be cancelled after failing');
+tap_t_assert('Fallida' === TAP_Payouts::status_label('failed'), 'payout failed status label ES');
+
 // --- voucher dispute flow (traveler) -----------------------------------------------------------
 $code = $wpdb->get_var($wpdb->prepare("SELECT booking_code FROM {$b} WHERE id=%d", $bk));
 wp_set_current_user($u);

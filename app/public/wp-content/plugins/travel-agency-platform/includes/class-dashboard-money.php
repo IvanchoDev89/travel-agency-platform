@@ -86,13 +86,17 @@ class TAP_Dashboard_Money {
         if (isset($_POST['tap_payout_action']) && isset($_POST['_wpnonce'])) {
             $payment_id = intval($_POST['payout_id'] ?? 0);
             $action     = sanitize_key($_POST['tap_payout_action'] ?? '');
-            if ($payment_id && in_array($action, ['complete', 'cancel'], true) && wp_verify_nonce($_POST['_wpnonce'], 'tap_payout_action_' . $payment_id)) {
+            if ($payment_id && in_array($action, ['complete', 'cancel', 'failed'], true) && wp_verify_nonce($_POST['_wpnonce'], 'tap_payout_action_' . $payment_id)) {
                 if ('complete' === $action) {
                     TAP_Payouts::complete($payment_id);
                     set_transient('tap_commission_notice', __('Liquidación marcada como completada.', 'travel-agency-platform'), 60);
                 } elseif ('cancel' === $action) {
                     TAP_Payouts::cancel($payment_id);
                     set_transient('tap_commission_notice', __('Liquidación cancelada y comisiones devueltas a "por cobrar".', 'travel-agency-platform'), 60);
+                } elseif ('failed' === $action) {
+                    $fail_note = sanitize_textarea_field(wp_unslash($_POST['fail_note'] ?? ''));
+                    TAP_Payouts::fail($payment_id, $fail_note);
+                    set_transient('tap_commission_notice', __('Liquidación marcada como fallida y comisiones liberadas.', 'travel-agency-platform'), 60);
                 }
             }
             wp_safe_redirect(admin_url('admin.php?page=tap-commissions&status=' . sanitize_key($_POST['filter'] ?? 'all') . '&payout_status=' . sanitize_key($_POST['payout_filter'] ?? 'all')));
@@ -121,7 +125,7 @@ class TAP_Dashboard_Money {
              ORDER BY b.created_at DESC LIMIT 200"
         );
         $payout_filter = sanitize_key($_GET['payout_status'] ?? 'all');
-        if (!in_array($payout_filter, ['all', 'pending', 'completed', 'cancelled'], true)) {
+        if (!in_array($payout_filter, ['all', 'pending', 'completed', 'cancelled', 'failed'], true)) {
             $payout_filter = 'all';
         }
         $pwhere = '1=1';
@@ -135,6 +139,14 @@ class TAP_Dashboard_Money {
              WHERE {$pwhere}
              ORDER BY p.created_at DESC LIMIT 50"
         );
+        $tab_counts = [
+            'pending'   => 0, 'completed' => 0, 'cancelled' => 0, 'failed' => 0,
+        ];
+        foreach ($wpdb->get_results("SELECT status, COUNT(*) c FROM {$p_table} GROUP BY status") as $trow) {
+            if (isset($tab_counts[$trow->status])) {
+                $tab_counts[$trow->status] = (int) $trow->c;
+            }
+        }
         $totals = $wpdb->get_row(
             "SELECT
                 COALESCE(SUM(CASE WHEN commission_status = 'owed' THEN commission_amount END), 0) owed,
@@ -234,11 +246,23 @@ class TAP_Dashboard_Money {
 
             <h2 style="margin-top:32px;"><?php esc_html_e('Historial de liquidaciones', 'travel-agency-platform'); ?></h2>
             <nav class="nav-tab-wrapper" style="margin-bottom:12px;">
-                <?php foreach (['all' => __('Todas', 'travel-agency-platform'), 'pending' => __('Pendientes', 'travel-agency-platform'), 'completed' => __('Completadas', 'travel-agency-platform'), 'cancelled' => __('Canceladas', 'travel-agency-platform')] as $pk => $plabel):
+                <?php $pay_tabs = [
+                    'all'       => __('Todas', 'travel-agency-platform'),
+                    'pending'   => __('Pendientes', 'travel-agency-platform'),
+                    'completed' => __('Completadas', 'travel-agency-platform'),
+                    'failed'    => __('Fallidas', 'travel-agency-platform'),
+                    'cancelled' => __('Canceladas', 'travel-agency-platform'),
+                ];
+                foreach ($pay_tabs as $pk => $plabel):
+                    $pcount = isset($tab_counts[$pk]) ? (int) $tab_counts[$pk] : 0;
                     $pclass = $payout_filter === $pk ? ' nav-tab-active' : ''; ?>
-                    <a class="nav-tab<?php echo $pclass; ?>" href="<?php echo esc_url(admin_url('admin.php?page=tap-commissions&status=' . $filter . '&payout_status=' . $pk)); ?>"><?php echo esc_html($plabel); ?></a>
+                    <a class="nav-tab<?php echo $pclass; ?>" href="<?php echo esc_url(admin_url('admin.php?page=tap-commissions&status=' . $filter . '&payout_status=' . $pk)); ?>"><?php echo esc_html($plabel); ?><?php if ($pcount > 0 && 'failed' === $pk): ?> <span class="update-plugins count-<?php echo $pcount; ?>" style="background:#b91c1c;border-radius:50%;color:#fff;font-size:11px;line-height:1.6;height:16px;min-width:16px;display:inline-block;text-align:center;"><span class="plugin-count"><?php echo $pcount; ?></span></span><?php endif; ?></a>
                 <?php endforeach; ?>
             </nav>
+            <?php $failed_count = $tab_counts['failed'] ?? 0;
+            if ($failed_count > 0): ?>
+                <div class="notice notice-error inline" style="margin:0 0 12px;"><p><strong><?php echo esc_html(sprintf(__('%d liquidación(es) marcada(s) como fallida(s): el pago no llegó a completarse. Revisa y vuelve a procesarlas.', 'travel-agency-platform'), $failed_count)); ?></strong></p></div>
+            <?php endif; ?>
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
@@ -276,7 +300,7 @@ class TAP_Dashboard_Money {
                             }
                         ?></td>
                         <td><?php echo esc_html($p->note); ?></td>
-                        <td><span style="font-weight:600;color:<?php echo 'pending' === $p->status ? '#b45309' : ('completed' === $p->status ? '#047857' : '#64748b'); ?>;"><?php echo esc_html(TAP_Payouts::status_label($p->status)); ?></span><?php if ($p->paid_at): ?><br><span class="description"><?php echo esc_html__('Pagada el', 'travel-agency-platform') . ' ' . esc_html($p->paid_at); ?></span><?php endif; ?></td>
+                        <td><span style="font-weight:600;color:<?php echo 'pending' === $p->status ? '#b45309' : ('failed' === $p->status ? '#b91c1c' : ('completed' === $p->status ? '#047857' : '#64748b')); ?>;"><?php echo esc_html(TAP_Payouts::status_label($p->status)); ?></span><?php if ($p->paid_at): ?><br><span class="description"><?php echo esc_html__('Pagada el', 'travel-agency-platform') . ' ' . esc_html($p->paid_at); ?></span><?php endif; ?></td>
                         <td><?php echo esc_html($p->created_at); ?></td>
                         <td>
                             <?php if ('pending' === $p->status): ?>
@@ -286,6 +310,13 @@ class TAP_Dashboard_Money {
                                 <input type="hidden" name="filter" value="<?php echo esc_attr($filter); ?>">
                                 <input type="hidden" name="payout_filter" value="<?php echo esc_attr($payout_filter); ?>">
                                 <button type="submit" name="tap_payout_action" value="complete" class="button button-small button-primary"><?php esc_html_e('Marcar pagada', 'travel-agency-platform'); ?></button>
+                            </form>
+                            <form method="post" style="display:inline-block;margin:0 0 0 4px;">
+                                <?php wp_nonce_field('tap_payout_action_' . (int) $p->id); ?>
+                                <input type="hidden" name="payout_id" value="<?php echo (int) $p->id; ?>">
+                                <input type="hidden" name="filter" value="<?php echo esc_attr($filter); ?>">
+                                <input type="hidden" name="payout_filter" value="<?php echo esc_attr($payout_filter); ?>">
+                                <button type="submit" name="tap_payout_action" value="failed" class="button button-small" style="color:#b91c1c;" onclick="return confirm('<?php echo esc_js(__('Marcar esta liquidación como fallida? Las comisiones volverán a estar por cobrar.', 'travel-agency-platform')); ?>');"><?php esc_html_e('Marcar fallida', 'travel-agency-platform'); ?></button>
                             </form>
                             <form method="post" style="display:inline-block;margin:0 0 0 4px;">
                                 <?php wp_nonce_field('tap_payout_action_' . (int) $p->id); ?>

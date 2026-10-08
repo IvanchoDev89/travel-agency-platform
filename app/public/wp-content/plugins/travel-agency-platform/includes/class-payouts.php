@@ -18,9 +18,10 @@ class TAP_Payouts {
     const PENDING   = 'pending';
     const COMPLETED = 'completed';
     const CANCELLED = 'cancelled';
+    const FAILED    = 'failed';
 
     public static function statuses() {
-        return [self::PENDING, self::COMPLETED, self::CANCELLED];
+        return [self::PENDING, self::COMPLETED, self::CANCELLED, self::FAILED];
     }
 
     public static function status_label($status) {
@@ -28,6 +29,7 @@ class TAP_Payouts {
             self::PENDING   => __('Pendiente', 'travel-agency-platform'),
             self::COMPLETED => __('Completada', 'travel-agency-platform'),
             self::CANCELLED => __('Cancelada', 'travel-agency-platform'),
+            self::FAILED    => __('Fallida', 'travel-agency-platform'),
         ];
         return $labels[$status] ?? (string) $status;
     }
@@ -149,6 +151,41 @@ class TAP_Payouts {
             }
         }
         do_action('tap_payout_cancelled', (int) $payment_id);
+        return true;
+    }
+
+    /**
+     * Mark a pending payout as failed (the transfer did not go through).
+     * Commissions are released back to 'owed' so the agency can request again.
+     */
+    public static function fail($payment_id, $note = '') {
+        global $wpdb;
+        $exists = $wpdb->get_var($wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}tap_commission_payments WHERE id = %d AND status = 'pending'",
+            $payment_id
+        ));
+        if (!$exists) {
+            return false;
+        }
+        if (!self::_transition($payment_id, [self::PENDING], self::FAILED)) {
+            return false;
+        }
+        $note  = trim((string) $note);
+        $note  = $note !== '' ? $note : __('Pago no completado por el banco/procesador.', 'travel-agency-platform');
+        $existing = $wpdb->get_row($wpdb->prepare("SELECT booking_ids FROM {$wpdb->prefix}tap_commission_payments WHERE id = %d", $payment_id));
+        if ($existing && $existing->booking_ids) {
+            $ids = array_filter(array_map('intval', explode(',', $existing->booking_ids)));
+            if ($ids) {
+                $in = implode(',', $ids);
+                $wpdb->query("UPDATE {$wpdb->prefix}tap_bookings SET commission_status = 'owed' WHERE id IN ({$in}) AND commission_status = 'paid'");
+            }
+        }
+        $wpdb->update(
+            $wpdb->prefix . 'tap_commission_payments',
+            ['note' => $existing->note ? $existing->note . ' | ' . $note : $note],
+            ['id' => (int) $payment_id]
+        );
+        do_action('tap_payout_failed', (int) $payment_id);
         return true;
     }
 

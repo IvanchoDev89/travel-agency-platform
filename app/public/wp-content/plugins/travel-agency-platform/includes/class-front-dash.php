@@ -707,6 +707,11 @@ class TAP_Front_Dash {
              WHERE agency_id = %d ORDER BY created_at DESC LIMIT 15",
             $agency
         ));
+        $failed_count = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tap_commission_payments
+             WHERE agency_id = %d AND status = 'failed'",
+            $agency
+        ));
 
         ob_start(); ?>
         <div class="tap-dash-section">
@@ -723,6 +728,11 @@ class TAP_Front_Dash {
                 <div class="tap-notice">
                     <span class="tap-notice-icon" aria-hidden="true">⚠</span>
                     <span><?php echo esc_html(sprintf(__('Tienes una solicitud de liquidación de %s pendiente de confirmación por el administrador (#%d).', 'travel-agency-platform'), TAP_Currency::fmt($pending->amount), (int) $pending->id)); ?></span>
+                </div>
+            <?php elseif ($failed_count > 0): ?>
+                <div class="tap-notice tap-notice-error">
+                    <span class="tap-notice-icon" aria-hidden="true">⚠</span>
+                    <span><?php echo esc_html(sprintf(__('Tienes %d liquidación(es) fallida(s): el pago no llegó a completarse. Solicita de nuevo una liquidación o contacta al administrador.', 'travel-agency-platform'), $failed_count)); ?></span>
                 </div>
             <?php elseif (isset($totals->owed) && (float) $totals->owed > 0): ?>
                 <div class="tap-dash-card" style="margin-top:16px;">
@@ -769,7 +779,7 @@ class TAP_Front_Dash {
                         <td><?php echo esc_html($h->method); ?></td>
                         <td><?php echo 'agency' === ($h->source ?? 'admin') ? esc_html__('Sol. agencia', 'travel-agency-platform') : esc_html__('Admin', 'travel-agency-platform'); ?></td>
                         <td><?php echo esc_html($h->note); ?></td>
-                        <td><span class="tap-status <?php echo 'completed' === $h->status ? 'tap-status-confirmed' : ('pending' === $h->status ? 'tap-status-pending' : ''); ?>"><?php echo esc_html(TAP_Payouts::status_label($h->status)); ?></span></td>
+                        <td><span class="tap-status <?php echo 'completed' === $h->status ? 'tap-status-confirmed' : ('failed' === $h->status ? 'tap-status-cancelled' : 'tap-status-pending'); ?>"><?php echo esc_html(TAP_Payouts::status_label($h->status)); ?></span></td>
                         <td><?php echo esc_html($h->created_at); ?></td>
                     </tr>
                 <?php endforeach; ?>
