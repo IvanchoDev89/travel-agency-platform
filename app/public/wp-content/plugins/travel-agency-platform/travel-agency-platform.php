@@ -56,6 +56,7 @@ final class TravelAgencyPlatform {
         require_once TAP_PLUGIN_DIR . 'includes/class-payouts.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-disputes.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-dashboard.php';
+        require_once TAP_PLUGIN_DIR . 'includes/class-dashboard-bookings.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-paypal.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-payment.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-emails.php';
