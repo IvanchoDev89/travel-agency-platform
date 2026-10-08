@@ -590,6 +590,10 @@ class TAP_Emails {
         if (!$booking) {
             return;
         }
+        $reason_line = '';
+        if (!empty($booking->cancel_reason)) {
+            $reason_line = '<p><strong>' . esc_html__('Motivo:', 'travel-agency-platform') . '</strong> ' . esc_html($booking->cancel_reason) . '</p>';
+        }
         list($email, $name) = self::client_contact($booking);
         if ($email) {
             self::send(
@@ -598,10 +602,11 @@ class TAP_Emails {
                 self::info_template(
                     __('Reserva cancelada', 'travel-agency-platform'),
                     sprintf(
-                        __('Hola %s, tu reserva <strong>%s</strong> (%s) quedó cancelada. Si esperabas un reembolso, lo verás según la política de cancelación. <a href="%s" style="color:#0d9488;">Ver detalle</a>.', 'travel-agency-platform'),
+                        __('Hola %s, tu reserva <strong>%s</strong> (%s) quedó cancelada. %sSi esperabas un reembolso, lo verás según la política de cancelación. <a href="%s" style="color:#0d9488;">Ver detalle</a>.', 'travel-agency-platform'),
                         esc_html($name),
                         esc_html($booking->booking_code),
                         esc_html(self::get_service_name($booking)),
+                        $reason_line,
                         esc_url(home_url('/booking-detail/?code=' . rawurlencode($booking->booking_code)))
                     )
                 )
@@ -615,9 +620,10 @@ class TAP_Emails {
                 self::info_template(
                     __('Cancelación de reserva', 'travel-agency-platform'),
                     sprintf(
-                        __('La reserva <strong>%s</strong> (%s) quedó cancelada. Si tenía comisión devengada, se anuló.', 'travel-agency-platform'),
+                        __('La reserva <strong>%s</strong> (%s) quedó cancelada. %sSi tenía comisión devengada, se anuló.', 'travel-agency-platform'),
                         esc_html($booking->booking_code),
-                        esc_html(self::get_service_name($booking))
+                        esc_html(self::get_service_name($booking)),
+                        $reason_line
                     )
                 )
             );

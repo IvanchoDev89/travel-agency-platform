@@ -83,6 +83,7 @@ class TAP_Front_Dash {
                 'confirm_cancel' => __('¿Estás seguro de cancelar esta reserva?', 'travel-agency-platform'),
                 'confirm_delete' => __('¿Eliminar esta reseña?', 'travel-agency-platform'),
                 'confirm_op'     => __('¿Realizar esta operación sobre la reserva?', 'travel-agency-platform'),
+                'cancel_reason'  => __('Motivo de cancelación (opcional):', 'travel-agency-platform'),
                 'confirm_payout' => __('Enviar la solicitud de liquidación al administrador?', 'travel-agency-platform'),
                 'error'          => __('Ocurrió un error. Intenta de nuevo.', 'travel-agency-platform'),
                 'saved'          => __('Guardado', 'travel-agency-platform'),
@@ -642,7 +643,7 @@ class TAP_Front_Dash {
                         <td><?php echo esc_html($b->adults . ' ' . __('ad', 'travel-agency-platform') . ($b->children ? ', ' . $b->children . ' ' . __('niños', 'travel-agency-platform') : '')); ?></td>
                         <td><?php echo esc_html(TAP_Currency::fmt($b->total_amount)); ?></td>
                         <td><span class="tap-status tap-status-<?php echo 'paid' === $b->payment_status ? 'confirmed' : 'pending'; ?>"><?php echo esc_html($b->payment_status); ?></span></td>
-                        <td><span class="tap-status tap-status-<?php echo in_array($b->status, ['confirmed', 'completed'], true) ? 'confirmed' : 'pending'; ?>"><?php echo esc_html($b->status); ?></span></td>
+                        <td><span class="tap-status tap-status-<?php echo in_array($b->status, ['confirmed', 'completed'], true) ? 'confirmed' : 'pending'; ?>"><?php echo esc_html($b->status); ?></span><?php if (!empty($b->cancel_reason)): ?><br><span class="tap-cancel-reason"><?php echo esc_html($b->cancel_reason); ?></span><?php endif; ?></td>
                         <td>
                             <?php if (!$is_admin): ?>
                                 <span class="tap-agency-meta"><?php esc_html_e('Solo lectura para empleados.', 'travel-agency-platform'); ?></span>
@@ -1170,7 +1171,9 @@ class TAP_Front_Dash {
             wp_send_json_error(['message' => __('Parámetros inválidos.', 'travel-agency-platform')], 400);
         }
 
-        $res = TAP_Booking::agency_booking_action($booking_id, $op);
+        $reason = sanitize_textarea_field(wp_unslash($_POST['reason'] ?? ''));
+
+        $res = TAP_Booking::agency_booking_action($booking_id, $op, 0, $reason);
         if (is_wp_error($res)) {
             wp_send_json_error(['message' => $res->get_error_message()], 400);
         }

@@ -92,6 +92,14 @@
         var op    = $btn.data('op');
         var id    = $btn.data('id');
         var name  = $btn.data('name') || '';
+        var reason = '';
+
+        if (op === 'cancel') {
+            reason = window.prompt(cfg.i18n && cfg.i18n.cancel_reason ? cfg.i18n.cancel_reason : 'Motivo de cancelación (opcional):', '') || '';
+            if (reason === null) {
+                return;
+            }
+        }
 
         if (!confirm((cfg.i18n && cfg.i18n.confirm_op ? cfg.i18n.confirm_op : '¿Realizar esta operación?') + ' ' + name + '?')) {
             return;
@@ -99,12 +107,17 @@
 
         $btn.prop('disabled', true).text('…');
 
-        $.post(cfg.ajax_url, {
+        var data = {
             action:     'tap_dash_agency_booking',
             nonce:      cfg.nonce,
             booking_id: id,
             op:         op
-        }).done(function (res) {
+        };
+        if (op === 'cancel' && reason !== '') {
+            data.reason = reason;
+        }
+
+        $.post(cfg.ajax_url, data).done(function (res) {
             if (res && res.success) {
                 location.reload();
             } else {

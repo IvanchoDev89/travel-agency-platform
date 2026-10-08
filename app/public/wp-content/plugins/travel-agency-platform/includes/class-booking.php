@@ -485,12 +485,23 @@ class TAP_Booking {
         $cutoff = gmdate('Y-m-d H:i:s', time() - $hours * HOUR_IN_SECONDS);
 
         $ids = $wpdb->get_col($wpdb->prepare(
-            "SELECT id FROM $table WHERE status = 'pending' AND created_at < %s",
+            "SELECT id FROM $table WHERE status IN ('pending', 'request') AND created_at < %s",
             $cutoff
         ));
 
         foreach ($ids as $id) {
-            self::update_status(intval($id), 'cancelled');
+            $booking = self::get_booking((int) $id);
+            if (!$booking) {
+                continue;
+            }
+            $reason = ('request' === $booking->status)
+                ? __('La agencia no respondió a tu solicitud dentro del plazo y se canceló automáticamente.', 'travel-agency-platform')
+                : __('La reserva se canceló automáticamente por no confirmarse dentro del plazo.', 'travel-agency-platform');
+            if ('paid' === $booking->payment_status) {
+                self::update_status((int) $id, 'cancelled', $reason);
+            } else {
+                self::apply_cancellation((int) $id, $booking, 'system', 'cancelled', $reason);
+            }
         }
     }
 
@@ -572,7 +583,7 @@ class TAP_Booking {
      *                              actually returned, the booking falls back
      *                              to 'cancelled' to keep the ledger honest.
      */
-    private static function apply_cancellation($booking_id, $booking, $cancelled_by, $target_status = 'cancelled') {
+    private static function apply_cancellation($booking_id, $booking, $cancelled_by, $target_status = 'cancelled', $reason = '') {
         global $wpdb;
 
         $prev_status = $booking->status;
@@ -604,6 +615,7 @@ class TAP_Booking {
                 'status'               => $final_status,
                 'cancel_requested_at'  => current_time('mysql'),
                 'cancelled_by'         => $cancelled_by,
+                'cancel_reason'        => $reason !== '' ? $reason : null,
                 'cancellation_policy'  => $refund['policy'],
                 'refund_amount'        => round($refund['refund_amount'], 2),
                 'refund_percent'       => $refund['refund_percent'],
@@ -634,7 +646,7 @@ class TAP_Booking {
      *   mark_paid pending          -> paid  (triggers commission earning)
      *   cancel    request|pending|confirmed -> cancelled with policy penalty
      */
-    public static function agency_booking_action($booking_id, $action, $user_id = 0) {
+    public static function agency_booking_action($booking_id, $action, $user_id = 0, $reason = '') {
         $user_id = $user_id ?: get_current_user_id();
         $user    = get_userdata($user_id);
         if (!$user) {
@@ -695,13 +707,13 @@ class TAP_Booking {
                 if ($booking->check_in && $booking->check_in < gmdate('Y-m-d')) {
                     return new WP_Error('started', __('La reserva ya comenzó.', 'travel-agency-platform'));
                 }
-                return self::apply_cancellation($booking->id, $booking, 'agency');
+                return self::apply_cancellation($booking->id, $booking, 'agency', 'cancelled', $reason);
             default:
                 return new WP_Error('invalid_action', __('Operación inválida.', 'travel-agency-platform'));
         }
     }
 
-    public static function update_status($booking_id, $status) {
+    public static function update_status($booking_id, $status, $reason = '') {
         global $wpdb;
 
         $valid_statuses = ['pending', 'request', 'confirmed', 'cancelled', 'completed', 'refunded'];
@@ -737,12 +749,16 @@ class TAP_Booking {
         // whole cancellation (policy refund + ledger + commission voiding)
         // through apply_cancellation() so no caller can skip the refund.
         if (in_array($status, ['cancelled', 'refunded'], true) && 'paid' === $booking->payment_status) {
-            return self::apply_cancellation($booking_id, $booking, 'system', $status);
+            return self::apply_cancellation($booking_id, $booking, 'system', $status, $reason);
         }
 
+        $data = ['status' => $status];
+        if (in_array($status, ['cancelled', 'refunded'], true) && $reason !== '') {
+            $data['cancel_reason'] = $reason;
+        }
         $wpdb->update(
             $wpdb->prefix . 'tap_bookings',
-            ['status' => $status],
+            $data,
             ['id' => $booking_id]
         );
 

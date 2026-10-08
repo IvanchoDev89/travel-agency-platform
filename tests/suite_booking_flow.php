@@ -120,6 +120,53 @@ $booking_ids[] = $fresh_id;
 TAP_Booking::cancel_stale_bookings();
 tap_t_assert('cancelled' === $wpdb->get_var($wpdb->prepare("SELECT status FROM {$wpdb->prefix}tap_bookings WHERE id=%d", $stale_id)), 'stale pending booking cancelled');
 tap_t_assert('pending' === $wpdb->get_var($wpdb->prepare("SELECT status FROM {$wpdb->prefix}tap_bookings WHERE id=%d", $fresh_id)), 'recent pending booking kept');
+
+// request-to-book stale rows must auto-cancel too and record a reason
+$stale_req = $wpdb->insert($wpdb->prefix . 'tap_bookings', [
+    'booking_code'      => 'REQSTALE-' . wp_generate_password(6, false),
+    'agency_id'         => tap_t_test_agency(),
+    'client_id'         => $uid,
+    'service_type'      => $service_type,
+    'service_id'        => $service_id,
+    'check_in'          => $in,
+    'check_out'         => $out,
+    'adults'            => 1,
+    'total_amount'      => 40,
+    'commission_amount' => 4,
+    'commission_percent'=> 10,
+    'status'            => 'request',
+    'created_at'        => gmdate('Y-m-d H:i:s', time() - 5 * HOUR_IN_SECONDS),
+]);
+$stale_req_id = (int) $wpdb->insert_id;
+$booking_ids[] = $stale_req_id;
+TAP_Booking::cancel_stale_bookings();
+$req_row = $wpdb->get_row($wpdb->prepare("SELECT status, cancel_reason FROM {$wpdb->prefix}tap_bookings WHERE id=%d", $stale_req_id));
+tap_t_assert($req_row && 'cancelled' === $req_row->status, 'stale request-to-book booking auto-cancelled');
+tap_t_assert($req_row && !empty($req_row->cancel_reason), 'auto-cancel stores a cancellation reason');
+
+// agency-style decline persists the rejection reason
+$decline = $wpdb->insert($wpdb->prefix . 'tap_bookings', [
+    'booking_code'      => 'DECL-' . wp_generate_password(6, false),
+    'agency_id'         => tap_t_test_agency(),
+    'client_id'         => $uid,
+    'service_type'      => $service_type,
+    'service_id'        => $service_id,
+    'check_in'          => $in,
+    'check_out'         => $out,
+    'adults'            => 1,
+    'total_amount'      => 40,
+    'commission_amount' => 4,
+    'commission_percent'=> 10,
+    'status'            => 'request',
+    'created_at'        => current_time('mysql'),
+]);
+$decline_id = (int) $wpdb->insert_id;
+$booking_ids[] = $decline_id;
+$res = TAP_Booking::update_status($decline_id, 'cancelled', 'Sin disponibilidad en esas fechas');
+$dl_row = $wpdb->get_row($wpdb->prepare("SELECT status, cancel_reason FROM {$wpdb->prefix}tap_bookings WHERE id=%d", $decline_id));
+tap_t_assert($res === true && $dl_row && 'cancelled' === $dl_row->status, 'request declined via update_status');
+tap_t_assert($dl_row && 'Sin disponibilidad en esas fechas' === $dl_row->cancel_reason, 'rejection reason stored and readable');
+
 update_option('tap_stale_booking_hours', $old_hours);
 
 // 4) booking fee: none / fixed / percent --------------------------------------

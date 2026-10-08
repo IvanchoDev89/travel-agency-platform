@@ -50,6 +50,7 @@ class TAP_Installer {
                 payment_status varchar(30) DEFAULT 'pending',
                 payment_method varchar(50) DEFAULT NULL,
                 notes text,
+                cancel_reason text,
                 created_at datetime DEFAULT CURRENT_TIMESTAMP,
                 updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 PRIMARY KEY (id),
@@ -344,6 +345,9 @@ class TAP_Installer {
 $cols_bookings = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
         if (!in_array('booking_fee', $cols_bookings)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN booking_fee decimal(15,2) DEFAULT 0.00 AFTER total_amount");
+        }
+        if (!in_array('cancel_reason', $cols_bookings)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN cancel_reason text AFTER notes");
         }
 
         $plans_table = $wpdb->prefix . 'tap_plans';

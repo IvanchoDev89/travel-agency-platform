@@ -328,6 +328,9 @@ class TAP_Shortcode_Booking {
             <?php elseif (in_array($booking->status, ['cancelled', 'refunded'], true)): ?>
                 <div class="tap-error">
                     <p><?php esc_html_e('Esta reserva fue cancelada o rechazada y ya no puede pagarse.', 'travel-agency-platform'); ?></p>
+                    <?php if (!empty($booking->cancel_reason)): ?>
+                        <p><strong><?php esc_html_e('Motivo:', 'travel-agency-platform'); ?></strong> <?php echo esc_html($booking->cancel_reason); ?></p>
+                    <?php endif; ?>
                 </div>
             <?php endif; ?>
 
