@@ -761,7 +761,29 @@ class TAP_Shortcode_Booking {
                         <?php endif; ?>
                     </div>
                     <?php endif; ?>
-                </div>
+                <div class="tap-voucher-chat">
+                        <h3><?php esc_html_e('Mensajes con tu agencia', 'travel-agency-platform'); ?></h3>
+                        <div class="tap-chat-thread">
+                            <?php
+                            TAP_Chat::mark_read($booking->id, 'client');
+                            $rows = TAP_Chat::messages($booking->id);
+                            if (empty($rows)) {
+                                echo '<p class="tap-empty">' . esc_html__('Aún no hay mensajes. Escribe para coordinar horarios o detalles con tu agencia.', 'travel-agency-platform') . '</p>';
+                            } else {
+                                foreach ($rows as $m) {
+                                    echo TAP_Chat::row_markup($m, 'client');
+                                }
+                            }
+                            ?>
+                        </div>
+                        <form class="tap-chat-form" data-booking-id="<?php echo esc_attr($booking->id); ?>" data-booking-code="<?php echo esc_attr($booking->booking_code); ?>" <?php echo ($uid ? '' : ' data-guest-email="' . esc_attr($email) . '"'); ?>>
+                            <div class="tap-chat-input">
+                                <textarea name="message" rows="2" required maxlength="2000" placeholder="<?php esc_attr_e('Escribe un mensaje para la agencia...', 'travel-agency-platform'); ?>"></textarea>
+                                <button type="submit" class="tap-btn tap-btn-primary"><?php esc_html_e('Enviar', 'travel-agency-platform'); ?></button>
+                            </div>
+                        </form>
+                    </div>
+                    </div>
             </div>
         </div>
         <script>
@@ -781,6 +803,32 @@ class TAP_Shortcode_Booking {
                         else { alert(res && res.data && res.data.message ? res.data.message : '<?php echo esc_js(__('Error', 'travel-agency-platform')); ?>'); $btn.prop('disabled', false).text('<?php echo esc_js(__('Cancelar reserva', 'travel-agency-platform')); ?>'); }
                     })
                     .fail(function() { alert('<?php echo esc_js(__('Error', 'travel-agency-platform')); ?>'); $btn.prop('disabled', false).text('<?php echo esc_js(__('Cancelar reserva', 'travel-agency-platform')); ?>'); });
+            });
+
+            $('.tap-chat-form').on('submit', function(e) {
+                e.preventDefault();
+                var $form = $(this),
+                    $box = $form.closest('.tap-voucher-chat').find('.tap-chat-thread'),
+                    $ta = $form.find('textarea[name=message]'),
+                    msg = $.trim($ta.val()),
+                    $btn = $form.find('button[type=submit]');
+                if (!msg) return;
+                $btn.prop('disabled', true);
+                var data = { action: 'tap_chat_client_send', nonce: nonce, booking_id: $form.data('booking-id'), booking_code: $form.data('booking-code'), message: msg };
+                var gemail = $form.data('guest-email') || '';
+                if (gemail) data.guest_email = gemail;
+                $.post(tap_ajax.ajax_url, data)
+                    .done(function(res) {
+                        if (res && res.success) {
+                            $box.find('.tap-empty').remove();
+                            $box.append(res.data.row);
+                            $ta.val('');
+                        } else {
+                            alert(res && res.data && res.data.message ? res.data.message : '<?php echo esc_js(__('Error', 'travel-agency-platform')); ?>');
+                        }
+                    })
+                    .fail(function() { alert('<?php echo esc_js(__('Error', 'travel-agency-platform')); ?>'); })
+                    .always(function() { $btn.prop('disabled', false); });
             });
         })(jQuery);
         </script>

@@ -138,6 +138,42 @@ class TAP_Ajax {
         wp_send_json_success(['message' => __('Tu reserva ha sido cancelada.', 'travel-agency-platform')]);
     }
 
+    /** Guest/registered client sends a message on their booking thread. */
+    public static function chat_client_send() {
+        check_ajax_referer('tap_booking_nonce', 'nonce');
+
+        $booking_id   = intval($_POST['booking_id'] ?? 0);
+        $booking_code = sanitize_text_field($_POST['booking_code'] ?? '');
+        $message      = sanitize_textarea_field(wp_unslash($_POST['message'] ?? ''));
+        $uid          = get_current_user_id();
+
+        $booking = TAP_Booking::get_booking($booking_id);
+        if (!$booking && $booking_code) {
+            $booking = TAP_Booking::get_booking_by_code($booking_code);
+        }
+        if (!$booking) {
+            wp_send_json_error(['message' => __('Reserva no encontrada.', 'travel-agency-platform')]);
+        }
+
+        $guest_email = '';
+        if (!$uid) {
+            $guest_email = sanitize_email($_POST['guest_email'] ?? '');
+        }
+        list($can, $name) = TAP_Chat::can_client_chat($booking, $uid, $guest_email);
+        if (!$can) {
+            $msg = $uid ? __('No tienes permiso para escribir aquí.', 'travel-agency-platform') : __('Verifica el correo de la reserva para escribir.', 'travel-agency-platform');
+            wp_send_json_error(['message' => $msg], 403);
+        }
+
+        $result = TAP_Chat::send($booking->id, 'client', $uid, $name, $message);
+        if (is_wp_error($result)) {
+            wp_send_json_error(['message' => $result->get_error_message()]);
+        }
+        TAP_Chat::mark_read($booking->id, 'client');
+        $row = TAP_Chat::messages($booking->id, 200);
+        wp_send_json_success(['row' => TAP_Chat::row_markup(end($row), 'client')]);
+    }
+
     public static function search_services() {
         $keyword = sanitize_text_field($_POST['keyword'] ?? '');
         $type = sanitize_text_field($_POST['type'] ?? '');

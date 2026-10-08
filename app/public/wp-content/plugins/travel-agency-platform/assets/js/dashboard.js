@@ -130,6 +130,76 @@
         });
     });
 
+    /* ── Agency back-office: guest chat ────────────────────────────── */
+    $(document).on('click', '.tap-chat-toggle', function () {
+        var $btn = $(this);
+        var id   = $btn.data('id');
+        var $row = $('.tap-chat-row[data-id="' + id + '"]');
+        if (!$row.length) {
+            return;
+        }
+        if ($row.is(':visible')) {
+            $row.hide();
+            return;
+        }
+        var loaded = $row.data('loaded');
+        if (loaded) {
+            $row.show();
+            $btn.find('.tap-chat-badge').remove();
+            return;
+        }
+        $.post(cfg.ajax_url, {
+            action:     'tap_dash_chat_thread',
+            nonce:      cfg.nonce,
+            booking_id: id
+        }).done(function (res) {
+            if (!res || !res.success) {
+                alert(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error));
+                return;
+            }
+            var $thread = $row.find('.tap-chat-thread');
+            $thread.html(res.data.html || '<p class="tap-empty">' + (cfg.i18n && cfg.i18n.no_messages || '') + '</p>');
+            $row.data('loaded', 1).show();
+            $btn.find('.tap-chat-badge').remove();
+            var $tail = $thread.find('.tap-chat-msg:last');
+            if ($tail.length) {
+                $tail[0].scrollIntoView({ block: 'nearest' });
+            }
+        }).fail(function () {
+            alert(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error');
+        });
+    });
+
+    $(document).on('submit', '.tap-dash-chat-form', function (e) {
+        e.preventDefault();
+        var $form = $(this);
+        var $ta   = $form.find('textarea[name="message"]');
+        var msg   = $.trim($ta.val());
+        if (!msg) {
+            return;
+        }
+        var $btn = $form.find('button[type="submit"]').prop('disabled', true);
+        $.post(cfg.ajax_url, {
+            action:     'tap_dash_chat_send',
+            nonce:      cfg.nonce,
+            booking_id: $form.data('booking-id'),
+            message:    msg
+        }).done(function (res) {
+            if (res && res.success) {
+                var $thread = $form.closest('.tap-chat-wrap').find('.tap-chat-thread');
+                $thread.find('.tap-empty').remove();
+                $thread.append(res.data.row);
+                $ta.val('');
+            } else {
+                alert(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error));
+            }
+        }).fail(function () {
+            alert(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error');
+        }).always(function () {
+            $btn.prop('disabled', false);
+        });
+    });
+
     /* ── Agency back-office: payout request ───────────────────────── */
     $(document).on('submit', '#tap-bo-payout', function (e) {
         e.preventDefault();

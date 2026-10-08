@@ -215,6 +215,21 @@ class TAP_Installer {
                 KEY email (email),
                 KEY status (status)
             ) $charset;",
+
+            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_chat_messages (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                booking_id bigint(20) NOT NULL DEFAULT 0,
+                author_type varchar(20) NOT NULL DEFAULT 'client',
+                author_id bigint(20) NOT NULL DEFAULT 0,
+                author_name varchar(190) DEFAULT NULL,
+                message text NOT NULL,
+                is_read tinyint(1) NOT NULL DEFAULT 0,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY booking_id (booking_id),
+                KEY is_read (is_read),
+                KEY created_at (created_at)
+            ) $charset;",
         ];
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';

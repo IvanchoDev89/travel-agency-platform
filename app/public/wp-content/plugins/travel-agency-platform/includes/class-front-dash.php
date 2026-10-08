@@ -28,6 +28,8 @@ class TAP_Front_Dash {
         // AJAX handlers (agency back-office, Fase 16)
         add_action('wp_ajax_tap_dash_agency_booking', [__CLASS__, 'ajax_agency_booking']);
         add_action('wp_ajax_tap_dash_agency_payout', [__CLASS__, 'ajax_agency_payout']);
+        add_action('wp_ajax_tap_dash_chat_thread', [__CLASS__, 'ajax_chat_thread']);
+        add_action('wp_ajax_tap_dash_chat_send', [__CLASS__, 'ajax_chat_send']);
 
         // 301 redirect legacy /dashboard/ page to the unified /mi-cuenta/ back-office
         add_action('template_redirect', [__CLASS__, 'dashboard_redirect']);
@@ -660,7 +662,22 @@ class TAP_Front_Dash {
                             <?php if (in_array($b->status, ['request', 'pending', 'confirmed'], true) && (!$b->check_in || $b->check_in >= $today)): ?>
                                 <button class="tap-btn tap-btn-sm tap-btn-danger tap-bo-api" data-op="cancel" data-name="<?php echo esc_attr($b->booking_code); ?>" data-id="<?php echo (int) $b->id; ?>"><?php esc_html_e('Cancelar', 'travel-agency-platform'); ?></button>
                             <?php endif; ?>
+                            <?php $b_unread = TAP_Chat::unread_for($b->id, 'agency'); ?>
+                            <button class="tap-btn tap-btn-sm tap-chat-toggle" data-id="<?php echo (int) $b->id; ?>"><?php esc_html_e('Chat', 'travel-agency-platform'); ?><?php if ($b_unread): ?> <span class="tap-chat-badge"><?php echo (int) $b_unread; ?></span><?php endif; ?></button>
                             <?php endif; ?>
+                        </td>
+                    </tr>
+                    <tr class="tap-chat-row" data-id="<?php echo (int) $b->id; ?>" style="display:none;">
+                        <td colspan="8">
+                            <div class="tap-chat-wrap">
+                                <div class="tap-chat-thread"><p class="tap-empty"><?php esc_html_e('Cargando conversación...', 'travel-agency-platform'); ?></p></div>
+                                <form class="tap-dash-chat-form" data-booking-id="<?php echo (int) $b->id; ?>">
+                                    <div class="tap-chat-input">
+                                        <textarea name="message" rows="2" maxlength="2000" placeholder="<?php esc_attr_e('Responder al huésped...', 'travel-agency-platform'); ?>"></textarea>
+                                        <button type="submit" class="tap-btn tap-btn-sm tap-btn-primary"><?php esc_html_e('Enviar', 'travel-agency-platform'); ?></button>
+                                    </div>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -1188,6 +1205,67 @@ class TAP_Front_Dash {
             wp_send_json_error(['message' => $res->get_error_message()], 400);
         }
         wp_send_json_success(['message' => __('Reserva actualizada.', 'travel-agency-platform'), 'op' => $op]);
+    }
+
+    /** Agency opens the guest chat thread for a booking. */
+    public static function ajax_chat_thread() {
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        $user = wp_get_current_user();
+        if (!$user || !$user->ID) {
+            wp_send_json_error(['message' => __('No autenticado.', 'travel-agency-platform')], 401);
+        }
+        $booking_id = absint($_POST['booking_id'] ?? 0);
+        $booking = $booking_id ? TAP_Booking::get_booking($booking_id) : null;
+        if (!$booking) {
+            wp_send_json_error(['message' => __('Reserva no encontrada.', 'travel-agency-platform')], 404);
+        }
+        if (!TAP_Booking::user_can_manage_booking($user->ID, $booking)) {
+            wp_send_json_error(['message' => __('No tienes permiso sobre esta reserva.', 'travel-agency-platform')], 403);
+        }
+
+        TAP_Chat::mark_read($booking->id, 'agency');
+        $html = '';
+        foreach (TAP_Chat::messages($booking->id) as $m) {
+            $html .= TAP_Chat::row_markup($m, 'agency');
+        }
+        wp_send_json_success([
+            'html'    => $html,
+            'unread'  => 0,
+            'booking' => (int) $booking->id,
+        ]);
+    }
+
+    /** Agency replies on the guest chat thread. */
+    public static function ajax_chat_send() {
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        $user = wp_get_current_user();
+        if (!$user || !$user->ID) {
+            wp_send_json_error(['message' => __('No autenticado.', 'travel-agency-platform')], 401);
+        }
+        $booking_id = absint($_POST['booking_id'] ?? 0);
+        $booking = $booking_id ? TAP_Booking::get_booking($booking_id) : null;
+        if (!$booking) {
+            wp_send_json_error(['message' => __('Reserva no encontrada.', 'travel-agency-platform')], 404);
+        }
+        if (!TAP_Booking::user_can_manage_booking($user->ID, $booking)) {
+            wp_send_json_error(['message' => __('No tienes permiso sobre esta reserva.', 'travel-agency-platform')], 403);
+        }
+
+        $message = sanitize_textarea_field(wp_unslash($_POST['message'] ?? ''));
+        $agency  = (int) TAP_Booking::get_agency_for_user($user->ID);
+        if (!$agency) {
+            $agency = (int) $booking->agency_id;
+        }
+        $name = get_the_title($agency);
+        $name = $name ?: __('Agencia', 'travel-agency-platform');
+
+        $result = TAP_Chat::send($booking->id, 'agency', $agency, $name, $message);
+        if (is_wp_error($result)) {
+            wp_send_json_error(['message' => $result->get_error_message()], 400);
+        }
+        TAP_Chat::mark_read($booking->id, 'agency');
+        $rows = TAP_Chat::messages($booking->id, 200);
+        wp_send_json_success(['row' => TAP_Chat::row_markup(end($rows), 'agency')]);
     }
 
     public static function ajax_agency_payout() {

@@ -1183,6 +1183,18 @@ class TAP_Booking {
             && (!$booking->check_in || $booking->check_in >= gmdate('Y-m-d'));
     }
 
+    /** True when the given user owns or manages the booking (client, admin or its agency). */
+    public static function user_can_manage_booking($user_id, $booking) {
+        $booking = (object) $booking;
+        $user_id = (int) $user_id;
+        $can = (int) $booking->client_id === $user_id || user_can($user_id, 'manage_options');
+        if (!$can && !empty($booking->agency_id)) {
+            $agency = self::get_agency_for_user($user_id);
+            $can = $agency && (int) $agency === (int) $booking->agency_id;
+        }
+        return $can;
+    }
+
     /** Amount already paid toward this booking (partial captures included). */
     public static function amount_already_paid($booking) {
         return round((float) ($booking->amount_paid ?? 0), 2);

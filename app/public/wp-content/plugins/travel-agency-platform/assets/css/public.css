@@ -362,6 +362,17 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 .tap-review-login { font-size: var(--tap-text-sm); color: var(--tap-neutral-500); }
 .tap-voucher-dispute { margin-top: var(--tap-space-6); padding: var(--tap-space-4); border: 1px solid var(--tap-neutral-200); border-radius: var(--tap-radius-xl); background: #fff; }
 .tap-voucher-dispute h3 { margin: 0 0 var(--tap-space-2); font-size: var(--tap-text-base); color: var(--tap-neutral-800); }
+.tap-voucher-chat { margin-top: var(--tap-space-6); padding: var(--tap-space-4); border: 1px solid var(--tap-neutral-200); border-radius: var(--tap-radius-xl); background: #fff; }
+.tap-voucher-chat h3 { margin: 0 0 var(--tap-space-3); font-size: var(--tap-text-base); color: var(--tap-neutral-800); }
+.tap-chat-thread { display: flex; flex-direction: column; gap: var(--tap-space-2); max-height: 340px; overflow-y: auto; padding: var(--tap-space-2); margin-bottom: var(--tap-space-3); background: var(--tap-neutral-50); border-radius: var(--tap-radius-lg); }
+.tap-chat-msg { max-width: 82%; padding: var(--tap-space-2) var(--tap-space-3); border-radius: var(--tap-radius-lg); font-size: var(--tap-text-sm); }
+.tap-chat-msg.mine { align-self: flex-end; background: var(--tap-primary); color: #fff; border-bottom-right-radius: 4px; }
+.tap-chat-msg.theirs { align-self: flex-start; background: #fff; border: 1px solid var(--tap-neutral-200); color: var(--tap-neutral-700); border-bottom-left-radius: 4px; }
+.tap-chat-author { display: block; font-size: var(--tap-text-xs); font-weight: 600; opacity: .85; margin-bottom: 2px; }
+.tap-chat-text { margin: 0; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
+.tap-chat-time { display: block; font-size: var(--tap-text-xs); opacity: .7; margin-top: 2px; }
+.tap-chat-input { display: flex; gap: var(--tap-space-2); align-items: flex-end; }
+.tap-chat-input textarea { flex: 1; resize: vertical; min-height: 48px; }
 .tap-voucher-privacy { margin-top: var(--tap-space-2); }
 .tap-privacy-consent { font-size: var(--tap-text-sm); color: var(--tap-neutral-600); line-height: 1.5; }
 .tap-bw-consent { padding: var(--tap-space-3) 0 0; }
