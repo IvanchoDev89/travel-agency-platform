@@ -1280,7 +1280,8 @@ class TAP_Ajax {
             }
         }
 
-        $can_publish = current_user_can('publish_' . $listing_type . 's') || current_user_can('manage_options');
+        $listing_obj = get_post_type_object($listing_type);
+        $can_publish = ($listing_obj && current_user_can($listing_obj->cap->publish_posts)) || current_user_can('manage_options');
 
         $post = [
             'post_type'    => $listing_type,
@@ -1697,7 +1698,8 @@ class TAP_Ajax {
 
         $prefix      = self::listing_prefix($type);
         $active_meta = '_tap_' . $prefix . '_is_active';
-        $can_publish = current_user_can('publish_' . $type . 's') || current_user_can('manage_options');
+        $type_obj = get_post_type_object($type);
+        $can_publish = ($type_obj && current_user_can($type_obj->cap->publish_posts)) || current_user_can('manage_options');
 
         if (!$publish) {
             wp_update_post(['ID' => $listing_id, 'post_status' => 'draft']);
