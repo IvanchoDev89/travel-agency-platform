@@ -62,11 +62,19 @@ class TAP_PayPal {
     }
 
     public static function create_order($booking_id, $return_url, $cancel_url) {
-        $token = self::get_access_token();
-        if (is_wp_error($token)) return $token;
-
         $booking = TAP_Booking::get_booking($booking_id);
         if (!$booking) return new WP_Error('invalid_booking', __('Booking not found', 'travel-agency-platform'));
+
+        // Retry support: charge only the outstanding balance. A fully paid
+        // booking is refused before any access token is fetched.
+        $paid_flag = 'paid' === $booking->payment_status;
+        $remaining = TAP_Booking::remaining_amount($booking);
+        if ($paid_flag || $remaining <= 0.005) {
+            return new WP_Error('already_paid', __('Esta reserva ya está pagada por completo.', 'travel-agency-platform'));
+        }
+
+        $token = self::get_access_token();
+        if (is_wp_error($token)) return $token;
 
         $service = get_post($booking->service_id);
         $service_name = $service ? $service->post_title : __('Travel Service', 'travel-agency-platform');
@@ -80,11 +88,11 @@ class TAP_PayPal {
                 'description'  => sprintf(__('Booking %s - %s', 'travel-agency-platform'), $booking->booking_code, $service_name),
                 'amount' => [
                     'currency_code' => self::currency_code(),
-                    'value'         => number_format(floatval($booking->total_amount), 2, '.', ''),
+                    'value'         => number_format($remaining, 2, '.', ''),
                     'breakdown' => [
                         'item_total' => [
                             'currency_code' => self::currency_code(),
-                            'value'         => number_format(floatval($booking->total_amount), 2, '.', ''),
+                            'value'         => number_format($remaining, 2, '.', ''),
                         ]
                     ]
                 ],
@@ -92,7 +100,7 @@ class TAP_PayPal {
                     'name'     => $service_name,
                     'unit_amount' => [
                         'currency_code' => self::currency_code(),
-                        'value'         => number_format(floatval($booking->total_amount), 2, '.', ''),
+                        'value'         => number_format($remaining, 2, '.', ''),
                     ],
                     'quantity' => '1',
                     'category' => 'DIGITAL_GOODS',

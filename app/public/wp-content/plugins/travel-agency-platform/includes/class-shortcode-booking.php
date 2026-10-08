@@ -357,10 +357,26 @@ class TAP_Shortcode_Booking {
 
 <?php if ($booking->total_amount > 0 && $booking->payment_status !== 'paid' && $booking->status !== 'request'): ?>
                 <div class="tap-checkout-payment">
+                    <?php $tap_remaining = TAP_Booking::remaining_amount($booking); ?>
+                    <?php if (TAP_Booking::amount_already_paid($booking) > 0 && $tap_remaining > 0): ?>
+                        <div class="tap-booking-message">
+                            <p><?php echo esc_html(sprintf(
+                                __('Ya pagaste %1$s de %2$s. El saldo pendiente es de %3$s.', 'travel-agency-platform'),
+                                TAP_Currency::fmt(TAP_Booking::amount_already_paid($booking)),
+                                TAP_Currency::fmt((float) $booking->total_amount),
+                                TAP_Currency::fmt($tap_remaining)
+                            )); ?></p>
+                        </div>
+                    <?php elseif ('failed' === $booking->payment_status): ?>
+                        <p class="tap-refund-note"><?php esc_html_e('Un intento de pago anterior falló. Reinicia el pago y vuelve a intentarlo.', 'travel-agency-platform'); ?></p>
+                    <?php endif; ?>
                     <h3><?php esc_html_e('Pay with PayPal', 'travel-agency-platform'); ?></h3>
                     <?php if (TAP_PayPal::is_ready()): ?>
                     <div id="tap-paypal-button-container"></div>
                     <div id="tap-paypal-message" class="tap-booking-message"></div>
+                    <p class="tap-pay-label"><?php echo $tap_remaining > 0 && TAP_Booking::amount_already_paid($booking) > 0
+                        ? esc_html(sprintf(__('Pagar el saldo restante de %s', 'travel-agency-platform'), TAP_Currency::fmt($tap_remaining)))
+                        : esc_html__('Completar el pago con PayPal', 'travel-agency-platform'); ?></p>
 
                     <script src="https://www.paypal.com/sdk/js?client-id=<?php echo esc_attr(TAP_PayPal::get_client_id()); ?>&currency=<?php echo esc_attr(TAP_Currency::code()); ?>" data-namespace="tapPayPal"></script>
                 <script>

@@ -10,6 +10,7 @@ $pay_ids = [
     'orders'   => [],
     'posts'    => [],
     'meta'     => [],
+    'bookings' => [],
 ];
 
 $pay_cleanup = function () use (&$pay_ids) {
@@ -28,6 +29,9 @@ $pay_cleanup = function () use (&$pay_ids) {
     }
     foreach ($pay_ids['orders'] as $oid) {
         $wpdb->delete(TAP_Payment::orders_table(), ['paypal_order_id' => (string) $oid]);
+    }
+    foreach ($pay_ids['bookings'] as $id) {
+        tap_t_cleanup_bookings([(int) $id]);
     }
     foreach (array_reverse($pay_ids['posts']) as $id) {
         wp_delete_post((int) $id, true);
@@ -163,6 +167,30 @@ try {
     } else {
         tap_t_fail('promotion fixtures missing for promo activation test');
     }
+
+    // ── partial capture tracks the paid amount; a retry charges the balance ──
+    $pay_b = tap_t_seed_booking(['total_amount' => 100, 'payment_status' => 'pending', 'commission_amount' => 10]);
+    $pay_track('bookings', $pay_b);
+
+    $partial = (object) ['id' => 'CAP-PAY-PART-1', 'amount' => (object) ['value' => '30.00', 'currency_code' => TAP_Currency::code()]];
+    $pr = TAP_Booking::record_paid_capture($pay_b, 'paypal', 'CAP-PAY-PART-1', $partial);
+    $pb = TAP_Booking::get_booking($pay_b);
+    tap_t_assert(is_wp_error($pr) && 'partial' === $pr->get_error_code(), 'shortfall capture marked partial');
+    tap_t_assert($pb && $pb->payment_status === 'partial', 'booking payment_status becomes partial');
+    tap_t_assert($pb && round((float) $pb->amount_paid, 2) === 30.0, 'amount_paid records the captured shortfall');
+    tap_t_assert($pb && round(TAP_Booking::remaining_amount($pb), 2) === 70.0, 'remaining balance is total minus paid');
+
+    $balance = (object) ['id' => 'CAP-PAY-PART-2', 'amount' => (object) ['value' => '70.00', 'currency_code' => TAP_Currency::code()]];
+    $ok = TAP_Booking::record_paid_capture($pay_b, 'paypal', 'CAP-PAY-PART-2', $balance);
+    $pb2 = TAP_Booking::get_booking($pay_b);
+    tap_t_assert(true === $ok, 'retry capture that clears the balance completes');
+    tap_t_assert($pb2 && $pb2->payment_status === 'paid', 'retry payment flips booking to paid');
+    tap_t_assert($pb2 && round((float) $pb2->amount_paid, 2) === 100.0, 'amount_paid equals total after retry');
+
+    $pay_done = tap_t_seed_booking(['total_amount' => 60, 'payment_status' => 'paid', 'commission_amount' => 6]);
+    $pay_track('bookings', $pay_done);
+    $no_order = TAP_PayPal::create_order($pay_done, 'https://example.local/return', 'https://example.local/cancel');
+    tap_t_assert(is_wp_error($no_order) && 'already_paid' === $no_order->get_error_code(), 'create_order refuses a fully paid booking before fetching a token');
 } catch (Throwable $e) {
     tap_t_fail('exception during suite: ' . $e->getMessage());
 } finally {

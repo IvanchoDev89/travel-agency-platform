@@ -609,6 +609,10 @@ class TAP_Booking {
             ? ($money_returned ? 'refunded' : 'cancelled')
             : 'cancelled';
 
+        $new_amount_paid = $money_returned
+            ? round(max(0.0, (float) ($booking->amount_paid ?? 0) - (float) $refund['refund_amount']), 2)
+            : (float) ($booking->amount_paid ?? 0);
+
         $wpdb->update(
             $wpdb->prefix . 'tap_bookings',
             [
@@ -620,6 +624,7 @@ class TAP_Booking {
                 'refund_amount'        => round($refund['refund_amount'], 2),
                 'refund_percent'       => $refund['refund_percent'],
                 'refunded_at'          => $money_returned ? current_time('mysql') : null,
+                'amount_paid'          => $new_amount_paid,
             ],
             ['id' => $booking_id]
         );
@@ -692,7 +697,7 @@ class TAP_Booking {
                 global $wpdb;
                 $updated = $wpdb->update(
                     $wpdb->prefix . 'tap_bookings',
-                    ['payment_status' => 'paid'],
+                    ['payment_status' => 'paid', 'amount_paid' => round((float) $booking->total_amount, 2)],
                     ['id' => $booking->id, 'status' => $booking->status, 'payment_status' => $booking->payment_status]
                 );
                 if (1 !== $updated) {
@@ -1003,7 +1008,34 @@ class TAP_Booking {
 
             if (null !== $captured['value'] && $captured['value'] < $expected - 0.005) {
                 // Partial capture (funding shortfall / rounding): record the
-                // details but keep the booking unpaid — no full commission.
+                // details but keep the booking unpaid — no full commission —
+                // unless the accumulated sum already covers the remainder.
+                $paid_so_far = round((float) ($booking->amount_paid ?? 0) + $captured['value'], 2);
+                if ($paid_so_far >= $expected - 0.005) {
+                    $completed = $wpdb->update(
+                        $table,
+                        ['payment_status' => 'paid', 'amount_paid' => $expected],
+                        ['id' => (int) $booking_id, 'payment_status' => $booking->payment_status]
+                    );
+                    if (1 !== $completed) {
+                        return new WP_Error('lost_race', __('El pago se registró en otra petición.', 'travel-agency-platform'));
+                    }
+                    if ($capture_id) {
+                        update_post_meta((int) $booking_id, '_tap_paypal_capture_id', $capture_id);
+                    }
+                    if (null !== $details) {
+                        $payload = is_string($details) ? $details : json_encode($details, JSON_UNESCAPED_UNICODE);
+                        update_post_meta((int) $booking_id, '_tap_payment_details', $payload);
+                    }
+                    self::update_status((int) $booking_id, 'confirmed');
+                    do_action('tap_payment_completed', (int) $booking_id, $method, $capture_id);
+                    return true;
+                }
+                $wpdb->update(
+                    $table,
+                    ['payment_status' => 'partial', 'amount_paid' => $paid_so_far],
+                    ['id' => (int) $booking_id, 'payment_status' => $booking->payment_status]
+                );
                 if ($capture_id) {
                     update_post_meta((int) $booking_id, '_tap_paypal_capture_id', $capture_id);
                 }
@@ -1011,14 +1043,13 @@ class TAP_Booking {
                     $payload = is_string($details) ? $details : json_encode($details, JSON_UNESCAPED_UNICODE);
                     update_post_meta((int) $booking_id, '_tap_payment_details', $payload);
                 }
-                $wpdb->update($table, ['payment_status' => 'partial'], ['id' => (int) $booking_id, 'payment_status' => $booking->payment_status]);
                 return new WP_Error('partial', __('Pago parcial recibido; la reserva aún no está pagada por completo.', 'travel-agency-platform'));
             }
         }
 
         $updated = $wpdb->update(
             $table,
-            ['payment_status' => 'paid'],
+            ['payment_status' => 'paid', 'amount_paid' => $expected],
             ['id' => (int) $booking_id, 'payment_status' => $booking->payment_status]
         );
         if (1 !== $updated) {
@@ -1150,6 +1181,16 @@ class TAP_Booking {
     public static function can_cancel_booking($booking) {
         return in_array($booking->status, ['pending', 'confirmed', 'request'], true)
             && (!$booking->check_in || $booking->check_in >= gmdate('Y-m-d'));
+    }
+
+    /** Amount already paid toward this booking (partial captures included). */
+    public static function amount_already_paid($booking) {
+        return round((float) ($booking->amount_paid ?? 0), 2);
+    }
+
+    /** Outstanding balance the client still owes for this booking. */
+    public static function remaining_amount($booking) {
+        return round(max(0.0, (float) $booking->total_amount - self::amount_already_paid($booking)), 2);
     }
 
     public static function get_client_bookings($user_id, $limit = 20, $offset = 0) {

@@ -44,6 +44,7 @@ class TAP_Installer {
                 nights int(11) DEFAULT 0,
                 bed_config text,
                 total_amount decimal(15,2) NOT NULL,
+                amount_paid decimal(15,2) DEFAULT 0.00,
                 commission_amount decimal(15,2) DEFAULT 0.00,
                 commission_percent decimal(5,2) DEFAULT 0.00,
                 status varchar(30) DEFAULT 'pending',
@@ -224,7 +225,7 @@ class TAP_Installer {
         self::migrate();
     }
 
-    private static function migrate() {
+    public static function migrate() {
         global $wpdb;
 
         $columns = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
@@ -345,6 +346,10 @@ class TAP_Installer {
 $cols_bookings = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
         if (!in_array('booking_fee', $cols_bookings)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN booking_fee decimal(15,2) DEFAULT 0.00 AFTER total_amount");
+        }
+        if (!in_array('amount_paid', $cols_bookings)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN amount_paid decimal(15,2) DEFAULT 0.00 AFTER total_amount");
+            $wpdb->query("UPDATE {$wpdb->prefix}tap_bookings SET amount_paid = total_amount WHERE payment_status = 'paid'");
         }
         if (!in_array('cancel_reason', $cols_bookings)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN cancel_reason text AFTER notes");
