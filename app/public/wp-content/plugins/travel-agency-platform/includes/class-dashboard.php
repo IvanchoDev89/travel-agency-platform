@@ -401,7 +401,7 @@ class TAP_Dashboard {
         }
         $out = fopen('php://output', 'w');
         fwrite($out, "\xEF\xBB\xBF");
-        fputcsv($out, ['Código', 'Estado', 'Pago', 'Cliente', 'Email', 'Agencia', 'Servicio', 'Título', 'Entrada', 'Salida', 'Adultos', 'Niños', 'Noches', 'Total', 'Comisión %', 'Comisión', 'Estado comisión', 'Creado']);
+        fputcsv($out, [__('Código', 'travel-agency-platform'), __('Estado', 'travel-agency-platform'), __('Pago', 'travel-agency-platform'), __('Cliente', 'travel-agency-platform'), __('Email', 'travel-agency-platform'), __('Agencia', 'travel-agency-platform'), __('Servicio', 'travel-agency-platform'), __('Título', 'travel-agency-platform'), __('Entrada', 'travel-agency-platform'), __('Salida', 'travel-agency-platform'), __('Adultos', 'travel-agency-platform'), __('Niños', 'travel-agency-platform'), __('Noches', 'travel-agency-platform'), __('Total', 'travel-agency-platform'), __('Comisión %', 'travel-agency-platform'), __('Comisión', 'travel-agency-platform'), __('Estado comisión', 'travel-agency-platform'), __('Creado', 'travel-agency-platform')]);
         foreach ($rows as $b) {
             $agency = get_post($b->agency_id);
             $service = get_post($b->service_id);

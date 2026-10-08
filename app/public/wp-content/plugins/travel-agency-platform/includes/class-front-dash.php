@@ -308,7 +308,7 @@ class TAP_Front_Dash {
                                     <td><?php echo $svc ? esc_html($svc->post_title) : '—'; ?></td>
                                     <td><?php echo esc_html($b->check_in . ($b->check_out ? ' → ' . $b->check_out : '')); ?></td>
                                     <td class="tap-dash-amount"><?php echo esc_html(TAP_Currency::fmt($b->total_amount)); ?></td>
-                                    <td><span class="tap-status tap-status-<?php echo esc_attr($b->status); ?>"><?php echo esc_html(TAP_Emails::STATUS_LABELS[$b->status] ?? ucfirst($b->status)); ?></span></td>
+                                    <td><span class="tap-status tap-status-<?php echo esc_attr($b->status); ?>"><?php echo esc_html(TAP_Emails::status_label($b->status)); ?></span></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -394,7 +394,7 @@ class TAP_Front_Dash {
                                     <span class="tap-dash-booking-code"><?php echo esc_html($b->booking_code); ?></span>
                                     <h3><?php echo $svc ? esc_html($svc->post_title) : '—'; ?></h3>
                                 </div>
-                                <span class="tap-status tap-status-<?php echo esc_attr($b->status); ?>"><?php echo esc_html(TAP_Emails::STATUS_LABELS[$b->status] ?? ucfirst($b->status)); ?></span>
+                                <span class="tap-status tap-status-<?php echo esc_attr($b->status); ?>"><?php echo esc_html(TAP_Emails::status_label($b->status)); ?></span>
                             </div>
                             <div class="tap-dash-booking-meta">
                                 <span>
@@ -958,7 +958,7 @@ class TAP_Front_Dash {
                             <td><?php echo esc_html($b_title); ?></td>
                             <td><?php echo esc_html($b->check_in . ($b->check_out ? ' &rarr; ' . $b->check_out : '')); ?></td>
                             <td><?php echo esc_html(TAP_Currency::fmt($b->total_amount)); ?></td>
-                            <td><span class="tap-status tap-status-<?php echo in_array($b->status, ['confirmed', 'completed'], true) ? 'confirmed' : 'pending'; ?>"><?php echo esc_html(TAP_Emails::STATUS_LABELS[$b->status] ?? ucfirst($b->status)); ?></span></td>
+                            <td><span class="tap-status tap-status-<?php echo in_array($b->status, ['confirmed', 'completed'], true) ? 'confirmed' : 'pending'; ?>"><?php echo esc_html(TAP_Emails::status_label($b->status)); ?></span></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>

@@ -2,21 +2,37 @@
 defined('ABSPATH') || exit;
 
 class TAP_Emails {
-    const STATUS_LABELS = [
-        'pending'   => 'Pendiente',
-        'request'   => 'Solicitud',
-        'confirmed' => 'Confirmada',
-        'cancelled' => 'Cancelada',
-        'completed' => 'Completada',
-        'refunded'  => 'Reembolsada',
-    ];
-    const PAYMENT_LABELS = [
-        'pending' => 'Pendiente',
-        'paid'    => 'Pagada',
-        'partial' => 'Parcial',
-        'refunded'=> 'Reembolsada',
-        'failed'  => 'Fallida',
-    ];
+    /** Localized booking status → label map. Source strings are Spanish. */
+    public static function status_labels() {
+        return [
+            'pending'   => __('Pendiente', 'travel-agency-platform'),
+            'request'   => __('Solicitud', 'travel-agency-platform'),
+            'confirmed' => __('Confirmada', 'travel-agency-platform'),
+            'cancelled' => __('Cancelada', 'travel-agency-platform'),
+            'completed' => __('Completada', 'travel-agency-platform'),
+            'refunded'  => __('Reembolsada', 'travel-agency-platform'),
+        ];
+    }
+
+    public static function payment_labels() {
+        return [
+            'pending' => __('Pendiente', 'travel-agency-platform'),
+            'paid'    => __('Pagada', 'travel-agency-platform'),
+            'partial' => __('Parcial', 'travel-agency-platform'),
+            'refunded'=> __('Reembolsada', 'travel-agency-platform'),
+            'failed'  => __('Fallida', 'travel-agency-platform'),
+        ];
+    }
+
+    public static function status_label($status) {
+        $labels = self::status_labels();
+        return $labels[$status] ?? $status;
+    }
+
+    public static function payment_label($status) {
+        $labels = self::payment_labels();
+        return $labels[$status] ?? $status;
+    }
 
     public static function init() {
         add_action('tap_booking_created', [__CLASS__, 'on_booking_created'], 10, 2);
@@ -282,7 +298,7 @@ class TAP_Emails {
         if (!$email) return;
 
         $ctx = self::build_context($booking);
-        $label = self::STATUS_LABELS[$status] ?? $status;
+        $label = self::status_label($status);
 
         $headline = [
             'confirmed' => __('¡Tu reserva ha sido confirmada!', 'travel-agency-platform'),
@@ -915,8 +931,8 @@ class TAP_Emails {
             'adults'           => (int) $booking->adults,
             'children'         => (int) $booking->children,
             'total'            => self::money($booking->total_amount),
-            'status'           => self::STATUS_LABELS[$booking->status] ?? $booking->status,
-            'payment_status'   => self::PAYMENT_LABELS[$booking->payment_status] ?? $booking->payment_status,
+            'status'           => self::status_label($booking->status),
+            'payment_status'   => self::payment_label($booking->payment_status),
             'notes'            => $booking->notes ? nl2br(esc_html($booking->notes)) : '',
             'management_url'   => admin_url('admin.php?page=tap-bookings'),
             'voucher_url'      => home_url('/booking-detail/?code=' . rawurlencode($booking->booking_code)),

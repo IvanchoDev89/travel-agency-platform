@@ -4,13 +4,16 @@ defined('ABSPATH') || exit;
 class TAP_Privacy {
     const POLICY_VERSION = '1.0';
 
-    const RIGHTS = [
-        'access'       => 'Acceso',
-        'rectification'=> 'Rectificación',
-        'update'       => 'Actualización',
-        'deletion'     => 'Supresión',
-        'opposition'   => 'Oposición',
-    ];
+    /** Localized privacy rights (source language: Spanish). */
+    public static function rights_map() {
+        return [
+            'access'       => __('Acceso', 'travel-agency-platform'),
+            'rectification'=> __('Rectificación', 'travel-agency-platform'),
+            'update'       => __('Actualización', 'travel-agency-platform'),
+            'deletion'     => __('Supresión', 'travel-agency-platform'),
+            'opposition'   => __('Oposición', 'travel-agency-platform'),
+        ];
+    }
 
     const SCOPES = ['booking', 'agency_registration', 'lead'];
 
@@ -158,7 +161,7 @@ class TAP_Privacy {
                 <div class="tap-form-group">
                     <span class="tap-field-label"><?php esc_html_e('Derechos que desea ejercer', 'travel-agency-platform'); ?> *</span>
                     <div class="tap-privacy-rights">
-                        <?php foreach (self::RIGHTS as $key => $label): ?>
+                        <?php foreach (self::rights_map() as $key => $label): ?>
                         <label class="tap-check-label">
                             <input type="checkbox" name="rights[]" value="<?php echo esc_attr($key); ?>">
                             <?php echo esc_html($label); ?>
@@ -241,7 +244,7 @@ class TAP_Privacy {
         $rights = (array) $rights;
         $clean_rights = [];
         foreach ($rights as $right) {
-            if (isset(self::RIGHTS[$right])) $clean_rights[] = $right;
+            if (isset(self::rights_map()[$right])) $clean_rights[] = $right;
         }
         if (!$clean_rights) {
             return new WP_Error('tap_no_rights', __('Selecciona al menos un derecho.', 'travel-agency-platform'));
@@ -307,13 +310,13 @@ class TAP_Privacy {
     }
 
     public static function rights_label($key) {
-        return self::RIGHTS[$key] ?? $key;
+        $labels = self::rights_map(); return $labels[$key] ?? $key;
     }
 
     public static function rights_labels($csv) {
         $out = [];
         foreach (array_filter(array_map('trim', explode(',', (string) $csv))) as $key) {
-            if (isset(self::RIGHTS[$key])) $out[] = self::RIGHTS[$key];
+            $labels = self::rights_map(); if (isset($labels[$key])) $out[] = $labels[$key];
         }
         return $out;
     }

@@ -462,7 +462,7 @@ class TAP_Ajax {
         $room_ids = array_values(array_unique($room_ids));
 
         if (!$year || !$month || empty($room_ids)) {
-            wp_send_json_error(['message' => 'Parámetros inválidos']);
+            wp_send_json_error(['message' => __('Parámetros inválidos', 'travel-agency-platform')]);
         }
 
         $days_in_month = cal_days_in_month(CAL_GREGORIAN, $month, $year);
@@ -680,7 +680,7 @@ class TAP_Ajax {
         foreach ($acc as $p) {
             $city = get_post_meta($p->ID, '_tap_acc_city', true);
             $results[] = [
-                'type' => 'Alojamiento',
+                'type' => __('Alojamiento', 'travel-agency-platform'),
                 'label' => $p->post_title . ($city ? ", $city" : ''),
                 'url' => get_permalink($p->ID),
                 'img' => get_the_post_thumbnail_url($p->ID, 'thumbnail'),
@@ -697,7 +697,7 @@ class TAP_Ajax {
         ));
         foreach ($cities as $city) {
             $results[] = [
-                'type' => 'Destino',
+                'type' => __('Destino', 'travel-agency-platform'),
                 'label' => $city,
                 'url' => get_post_type_archive_link('tap_accommodation') . '?keyword=' . urlencode($city),
                 'img' => '',

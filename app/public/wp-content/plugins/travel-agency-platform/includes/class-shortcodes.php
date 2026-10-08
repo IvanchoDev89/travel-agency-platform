@@ -775,7 +775,7 @@ class TAP_Shortcodes {
                                     <br><span class="tap-refund-note"><?php esc_html_e('Política no reembolsable', 'travel-agency-platform'); ?></span>
                                 <?php endif; ?>
                             </td>
-<td><span class="tap-status tap-status-<?php echo esc_attr($booking->status); ?>"><?php echo esc_html(TAP_Emails::STATUS_LABELS[$booking->status] ?? ucfirst($booking->status)); ?></span></td>
+<td><span class="tap-status tap-status-<?php echo esc_attr($booking->status); ?>"><?php echo esc_html(TAP_Emails::status_label($booking->status)); ?></span></td>
                             <td><span class="tap-status tap-status-<?php echo esc_attr($booking->payment_status); ?>"><?php echo esc_html(ucfirst($booking->payment_status)); ?></span></td>
                             <td>
                                 <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(home_url('/booking-detail/?code=' . $booking->booking_code)); ?>"><?php esc_html_e('Ver voucher', 'travel-agency-platform'); ?></a>
@@ -1088,7 +1088,7 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                                 <?php endif; ?>
                             </td>
                             <td><?php echo esc_html(TAP_Currency::fmt(max(0, (float) $b->total_amount - (float) ($b->booking_fee ?? 0) - ($b->commission_status === 'void' ? 0 : (float) $b->commission_amount)))); ?></td>
-                            <td><span class="tap-status tap-status-<?php echo esc_attr($b->status); ?>"><?php echo esc_html(TAP_Emails::STATUS_LABELS[$b->status] ?? ucfirst($b->status)); ?></span></td>
+                            <td><span class="tap-status tap-status-<?php echo esc_attr($b->status); ?>"><?php echo esc_html(TAP_Emails::status_label($b->status)); ?></span></td>
                             <td class="tap-actions">
                                 <?php if ($b->status === 'request'):
                                     $options = ['pending' => __('Aceptar', 'travel-agency-platform'), 'cancelled' => __('Rechazar', 'travel-agency-platform')];
@@ -4293,7 +4293,7 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
             ],
         ];
 
-        $status_labels = TAP_Emails::STATUS_LABELS;
+        $status_labels = TAP_Emails::status_labels();
         $pstatus = [
             'pending' => __('Pendiente', 'travel-agency-platform'),
             'paid'    => __('Pagado', 'travel-agency-platform'),
