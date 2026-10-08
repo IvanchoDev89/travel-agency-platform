@@ -134,19 +134,19 @@ tap_t_assert('cancelled' === TAP_Booking::get_booking($retr_id)->status, 'retrac
 $req3 = $mk_booking($tour_request, 'guestreq', 58);
 $req3_id = (int) $req3['booking_id'];
 TAP_Ajax::set_guest_pay_token($req3['booking_code']);
-$chk = TAP_Shortcodes::checkout(['code' => $req3['booking_code']]);
+$chk = TAP_Shortcode_Booking::checkout(['code' => $req3['booking_code']]);
 tap_t_assert(false !== strpos($chk, 'pendiente de confirmación'), 'checkout shows pending notice for open request');
 $rej2 = $mk_booking($tour_request, 'guestrej', 60);
 $rej2_id = (int) $rej2['booking_id'];
 TAP_Booking::update_status($rej2_id, 'cancelled');
 TAP_Ajax::set_guest_pay_token($rej2['booking_code']);
-$chk2 = TAP_Shortcodes::checkout(['code' => $rej2['booking_code']]);
+$chk2 = TAP_Shortcode_Booking::checkout(['code' => $rej2['booking_code']]);
 tap_t_assert(false !== strpos($chk2, 'cancelada o rechazada'), 'checkout shows rejected notice for cancelled request');
 
 /* --- Booking form label reflects request mode. --- */
-$form_html = TAP_Shortcodes::booking_form(['service_type' => 'tap_tour', 'service_id' => $tour_request]);
+$form_html = TAP_Shortcode_Booking::booking_form(['service_type' => 'tap_tour', 'service_id' => $tour_request]);
 tap_t_assert(false !== strpos($form_html, 'Solicitar reserva'), 'booking_form shows request-to-book label');
-$form_inst = TAP_Shortcodes::booking_form(['service_type' => 'tap_tour', 'service_id' => $tour_instant]);
+$form_inst = TAP_Shortcode_Booking::booking_form(['service_type' => 'tap_tour', 'service_id' => $tour_instant]);
 tap_t_assert(false === strpos($form_inst, 'Solicitar reserva') && false === strpos($form_inst, 'Enviar solicitud'), 'instant form keeps direct-booking labels');
 
 /* --- Cleanup. --- */

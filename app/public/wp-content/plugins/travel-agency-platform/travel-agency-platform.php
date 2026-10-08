@@ -47,6 +47,7 @@ final class TravelAgencyPlatform {
         require_once TAP_PLUGIN_DIR . 'includes/class-shortcodes.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-listing-editor.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-shortcode-search.php';
+        require_once TAP_PLUGIN_DIR . 'includes/class-shortcode-booking.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-ajax.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-chatbot.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-moderation.php';
@@ -161,7 +162,7 @@ final class TravelAgencyPlatform {
         add_action('wp_ajax_nopriv_tap_lead_submit', ['TAP_Ajax', 'submit_lead']);
         add_action('admin_post_tap_export_leads', ['TAP_Leads', 'csv_download']);
         add_action('admin_post_nopriv_tap_export_leads', ['TAP_Leads', 'csv_download']);
-        add_shortcode('tap_checkout', ['TAP_Shortcodes', 'checkout']);
+        add_shortcode('tap_checkout', [TAP_Shortcode_Booking::class, 'checkout']);
     }
 
     public function maybe_update_tables() {
