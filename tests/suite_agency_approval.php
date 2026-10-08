@@ -102,7 +102,7 @@ $detail_pending = TAP_Shortcode_Search::agency_detail(['id' => $pending]);
 tap_t_assert(false !== strpos($detail_pending, 'en revisión'), 'agency_detail shows pending message publicly');
 $detail_ready = TAP_Shortcode_Search::agency_detail(['id' => $ready]);
 tap_t_assert(false !== strpos($detail_ready, esc_html($title_ok)), 'agency_detail renders approved agency');
-tap_t_assert('' === TAP_Shortcodes::agency_services(['agency' => $pending]), 'agency_services hidden for pending agency');
+tap_t_assert('' === TAP_Shortcode_Account::agency_services(['agency' => $pending]), 'agency_services hidden for pending agency');
 
 /* --- Featured listing excludes pending agency service. --- */
 $featured_html = TAP_Shortcode_Search::featured_services(['type' => 'tap_tour', 'limit' => 50]);
