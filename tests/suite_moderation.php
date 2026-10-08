@@ -109,7 +109,7 @@ tap_t_assert(count($found_lead) === 1, 'flagged lead appears in moderation queue
 
 // --- admin page renders the flagged items ---
 ob_start();
-TAP_Dashboard::moderation_page();
+TAP_Dashboard_Content::moderation_page();
 $html = (string) ob_get_clean();
 tap_t_assert(strpos($html, 'Moderación de contenido') !== false, 'moderation page title rendered');
 tap_t_assert(strpos($html, $lnk) !== false, 'flagged review content surfaced on page');
