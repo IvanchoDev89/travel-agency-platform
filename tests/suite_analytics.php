@@ -7,7 +7,7 @@ require __DIR__ . '/bootstrap.php';
 
 // render the analytics admin page to an output buffer
 ob_start();
-TAP_Dashboard::analytics_page();
+TAP_Dashboard_Insights::analytics_page();
 $html = ob_get_clean();
 
 // KPIs from M5
