@@ -94,18 +94,18 @@ update_post_meta($ready, '_tap_agency_verified', '1');
 update_post_meta($ready, '_tap_agency_status', TAP_Approval::APPROVED);
 update_post_meta($ready, '_tap_agency_is_active', '1');
 
-$list_html = TAP_Shortcodes::agencies_list(['limit' => 50]);
+$list_html = TAP_Shortcode_Search::agencies_list(['limit' => 50]);
 tap_t_assert(strpos($list_html, esc_html($title_ok)) !== false, 'agencies_list includes approved+verified agency');
 tap_t_assert(strpos($list_html, esc_html($title_pending)) === false, 'agencies_list hides pending agency');
 
-$detail_pending = TAP_Shortcodes::agency_detail(['id' => $pending]);
+$detail_pending = TAP_Shortcode_Search::agency_detail(['id' => $pending]);
 tap_t_assert(false !== strpos($detail_pending, 'en revisión'), 'agency_detail shows pending message publicly');
-$detail_ready = TAP_Shortcodes::agency_detail(['id' => $ready]);
+$detail_ready = TAP_Shortcode_Search::agency_detail(['id' => $ready]);
 tap_t_assert(false !== strpos($detail_ready, esc_html($title_ok)), 'agency_detail renders approved agency');
 tap_t_assert('' === TAP_Shortcodes::agency_services(['agency' => $pending]), 'agency_services hidden for pending agency');
 
 /* --- Featured listing excludes pending agency service. --- */
-$featured_html = TAP_Shortcodes::featured_services(['type' => 'tap_tour', 'limit' => 50]);
+$featured_html = TAP_Shortcode_Search::featured_services(['type' => 'tap_tour', 'limit' => 50]);
 tap_t_assert(strpos($featured_html, esc_html($tour_title)) === false, 'featured_services excludes pending-agency listing');
 
 /* --- Booking is rejected for a pending agency. --- */
@@ -137,7 +137,7 @@ $resp3 = tap_t_rest('GET', '/tap/v1/search', ['keyword' => $tour_title]);
 $data3 = tap_t_rest_data($resp3);
 $ids3 = array_column((array) ($data3['results'] ?? []), 'id');
 tap_t_assert(in_array((int) $tour, array_map('intval', $ids3), true), 'REST /search includes service after approval');
-tap_t_assert(strpos(TAP_Shortcodes::featured_services(['type' => 'tap_tour', 'limit' => 50]), esc_html($tour_title)) !== false, 'featured_services includes service after approval');
+tap_t_assert(strpos(TAP_Shortcode_Search::featured_services(['type' => 'tap_tour', 'limit' => 50]), esc_html($tour_title)) !== false, 'featured_services includes service after approval');
 
 /* --- Bookings succeed once approved. --- */
 $b2 = TAP_Booking::create([

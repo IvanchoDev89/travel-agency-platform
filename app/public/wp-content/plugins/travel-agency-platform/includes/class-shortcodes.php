@@ -1073,7 +1073,7 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
         return $html;
     }
 
-    private static function ids_by_meta(array $meta_keys, $value) {
+    public static function ids_by_meta(array $meta_keys, $value) {
         global $wpdb;
         $meta_keys = array_values(array_filter(array_map('strval', $meta_keys)));
         if (empty($meta_keys)) {
@@ -1086,7 +1086,7 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
         )));
     }
 
-    private static function active_listing_ids(array $types) {
+    public static function active_listing_ids(array $types) {
         $active_keys = [];
         foreach ($types as $pt) {
             $keys = TAP_Promotions::keys_for_type($pt);
@@ -1101,7 +1101,7 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
      * Pending-agency listings are hidden by exclusion (post__in + post__not_in
      * cannot be combined in WP_Query, so the exclusion is folded into the id list).
      */
-    private static function exclude_pending(array $ids) {
+    public static function exclude_pending(array $ids) {
         $excluded = array_map('intval', TAP_Approval::excluded_listing_ids());
         if (empty($excluded)) {
             return $ids;
