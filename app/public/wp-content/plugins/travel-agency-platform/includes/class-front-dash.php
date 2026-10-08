@@ -552,7 +552,7 @@ class TAP_Front_Dash {
                         echo self::agency_finances($user);
                         break;
                     case 'bo-listings':
-                        echo TAP_Shortcodes::agency_manage([]);
+                        echo TAP_Listing_Editor::agency_manage([]);
                         break;
                     default:
                         echo self::agency_overview($user);
