@@ -278,6 +278,10 @@ class TAP_Booking {
         return home_url('/checkout?code=' . rawurlencode($booking->booking_code));
     }
 
+    /**
+     * @param array $data Raw booking payload (service_type, service_id, dates…).
+     * @return array{booking_id:int, booking_code:string}|WP_Error
+     */
     public static function create($data) {
         global $wpdb;
 
@@ -887,6 +891,9 @@ class TAP_Booking {
         return !in_array($booking->status, ['cancelled', 'refunded'], true);
     }
 
+    /**
+     * @return true|WP_Error
+     */
     public static function update_payment_status($booking_id, $payment_status) {
         global $wpdb;
 
@@ -895,11 +902,18 @@ class TAP_Booking {
             return new WP_Error('invalid_status', __('Invalid payment status', 'travel-agency-platform'));
         }
 
-        $wpdb->update(
+        if (!self::get_booking((int) $booking_id)) {
+            return new WP_Error('not_found', __('Reserva no encontrada.', 'travel-agency-platform'));
+        }
+
+        $updated = $wpdb->update(
             $wpdb->prefix . 'tap_bookings',
             ['payment_status' => $payment_status],
             ['id' => $booking_id]
         );
+        if (false === $updated) {
+            return new WP_Error('db_error', __('No se pudo actualizar el estado del pago.', 'travel-agency-platform'));
+        }
 
         return true;
     }
@@ -911,13 +925,18 @@ class TAP_Booking {
      * still unpaid, so a replayed webhook, ajax retry or booker double click
      * can never mark an already paid booking as paid again or re-fire the
      * 'tap_payment_completed' event (which re-earns the agency commission).
+     *
+     * @return true|WP_Error true when the booking is now fully paid; WP_Error
+     *                       with a machine-readable code (not_found,
+     *                       auto_refunded, already_paid, currency_mismatch,
+     *                       partial, lost_race) otherwise.
      */
     public static function record_paid_capture($booking_id, $method, $capture_id = '', $details = null) {
         global $wpdb;
 
         $booking = self::get_booking((int) $booking_id);
         if (!$booking) {
-            return false;
+            return new WP_Error('not_found', __('Reserva no encontrada.', 'travel-agency-platform'));
         }
 
         // A charge arriving for a booking that the system already cancelled
@@ -931,11 +950,11 @@ class TAP_Booking {
                     __('La reserva fue cancelada antes de procesar la captura; el pago fue reembolsado automáticamente.', 'travel-agency-platform')
                 );
             }
-            return false;
+            return new WP_Error('auto_refunded', __('La reserva ya no existe: el pago fue reembolsado automáticamente.', 'travel-agency-platform'));
         }
 
         if (in_array($booking->payment_status, ['paid', 'refunded'], true)) {
-            return false;
+            return new WP_Error('already_paid', __('Esta reserva ya tiene un pago registrado.', 'travel-agency-platform'));
         }
 
         $table = $wpdb->prefix . 'tap_bookings';
@@ -956,7 +975,7 @@ class TAP_Booking {
                 );
                 $wpdb->update($table, ['payment_status' => 'failed'], ['id' => (int) $booking_id, 'payment_status' => $booking->payment_status]);
                 do_action('tap_payment_failed', (int) $booking_id, $method, $capture_id);
-                return false;
+                return new WP_Error('currency_mismatch', __('La moneda del pago no coincide; el pago fue reembolsado automáticamente.', 'travel-agency-platform'));
             }
 
             if (null !== $captured['value'] && $captured['value'] < $expected - 0.005) {
@@ -970,7 +989,7 @@ class TAP_Booking {
                     update_post_meta((int) $booking_id, '_tap_payment_details', $payload);
                 }
                 $wpdb->update($table, ['payment_status' => 'partial'], ['id' => (int) $booking_id, 'payment_status' => $booking->payment_status]);
-                return false;
+                return new WP_Error('partial', __('Pago parcial recibido; la reserva aún no está pagada por completo.', 'travel-agency-platform'));
             }
         }
 
@@ -980,7 +999,7 @@ class TAP_Booking {
             ['id' => (int) $booking_id, 'payment_status' => $booking->payment_status]
         );
         if (1 !== $updated) {
-            return false;
+            return new WP_Error('lost_race', __('El pago se registró en otra petición.', 'travel-agency-platform'));
         }
 
         self::update_status((int) $booking_id, 'confirmed');
