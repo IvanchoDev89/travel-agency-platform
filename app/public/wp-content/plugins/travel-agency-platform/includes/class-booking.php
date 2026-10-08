@@ -1070,6 +1070,46 @@ class TAP_Booking {
         ));
     }
 
+    /** Service types that accept a verified review from a client. */
+    public static function reviewable_types() {
+        return ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
+    }
+
+    /**
+     * "type:id" markers of services the given user already reviewed. Cached
+     * per request so the bookings list does not re-query per row.
+     *
+     * @return string[]
+     */
+    public static function reviewed_markers($user_id) {
+        static $cache = [];
+        $user_id = (int) $user_id;
+        if (isset($cache[$user_id])) {
+            return $cache[$user_id];
+        }
+        global $wpdb;
+        $cache[$user_id] = $wpdb->get_col($wpdb->prepare(
+            "SELECT CONCAT(service_type, ':', service_id) FROM {$wpdb->prefix}tap_reviews WHERE user_id = %d",
+            $user_id
+        ));
+        return $cache[$user_id];
+    }
+
+    /** True when the client can still post a verified review for this booking. */
+    public static function can_review_booking($booking, $markers = null) {
+        $markers = (null === $markers) ? self::reviewed_markers(get_current_user_id()) : $markers;
+        return 'completed' === $booking->status
+            && in_array($booking->service_type, self::reviewable_types(), true)
+            && get_post($booking->service_id)
+            && !in_array($booking->service_type . ':' . $booking->service_id, $markers, true);
+    }
+
+    /** True when the client is allowed to cancel this booking. */
+    public static function can_cancel_booking($booking) {
+        return in_array($booking->status, ['pending', 'confirmed', 'request'], true)
+            && (!$booking->check_in || $booking->check_in >= gmdate('Y-m-d'));
+    }
+
     public static function get_client_bookings($user_id, $limit = 20, $offset = 0) {
         global $wpdb;
         return $wpdb->get_results($wpdb->prepare(

@@ -350,12 +350,7 @@ class TAP_Front_Dash {
 
     private static function client_bookings($user) {
         $bookings = TAP_Booking::get_client_bookings($user->ID);
-
-        global $wpdb;
-        $reviewed = $wpdb->get_col($wpdb->prepare(
-            "SELECT CONCAT(service_type, ':', service_id) FROM {$wpdb->prefix}tap_reviews WHERE user_id = %d",
-            $user->ID
-        ));
+        $reviewed = TAP_Booking::reviewed_markers($user->ID);
 
         ob_start(); ?>
         <div class="tap-dash-header">
@@ -375,12 +370,8 @@ class TAP_Front_Dash {
                 <?php foreach ($bookings as $b) :
                     $svc   = get_post($b->service_id);
                     $img   = $svc ? get_the_post_thumbnail_url($svc->ID, 'thumbnail') : '';
-                    $key   = $b->service_type . ':' . $b->service_id;
-                    $can_rev = 'completed' === $b->status
-                        && in_array($b->service_type, ['tap_accommodation','tap_tour','tap_transport','tap_car_rental','tap_boat','tap_package','tap_equipment'], true)
-                        && $svc && !in_array($key, $reviewed, true);
-                    $can_cancel = in_array($b->status, ['pending','confirmed','request'], true)
-                        && (!$b->check_in || $b->check_in >= gmdate('Y-m-d'));
+                    $can_rev = TAP_Booking::can_review_booking($b, $reviewed);
+                    $can_cancel = TAP_Booking::can_cancel_booking($b);
                     $can_pay = TAP_Booking::is_payable($b); ?>
                     <div class="tap-dash-booking-card">
                         <?php if ($img) : ?>

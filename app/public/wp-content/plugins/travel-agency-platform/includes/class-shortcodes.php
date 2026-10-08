@@ -728,12 +728,7 @@ class TAP_Shortcodes {
 
         $user_id = get_current_user_id();
         $bookings = TAP_Booking::get_client_bookings($user_id);
-
-        global $wpdb;
-        $reviewed = $wpdb->get_col($wpdb->prepare(
-            "SELECT CONCAT(service_type, ':', service_id) FROM {$wpdb->prefix}tap_reviews WHERE user_id = %d",
-            $user_id
-        ));
+        $reviewed = TAP_Booking::reviewed_markers($user_id);
 
         ob_start();
         ?>
@@ -758,10 +753,7 @@ class TAP_Shortcodes {
                         <?php foreach ($bookings as $booking):
                             $service = get_post($booking->service_id);
                             $service_marker = $booking->service_type . ':' . $booking->service_id;
-                            $can_review = 'completed' === $booking->status
-                                && in_array($booking->service_type, ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'], true)
-                                && $service
-                                && !in_array($service_marker, $reviewed, true);
+                            $can_review = TAP_Booking::can_review_booking($booking, $reviewed);
                         ?>
                         <tr>
                             <td><?php echo esc_html($booking->booking_code); ?></td>
@@ -787,7 +779,7 @@ class TAP_Shortcodes {
                                 <?php elseif ('completed' === $booking->status && in_array($service_marker, $reviewed, true)): ?>
                                     <span class="tap-review-done"><?php esc_html_e('✓ Reseña enviada', 'travel-agency-platform'); ?></span>
                                 <?php endif; ?>
-                                <?php if (in_array($booking->status, ['pending', 'confirmed', 'request'], true) && (!$booking->check_in || $booking->check_in >= gmdate('Y-m-d'))): ?>
+                                <?php if (TAP_Booking::can_cancel_booking($booking)): ?>
                                     <button type="button" class="tap-btn tap-btn-sm tap-btn-danger tap-cancel-booking-btn" data-booking-id="<?php echo (int) $booking->id; ?>" data-confirm="<?php echo esc_attr($booking->booking_code); ?>"><?php esc_html_e('Cancelar', 'travel-agency-platform'); ?></button>
                                 <?php endif; ?>
                             </td>
