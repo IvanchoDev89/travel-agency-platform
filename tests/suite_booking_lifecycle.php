@@ -194,6 +194,21 @@ $res = TAP_Booking::update_status($b, 'cancelled');
 tap_t_assert($res === true, 'completed->cancelled accepted');
 tap_t_cleanup_bookings($created);
 
+// ---- 8b) a PAID completed booking can never be silently cancelled ----
+$b = tap_t_seed_booking();
+$created[] = $b;
+$res = TAP_Booking::update_status($b, 'completed');
+tap_t_assert($res === true, 'paid confirmed -> completed accepted');
+$err = TAP_Booking::update_status($b, 'cancelled');
+tap_t_assert(is_wp_error($err) && 'paid_completed' === $err->get_error_code(), 'paid completed blocked from cancelled');
+$res = TAP_Booking::update_status($b, 'refunded');
+tap_t_assert($res === true, 'paid completed -> refunded goes through the money path');
+$final = $wpdb->get_var($wpdb->prepare("SELECT status FROM {$wpdb->prefix}tap_bookings WHERE id = %d", $b));
+tap_t_assert(in_array($final, ['refunded', 'cancelled'], true), 'refund endpoint lands on refunded (or cancelled when no money moved)');
+$pmt = $wpdb->get_var($wpdb->prepare("SELECT payment_status FROM {$wpdb->prefix}tap_bookings WHERE id = %d", $b));
+tap_t_assert(in_array($pmt, ['refunded', 'paid'], true), 'refund keeps payment ledger consistent');
+tap_t_cleanup_bookings($created);
+
 // ---- 9) commission payable only when paid and not cancelled ----
 $b = tap_t_seed_booking(['status' => 'confirmed', 'payment_status' => 'pending', 'commission_status' => 'owed']);
 $created[] = $b;

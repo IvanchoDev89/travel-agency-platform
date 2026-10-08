@@ -680,7 +680,7 @@ class TAP_Booking {
                 if (!$is_admin) {
                     return new WP_Error('forbidden', __('No tienes permiso sobre esta reserva.', 'travel-agency-platform'));
                 }
-                if ('confirmed' !== $booking->status) {
+                if (!in_array($booking->status, ['confirmed', 'completed'], true)) {
                     return new WP_Error('bad_status', __('Invalid status', 'travel-agency-platform'));
                 }
                 if (!in_array($booking->payment_status, ['pending', 'partial', 'failed', 'paid'], true)) {
@@ -693,7 +693,7 @@ class TAP_Booking {
                 $updated = $wpdb->update(
                     $wpdb->prefix . 'tap_bookings',
                     ['payment_status' => 'paid'],
-                    ['id' => $booking->id, 'status' => 'confirmed', 'payment_status' => $booking->payment_status]
+                    ['id' => $booking->id, 'status' => $booking->status, 'payment_status' => $booking->payment_status]
                 );
                 if (1 !== $updated) {
                     return new WP_Error('payment_update_failed', __('Invalid payment status', 'travel-agency-platform'));
@@ -742,6 +742,13 @@ class TAP_Booking {
                     $status
                 )
             );
+        }
+
+        // A paid, completed booking must never be side-stepped to 'cancelled':
+        // the only valid destination is 'refunded' so the money goes back
+        // through the gateway. Unpaid completed bookings may still cancel.
+        if ('completed' === $prev && 'cancelled' === $status && 'paid' === $booking->payment_status) {
+            return new WP_Error('paid_completed', __('Una reserva pagada y completada no puede cancelarse: debe reembolsarse (estado "refunded").', 'travel-agency-platform'));
         }
 
         // Money-aware cancellation: a paid booking must never be cancelled on

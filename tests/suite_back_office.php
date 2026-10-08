@@ -100,7 +100,7 @@ tap_t_assert(is_wp_error($r) && 'forbidden' === $r->get_error_code(), 'agency ca
 tap_t_assert('pending' === TAP_Booking::get_booking($b2)->payment_status && !$hook_hits, 'denied manual payment leaves payment and hooks untouched');
 list($admin_uid, $admin_aid) = bo_make_agency('administrator');
 tap_t_assert($admin_uid > 0, 'created administrator fixture');
-foreach (['request', 'pending', 'completed', 'cancelled', 'refunded'] as $blocked_status) {
+foreach (['request', 'pending', 'cancelled', 'refunded'] as $blocked_status) {
     $blocked = bo_booking($owner_aid, ['status' => $blocked_status]);
     $denied = TAP_Booking::agency_booking_action($blocked, 'mark_paid', $admin_uid);
     tap_t_assert(is_wp_error($denied) && 'bad_status' === $denied->get_error_code(), 'admin cannot mark paid from ' . $blocked_status);
@@ -116,6 +116,14 @@ tap_t_assert(true === $r, 'administrator marks a confirmed booking as paid');
 tap_t_assert('paid' === TAP_Booking::get_booking($b2)->payment_status, 'payment_status becomes paid');
 tap_t_assert(in_array($b2, $hook_hits, true), 'mark_paid triggered tap_payment_completed');
 tap_t_assert('owed' === TAP_Booking::get_booking($b2)->commission_status, 'commission is owed after payment');
+
+// a completed booking stuck on a partial payment can be unstuck by admin,
+// and that payment event fires once
+$completed_unpaid = bo_booking($owner_aid, ['status' => 'completed', 'payment_status' => 'partial']);
+$mk = TAP_Booking::agency_booking_action($completed_unpaid, 'mark_paid', $admin_uid);
+tap_t_assert(true === $mk && 'paid' === TAP_Booking::get_booking($completed_unpaid)->payment_status, 'admin can mark a completed booking paid (unstuck partial)');
+$mk2 = TAP_Booking::agency_booking_action($completed_unpaid, 'mark_paid', $admin_uid);
+tap_t_assert(true === $mk2, 'repeated mark_paid on completed is idempotent');
 
 // ── 4) agency cancellation applies the policy penalty + voids commission ──
 $b3 = bo_booking($owner_aid, [
