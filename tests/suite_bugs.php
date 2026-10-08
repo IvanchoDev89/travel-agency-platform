@@ -32,7 +32,10 @@ tap_t_assert($before === get_option('tap_currency', 'USD'), 'currency option res
 
 // ===== C. Source-level regressions (static one-shot guards) =====
 $plugin = defined('TAP_PLUGIN_DIR') ? TAP_PLUGIN_DIR : (ABSPATH . 'wp-content/plugins/travel-agency-platform/');
-$dash_src = file_get_contents($plugin . 'includes/class-dashboard.php');
+$dash_src = '';
+foreach (glob($plugin . 'includes/class-dashboard*.php') ?: [] as $tap_dash_file) {
+    $dash_src .= file_get_contents($tap_dash_file);
+}
 $email_src = file_get_contents($plugin . 'includes/class-emails.php');
 $short_src = file_get_contents($plugin . 'includes/class-shortcodes.php');
 
