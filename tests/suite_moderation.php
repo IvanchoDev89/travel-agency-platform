@@ -10,7 +10,7 @@ global $wpdb;
 $M = 'TAP_Moderation';
 tap_t_assert(class_exists($M), 'TAP_Moderation class present');
 tap_t_assert(has_action('admin_init', [$M, 'handle_admin_actions']), 'moderation admin handler hooked');
-tap_t_assert(is_callable(['TAP_Dashboard', 'moderation_page']), 'moderation admin page registered');
+tap_t_assert(is_callable(['TAP_Dashboard_Content', 'moderation_page']), 'moderation admin page registered');
 
 // --- migration columns present on both tables ---
 foreach (['tap_reviews', 'tap_leads'] as $t) {
