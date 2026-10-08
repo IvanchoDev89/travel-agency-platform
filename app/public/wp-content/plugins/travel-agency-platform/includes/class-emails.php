@@ -35,6 +35,10 @@ class TAP_Emails {
         add_action('tap_dispute_resolved', [__CLASS__, 'on_dispute_resolved'], 10, 3);
         add_action('tap_payout_completed', [__CLASS__, 'on_payout_changed'], 10, 1);
         add_action('tap_payout_cancelled', [__CLASS__, 'on_payout_changed'], 10, 1);
+        add_action('tap_payout_requested', [__CLASS__, 'on_payout_requested'], 10, 3);
+        add_action('tap_payment_approved', [__CLASS__, 'on_payment_approved'], 10, 3);
+        add_action('tap_booking_cancelled', [__CLASS__, 'on_booking_cancelled'], 10, 2);
+        add_action('tap_booking_refund_retried', [__CLASS__, 'on_booking_refund_retried'], 10, 1);
         add_action('tap_subscription_requested', [__CLASS__, 'on_subscription_requested'], 10, 2);
         add_action('tap_promo_requested', [__CLASS__, 'on_promo_requested'], 10, 3);
         add_filter('wp_mail_content_type', [__CLASS__, 'set_html_content_type']);
@@ -560,6 +564,113 @@ class TAP_Emails {
                     __('La disputa asociada a la reserva <strong>%s</strong> fue resuelta: <strong>%s</strong>.', 'travel-agency-platform'),
                     esc_html((string) $booking_id),
                     esc_html($label)
+                )
+            )
+        );
+    }
+
+    public static function on_booking_cancelled($booking_id, $booking = null) {
+        $booking = $booking ?: TAP_Booking::get_booking($booking_id);
+        if (!$booking) {
+            return;
+        }
+        list($email, $name) = self::client_contact($booking);
+        if ($email) {
+            self::send(
+                $email,
+                sprintf(__('Tu reserva %s fue cancelada', 'travel-agency-platform'), $booking->booking_code),
+                self::info_template(
+                    __('Reserva cancelada', 'travel-agency-platform'),
+                    sprintf(
+                        __('Hola %s, tu reserva <strong>%s</strong> (%s) quedó cancelada. Si esperabas un reembolso, lo verás según la política de cancelación. <a href="%s" style="color:#0d9488;">Ver detalle</a>.', 'travel-agency-platform'),
+                        esc_html($name),
+                        esc_html($booking->booking_code),
+                        esc_html(self::get_service_name($booking)),
+                        esc_url(home_url('/booking-detail/?code=' . rawurlencode($booking->booking_code)))
+                    )
+                )
+            );
+        }
+        $agency_email = self::get_agency_email($booking->agency_id);
+        if ($agency_email) {
+            self::send(
+                $agency_email,
+                sprintf(__('Reserva %s cancelada', 'travel-agency-platform'), $booking->booking_code),
+                self::info_template(
+                    __('Cancelación de reserva', 'travel-agency-platform'),
+                    sprintf(
+                        __('La reserva <strong>%s</strong> (%s) quedó cancelada. Si tenía comisión devengada, se anuló.', 'travel-agency-platform'),
+                        esc_html($booking->booking_code),
+                        esc_html(self::get_service_name($booking))
+                    )
+                )
+            );
+        }
+    }
+
+    public static function on_payment_approved($booking_id, $gateway = '', $transaction_id = '') {
+        $booking = TAP_Booking::get_booking($booking_id);
+        if (!$booking) {
+            return;
+        }
+        $agency_email = self::get_agency_email($booking->agency_id);
+        if ($agency_email) {
+            self::send(
+                $agency_email,
+                sprintf(__('Pago aprobado — reserva %s', 'travel-agency-platform'), $booking->booking_code),
+                self::info_template(
+                    __('¡Pago recibido!', 'travel-agency-platform'),
+                    sprintf(
+                        __('Se aprobó el pago de <strong>%s</strong> para la reserva <strong>%s</strong> mediante %s. Puedes coordinar el servicio con el huésped desde <a href="%s" style="color:#0d9488;">tu cuenta</a>.', 'travel-agency-platform'),
+                        esc_html(self::get_service_name($booking)),
+                        esc_html($booking->booking_code),
+                        esc_html($gateway ?: 'PayPal'),
+                        esc_url(home_url('/mi-cuenta/'))
+                    )
+                )
+            );
+        }
+    }
+
+    public static function on_payout_requested($payment_id, $agency_id, $amount) {
+        global $wpdb;
+        $admin = get_option('admin_email');
+        if (!is_email($admin)) {
+            return;
+        }
+        $agency = get_post($agency_id);
+        $row    = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_commission_payments WHERE id = %d", $payment_id));
+        self::send(
+            $admin,
+            sprintf(__('Solicitud de liquidación — agencia #%d', 'travel-agency-platform'), (int) $agency_id),
+            self::info_template(
+                __('Nueva solicitud de pago', 'travel-agency-platform'),
+                sprintf(
+                    __('La agencia <strong>%s</strong> solicitó una liquidación de <strong>%s</strong> (ref. #%d). Revisa el pago en el <a href="%s" style="color:#0d9488;">panel de comisiones</a>.', 'travel-agency-platform'),
+                    esc_html($agency ? $agency->post_title : (string) $agency_id),
+                    esc_html(self::money($amount)),
+                    (int) $payment_id,
+                    esc_url(admin_url('admin.php?page=tap-commissions'))
+                )
+            )
+        );
+    }
+
+    public static function on_booking_refund_retried($booking_id) {
+        $booking = TAP_Booking::get_booking($booking_id);
+        $admin   = get_option('admin_email');
+        if (!$booking || !is_email($admin)) {
+            return;
+        }
+        self::send(
+            $admin,
+            sprintf(__('[Reintento de reembolso] Reserva %s', 'travel-agency-platform'), $booking->booking_code),
+            self::info_template(
+                __('Reembolso reintentado', 'travel-agency-platform'),
+                sprintf(
+                    __('Se reintentó el reembolso automático de la reserva <strong>%s</strong> (%s). Si volvió a fallar, requiere revisión manual del equipo de soporte.', 'travel-agency-platform'),
+                    esc_html($booking->booking_code),
+                    esc_html(self::get_service_name($booking))
                 )
             )
         );

@@ -202,6 +202,29 @@ class TAP_Dashboard {
         register_setting('tap_settings', 'tap_booking_auto_complete');
     }
 
+    /**
+     * Cached published-listing counts by post type (10 min transient) so the
+     * dashboard does not run up to 13 wp_count_posts queries on every view.
+     */
+    public static function listing_counts() {
+        $cached = get_transient('tap_listing_counts');
+        if (is_array($cached)) {
+            return $cached;
+        }
+        $types  = ['tap_agency', 'tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
+        $result = [];
+        $total  = 0;
+        foreach ($types as $pt) {
+            $result[$pt] = (int) wp_count_posts($pt)->publish;
+            if ('tap_agency' !== $pt) {
+                $total += $result[$pt];
+            }
+        }
+        $result['total_services'] = $total;
+        set_transient('tap_listing_counts', $result, 10 * MINUTE_IN_SECONDS);
+        return $result;
+    }
+
     public static function dashboard_page() {
         $stats = TAP_Booking::get_booking_stats();
         $monthly = TAP_Booking::get_monthly_series(12);
@@ -210,12 +233,9 @@ class TAP_Dashboard {
         $recent = TAP_Booking::get_latest_bookings(8);
 
         global $wpdb;
-        $total_agencies = wp_count_posts('tap_agency')->publish ?? 0;
-        $total_services = 0;
-        foreach (['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'] as $pt) {
-            $counts = wp_count_posts($pt);
-            $total_services += ($counts->publish ?? 0);
-        }
+        $counts_cache = TAP_Dashboard::listing_counts();
+        $total_agencies = $counts_cache['tap_agency'];
+        $total_services = $counts_cache['total_services'];
         $currency = get_option('tap_currency', 'USD');
 
         $status_labels = ['pending' => __('Pending', 'travel-agency-platform'), 'request' => __('Solicitudes', 'travel-agency-platform'), 'confirmed' => __('Confirmed', 'travel-agency-platform'), 'completed' => __('Completed', 'travel-agency-platform'), 'cancelled' => __('Cancelled', 'travel-agency-platform'), 'refunded' => __('Refunded', 'travel-agency-platform')];
@@ -1584,10 +1604,7 @@ class TAP_Dashboard {
         ));
 
         $active_agencies = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}tap_agencies WHERE is_active = 1");
-        $total_listings = 0;
-        foreach (['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'] as $pt) {
-            $total_listings += (int) wp_count_posts($pt)->publish;
-        }
+        $total_listings = TAP_Dashboard::listing_counts()['total_services'];
 
         $mrr = (float) $wpdb->get_var(
             "SELECT COALESCE(SUM(p.price_monthly),0) FROM {$wpdb->prefix}tap_agency_subscriptions s

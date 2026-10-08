@@ -386,8 +386,12 @@ class TAP_API {
 
     public static function get_reviews($request) {
         global $wpdb;
-        $type = $request->get_param('type');
-        $id = intval($request->get_param('id'));
+        $type = (string) $request->get_param('type');
+        $id = absint($request->get_param('id'));
+
+        if (!in_array($type, TAP_Reviews::service_types(), true) || !$id) {
+            return new WP_Error('invalid_params', __('Parámetros inválidos.', 'travel-agency-platform'), ['status' => 400]);
+        }
 
         $reviews = $wpdb->get_results($wpdb->prepare(
             "SELECT r.id, r.service_type, r.service_id, r.user_id,
@@ -398,9 +402,11 @@ class TAP_API {
             FROM {$wpdb->prefix}tap_reviews r
             JOIN {$wpdb->users} u ON r.user_id = u.ID
             WHERE r.service_type = %s AND r.service_id = %d AND r.is_approved = 1
-            ORDER BY r.created_at DESC",
+            ORDER BY r.created_at DESC
+            LIMIT %d",
             $type,
-            $id
+            $id,
+            100
         ));
 
         return rest_ensure_response($reviews);
@@ -493,10 +499,14 @@ class TAP_API {
 
     public static function get_availability($request) {
         global $wpdb;
-        $type = $request->get_param('type');
-        $id = $request->get_param('id');
+        $type = (string) $request->get_param('type');
+        $id   = absint($request->get_param('id'));
         $from = $request->get_param('from');
-        $to = $request->get_param('to');
+        $to   = $request->get_param('to');
+
+        if (!in_array($type, TAP_Reviews::service_types(), true) || !$id) {
+            return new WP_Error('invalid_params', __('Parámetros inválidos.', 'travel-agency-platform'), ['status' => 400]);
+        }
 
         $where = "service_type = %s AND service_id = %d";
         $params = [$type, $id];
@@ -511,8 +521,8 @@ class TAP_API {
         }
 
         $availability = $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM {$wpdb->prefix}tap_availability WHERE $where ORDER BY date ASC",
-            $params
+            "SELECT * FROM {$wpdb->prefix}tap_availability WHERE $where ORDER BY date ASC LIMIT %d",
+            array_merge($params, [366])
         ));
 
         return rest_ensure_response($availability);

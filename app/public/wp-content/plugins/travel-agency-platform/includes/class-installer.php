@@ -55,6 +55,7 @@ class TAP_Installer {
                 PRIMARY KEY (id),
                 UNIQUE KEY booking_code (booking_code),
                 KEY agency_id (agency_id),
+                KEY agency_created (agency_id, created_at),
                 KEY client_id (client_id),
                 KEY service_type (service_type),
                 KEY room_id (room_id),
@@ -120,6 +121,7 @@ class TAP_Installer {
                 created_at datetime DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (id),
                 KEY service_type_service_id (service_type, service_id),
+                KEY service_approved (service_type, service_id, is_approved, created_at),
                 KEY user_id (user_id)
             ) $charset;",
 
@@ -270,6 +272,25 @@ class TAP_Installer {
         }
         if (!in_array('source', $cols_payouts)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_commission_payments ADD COLUMN source varchar(10) DEFAULT 'admin' AFTER note");
+        }
+
+        // One-time index backfill for existing installs (CREATE blocks already
+        // include them for new ones). Idempotent via SHOW INDEX lookups.
+        $tap_index_backfill = [
+            ["{$wpdb->prefix}tap_bookings", 'agency_created', 'agency_id, created_at'],
+            ["{$wpdb->prefix}tap_reviews", 'service_approved', 'service_type, service_id, is_approved, created_at'],
+            ["{$wpdb->prefix}tap_commission_payments", 'status', 'status'],
+        ];
+        foreach ($tap_index_backfill as $idx) {
+            $has_idx = $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM information_schema.STATISTICS WHERE table_schema = %s AND table_name = %s AND index_name = %s",
+                DB_NAME,
+                $idx[0],
+                $idx[1]
+            ));
+            if (!$has_idx) {
+                $wpdb->query("ALTER TABLE {$idx[0]} ADD KEY {$idx[1]} ({$idx[2]})");
+            }
         }
 
         if ($wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}tap_disputes'") !== "{$wpdb->prefix}tap_disputes") {

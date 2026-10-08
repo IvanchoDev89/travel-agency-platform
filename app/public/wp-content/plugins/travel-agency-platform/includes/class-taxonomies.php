@@ -237,6 +237,9 @@ class TAP_Taxonomies {
     }
 
     private static function seed_tour_types() {
+        if (get_option('tap_tour_types_seeded')) {
+            return;
+        }
         $terms = [
             'aventura'    => __('Aventura', 'travel-agency-platform'),
             'naturaleza'  => __('Naturaleza', 'travel-agency-platform'),
@@ -256,6 +259,7 @@ class TAP_Taxonomies {
                 wp_insert_term($name, 'tap_tour_type', ['slug' => $slug]);
             }
         }
+        update_option('tap_tour_types_seeded', 1);
     }
 
     /**

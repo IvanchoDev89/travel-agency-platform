@@ -693,7 +693,7 @@ class TAP_Ajax {
             "SELECT DISTINCT meta_value FROM {$wpdb->postmeta} pm
             JOIN {$wpdb->posts} p ON p.ID = pm.post_id
             WHERE pm.meta_key = '_tap_acc_city' AND p.post_status = 'publish' AND p.post_type = 'tap_accommodation'
-            AND meta_value LIKE %s LIMIT 4", '%' . $wpdb->esc_like($keyword) . '%'
+            AND meta_value LIKE %s LIMIT 4", $wpdb->esc_like($keyword) . '%'
         ));
         foreach ($cities as $city) {
             $results[] = [

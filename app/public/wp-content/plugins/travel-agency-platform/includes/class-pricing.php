@@ -108,6 +108,10 @@ class TAP_Pricing {
         $year    = (int) ($_POST['year'] ?? 0);
         $month   = (int) ($_POST['month'] ?? 0);
 
+        if (!self::can_manage_room($room_id)) {
+            wp_send_json_error(['message' => __('No autorizado para este alojamiento.', 'travel-agency-platform')], 403);
+        }
+
         wp_send_json(array_merge(['success' => true], self::month_data($room_id, $year, $month)));
     }
 
