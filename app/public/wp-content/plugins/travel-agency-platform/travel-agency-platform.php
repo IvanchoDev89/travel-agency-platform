@@ -11,7 +11,7 @@
 
 defined('ABSPATH') || exit;
 
-define('TAP_VERSION', '1.5.10');
+define('TAP_VERSION', '1.5.11');
 define('TAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -126,6 +126,8 @@ final class TravelAgencyPlatform {
         add_action('wp_ajax_nopriv_tap_cancel_booking', ['TAP_Ajax', 'cancel_booking']);
         add_action('wp_ajax_tap_chat_client_send', ['TAP_Ajax', 'chat_client_send']);
         add_action('wp_ajax_nopriv_tap_chat_client_send', ['TAP_Ajax', 'chat_client_send']);
+        add_action('wp_ajax_tap_chat_client_thread', ['TAP_Ajax', 'chat_client_thread']);
+        add_action('wp_ajax_nopriv_tap_chat_client_thread', ['TAP_Ajax', 'chat_client_thread']);
         add_action('wp_ajax_tap_search_services', ['TAP_Ajax', 'search_services']);
         add_action('wp_ajax_nopriv_tap_search_services', ['TAP_Ajax', 'search_services']);
         add_action('wp_ajax_tap_create_paypal_order', ['TAP_Ajax', 'create_paypal_order']);

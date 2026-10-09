@@ -30,6 +30,7 @@ class TAP_Front_Dash {
         add_action('wp_ajax_tap_dash_agency_payout', [__CLASS__, 'ajax_agency_payout']);
         add_action('wp_ajax_tap_dash_chat_thread', [__CLASS__, 'ajax_chat_thread']);
         add_action('wp_ajax_tap_dash_chat_send', [__CLASS__, 'ajax_chat_send']);
+        add_action('wp_ajax_tap_dash_chat_unread', [__CLASS__, 'ajax_chat_unread']);
 
         // 301 redirect legacy /dashboard/ page to the unified /mi-cuenta/ back-office
         add_action('template_redirect', [__CLASS__, 'dashboard_redirect']);
@@ -87,6 +88,7 @@ class TAP_Front_Dash {
                 'confirm_op'     => __('¿Realizar esta operación sobre la reserva?', 'travel-agency-platform'),
                 'cancel_reason'  => __('Motivo de cancelación (opcional):', 'travel-agency-platform'),
                 'confirm_payout' => __('Enviar la solicitud de liquidación al administrador?', 'travel-agency-platform'),
+                'no_messages'    => __('Aún no hay mensajes en esta conversación.', 'travel-agency-platform'),
                 'error'          => __('Ocurrió un error. Intenta de nuevo.', 'travel-agency-platform'),
                 'saved'          => __('Guardado', 'travel-agency-platform'),
             ],
@@ -1028,9 +1030,11 @@ class TAP_Front_Dash {
 
     private static function agency_nav($role, $active) {
         $base = home_url('/mi-cuenta/');
+        $agency = (int) TAP_Booking::get_agency_for_user(get_current_user_id());
+        $unread = ($agency && 'tap_agency_employee' !== $role) ? TAP_Chat::unread_total_for_agency($agency) : 0;
         $nav = [
             ['key' => 'overview',        'label' => __('Resumen', 'travel-agency-platform'),    'icon' => 'home',      'url' => $base],
-            ['key' => 'bo-operations',   'label' => __('Operaciones', 'travel-agency-platform'), 'icon' => 'calendar', 'url' => add_query_arg('seccion', 'bo-operations', $base)],
+            ['key' => 'bo-operations',   'label' => __('Operaciones', 'travel-agency-platform'), 'icon' => 'calendar', 'url' => add_query_arg('seccion', 'bo-operations', $base), 'badge' => $unread],
             ['key' => 'bo-finances',     'label' => __('Finanzas', 'travel-agency-platform'),    'icon' => 'wallet',    'url' => add_query_arg('seccion', 'bo-finances', $base)],
             ['key' => 'bo-listings',     'label' => __('Listados', 'travel-agency-platform'),    'icon' => 'grid',      'url' => add_query_arg('seccion', 'bo-listings', $base)],
         ];
@@ -1068,6 +1072,9 @@ class TAP_Front_Dash {
                     <a href="<?php echo esc_url($s['url']); ?>" class="tap-dash-nav-item <?php echo $is_active ? 'tap-dash-nav-active' : ''; ?>">
                         <?php self::render_nav_icon($s['icon']); ?>
                         <span><?php echo esc_html($s['label']); ?></span>
+                        <?php if (isset($s['badge'])): ?>
+                            <span class="tap-chat-global-badge" data-tap-chat-nav<?php echo ((int) $s['badge'] > 0) ? '' : ' hidden'; ?>><?php echo (int) $s['badge']; ?></span>
+                        <?php endif; ?>
                     </a>
                 <?php endforeach; ?>
             </nav>
@@ -1224,15 +1231,29 @@ class TAP_Front_Dash {
         }
 
         TAP_Chat::mark_read($booking->id, 'agency');
+        $rows = TAP_Chat::messages($booking->id);
         $html = '';
-        foreach (TAP_Chat::messages($booking->id) as $m) {
+        foreach ($rows as $m) {
             $html .= TAP_Chat::row_markup($m, 'agency');
         }
         wp_send_json_success([
             'html'    => $html,
             'unread'  => 0,
+            'count'   => count($rows),
+            'last_id' => $rows ? (int) end($rows)->id : 0,
             'booking' => (int) $booking->id,
         ]);
+    }
+
+    /** Agency polls the global unread counter for the live nav badge. */
+    public static function ajax_chat_unread() {
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        $user = wp_get_current_user();
+        if (!$user || !$user->ID) {
+            wp_send_json_error(['message' => __('No autenticado.', 'travel-agency-platform')], 401);
+        }
+        $agency = (int) TAP_Booking::get_agency_for_user($user->ID);
+        wp_send_json_success(['total' => $agency ? TAP_Chat::unread_total_for_agency($agency) : 0]);
     }
 
     /** Agency replies on the guest chat thread. */

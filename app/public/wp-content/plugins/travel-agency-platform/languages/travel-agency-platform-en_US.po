@@ -1,7 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
-"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-platform\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
+"platform\n"
 "POT-Creation-Date: 2026-10-09T00:18:31+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
@@ -26,8 +27,12 @@ msgstr "https://ivanchodev.com"
 
 #. Description of the plugin
 #: travel-agency-platform.php
-msgid "Multi-agency travel platform B2B & B2C. Manage accommodations, tours, transports, car rentals, boats and packages."
-msgstr "Multi-agency travel platform B2B & B2C. Manage accommodations, tours, transports, car rentals, boats and packages."
+msgid ""
+"Multi-agency travel platform B2B & B2C. Manage accommodations, tours, "
+"transports, car rentals, boats and packages."
+msgstr ""
+"Multi-agency travel platform B2B & B2C. Manage accommodations, tours, "
+"transports, car rentals, boats and packages."
 
 #. Author of the plugin
 #: travel-agency-platform.php
@@ -39,11 +44,16 @@ msgid "Security check failed."
 msgstr "Security check failed."
 
 #: includes/class-ajax.php:27
-msgid "Debes aceptar el Aviso de Privacidad y consentir el tratamiento de tus datos para completar la reserva."
-msgstr "You must accept the Privacy Notice and consent to the processing of your data to complete the booking."
+msgid ""
+"Debes aceptar el Aviso de Privacidad y consentir el tratamiento de tus datos "
+"para completar la reserva."
+msgstr ""
+"You must accept the Privacy Notice and consent to the processing of your "
+"data to complete the booking."
 
 #: includes/class-ajax.php:32
-msgid "Indica tu nombre y un correo electrónico válido para completar la reserva."
+msgid ""
+"Indica tu nombre y un correo electrónico válido para completar la reserva."
 msgstr "Provide your name and a valid email to complete the booking."
 
 #: includes/class-ajax.php:36
@@ -97,7 +107,8 @@ msgid "Solo los administradores pueden cancelar reservas pagadas."
 msgstr "Only administrators can cancel paid bookings."
 
 #: includes/class-ajax.php:289
-msgid "Solo puedes Aceptar (pasa a pendiente de pago) o Rechazar una solicitud."
+msgid ""
+"Solo puedes Aceptar (pasa a pendiente de pago) o Rechazar una solicitud."
 msgstr "You can only Accept (moves to pending payment) or Reject a request."
 
 #: includes/class-ajax.php:292
@@ -124,8 +135,12 @@ msgid "Booking already paid"
 msgstr "Booking already paid"
 
 #: includes/class-ajax.php:330
-msgid "Esta solicitud aún no ha sido aceptada por la agencia. Cuando sea confirmada podrás pagar."
-msgstr "This request has not been accepted by the agency yet. Once it is confirmed you will be able to pay."
+msgid ""
+"Esta solicitud aún no ha sido aceptada por la agencia. Cuando sea confirmada "
+"podrás pagar."
+msgstr ""
+"This request has not been accepted by the agency yet. Once it is confirmed "
+"you will be able to pay."
 
 #: includes/class-ajax.php:350
 msgid "Invalid PayPal order"
@@ -211,15 +226,20 @@ msgid "Debes aceptar los términos y condiciones."
 msgstr "You must accept the terms and conditions."
 
 #: includes/class-ajax.php:837
-msgid "Debes aceptar el Aviso de Privacidad y consentir el tratamiento de tus datos para registrar tu agencia."
-msgstr "You must accept the Privacy Notice and consent to the processing of your data to register your agency."
+msgid ""
+"Debes aceptar el Aviso de Privacidad y consentir el tratamiento de tus datos "
+"para registrar tu agencia."
+msgstr ""
+"You must accept the Privacy Notice and consent to the processing of your "
+"data to register your agency."
 
 #: includes/class-ajax.php:865
 msgid "Could not create the agency. Please try again."
 msgstr "Could not create the agency. Please try again."
 
 #: includes/class-ajax.php:920
-msgid "Tu agencia está en revisión. Te avisaremos por correo cuando sea aprobada."
+msgid ""
+"Tu agencia está en revisión. Te avisaremos por correo cuando sea aprobada."
 msgstr "Your agency is under review. We will email you when it is approved."
 
 #: includes/class-ajax.php:929
@@ -246,8 +266,12 @@ msgid "Invalid plan."
 msgstr "Invalid plan."
 
 #: includes/class-ajax.php:969
-msgid "Subscription requested. An administrator will confirm the payment to activate your plan."
-msgstr "Subscription requested. An administrator will confirm the payment to activate your plan."
+msgid ""
+"Subscription requested. An administrator will confirm the payment to "
+"activate your plan."
+msgstr ""
+"Subscription requested. An administrator will confirm the payment to "
+"activate your plan."
 
 #: includes/class-ajax.php:984 includes/class-ajax.php:1060
 msgid "Online payment is not configured."
@@ -305,8 +329,12 @@ msgid "Pago recibido. Tu listing está destacado."
 msgstr "Payment received. Your listing is featured."
 
 #: includes/class-ajax.php:1163
-msgid "Solicitud de destacado enviada. Un administrador confirmará el pago para activarlo."
-msgstr "Feature request submitted. An administrator will confirm the payment to activate it."
+msgid ""
+"Solicitud de destacado enviada. Un administrador confirmará el pago para "
+"activarlo."
+msgstr ""
+"Feature request submitted. An administrator will confirm the payment to "
+"activate it."
 
 #: includes/class-ajax.php:1202
 msgid "Listing updated"
@@ -332,8 +360,10 @@ msgstr "The price %s must be greater than 0."
 
 #: includes/class-ajax.php:1315
 #, php-format
-msgid "Your plan allows a maximum of %d listings. Upgrading your plan unlocks more."
-msgstr "Your plan allows a maximum of %d listings. Upgrading your plan unlocks more."
+msgid ""
+"Your plan allows a maximum of %d listings. Upgrading your plan unlocks more."
+msgstr ""
+"Your plan allows a maximum of %d listings. Upgrading your plan unlocks more."
 
 #: includes/class-ajax.php:1348
 msgid "Could not save the listing"
@@ -419,7 +449,9 @@ msgstr "Accommodation published! It is now visible to travelers."
 
 #: includes/class-ajax.php:1765
 msgid "Enviado a revisión. Un administrador lo aprobará y quedará visible."
-msgstr "Submitted for review. An administrator will approve it and it will become visible."
+msgstr ""
+"Submitted for review. An administrator will approve it and it will become "
+"visible."
 
 #: includes/class-ajax.php:1775 includes/class-booking.php:558
 #: includes/class-booking.php:658
@@ -532,8 +564,10 @@ msgid "You already reviewed this service"
 msgstr "You already reviewed this service"
 
 #: includes/class-api.php:471
-msgid "Your review did not pass our safety checks. Please adjust it and try again."
-msgstr "Your review did not pass our safety checks. Please adjust it and try again."
+msgid ""
+"Your review did not pass our safety checks. Please adjust it and try again."
+msgstr ""
+"Your review did not pass our safety checks. Please adjust it and try again."
 
 #: includes/class-api.php:494
 msgid "Review submitted and pending moderation"
@@ -632,8 +666,12 @@ msgid "Equipo"
 msgstr "Equipment"
 
 #: includes/class-booking.php:295
-msgid "La agencia que ofrece este servicio aún está en revisión y no puede recibir reservas."
-msgstr "The agency offering this service is still under review and cannot receive bookings yet."
+msgid ""
+"La agencia que ofrece este servicio aún está en revisión y no puede recibir "
+"reservas."
+msgstr ""
+"The agency offering this service is still under review and cannot receive "
+"bookings yet."
 
 #: includes/class-booking.php:327
 msgid "No puedes reservar para una fecha pasada. Revisa la fecha de inicio."
@@ -657,8 +695,12 @@ msgstr "There is no availability for the selected dates."
 
 #: includes/class-booking.php:393
 #, php-format
-msgid "El tour está completo para la fecha seleccionada. Quedan %1$d cupos y solicitaste %2$d."
-msgstr "The tour is full for the selected date. %1$d spots remain and you requested %2$d."
+msgid ""
+"El tour está completo para la fecha seleccionada. Quedan %1$d cupos y "
+"solicitaste %2$d."
+msgstr ""
+"The tour is full for the selected date. %1$d spots remain and you requested "
+"%2$d."
 
 #: includes/class-booking.php:428
 msgid "Could not create booking"
@@ -669,12 +711,18 @@ msgid "Booking created successfully"
 msgstr "Booking created successfully"
 
 #: includes/class-booking.php:498
-msgid "La agencia no respondió a tu solicitud dentro del plazo y se canceló automáticamente."
-msgstr "The agency did not respond to your request in time and it was cancelled automatically."
+msgid ""
+"La agencia no respondió a tu solicitud dentro del plazo y se canceló "
+"automáticamente."
+msgstr ""
+"The agency did not respond to your request in time and it was cancelled "
+"automatically."
 
 #: includes/class-booking.php:499
-msgid "La reserva se canceló automáticamente por no confirmarse dentro del plazo."
-msgstr "The booking was cancelled automatically because it was not confirmed in time."
+msgid ""
+"La reserva se canceló automáticamente por no confirmarse dentro del plazo."
+msgstr ""
+"The booking was cancelled automatically because it was not confirmed in time."
 
 #: includes/class-booking.php:537
 msgid "No tienes permiso para cancelar esta reserva."
@@ -720,16 +768,24 @@ msgid "No se puede pasar el estado de \"%1$s\" a \"%2$s\"."
 msgstr "Cannot change the status from \"%1$s\" to \"%2$s\"."
 
 #: includes/class-booking.php:756
-msgid "Una reserva pagada y completada no puede cancelarse: debe reembolsarse (estado \"refunded\")."
-msgstr "A paid and completed booking cannot be cancelled: it must be refunded (status \"refunded\")."
+msgid ""
+"Una reserva pagada y completada no puede cancelarse: debe reembolsarse "
+"(estado \"refunded\")."
+msgstr ""
+"A paid and completed booking cannot be cancelled: it must be refunded "
+"(status \"refunded\")."
 
 #: includes/class-booking.php:943
 msgid "No se pudo actualizar el estado del pago."
 msgstr "The payment status could not be updated."
 
 #: includes/class-booking.php:978
-msgid "La reserva fue cancelada antes de procesar la captura; el pago fue reembolsado automáticamente."
-msgstr "The booking was cancelled before processing the capture; the payment was refunded automatically."
+msgid ""
+"La reserva fue cancelada antes de procesar la captura; el pago fue "
+"reembolsado automáticamente."
+msgstr ""
+"The booking was cancelled before processing the capture; the payment was "
+"refunded automatically."
 
 #: includes/class-booking.php:981
 msgid "La reserva ya no existe: el pago fue reembolsado automáticamente."
@@ -740,12 +796,18 @@ msgid "Esta reserva ya tiene un pago registrado."
 msgstr "This booking already has a recorded payment."
 
 #: includes/class-booking.php:1002
-msgid "La moneda del pago capturado no coincide con la moneda configurada; el pago fue reembolsado automáticamente."
-msgstr "The captured payment currency does not match the configured currency; the payment was refunded automatically."
+msgid ""
+"La moneda del pago capturado no coincide con la moneda configurada; el pago "
+"fue reembolsado automáticamente."
+msgstr ""
+"The captured payment currency does not match the configured currency; the "
+"payment was refunded automatically."
 
 #: includes/class-booking.php:1006
-msgid "La moneda del pago no coincide; el pago fue reembolsado automáticamente."
-msgstr "The payment currency does not match; the payment was refunded automatically."
+msgid ""
+"La moneda del pago no coincide; el pago fue reembolsado automáticamente."
+msgstr ""
+"The payment currency does not match; the payment was refunded automatically."
 
 #: includes/class-booking.php:1021 includes/class-booking.php:1056
 msgid "El pago se registró en otra petición."
@@ -821,8 +883,12 @@ msgid "No se pudo guardar el mensaje."
 msgstr "The message could not be saved."
 
 #: includes/class-chatbot.php:86
-msgid "I could not find any published services right now. Use the search page to explore the catalogue."
-msgstr "I could not find any published services right now. Use the search page to explore the catalogue."
+msgid ""
+"I could not find any published services right now. Use the search page to "
+"explore the catalogue."
+msgstr ""
+"I could not find any published services right now. Use the search page to "
+"explore the catalogue."
 
 #: includes/class-chatbot.php:88
 msgid "Here are a few services from the platform right now:"
@@ -1281,12 +1347,18 @@ msgstr "Content moderation"
 
 #: includes/class-dashboard-content.php:148
 #, php-format
-msgid "Reseñas y mensajes marcados automáticamente: %d en revisión, %d bloqueados."
-msgstr "Reviews and messages flagged automatically: %d under review, %d blocked."
+msgid ""
+"Reseñas y mensajes marcados automáticamente: %d en revisión, %d bloqueados."
+msgstr ""
+"Reviews and messages flagged automatically: %d under review, %d blocked."
 
 #: includes/class-dashboard-content.php:149
-msgid "Aprobar publica la reseña / limpia el mensaje; bloquear los oculta; eliminar los borra."
-msgstr "Approve publishes the review / clears the message; block hides them; delete removes them."
+msgid ""
+"Aprobar publica la reseña / limpia el mensaje; bloquear los oculta; eliminar "
+"los borra."
+msgstr ""
+"Approve publishes the review / clears the message; block hides them; delete "
+"removes them."
 
 #: includes/class-dashboard-content.php:155 includes/class-emails.php:984
 #: includes/class-shortcode-account.php:445
@@ -1326,8 +1398,12 @@ msgstr "Agencies"
 
 #: includes/class-dashboard-content.php:247
 #, php-format
-msgid "Total: %1$d · Pendientes: %2$d · Verificadas: %3$d · Activas: %4$d · Comisiones acumuladas: %5$s"
-msgstr "Total: %1$d · Pending: %2$d · Verified: %3$d · Active: %4$d · Accumulated commissions: %5$s"
+msgid ""
+"Total: %1$d · Pendientes: %2$d · Verificadas: %3$d · Activas: %4$d · "
+"Comisiones acumuladas: %5$s"
+msgstr ""
+"Total: %1$d · Pending: %2$d · Verified: %3$d · Active: %4$d · Accumulated "
+"commissions: %5$s"
 
 #: includes/class-dashboard-content.php:250
 msgid "El registro se sincroniza automáticamente al abrir esta página."
@@ -1730,8 +1806,12 @@ msgstr "Failed"
 
 #: includes/class-dashboard-money.php:264
 #, php-format
-msgid "%d liquidación(es) marcada(s) como fallida(s): el pago no llegó a completarse. Revisa y vuelve a procesarlas."
-msgstr "%d settlement(s) marked as failed: the payment did not complete. Review and process them again."
+msgid ""
+"%d liquidación(es) marcada(s) como fallida(s): el pago no llegó a "
+"completarse. Revisa y vuelve a procesarlas."
+msgstr ""
+"%d settlement(s) marked as failed: the payment did not complete. Review and "
+"process them again."
 
 #: includes/class-dashboard-money.php:269 includes/class-front-dash.php:783
 #: includes/class-privacy.php:563 includes/class-privacy.php:607
@@ -1776,8 +1856,11 @@ msgid "Marcar pagada"
 msgstr "Mark as paid"
 
 #: includes/class-dashboard-money.php:319
-msgid "Marcar esta liquidación como fallida? Las comisiones volverán a estar por cobrar."
-msgstr "Mark this settlement as failed? The commissions will become owed again."
+msgid ""
+"Marcar esta liquidación como fallida? Las comisiones volverán a estar por "
+"cobrar."
+msgstr ""
+"Mark this settlement as failed? The commissions will become owed again."
 
 #: includes/class-dashboard-money.php:319
 msgid "Marcar fallida"
@@ -1807,15 +1890,22 @@ msgstr "Confirm settlement"
 
 #: includes/class-dashboard-money.php:404
 msgid "Disputa resuelta. Comisión liberada o anulada según el resultado."
-msgstr "Dispute resolved. Commission released or voided depending on the outcome."
+msgstr ""
+"Dispute resolved. Commission released or voided depending on the outcome."
 
 #: includes/class-dashboard-money.php:432
 msgid "Disputas de reservas"
 msgstr "Booking disputes"
 
 #: includes/class-dashboard-money.php:440
-msgid "Mientras una disputa está abierta, la comisión de la reserva queda retenida y no puede liquidarse. Al resolver a favor de la agencia la comisión se libera; en contra, se anula."
-msgstr "While a dispute is open, the booking commission is held and cannot be settled. Resolving in favour of the agency releases the commission; resolving against it voids it."
+msgid ""
+"Mientras una disputa está abierta, la comisión de la reserva queda retenida "
+"y no puede liquidarse. Al resolver a favor de la agencia la comisión se "
+"libera; en contra, se anula."
+msgstr ""
+"While a dispute is open, the booking commission is held and cannot be "
+"settled. Resolving in favour of the agency releases the commission; "
+"resolving against it voids it."
 
 #: includes/class-dashboard-money.php:445
 msgid "Abiertas"
@@ -1862,8 +1952,12 @@ msgid "Subscription Plans"
 msgstr "Subscription Plans"
 
 #: includes/class-dashboard-settings.php:105
-msgid "Commission rate (%) is used while the plan is active; leave blank to keep the agency/global commission. Listing limit -1 = unlimited."
-msgstr "Commission rate (%) is used while the plan is active; leave blank to keep the agency/global commission. Listing limit -1 = unlimited."
+msgid ""
+"Commission rate (%) is used while the plan is active; leave blank to keep "
+"the agency/global commission. Listing limit -1 = unlimited."
+msgstr ""
+"Commission rate (%) is used while the plan is active; leave blank to keep "
+"the agency/global commission. Listing limit -1 = unlimited."
 
 #: includes/class-dashboard-settings.php:126
 msgid "Save plans"
@@ -1917,8 +2011,12 @@ msgstr "Listed Promotions (Featured)"
 
 #: includes/class-dashboard-settings.php:242
 #, php-format
-msgid "Precio por destacado: %s/mes por listado. Confirma el pago para activar la promoción hasta la fecha correspondiente."
-msgstr "Price per featured listing: %s/month per listing. Confirm the payment to activate the promotion until the corresponding date."
+msgid ""
+"Precio por destacado: %s/mes por listado. Confirma el pago para activar la "
+"promoción hasta la fecha correspondiente."
+msgstr ""
+"Price per featured listing: %s/month per listing. Confirm the payment to "
+"activate the promotion until the corresponding date."
 
 #: includes/class-dashboard-settings.php:244
 msgid "Activos"
@@ -1997,8 +2095,12 @@ msgid "Percentage of total"
 msgstr "Percentage of total"
 
 #: includes/class-dashboard-settings.php:345
-msgid "Charged to the client on top of the booking total. This revenue belongs to the platform (not the agency)."
-msgstr "Charged to the client on top of the booking total. This revenue belongs to the platform (not the agency)."
+msgid ""
+"Charged to the client on top of the booking total. This revenue belongs to "
+"the platform (not the agency)."
+msgstr ""
+"Charged to the client on top of the booking total. This revenue belongs to "
+"the platform (not the agency)."
 
 #: includes/class-dashboard-settings.php:349
 msgid "Fee Value"
@@ -2017,8 +2119,12 @@ msgid "Flexible — reembolso total si cancelas al menos 24h antes del check-in.
 msgstr "Flexible — full refund if you cancel at least 24h before check-in."
 
 #: includes/class-dashboard-settings.php:361
-msgid "Moderada — reembolso total 5 días antes; 50% entre 2 y 5 días; 0% menos de 2 días."
-msgstr "Moderate — full refund 5 days before; 50% between 2 and 5 days; 0% less than 2 days."
+msgid ""
+"Moderada — reembolso total 5 días antes; 50% entre 2 y 5 días; 0% menos de 2 "
+"días."
+msgstr ""
+"Moderate — full refund 5 days before; 50% between 2 and 5 days; 0% less than "
+"2 days."
 
 #: includes/class-dashboard-settings.php:362
 msgid "Estricta — 50% de reembolso hasta 7 días antes; 0% después."
@@ -2029,16 +2135,27 @@ msgid "No reembolsable — sin reembolso."
 msgstr "Non-refundable — no refund."
 
 #: includes/class-dashboard-settings.php:365
-msgid "La política efectiva de un listado se resuelve así: política propia del listado → política por defecto del tipo de servicio (abajo). La agencia puede fijar una política distinta por listado en el editor de su alojamiento/tour."
-msgstr "The effective policy for a listing resolves as: the listing's own policy → the service type default (below). The agency can set a listing-level policy in its accommodation/tour editor."
+msgid ""
+"La política efectiva de un listado se resuelve así: política propia del "
+"listado → política por defecto del tipo de servicio (abajo). La agencia "
+"puede fijar una política distinta por listado en el editor de su alojamiento/"
+"tour."
+msgstr ""
+"The effective policy for a listing resolves as: the listing's own policy → "
+"the service type default (below). The agency can set a listing-level policy "
+"in its accommodation/tour editor."
 
 #: includes/class-dashboard-settings.php:381
 msgid "Auto-completar reservas"
 msgstr "Auto-complete bookings"
 
 #: includes/class-dashboard-settings.php:384
-msgid "Marcar automáticamente como \"completada\" toda reserva confirmada cuya fecha de salida ya pasó."
-msgstr "Automatically mark confirmed bookings whose check-out date has passed as completed."
+msgid ""
+"Marcar automáticamente como \"completada\" toda reserva confirmada cuya "
+"fecha de salida ya pasó."
+msgstr ""
+"Automatically mark confirmed bookings whose check-out date has passed as "
+"completed."
 
 #: includes/class-dashboard-settings.php:389
 msgid "Automations (T4, daily cron)"
@@ -2077,8 +2194,12 @@ msgid "Expiry warnings"
 msgstr "Expiry warnings"
 
 #: includes/class-dashboard-settings.php:420
-msgid "Email agencies when their plan subscription or a featured listing is near expiry."
-msgstr "Email agencies when their plan subscription or a featured listing is near expiry."
+msgid ""
+"Email agencies when their plan subscription or a featured listing is near "
+"expiry."
+msgstr ""
+"Email agencies when their plan subscription or a featured listing is near "
+"expiry."
 
 #: includes/class-dashboard-settings.php:424
 msgid "Warn days before expiry"
@@ -2190,8 +2311,12 @@ msgid "Descuentos"
 msgstr "Discounts"
 
 #: includes/class-discounts.php:72
-msgid "Configura promociones globales. Los alojamientos pueden desactivar o personalizar estos valores en su ficha."
-msgstr "Configure global promotions. Accommodations can disable or customize these values in their listing."
+msgid ""
+"Configura promociones globales. Los alojamientos pueden desactivar o "
+"personalizar estos valores en su ficha."
+msgstr ""
+"Configure global promotions. Accommodations can disable or customize these "
+"values in their listing."
 
 #: includes/class-discounts.php:77
 msgid "Descuento anticipado (Early Bird)"
@@ -2372,8 +2497,19 @@ msgstr "Welcome, %s!"
 
 #: includes/class-emails.php:104
 #, php-format
-msgid "Tu agencia <strong>%s</strong> ha sido registrada y ahora está <strong>en revisión</strong>.<br><br>Un administrador verificará tus datos de identificación. En cuanto tu agencia sea aprobada te avisaremos por correo y podrás publicar tus servicios y recibir reservas. Accede a tu <a href=\"%s\" style=\"color:#0d9488;\">panel de agencia</a> para adelantar tus listados."
-msgstr "Your agency <strong>%s</strong> has been registered and is now <strong>under review</strong>.<br><br>An administrator will verify your identity data. As soon as your agency is approved we will notify you by email and you will be able to publish your services and receive bookings. Go to your <a href=\"%s\" style=\"color:#0d9488;\">agency dashboard</a> to get your listings ready."
+msgid ""
+"Tu agencia <strong>%s</strong> ha sido registrada y ahora está <strong>en "
+"revisión</strong>.<br><br>Un administrador verificará tus datos de "
+"identificación. En cuanto tu agencia sea aprobada te avisaremos por correo y "
+"podrás publicar tus servicios y recibir reservas. Accede a tu <a href=\"%s\" "
+"style=\"color:#0d9488;\">panel de agencia</a> para adelantar tus listados."
+msgstr ""
+"Your agency <strong>%s</strong> has been registered and is now <strong>under "
+"review</strong>.<br><br>An administrator will verify your identity data. As "
+"soon as your agency is approved we will notify you by email and you will be "
+"able to publish your services and receive bookings. Go to your <a "
+"href=\"%s\" style=\"color:#0d9488;\">agency dashboard</a> to get your "
+"listings ready."
 
 #: includes/class-emails.php:108 includes/class-listing-editor.php:29
 msgid "Tu agencia está en revisión"
@@ -2390,8 +2526,14 @@ msgstr "New agency awaiting approval"
 
 #: includes/class-emails.php:120
 #, php-format
-msgid "La agencia <strong>%s</strong> (%s) se registró y espera la verificación de sus datos.<br>KYC: %s<br><br><a href=\"%s\" style=\"color:#0d9488;\">Revisar en el panel de agencias</a>."
-msgstr "Agency <strong>%s</strong> (%s) registered and is awaiting verification of its data.<br>KYC: %s<br><br><a href=\"%s\" style=\"color:#0d9488;\">Review in the agencies panel</a>."
+msgid ""
+"La agencia <strong>%s</strong> (%s) se registró y espera la verificación de "
+"sus datos.<br>KYC: %s<br><br><a href=\"%s\" style=\"color:#0d9488;\">Revisar "
+"en el panel de agencias</a>."
+msgstr ""
+"Agency <strong>%s</strong> (%s) registered and is awaiting verification of "
+"its data.<br>KYC: %s<br><br><a href=\"%s\" style=\"color:#0d9488;\">Review "
+"in the agencies panel</a>."
 
 #: includes/class-emails.php:138
 msgid "¡Tu agencia fue aprobada!"
@@ -2404,8 +2546,14 @@ msgstr "Approved — %s"
 
 #: includes/class-emails.php:142
 #, php-format
-msgid "Tu agencia <strong>%s</strong> fue aprobada y ya es visible para los viajeros.<br><br>Ya puedes publicar servicios y recibir reservas desde tu <a href=\"%s\" style=\"color:#0d9488;\">panel de agencia</a>."
-msgstr "Your agency <strong>%s</strong> has been approved and is now visible to travelers.<br><br>You can now publish services and receive bookings from your <a href=\"%s\" style=\"color:#0d9488;\">agency dashboard</a>."
+msgid ""
+"Tu agencia <strong>%s</strong> fue aprobada y ya es visible para los "
+"viajeros.<br><br>Ya puedes publicar servicios y recibir reservas desde tu <a "
+"href=\"%s\" style=\"color:#0d9488;\">panel de agencia</a>."
+msgstr ""
+"Your agency <strong>%s</strong> has been approved and is now visible to "
+"travelers.<br><br>You can now publish services and receive bookings from "
+"your <a href=\"%s\" style=\"color:#0d9488;\">agency dashboard</a>."
 
 #: includes/class-emails.php:157
 msgid "Tu agencia no fue aprobada"
@@ -2418,8 +2566,15 @@ msgstr "Agency under review — %s"
 
 #: includes/class-emails.php:161
 #, php-format
-msgid "Lamentablemente tu agencia <strong>%s</strong> no fue aprobada en esta revisión.<br><br>Contacta a soporte en <a href=\"%s\" style=\"color:#0d9488;\">info@visitnuevoarenal.com</a> para corregir los datos de identificación y volver a intentarlo."
-msgstr "Unfortunately your agency <strong>%s</strong> was not approved in this review.<br><br>Contact support at <a href=\"%s\" style=\"color:#0d9488;\">info@visitnuevoarenal.com</a> to correct your identity data and try again."
+msgid ""
+"Lamentablemente tu agencia <strong>%s</strong> no fue aprobada en esta "
+"revisión.<br><br>Contacta a soporte en <a href=\"%s\" style=\"color:#0d9488;"
+"\">info@visitnuevoarenal.com</a> para corregir los datos de identificación y "
+"volver a intentarlo."
+msgstr ""
+"Unfortunately your agency <strong>%s</strong> was not approved in this "
+"review.<br><br>Contact support at <a href=\"%s\" style=\"color:#0d9488;"
+"\">info@visitnuevoarenal.com</a> to correct your identity data and try again."
 
 #: includes/class-emails.php:178
 #, php-format
@@ -2428,8 +2583,14 @@ msgstr "Settlement recorded — %s"
 
 #: includes/class-emails.php:180
 #, php-format
-msgid "Hemos registrado una liquidación de comisiones por <strong>%s</strong> (referencia #%d).<br><br>Los montos ya figuran como cobrados en tu panel de agencia. Si necesitas el comprobante, contacta a soporte."
-msgstr "We have recorded a commission settlement for <strong>%s</strong> (reference #%d).<br><br>The amounts now appear as collected in your agency dashboard. If you need the receipt, contact support."
+msgid ""
+"Hemos registrado una liquidación de comisiones por <strong>%s</strong> "
+"(referencia #%d).<br><br>Los montos ya figuran como cobrados en tu panel de "
+"agencia. Si necesitas el comprobante, contacta a soporte."
+msgstr ""
+"We have recorded a commission settlement for <strong>%s</strong> (reference "
+"#%d).<br><br>The amounts now appear as collected in your agency dashboard. "
+"If you need the receipt, contact support."
 
 #: includes/class-emails.php:184
 msgid "Liquidación de comisiones"
@@ -2471,8 +2632,14 @@ msgstr "Thank you for contacting us"
 
 #: includes/class-emails.php:226
 #, php-format
-msgid "Recibimos tu mensaje sobre <strong>%s</strong>. La agencia te responderá lo antes posible.<br><br>Mientras tanto, puedes seguir explorando nuestras <a href=\"%s\" style=\"color:#0d9488;\">experiencias y alojamientos</a>."
-msgstr "We received your message about <strong>%s</strong>. The agency will reply as soon as possible.<br><br>Meanwhile, keep exploring our <a href=\"%s\" style=\"color:#0d9488;\">experiences and stays</a>."
+msgid ""
+"Recibimos tu mensaje sobre <strong>%s</strong>. La agencia te responderá lo "
+"antes posible.<br><br>Mientras tanto, puedes seguir explorando nuestras <a "
+"href=\"%s\" style=\"color:#0d9488;\">experiencias y alojamientos</a>."
+msgstr ""
+"We received your message about <strong>%s</strong>. The agency will reply as "
+"soon as possible.<br><br>Meanwhile, keep exploring our <a href=\"%s\" "
+"style=\"color:#0d9488;\">experiences and stays</a>."
 
 #: includes/class-emails.php:227
 msgid "nuestros servicios"
@@ -2493,8 +2660,12 @@ msgid "¡Gracias %s! Hemos recibido tu solicitud."
 msgstr "Thank you %s! We have received your request."
 
 #: includes/class-emails.php:274
-msgid "La agencia revisará tu solicitud y te avisaremos por correo cuando sea aceptada. No se realizará ningún cobro hasta entonces."
-msgstr "The agency will review your request and we will email you when it is accepted. No charge will be made until then."
+msgid ""
+"La agencia revisará tu solicitud y te avisaremos por correo cuando sea "
+"aceptada. No se realizará ningún cobro hasta entonces."
+msgstr ""
+"The agency will review your request and we will email you when it is "
+"accepted. No charge will be made until then."
 
 #: includes/class-emails.php:282
 #, php-format
@@ -2507,8 +2678,12 @@ msgid "¡Gracias %s! Tu reserva ha sido recibida."
 msgstr "Thank you %s! Your booking has been received."
 
 #: includes/class-emails.php:285
-msgid "Estamos procesando tu solicitud. En breve recibirás la confirmación una vez el pago sea verificado."
-msgstr "We are processing your request. You will soon receive confirmation once the payment is verified."
+msgid ""
+"Estamos procesando tu solicitud. En breve recibirás la confirmación una vez "
+"el pago sea verificado."
+msgstr ""
+"We are processing your request. You will soon receive confirmation once the "
+"payment is verified."
 
 #: includes/class-emails.php:304
 msgid "¡Tu reserva ha sido confirmada!"
@@ -2536,11 +2711,16 @@ msgid "Todo está listo. Tu estancia ha sido confirmada por la agencia."
 msgstr "Everything is ready. Your stay has been confirmed by the agency."
 
 #: includes/class-emails.php:312
-msgid "Lamentablemente tu reserva ha sido cancelada. Si realizaste un pago, el reembolso se procesará según la política de cancelación."
-msgstr "Unfortunately your booking has been cancelled. If you made a payment, the refund will be processed according to the cancellation policy."
+msgid ""
+"Lamentablemente tu reserva ha sido cancelada. Si realizaste un pago, el "
+"reembolso se procesará según la política de cancelación."
+msgstr ""
+"Unfortunately your booking has been cancelled. If you made a payment, the "
+"refund will be processed according to the cancellation policy."
 
 #: includes/class-emails.php:313
-msgid "Esperamos que hayas disfrutado tu viaje. Te invitamos a dejar una reseña."
+msgid ""
+"Esperamos que hayas disfrutado tu viaje. Te invitamos a dejar una reseña."
 msgstr "We hope you enjoyed your trip. We invite you to leave a review."
 
 #: includes/class-emails.php:314
@@ -2553,16 +2733,24 @@ msgstr "Your request has been accepted!"
 
 #: includes/class-emails.php:320
 #, php-format
-msgid "La agencia aceptó tu solicitud de reserva. Completa el pago para confirmar: <a href=\"%s\" style=\"color:#0d9488;\">Pagar ahora</a>."
-msgstr "The agency has accepted your booking request. Complete payment to confirm: <a href=\"%s\" style=\"color:#0d9488;\">Pay now</a>."
+msgid ""
+"La agencia aceptó tu solicitud de reserva. Completa el pago para confirmar: "
+"<a href=\"%s\" style=\"color:#0d9488;\">Pagar ahora</a>."
+msgstr ""
+"The agency has accepted your booking request. Complete payment to confirm: "
+"<a href=\"%s\" style=\"color:#0d9488;\">Pay now</a>."
 
 #: includes/class-emails.php:324
 msgid "Solicitud rechazada"
 msgstr "Request rejected"
 
 #: includes/class-emails.php:325
-msgid "La agencia no pudo aceptar tu solicitud de reserva. No se realizó ningún cobro. Contacta a la agencia o prueba con otras fechas."
-msgstr "The agency could not accept your booking request. No charge was made. Contact the agency or try different dates."
+msgid ""
+"La agencia no pudo aceptar tu solicitud de reserva. No se realizó ningún "
+"cobro. Contacta a la agencia o prueba con otras fechas."
+msgstr ""
+"The agency could not accept your booking request. No charge was made. "
+"Contact the agency or try different dates."
 
 #: includes/class-emails.php:328
 #, php-format
@@ -2589,8 +2777,12 @@ msgid "¡Pago confirmado!"
 msgstr "Payment confirmed!"
 
 #: includes/class-emails.php:357
-msgid "Hemos recibido tu pago correctamente. Tu reserva ha sido confirmada y los detalles están a continuación."
-msgstr "We have received your payment successfully. Your booking has been confirmed and the details are below."
+msgid ""
+"Hemos recibido tu pago correctamente. Tu reserva ha sido confirmada y los "
+"detalles están a continuación."
+msgstr ""
+"We have received your payment successfully. Your booking has been confirmed "
+"and the details are below."
 
 #: includes/class-emails.php:377
 #, php-format
@@ -2603,8 +2795,12 @@ msgstr "New booking request"
 
 #: includes/class-emails.php:380
 #, php-format
-msgid "Tienes una nueva solicitud de reserva (<strong>%s</strong>) por un total de <strong>%s</strong>. Revisa el panel para aceptarla o rechazarla."
-msgstr "You have a new booking request (<strong>%s</strong>) totaling <strong>%s</strong>. Review it in your dashboard to accept or reject it."
+msgid ""
+"Tienes una nueva solicitud de reserva (<strong>%s</strong>) por un total de "
+"<strong>%s</strong>. Revisa el panel para aceptarla o rechazarla."
+msgstr ""
+"You have a new booking request (<strong>%s</strong>) totaling <strong>%s</"
+"strong>. Review it in your dashboard to accept or reject it."
 
 #: includes/class-emails.php:391
 #, php-format
@@ -2617,8 +2813,12 @@ msgstr "New booking received"
 
 #: includes/class-emails.php:394
 #, php-format
-msgid "Se ha registrado una nueva reserva (<strong>%s</strong>) por un total de <strong>%s</strong>. Revisa el panel para gestionarla."
-msgstr "A new booking has been registered (<strong>%s</strong>) for a total of <strong>%s</strong>. Check the dashboard to manage it."
+msgid ""
+"Se ha registrado una nueva reserva (<strong>%s</strong>) por un total de "
+"<strong>%s</strong>. Revisa el panel para gestionarla."
+msgstr ""
+"A new booking has been registered (<strong>%s</strong>) for a total of "
+"<strong>%s</strong>. Check the dashboard to manage it."
 
 #: includes/class-emails.php:407 includes/class-promotions.php:125
 msgid "tu plan"
@@ -2639,8 +2839,13 @@ msgstr "Subscription"
 
 #: includes/class-emails.php:426
 #, php-format
-msgid "Se confirmó el pago de tu suscripción al plan <strong>%s</strong>. Tu plan es válido hasta el <strong>%s</strong>. Gracias por confiar en la plataforma."
-msgstr "Your subscription payment for the plan <strong>%s</strong> has been confirmed. Your plan is valid until <strong>%s</strong>. Thank you for trusting the platform."
+msgid ""
+"Se confirmó el pago de tu suscripción al plan <strong>%s</strong>. Tu plan "
+"es válido hasta el <strong>%s</strong>. Gracias por confiar en la plataforma."
+msgstr ""
+"Your subscription payment for the plan <strong>%s</strong> has been "
+"confirmed. Your plan is valid until <strong>%s</strong>. Thank you for "
+"trusting the platform."
 
 #: includes/class-emails.php:445
 msgid "[Destacado activado] Tu listado está promocionado"
@@ -2656,8 +2861,12 @@ msgstr "Promotion"
 
 #: includes/class-emails.php:459
 #, php-format
-msgid "Se confirmó el pago de tu promoción para <strong>%s</strong>. El listado estará destacado hasta el <strong>%s</strong> (monto: %s)."
-msgstr "The payment for your promotion for <strong>%s</strong> has been confirmed. The listing will be featured until <strong>%s</strong> (amount: %s)."
+msgid ""
+"Se confirmó el pago de tu promoción para <strong>%s</strong>. El listado "
+"estará destacado hasta el <strong>%s</strong> (monto: %s)."
+msgstr ""
+"The payment for your promotion for <strong>%s</strong> has been confirmed. "
+"The listing will be featured until <strong>%s</strong> (amount: %s)."
 
 #: includes/class-emails.php:460
 msgid "su listado"
@@ -2674,8 +2883,14 @@ msgstr "We could not process your payment"
 
 #: includes/class-emails.php:491
 #, php-format
-msgid "Tu reserva <strong>%s</strong> sigue activa, pero su pago falló. Puedes intentarlo de nuevo desde el <a href=\"%s\" style=\"color:#0d9488;\">checkout</a>."
-msgstr "Your booking <strong>%s</strong> is still active, but its payment failed. You can try again from the <a href=\"%s\" style=\"color:#0d9488;\">checkout</a>."
+msgid ""
+"Tu reserva <strong>%s</strong> sigue activa, pero su pago falló. Puedes "
+"intentarlo de nuevo desde el <a href=\"%s\" style=\"color:#0d9488;"
+"\">checkout</a>."
+msgstr ""
+"Your booking <strong>%s</strong> is still active, but its payment failed. "
+"You can try again from the <a href=\"%s\" style=\"color:#0d9488;\">checkout</"
+"a>."
 
 #: includes/class-emails.php:502
 #, php-format
@@ -2688,8 +2903,10 @@ msgstr "Payment failure"
 
 #: includes/class-emails.php:506
 #, php-format
-msgid "El pago de la reserva <strong>%s</strong> (%s) falló y requiere revisión."
-msgstr "Payment for booking <strong>%s</strong> (%s) failed and requires review."
+msgid ""
+"El pago de la reserva <strong>%s</strong> (%s) falló y requiere revisión."
+msgstr ""
+"Payment for booking <strong>%s</strong> (%s) failed and requires review."
 
 #: includes/class-emails.php:527
 #, php-format
@@ -2702,8 +2919,12 @@ msgstr "Refund processed"
 
 #: includes/class-emails.php:531
 #, php-format
-msgid "Hemos reembolsado <strong>%s</strong> por la reserva <strong>%s</strong>. El dinero regresará a tu cuenta en los próximos días."
-msgstr "We have refunded <strong>%s</strong> for booking <strong>%s</strong>. The money will be back in your account within the next few days."
+msgid ""
+"Hemos reembolsado <strong>%s</strong> por la reserva <strong>%s</strong>. El "
+"dinero regresará a tu cuenta en los próximos días."
+msgstr ""
+"We have refunded <strong>%s</strong> for booking <strong>%s</strong>. The "
+"money will be back in your account within the next few days."
 
 #: includes/class-emails.php:547
 msgid "Se abrió una disputa en una de tus reservas"
@@ -2711,8 +2932,12 @@ msgstr "A dispute was opened on one of your bookings"
 
 #: includes/class-emails.php:551
 #, php-format
-msgid "Un viajero abrió una disputa sobre la reserva <strong>%s</strong>. La revisaremos y te notificaremos el resultado."
-msgstr "A guest opened a dispute on booking <strong>%s</strong>. We will review it and notify you of the outcome."
+msgid ""
+"Un viajero abrió una disputa sobre la reserva <strong>%s</strong>. La "
+"revisaremos y te notificaremos el resultado."
+msgstr ""
+"A guest opened a dispute on booking <strong>%s</strong>. We will review it "
+"and notify you of the outcome."
 
 #: includes/class-emails.php:570
 msgid "Resuelta a favor del viajero"
@@ -2732,8 +2957,12 @@ msgstr "Dispute resolved"
 
 #: includes/class-emails.php:580
 #, php-format
-msgid "La disputa asociada a la reserva <strong>%s</strong> fue resuelta: <strong>%s</strong>."
-msgstr "The dispute linked to booking <strong>%s</strong> was resolved: <strong>%s</strong>."
+msgid ""
+"La disputa asociada a la reserva <strong>%s</strong> fue resuelta: "
+"<strong>%s</strong>."
+msgstr ""
+"The dispute linked to booking <strong>%s</strong> was resolved: <strong>%s</"
+"strong>."
 
 #: includes/class-emails.php:595 includes/class-shortcode-booking.php:332
 msgid "Motivo:"
@@ -2750,8 +2979,14 @@ msgstr "Booking cancelled"
 
 #: includes/class-emails.php:605
 #, php-format
-msgid "Hola %s, tu reserva <strong>%s</strong> (%s) quedó cancelada. %sSi esperabas un reembolso, lo verás según la política de cancelación. <a href=\"%s\" style=\"color:#0d9488;\">Ver detalle</a>."
-msgstr "Hi %s, your booking <strong>%s</strong> (%s) was cancelled. %sIf you were expecting a refund, you will see it according to the cancellation policy. <a href=\"%s\" style=\"color:#0d9488;\">View details</a>."
+msgid ""
+"Hola %s, tu reserva <strong>%s</strong> (%s) quedó cancelada. %sSi esperabas "
+"un reembolso, lo verás según la política de cancelación. <a href=\"%s\" "
+"style=\"color:#0d9488;\">Ver detalle</a>."
+msgstr ""
+"Hi %s, your booking <strong>%s</strong> (%s) was cancelled. %sIf you were "
+"expecting a refund, you will see it according to the cancellation policy. <a "
+"href=\"%s\" style=\"color:#0d9488;\">View details</a>."
 
 #: includes/class-emails.php:619
 #, php-format
@@ -2764,8 +2999,12 @@ msgstr "Booking cancellation"
 
 #: includes/class-emails.php:623
 #, php-format
-msgid "La reserva <strong>%s</strong> (%s) quedó cancelada. %sSi tenía comisión devengada, se anuló."
-msgstr "Booking <strong>%s</strong> (%s) was cancelled. %sIf it had accrued commission, it was voided."
+msgid ""
+"La reserva <strong>%s</strong> (%s) quedó cancelada. %sSi tenía comisión "
+"devengada, se anuló."
+msgstr ""
+"Booking <strong>%s</strong> (%s) was cancelled. %sIf it had accrued "
+"commission, it was voided."
 
 #: includes/class-emails.php:642
 #, php-format
@@ -2778,8 +3017,14 @@ msgstr "Payment received!"
 
 #: includes/class-emails.php:646
 #, php-format
-msgid "Se aprobó el pago de <strong>%s</strong> para la reserva <strong>%s</strong> mediante %s. Puedes coordinar el servicio con el huésped desde <a href=\"%s\" style=\"color:#0d9488;\">tu cuenta</a>."
-msgstr "The payment of <strong>%s</strong> for booking <strong>%s</strong> via %s was approved. You can coordinate the service with the guest from <a href=\"%s\" style=\"color:#0d9488;\">your account</a>."
+msgid ""
+"Se aprobó el pago de <strong>%s</strong> para la reserva <strong>%s</strong> "
+"mediante %s. Puedes coordinar el servicio con el huésped desde <a "
+"href=\"%s\" style=\"color:#0d9488;\">tu cuenta</a>."
+msgstr ""
+"The payment of <strong>%s</strong> for booking <strong>%s</strong> via %s "
+"was approved. You can coordinate the service with the guest from <a "
+"href=\"%s\" style=\"color:#0d9488;\">your account</a>."
 
 #: includes/class-emails.php:667
 #, php-format
@@ -2792,8 +3037,14 @@ msgstr "New payout request"
 
 #: includes/class-emails.php:671
 #, php-format
-msgid "La agencia <strong>%s</strong> solicitó una liquidación de <strong>%s</strong> (ref. #%d). Revisa el pago en el <a href=\"%s\" style=\"color:#0d9488;\">panel de comisiones</a>."
-msgstr "Agency <strong>%s</strong> requested a payout of <strong>%s</strong> (ref. #%d). Review the payment in the <a href=\"%s\" style=\"color:#0d9488;\">commissions panel</a>."
+msgid ""
+"La agencia <strong>%s</strong> solicitó una liquidación de <strong>%s</"
+"strong> (ref. #%d). Revisa el pago en el <a href=\"%s\" style=\"color:"
+"#0d9488;\">panel de comisiones</a>."
+msgstr ""
+"Agency <strong>%s</strong> requested a payout of <strong>%s</strong> (ref. "
+"#%d). Review the payment in the <a href=\"%s\" style=\"color:#0d9488;"
+"\">commissions panel</a>."
 
 #: includes/class-emails.php:689
 #, php-format
@@ -2806,8 +3057,12 @@ msgstr "Refund retried"
 
 #: includes/class-emails.php:693
 #, php-format
-msgid "Se reintentó el reembolso automático de la reserva <strong>%s</strong> (%s). Si volvió a fallar, requiere revisión manual del equipo de soporte."
-msgstr "The automatic refund for booking <strong>%s</strong> (%s) was retried. If it failed again, it requires manual review by the support team."
+msgid ""
+"Se reintentó el reembolso automático de la reserva <strong>%s</strong> (%s). "
+"Si volvió a fallar, requiere revisión manual del equipo de soporte."
+msgstr ""
+"The automatic refund for booking <strong>%s</strong> (%s) was retried. If it "
+"failed again, it requires manual review by the support team."
 
 #: includes/class-emails.php:714
 msgid "Pago de comisiones confirmado"
@@ -2823,13 +3078,21 @@ msgstr "Payout transferred"
 
 #: includes/class-emails.php:719
 #, php-format
-msgid "Tu liquidación de comisiones por <strong>%s</strong> (referencia #%d) fue confirmada como transferida."
-msgstr "Your commission payout of <strong>%s</strong> (reference #%d) was confirmed as transferred."
+msgid ""
+"Tu liquidación de comisiones por <strong>%s</strong> (referencia #%d) fue "
+"confirmada como transferida."
+msgstr ""
+"Your commission payout of <strong>%s</strong> (reference #%d) was confirmed "
+"as transferred."
 
 #: includes/class-emails.php:724
 #, php-format
-msgid "La liquidación de comisiones por <strong>%s</strong> (referencia #%d) fue cancelada y los montos volvieron a estado \"por cobrar\"."
-msgstr "The commission payout of <strong>%s</strong> (reference #%d) was cancelled and the amounts returned to \"pending\" status."
+msgid ""
+"La liquidación de comisiones por <strong>%s</strong> (referencia #%d) fue "
+"cancelada y los montos volvieron a estado \"por cobrar\"."
+msgstr ""
+"The commission payout of <strong>%s</strong> (reference #%d) was cancelled "
+"and the amounts returned to \"pending\" status."
 
 #: includes/class-emails.php:741
 msgid "Solicitud de suscripción pendiente"
@@ -2841,8 +3104,14 @@ msgstr "New subscription to review"
 
 #: includes/class-emails.php:745
 #, php-format
-msgid "La agencia <strong>%s</strong> solicitó el plan <strong>%s</strong>. Revisa su pago en el <a href=\"%s\" style=\"color:#0d9488;\">panel de suscripciones</a>."
-msgstr "Agency <strong>%s</strong> requested plan <strong>%s</strong>. Review its payment in the <a href=\"%s\" style=\"color:#0d9488;\">subscriptions panel</a>."
+msgid ""
+"La agencia <strong>%s</strong> solicitó el plan <strong>%s</strong>. Revisa "
+"su pago en el <a href=\"%s\" style=\"color:#0d9488;\">panel de "
+"suscripciones</a>."
+msgstr ""
+"Agency <strong>%s</strong> requested plan <strong>%s</strong>. Review its "
+"payment in the <a href=\"%s\" style=\"color:#0d9488;\">subscriptions panel</"
+"a>."
 
 #: includes/class-emails.php:763
 msgid "Solicitud de promoción pendiente"
@@ -2854,8 +3123,14 @@ msgstr "New promotion to review"
 
 #: includes/class-emails.php:767
 #, php-format
-msgid "La agencia <strong>%s</strong> solicitó destacar <strong>%s</strong>. Revisa su pago en el <a href=\"%s\" style=\"color:#0d9488;\">panel de promociones</a>."
-msgstr "Agency <strong>%s</strong> requested to feature <strong>%s</strong>. Review its payment in the <a href=\"%s\" style=\"color:#0d9488;\">promotions panel</a>."
+msgid ""
+"La agencia <strong>%s</strong> solicitó destacar <strong>%s</strong>. Revisa "
+"su pago en el <a href=\"%s\" style=\"color:#0d9488;\">panel de promociones</"
+"a>."
+msgstr ""
+"Agency <strong>%s</strong> requested to feature <strong>%s</strong>. Review "
+"its payment in the <a href=\"%s\" style=\"color:#0d9488;\">promotions panel</"
+"a>."
 
 #: includes/class-emails.php:785
 #, php-format
@@ -2869,8 +3144,12 @@ msgstr "Hi %s, your booking is waiting for payment"
 
 #: includes/class-emails.php:789
 #, php-format
-msgid "Tienes una reserva pendiente de pago. Completa el pago para mantenerla confirmada: <a href=\"%s\" style=\"color:#0d9488;\">Pagar ahora</a>."
-msgstr "You have a booking awaiting payment. Complete the payment to keep it confirmed: <a href=\"%s\" style=\"color:#0d9488;\">Pay now</a>."
+msgid ""
+"Tienes una reserva pendiente de pago. Completa el pago para mantenerla "
+"confirmada: <a href=\"%s\" style=\"color:#0d9488;\">Pagar ahora</a>."
+msgstr ""
+"You have a booking awaiting payment. Complete the payment to keep it "
+"confirmed: <a href=\"%s\" style=\"color:#0d9488;\">Pay now</a>."
 
 #: includes/class-emails.php:804
 #, php-format
@@ -2884,8 +3163,14 @@ msgstr "Hi %s! Your trip is about to begin"
 
 #: includes/class-emails.php:808
 #, php-format
-msgid "Tu estancia en <strong>%s</strong> comienza el <strong>%s</strong>. Ten a mano el código <strong>%s</strong> y tu <a href=\"%s\" style=\"color:#0d9488;\">voucher</a> para el check-in."
-msgstr "Your stay at <strong>%s</strong> starts on <strong>%s</strong>. Keep code <strong>%s</strong> and your <a href=\"%s\" style=\"color:#0d9488;\">voucher</a> ready for check-in."
+msgid ""
+"Tu estancia en <strong>%s</strong> comienza el <strong>%s</strong>. Ten a "
+"mano el código <strong>%s</strong> y tu <a href=\"%s\" style=\"color:#0d9488;"
+"\">voucher</a> para el check-in."
+msgstr ""
+"Your stay at <strong>%s</strong> starts on <strong>%s</strong>. Keep code "
+"<strong>%s</strong> and your <a href=\"%s\" style=\"color:#0d9488;"
+"\">voucher</a> ready for check-in."
 
 #: includes/class-emails.php:827
 #, php-format
@@ -2898,8 +3183,14 @@ msgstr "Thank you for travelling with us"
 
 #: includes/class-emails.php:831
 #, php-format
-msgid "¡Hola %s! Esperamos que hayas disfrutado tu estancia en <strong>%s</strong>. Tu opinión ayuda a otros viajeros: <a href=\"%s\" style=\"color:#0d9488;\">Deja tu reseña</a>."
-msgstr "Hi %s! We hope you enjoyed your stay at <strong>%s</strong>. Your opinion helps other travellers: <a href=\"%s\" style=\"color:#0d9488;\">Leave your review</a>."
+msgid ""
+"¡Hola %s! Esperamos que hayas disfrutado tu estancia en <strong>%s</strong>. "
+"Tu opinión ayuda a otros viajeros: <a href=\"%s\" style=\"color:#0d9488;"
+"\">Deja tu reseña</a>."
+msgstr ""
+"Hi %s! We hope you enjoyed your stay at <strong>%s</strong>. Your opinion "
+"helps other travellers: <a href=\"%s\" style=\"color:#0d9488;\">Leave your "
+"review</a>."
 
 #: includes/class-emails.php:847 includes/class-emails.php:853
 msgid "Tu plan está por vencer"
@@ -2907,8 +3198,12 @@ msgstr "Your plan is about to expire"
 
 #: includes/class-emails.php:849
 #, php-format
-msgid "Tu suscripción al plan <strong>%s</strong> finaliza el <strong>%s</strong>. Renueva para no perder el acceso a sus funciones."
-msgstr "Your subscription to plan <strong>%s</strong> ends on <strong>%s</strong>. Renew to keep access to its features."
+msgid ""
+"Tu suscripción al plan <strong>%s</strong> finaliza el <strong>%s</strong>. "
+"Renueva para no perder el acceso a sus funciones."
+msgstr ""
+"Your subscription to plan <strong>%s</strong> ends on <strong>%s</strong>. "
+"Renew to keep access to its features."
 
 #: includes/class-emails.php:855
 msgid "Tu destacado está por vencer"
@@ -2916,8 +3211,12 @@ msgstr "Your featured listing is about to expire"
 
 #: includes/class-emails.php:857
 #, php-format
-msgid "El servicio <strong>%s</strong> dejará de estar destacado el <strong>%s</strong>. Puedes renovar su promoción desde tu panel de agencia."
-msgstr "Service <strong>%s</strong> will stop being featured on <strong>%s</strong>. You can renew its promotion from your agency panel."
+msgid ""
+"El servicio <strong>%s</strong> dejará de estar destacado el <strong>%s</"
+"strong>. Puedes renovar su promoción desde tu panel de agencia."
+msgstr ""
+"Service <strong>%s</strong> will stop being featured on <strong>%s</strong>. "
+"You can renew its promotion from your agency panel."
 
 #: includes/class-emails.php:861
 msgid "Tu promoción está por vencer"
@@ -3024,7 +3323,8 @@ msgstr "Admin Panel"
 
 #: includes/class-front-dash.php:160
 msgid "Como administrador, gestiona la plataforma desde el panel de WordPress."
-msgstr "As an administrator, manage the platform from the WordPress admin panel."
+msgstr ""
+"As an administrator, manage the platform from the WordPress admin panel."
 
 #: includes/class-front-dash.php:162
 msgid "Ir al panel admin"
@@ -3055,8 +3355,11 @@ msgid "Hola, %s"
 msgstr "Hello, %s"
 
 #: includes/class-front-dash.php:240
-msgid "Bienvenido a tu panel personal. Desde aquí puedes gestionar todo tu viaje."
-msgstr "Welcome to your personal dashboard. From here you can manage your entire trip."
+msgid ""
+"Bienvenido a tu panel personal. Desde aquí puedes gestionar todo tu viaje."
+msgstr ""
+"Welcome to your personal dashboard. From here you can manage your entire "
+"trip."
 
 #: includes/class-front-dash.php:263
 msgid "Próximas"
@@ -3119,7 +3422,9 @@ msgid "Sin favoritos"
 msgstr "No favorites yet"
 
 #: includes/class-front-dash.php:446
-msgid "Guarda servicios haciendo clic en el corazón para encontrarlos fácilmente después."
+msgid ""
+"Guarda servicios haciendo clic en el corazón para encontrarlos fácilmente "
+"después."
 msgstr "Save services by clicking the heart to find them easily later."
 
 #: includes/class-front-dash.php:468 includes/class-shortcode-booking.php:893
@@ -3135,8 +3440,11 @@ msgid "Sin reseñas"
 msgstr "No reviews yet"
 
 #: includes/class-front-dash.php:499
-msgid "Después de completar una reserva, podrás dejar tu reseña para ayudar a otros viajeros."
-msgstr "After completing a booking, you can leave a review to help other travelers."
+msgid ""
+"Después de completar una reserva, podrás dejar tu reseña para ayudar a otros "
+"viajeros."
+msgstr ""
+"After completing a booking, you can leave a review to help other travelers."
 
 #: includes/class-front-dash.php:521
 msgid "Respuesta:"
@@ -3211,21 +3519,33 @@ msgstr "Collected"
 
 #: includes/class-front-dash.php:747
 #, php-format
-msgid "Tienes una solicitud de liquidación de %s pendiente de confirmación por el administrador (#%d)."
-msgstr "You have a payout request of %s pending confirmation by the administrator (#%d)."
+msgid ""
+"Tienes una solicitud de liquidación de %s pendiente de confirmación por el "
+"administrador (#%d)."
+msgstr ""
+"You have a payout request of %s pending confirmation by the administrator "
+"(#%d)."
 
 #: includes/class-front-dash.php:752
 #, php-format
-msgid "Tienes %d liquidación(es) fallida(s): el pago no llegó a completarse. Solicita de nuevo una liquidación o contacta al administrador."
-msgstr "You have %d failed settlement(s): the payment did not complete. Request a new settlement or contact the administrator."
+msgid ""
+"Tienes %d liquidación(es) fallida(s): el pago no llegó a completarse. "
+"Solicita de nuevo una liquidación o contacta al administrador."
+msgstr ""
+"You have %d failed settlement(s): the payment did not complete. Request a "
+"new settlement or contact the administrator."
 
 #: includes/class-front-dash.php:756
 msgid "Solicitar liquidación"
 msgstr "Request payout"
 
 #: includes/class-front-dash.php:757
-msgid "Tu comisión por cobrar queda agrupada en una sola solicitud que el administrador confirma antes de transferirte."
-msgstr "Your owed commission is grouped into a single request that the administrator confirms before transferring to you."
+msgid ""
+"Tu comisión por cobrar queda agrupada en una sola solicitud que el "
+"administrador confirma antes de transferirte."
+msgstr ""
+"Your owed commission is grouped into a single request that the administrator "
+"confirms before transferring to you."
 
 #: includes/class-front-dash.php:759
 msgid "Método de cobro"
@@ -3311,8 +3631,11 @@ msgstr "You have a subscription pending payment confirmation."
 
 #: includes/class-front-dash.php:921 includes/class-shortcode-account.php:177
 #, php-format
-msgid "Alcanzaste el límite de %d listados de tu plan. Mejora de plan para publicar más."
-msgstr "You have reached your plan's limit of %d listings. Upgrade to publish more."
+msgid ""
+"Alcanzaste el límite de %d listados de tu plan. Mejora de plan para publicar "
+"más."
+msgstr ""
+"You have reached your plan's limit of %d listings. Upgrade to publish more."
 
 #: includes/class-front-dash.php:929
 msgid "Confirmadas"
@@ -3336,16 +3659,24 @@ msgstr "View operations"
 
 #: includes/class-front-dash.php:961
 #, php-format
-msgid "Aún no tienes reservas. Comparte tus listados para empezar a recibir solicitudes. Comisión: %s%%"
-msgstr "You have no bookings yet. Share your listings to start receiving requests. Commission: %s%%"
+msgid ""
+"Aún no tienes reservas. Comparte tus listados para empezar a recibir "
+"solicitudes. Comisión: %s%%"
+msgstr ""
+"You have no bookings yet. Share your listings to start receiving requests. "
+"Commission: %s%%"
 
 #: includes/class-front-dash.php:991 includes/class-shortcode-account.php:320
 msgid "Leads de contacto"
 msgstr "Contact leads"
 
 #: includes/class-front-dash.php:998 includes/class-shortcode-account.php:331
-msgid "Aún no has recibido mensajes de contacto. Cuando un visitante envíe el formulario de tu perfil o de un servicio, aparecerá aquí."
-msgstr "You have not received contact messages yet. When a visitor submits your profile or service form, it will appear here."
+msgid ""
+"Aún no has recibido mensajes de contacto. Cuando un visitante envíe el "
+"formulario de tu perfil o de un servicio, aparecerá aquí."
+msgstr ""
+"You have not received contact messages yet. When a visitor submits your "
+"profile or service form, it will appear here."
 
 #: includes/class-front-dash.php:1033
 msgid "Operaciones"
@@ -3437,8 +3768,12 @@ msgid "Añadir al itinerario"
 msgstr "Add to itinerary"
 
 #: includes/class-itinerary.php:293
-msgid "No encontramos servicios que matchen exactamente con tus intereses. Probá ampliar el presupuesto, quitar algún interés o elegir otro destino."
-msgstr "We didn't find services that exactly match your interests. Try widening your budget, removing an interest, or picking another destination."
+msgid ""
+"No encontramos servicios que matchen exactamente con tus intereses. Probá "
+"ampliar el presupuesto, quitar algún interés o elegir otro destino."
+msgstr ""
+"We didn't find services that exactly match your interests. Try widening your "
+"budget, removing an interest, or picking another destination."
 
 #: includes/class-itinerary.php:336
 msgid "El itinerario que intentás abrir está vacío o ya no está disponible."
@@ -3461,8 +3796,12 @@ msgid "Total estimado"
 msgstr "Estimated total"
 
 #: includes/class-itinerary.php:375
-msgid "Monto estimado según tarifas publicadas por persona/noche. La reserva y el pago se gestionan directo con cada agencia."
-msgstr "Estimated based on published per-person/per-night rates. Booking and payment are handled directly with each agency."
+msgid ""
+"Monto estimado según tarifas publicadas por persona/noche. La reserva y el "
+"pago se gestionan directo con cada agencia."
+msgstr ""
+"Estimated based on published per-person/per-night rates. Booking and payment "
+"are handled directly with each agency."
 
 #: includes/class-itinerary.php:376
 msgid "Imprimir itinerario"
@@ -3474,11 +3813,15 @@ msgstr "Added ✓"
 
 #: includes/class-itinerary.php:399
 msgid "Hubo un problema al cargar los resultados. Reintentá en unos segundos."
-msgstr "There was a problem loading results. Please try again in a few seconds."
+msgstr ""
+"There was a problem loading results. Please try again in a few seconds."
 
 #: includes/class-itinerary.php:400
-msgid "Todavía no hay destinos publicados. Podés continuar igual y explorar por intereses."
-msgstr "No destinations published yet. Keep going and explore by interest instead."
+msgid ""
+"Todavía no hay destinos publicados. Podés continuar igual y explorar por "
+"intereses."
+msgstr ""
+"No destinations published yet. Keep going and explore by interest instead."
 
 #: includes/class-itinerary.php:415
 msgid "Tu viaje, paso a paso"
@@ -3489,8 +3832,12 @@ msgid "Armá tu itinerario"
 msgstr "Build your itinerary"
 
 #: includes/class-itinerary.php:417
-msgid "Elegí tus intereses, destinos y presupuesto. En segundos encontrás experiencias que matchean con tu plan."
-msgstr "Pick your interests, destinations and budget. In seconds you'll get experiences that match your plan."
+msgid ""
+"Elegí tus intereses, destinos y presupuesto. En segundos encontrás "
+"experiencias que matchean con tu plan."
+msgstr ""
+"Pick your interests, destinations and budget. In seconds you'll get "
+"experiences that match your plan."
 
 #: includes/class-itinerary.php:431
 msgid "1. Lo que te apasiona"
@@ -3529,7 +3876,8 @@ msgid "Incluir"
 msgstr "Include"
 
 #: includes/class-itinerary.php:454
-msgid "La búsqueda se hace en servicios activos publicados por agencias verificadas."
+msgid ""
+"La búsqueda se hace en servicios activos publicados por agencias verificadas."
 msgstr "Searches only active services listed by verified agencies."
 
 #: includes/class-itinerary.php:458
@@ -3545,8 +3893,12 @@ msgid "Buscar mi itinerario"
 msgstr "Search my itinerary"
 
 #: includes/class-itinerary.php:465
-msgid "Activá JavaScript para usar el constructor paso a paso, o usá la búsqueda por destino si preferís un flujo simple."
-msgstr "Enable JavaScript to use the step-by-step builder, or use the destination search if you prefer a simpler flow."
+msgid ""
+"Activá JavaScript para usar el constructor paso a paso, o usá la búsqueda "
+"por destino si preferís un flujo simple."
+msgstr ""
+"Enable JavaScript to use the step-by-step builder, or use the destination "
+"search if you prefer a simpler flow."
 
 #: includes/class-itinerary.php:471
 msgid "Mi itinerario"
@@ -3653,8 +4005,12 @@ msgid "Only agency accounts can manage listings."
 msgstr "Only agency accounts can manage listings."
 
 #: includes/class-listing-editor.php:29
-msgid "Puedes preparar tus listados, pero serán visibles para los viajeros solo cuando el administrador apruebe tu agencia."
-msgstr "You can prepare your listings, but they will only be visible to travelers once the administrator approves your agency."
+msgid ""
+"Puedes preparar tus listados, pero serán visibles para los viajeros solo "
+"cuando el administrador apruebe tu agencia."
+msgstr ""
+"You can prepare your listings, but they will only be visible to travelers "
+"once the administrator approves your agency."
 
 #: includes/class-listing-editor.php:38
 msgid "Listing not found."
@@ -3703,8 +4059,10 @@ msgid "Editar"
 msgstr "Edit"
 
 #: includes/class-listing-editor.php:144
-msgid "Todavía no tienes listados. Usa \"Nuevo\" para crear tu primer servicio."
-msgstr "You do not have listings yet. Use \"New\" to create your first service."
+msgid ""
+"Todavía no tienes listados. Usa \"Nuevo\" para crear tu primer servicio."
+msgstr ""
+"You do not have listings yet. Use \"New\" to create your first service."
 
 #: includes/class-listing-editor.php:160
 msgid "Edit listing"
@@ -4026,8 +4384,11 @@ msgid "Tu progreso"
 msgstr "Your progress"
 
 #: includes/class-listing-editor.php:754
-msgid "Completa estos puntos para que tu alojamiento esté listo para recibir reservas."
-msgstr "Complete these steps so your accommodation is ready to receive bookings."
+msgid ""
+"Completa estos puntos para que tu alojamiento esté listo para recibir "
+"reservas."
+msgstr ""
+"Complete these steps so your accommodation is ready to receive bookings."
 
 #. translators: %s: item label
 #: includes/class-listing-editor.php:779
@@ -4040,8 +4401,12 @@ msgid "¿Necesitas ayuda?"
 msgstr "Need help?"
 
 #: includes/class-listing-editor.php:789
-msgid "Si un revisor rechaza tu alojamiento, verás aquí el motivo y podrás corregirlo sin empezar de nuevo."
-msgstr "If a reviewer rejects your accommodation, you will see the reason here and can fix it without starting over."
+msgid ""
+"Si un revisor rechaza tu alojamiento, verás aquí el motivo y podrás "
+"corregirlo sin empezar de nuevo."
+msgstr ""
+"If a reviewer rejects your accommodation, you will see the reason here and "
+"can fix it without starting over."
 
 #: includes/class-listing-editor.php:790
 msgid "Volver al panel"
@@ -4124,8 +4489,10 @@ msgid "Eliminar unidad"
 msgstr "Delete unit"
 
 #: includes/class-listing-editor.php:889
-msgid "Se borrará la unidad y todos sus precios. Esta acción no se puede deshacer."
-msgstr "The unit and all its prices will be deleted. This action cannot be undone."
+msgid ""
+"Se borrará la unidad y todos sus precios. Esta acción no se puede deshacer."
+msgstr ""
+"The unit and all its prices will be deleted. This action cannot be undone."
 
 #: includes/class-listing-editor.php:891
 msgid "Pasará a ser visible para los viajeros."
@@ -4286,8 +4653,12 @@ msgid "Añadir"
 msgstr "Add"
 
 #: includes/class-listing-editor.php:1037
-msgid "La primera imagen será la foto principal. Puedes cambiarla en cualquier momento con la estrella."
-msgstr "The first image will be the main photo. You can change it at any time with the star."
+msgid ""
+"La primera imagen será la foto principal. Puedes cambiarla en cualquier "
+"momento con la estrella."
+msgstr ""
+"The first image will be the main photo. You can change it at any time with "
+"the star."
 
 #: includes/class-listing-editor.php:1054
 msgid "Identidad del alojamiento"
@@ -4347,8 +4718,12 @@ msgid "Datos adicionales de tu alojamiento."
 msgstr "Additional details about your accommodation."
 
 #: includes/class-listing-editor.php:1098
-msgid "Crea el alojamiento con lo esencial. Podrás subir más fotos y detalle en los siguientes pasos."
-msgstr "Create the accommodation with the essentials. You can upload more photos and details in the following steps."
+msgid ""
+"Crea el alojamiento con lo esencial. Podrás subir más fotos y detalle en los "
+"siguientes pasos."
+msgstr ""
+"Create the accommodation with the essentials. You can upload more photos and "
+"details in the following steps."
 
 #: includes/class-listing-editor.php:1107
 msgid "p.ej. Hotel Aurora – Habitación Vista Mar"
@@ -4356,15 +4731,20 @@ msgstr "e.g. Hotel Aurora – Sea View Room"
 
 #: includes/class-listing-editor.php:1113
 msgid "Qué incluye, para quién es ideal, qué hace especial a tu alojamiento…"
-msgstr "What it includes, who it is ideal for, what makes your accommodation special…"
+msgstr ""
+"What it includes, who it is ideal for, what makes your accommodation special…"
 
 #: includes/class-listing-editor.php:1122
 msgid "Fotos"
 msgstr "Photos"
 
 #: includes/class-listing-editor.php:1123
-msgid "Las imágenes son lo primero que atrae reservas. Sube al menos 3 fotos si puedes."
-msgstr "Images are the first thing that attracts bookings. Upload at least 3 photos if you can."
+msgid ""
+"Las imágenes son lo primero que atrae reservas. Sube al menos 3 fotos si "
+"puedes."
+msgstr ""
+"Images are the first thing that attracts bookings. Upload at least 3 photos "
+"if you can."
 
 #: includes/class-listing-editor.php:1192
 msgid "Elige el lugar más específico (ciudad o distrito)."
@@ -4372,7 +4752,8 @@ msgstr "Choose the most specific place (city or district)."
 
 #: includes/class-listing-editor.php:1206
 msgid "La solicitud te da más control y menos cancelaciones por sorpresa."
-msgstr "Request-to-book gives you more control and fewer surprise cancellations."
+msgstr ""
+"Request-to-book gives you more control and fewer surprise cancellations."
 
 #: includes/class-listing-editor.php:1237
 msgid "— Selecciona —"
@@ -4436,7 +4817,8 @@ msgid "p.ej. Habitación Doble Estándar"
 msgstr "e.g. Standard Double Room"
 
 #: includes/class-listing-editor.php:1365
-msgid "Es el precio base; los días especiales se ajustan en el paso de Precios."
+msgid ""
+"Es el precio base; los días especiales se ajustan en el paso de Precios."
 msgstr "This is the base price; special days are adjusted in the Pricing step."
 
 #: includes/class-listing-editor.php:1369
@@ -4491,16 +4873,26 @@ msgid "Guardar unidad"
 msgstr "Save unit"
 
 #: includes/class-listing-editor.php:1481
-msgid "Guarda primero la información del alojamiento para poder añadir unidades."
+msgid ""
+"Guarda primero la información del alojamiento para poder añadir unidades."
 msgstr "Save the accommodation information first to be able to add units."
 
 #: includes/class-listing-editor.php:1488
-msgid "Cada unidad es un tipo de habitación con su propio precio, inventario y fotos. Si todas tus habitaciones cuestan lo mismo, con una sola unidad es suficiente."
-msgstr "Each unit is a room type with its own price, inventory and photos. If all your rooms cost the same, one unit is enough."
+msgid ""
+"Cada unidad es un tipo de habitación con su propio precio, inventario y "
+"fotos. Si todas tus habitaciones cuestan lo mismo, con una sola unidad es "
+"suficiente."
+msgstr ""
+"Each unit is a room type with its own price, inventory and photos. If all "
+"your rooms cost the same, one unit is enough."
 
 #: includes/class-listing-editor.php:1493
-msgid "Aún no tienes unidades. Crea la primera con el formulario de abajo; podrás añadir las demás cuando quieras."
-msgstr "You do not have any units yet. Create the first one with the form below; you can add more whenever you want."
+msgid ""
+"Aún no tienes unidades. Crea la primera con el formulario de abajo; podrás "
+"añadir las demás cuando quieras."
+msgstr ""
+"You do not have any units yet. Create the first one with the form below; you "
+"can add more whenever you want."
 
 #: includes/class-listing-editor.php:1507
 msgid "Crea un tipo de habitación o unidad adicional."
@@ -4742,8 +5134,12 @@ msgid "Herramientas para varios días"
 msgstr "Multi-day tools"
 
 #: includes/class-listing-editor.php:1599
-msgid "Aplica el mismo cambio a un rango, a los días de la semana que elijas o a otro mes."
-msgstr "Apply the same change to a range, to the weekdays you choose, or to another month."
+msgid ""
+"Aplica el mismo cambio a un rango, a los días de la semana que elijas o a "
+"otro mes."
+msgstr ""
+"Apply the same change to a range, to the weekdays you choose, or to another "
+"month."
 
 #: includes/class-listing-editor.php:1600
 msgid "Zona dangerous"
@@ -4786,8 +5182,12 @@ msgid "Cargando calendario…"
 msgstr "Loading calendar…"
 
 #: includes/class-listing-editor.php:1615
-msgid "Define el precio de cada noche y abre o cierra la disponibilidad. Los días que no toques heredan el precio base de la unidad."
-msgstr "Set the price for each night and open or close availability. Days you do not touch inherit the unit's base price."
+msgid ""
+"Define el precio de cada noche y abre o cierra la disponibilidad. Los días "
+"que no toques heredan el precio base de la unidad."
+msgstr ""
+"Set the price for each night and open or close availability. Days you do not "
+"touch inherit the unit's base price."
 
 #: includes/class-listing-editor.php:1629
 msgid "Mes anterior"
@@ -4837,7 +5237,8 @@ msgid "Regla por día de semana"
 msgstr "Weekday rule"
 
 #: includes/class-listing-editor.php:1674
-msgid "Se aplica a todos los días de la semana elegidos dentro del mes visible."
+msgid ""
+"Se aplica a todos los días de la semana elegidos dentro del mes visible."
 msgstr "Applied to all the selected weekdays within the visible month."
 
 #: includes/class-listing-editor.php:1682
@@ -4874,27 +5275,38 @@ msgstr "Replicate the visible month's days into another month."
 
 #: includes/class-listing-editor.php:1723
 msgid "Elimina todos los ajustes del mes visible y vuelve al precio base."
-msgstr "Remove all adjustments from the visible month and return to the base price."
+msgstr ""
+"Remove all adjustments from the visible month and return to the base price."
 
 #: includes/class-listing-editor.php:1725
 msgid "Limpiar ajustes del mes"
 msgstr "Clear month adjustments"
 
 #: includes/class-listing-editor.php:1752
-msgid "Estas condiciones se muestran al viajero antes de reservar y definen los reembolsos en caso de cancelación."
-msgstr "These conditions are shown to the traveler before booking and define refunds in case of cancellation."
+msgid ""
+"Estas condiciones se muestran al viajero antes de reservar y definen los "
+"reembolsos en caso de cancelación."
+msgstr ""
+"These conditions are shown to the traveler before booking and define refunds "
+"in case of cancellation."
 
 #: includes/class-listing-editor.php:1765
 msgid "Elige cuánto tiempo tiene el viajero para cancelar sin penalización."
 msgstr "Choose how long the traveler has to cancel without penalty."
 
 #: includes/class-listing-editor.php:1780
-msgid "Esta política se aplica automáticamente a todas las unidades del alojamiento."
-msgstr "This policy is automatically applied to all units of the accommodation."
+msgid ""
+"Esta política se aplica automáticamente a todas las unidades del alojamiento."
+msgstr ""
+"This policy is automatically applied to all units of the accommodation."
 
 #: includes/class-listing-editor.php:1787
-msgid "Normas de convivencia, check-in, mascotas, fumadores… Aparecerán en la ficha del alojamiento."
-msgstr "House rules, check-in, pets, smoking… They will appear on the accommodation page."
+msgid ""
+"Normas de convivencia, check-in, mascotas, fumadores… Aparecerán en la ficha "
+"del alojamiento."
+msgstr ""
+"House rules, check-in, pets, smoking… They will appear on the accommodation "
+"page."
 
 #: includes/class-listing-editor.php:1794
 msgid "Una regla por línea. p.ej."
@@ -5022,20 +5434,30 @@ msgid "Publica tu alojamiento"
 msgstr "Publish your accommodation"
 
 #: includes/class-listing-editor.php:1984
-msgid "Los viajeros ya pueden encontrarlo y reservar. Puedes despublicarlo en cualquier momento."
-msgstr "Travelers can already find and book it. You can unpublish it at any time."
+msgid ""
+"Los viajeros ya pueden encontrarlo y reservar. Puedes despublicarlo en "
+"cualquier momento."
+msgstr ""
+"Travelers can already find and book it. You can unpublish it at any time."
 
 #: includes/class-listing-editor.php:1986
-msgid "Tu alojamiento se enviará a revisión y el equipo lo aprobará antes de publicarlo."
-msgstr "Your accommodation will be submitted for review and the team will approve it before publishing."
+msgid ""
+"Tu alojamiento se enviará a revisión y el equipo lo aprobará antes de "
+"publicarlo."
+msgstr ""
+"Your accommodation will be submitted for review and the team will approve it "
+"before publishing."
 
 #: includes/class-listing-editor.php:1988
-msgid "Aún faltan algunos pasos por completar, pero puedes publicar igualmente."
+msgid ""
+"Aún faltan algunos pasos por completar, pero puedes publicar igualmente."
 msgstr "Some steps are still incomplete, but you can publish anyway."
 
 #: includes/class-listing-editor.php:1990
-msgid "Todo listo. Publica cuando quieras: aparecerá en el buscador al instante."
-msgstr "All set. Publish whenever you want: it will appear in search instantly."
+msgid ""
+"Todo listo. Publica cuando quieras: aparecerá en el buscador al instante."
+msgstr ""
+"All set. Publish whenever you want: it will appear in search instantly."
 
 #: includes/class-listing-editor.php:1998
 msgid "Publicar alojamiento"
@@ -6024,12 +6446,17 @@ msgstr "1. Data Controller"
 
 #: includes/class-privacy.php:95
 #, php-format
-msgid "%s (en adelante \"la Plataforma\") es responsable del tratamiento de los datos personales que se recogen a través de este sitio web."
-msgstr "%s (hereinafter \"the Platform\") is responsible for the processing of the personal data collected through this website."
+msgid ""
+"%s (en adelante \"la Plataforma\") es responsable del tratamiento de los "
+"datos personales que se recogen a través de este sitio web."
+msgstr ""
+"%s (hereinafter \"the Platform\") is responsible for the processing of the "
+"personal data collected through this website."
 
 #: includes/class-privacy.php:96
 #, php-format
-msgid "Contacto para asuntos de protección de datos: <a href=\"mailto:%s\">%s</a>."
+msgid ""
+"Contacto para asuntos de protección de datos: <a href=\"mailto:%s\">%s</a>."
 msgstr "Contact for data protection matters: <a href=\"mailto:%s\">%s</a>."
 
 #: includes/class-privacy.php:98
@@ -6037,32 +6464,61 @@ msgid "2. Datos que recopilamos"
 msgstr "2. Data We Collect"
 
 #: includes/class-privacy.php:99
-msgid "Recopilamos únicamente los datos necesarios para prestar el servicio de reservas: nombre, correo electrónico, teléfono, datos de la reserva (fechas, servicio, montos), datos de la agencia y, cuando aplica, datos de identificación requeridos para la verificación de agencias y la facturación."
-msgstr "We collect only the data needed to provide the booking service: name, email, phone, booking data (dates, service, amounts), agency data and, where applicable, identification data required for agency verification and billing."
+msgid ""
+"Recopilamos únicamente los datos necesarios para prestar el servicio de "
+"reservas: nombre, correo electrónico, teléfono, datos de la reserva (fechas, "
+"servicio, montos), datos de la agencia y, cuando aplica, datos de "
+"identificación requeridos para la verificación de agencias y la facturación."
+msgstr ""
+"We collect only the data needed to provide the booking service: name, email, "
+"phone, booking data (dates, service, amounts), agency data and, where "
+"applicable, identification data required for agency verification and billing."
 
 #: includes/class-privacy.php:101
 msgid "3. Finalidad y base legal"
 msgstr "3. Purpose and Legal Basis"
 
 #: includes/class-privacy.php:102
-msgid "Tratamos sus datos para: (a) gestionar reservas y su pago; (b) comunicarse sobre el estado de sus reservas; (c) verificar y administrar las agencias; (d) prevenir fraude y atender reclamaciones; y (e) cumplir obligaciones legales. La base legal es el consentimiento que usted otorga, la ejecución del contrato de reserva y el interés legítimo de la Plataforma."
-msgstr "We process your data to: (a) manage bookings and their payment; (b) communicate about the status of your bookings; (c) verify and manage agencies; (d) prevent fraud and handle claims; and (e) comply with legal obligations. The legal basis is the consent you grant, the performance of the booking contract and the legitimate interest of the Platform."
+msgid ""
+"Tratamos sus datos para: (a) gestionar reservas y su pago; (b) comunicarse "
+"sobre el estado de sus reservas; (c) verificar y administrar las agencias; "
+"(d) prevenir fraude y atender reclamaciones; y (e) cumplir obligaciones "
+"legales. La base legal es el consentimiento que usted otorga, la ejecución "
+"del contrato de reserva y el interés legítimo de la Plataforma."
+msgstr ""
+"We process your data to: (a) manage bookings and their payment; (b) "
+"communicate about the status of your bookings; (c) verify and manage "
+"agencies; (d) prevent fraud and handle claims; and (e) comply with legal "
+"obligations. The legal basis is the consent you grant, the performance of "
+"the booking contract and the legitimate interest of the Platform."
 
 #: includes/class-privacy.php:104
 msgid "4. Conservación"
 msgstr "4. Retention"
 
 #: includes/class-privacy.php:105
-msgid "Conservamos los datos mientras sean necesarios para las finalidades descritas y, posteriormente, por los plazos exigidos por la legislación aplicable (incluida la Ley 8968 y normas tributarias)."
-msgstr "We keep the data for as long as needed for the purposes described and, afterwards, for the periods required by applicable law (including Law 8968 and tax regulations)."
+msgid ""
+"Conservamos los datos mientras sean necesarios para las finalidades "
+"descritas y, posteriormente, por los plazos exigidos por la legislación "
+"aplicable (incluida la Ley 8968 y normas tributarias)."
+msgstr ""
+"We keep the data for as long as needed for the purposes described and, "
+"afterwards, for the periods required by applicable law (including Law 8968 "
+"and tax regulations)."
 
 #: includes/class-privacy.php:107
 msgid "5. Transferencias"
 msgstr "5. Transfers"
 
 #: includes/class-privacy.php:108
-msgid "No vendemos ni compartimos sus datos personales con terceros ajenos a la Plataforma, salvo: agencias responsables de su reserva, procesadores de pago, proveedores de servicios técnicos y cuando la ley lo exija."
-msgstr "We do not sell or share your personal data with third parties outside the Platform, except: agencies responsible for your booking, payment processors, technical service providers, and when required by law."
+msgid ""
+"No vendemos ni compartimos sus datos personales con terceros ajenos a la "
+"Plataforma, salvo: agencias responsables de su reserva, procesadores de "
+"pago, proveedores de servicios técnicos y cuando la ley lo exija."
+msgstr ""
+"We do not sell or share your personal data with third parties outside the "
+"Platform, except: agencies responsible for your booking, payment processors, "
+"technical service providers, and when required by law."
 
 #: includes/class-privacy.php:110
 msgid "6. Sus derechos"
@@ -6070,8 +6526,15 @@ msgstr "6. Your Rights"
 
 #: includes/class-privacy.php:111
 #, php-format
-msgid "Puede ejercer los derechos de información, acceso, rectificación, actualización, supresión y oposición, así como revocar su consentimiento, mediante el formulario de esta página o escribiendo a <a href=\"mailto:%s\">%s</a>."
-msgstr "You may exercise the rights of information, access, rectification, update, erasure and objection, as well as withdraw your consent, through the form on this page or by writing to <a href=\"mailto:%s\">%s</a>."
+msgid ""
+"Puede ejercer los derechos de información, acceso, rectificación, "
+"actualización, supresión y oposición, así como revocar su consentimiento, "
+"mediante el formulario de esta página o escribiendo a <a href=\"mailto:"
+"%s\">%s</a>."
+msgstr ""
+"You may exercise the rights of information, access, rectification, update, "
+"erasure and objection, as well as withdraw your consent, through the form on "
+"this page or by writing to <a href=\"mailto:%s\">%s</a>."
 
 #: includes/class-privacy.php:113
 msgid "Acceso: conocer qué datos tenemos y cómo los tratamos."
@@ -6082,8 +6545,11 @@ msgid "Rectificación y actualización: corregir o actualizar sus datos."
 msgstr "Rectification and update: correct or update your data."
 
 #: includes/class-privacy.php:115
-msgid "Supresión: solicitar la eliminación de sus datos cuando ya no sean necesarios."
-msgstr "Erasure: request the deletion of your data when it is no longer necessary."
+msgid ""
+"Supresión: solicitar la eliminación de sus datos cuando ya no sean "
+"necesarios."
+msgstr ""
+"Erasure: request the deletion of your data when it is no longer necessary."
 
 #: includes/class-privacy.php:116
 msgid "Oposición: oponerse al tratamiento por interés legítimo."
@@ -6094,32 +6560,47 @@ msgid "7. Cookies"
 msgstr "7. Cookies"
 
 #: includes/class-privacy.php:120
-msgid "Este sitio utiliza cookies técnicas necesarias para su funcionamiento y, cuando usted lo permite, cookies analíticas."
-msgstr "This site uses technical cookies that are necessary for its operation and, when you allow them, analytics cookies."
+msgid ""
+"Este sitio utiliza cookies técnicas necesarias para su funcionamiento y, "
+"cuando usted lo permite, cookies analíticas."
+msgstr ""
+"This site uses technical cookies that are necessary for its operation and, "
+"when you allow them, analytics cookies."
 
 #: includes/class-privacy.php:122
 msgid "8. Actualización del aviso"
 msgstr "8. Notice Updates"
 
 #: includes/class-privacy.php:123
-msgid "Podemos actualizar este aviso. Le notificaremos los cambios relevantes publicando la versión vigente en esta página."
-msgstr "We may update this notice. We will notify you of relevant changes by publishing the current version on this page."
+msgid ""
+"Podemos actualizar este aviso. Le notificaremos los cambios relevantes "
+"publicando la versión vigente en esta página."
+msgstr ""
+"We may update this notice. We will notify you of relevant changes by "
+"publishing the current version on this page."
 
 #: includes/class-privacy.php:132
-msgid "Solicitud enviada. La revisaremos y le responderemos a la mayor brevedad."
-msgstr "Request submitted. We will review it and respond to you as soon as possible."
+msgid ""
+"Solicitud enviada. La revisaremos y le responderemos a la mayor brevedad."
+msgstr ""
+"Request submitted. We will review it and respond to you as soon as possible."
 
 #: includes/class-privacy.php:134
 msgid "No se pudo enviar la solicitud. Revise los datos e intente nuevamente."
-msgstr "The request could not be submitted. Please review the data and try again."
+msgstr ""
+"The request could not be submitted. Please review the data and try again."
 
 #: includes/class-privacy.php:144
 msgid "Ejercer sus derechos de datos personales"
 msgstr "Exercise your personal data rights"
 
 #: includes/class-privacy.php:145
-msgid "Complete este formulario para ejercer sus derechos ante la Plataforma. Los campos con * son obligatorios."
-msgstr "Complete this form to exercise your rights before the Platform. Fields marked with * are required."
+msgid ""
+"Complete este formulario para ejercer sus derechos ante la Plataforma. Los "
+"campos con * son obligatorios."
+msgstr ""
+"Complete this form to exercise your rights before the Platform. Fields "
+"marked with * are required."
 
 #: includes/class-privacy.php:152
 msgid "Correo electrónico"
@@ -6143,8 +6624,14 @@ msgstr "Send request"
 
 #: includes/class-privacy.php:200
 #, php-format
-msgid "Acepto el <a href=\"%s\" target=\"_blank\" rel=\"noopener\">Aviso de Privacidad</a> y consiento el tratamiento de mis datos personales para gestionar esta solicitud."
-msgstr "I accept the <a href=\"%s\" target=\"_blank\" rel=\"noopener\">Privacy Notice</a> and consent to the processing of my personal data to manage this request."
+msgid ""
+"Acepto el <a href=\"%s\" target=\"_blank\" rel=\"noopener\">Aviso de "
+"Privacidad</a> y consiento el tratamiento de mis datos personales para "
+"gestionar esta solicitud."
+msgstr ""
+"I accept the <a href=\"%s\" target=\"_blank\" rel=\"noopener\">Privacy "
+"Notice</a> and consent to the processing of my personal data to manage this "
+"request."
 
 #: includes/class-privacy.php:242
 msgid "Ingresa un correo electrónico válido."
@@ -6164,8 +6651,16 @@ msgstr "The request could not be saved."
 
 #: includes/class-privacy.php:331
 #, php-format
-msgid "Procesamos tus datos personales de acuerdo con nuestro <a href=\"%1$s\">Aviso de Privacidad</a>. Puedes ejercer tus derechos de acceso, rectificación, supresión u oposición escribiendo a <a href=\"mailto:%2$s\">%2$s</a>."
-msgstr "We process your personal data in accordance with our <a href=\"%1$s\">Privacy Notice</a>. You can exercise your rights of access, rectification, erasure or objection by writing to <a href=\"mailto:%2$s\">%2$s</a>."
+msgid ""
+"Procesamos tus datos personales de acuerdo con nuestro <a "
+"href=\"%1$s\">Aviso de Privacidad</a>. Puedes ejercer tus derechos de "
+"acceso, rectificación, supresión u oposición escribiendo a <a href=\"mailto:"
+"%2$s\">%2$s</a>."
+msgstr ""
+"We process your personal data in accordance with our <a "
+"href=\"%1$s\">Privacy Notice</a>. You can exercise your rights of access, "
+"rectification, erasure or objection by writing to <a href=\"mailto:"
+"%2$s\">%2$s</a>."
 
 #: includes/class-privacy.php:377
 msgid "Travel bookings"
@@ -6277,17 +6772,29 @@ msgstr "The listing is not available for promotion."
 
 #: includes/class-promotions.php:127
 #, php-format
-msgid "Tu plan actual (%s) no incluye destacados. Mejora tu plan para promocionar tus listados."
-msgstr "Your current plan (%s) does not include featured listings. Upgrade your plan to promote your listings."
+msgid ""
+"Tu plan actual (%s) no incluye destacados. Mejora tu plan para promocionar "
+"tus listados."
+msgstr ""
+"Your current plan (%s) does not include featured listings. Upgrade your plan "
+"to promote your listings."
 
 #: includes/class-promotions.php:137
-msgid "Ya tienes una solicitud de destacado pendiente para este listado. El administrador confirmará el pago."
-msgstr "You already have a pending featured request for this listing. The administrator will confirm the payment."
+msgid ""
+"Ya tienes una solicitud de destacado pendiente para este listado. El "
+"administrador confirmará el pago."
+msgstr ""
+"You already have a pending featured request for this listing. The "
+"administrator will confirm the payment."
 
 #: includes/class-promotions.php:142
 #, php-format
-msgid "Ya tienes %d destacados activos (el máximo de tu plan). Espera a que expire uno o mejora de plan."
-msgstr "You already have %d active featured listings (the maximum for your plan). Wait for one to expire or upgrade your plan."
+msgid ""
+"Ya tienes %d destacados activos (el máximo de tu plan). Espera a que expire "
+"uno o mejora de plan."
+msgstr ""
+"You already have %d active featured listings (the maximum for your plan). "
+"Wait for one to expire or upgrade your plan."
 
 #: includes/class-promotions.php:158
 #, php-format
@@ -6308,8 +6815,11 @@ msgid "Confirmada el %s por el administrador"
 msgstr "Confirmed on %s by the administrator"
 
 #: includes/class-reviews.php:83
-msgid "Solo puedes dejar reseñas después de una reserva confirmada o completada y pagada."
-msgstr "You can only leave reviews after a confirmed or completed and paid booking."
+msgid ""
+"Solo puedes dejar reseñas después de una reserva confirmada o completada y "
+"pagada."
+msgstr ""
+"You can only leave reviews after a confirmed or completed and paid booking."
 
 #: includes/class-roles.php:57
 msgid "Agency Admin"
@@ -6329,20 +6839,27 @@ msgid "Listados en %s."
 msgstr "Listings in %s."
 
 #: includes/class-seo.php:64
-msgid "Hoteles, hostales, cabañas y más alojamientos verificados para tu viaje."
-msgstr "Hotels, hostels, cabins and more verified accommodations for your trip."
+msgid ""
+"Hoteles, hostales, cabañas y más alojamientos verificados para tu viaje."
+msgstr ""
+"Hotels, hostels, cabins and more verified accommodations for your trip."
 
 #: includes/class-seo.php:65
 msgid "Tours y Excursiones"
 msgstr "Tours & Excursions"
 
 #: includes/class-seo.php:65
-msgid "Tours y excursiones guiadas, privadas y de día completo con operadores verificados."
-msgstr "Guided, private and full-day tours and excursions with verified operators."
+msgid ""
+"Tours y excursiones guiadas, privadas y de día completo con operadores "
+"verificados."
+msgstr ""
+"Guided, private and full-day tours and excursions with verified operators."
 
 #: includes/class-seo.php:66
-msgid "Traslados y transporte turístico entre destinos con operadores verificados."
-msgstr "Tourist transfers and transport between destinations with verified operators."
+msgid ""
+"Traslados y transporte turístico entre destinos con operadores verificados."
+msgstr ""
+"Tourist transfers and transport between destinations with verified operators."
 
 #: includes/class-seo.php:67 includes/class-shortcode-search.php:209
 msgid "Alquiler de Autos"
@@ -6357,7 +6874,8 @@ msgid "Barcos y Paseos"
 msgstr "Boats & Rides"
 
 #: includes/class-seo.php:68
-msgid "Paseos en barco, lanchas y actividades acuáticas con operadores verificados."
+msgid ""
+"Paseos en barco, lanchas y actividades acuáticas con operadores verificados."
 msgstr "Boat rides, launches and water activities with verified operators."
 
 #: includes/class-seo.php:69
@@ -6373,8 +6891,10 @@ msgid "Equipos y Alquileres"
 msgstr "Equipment & Rentals"
 
 #: includes/class-seo.php:70
-msgid "Alquiler de equipo: kayaks, snorkel, bicicletas, surf y más para tu viaje."
-msgstr "Equipment rental: kayaks, snorkeling, bikes, surfing and more for your trip."
+msgid ""
+"Alquiler de equipo: kayaks, snorkel, bicicletas, surf y más para tu viaje."
+msgstr ""
+"Equipment rental: kayaks, snorkeling, bikes, surfing and more for your trip."
 
 #: includes/class-seo.php:281
 #, php-format
@@ -6382,16 +6902,26 @@ msgid "¿Cómo reservar %s?"
 msgstr "How to book %s?"
 
 #: includes/class-seo.php:281
-msgid "Completá el formulario de reserva en la página, elegí fechas y cantidad de huéspedes, y confirmá el pago para recibir tu voucher."
-msgstr "Complete the booking form on the page, choose dates and the number of guests, and confirm payment to receive your voucher."
+msgid ""
+"Completá el formulario de reserva en la página, elegí fechas y cantidad de "
+"huéspedes, y confirmá el pago para recibir tu voucher."
+msgstr ""
+"Complete the booking form on the page, choose dates and the number of "
+"guests, and confirm payment to receive your voucher."
 
 #: includes/class-seo.php:282
 msgid "¿Puedo cancelar o modificar mi reserva?"
 msgstr "Can I cancel or modify my booking?"
 
 #: includes/class-seo.php:282
-msgid "Podés cancelar desde tu panel de reservas según la política de cancelación del operador. Las reservas pendientes se cancelan automáticamente tras un tiempo sin confirmación."
-msgstr "You can cancel from your bookings panel according to the operator's cancellation policy. Pending bookings are automatically cancelled after a while without confirmation."
+msgid ""
+"Podés cancelar desde tu panel de reservas según la política de cancelación "
+"del operador. Las reservas pendientes se cancelan automáticamente tras un "
+"tiempo sin confirmación."
+msgstr ""
+"You can cancel from your bookings panel according to the operator's "
+"cancellation policy. Pending bookings are automatically cancelled after a "
+"while without confirmation."
 
 #: includes/class-seo.php:285
 msgid "¿Cuánto cuesta?"
@@ -6399,8 +6929,12 @@ msgstr "How much does it cost?"
 
 #: includes/class-seo.php:285
 #, php-format
-msgid "El precio publicado es %s, sujeto a disponibilidad y a las tarifas por fechas seleccionadas. El total se calcula al elegir fechas en el formulario."
-msgstr "The published price is %s, subject to availability and rates for the selected dates. The total is calculated when choosing dates in the form."
+msgid ""
+"El precio publicado es %s, sujeto a disponibilidad y a las tarifas por "
+"fechas seleccionadas. El total se calcula al elegir fechas en el formulario."
+msgstr ""
+"The published price is %s, subject to availability and rates for the "
+"selected dates. The total is calculated when choosing dates in the form."
 
 #: includes/class-seo.php:288
 msgid "¿Quién opera este servicio?"
@@ -6416,8 +6950,11 @@ msgid "¿Cómo pago?"
 msgstr "How do I pay?"
 
 #: includes/class-seo.php:290
-msgid "Aceptamos pago online seguro con tarjeta o PayPal al confirmar la reserva."
-msgstr "We accept secure online payment by card or PayPal upon confirming your booking."
+msgid ""
+"Aceptamos pago online seguro con tarjeta o PayPal al confirmar la reserva."
+msgstr ""
+"We accept secure online payment by card or PayPal upon confirming your "
+"booking."
 
 #: includes/class-seo.php:315
 msgid "Inicio"
@@ -6451,8 +6988,12 @@ msgstr "Your Agency"
 
 #: includes/class-shortcode-account.php:141
 #, php-format
-msgid "No bookings yet. Share your listing and start receiving reservations. Commission: %s%%"
-msgstr "No bookings yet. Share your listing and start receiving reservations. Commission: %s%%"
+msgid ""
+"No bookings yet. Share your listing and start receiving reservations. "
+"Commission: %s%%"
+msgstr ""
+"No bookings yet. Share your listing and start receiving reservations. "
+"Commission: %s%%"
 
 #: includes/class-shortcode-account.php:148
 msgid "Verified agency"
@@ -6566,8 +7107,12 @@ msgid "Disponibles: %d de %d · %s/mes por listado"
 msgstr "Available: %d of %d · %s/month per listing"
 
 #: includes/class-shortcode-account.php:429
-msgid "Tu plan actual no incluye listados destacados. Mejora tu plan para destacar tus servicios en la plataforma."
-msgstr "Your current plan does not include featured listings. Upgrade your plan to feature your services on the platform."
+msgid ""
+"Tu plan actual no incluye listados destacados. Mejora tu plan para destacar "
+"tus servicios en la plataforma."
+msgstr ""
+"Your current plan does not include featured listings. Upgrade your plan to "
+"feature your services on the platform."
 
 #: includes/class-shortcode-account.php:433
 msgid "Aún no tienes listados publicados para destacar."
@@ -6607,8 +7152,12 @@ msgid "Liquidaciones de comisiones"
 msgstr "Commission settlements"
 
 #: includes/class-shortcode-account.php:507
-msgid "Aún no hay liquidaciones registradas. El administrador procesa los pagos de tus comisiones."
-msgstr "No settlements recorded yet. The administrator processes your commission payments."
+msgid ""
+"Aún no hay liquidaciones registradas. El administrador procesa los pagos de "
+"tus comisiones."
+msgstr ""
+"No settlements recorded yet. The administrator processes your commission "
+"payments."
 
 #: includes/class-shortcode-account.php:551
 msgid "Disputas de tus reservas"
@@ -6619,7 +7168,8 @@ msgid "No hay disputas en tus reservas."
 msgstr "There are no disputes on your bookings."
 
 #: includes/class-shortcode-account.php:584
-msgid "Mientras una disputa está abierta, la comisión de esa reserva queda retenida."
+msgid ""
+"Mientras una disputa está abierta, la comisión de esa reserva queda retenida."
 msgstr "While a dispute is open, that booking's commission is held."
 
 #: includes/class-shortcode-account.php:589
@@ -6682,8 +7232,12 @@ msgid "Seleccionar plan"
 msgstr "Select plan"
 
 #: includes/class-shortcode-account.php:771
-msgid "Tu agencia usa el plan Gratis. Elige un plan para desbloquear más listados y una comisión menor."
-msgstr "Your agency uses the Free plan. Choose a plan to unlock more listings and a lower commission."
+msgid ""
+"Tu agencia usa el plan Gratis. Elige un plan para desbloquear más listados y "
+"una comisión menor."
+msgstr ""
+"Your agency uses the Free plan. Choose a plan to unlock more listings and a "
+"lower commission."
 
 #: includes/class-shortcode-account.php:773
 msgid "Inicia sesión como agencia para seleccionar un plan."
@@ -6706,8 +7260,12 @@ msgid "Registra tu agencia"
 msgstr "Register your agency"
 
 #: includes/class-shortcode-account.php:904
-msgid "Crea una cuenta de agencia, publica tus alojamientos y tours, y empieza a recibir reservas de miles de viajeros."
-msgstr "Create an agency account, publish your accommodations and tours, and start receiving bookings from thousands of travelers."
+msgid ""
+"Crea una cuenta de agencia, publica tus alojamientos y tours, y empieza a "
+"recibir reservas de miles de viajeros."
+msgstr ""
+"Create an agency account, publish your accommodations and tours, and start "
+"receiving bookings from thousands of travelers."
 
 #: includes/class-shortcode-account.php:911
 msgid "Agency Name"
@@ -6730,16 +7288,24 @@ msgid "Identificación (verificación de la agencia)"
 msgstr "Identity (agency verification)"
 
 #: includes/class-shortcode-account.php:956
-msgid "Tus datos de identificación solo los revisa el administrador para aprobar tu agencia."
-msgstr "Your identity data is only reviewed by the administrator to approve your agency."
+msgid ""
+"Tus datos de identificación solo los revisa el administrador para aprobar tu "
+"agencia."
+msgstr ""
+"Your identity data is only reviewed by the administrator to approve your "
+"agency."
 
 #: includes/class-shortcode-account.php:971
 msgid "Cédula"
 msgstr "Cédula (ID number)"
 
 #: includes/class-shortcode-account.php:979
-msgid "Confirmo que los datos son verídicos y acepto los términos y condiciones de verificación."
-msgstr "I confirm the data is truthful and I accept the verification terms and conditions."
+msgid ""
+"Confirmo que los datos son verídicos y acepto los términos y condiciones de "
+"verificación."
+msgstr ""
+"I confirm the data is truthful and I accept the verification terms and "
+"conditions."
 
 #: includes/class-shortcode-account.php:988
 #: includes/class-shortcode-account.php:1013
@@ -6757,8 +7323,12 @@ msgid "Asistente de viajes"
 msgstr "Travel assistant"
 
 #: includes/class-shortcode-account.php:1051 travel-agency-platform.php:253
-msgid "¡Hola! Soy el asistente de viajes. Pregunta por alojamientos, tours, bonos o agencias, o toca una sugerencia."
-msgstr "Hi! I am the travel assistant. Ask about stays, tours, vouchers or agencies, or tap a suggestion."
+msgid ""
+"¡Hola! Soy el asistente de viajes. Pregunta por alojamientos, tours, bonos o "
+"agencias, o toca una sugerencia."
+msgstr ""
+"Hi! I am the travel assistant. Ask about stays, tours, vouchers or agencies, "
+"or tap a suggestion."
 
 #: includes/class-shortcode-account.php:1059
 #: includes/class-shortcode-account.php:1060 travel-agency-platform.php:251
@@ -6893,7 +7463,9 @@ msgid "Payment was cancelled. You can try again."
 msgstr "Payment was cancelled. You can try again."
 
 #: includes/class-shortcode-booking.php:298
-msgid "Para pagar tu reserva, verifica el correo electrónico con el que la realizaste."
+msgid ""
+"Para pagar tu reserva, verifica el correo electrónico con el que la "
+"realizaste."
 msgstr "To pay for your booking, verify the email you used to make it."
 
 #: includes/class-shortcode-booking.php:302
@@ -6917,8 +7489,12 @@ msgid "View voucher"
 msgstr "View voucher"
 
 #: includes/class-shortcode-booking.php:326
-msgid "Tu solicitud de reserva está pendiente de confirmación de la agencia. Te avisaremos por correo cuando sea aceptada para que completes el pago."
-msgstr "Your booking request is pending confirmation from the agency. We will email you once it is accepted so you can complete payment."
+msgid ""
+"Tu solicitud de reserva está pendiente de confirmación de la agencia. Te "
+"avisaremos por correo cuando sea aceptada para que completes el pago."
+msgstr ""
+"Your booking request is pending confirmation from the agency. We will email "
+"you once it is accepted so you can complete payment."
 
 #: includes/class-shortcode-booking.php:330
 msgid "Esta reserva fue cancelada o rechazada y ya no puede pagarse."
@@ -6970,7 +7546,8 @@ msgid "Ya pagaste %1$s de %2$s. El saldo pendiente es de %3$s."
 msgstr "You already paid %1$s of %2$s. The outstanding balance is %3$s."
 
 #: includes/class-shortcode-booking.php:371
-msgid "Un intento de pago anterior falló. Reinicia el pago y vuelve a intentarlo."
+msgid ""
+"Un intento de pago anterior falló. Reinicia el pago y vuelve a intentarlo."
 msgstr "A previous payment attempt failed. Restart the payment and try again."
 
 #: includes/class-shortcode-booking.php:373
@@ -7011,8 +7588,12 @@ msgid "An error occurred with PayPal."
 msgstr "An error occurred with PayPal."
 
 #: includes/class-shortcode-booking.php:456
-msgid "Online payment is temporarily unavailable. Your reservation is registered and will be confirmed by the agency."
-msgstr "Online payment is temporarily unavailable. Your reservation is registered and will be confirmed by the agency."
+msgid ""
+"Online payment is temporarily unavailable. Your reservation is registered "
+"and will be confirmed by the agency."
+msgstr ""
+"Online payment is temporarily unavailable. Your reservation is registered "
+"and will be confirmed by the agency."
 
 #: includes/class-shortcode-booking.php:475
 msgid "Enter your booking code to view the detail and voucher."
@@ -7040,8 +7621,10 @@ msgid "El correo introducido no coincide con el de la reserva."
 msgstr "The email entered does not match the one on the booking."
 
 #: includes/class-shortcode-booking.php:563
-msgid "Disputa abierta. La comisión de esta reserva queda retenida hasta resolver."
-msgstr "Dispute opened. This booking's commission is held until it is resolved."
+msgid ""
+"Disputa abierta. La comisión de esta reserva queda retenida hasta resolver."
+msgstr ""
+"Dispute opened. This booking's commission is held until it is resolved."
 
 #: includes/class-shortcode-booking.php:576
 msgid "night"
@@ -7080,8 +7663,12 @@ msgid "Ref"
 msgstr "Ref"
 
 #: includes/class-shortcode-booking.php:625
-msgid "Tu solicitud está pendiente de confirmación de la agencia. Te avisaremos por correo cuando sea aceptada para que completes el pago."
-msgstr "Your request is pending agency confirmation. We will notify you by email once it is accepted so you can complete the payment."
+msgid ""
+"Tu solicitud está pendiente de confirmación de la agencia. Te avisaremos por "
+"correo cuando sea aceptada para que completes el pago."
+msgstr ""
+"Your request is pending agency confirmation. We will notify you by email "
+"once it is accepted so you can complete the payment."
 
 #: includes/class-shortcode-booking.php:633
 msgid "Operada por"
@@ -7108,25 +7695,42 @@ msgid "Huésped de contacto"
 msgstr "Contact guest"
 
 #: includes/class-shortcode-booking.php:717
-msgid "Presenta este voucher el día del check-in. Cualquier cambio debe gestionarse con la agencia."
-msgstr "Show this voucher on the day of check-in. Any changes must be arranged with the agency."
+msgid ""
+"Presenta este voucher el día del check-in. Cualquier cambio debe gestionarse "
+"con la agencia."
+msgstr ""
+"Show this voucher on the day of check-in. Any changes must be arranged with "
+"the agency."
 
 #: includes/class-shortcode-booking.php:721
 #, php-format
-msgid "Consulta nuestro <a href=\"%s\" target=\"_blank\" rel=\"noopener\">Aviso de Privacidad</a> para saber cómo tratamos tus datos y cómo ejercer tus derechos."
-msgstr "Read our <a href=\"%s\" target=\"_blank\" rel=\"noopener\">Privacy Notice</a> to learn how we process your data and how to exercise your rights."
+msgid ""
+"Consulta nuestro <a href=\"%s\" target=\"_blank\" rel=\"noopener\">Aviso de "
+"Privacidad</a> para saber cómo tratamos tus datos y cómo ejercer tus "
+"derechos."
+msgstr ""
+"Read our <a href=\"%s\" target=\"_blank\" rel=\"noopener\">Privacy Notice</"
+"a> to learn how we process your data and how to exercise your rights."
 
 #: includes/class-shortcode-booking.php:735
-msgid "Hay una disputa abierta para esta reserva. El equipo revisará el caso y la resolverá lo antes posible."
-msgstr "There is an open dispute on this booking. Our team will review the case and resolve it as soon as possible."
+msgid ""
+"Hay una disputa abierta para esta reserva. El equipo revisará el caso y la "
+"resolverá lo antes posible."
+msgstr ""
+"There is an open dispute on this booking. Our team will review the case and "
+"resolve it as soon as possible."
 
 #: includes/class-shortcode-booking.php:739
 msgid "Abrir una disputa"
 msgstr "Open a dispute"
 
 #: includes/class-shortcode-booking.php:740
-msgid "Si el servicio no coincidió con lo prometido, cuéntanos qué pasó. Revisaremos tu reserva y ayudaremos a resolverlo."
-msgstr "If the service did not match what was promised, tell us what happened. We will review your booking and help sort it out."
+msgid ""
+"Si el servicio no coincidió con lo prometido, cuéntanos qué pasó. "
+"Revisaremos tu reserva y ayudaremos a resolverlo."
+msgstr ""
+"If the service did not match what was promised, tell us what happened. We "
+"will review your booking and help sort it out."
 
 #: includes/class-shortcode-booking.php:745
 msgid "Motivo de la disputa"
@@ -7145,8 +7749,12 @@ msgid "Mensajes con tu agencia"
 msgstr "Messages with your agency"
 
 #: includes/class-shortcode-booking.php:771
-msgid "Aún no hay mensajes. Escribe para coordinar horarios o detalles con tu agencia."
-msgstr "There are no messages yet. Write to coordinate times or details with your agency."
+msgid ""
+"Aún no hay mensajes. Escribe para coordinar horarios o detalles con tu "
+"agencia."
+msgstr ""
+"There are no messages yet. Write to coordinate times or details with your "
+"agency."
 
 #: includes/class-shortcode-booking.php:781
 msgid "Escribe un mensaje para la agencia..."
@@ -7157,8 +7765,11 @@ msgid "Inicia sesión para ver tus favoritos."
 msgstr "Log in to view your favorites."
 
 #: includes/class-shortcode-booking.php:846
-msgid "Aún no tienes favoritos. Toca el corazón ♥ en cualquier servicio para guardarlo aquí."
-msgstr "You have no favorites yet. Tap the heart ♥ on any service to save it here."
+msgid ""
+"Aún no tienes favoritos. Toca el corazón ♥ en cualquier servicio para "
+"guardarlo aquí."
+msgstr ""
+"You have no favorites yet. Tap the heart ♥ on any service to save it here."
 
 #: includes/class-shortcode-booking.php:858
 msgid "No se encontraron servicios favoritos."
@@ -7205,8 +7816,12 @@ msgstr[0] "%d result found"
 msgstr[1] "%d results found"
 
 #: includes/class-shortcode-search.php:196
-msgid "No encontramos resultados para tu búsqueda. Probá con otro destino, palabra clave o ajustá los filtros."
-msgstr "We found no results for your search. Try another destination, keyword or adjust the filters."
+msgid ""
+"No encontramos resultados para tu búsqueda. Probá con otro destino, palabra "
+"clave o ajustá los filtros."
+msgstr ""
+"We found no results for your search. Try another destination, keyword or "
+"adjust the filters."
 
 #: includes/class-shortcode-search.php:205
 msgid "Todos los servicios"
@@ -7370,8 +7985,12 @@ msgid "The selected plan is not available."
 msgstr "The selected plan is not available."
 
 #: includes/class-subscriptions.php:141
-msgid "You already have a pending subscription. An administrator will confirm the payment."
-msgstr "You already have a pending subscription. An administrator will confirm the payment."
+msgid ""
+"You already have a pending subscription. An administrator will confirm the "
+"payment."
+msgstr ""
+"You already have a pending subscription. An administrator will confirm the "
+"payment."
 
 #: includes/class-subscriptions.php:152
 msgid "Awaiting manual payment confirmation"
@@ -7814,7 +8433,8 @@ msgid "La reserva ya inició."
 msgstr "The booking has already started."
 
 #: includes/class-reviews.php:83
-msgid "Solo puedes dejar reseñas después de una reserva confirmada o completada."
+msgid ""
+"Solo puedes dejar reseñas después de una reserva confirmada o completada."
 msgstr "You can only leave reviews after a confirmed or completed booking."
 
 #: includes/class-shortcodes.php:2160
@@ -8000,8 +8620,15 @@ msgstr "Transfers and transportation"
 msgid "Tu agencia está registrada"
 msgstr "Your agency is registered"
 
-msgid "Tu agencia <strong>%s</strong> ya forma parte de nuestra plataforma.<br><br>Ya puedes empezar a publicar tus servicios y recibir reservas. Accede a tu <a href=\"%s\" style=\"color:#0d9488;\">panel de agencia</a> para gestionarlas."
-msgstr "Your agency <strong>%s</strong> is now part of our platform.<br><br>You can start publishing your services and receiving bookings. Access your <a href=\"%s\" style=\"color:#0d9488;\">agency dashboard</a> to manage them."
+msgid ""
+"Tu agencia <strong>%s</strong> ya forma parte de nuestra plataforma."
+"<br><br>Ya puedes empezar a publicar tus servicios y recibir reservas. "
+"Accede a tu <a href=\"%s\" style=\"color:#0d9488;\">panel de agencia</a> "
+"para gestionarlas."
+msgstr ""
+"Your agency <strong>%s</strong> is now part of our platform.<br><br>You can "
+"start publishing your services and receiving bookings. Access your <a "
+"href=\"%s\" style=\"color:#0d9488;\">agency dashboard</a> to manage them."
 
 msgid "Tu nombre"
 msgstr "Your name"
@@ -8087,8 +8714,12 @@ msgstr "Dashboard"
 msgid "Discover Your Next Adventure"
 msgstr "Discover Your Next Adventure"
 
-msgid "Explore curated accommodations, tours, and travel experiences from trusted local agencies."
-msgstr "Explore curated accommodations, tours, and travel experiences from trusted local agencies."
+msgid ""
+"Explore curated accommodations, tours, and travel experiences from trusted "
+"local agencies."
+msgstr ""
+"Explore curated accommodations, tours, and travel experiences from trusted "
+"local agencies."
 
 msgid "Favorites"
 msgstr "Favorites"
@@ -8129,8 +8760,12 @@ msgstr "Hotels & Stays"
 msgid "Join as Agency"
 msgstr "Join as Agency"
 
-msgid "Join our community of travelers and discover amazing experiences curated by local experts."
-msgstr "Join our community of travelers and discover amazing experiences curated by local experts."
+msgid ""
+"Join our community of travelers and discover amazing experiences curated by "
+"local experts."
+msgstr ""
+"Join our community of travelers and discover amazing experiences curated by "
+"local experts."
 
 msgid "Log In"
 msgstr "Log In"
@@ -8228,8 +8863,12 @@ msgstr "Tell others about your experience..."
 msgid "Terms of Service"
 msgstr "Terms of Service"
 
-msgid "The page you are looking for might have been removed or is temporarily unavailable."
-msgstr "The page you are looking for might have been removed or is temporarily unavailable."
+msgid ""
+"The page you are looking for might have been removed or is temporarily "
+"unavailable."
+msgstr ""
+"The page you are looking for might have been removed or is temporarily "
+"unavailable."
 
 msgid "Toggle search"
 msgstr "Toggle search"
@@ -8261,8 +8900,12 @@ msgstr "Your rating"
 msgid "Your review"
 msgstr "Your review"
 
-msgid "Your trusted multi-agency travel platform. Discover, compare, and book the best travel experiences from verified local agencies."
-msgstr "Your trusted multi-agency travel platform. Discover, compare, and book the best travel experiences from verified local agencies."
+msgid ""
+"Your trusted multi-agency travel platform. Discover, compare, and book the "
+"best travel experiences from verified local agencies."
+msgstr ""
+"Your trusted multi-agency travel platform. Discover, compare, and book the "
+"best travel experiences from verified local agencies."
 
 msgid "day"
 msgstr "day"
@@ -8291,8 +8934,12 @@ msgstr "Verified agencies on the platform"
 msgid "Armá tu plan día a día con tours y alojamientos reales."
 msgstr "Build your day-by-day plan with real tours and stays."
 
-msgid "Aventura, naturaleza, gastronomía… cada interés abre una forma distinta de viajar por Costa Rica."
-msgstr "Adventure, nature, food… every interest opens a different way to travel Costa Rica."
+msgid ""
+"Aventura, naturaleza, gastronomía… cada interés abre una forma distinta de "
+"viajar por Costa Rica."
+msgstr ""
+"Adventure, nature, food… every interest opens a different way to travel "
+"Costa Rica."
 
 msgid "Comenzar mi itinerario"
 msgstr "Start my itinerary"
@@ -8360,8 +9007,11 @@ msgstr "Request your quote and book directly with the agency."
 msgid "Registrar mi agencia"
 msgstr "Register my agency"
 
-msgid "Servicios publicados por agencias verificadas, con precio claro y reserva directa."
-msgstr "Services listed by verified agencies, with clear pricing and direct booking."
+msgid ""
+"Servicios publicados por agencias verificadas, con precio claro y reserva "
+"directa."
+msgstr ""
+"Services listed by verified agencies, with clear pricing and direct booking."
 
 msgid "Solo agencias verificadas"
 msgstr "Only verified agencies"
@@ -8369,14 +9019,22 @@ msgstr "Only verified agencies"
 msgid "Soporte local"
 msgstr "Local support"
 
-msgid "Sumá tus servicios a la plataforma y llegá a viajeros que buscan experiencias reales."
-msgstr "List your services on the platform and reach travelers looking for real experiences."
+msgid ""
+"Sumá tus servicios a la plataforma y llegá a viajeros que buscan "
+"experiencias reales."
+msgstr ""
+"List your services on the platform and reach travelers looking for real "
+"experiences."
 
 msgid "Teléfono:"
 msgstr "Phone:"
 
-msgid "Tours, alojamientos y experiencias de agencias locales verificadas. Elegí tus intereses y armá tu propio itinerario."
-msgstr "Tours, stays and experiences from verified local agencies. Pick your interests and build your own itinerary."
+msgid ""
+"Tours, alojamientos y experiencias de agencias locales verificadas. Elegí "
+"tus intereses y armá tu propio itinerario."
+msgstr ""
+"Tours, stays and experiences from verified local agencies. Pick your "
+"interests and build your own itinerary."
 
 msgid "Tu itinerario, tu forma de viajar"
 msgstr "Your itinerary, your way to travel"
@@ -8453,3 +9111,44 @@ msgid ""
 msgstr ""
 "https://…\n"
 "https://…"
+
+msgid "Liquidación fallida"
+msgstr "Failed payout"
+
+msgid "No se pudo completar tu liquidación"
+msgstr "Your payout could not be completed"
+
+msgid ""
+"La liquidación de comisiones por <strong>%s</strong> (referencia #%d) no "
+"pudo completarse. Los montos volvieron a estado \"por cobrar\" para que "
+"puedas solicitarla de nuevo."
+msgstr ""
+"The commission payout for <strong>%s</strong> (reference #%d) could not be "
+"completed. The amounts went back to \"due\" so you can request it again."
+
+msgid "Nuevo mensaje de la agencia — reserva %s"
+msgstr "New message from the agency — booking %s"
+
+msgid "Tienes un nuevo mensaje"
+msgstr "You have a new message"
+
+msgid "La agencia escribió sobre tu reserva <strong>%s</strong>:"
+msgstr "The agency wrote about your booking <strong>%s</strong>:"
+
+msgid ""
+"<a href=\"%s\" style=\"color:#0d9488;\">Responde desde el detalle de la "
+"reserva</a>."
+msgstr ""
+"<a href=\"%s\" style=\"color:#0d9488;\">Reply from the booking detail</a>."
+
+msgid "Nuevo mensaje del huésped — reserva %s"
+msgstr "New message from the guest — booking %s"
+
+msgid "El huésped escribió sobre la reserva <strong>%s</strong>:"
+msgstr "The guest wrote about the booking <strong>%s</strong>:"
+
+msgid "<a href=\"%s\" style=\"color:#0d9488;\">Responde desde tu panel</a>."
+msgstr "<a href=\"%s\" style=\"color:#0d9488;\">Reply from your dashboard</a>."
+
+msgid "Aún no hay mensajes en esta conversación."
+msgstr "There are no messages in this conversation yet."

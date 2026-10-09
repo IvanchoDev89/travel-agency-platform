@@ -823,6 +823,7 @@ class TAP_Shortcode_Booking {
                             $box.find('.tap-empty').remove();
                             $box.append(res.data.row);
                             $ta.val('');
+                            chatCount = $box.find('.tap-chat-msg').length;
                         } else {
                             alert(res && res.data && res.data.message ? res.data.message : '<?php echo esc_js(__('Error', 'travel-agency-platform')); ?>');
                         }
@@ -830,6 +831,25 @@ class TAP_Shortcode_Booking {
                     .fail(function() { alert('<?php echo esc_js(__('Error', 'travel-agency-platform')); ?>'); })
                     .always(function() { $btn.prop('disabled', false); });
             });
+
+            var $chatWrap = $('.tap-voucher-chat'),
+                chatCount = $chatWrap.find('.tap-chat-thread .tap-chat-msg').length,
+                chatPoll = function() {
+                    var $form = $chatWrap.find('.tap-chat-form');
+                    if (!$form.length) return;
+                    var data = { action: 'tap_chat_client_thread', nonce: nonce, booking_id: $form.data('booking-id'), booking_code: $form.data('booking-code') };
+                    var gemail = $form.data('guest-email') || '';
+                    if (gemail) data.guest_email = gemail;
+                    $.post(tap_ajax.ajax_url, data).done(function(res) {
+                        if (!res || !res.success) return;
+                        var count = parseInt(res.data.count, 10) || 0;
+                        if (count === chatCount) return;
+                        chatCount = count;
+                        var $box = $chatWrap.find('.tap-chat-thread');
+                        $box.html(res.data.html || '<p class="tap-empty"><?php echo esc_js(__('Aún no hay mensajes. Escribe para coordinar horarios o detalles con tu agencia.', 'travel-agency-platform')); ?></p>');
+                    });
+                };
+            if ($chatWrap.length) { setInterval(chatPoll, 15000); }
         })(jQuery);
         </script>
         <?php

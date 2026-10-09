@@ -159,7 +159,7 @@
             }
             var $thread = $row.find('.tap-chat-thread');
             $thread.html(res.data.html || '<p class="tap-empty">' + (cfg.i18n && cfg.i18n.no_messages || '') + '</p>');
-            $row.data('loaded', 1).show();
+            $row.data('loaded', 1).data('count', parseInt(res.data.count, 10) || 0).show();
             $btn.find('.tap-chat-badge').remove();
             var $tail = $thread.find('.tap-chat-msg:last');
             if ($tail.length) {
@@ -186,10 +186,13 @@
             message:    msg
         }).done(function (res) {
             if (res && res.success) {
-                var $thread = $form.closest('.tap-chat-wrap').find('.tap-chat-thread');
+                var $wrap   = $form.closest('.tap-chat-wrap');
+                var $thread = $wrap.find('.tap-chat-thread');
                 $thread.find('.tap-empty').remove();
                 $thread.append(res.data.row);
                 $ta.val('');
+                var $row = $form.closest('.tap-chat-row');
+                $row.data('count', ($thread.find('.tap-chat-msg').length));
             } else {
                 alert(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error));
             }
@@ -199,6 +202,66 @@
             $btn.prop('disabled', false);
         });
     });
+
+    /* ── Agency back-office: live chat refresh ─────────────────────── */
+    function tapChatBadge(total) {
+        total = parseInt(total, 10) || 0;
+        var $badge = $('[data-tap-chat-nav]');
+        if (!$badge.length) {
+            return;
+        }
+        if (total > 0) {
+            $badge.text(total).prop('hidden', false);
+        } else {
+            $badge.text('').prop('hidden', true);
+        }
+    }
+
+    function tapChatPoll() {
+        if (!cfg.ajax_url) {
+            return;
+        }
+        $.post(cfg.ajax_url, { action: 'tap_dash_chat_unread', nonce: cfg.nonce })
+            .done(function (res) {
+                if (res && res.success) {
+                    tapChatBadge(res.data.total);
+                }
+            });
+
+        $('.tap-chat-row:visible').each(function () {
+            var $row = $(this);
+            var seen = parseInt($row.data('count'), 10) || 0;
+            $.post(cfg.ajax_url, {
+                action:     'tap_dash_chat_thread',
+                nonce:      cfg.nonce,
+                booking_id: $row.data('id')
+            }).done(function (res) {
+                if (!res || !res.success) {
+                    return;
+                }
+                var count = parseInt(res.data.count, 10) || 0;
+                if (count === seen) {
+                    return;
+                }
+                var $thread = $row.find('.tap-chat-thread');
+                var $doc = $(document);
+                var nearBottom = ($doc.scrollTop() + window.innerHeight + 120) >= $doc.height();
+                $thread.html(res.data.html || '<p class="tap-empty">' + (cfg.i18n && cfg.i18n.no_messages || '') + '</p>');
+                $row.data('count', count);
+                $row.find('.tap-chat-badge').remove();
+                if (nearBottom) {
+                    var $tail = $thread.find('.tap-chat-msg:last');
+                    if ($tail.length) {
+                        $tail[0].scrollIntoView({ block: 'nearest' });
+                    }
+                }
+            });
+        });
+    }
+
+    if ($('[data-tap-chat-nav], .tap-chat-row').length) {
+        setInterval(tapChatPoll, 15000);
+    }
 
     /* ── Agency back-office: payout request ───────────────────────── */
     $(document).on('submit', '#tap-bo-payout', function (e) {

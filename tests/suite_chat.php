@@ -25,6 +25,9 @@ tap_t_assert(in_array('booking_id', $cols, true)
     && in_array('message', $cols, true)
     && in_array('is_read', $cols, true), 'chat schema columns migrated');
 tap_t_assert(get_option('tap_version') === TAP_VERSION, 'tap_version option current');
+tap_t_assert((bool) has_action('wp_ajax_tap_chat_client_thread', ['TAP_Ajax', 'chat_client_thread']), 'live chat: client thread endpoint registered');
+tap_t_assert((bool) has_action('wp_ajax_nopriv_tap_chat_client_thread', ['TAP_Ajax', 'chat_client_thread']), 'live chat: guest thread endpoint registered');
+tap_t_assert((bool) has_action('wp_ajax_tap_dash_chat_unread', ['TAP_Front_Dash', 'ajax_chat_unread']), 'live chat: agency unread endpoint registered');
 
 // --- fixtures -----------------------------------------------------------------------
 $u = tap_t_make_subscriber();
@@ -63,6 +66,19 @@ tap_t_assert((int) TAP_Chat::unread_for($bk, 'agency') === 0, 'agency read clear
 tap_t_assert((int) TAP_Chat::unread_for($bk, 'client') === 1, 'client unread counts agency reply');
 TAP_Chat::mark_read($bk, 'client');
 tap_t_assert((int) TAP_Chat::unread_for($bk, 'client') === 0, 'client read clears agency-authored');
+
+// --- global agency unread total (live nav badge) ----------------------------------------
+$agency = (int) tap_t_test_agency();
+$baseline = TAP_Chat::unread_total_for_agency($agency);
+tap_t_assert(TAP_Chat::unread_total_for_agency(0) === 0, 'global unread total ignores invalid agency');
+TAP_Chat::send($bk, 'client', $u, 'Marcelo', 'Mensaje A');
+TAP_Chat::send($gid, 'client', 0, 'Ana Viajera', 'Mensaje B');
+$total = TAP_Chat::unread_total_for_agency($agency);
+tap_t_assert($total === $baseline + 2, 'global unread total counts new client messages across bookings');
+TAP_Chat::mark_read($bk, 'agency');
+TAP_Chat::mark_read($gid, 'agency');
+tap_t_assert(TAP_Chat::unread_total_for_agency($agency) === $baseline, 'global unread total drops after reading the threads');
+tap_t_assert(TAP_Chat::last_id($bk) > 0 && TAP_Chat::last_id($gid) > 0, 'last_id resolves per thread');
 
 // --- ownership guards --------------------------------------------------------------------
 $wk = $wpdb->get_var($wpdb->prepare("SELECT guest_email FROM {$b} WHERE id=%d", $bk));

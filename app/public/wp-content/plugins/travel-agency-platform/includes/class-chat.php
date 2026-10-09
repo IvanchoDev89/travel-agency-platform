@@ -82,6 +82,34 @@ class TAP_Chat {
         ));
     }
 
+    /**
+     * Unread guest messages across every booking that belongs to an agency.
+     * Powers the global badge in the agency back-office.
+     */
+    public static function unread_total_for_agency($agency_id) {
+        global $wpdb;
+        $agency_id = (int) $agency_id;
+        if ($agency_id <= 0) {
+            return 0;
+        }
+        $bookings = $wpdb->prefix . 'tap_bookings';
+        return (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(m.id) FROM " . self::table() . " m
+             INNER JOIN {$bookings} b ON b.id = m.booking_id
+             WHERE b.agency_id = %d AND m.author_type = 'client' AND m.is_read = 0",
+            $agency_id
+        ));
+    }
+
+    /** Last message id of a thread (0 when empty). Used by the polling clients. */
+    public static function last_id($booking_id) {
+        global $wpdb;
+        return (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT MAX(id) FROM " . self::table() . " WHERE booking_id = %d",
+            (int) $booking_id
+        ));
+    }
+
     /** Mark the reader's perspective as seen (clears the other side's flags). */
     public static function mark_read($booking_id, $reader_type) {
         global $wpdb;
