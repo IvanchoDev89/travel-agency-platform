@@ -1,6 +1,7 @@
 # FASE 4 — Atención por chatbot & moderación de contenido
 
-> Estado del documento: **COMPLETADA** (lotes A, B y C, batería 20/20 en travel e ivanchodev, 0 residuos, commits por lote: `2d3c9c2`, `0cdc47e`, y el commit de cierre de C).
+> Estado del documento: **ARCHIVADO / HISTÓRICO — COMPLETADA** (lotes A, B y C, batería 20/20 en travel e ivanchodev, 0 residuos, commits por lote: `2d3c9c2`, `0cdc47e`, y el commit de cierre de C).
+> Se conserva como referencia del roadmap; el estado vigente y las versiones entregadas viven en [`CHANGELOG.md`](CHANGELOG.md).
 > Anexa a [`FASE1_PLAN.md`](FASE1_PLAN.md) (roadmap: Fase 3 multilingüe completada).
 
 ## 0. Resumen ejecutivo

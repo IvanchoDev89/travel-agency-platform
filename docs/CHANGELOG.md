@@ -6,6 +6,68 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.11] — 2026-10-08
+
+### Added
+
+- **Chat en vivo (auto-refresh)**: el hilo del huésped se refresca solo (nuevo endpoint `tap_chat_client_thread`, priv + nopriv) y la agencia obtiene un contador global de no leídos (`tap_dash_chat_unread` + badge rojo en la nav *Operaciones*, oculto a empleados). El polling (cada 15 s) solo reemplaza el hilo cuando cambia el número de mensajes.
+- `TAP_Chat::unread_total_for_agency()` (total de mensajes del huésped sin leer en todas las reservas de la agencia) y `TAP_Chat::last_id()`.
+- `suite_chat` cubre los nuevos endpoints y el total global por agencia.
+- i18n: nueva cadena de conversación vacía en ambos catálogos.
+
+### Changed
+
+- `ajax_chat_thread` devuelve ahora `count` y `last_id` para el refresco selectivo.
+
+## [1.5.10] — 2026-10-08
+
+### Added
+
+- **Emails de flujo**: `TAP_Emails::on_payout_failed` avisa a la agencia cuando una liquidación no llega a completarse (dispara en `tap_payout_failed` y anexa el motivo a la nota); `on_chat_message_sent` avisa a la contraparte del chat por reserva (huésped → agencia y agencia → huésped).
+- **Analytics — embudo de reservas**: `TAP_Analytics::booking_funnel()` deriva 4 etapas de tablas existentes (vistas de listados → reservas creadas → confirmadas → pagadas) con conversión por paso y % del total, en la página de Analytics respetando el filtro de meses.
+- `suite_analytics` cubre el render y la forma de los datos del embudo; `suite_emails` cubre ambos hooks de email.
+
+### Changed
+
+- `TAP_Payouts::fail()` lee la nota existente para anexarla en lugar de sobrescribirla.
+
+### Fixed
+
+- **i18n**: POT regenerado (1818 msgids) y catálogos en_US (2031) / es_ES (2073) puestos al día (el en_US estaba congelado en v1.5.5). Se conservan por unión los msgids que `make-pot` marca obsoletos (strings del chatbot vía `__($spec['reply'])`) para no romper traducciones en runtime.
+
+## [1.5.9] — 2026-10-08
+
+### Added
+
+- **Mensajería huésped ↔ agencia por reserva** (`TAP_Chat` + tabla `tap_chat_messages`): sección "Mensajes con tu agencia" en el voucher (cliente o huésped verificado por email), y en el back-office de agencia un botón *Chat* con badge de no leídos + fila expandible en la tabla de reservas. AJAX `tap_chat_client_send` (nopriv con guard de propiedad) y `tap_dash_chat_thread`/`tap_dash_chat_send`.
+- Lectura **por lado**: `mark_read` solo limpia lo escrito por el otro bando y `unread_for` cuenta los mensajes del bando contrario.
+- `TAP_Booking::user_can_manage_booking()` como guard de propiedad reutilizable.
+- `suite_chat` (validación, persistencia, orden, no-leídos cruzados, guardas de propiedad y render del voucher).
+
+## [1.5.8] — 2026-10-08
+
+### Added
+
+- **Wizard B2B de alojamiento (5 pasos)** en el back-office de agencia: Información → Unidades → Precios y disponibilidad → Políticas → Publicar, con calendario de precios/disponibilidad (`agency-calendar.js`/`.css`) y carga de imágenes. `TAP_Pricing` refactorizado en núcleo compartido (`month_data`, `save_cell`, `can_manage_room`) con nuevos endpoints de agencia `tap_agency_get_pricing`/`tap_agency_save_pricing` (single o bulk).
+- **Retry de pago por saldo restante**: nueva columna `amount_paid`; `record_paid_capture()` acumula lo abonado y completa al alcanzar el total; `create_order()` cobra solo el saldo pendiente y rechaza `already_paid` (protege contra recobrar el total).
+- **Auto-cancel de `request` sin respuesta** y **motivo de rechazo**: nueva columna `cancel_reason`, persistida al cancelar/rechazar y mostrada al huésped y en el back-office; los emails de cancelación incluyen el motivo.
+- **Landing / SEO (tema)**: hub de conocimiento, hero con vídeo (Pexels) y schema (`Organization`/`WebSite`/`FAQPage`/`BlogPosting`).
+
+### Changed
+
+- **Refactor — división de god-classes**: `TAP_Shortcodes` (4598 líneas) → `TAP_Listing_Editor`, `TAP_Shortcode_Search`, `TAP_Shortcode_Booking`, `TAP_Shortcode_Account` + core de helpers; `TAP_Dashboard` (2266 líneas) → `TAP_Dashboard_Bookings`, `TAP_Dashboard_Money`, `TAP_Dashboard_Content`, `TAP_Dashboard_Insights`, `TAP_Dashboard_Settings` + core.
+- **Máquina de estados del dinero**: `completed` + pagada ya no puede pasar a `cancelled` (solo a `refunded`); `mark_paid` de admin cubre reservas `completed` atascadas en pago `pending`/`partial`/`failed` (idempotente).
+- **i18n**: idioma fuente ES unificado en labels, cabeceras CSV y privacidad (`__()`).
+- Rendimiento de roles: `TAP_Roles::setup` corre una sola vez por versión del catálogo.
+
+### Fixed
+
+- `ajax_get_pricing` exige `can_manage_room` (antes exponía precios/calendario de alojamientos ajenos solo con el nonce).
+- Seeds `seed_tour_types`/`migrate_tour_difficulty` corren una vez (antes ~24 queries por request vía `init`).
+- Índices + backfill idempotente (`tap_bookings(agency_id, created_at)`, `tap_reviews(...)`, `commission_payments(status)`); autocompletado con `LIKE 'prefijo%'`; `wp_count_posts` del dashboard cacheado 10 min; validación y `LIMIT` en REST.
+- Emails que faltaban: cancelación (huésped + agencia), pago aprobado (agencia), payout solicitado (admin) y refund retry (admin).
+- `add_meta_box` en front-end y rewrite rules del tema (`/accommodation/`, `/tour/`, `/destination/` devolvían 404).
+
 ## [1.5.7] — 2026-09-18
 
 ### Added

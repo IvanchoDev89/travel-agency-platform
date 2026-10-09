@@ -1,7 +1,8 @@
 # FASE 1 — Registro público multiagencia & flujo de conversión
 ## Plan técnico detallado (basado en auditoría real del código, v1.3.0)
 
-> Estado del documento: **EN EJECUCIÓN — P1–P4 COMPLETADOS; deuda técnica (Fase B) y batería de crítica (Fase C) CERRADAS**.
+> Estado del documento: **ARCHIVADO / HISTÓRICO — P1–P4 COMPLETADOS; deuda técnica (Fase B) y batería de crítica (Fase C) CERRADAS**.
+> Se conserva como referencia del roadmap; el estado vigente y las versiones entregadas viven en [`CHANGELOG.md`](CHANGELOG.md).
 > Verificado en travel e ivanchodev (17/17 suites verdes, 0 residuos).
 > **Post-auditoría UI/UX (lotes 1–6, commits `a326f3b`→`305c9d6`)**: batería ampliada a 18 suites,
 > verificada en ambos sitios (18/18 verdes, 0 residuos) tras cada lote. Véase CHANGELOG.

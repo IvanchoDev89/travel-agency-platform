@@ -28,8 +28,8 @@ Built as a custom WordPress plugin (`travel-agency-platform`) paired with a dedi
 | **Product** | Travel Agency Platform |
 | **Type** | WordPress plugin + companion theme |
 | **Model** | B2B & B2C multi-agency marketplace |
-| **Current version** | `1.5.7` |
-| **Schema version** | `1.5.7` |
+| **Current version** | `1.5.11` |
+| **Schema version** | `1.5.11` |
 | **Text domain** | `travel-agency-platform` |
 | **Companion theme** | `travel-agency-theme` |
 | **License** | Proprietary (IvanchoDev) |
@@ -57,6 +57,7 @@ The platform orchestrates three core actors:
 - **Guest checkout** — logged-out visitors book, pay and manage their reservation using `?code=` + their email, with per email+IP rate limiting (max 5 per 15 minutes; a short-lived payment token lets them pay on `/checkout`).
 - **Client-side cancellation** with ownership enforcement and lifecycle guards (`pending`/`request`/`confirmed` before check-in → `cancelled`, past stays refused; guest cancels by **booking code + email**, legacy booking **ID + email**). A paid client cancellation triggers a real PayPal refund (failed refunds are retried daily by cron); **agency operators cannot cancel paid bookings on their own** — only an administrator can (with a real PayPal refund).
 - Automatic cancellation of **stale `pending` bookings** via a scheduled maintenance task; past **paid** bookings auto-complete; failed refunds are retried daily.
+- **Guest ↔ agency messaging** per booking: client thread on the voucher and an agency inbox with per-side unread counters, live auto-refresh of the guest thread, and a global unread badge in the agency panel.
 
 ### Pricing & Money
 - Multi-currency display with configurable symbols and **decimal rules** (e.g. JPY → 0 decimals).
@@ -67,7 +68,11 @@ The platform orchestrates three core actors:
 ### Payments
 - **PayPal** order creation and capture via AJAX (`create` / `capture`).
 - Payment-status lifecycle independent of booking status.
+- **Partial-payment retry**: `amount_paid` tracks what was paid, top-up orders charge only the remaining balance (guarding against double-charging), with retry after a failed payment.
 - Sandbox configuration for development.
+
+### Analytics
+- **Booking funnel** (listing views → bookings created → confirmed → paid) with per-step conversion and share of total, filterable by month range in the admin Analytics page.
 
 ### Reviews & Trust
 - Star ratings with average aggregation; **only confirmed/completed + paid** bookings may leave a review (verified badge).
@@ -83,6 +88,7 @@ The platform orchestrates three core actors:
 
 ### Agencies & Monetization
 - Self-service inventory manager for all **six service types** (plan-limit and ownership enforced).
+- **5-step B2B accommodation wizard** (info → units → pricing/availability → policies → publish) with a per-room daily price/availability calendar and image uploader.
 - **Contact leads** from visitors with mandatory GDPR/Ley 8968 **consent**, automated spam/moderation engine, rate limits (5 email/h, 10 IP/h), masked public display until confirmation, attribution until a booking is confirmed, and CSV export.
 - Agency **KYC** (approval/rejection/verification/activation/deactivation, commission % per agency).
 - Agency subscriptions (`tap_plans`) with commission overrides, **PayPal** online payment and featured-promotion slots.
@@ -132,7 +138,11 @@ travel-agency/
 │   ├── AGENCY_GUIDE.md                 # Agency manual (agency admin & employees)
 │   ├── ADMIN_GUIDE.md                  # Administrator manual (back office)
 │   ├── DEVELOPER_GUIDE.md              # Architecture, schema, hooks, APIs
+│   ├── FASE1_PLAN.md                   # Historical roadmap plan (completed)
+│   ├── FASE4_PLAN.md                   # Historical roadmap plan (completed)
 │   └── CHANGELOG.md                    # Version history
+├── tests/                              # E2E suites + runner (run.sh)
+├── tools/                              # Maintenance scripts (i18n, lint)
 └── app/
     └── public/wp-content/
         ├── plugins/travel-agency-platform/   # The plugin
@@ -150,9 +160,30 @@ travel-agency/
 | [`docs/AGENCY_GUIDE.md`](docs/AGENCY_GUIDE.md) | Agency staff | Register, publish inventory, manage bookings, leads, commissions and plans. |
 | [`docs/ADMIN_GUIDE.md`](docs/ADMIN_GUIDE.md) | Administrators | Full back office: bookings, commissions, reviews, moderation, disputes, agencies, reports, analytics, plans/promotions, settings, discounts and privacy. |
 | [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md) | Developers | Architecture, database schema, custom hooks, AJAX and REST APIs, and shortcodes. |
-| [`docs/FASE1_PLAN.md`](docs/FASE1_PLAN.md) | Product/engineering | Technical plan for the multi-agency marketplace roadmap (P1–P4 status). |
+| [`docs/FASE1_PLAN.md`](docs/FASE1_PLAN.md) | Product/engineering | Historical roadmap plan (multi-agency marketplace, P1–P4). Completed; superseded by the changelog. |
+| [`docs/FASE4_PLAN.md`](docs/FASE4_PLAN.md) | Product/engineering | Historical plan for the support chatbot & content moderation. Completed; superseded by the changelog. |
 | [`docs/INTEGRATION_PLAN.md`](docs/INTEGRATION_PLAN.md) | Integrators | How to embed the plugin into an existing WordPress site (child-theme strategy). |
 | [`docs/CHANGELOG.md`](docs/CHANGELOG.md) | All | Released improvements and fixes by version. |
+
+---
+
+## Development & QA
+
+Requires PHP >= 8.1 and [Composer](https://getcomposer.org/).
+
+```bash
+composer install      # installs PHPCS + PHPStan dev tooling
+composer analyse      # PHPStan (level 1) — must stay green
+composer lint         # PHP_CodeSniffer with the WordPress standard
+composer lint:fix     # auto-fix what PHPCS can
+TAP_TEST_ALLOW_DB_WRITES=1 ./tests/run.sh   # E2E suites against a real WP install
+```
+
+- **Static analysis** — PHPStan level 1 with the WordPress stubs (`phpstan.neon.dist`); the `TAP_*`/WP constants come from `tools/phpstan-bootstrap.php`.
+- **Coding standards** — the `WordPress` ruleset trimmed to correctness, security, database and i18n sniffs (`.phpcs.xml.dist`); the report is informational while the pre-existing debt is burned down.
+- **Tests** — the E2E suites in `tests/` run against a real WordPress + MySQL install (they modify data, hence the guard flag).
+- **Translations** — `tools/i18n.sh` regenerates the POT and refreshes/compiles the `es_ES` and `en_US` catalogs without dropping curated entries.
+- **CI** — `.github/workflows/ci.yml` runs PHPStan (blocking) and PHPCS (informational) on every push and pull request.
 
 ---
 
@@ -161,7 +192,7 @@ travel-agency/
 This project follows **semantic versioning** (`MAJOR.MINOR.PATCH`).
 
 - **Plugin constant**: `TAP_VERSION` (defined in `travel-agency-platform.php`).
-- **Schema version**: `tap_db_version` option; the installer runs idempotent migrations when the version changes.
+- **Schema version**: `tap_version` option; `TAP_Installer::create_tables()` runs idempotent migrations when the option differs from `TAP_VERSION`.
 
 See [`docs/CHANGELOG.md`](docs/CHANGELOG.md) for the full history and [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md#database-migrations) for the migration mechanism.
 
