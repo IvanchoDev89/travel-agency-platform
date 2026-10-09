@@ -833,6 +833,10 @@ class TAP_Shortcode_Booking {
             });
 
             var $chatWrap = $('.tap-voucher-chat'),
+                chatBase = 15000,
+                chatMax = 120000,
+                chatDelay = chatBase,
+                chatTimer = null,
                 chatCount = $chatWrap.find('.tap-chat-thread .tap-chat-msg').length,
                 chatPoll = function() {
                     var $form = $chatWrap.find('.tap-chat-form');
@@ -840,16 +844,36 @@ class TAP_Shortcode_Booking {
                     var data = { action: 'tap_chat_client_thread', nonce: nonce, booking_id: $form.data('booking-id'), booking_code: $form.data('booking-code') };
                     var gemail = $form.data('guest-email') || '';
                     if (gemail) data.guest_email = gemail;
-                    $.post(tap_ajax.ajax_url, data).done(function(res) {
-                        if (!res || !res.success) return;
-                        var count = parseInt(res.data.count, 10) || 0;
-                        if (count === chatCount) return;
-                        chatCount = count;
-                        var $box = $chatWrap.find('.tap-chat-thread');
-                        $box.html(res.data.html || '<p class="tap-empty"><?php echo esc_js(__('Aún no hay mensajes. Escribe para coordinar horarios o detalles con tu agencia.', 'travel-agency-platform')); ?></p>');
-                    });
+                    $.post(tap_ajax.ajax_url, data)
+                        .done(function(res) {
+                            if (!res || !res.success) return;
+                            var count = parseInt(res.data.count, 10) || 0;
+                            if (count === chatCount) return;
+                            chatCount = count;
+                            var $box = $chatWrap.find('.tap-chat-thread');
+                            $box.html(res.data.html || '<p class="tap-empty"><?php echo esc_js(__('Aún no hay mensajes. Escribe para coordinar horarios o detalles con tu agencia.', 'travel-agency-platform')); ?></p>');
+                        })
+                        .always(function(xhr, status) {
+                            chatDelay = (status === 'error' || status === 'timeout') ? Math.min(chatDelay * 2, chatMax) : chatBase;
+                            chatSchedule();
+                        });
+                },
+                chatSchedule = function() {
+                    if (chatTimer) { clearTimeout(chatTimer); chatTimer = null; }
+                    if (!$chatWrap.length || document.hidden) return;
+                    chatTimer = setTimeout(chatPoll, chatDelay);
                 };
-            if ($chatWrap.length) { setInterval(chatPoll, 15000); }
+            if ($chatWrap.length) {
+                document.addEventListener('visibilitychange', function() {
+                    if (document.hidden) {
+                        if (chatTimer) { clearTimeout(chatTimer); chatTimer = null; }
+                    } else {
+                        chatDelay = chatBase;
+                        chatPoll();
+                    }
+                });
+                chatSchedule();
+            }
         })(jQuery);
         </script>
         <?php

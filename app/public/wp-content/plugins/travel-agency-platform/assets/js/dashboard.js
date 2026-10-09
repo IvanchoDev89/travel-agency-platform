@@ -218,16 +218,6 @@
     }
 
     function tapChatPoll() {
-        if (!cfg.ajax_url) {
-            return;
-        }
-        $.post(cfg.ajax_url, { action: 'tap_dash_chat_unread', nonce: cfg.nonce })
-            .done(function (res) {
-                if (res && res.success) {
-                    tapChatBadge(res.data.total);
-                }
-            });
-
         $('.tap-chat-row:visible').each(function () {
             var $row = $(this);
             var seen = parseInt($row.data('count'), 10) || 0;
@@ -259,8 +249,56 @@
         });
     }
 
-    if ($('[data-tap-chat-nav], .tap-chat-row').length) {
-        setInterval(tapChatPoll, 15000);
+    // Live refresh: pauses while the tab is hidden and backs off on errors.
+    var tapChatHasWidgets = $('[data-tap-chat-nav], .tap-chat-row').length > 0;
+    var tapChatBase       = 15000;
+    var tapChatMax        = 120000;
+    var tapChatDelay      = tapChatBase;
+    var tapChatTimer      = null;
+
+    function tapChatSchedule() {
+        if (tapChatTimer) {
+            clearTimeout(tapChatTimer);
+            tapChatTimer = null;
+        }
+        if (!tapChatHasWidgets || document.hidden) {
+            return;
+        }
+        tapChatTimer = setTimeout(tapChatTick, tapChatDelay);
+    }
+
+    function tapChatTick() {
+        if (!cfg.ajax_url) {
+            return;
+        }
+        $.post(cfg.ajax_url, { action: 'tap_dash_chat_unread', nonce: cfg.nonce })
+            .done(function (res) {
+                if (res && res.success) {
+                    tapChatBadge(res.data.total);
+                }
+            })
+            .always(function (xhr, status) {
+                tapChatDelay = (status === 'error' || status === 'timeout')
+                    ? Math.min(tapChatDelay * 2, tapChatMax)
+                    : tapChatBase;
+                tapChatPoll();
+                tapChatSchedule();
+            });
+    }
+
+    if (tapChatHasWidgets) {
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) {
+                if (tapChatTimer) {
+                    clearTimeout(tapChatTimer);
+                    tapChatTimer = null;
+                }
+            } else {
+                tapChatDelay = tapChatBase;
+                tapChatTick();
+            }
+        });
+        tapChatSchedule();
     }
 
     /* ── Agency back-office: payout request ───────────────────────── */
