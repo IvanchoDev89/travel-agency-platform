@@ -172,7 +172,7 @@ class TAP_Payouts {
         }
         $note  = trim((string) $note);
         $note  = $note !== '' ? $note : __('Pago no completado por el banco/procesador.', 'travel-agency-platform');
-        $existing = $wpdb->get_row($wpdb->prepare("SELECT booking_ids FROM {$wpdb->prefix}tap_commission_payments WHERE id = %d", $payment_id));
+        $existing = $wpdb->get_row($wpdb->prepare("SELECT booking_ids, note FROM {$wpdb->prefix}tap_commission_payments WHERE id = %d", $payment_id));
         if ($existing && $existing->booking_ids) {
             $ids = array_filter(array_map('intval', explode(',', $existing->booking_ids)));
             if ($ids) {

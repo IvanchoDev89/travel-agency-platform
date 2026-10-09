@@ -28,6 +28,8 @@ tap_t_assert((bool) has_action('tap_booking_cancelled', ['TAP_Emails', 'on_booki
 tap_t_assert((bool) has_action('tap_payment_approved', ['TAP_Emails', 'on_payment_approved']), 'tap_payment_approved → on_payment_approved');
 tap_t_assert((bool) has_action('tap_payout_requested', ['TAP_Emails', 'on_payout_requested']), 'tap_payout_requested → on_payout_requested');
 tap_t_assert((bool) has_action('tap_booking_refund_retried', ['TAP_Emails', 'on_booking_refund_retried']), 'tap_booking_refund_retried → on_booking_refund_retried');
+tap_t_assert((bool) has_action('tap_payout_failed', ['TAP_Emails', 'on_payout_failed']), 'tap_payout_failed → on_payout_failed');
+tap_t_assert((bool) has_action('tap_chat_message_sent', ['TAP_Emails', 'on_chat_message_sent']), 'tap_chat_message_sent → on_chat_message_sent');
 
 /* 3) capture outbound mail --------------------------------------------------- */
 $mails = [];
@@ -77,13 +79,14 @@ tap_t_assert(count($mails) === 1 && $mails[0]['to'] === get_option('admin_email'
 tap_t_assert(strpos($mails[0]['subject'], 'Reserva') !== false, 'refund retried subject references the booking');
 
 /* 8) payout requested: admin -------------------------------------------------- */
-$payment_id = (int) $wpdb->insert($p . 'tap_commission_payments', [
+$wpdb->insert($p . 'tap_commission_payments', [
     'agency_id'  => (int) $agency_id,
     'amount'     => 55.50,
     'booking_ids'=> (string) $booking_id,
     'status'     => 'pending',
     'created_at' => current_time('mysql'),
 ]);
+$payment_id = (int) $wpdb->insert_id;
 tap_t_assert($payment_id > 0, 'commission payment fixture inserted');
 $mails = [];
 do_action('tap_payout_requested', $payment_id, (int) $agency_id, 55.50);
@@ -95,8 +98,24 @@ do_action('tap_booking_cancelled', 999999999, null);
 do_action('tap_payment_approved', 999999999, 'paypal', '');
 tap_t_assert(count($mails) === 0, 'unknown booking sends no mail');
 
+/* 10) payout failed: agency --------------------------------------------------- */
+$mails = [];
+TAP_Payouts::fail($payment_id, 'Falló la transferencia (E2E).');
+tap_t_assert(count($mails) === 1 && $mails[0]['to'] === 'e2e-agency@example.test', 'payout failed notifies the agency');
+tap_t_assert(strpos($mails[0]['subject'], 'fallida') !== false, 'payout failed subject mentions failure');
+
+/* 11) chat notifications: each side alerts the other -------------------------- */
+$mails = [];
+TAP_Chat::send($booking_id, 'client', 0, 'Huésped E2E', 'Hola, ¿confirmamos la hora de llegada?');
+tap_t_assert(count($mails) === 1 && $mails[0]['to'] === 'e2e-agency@example.test', 'client chat message notifies the agency');
+
+$mails = [];
+TAP_Chat::send($booking_id, 'agency', (int) $agency_id, 'Agencia E2E', 'Claro, a las 10:00.');
+tap_t_assert(count($mails) === 1 && $mails[0]['to'] === 'e2e-guest@example.test', 'agency chat message notifies the guest');
+
 /* cleanup -------------------------------------------------------------------- */
 tap_t_cleanup_bookings([$booking_id]);
+$wpdb->delete($p . 'tap_chat_messages', ['booking_id' => $booking_id]);
 $wpdb->delete($p . 'tap_commission_payments', ['id' => $payment_id]);
 wp_delete_post((int) $agency_id, true);
 remove_all_filters('pre_wp_mail');

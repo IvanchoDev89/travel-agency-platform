@@ -51,6 +51,8 @@ class TAP_Emails {
         add_action('tap_dispute_resolved', [__CLASS__, 'on_dispute_resolved'], 10, 3);
         add_action('tap_payout_completed', [__CLASS__, 'on_payout_changed'], 10, 1);
         add_action('tap_payout_cancelled', [__CLASS__, 'on_payout_changed'], 10, 1);
+        add_action('tap_payout_failed', [__CLASS__, 'on_payout_failed'], 10, 1);
+        add_action('tap_chat_message_sent', [__CLASS__, 'on_chat_message_sent'], 10, 3);
         add_action('tap_payout_requested', [__CLASS__, 'on_payout_requested'], 10, 3);
         add_action('tap_payment_approved', [__CLASS__, 'on_payment_approved'], 10, 3);
         add_action('tap_booking_cancelled', [__CLASS__, 'on_booking_cancelled'], 10, 2);
@@ -725,6 +727,104 @@ class TAP_Emails {
                         esc_html(self::money($payment->amount)),
                         (int) $payment->id
                     )
+            )
+        );
+    }
+
+    public static function on_payout_failed($payment_id) {
+        global $wpdb;
+        $payment = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_commission_payments WHERE id = %d", $payment_id));
+        if (!$payment) {
+            return;
+        }
+        $to = self::get_agency_email($payment->agency_id);
+        if (!$to) {
+            return;
+        }
+        self::send(
+            $to,
+            __('Liquidación fallida', 'travel-agency-platform'),
+            self::info_template(
+                __('No se pudo completar tu liquidación', 'travel-agency-platform'),
+                sprintf(
+                    __('La liquidación de comisiones por <strong>%s</strong> (referencia #%d) no pudo completarse. Los montos volvieron a estado "por cobrar" para que puedas solicitarla de nuevo.', 'travel-agency-platform'),
+                    esc_html(self::money($payment->amount)),
+                    (int) $payment->id
+                )
+            )
+        );
+    }
+
+    /**
+     * Booking-scoped chat: notify the counterparty of a new message.
+     * Client message → agency; agency message → guest/client.
+     */
+    public static function on_chat_message_sent($booking_id, $author_type, $message_id) {
+        global $wpdb;
+        $booking = TAP_Booking::get_booking((int) $booking_id);
+        if (!$booking) {
+            return;
+        }
+        $message = $wpdb->get_row($wpdb->prepare(
+            "SELECT message FROM {$wpdb->prefix}tap_chat_messages WHERE id = %d",
+            (int) $message_id
+        ));
+        if (!$message) {
+            return;
+        }
+        $excerpt = wp_trim_words((string) $message->message, 40, '…');
+
+        if ('agency' === $author_type) {
+            $to = '';
+            if (!empty($booking->client_id)) {
+                $user = get_userdata((int) $booking->client_id);
+                if ($user && is_email($user->user_email)) {
+                    $to = $user->user_email;
+                }
+            }
+            if (!$to && !empty($booking->guest_email) && is_email($booking->guest_email)) {
+                $to = $booking->guest_email;
+            }
+            if (!$to) {
+                return;
+            }
+            self::send(
+                $to,
+                sprintf(__('Nuevo mensaje de la agencia — reserva %s', 'travel-agency-platform'), $booking->booking_code),
+                self::info_template(
+                    __('Tienes un nuevo mensaje', 'travel-agency-platform'),
+                    sprintf(
+                        __('La agencia escribió sobre tu reserva <strong>%s</strong>:', 'travel-agency-platform'),
+                        esc_html($booking->booking_code)
+                    )
+                    . '<br><br>&ldquo;' . esc_html($excerpt) . '&rdquo;<br><br>'
+                    . sprintf(
+                        __('<a href="%s" style="color:#0d9488;">Responde desde el detalle de la reserva</a>.', 'travel-agency-platform'),
+                        esc_url(home_url('/booking-detail/?code=' . rawurlencode($booking->booking_code)))
+                    )
+                )
+            );
+            return;
+        }
+
+        $to = self::get_agency_email($booking->agency_id);
+        if (!$to) {
+            return;
+        }
+        self::send(
+            $to,
+            sprintf(__('Nuevo mensaje del huésped — reserva %s', 'travel-agency-platform'), $booking->booking_code),
+            self::info_template(
+                __('Tienes un nuevo mensaje', 'travel-agency-platform'),
+                sprintf(
+                    __('El huésped escribió sobre la reserva <strong>%s</strong>:', 'travel-agency-platform'),
+                    esc_html($booking->booking_code)
+                )
+                . '<br><br>&ldquo;' . esc_html($excerpt) . '&rdquo;<br><br>'
+                . sprintf(
+                    __('<a href="%s" style="color:#0d9488;">Responde desde tu panel</a>.', 'travel-agency-platform'),
+                    esc_url(home_url('/mi-cuenta/'))
+                )
             )
         );
     }
