@@ -25,4 +25,23 @@ tap_t_assert(strpos($html, 'Conversión') !== false || strpos($html, 'conversion
 tap_t_assert(strpos($html, 'export=bookings') !== false, 'bookings CSV export link present');
 tap_t_assert(strpos($html, 'export=summary') !== false, 'summary CSV export link present');
 
+// booking funnel: rendered section + stage labels
+tap_t_assert(strpos($html, 'Embudo de reservas') !== false, 'analytics renders booking funnel');
+foreach (['Vistas de listados', 'Reservas creadas', 'Reservas confirmadas', 'Reservas pagadas', 'Conversión de paso'] as $stage_label) {
+    tap_t_assert(strpos($html, $stage_label) !== false, "funnel stage: {$stage_label}");
+}
+
+// funnel data shape (derived from existing tables, no extra tracking)
+$funnel = TAP_Analytics::booking_funnel();
+tap_t_assert(count($funnel) === 4, 'funnel exposes 4 stages');
+tap_t_assert($funnel[0]['key'] === 'views' && $funnel[3]['key'] === 'paid', 'funnel ordered views -> paid');
+tap_t_assert($funnel[0]['rate'] === 0.0, 'first funnel stage has no step rate');
+$valid = true;
+foreach ($funnel as $stage) {
+    if (!is_int($stage['value']) || $stage['value'] < 0 || !is_numeric($stage['rate'])) {
+        $valid = false;
+    }
+}
+tap_t_assert($valid, 'funnel stages carry non-negative integer counts + numeric rates');
+
 tap_t_finish();

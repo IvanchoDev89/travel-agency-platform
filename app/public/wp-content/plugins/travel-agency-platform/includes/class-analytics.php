@@ -69,6 +69,45 @@ class TAP_Analytics {
         return $rows ?: [];
     }
 
+    /**
+     * Booking funnel for the given month range (inclusive, YYYY-MM).
+     *
+     * Stages are derived from existing tables — no extra event tracking:
+     * listing views → bookings created → bookings confirmed → bookings paid.
+     * Each stage carries the step conversion vs. the previous one.
+     *
+     * @return array<int,array{key:string,label:string,value:int,rate:float}>
+     */
+    public static function booking_funnel($from = '', $to = '') {
+        global $wpdb;
+        $f = $from && preg_match('/^\d{4}-\d{2}$/', $from) ? $from : '';
+        $t = $to && preg_match('/^\d{4}-\d{2}$/', $to) ? $to : '';
+        $where = ['1=1'];
+        if ($f) $where[] = $wpdb->prepare("DATE_FORMAT(created_at, '%%Y-%%m') >= %s", $f);
+        if ($t) $where[] = $wpdb->prepare("DATE_FORMAT(created_at, '%%Y-%%m') <= %s", $t);
+        $w = implode(' AND ', $where);
+        $b = $wpdb->prefix . 'tap_bookings';
+
+        $views     = (int) self::total_views($from, $to);
+        $created   = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$b} WHERE {$w}");
+        $confirmed = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$b} WHERE {$w} AND status IN ('confirmed','completed')");
+        $paid      = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$b} WHERE {$w} AND payment_status = 'paid'");
+
+        $stages = [
+            ['key' => 'views',     'label' => __('Vistas de listados', 'travel-agency-platform'),    'value' => $views],
+            ['key' => 'created',   'label' => __('Reservas creadas', 'travel-agency-platform'),      'value' => $created],
+            ['key' => 'confirmed', 'label' => __('Reservas confirmadas', 'travel-agency-platform'),  'value' => $confirmed],
+            ['key' => 'paid',      'label' => __('Reservas pagadas', 'travel-agency-platform'),      'value' => $paid],
+        ];
+        $prev = 0;
+        foreach ($stages as $i => &$s) {
+            $s['rate'] = ($i > 0 && $prev > 0) ? round($s['value'] / $prev * 100, 1) : 0.0;
+            $prev = $s['value'];
+        }
+        unset($s);
+        return $stages;
+    }
+
     private static function date_where($from, $to) {
         global $wpdb;
         if ($from && !preg_match('/^\d{4}-\d{2}$/', $from)) $from = '';

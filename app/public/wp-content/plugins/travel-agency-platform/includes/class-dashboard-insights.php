@@ -252,6 +252,28 @@ class TAP_Dashboard_Insights {
         echo '<div class="tap-stat-card"><span class="tap-stat-number">' . esc_html($total_listings) . '</span><span class="tap-stat-label">' . esc_html__('Listados publicados', 'travel-agency-platform') . '</span></div>';
         echo '</div>';
 
+        $funnel = class_exists('TAP_Analytics') ? TAP_Analytics::booking_funnel($from, $to) : [];
+        if ($funnel) {
+            $top = max(1, (int) $funnel[0]['value']);
+            echo '<h2>' . esc_html__('Embudo de reservas', 'travel-agency-platform') . '</h2>';
+            echo '<table class="widefat striped" style="max-width:720px;margin-bottom:24px;"><thead><tr>';
+            echo '<th>' . esc_html__('Etapa', 'travel-agency-platform') . '</th>';
+            echo '<th>' . esc_html__('Cantidad', 'travel-agency-platform') . '</th>';
+            echo '<th>' . esc_html__('Conversión de paso', 'travel-agency-platform') . '</th>';
+            echo '<th>' . esc_html__('% del total', 'travel-agency-platform') . '</th>';
+            echo '</tr></thead><tbody>';
+            foreach ($funnel as $i => $stage) {
+                $pct_total = (int) round($stage['value'] / $top * 100);
+                echo '<tr>';
+                echo '<td>' . esc_html($stage['label']) . '</td>';
+                echo '<td>' . esc_html(number_format_i18n($stage['value'])) . '</td>';
+                echo '<td>' . ($i === 0 ? '&mdash;' : esc_html(number_format_i18n($stage['rate'], 1) . '%')) . '</td>';
+                echo '<td>' . esc_html($pct_total . '%') . '</td>';
+                echo '</tr>';
+            }
+            echo '</tbody></table>';
+        }
+
         echo '<h2>' . esc_html__('Ingresos de la plataforma por mes (12 meses)', 'travel-agency-platform') . '</h2>';
         echo '<style>
             .tap-chart{display:flex;align-items:flex-end;gap:8px;height:220px;padding:12px 4px 24px;border-bottom:1px solid #e2e8f0;overflow-x:auto;}
