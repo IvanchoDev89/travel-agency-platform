@@ -23,3 +23,22 @@ app/public/wp-content/themes/*
 tests/*
 !tests/*.php
 !tests/run.sh
+
+# Maintenance scripts
+!tools/
+tools/*
+!tools/*.sh
+!tools/*.php
+
+# Dev tooling
+!composer.json
+!composer.lock
+!.phpcs.xml.dist
+!phpstan.neon.dist
+!.github/
+.github/*
+!.github/workflows/
+!.github/workflows/*
+
+# Generated translation template (rebuilt by tools/i18n.sh)
+app/public/wp-content/plugins/travel-agency-platform/languages/*.pot

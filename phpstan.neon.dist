@@ -1,0 +1,12 @@
+parameters:
+    level: 1
+    bootstrapFiles:
+        - tools/phpstan-bootstrap.php
+    paths:
+        - app/public/wp-content/plugins/travel-agency-platform/includes
+        - app/public/wp-content/plugins/travel-agency-platform/travel-agency-platform.php
+        - app/public/wp-content/plugins/travel-agency-platform/uninstall.php
+    scanDirectories:
+        - app/public/wp-content/plugins/travel-agency-platform/includes
+    treatPhpDocTypesAsCertain: false
+    reportUnmatchedIgnoredErrors: false

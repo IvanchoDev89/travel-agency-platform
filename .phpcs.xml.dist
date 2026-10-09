@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<ruleset name="Travel Agency Platform">
+	<description>
+		PHP_CodeSniffer rules for the Travel Agency Platform plugin.
+
+		Based on the WordPress Coding Standards, but the purely cosmetic sniffs
+		that conflict with the project's established style are excluded so the
+		report stays focused on correctness, security, database and i18n issues:
+
+		- 4-space indentation (not WP tabs) and droppped spacing inside
+		  parentheses / brackets.
+		- Short array syntax ([]), single-line associative arrays and the
+		  project's own alignment.
+		- Custom $wpdb tables (DirectDatabaseQuery) are intentional; they are
+		  audited separately in tests rather than via this smell.
+
+		Formatting can still be inspected ad-hoc with:
+		  vendor/bin/phpcs --standard=WordPress &lt;file&gt;
+	</description>
+
+	<file>app/public/wp-content/plugins/travel-agency-platform</file>
+
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/languages/*</exclude-pattern>
+	<exclude-pattern>*/assets/leaflet/*</exclude-pattern>
+
+	<arg name="extensions" value="php"/>
+	<arg name="colors"/>
+	<arg value="sp"/>
+	<arg name="basepath" value="."/>
+
+	<rule ref="WordPress">
+		<!-- Cosmetic: indentation / whitespace / spacing. -->
+		<exclude name="Generic.WhiteSpace.DisallowSpaceIndent"/>
+		<exclude name="Generic.WhiteSpace.ArbitraryParenthesesSpacing"/>
+		<exclude name="Generic.Formatting.MultipleStatementAlignment"/>
+		<exclude name="Generic.ControlStructures.InlineControlStructure"/>
+		<exclude name="PEAR.Functions.FunctionCallSignature"/>
+		<exclude name="NormalizedArrays.Arrays.ArrayBraceSpacing"/>
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+		<exclude name="Universal.Operators.DisallowShortTernary"/>
+		<exclude name="Squiz.Functions.FunctionDeclarationArgumentSpacing"/>
+		<exclude name="Squiz.ControlStructures.ControlSignature"/>
+		<exclude name="Squiz.Commenting"/>
+		<exclude name="WordPress.WhiteSpace"/>
+		<exclude name="WordPress.Arrays"/>
+
+		<!-- Style choices that are not correctness issues. -->
+		<exclude name="WordPress.PHP.YodaConditions"/>
+
+		<!-- Custom tables: $wpdb usage is intentional and covered by tests. -->
+		<exclude name="WordPress.DB.DirectDatabaseQuery"/>
+	</rule>
+
+	<config name="minimum_wp_version" value="6.4"/>
+	<config name="testVersion" value="8.1-"/>
+</ruleset>

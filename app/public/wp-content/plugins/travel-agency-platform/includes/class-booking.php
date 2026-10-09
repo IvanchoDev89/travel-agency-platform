@@ -358,6 +358,7 @@ class TAP_Booking {
         }
 
         $create_error = null;
+        $booking_id   = 0;
 
         try {
             if (!empty($data['room_id']) && $room_check_in && $room_check_out) {
