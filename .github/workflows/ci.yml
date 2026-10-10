@@ -62,3 +62,18 @@ jobs:
 
       - name: Run PHP_CodeSniffer
         run: composer lint
+
+  i18n:
+    name: i18n catalogs in sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Check every translated string is in the catalogs
+        run: php tools/i18n-check.php

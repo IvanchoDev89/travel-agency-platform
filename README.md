@@ -172,17 +172,22 @@ travel-agency/
 Requires PHP >= 8.1 and [Composer](https://getcomposer.org/).
 
 ```bash
-composer install      # installs PHPCS + PHPStan dev tooling
-composer analyse      # PHPStan (level 1) — must stay green
-composer lint         # PHP_CodeSniffer with the WordPress standard
-composer lint:fix     # auto-fix what PHPCS can
-TAP_TEST_ALLOW_DB_WRITES=1 ./tests/run.sh   # E2E suites against a real WP install
+make install      # composer install (PHPCS + PHPStan dev tooling)
+make check        # analyse + lint + test + i18n-check (the full local gate)
+
+# or run the pieces individually
+make analyse      # PHPStan (level 1) — must stay green
+make lint         # PHPStan + PHPCS report
+make lint-fix     # PHPCS auto-fix
+make test         # E2E suites against a real WP install (mutates the DB)
+make i18n         # regenerate POT + refresh/compile es_ES & en_US
+make i18n-check   # fail if a translated string is missing from the catalogs
 ```
 
 - **Static analysis** — PHPStan level 1 with the WordPress stubs (`phpstan.neon.dist`); the `TAP_*`/WP constants come from `tools/phpstan-bootstrap.php`.
 - **Coding standards** — the `WordPress` ruleset trimmed to correctness, security, database and i18n sniffs (`.phpcs.xml.dist`); the report is informational while the pre-existing debt is burned down.
 - **Tests** — the E2E suites in `tests/` run against a real WordPress + MySQL install (they modify data, hence the guard flag).
-- **Translations** — `tools/i18n.sh` regenerates the POT and refreshes/compiles the `es_ES` and `en_US` catalogs without dropping curated entries.
+- **Translations** — `tools/i18n.sh` regenerates the POT and refreshes/compiles the `es_ES` and `en_US` catalogs without dropping curated entries; `tools/i18n-check.php` (also run in CI) fails when a translated string used in PHP is missing from a catalog.
 - **CI** — `.github/workflows/ci.yml` runs PHPStan (blocking) and PHPCS (informational) on every push and pull request.
 
 ---
