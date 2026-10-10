@@ -12,7 +12,7 @@
 SHELL := /bin/bash
 COMPOSER ?= composer
 
-.PHONY: install analyse lint lint-fix test i18n i18n-pot i18n-check check help
+.PHONY: install analyse lint lint-fix audit-security test i18n i18n-pot i18n-check ajax-nonce-check check help
 
 help:
 	@grep -E '^[a-zA-Z0-9-]+:.*?##' $(MAKEFILE_LIST) | awk -F':.*?## ' '{printf "  %-12s %s\n", $$1, $$2}'
@@ -29,6 +29,10 @@ lint: ## PHPStan + PHPCS report
 lint-fix: ## PHPCS autofix (what it can fix automatically)
 	vendor/bin/phpcbf || true
 
+audit-security: ## security/DB-only PHPCS report (no formatting rules)
+	vendor/bin/phpcs --standard=tools/phpcs-security.xml \
+		app/public/wp-content/plugins/travel-agency-platform --report=source || true
+
 test: ## run the E2E suite (mutates the local DB)
 	TAP_TEST_ALLOW_DB_WRITES=1 ./tests/run.sh
 
@@ -41,4 +45,7 @@ i18n-pot: ## regenerate the POT only
 i18n-check: ## every translated string used in PHP must exist in the catalogs
 	php tools/i18n-check.php
 
-check: analyse lint test i18n-check ## full local gate
+ajax-nonce-check: ## every wp_ajax_ handler must verify a nonce
+	php tools/ajax-nonce-check.php
+
+check: analyse lint test i18n-check ajax-nonce-check ## full local gate

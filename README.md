@@ -182,13 +182,16 @@ make lint-fix     # PHPCS auto-fix
 make test         # E2E suites against a real WP install (mutates the DB)
 make i18n         # regenerate POT + refresh/compile es_ES & en_US
 make i18n-check   # fail if a translated string is missing from the catalogs
+make ajax-nonce-check   # fail if a wp_ajax_ handler skips nonce verification
+make audit-security     # security/DB-only PHPCS report (no formatting rules)
 ```
 
 - **Static analysis** — PHPStan level 1 with the WordPress stubs (`phpstan.neon.dist`); the `TAP_*`/WP constants come from `tools/phpstan-bootstrap.php`.
 - **Coding standards** — the `WordPress` ruleset trimmed to correctness, security, database and i18n sniffs (`.phpcs.xml.dist`); the report is informational while the pre-existing debt is burned down.
 - **Tests** — the E2E suites in `tests/` run against a real WordPress + MySQL install (they modify data, hence the guard flag).
-- **Translations** — `tools/i18n.sh` regenerates the POT and refreshes/compiles the `es_ES` and `en_US` catalogs without dropping curated entries; `tools/i18n-check.php` (also run in CI) fails when a translated string used in PHP is missing from a catalog.
-- **CI** — `.github/workflows/ci.yml` runs PHPStan (blocking) and PHPCS (informational) on every push and pull request.
+- **Translations** — `tools/i18n.sh` regenerates the POT and refreshes/compiles the `es_ES` and `en_US` catalogs without dropping curated entries.
+- **Static guards** — two dependency-free PHP scripts that run in CI and fail the build: `tools/i18n-check.php` (a translated string used in PHP must exist in the catalogs) and `tools/ajax-nonce-check.php` (every `wp_ajax_*` handler must verify a nonce).
+- **CI** — `.github/workflows/ci.yml` runs PHPStan (blocking), the static guards, and PHPCS (informational) on every push and pull request.
 
 ---
 

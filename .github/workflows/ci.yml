@@ -63,8 +63,8 @@ jobs:
       - name: Run PHP_CodeSniffer
         run: composer lint
 
-  i18n:
-    name: i18n catalogs in sync
+  static-guards:
+    name: Static guards (i18n + ajax nonces)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -77,3 +77,6 @@ jobs:
 
       - name: Check every translated string is in the catalogs
         run: php tools/i18n-check.php
+
+      - name: Check every ajax handler verifies a nonce
+        run: php tools/ajax-nonce-check.php
