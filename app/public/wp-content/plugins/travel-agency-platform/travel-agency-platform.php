@@ -43,6 +43,7 @@ final class TravelAgencyPlatform {
         require_once TAP_PLUGIN_DIR . 'includes/class-pricing.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-discounts.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-booking.php';
+        require_once TAP_PLUGIN_DIR . 'includes/class-booking-stats.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-api.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-shortcodes.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-listing-editor.php';

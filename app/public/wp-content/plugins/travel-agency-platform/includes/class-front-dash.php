@@ -824,7 +824,7 @@ class TAP_Front_Dash {
         $agency_name = $agency ? $agency->post_title : __('Tu agencia', 'travel-agency-platform');
         $verified    = $agency_id ? get_post_meta($agency_id, '_tap_agency_verified', true) : false;
         $commission  = $agency_id ? TAP_Booking::get_agency_commission($agency_id) : 10;
-        $stats       = TAP_Booking::get_booking_stats($agency_id);
+        $stats       = TAP_Booking_Stats::get_booking_stats($agency_id);
 
         $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
             "SELECT

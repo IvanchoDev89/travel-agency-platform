@@ -9,10 +9,10 @@ defined('ABSPATH') || exit;
 
 class TAP_Dashboard_Bookings {
     public static function dashboard_page() {
-        $stats = TAP_Booking::get_booking_stats();
-        $monthly = TAP_Booking::get_monthly_series(12);
-        $status = TAP_Booking::get_status_distribution();
-        $breakdown = TAP_Booking::get_service_type_breakdown();
+        $stats = TAP_Booking_Stats::get_booking_stats();
+        $monthly = TAP_Booking_Stats::get_monthly_series(12);
+        $status = TAP_Booking_Stats::get_status_distribution();
+        $breakdown = TAP_Booking_Stats::get_service_type_breakdown();
         $recent = TAP_Booking::get_latest_bookings(8);
 
         global $wpdb;

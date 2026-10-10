@@ -36,7 +36,7 @@ $row = $wpdb->get_row($wpdb->prepare("SELECT total_amount, commission_amount, co
 tap_t_assert((float) $row->total_amount === 250.0 && (float) $row->commission_amount === 25.0, 'seeded booking stored total/commission');
 
 // 4) agency booking stats aggregates the new booking
-$bs = TAP_Booking::get_booking_stats($agency_id);
+$bs = TAP_Booking_Stats::get_booking_stats($agency_id);
 tap_t_assert(isset($bs['total'], $bs['commission'], $bs['revenue']), 'get_booking_stats returns total/commission/revenue keys');
 tap_t_assert((float) $bs['commission'] >= 25.0, 'get_booking_stats commission includes seeded booking');
 
