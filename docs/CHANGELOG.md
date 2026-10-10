@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.13] — 2026-10-10
+
+### Added
+
+- **`Makefile`**: targets reproducibles `install`, `analyse`, `lint`, `lint-fix`, `audit-security`, `test`, `i18n`, `i18n-check`, `ajax-nonce-check`, `includes-check` y `check` (puerta local completa).
+- **Guardias estáticas** (PHP puro, sin dependencias; se ejecutan en CI y fallan el build):
+  - `tools/i18n-check.php` — un string traducido usado en PHP debe existir en los catálogos (hoy 1823/1823).
+  - `tools/ajax-nonce-check.php` — todo handler `wp_ajax_*` debe verificar un nonce (hoy 27/27).
+  - `tools/includes-check.php` — todo fichero de `includes/` debe estar cableado en el cargador (hoy 46/46), para que un fichero de clase nuevo no acabe en fatal en runtime.
+- **`tools/phpcs-security.xml`** versionado y target `make audit-security`: informe PHPCS solo de seguridad/DB, sin las reglas de formato.
+
+### Changed
+
+- **`TAP_Ajax_Public`**: se extraen los 5 handlers AJAX de solo lectura (`search_services`, `calculate_booking_total`, `get_public_pricing`, `search_suggestions`, `get_rooms`) a `includes/class-ajax-public.php`. `TAP_Ajax` baja de 2075 a 1773 líneas y queda con los handlers que escriben, más fáciles de auditar. Cuerpos movidos verbatim y los 10 `add_action` redirigidos.
+- **Escapado**: 24 `_e()` → `esc_html_e()` y 3 `echo __(literal)` → `esc_html__()` en renderers (`class-discounts.php`, `class-metaboxes.php`, `class-shortcode-account.php`); el resto de salidas marcadas por WPCS ya estaban escapadas.
+- **README**: sección *Development & QA* ampliada con los targets de make y las guardias.
+
+### Verification
+
+- PHPStan nivel 1 sin errores; PHPCS seguridad 1393 → 1171 errores.
+- Batería E2E **45/45 suites, 0 fallos** tras el escapado y el refactor.
+- Cada guardia nueva pasó su prueba negativa (simular el fallo y comprobar que la detecta).
+
 ## [1.5.12] — 2026-10-09
 
 ### Added
