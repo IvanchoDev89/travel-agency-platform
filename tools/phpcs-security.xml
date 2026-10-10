@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!--
+  Security-only audit ruleset.
+
+  Run it to see just the security / database surface of the plugin, without the
+  formatting rules that conflict with the project style:
+
+      make audit-security
+
+  The main .phpcs.xml.dist is the one wired into "composer lint" and CI.
+-->
+<ruleset name="TAP Security Audit">
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+    <exclude-pattern>*/node_modules/*</exclude-pattern>
+    <arg name="extensions" value="php"/>
+
+    <rule ref="WordPress.Security"/>
+    <rule ref="WordPress.DB"/>
+    <rule ref="WordPress.WP.GlobalVariablesOverride"/>
+    <rule ref="WordPress.PHP.TypeCasts"/>
+</ruleset>

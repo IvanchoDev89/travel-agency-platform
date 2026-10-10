@@ -12,7 +12,7 @@
 SHELL := /bin/bash
 COMPOSER ?= composer
 
-.PHONY: install analyse lint lint-fix audit-security test i18n i18n-pot i18n-check ajax-nonce-check check help
+.PHONY: install analyse lint lint-fix audit-security test i18n i18n-pot i18n-check ajax-nonce-check includes-check check help
 
 help:
 	@grep -E '^[a-zA-Z0-9-]+:.*?##' $(MAKEFILE_LIST) | awk -F':.*?## ' '{printf "  %-12s %s\n", $$1, $$2}'
@@ -48,4 +48,7 @@ i18n-check: ## every translated string used in PHP must exist in the catalogs
 ajax-nonce-check: ## every wp_ajax_ handler must verify a nonce
 	php tools/ajax-nonce-check.php
 
-check: analyse lint test i18n-check ajax-nonce-check ## full local gate
+includes-check: ## every class file in includes/ must be require_once'd
+	php tools/includes-check.php
+
+check: analyse lint test i18n-check ajax-nonce-check includes-check ## full local gate

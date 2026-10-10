@@ -29,6 +29,7 @@ tests/*
 tools/*
 !tools/*.sh
 !tools/*.php
+!tools/*.xml
 
 # Dev tooling
 !Makefile
