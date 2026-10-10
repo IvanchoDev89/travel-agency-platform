@@ -250,7 +250,7 @@ class TAP_Metaboxes {
         $post_type = $post->post_type;
 
         if (!isset(self::$fields[$post_type])) {
-            echo '<p>' . __('No configuration fields found.', 'travel-agency-platform') . '</p>';
+                echo '<p>' . esc_html__('No configuration fields found.', 'travel-agency-platform') . '</p>';
             return;
         }
 
@@ -662,7 +662,7 @@ class TAP_Metaboxes {
         ));
 
         if (!$booking) {
-            echo '<p>' . __('Booking details not found.', 'travel-agency-platform') . '</p>';
+                echo '<p>' . esc_html__('Booking details not found.', 'travel-agency-platform') . '</p>';
             return;
         }
 

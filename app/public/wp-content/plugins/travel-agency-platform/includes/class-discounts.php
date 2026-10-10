@@ -68,49 +68,49 @@ class TAP_Discounts {
         $s = self::get_settings();
         ?>
         <div class="wrap">
-            <h1><?php _e('Descuentos y Promociones', 'travel-agency-platform'); ?></h1>
-            <p><?php _e('Configura promociones globales. Los alojamientos pueden desactivar o personalizar estos valores en su ficha.', 'travel-agency-platform'); ?></p>
+            <h1><?php esc_html_e('Descuentos y Promociones', 'travel-agency-platform'); ?></h1>
+            <p><?php esc_html_e('Configura promociones globales. Los alojamientos pueden desactivar o personalizar estos valores en su ficha.', 'travel-agency-platform'); ?></p>
             <form method="post" action="options.php">
                 <?php settings_fields('tap_discount_group'); ?>
                 <table class="form-table" role="presentation">
                     <tr>
-                        <th scope="row"><?php _e('Descuento anticipado (Early Bird)', 'travel-agency-platform'); ?></th>
+                        <th scope="row"><?php esc_html_e('Descuento anticipado (Early Bird)', 'travel-agency-platform'); ?></th>
                         <td>
-                            <label><input type="checkbox" name="<?php echo self::OPTION_KEY; ?>[early_enabled]" value="1" <?php checked($s['early_enabled'], '1'); ?>> <?php _e('Habilitar', 'travel-agency-platform'); ?></label>
+                            <label><input type="checkbox" name="<?php echo self::OPTION_KEY; ?>[early_enabled]" value="1" <?php checked($s['early_enabled'], '1'); ?>> <?php esc_html_e('Habilitar', 'travel-agency-platform'); ?></label>
                             <p class="description">
-                                <?php _e('Porcentaje', 'travel-agency-platform'); ?>:
+                                <?php esc_html_e('Porcentaje', 'travel-agency-platform'); ?>:
                                 <input type="number" step="0.5" min="0" max="100" name="<?php echo self::OPTION_KEY; ?>[early_percent]" value="<?php echo esc_attr($s['early_percent']); ?>">%
-                                &nbsp; <?php _e('reservando con al menos', 'travel-agency-platform'); ?>
-                                <input type="number" step="1" min="1" name="<?php echo self::OPTION_KEY; ?>[early_days]" value="<?php echo esc_attr($s['early_days']); ?>"> <?php _e('días de antelación', 'travel-agency-platform'); ?>
+                                &nbsp; <?php esc_html_e('reservando con al menos', 'travel-agency-platform'); ?>
+                                <input type="number" step="1" min="1" name="<?php echo self::OPTION_KEY; ?>[early_days]" value="<?php echo esc_attr($s['early_days']); ?>"> <?php esc_html_e('días de antelación', 'travel-agency-platform'); ?>
                             </p>
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row"><?php _e('Descuento de última hora', 'travel-agency-platform'); ?></th>
+                        <th scope="row"><?php esc_html_e('Descuento de última hora', 'travel-agency-platform'); ?></th>
                         <td>
-                            <label><input type="checkbox" name="<?php echo self::OPTION_KEY; ?>[last_enabled]" value="1" <?php checked($s['last_enabled'], '1'); ?>> <?php _e('Habilitar', 'travel-agency-platform'); ?></label>
+                            <label><input type="checkbox" name="<?php echo self::OPTION_KEY; ?>[last_enabled]" value="1" <?php checked($s['last_enabled'], '1'); ?>> <?php esc_html_e('Habilitar', 'travel-agency-platform'); ?></label>
                             <p class="description">
-                                <?php _e('Porcentaje', 'travel-agency-platform'); ?>:
+                                <?php esc_html_e('Porcentaje', 'travel-agency-platform'); ?>:
                                 <input type="number" step="0.5" min="0" max="100" name="<?php echo self::OPTION_KEY; ?>[last_percent]" value="<?php echo esc_attr($s['last_percent']); ?>">%
-                                &nbsp; <?php _e('reservando con máximo', 'travel-agency-platform'); ?>
-                                <input type="number" step="1" min="1" name="<?php echo self::OPTION_KEY; ?>[last_days]" value="<?php echo esc_attr($s['last_days']); ?>"> <?php _e('días de antelación', 'travel-agency-platform'); ?>
+                                &nbsp; <?php esc_html_e('reservando con máximo', 'travel-agency-platform'); ?>
+                                <input type="number" step="1" min="1" name="<?php echo self::OPTION_KEY; ?>[last_days]" value="<?php echo esc_attr($s['last_days']); ?>"> <?php esc_html_e('días de antelación', 'travel-agency-platform'); ?>
                             </p>
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row"><?php _e('Descuento por estadía larga', 'travel-agency-platform'); ?></th>
+                        <th scope="row"><?php esc_html_e('Descuento por estadía larga', 'travel-agency-platform'); ?></th>
                         <td>
-                            <label><input type="checkbox" name="<?php echo self::OPTION_KEY; ?>[long_enabled]" value="1" <?php checked($s['long_enabled'], '1'); ?>> <?php _e('Habilitar', 'travel-agency-platform'); ?></label>
+                            <label><input type="checkbox" name="<?php echo self::OPTION_KEY; ?>[long_enabled]" value="1" <?php checked($s['long_enabled'], '1'); ?>> <?php esc_html_e('Habilitar', 'travel-agency-platform'); ?></label>
                             <div id="tap-long-tiers">
                                 <?php foreach ($s['long_tiers'] as $i => $tier) : ?>
                                     <div class="tap-tier-row">
-                                        <?php _e('Desde', 'travel-agency-platform'); ?>
-                                        <input type="number" step="1" min="1" name="<?php echo self::OPTION_KEY; ?>[long_tiers][<?php echo $i; ?>][nights]" value="<?php echo esc_attr($tier['nights']); ?>" style="width:70px;"> <?php _e('noches', 'travel-agency-platform'); ?>
-                                        = <input type="number" step="0.5" min="0" max="100" name="<?php echo self::OPTION_KEY; ?>[long_tiers][<?php echo $i; ?>][percent]" value="<?php echo esc_attr($tier['percent']); ?>" style="width:70px;">%
+                                        <?php esc_html_e('Desde', 'travel-agency-platform'); ?>
+                                        <input type="number" step="1" min="1" name="<?php echo self::OPTION_KEY; ?>[long_tiers][<?php echo (int) $i; ?>][nights]" value="<?php echo esc_attr($tier['nights']); ?>" style="width:70px;"> <?php esc_html_e('noches', 'travel-agency-platform'); ?>
+                                        = <input type="number" step="0.5" min="0" max="100" name="<?php echo self::OPTION_KEY; ?>[long_tiers][<?php echo (int) $i; ?>][percent]" value="<?php echo esc_attr($tier['percent']); ?>" style="width:70px;">%
                                     </div>
                                 <?php endforeach; ?>
                             </div>
-                            <p><button type="button" class="button" id="tap-add-tier"><?php _e('Añadir rango', 'travel-agency-platform'); ?></button></p>
+                            <p><button type="button" class="button" id="tap-add-tier"><?php esc_html_e('Añadir rango', 'travel-agency-platform'); ?></button></p>
                         </td>
                     </tr>
                 </table>
@@ -147,20 +147,20 @@ class TAP_Discounts {
         wp_nonce_field('tap_promo_save', 'tap_promo_nonce');
         $meta = self::get_accommodation_settings($post->ID);
         ?>
-        <p><label><input type="checkbox" name="tap_promo_override" value="1" <?php checked($meta['override'], '1'); ?>> <?php _e('Personalizar promociones', 'travel-agency-platform'); ?></label></p>
+        <p><label><input type="checkbox" name="tap_promo_override" value="1" <?php checked($meta['override'], '1'); ?>> <?php esc_html_e('Personalizar promociones', 'travel-agency-platform'); ?></label></p>
         <div id="tap-promo-fields">
-            <p><label><input type="checkbox" name="tap_promo_early" value="1" <?php checked($meta['early_enabled'], '1'); ?>> <?php _e('Early Bird', 'travel-agency-platform'); ?></label>
+            <p><label><input type="checkbox" name="tap_promo_early" value="1" <?php checked($meta['early_enabled'], '1'); ?>> <?php esc_html_e('Early Bird', 'travel-agency-platform'); ?></label>
             <br><small style="color:#666;">
                 <input type="number" step="0.5" min="0" max="100" name="tap_promo_early_percent" value="<?php echo esc_attr($meta['early_percent']); ?>" style="width:60px;">% /
-                <input type="number" step="1" min="1" name="tap_promo_early_days" value="<?php echo esc_attr($meta['early_days']); ?>" style="width:55px;"> <?php _e('días', 'travel-agency-platform'); ?>
+                <input type="number" step="1" min="1" name="tap_promo_early_days" value="<?php echo esc_attr($meta['early_days']); ?>" style="width:55px;"> <?php esc_html_e('días', 'travel-agency-platform'); ?>
             </small></p>
-            <p><label><input type="checkbox" name="tap_promo_last" value="1" <?php checked($meta['last_enabled'], '1'); ?>> <?php _e('Última hora', 'travel-agency-platform'); ?></label>
+            <p><label><input type="checkbox" name="tap_promo_last" value="1" <?php checked($meta['last_enabled'], '1'); ?>> <?php esc_html_e('Última hora', 'travel-agency-platform'); ?></label>
             <br><small style="color:#666;">
                 <input type="number" step="0.5" min="0" max="100" name="tap_promo_last_percent" value="<?php echo esc_attr($meta['last_percent']); ?>" style="width:60px;">% /
-                <input type="number" step="1" min="1" name="tap_promo_last_days" value="<?php echo esc_attr($meta['last_days']); ?>" style="width:55px;"> <?php _e('días', 'travel-agency-platform'); ?>
+                <input type="number" step="1" min="1" name="tap_promo_last_days" value="<?php echo esc_attr($meta['last_days']); ?>" style="width:55px;"> <?php esc_html_e('días', 'travel-agency-platform'); ?>
             </small></p>
-            <p><label><input type="checkbox" name="tap_promo_long" value="1" <?php checked($meta['long_enabled'], '1'); ?>> <?php _e('Estadía larga', 'travel-agency-platform'); ?></label>
-            <br><small style="color:#666;"><textarea name="tap_promo_long_tiers" rows="2" style="width:100%;" placeholder="7:10, 14:15"><?php echo esc_textarea($meta['long_tiers_csv']); ?></textarea><br><?php _e('Formato: noches:porcentaje, separado por comas', 'travel-agency-platform'); ?></small></p>
+            <p><label><input type="checkbox" name="tap_promo_long" value="1" <?php checked($meta['long_enabled'], '1'); ?>> <?php esc_html_e('Estadía larga', 'travel-agency-platform'); ?></label>
+            <br><small style="color:#666;"><textarea name="tap_promo_long_tiers" rows="2" style="width:100%;" placeholder="7:10, 14:15"><?php echo esc_textarea($meta['long_tiers_csv']); ?></textarea><br><?php esc_html_e('Formato: noches:porcentaje, separado por comas', 'travel-agency-platform'); ?></small></p>
         </div>
         <?php
     }

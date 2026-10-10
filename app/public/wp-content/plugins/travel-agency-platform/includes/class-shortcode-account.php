@@ -24,7 +24,7 @@ class TAP_Shortcode_Account {
         ob_start();
         ?>
         <div class="tap-dashboard">
-            <h2><?php printf(__('Welcome, %s!', 'travel-agency-platform'), esc_html($user->display_name)); ?></h2>
+            <h2><?php printf(esc_html__('Welcome, %s!', 'travel-agency-platform'), esc_html($user->display_name)); ?></h2>
             <div class="tap-dashboard-links">
                 <a href="<?php echo esc_url(home_url('/my-bookings')); ?>" class="tap-btn"><?php esc_html_e('My Bookings', 'travel-agency-platform'); ?></a>
                 <a href="<?php echo esc_url(home_url('/agency-profile')); ?>" class="tap-btn"><?php esc_html_e('Agency Profile', 'travel-agency-platform'); ?></a>
