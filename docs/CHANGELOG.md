@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.12] — 2026-10-09
+
+### Added
+
+- **Toolchain de calidad**: `composer.json` con PHPStan 2 (nivel 1, stubs WordPress) y PHPCS-WPCS; `phpstan.neon.dist`, `.phpcs.xml.dist` (estándar WordPress acotado a corrección/seguridad/DB/i18n), `tools/lint.sh` y workflow de CI (`.github/workflows/ci.yml`, PHPStan bloqueante + PHPCS informativo).
+- **`tools/i18n.sh`**: regenera el POT con `wp i18n make-pot` y refresca/compila los catálogos `es_ES`/`en_US`, rescatando las entradas curadas que `msgmerge` marca como obsoletas (strings del chatbot).
+
+### Changed
+
+- **Seguridad — CSRF**: `tap_search_services`, `tap_calculate_booking_total`, `tap_get_public_pricing`, `tap_search_suggestions` y `tap_get_rooms` verifican ahora el nonce; `tap_create_booking` pasa a `check_ajax_referer` y los callers JS envían el nonce que faltaba.
+- **Seguridad — entrada**: `wp_unslash()` en las lecturas de `$_POST`/`$_GET` que se pasaban a `sanitize_*` (~105 llamadas), `(int) ($_POST[...])` → `intval()`, y saneo en la frontera de leads, planes, camas, itinerario, `tap_action` y `status` de redirección. Las verificaciones de nonce manuales envuelven el valor en `sanitize_text_field` + `wp_unslash`.
+- **Chat**: el polling se pausa con la pestaña oculta (`visibilitychange`) y aplica backoff exponencial (15 s → 120 s) ante fallos de red, en el dashboard y en el voucher de la reserva.
+
+### Fixed
+
+- `TAP_Booking` inicializa `$booking_id` antes del bloque `try` (PHPStan nivel 1).
+- Se verifica de nuevo la inyección SQL: las consultas dinámicas ya usaban placeholders `prepare()`/`intval`, y las salidas marcadas por WPCS son literales traducidos, no datos variables.
+
 ## [1.5.11] — 2026-10-08
 
 ### Added
