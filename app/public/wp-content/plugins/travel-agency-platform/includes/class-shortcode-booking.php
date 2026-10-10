@@ -233,7 +233,7 @@ class TAP_Shortcode_Booking {
     public static function checkout($atts) {
         $atts = shortcode_atts(['code' => ''], $atts);
 
-        $booking_code = $atts['code'] ?: sanitize_text_field($_GET['code'] ?? '');
+        $booking_code = $atts['code'] ?: sanitize_text_field(wp_unslash($_GET['code'] ?? ''));
         if (!$booking_code) {
             return '<p>' . __('No booking specified.', 'travel-agency-platform') . '</p>';
         }
@@ -268,7 +268,7 @@ class TAP_Shortcode_Booking {
         } elseif ($is_guest) {
             $guest_verified = TAP_Ajax::get_guest_pay_token($booking->booking_code);
             if (!$guest_verified) {
-                $email = sanitize_email($_GET['email'] ?? '');
+                $email = sanitize_email(wp_unslash($_GET['email'] ?? ''));
                 if (is_email($email) && strcasecmp($email, (string) $booking->guest_email) === 0) {
                     TAP_Ajax::set_guest_pay_token($booking->booking_code);
                     $guest_verified = true;

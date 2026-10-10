@@ -273,10 +273,10 @@ class TAP_Privacy {
             exit;
         }
 
-        $email   = sanitize_email($_POST['email'] ?? '');
-        $rights  = isset($_POST['rights']) && is_array($_POST['rights']) ? array_map('sanitize_text_field', $_POST['rights']) : [];
-        $details = sanitize_textarea_field($_POST['details'] ?? '');
-        $name    = sanitize_text_field($_POST['name'] ?? '');
+        $email   = sanitize_email(wp_unslash($_POST['email'] ?? ''));
+        $rights  = isset($_POST['rights']) && is_array($_POST['rights']) ? array_map('sanitize_text_field', (array) wp_unslash($_POST['rights'])) : [];
+        $details = sanitize_textarea_field(wp_unslash($_POST['details'] ?? ''));
+        $name    = sanitize_text_field(wp_unslash($_POST['name'] ?? ''));
 
         $result = self::save_request($email, $rights, $details, $name);
         $status = is_wp_error($result) ? 'error' : 'ok';
@@ -542,7 +542,7 @@ class TAP_Privacy {
 
         $status = 'pending';
         if (isset($_GET['status']) && in_array($_GET['status'], ['pending', 'done'], true)) {
-            $status = sanitize_key($_GET['status']);
+            $status = sanitize_key(wp_unslash($_GET['status']));
         }
 
         $requests = self::all_requests($status);

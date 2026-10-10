@@ -14,7 +14,7 @@ class TAP_Dashboard_Content {
 
         if (isset($_POST['tap_review_reply_nonce']) && isset($_POST['review_id'])) {
             $rid = intval($_POST['review_id']);
-            if ($rid && wp_verify_nonce($_POST['tap_review_reply_nonce'], 'tap_review_reply_' . $rid)) {
+            if ($rid && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['tap_review_reply_nonce'])), 'tap_review_reply_' . $rid)) {
                 $reply = sanitize_textarea_field(wp_unslash($_POST['reply'] ?? ''));
                 $wpdb->update($table, [
                     'reply'        => $reply,
@@ -25,21 +25,23 @@ class TAP_Dashboard_Content {
         }
 
         if (isset($_GET['tap_action'], $_GET['review_id']) && isset($_GET['_wpnonce'])) {
-            if (wp_verify_nonce($_GET['_wpnonce'], 'tap_review_' . $_GET['tap_action'] . '_' . intval($_GET['review_id']))) {
+            $action = sanitize_key(wp_unslash($_GET['tap_action']));
+            if (wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'tap_review_' . $action . '_' . intval($_GET['review_id']))) {
                 $rid = intval($_GET['review_id']);
-                if ('approve' === $_GET['tap_action']) {
+                if ('approve' === $action) {
                     $wpdb->update($table, ['is_approved' => 1], ['id' => $rid]);
-                } elseif ('unapprove' === $_GET['tap_action']) {
+                } elseif ('unapprove' === $action) {
                     $wpdb->update($table, ['is_approved' => 0], ['id' => $rid]);
-                } elseif ('delete' === $_GET['tap_action']) {
+                } elseif ('delete' === $action) {
                     $wpdb->delete($table, ['id' => $rid]);
                 }
-                wp_safe_redirect(admin_url('admin.php?page=tap-reviews&status=' . urlencode($_GET['status'] ?? 'all')));
+                $status = sanitize_key(wp_unslash($_GET['status'] ?? 'all'));
+                wp_safe_redirect(admin_url('admin.php?page=tap-reviews&status=' . rawurlencode($status)));
                 exit;
             }
         }
 
-        $filter = sanitize_key($_GET['status'] ?? 'all');
+        $filter = sanitize_key(wp_unslash($_GET['status'] ?? 'all'));
         $where  = 'all' === $filter ? '1=1' : 'r.is_approved = ' . ($filter === 'pending' ? '0' : '1');
 
         $pending = (int) $wpdb->get_var("SELECT COUNT(*) FROM $table WHERE is_approved = 0");
@@ -202,9 +204,9 @@ class TAP_Dashboard_Content {
 
         if (isset($_GET['tap_action'], $_GET['agency_id'], $_GET['_wpnonce'])) {
             $aid   = intval($_GET['agency_id']);
-            $nonce = sanitize_key($_GET['tap_action']) . '_' . $aid;
-            if ($aid && wp_verify_nonce($_GET['_wpnonce'], $nonce)) {
-                self::handle_agency_action($_GET['tap_action'], $aid, $_GET);
+            $nonce = sanitize_key(wp_unslash($_GET['tap_action'])) . '_' . $aid;
+            if ($aid && wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), $nonce)) {
+                self::handle_agency_action(sanitize_key(wp_unslash($_GET['tap_action'])), $aid, $_GET);
                 wp_safe_redirect(admin_url('admin.php?page=tap-agencies'));
                 exit;
             }

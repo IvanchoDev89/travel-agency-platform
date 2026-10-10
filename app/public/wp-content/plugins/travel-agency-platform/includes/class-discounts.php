@@ -166,7 +166,7 @@ class TAP_Discounts {
     }
 
     public static function save_accommodation_meta($post_id, $post) {
-        if (!isset($_POST['tap_promo_nonce']) || !wp_verify_nonce($_POST['tap_promo_nonce'], 'tap_promo_save')) return;
+        if (!isset($_POST['tap_promo_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['tap_promo_nonce'])), 'tap_promo_save')) return;
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
         if (!current_user_can('edit_post', $post_id)) return;
 
@@ -184,7 +184,7 @@ class TAP_Discounts {
         ];
 
         if (!empty($_POST['tap_promo_long_tiers'])) {
-            $meta['long_tiers'] = self::parse_tiers_csv($_POST['tap_promo_long_tiers']);
+            $meta['long_tiers'] = self::parse_tiers_csv(wp_unslash($_POST['tap_promo_long_tiers']));
         }
 
         update_post_meta($post_id, '_tap_acc_promos', $meta);

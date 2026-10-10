@@ -130,12 +130,12 @@ class TAP_Dashboard_Insights {
         global $wpdb;
 
         if (isset($_GET['export']) && check_admin_referer('tap_analytics_export')) {
-            self::analytics_csv_export(sanitize_key($_GET['export']));
+            self::analytics_csv_export(sanitize_key(wp_unslash($_GET['export'])));
             exit;
         }
 
-        $from = sanitize_text_field($_GET['tap_from'] ?? '');
-        $to   = sanitize_text_field($_GET['tap_to'] ?? '');
+        $from = sanitize_text_field(wp_unslash($_GET['tap_from'] ?? ''));
+        $to   = sanitize_text_field(wp_unslash($_GET['tap_to'] ?? ''));
         if ($from && !preg_match('/^\d{4}-\d{2}$/', $from)) $from = '';
         if ($to && !preg_match('/^\d{4}-\d{2}$/', $to)) $to = '';
         $bwhere  = "b.status NOT IN ('cancelled','refunded')";
@@ -351,8 +351,8 @@ class TAP_Dashboard_Insights {
 
     private static function analytics_csv_export($type) {
         global $wpdb;
-        $from = sanitize_text_field($_GET['tap_from'] ?? '');
-        $to   = sanitize_text_field($_GET['tap_to'] ?? '');
+        $from = sanitize_text_field(wp_unslash($_GET['tap_from'] ?? ''));
+        $to   = sanitize_text_field(wp_unslash($_GET['tap_to'] ?? ''));
         if ($from && !preg_match('/^\d{4}-\d{2}$/', $from)) $from = '';
         if ($to && !preg_match('/^\d{4}-\d{2}$/', $to)) $to = '';
 

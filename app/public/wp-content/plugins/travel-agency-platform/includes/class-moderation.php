@@ -124,7 +124,7 @@ class TAP_Moderation {
     /** Action handler for the moderation queue (admin). */
     public static function handle_admin_actions() {
         global $wpdb;
-        if (empty($_GET['page']) || 'tap-moderation' !== sanitize_key($_GET['page'])) {
+        if (empty($_GET['page']) || 'tap-moderation' !== sanitize_key(wp_unslash($_GET['page']))) {
             return;
         }
         // The moderation queue is only reachable through the admin page, but
@@ -132,10 +132,10 @@ class TAP_Moderation {
         if (!current_user_can('manage_options')) {
             return;
         }
-        $action = sanitize_key($_GET['mod_action'] ?? '');
-        $kind   = ('review' === sanitize_key($_GET['kind'] ?? '')) ? 'review' : 'lead';
+        $action = sanitize_key(wp_unslash($_GET['mod_action'] ?? ''));
+        $kind   = ('review' === sanitize_key(wp_unslash($_GET['kind'] ?? ''))) ? 'review' : 'lead';
         $id     = intval($_GET['item_id'] ?? 0);
-        $nonce  = $_GET['_wpnonce'] ?? '';
+        $nonce  = sanitize_text_field(wp_unslash($_GET['_wpnonce'] ?? ''));
 
         if (!$action || !$id || !wp_verify_nonce((string) $nonce, "tap_mod_{$action}_{$kind}_{$id}")) {
             return;

@@ -23,7 +23,7 @@ class TAP_Listing_Editor {
         }
 
         $listing_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-        $new_type   = isset($_GET['new']) ? sanitize_key($_GET['new']) : '';
+        $new_type   = isset($_GET['new']) ? sanitize_key(wp_unslash($_GET['new'])) : '';
 
         if (!$is_admin && $agency && TAP_Approval::is_pending($agency)) {
             echo '<div class="tap-notice"><span class="tap-notice-icon" aria-hidden="true">⚠</span><span><strong>' . esc_html__('Tu agencia está en revisión', 'travel-agency-platform') . '.</strong> ' . esc_html__('Puedes preparar tus listados, pero serán visibles para los viajeros solo cuando el administrador apruebe tu agencia.', 'travel-agency-platform') . '</span></div>';

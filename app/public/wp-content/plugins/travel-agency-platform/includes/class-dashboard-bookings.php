@@ -132,10 +132,10 @@ class TAP_Dashboard_Bookings {
         }
         global $wpdb;
 
-        $f_status = sanitize_key($_GET['f_status'] ?? '');
-        $f_type   = sanitize_key($_GET['f_type'] ?? '');
+        $f_status = sanitize_key(wp_unslash($_GET['f_status'] ?? ''));
+        $f_type   = sanitize_key(wp_unslash($_GET['f_type'] ?? ''));
         $f_agency = intval($_GET['f_agency'] ?? 0);
-        $s        = sanitize_text_field($_GET['s'] ?? '');
+        $s        = sanitize_text_field(wp_unslash($_GET['s'] ?? ''));
         $where    = '1=1';
         $params   = [];
 
@@ -189,10 +189,10 @@ class TAP_Dashboard_Bookings {
     public static function bookings_page() {
         global $wpdb;
 
-        $f_status = sanitize_key($_GET['f_status'] ?? '');
-        $f_type   = sanitize_key($_GET['f_type'] ?? '');
+        $f_status = sanitize_key(wp_unslash($_GET['f_status'] ?? ''));
+        $f_type   = sanitize_key(wp_unslash($_GET['f_type'] ?? ''));
         $f_agency = intval($_GET['f_agency'] ?? 0);
-        $s        = sanitize_text_field($_GET['s'] ?? '');
+        $s        = sanitize_text_field(wp_unslash($_GET['s'] ?? ''));
         $where    = '1=1';
         $params   = [];
 

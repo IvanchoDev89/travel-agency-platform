@@ -28,7 +28,8 @@
         var self = this;
         $.post(tap_ajax.ajax_url, {
             action: 'tap_get_rooms',
-            accommodation_id: state.accommodationId
+            accommodation_id: state.accommodationId,
+            nonce: tap_ajax.nonce
         }, function(res) {
             if (res.success && res.data.rooms) {
                 state.rooms = res.data.rooms;
@@ -49,7 +50,8 @@
             action: 'tap_get_public_pricing',
             room_ids: ids.join(','),
             year: state.year,
-            month: state.month
+            month: state.month,
+            nonce: tap_ajax.nonce
         }, function(res) {
             if (res.success && res.data.rooms) {
                 state.roomPricing = {};
@@ -182,7 +184,8 @@
             accommodation_id: state.accommodationId,
             check_in: checkIn,
             check_out: checkOut,
-            adults: adults
+            adults: adults,
+            nonce: tap_ajax.nonce
         }, function(res) {
             if (res.success && res.data.rooms) {
                 updateRoomCards(res.data.rooms);

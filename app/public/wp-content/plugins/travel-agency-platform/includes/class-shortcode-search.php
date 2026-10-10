@@ -55,14 +55,14 @@ class TAP_Shortcode_Search {
 
         $current_url = home_url(add_query_arg([]));
 
-        $keyword   = sanitize_text_field($_GET['keyword'] ?? '');
-        $type      = sanitize_text_field($_GET['type'] ?? '');
+        $keyword   = sanitize_text_field(wp_unslash($_GET['keyword'] ?? ''));
+        $type      = sanitize_text_field(wp_unslash($_GET['type'] ?? ''));
         $location  = intval($_GET['location'] ?? 0);
-        $difficulty = sanitize_title($_GET['difficulty'] ?? '');
-        $tour_type  = sanitize_title($_GET['tour_type'] ?? '');
+        $difficulty = sanitize_title(wp_unslash($_GET['difficulty'] ?? ''));
+        $tour_type  = sanitize_title(wp_unslash($_GET['tour_type'] ?? ''));
         $min_price = isset($_GET['min_price']) && $_GET['min_price'] !== '' ? floatval($_GET['min_price']) : null;
         $max_price = isset($_GET['max_price']) && $_GET['max_price'] !== '' ? floatval($_GET['max_price']) : null;
-        $sort      = sanitize_key($_GET['sort'] ?? 'relevance');
+        $sort      = sanitize_key(wp_unslash($_GET['sort'] ?? 'relevance'));
 
         // Difficulty and tour-type only apply to tours; force the tour type.
         if ($difficulty || $tour_type) {
@@ -221,7 +221,7 @@ class TAP_Shortcode_Search {
         ?>
         <form class="tap-search-filters" method="get" action="<?php echo esc_url($current_url); ?>">
             <?php if (isset($_GET['keyword'])): ?>
-                <input type="hidden" name="keyword" value="<?php echo esc_attr($keyword = sanitize_text_field($_GET['keyword'] ?? '')); ?>">
+                <input type="hidden" name="keyword" value="<?php echo esc_attr($keyword = sanitize_text_field(wp_unslash($_GET['keyword'] ?? ''))); ?>">
             <?php endif; ?>
             <label><?php esc_html_e('Tipo', 'travel-agency-platform'); ?>
                 <select name="type">

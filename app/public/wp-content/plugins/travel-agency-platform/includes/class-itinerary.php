@@ -384,7 +384,7 @@ class TAP_Itinerary
         $atts = shortcode_atts(['title' => ''], $atts, 'tap_itinerary_builder');
 
         if (isset($_GET['itin']) && $_GET['itin'] !== '') {
-            return self::share_view($_GET['itin']);
+            return self::share_view(sanitize_text_field(wp_unslash($_GET['itin'] ?? '')));
         }
 
         wp_enqueue_script('tap-itinerary', TAP_PLUGIN_URL . 'assets/js/itinerary.js', ['jquery'], TAP_VERSION, true);

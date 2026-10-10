@@ -336,7 +336,7 @@ class TAP_Metaboxes {
     }
 
     public static function save($post_id, $post) {
-        if (!isset($_POST['tap_metabox_nonce']) || !wp_verify_nonce($_POST['tap_metabox_nonce'], 'tap_metabox_save')) {
+        if (!isset($_POST['tap_metabox_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['tap_metabox_nonce'])), 'tap_metabox_save')) {
             return;
         }
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
@@ -349,7 +349,7 @@ class TAP_Metaboxes {
                 if ($field['type'] === 'checkbox') {
                     $value = isset($_POST[$key]) ? '1' : '0';
                 } elseif (isset($_POST[$key])) {
-                    $value = sanitize_text_field($_POST[$key]);
+                    $value = sanitize_text_field(wp_unslash($_POST[$key]));
                 } else {
                     continue;
                 }
@@ -361,7 +361,7 @@ class TAP_Metaboxes {
             $text_fields = ['_tap_acc_address', '_tap_acc_city', '_tap_acc_state', '_tap_acc_zip', '_tap_acc_country', '_tap_acc_cancellation', '_tap_acc_house_rules', '_tap_acc_gallery'];
             foreach ($text_fields as $key) {
                 if (isset($_POST[$key])) {
-                    update_post_meta($post_id, $key, sanitize_text_field($_POST[$key]));
+                    update_post_meta($post_id, $key, sanitize_text_field(wp_unslash($_POST[$key])));
                 }
             }
         }
@@ -370,7 +370,7 @@ class TAP_Metaboxes {
             $room_text = ['_tap_room_accommodation_id', '_tap_room_price_per_night', '_tap_room_min_stay', '_tap_room_currency', '_tap_room_max_adults', '_tap_room_max_children', '_tap_room_max_occupancy', '_tap_room_inventory', '_tap_room_size', '_tap_room_view', '_tap_room_floor', '_tap_room_gallery'];
             foreach ($room_text as $key) {
                 if (isset($_POST[$key])) {
-                    $val = sanitize_text_field($_POST[$key]);
+                    $val = sanitize_text_field(wp_unslash($_POST[$key]));
                     if (in_array($key, ['_tap_room_price_per_night', '_tap_room_max_adults', '_tap_room_max_children', '_tap_room_max_occupancy', '_tap_room_inventory', '_tap_room_floor'])) {
                         $val = floatval($val);
                     }
@@ -382,7 +382,7 @@ class TAP_Metaboxes {
             update_post_meta($post_id, '_tap_room_is_active', $is_active);
 
             if (isset($_POST['_tap_room_beds'])) {
-                update_post_meta($post_id, '_tap_room_beds', wp_unslash($_POST['_tap_room_beds']));
+                update_post_meta($post_id, '_tap_room_beds', sanitize_text_field(wp_unslash($_POST['_tap_room_beds'])));
             }
         }
 
@@ -396,7 +396,7 @@ class TAP_Metaboxes {
         }
 
         if ($post_type === 'tap_tour' && isset($_POST['_tap_tour_difficulty'])) {
-            $difficulty = sanitize_key($_POST['_tap_tour_difficulty']);
+            $difficulty = sanitize_key(wp_unslash($_POST['_tap_tour_difficulty']));
             $term = $difficulty && term_exists($difficulty, 'tap_tour_difficulty') ? $difficulty : '';
             if ($term) {
                 $tt = term_exists($term, 'tap_tour_difficulty');

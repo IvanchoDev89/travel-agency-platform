@@ -16,10 +16,10 @@ class TAP_Leads {
      * @return int|WP_Error Lead id or WP_Error with code.
      */
     public static function submit($args) {
-        $name    = isset($args['name']) ? sanitize_text_field($args['name']) : '';
-        $email   = isset($args['email']) ? sanitize_email($args['email']) : '';
-        $phone   = isset($args['phone']) ? sanitize_text_field($args['phone']) : '';
-        $message = isset($args['message']) ? sanitize_textarea_field($args['message']) : '';
+        $name    = isset($args['name']) ? sanitize_text_field(wp_unslash($args['name'])) : '';
+        $email   = isset($args['email']) ? sanitize_email(wp_unslash($args['email'])) : '';
+        $phone   = isset($args['phone']) ? sanitize_text_field(wp_unslash($args['phone'])) : '';
+        $message = isset($args['message']) ? sanitize_textarea_field(wp_unslash($args['message'])) : '';
         $agency_id = isset($args['agency_id']) ? (int) $args['agency_id'] : 0;
         $service_id = isset($args['service_id']) ? (int) $args['service_id'] : 0;
         $ip        = isset($args['ip']) ? sanitize_text_field((string) $args['ip']) : self::client_ip();
@@ -158,7 +158,7 @@ class TAP_Leads {
         }
         $user_agency = (int) TAP_Booking::get_agency_for_user(get_current_user_id());
         $agency_id   = isset($_GET['agency']) ? (int) $_GET['agency'] : 0;
-        $nonce       = $_GET['_wpnonce'] ?? '';
+        $nonce       = sanitize_text_field(wp_unslash($_GET['_wpnonce'] ?? ''));
         if (!$user_agency || $agency_id !== $user_agency || !wp_verify_nonce($nonce, 'tap_export_leads_' . get_current_user_id())) {
             wp_die(__('Acceso denegado.', 'travel-agency-platform'), '', ['response' => 403]);
         }

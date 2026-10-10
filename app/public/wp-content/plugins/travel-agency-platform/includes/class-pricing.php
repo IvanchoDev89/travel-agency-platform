@@ -104,9 +104,9 @@ class TAP_Pricing {
 
     public static function ajax_get_pricing() {
         check_ajax_referer('tap_pricing', 'nonce');
-        $room_id = (int) ($_POST['room_id'] ?? 0);
-        $year    = (int) ($_POST['year'] ?? 0);
-        $month   = (int) ($_POST['month'] ?? 0);
+        $room_id = intval($_POST['room_id'] ?? 0);
+        $year    = intval($_POST['year'] ?? 0);
+        $month   = intval($_POST['month'] ?? 0);
 
         if (!self::can_manage_room($room_id)) {
             wp_send_json_error(['message' => __('No autorizado para este alojamiento.', 'travel-agency-platform')], 403);
@@ -252,7 +252,7 @@ class TAP_Pricing {
             wp_send_json(['success' => false, 'message' => 'No autorizado']);
         }
 
-        $room_id = (int) ($_POST['room_id'] ?? 0);
+        $room_id = intval($_POST['room_id'] ?? 0);
         $date    = sanitize_text_field(wp_unslash($_POST['date'] ?? ''));
 
         if (!$room_id || !$date) {
@@ -361,12 +361,12 @@ class TAP_Pricing {
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => 'No autorizado']);
         }
-        $room_id = (int) ($_POST['room_id'] ?? 0);
+        $room_id = intval($_POST['room_id'] ?? 0);
         if (!self::can_manage_room($room_id)) {
             wp_send_json_error(['message' => 'No autorizado']);
         }
-        $year  = (int) ($_POST['year'] ?? 0);
-        $month = (int) ($_POST['month'] ?? 0);
+        $year  = intval($_POST['year'] ?? 0);
+        $month = intval($_POST['month'] ?? 0);
         wp_send_json_success(self::month_data($room_id, $year, $month, true));
     }
 
@@ -380,7 +380,7 @@ class TAP_Pricing {
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => 'No autorizado']);
         }
-        $room_id = (int) ($_POST['room_id'] ?? 0);
+        $room_id = intval($_POST['room_id'] ?? 0);
         if (!self::can_manage_room($room_id)) {
             wp_send_json_error(['message' => 'No autorizado']);
         }

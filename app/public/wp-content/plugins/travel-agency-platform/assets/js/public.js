@@ -380,7 +380,8 @@ jQuery(document).ready(function($) {
             var self = this;
             $.post(tap_ajax.ajax_url, {
                 action: 'tap_search_suggestions',
-                keyword: keyword
+                keyword: keyword,
+                nonce: tap_ajax.nonce
             }, function(res) {
                 self.items = (res.data && res.data.results) ? res.data.results : [];
                 self.render(self.items);

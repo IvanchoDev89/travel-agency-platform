@@ -72,7 +72,7 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
             $agency_id
         )) : [];
 
-        $ab_status = sanitize_key($_GET['ab_status'] ?? 'all');
+        $ab_status = sanitize_key(wp_unslash($_GET['ab_status'] ?? 'all'));
         if (!in_array($ab_status, ['all', 'request', 'pending', 'confirmed', 'completed', 'cancelled', 'refunded'], true)) {
             $ab_status = 'all';
         }

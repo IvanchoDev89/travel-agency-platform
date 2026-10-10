@@ -12,10 +12,10 @@ class TAP_Dashboard_Money {
         $b_table = $wpdb->prefix . 'tap_bookings';
         $p_table = $wpdb->prefix . 'tap_commission_payments';
 
-        if (isset($_POST['tap_pay_commissions']) && isset($_POST['_wpnonce']) && wp_verify_nonce($_POST['_wpnonce'], 'tap_pay_commissions')) {
+        if (isset($_POST['tap_pay_commissions']) && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'tap_pay_commissions')) {
             $ids   = array_map('intval', (array) ($_POST['booking_ids'] ?? []));
-            $note  = sanitize_textarea_field($_POST['note'] ?? '');
-            $method = sanitize_key($_POST['method'] ?? 'bank_transfer');
+            $note  = sanitize_textarea_field(wp_unslash($_POST['note'] ?? ''));
+            $method = sanitize_key(wp_unslash($_POST['method'] ?? 'bank_transfer'));
             if ($ids) {
                 $placeholders = implode(',', array_fill(0, count($ids), '%d'));
                 $rows = $wpdb->get_results($wpdb->prepare(
@@ -55,14 +55,14 @@ class TAP_Dashboard_Money {
                     set_transient('tap_commission_notice', __('Liquidación registrada y comisiones marcadas como pagadas.', 'travel-agency-platform'), 60);
                 }
             }
-            wp_safe_redirect(admin_url('admin.php?page=tap-commissions&status=' . sanitize_key($_POST['filter'] ?? 'all')));
+            wp_safe_redirect(admin_url('admin.php?page=tap-commissions&status=' . sanitize_key(wp_unslash($_POST['filter'] ?? 'all'))));
             exit;
         }
 
-        if (isset($_POST['tap_settle_booking']) && isset($_POST['_wpnonce']) && wp_verify_nonce($_POST['_wpnonce'], 'tap_settle_booking')) {
+        if (isset($_POST['tap_settle_booking']) && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'tap_settle_booking')) {
             $booking_id = intval($_POST['booking_id'] ?? 0);
-            $method = sanitize_key($_POST['method'] ?? 'bank_transfer');
-            $note   = sanitize_textarea_field($_POST['note'] ?? '');
+            $method = sanitize_key(wp_unslash($_POST['method'] ?? 'bank_transfer'));
+            $note   = sanitize_textarea_field(wp_unslash($_POST['note'] ?? ''));
             $booking = $booking_id ? $wpdb->get_row($wpdb->prepare("SELECT * FROM {$b_table} WHERE id = %d AND commission_status = 'owed' AND payment_status = 'paid' AND commission_amount > 0 AND status NOT IN ('cancelled', 'refunded')", $booking_id)) : null;
             if ($booking) {
                 $wpdb->insert($p_table, [
@@ -79,14 +79,14 @@ class TAP_Dashboard_Money {
                 do_action('tap_commission_paid', (int) $booking->agency_id, $payment_id);
                 set_transient('tap_commission_notice', __('Comisión liquidada individualmente.', 'travel-agency-platform'), 60);
             }
-            wp_safe_redirect(admin_url('admin.php?page=tap-commissions&status=' . sanitize_key($_POST['filter'] ?? 'all')));
+            wp_safe_redirect(admin_url('admin.php?page=tap-commissions&status=' . sanitize_key(wp_unslash($_POST['filter'] ?? 'all'))));
             exit;
         }
 
         if (isset($_POST['tap_payout_action']) && isset($_POST['_wpnonce'])) {
             $payment_id = intval($_POST['payout_id'] ?? 0);
-            $action     = sanitize_key($_POST['tap_payout_action'] ?? '');
-            if ($payment_id && in_array($action, ['complete', 'cancel', 'failed'], true) && wp_verify_nonce($_POST['_wpnonce'], 'tap_payout_action_' . $payment_id)) {
+            $action     = sanitize_key(wp_unslash($_POST['tap_payout_action'] ?? ''));
+            if ($payment_id && in_array($action, ['complete', 'cancel', 'failed'], true) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'tap_payout_action_' . $payment_id)) {
                 if ('complete' === $action) {
                     TAP_Payouts::complete($payment_id);
                     set_transient('tap_commission_notice', __('Liquidación marcada como completada.', 'travel-agency-platform'), 60);
@@ -99,11 +99,11 @@ class TAP_Dashboard_Money {
                     set_transient('tap_commission_notice', __('Liquidación marcada como fallida y comisiones liberadas.', 'travel-agency-platform'), 60);
                 }
             }
-            wp_safe_redirect(admin_url('admin.php?page=tap-commissions&status=' . sanitize_key($_POST['filter'] ?? 'all') . '&payout_status=' . sanitize_key($_POST['payout_filter'] ?? 'all')));
+            wp_safe_redirect(admin_url('admin.php?page=tap-commissions&status=' . sanitize_key(wp_unslash($_POST['filter'] ?? 'all')) . '&payout_status=' . sanitize_key(wp_unslash($_POST['payout_filter'] ?? 'all'))));
             exit;
         }
 
-        $filter = sanitize_key($_GET['status'] ?? 'all');
+        $filter = sanitize_key(wp_unslash($_GET['status'] ?? 'all'));
         if (!in_array($filter, ['all', 'owed', 'paid', 'disputed', 'void'], true)) {
             $filter = 'all';
         }
@@ -124,7 +124,7 @@ class TAP_Dashboard_Money {
              WHERE {$where}
              ORDER BY b.created_at DESC LIMIT 200"
         );
-        $payout_filter = sanitize_key($_GET['payout_status'] ?? 'all');
+        $payout_filter = sanitize_key(wp_unslash($_GET['payout_status'] ?? 'all'));
         if (!in_array($payout_filter, ['all', 'pending', 'completed', 'cancelled', 'failed'], true)) {
             $payout_filter = 'all';
         }
@@ -394,8 +394,8 @@ class TAP_Dashboard_Money {
 
         if (isset($_POST['tap_resolve_dispute']) && isset($_POST['_wpnonce'])) {
             $dispute_id = intval($_POST['dispute_id'] ?? 0);
-            $outcome    = sanitize_key($_POST['outcome'] ?? '');
-            if ($dispute_id && wp_verify_nonce($_POST['_wpnonce'], 'tap_resolve_dispute_' . $dispute_id)) {
+            $outcome    = sanitize_key(wp_unslash($_POST['outcome'] ?? ''));
+            if ($dispute_id && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'tap_resolve_dispute_' . $dispute_id)) {
                 $note = sanitize_textarea_field(wp_unslash($_POST['resolution_note'] ?? ''));
                 $res  = TAP_Disputes::resolve($dispute_id, $outcome, $note);
                 if (is_wp_error($res)) {
@@ -404,11 +404,11 @@ class TAP_Dashboard_Money {
                     set_transient('tap_dispute_notice', __('Disputa resuelta. Comisión liberada o anulada según el resultado.', 'travel-agency-platform'), 60);
                 }
             }
-            wp_safe_redirect(admin_url('admin.php?page=tap-disputes&dfilter=' . sanitize_key($_POST['dfilter'] ?? 'all')));
+            wp_safe_redirect(admin_url('admin.php?page=tap-disputes&dfilter=' . sanitize_key(wp_unslash($_POST['dfilter'] ?? 'all'))));
             exit;
         }
 
-        $filter = sanitize_key($_GET['dfilter'] ?? 'all');
+        $filter = sanitize_key(wp_unslash($_GET['dfilter'] ?? 'all'));
         $counts = $wpdb->get_row("SELECT
             COALESCE(SUM(status='open'),0) open_c,
             COALESCE(SUM(status!='open'),0) closed_c FROM {$table}");

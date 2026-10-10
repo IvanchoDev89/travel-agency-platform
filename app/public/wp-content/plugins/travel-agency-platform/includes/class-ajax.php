@@ -7,8 +7,8 @@ class TAP_Ajax {
         // the accommodation template sends a 'tap_booking_nonce' nonce, while the
         // [tap_booking_form] shortcode sends tap_ajax.nonce (action 'tap_nonce').
         // Accept either to keep both forms working.
-        $raw = isset($_POST['nonce']) ? (string) $_POST['nonce'] : '';
-        $valid = $raw !== '' && (wp_verify_nonce($raw, 'tap_nonce') || wp_verify_nonce($raw, 'tap_booking_nonce'));
+        $valid = check_ajax_referer('tap_nonce', 'nonce', false)
+            || check_ajax_referer('tap_booking_nonce', 'nonce', false);
         if (!$valid) {
             wp_send_json_error(['message' => __('Security check failed.', 'travel-agency-platform')], 403);
         }
@@ -20,8 +20,8 @@ class TAP_Ajax {
         // Guest checkout: logged-out visitors book with client_id = 0 and their
         // contact data in the guest_* columns. Emails are spam-guarded by a
         // per-IP+email rate limit, then a short-lived token allows paying on /checkout.
-        $guest_name  = sanitize_text_field($_POST['guest_name'] ?? '');
-        $guest_email = sanitize_email($_POST['guest_email'] ?? '');
+        $guest_name  = sanitize_text_field(wp_unslash($_POST['guest_name'] ?? ''));
+        $guest_email = sanitize_email(wp_unslash($_POST['guest_email'] ?? ''));
 
         if (empty($_POST['tap_privacy_consent'])) {
             wp_send_json_error(['message' => __('Debes aceptar el Aviso de Privacidad y consentir el tratamiento de tus datos para completar la reserva.', 'travel-agency-platform')]);
@@ -45,19 +45,19 @@ class TAP_Ajax {
         }
 
         $room_id  = !empty($_POST['room_id']) ? intval($_POST['room_id']) : 0;
-        $check_in = sanitize_text_field($_POST['check_in'] ?? '');
-        $check_out = sanitize_text_field($_POST['check_out'] ?? '');
+        $check_in = sanitize_text_field(wp_unslash($_POST['check_in'] ?? ''));
+        $check_out = sanitize_text_field(wp_unslash($_POST['check_out'] ?? ''));
         $adults   = intval($_POST['adults'] ?? 1);
         $children = intval($_POST['children'] ?? 0);
 
         $total = TAP_Booking::calculate_price(
-            sanitize_text_field($_POST['service_type']),
+            sanitize_text_field(wp_unslash($_POST['service_type'])),
             intval($_POST['service_id']),
             $check_in, $check_out, $adults, $children, $room_id
         );
 
         $data = [
-            'service_type' => sanitize_text_field($_POST['service_type']),
+            'service_type' => sanitize_text_field(wp_unslash($_POST['service_type'])),
             'service_id'   => intval($_POST['service_id']),
             'room_id'      => $room_id,
             'check_in'     => $check_in,
@@ -65,10 +65,10 @@ class TAP_Ajax {
             'adults'       => $adults,
             'children'     => $children,
             'total_amount' => $total,
-            'notes'        => sanitize_textarea_field($_POST['notes'] ?? ''),
-            'guest_name'   => sanitize_text_field($_POST['guest_name'] ?? ''),
-            'guest_email'  => sanitize_email($_POST['guest_email'] ?? ''),
-            'guest_phone'  => sanitize_text_field($_POST['guest_phone'] ?? ''),
+            'notes'        => sanitize_textarea_field(wp_unslash($_POST['notes'] ?? '')),
+            'guest_name'   => sanitize_text_field(wp_unslash($_POST['guest_name'] ?? '')),
+            'guest_email'  => sanitize_email(wp_unslash($_POST['guest_email'] ?? '')),
+            'guest_phone'  => sanitize_text_field(wp_unslash($_POST['guest_phone'] ?? '')),
         ];
 
         $result = TAP_Booking::create($data);
@@ -117,14 +117,14 @@ class TAP_Ajax {
         check_ajax_referer('tap_booking_nonce', 'nonce');
 
         $booking_id   = intval($_POST['booking_id'] ?? 0);
-        $booking_code = sanitize_text_field($_POST['booking_code'] ?? '');
+        $booking_code = sanitize_text_field(wp_unslash($_POST['booking_code'] ?? ''));
 
         if (!$booking_id && !$booking_code) {
             wp_send_json_error(['message' => __('Reserva inválida.', 'travel-agency-platform')]);
         }
 
         $uid = get_current_user_id();
-        $guest_email = $uid ? '' : sanitize_email($_POST['guest_email'] ?? '');
+        $guest_email = $uid ? '' : sanitize_email(wp_unslash($_POST['guest_email'] ?? ''));
 
         // Guests should always present the printed booking code along with the
         // numeric id (see client_cancel_request), but a valid id + matching
@@ -143,7 +143,7 @@ class TAP_Ajax {
         check_ajax_referer('tap_booking_nonce', 'nonce');
 
         $booking_id   = intval($_POST['booking_id'] ?? 0);
-        $booking_code = sanitize_text_field($_POST['booking_code'] ?? '');
+        $booking_code = sanitize_text_field(wp_unslash($_POST['booking_code'] ?? ''));
         $message      = sanitize_textarea_field(wp_unslash($_POST['message'] ?? ''));
         $uid          = get_current_user_id();
 
@@ -157,7 +157,7 @@ class TAP_Ajax {
 
         $guest_email = '';
         if (!$uid) {
-            $guest_email = sanitize_email($_POST['guest_email'] ?? '');
+            $guest_email = sanitize_email(wp_unslash($_POST['guest_email'] ?? ''));
         }
         list($can, $name) = TAP_Chat::can_client_chat($booking, $uid, $guest_email);
         if (!$can) {
@@ -179,7 +179,7 @@ class TAP_Ajax {
         check_ajax_referer('tap_booking_nonce', 'nonce');
 
         $booking_id   = intval($_POST['booking_id'] ?? 0);
-        $booking_code = sanitize_text_field($_POST['booking_code'] ?? '');
+        $booking_code = sanitize_text_field(wp_unslash($_POST['booking_code'] ?? ''));
         $uid          = get_current_user_id();
 
         $booking = TAP_Booking::get_booking($booking_id);
@@ -190,7 +190,7 @@ class TAP_Ajax {
             wp_send_json_error(['message' => __('Reserva no encontrada.', 'travel-agency-platform')], 404);
         }
 
-        $guest_email = $uid ? '' : sanitize_email($_POST['guest_email'] ?? '');
+        $guest_email = $uid ? '' : sanitize_email(wp_unslash($_POST['guest_email'] ?? ''));
         list($can, ) = TAP_Chat::can_client_chat($booking, $uid, $guest_email);
         if (!$can) {
             wp_send_json_error(['message' => __('No tienes permiso sobre esta reserva.', 'travel-agency-platform')], 403);
@@ -210,13 +210,14 @@ class TAP_Ajax {
     }
 
     public static function search_services() {
-        $keyword = sanitize_text_field($_POST['keyword'] ?? '');
-        $type = sanitize_text_field($_POST['type'] ?? '');
+        check_ajax_referer('tap_nonce', 'nonce');
+        $keyword = sanitize_text_field(wp_unslash($_POST['keyword'] ?? ''));
+        $type = sanitize_text_field(wp_unslash($_POST['type'] ?? ''));
         $location = intval($_POST['location'] ?? 0);
-        $difficulty = sanitize_title($_POST['difficulty'] ?? '');
-        $tour_type = sanitize_title($_POST['tour_type'] ?? '');
-        $check_in = sanitize_text_field($_POST['check_in'] ?? '');
-        $check_out = sanitize_text_field($_POST['check_out'] ?? '');
+        $difficulty = sanitize_title(wp_unslash($_POST['difficulty'] ?? ''));
+        $tour_type = sanitize_title(wp_unslash($_POST['tour_type'] ?? ''));
+        $check_in = sanitize_text_field(wp_unslash($_POST['check_in'] ?? ''));
+        $check_out = sanitize_text_field(wp_unslash($_POST['check_out'] ?? ''));
         $guests = intval($_POST['guests'] ?? 1);
 
         if ($difficulty || $tour_type) {
@@ -283,7 +284,7 @@ class TAP_Ajax {
 
     public static function update_booking_status() {
         $booking_id = intval($_POST['booking_id'] ?? 0);
-        $status     = sanitize_text_field($_POST['status'] ?? '');
+        $status     = sanitize_text_field(wp_unslash($_POST['status'] ?? ''));
 
         $current_user = is_user_logged_in() ? wp_get_current_user() : null;
         $is_admin  = current_user_can('manage_options') || current_user_can('tap_manage_bookings');
@@ -380,7 +381,7 @@ class TAP_Ajax {
     public static function capture_paypal_order() {
         check_ajax_referer('tap_nonce', 'nonce');
 
-        $paypal_order_id = sanitize_text_field($_POST['paypal_order_id'] ?? '');
+        $paypal_order_id = sanitize_text_field(wp_unslash($_POST['paypal_order_id'] ?? ''));
         if (!$paypal_order_id) {
             wp_send_json_error(['message' => __('Invalid PayPal order', 'travel-agency-platform')]);
         }
@@ -452,11 +453,12 @@ class TAP_Ajax {
     }
 
     public static function calculate_booking_total() {
+        check_ajax_referer('tap_nonce', 'nonce');
         $service_id   = intval($_POST['service_id'] ?? 0);
-        $service_type = sanitize_text_field($_POST['service_type'] ?? '');
+        $service_type = sanitize_text_field(wp_unslash($_POST['service_type'] ?? ''));
         $room_id      = intval($_POST['room_id'] ?? 0);
-        $check_in     = sanitize_text_field($_POST['check_in'] ?? '');
-        $check_out    = sanitize_text_field($_POST['check_out'] ?? '');
+        $check_in     = sanitize_text_field(wp_unslash($_POST['check_in'] ?? ''));
+        $check_out    = sanitize_text_field(wp_unslash($_POST['check_out'] ?? ''));
         $adults       = intval($_POST['adults'] ?? 1);
         $children     = intval($_POST['children'] ?? 0);
 
@@ -521,9 +523,10 @@ class TAP_Ajax {
     }
 
     public static function get_public_pricing() {
-        $year     = (int) ($_POST['year'] ?? 0);
-        $month    = (int) ($_POST['month'] ?? 0);
-        $single   = (int) ($_POST['room_id'] ?? 0);
+        check_ajax_referer('tap_nonce', 'nonce');
+        $year     = intval($_POST['year'] ?? 0);
+        $month    = intval($_POST['month'] ?? 0);
+        $single   = intval($_POST['room_id'] ?? 0);
         $room_ids = array_values(array_unique(array_filter(array_map('intval', explode(',', (string) ($_POST['room_ids'] ?? ''))), function ($id) {
             return $id > 0;
         })));
@@ -617,7 +620,7 @@ class TAP_Ajax {
         $tax_query = $query->get('tax_query', []);
 
         // Keyword search (keyword => WordPress search 's')
-        $keyword = sanitize_text_field($_GET['keyword'] ?? '');
+        $keyword = sanitize_text_field(wp_unslash($_GET['keyword'] ?? ''));
         if ($keyword !== '') {
             $query->set('s', $keyword);
         }
@@ -653,13 +656,13 @@ class TAP_Ajax {
         }
 
         // Property type taxonomy
-        $type_slug = sanitize_text_field($_GET['type'] ?? '');
+        $type_slug = sanitize_text_field(wp_unslash($_GET['type'] ?? ''));
         if ($type_slug) {
             $tax_query[] = ['taxonomy' => 'tap_property_type', 'field' => 'slug', 'terms' => $type_slug];
         }
 
         // Amenities taxonomy
-        $amenities = $_GET['amenities'] ?? [];
+        $amenities = (array) wp_unslash($_GET['amenities'] ?? []);
         if (!empty($amenities) && is_array($amenities)) {
             $tax_query[] = ['taxonomy' => 'tap_amenity', 'field' => 'slug', 'terms' => array_map('sanitize_text_field', $amenities), 'operator' => 'AND'];
         }
@@ -673,7 +676,7 @@ class TAP_Ajax {
         }
 
         // Sorting
-        $sort = sanitize_text_field($_GET['sort'] ?? '');
+        $sort = sanitize_text_field(wp_unslash($_GET['sort'] ?? ''));
         switch ($sort) {
             case 'price_asc':
                 $query->set('orderby', 'meta_value_num');
@@ -735,7 +738,8 @@ class TAP_Ajax {
     }
 
     public static function search_suggestions() {
-        $keyword = sanitize_text_field($_POST['keyword'] ?? '');
+        check_ajax_referer('tap_nonce', 'nonce');
+        $keyword = sanitize_text_field(wp_unslash($_POST['keyword'] ?? ''));
         if (strlen($keyword) < 2) wp_send_json_success(['results' => []]);
 
         $results = [];
@@ -797,9 +801,10 @@ class TAP_Ajax {
     }
 
     public static function get_rooms() {
+        check_ajax_referer('tap_nonce', 'nonce');
         $accommodation_id = intval($_POST['accommodation_id'] ?? 0);
-        $check_in  = sanitize_text_field($_POST['check_in'] ?? '');
-        $check_out = sanitize_text_field($_POST['check_out'] ?? '');
+        $check_in  = sanitize_text_field(wp_unslash($_POST['check_in'] ?? ''));
+        $check_out = sanitize_text_field(wp_unslash($_POST['check_out'] ?? ''));
         $adults    = intval($_POST['adults'] ?? 1);
 
         if (!$accommodation_id) {
@@ -817,23 +822,23 @@ class TAP_Ajax {
             wp_send_json_success(['message' => __('Gracias por tu interés.', 'travel-agency-platform')]);
         }
 
-        $fullname    = sanitize_text_field($_POST['agency_name'] ?? '');
-        $username    = sanitize_user($_POST['username'] ?? '', true);
-        $email       = sanitize_email($_POST['email'] ?? '');
-        $password    = (string) ($_POST['password'] ?? '');
-        $phone       = sanitize_text_field($_POST['phone'] ?? '');
-        $whatsapp    = sanitize_text_field($_POST['whatsapp'] ?? '');
-        $website     = esc_url_raw($_POST['website'] ?? '');
-        $address     = sanitize_textarea_field($_POST['address'] ?? '');
-        $city        = sanitize_text_field($_POST['city'] ?? '');
-        $country     = sanitize_text_field($_POST['country'] ?? '');
-        $description = sanitize_textarea_field($_POST['description'] ?? '');
+        $fullname    = sanitize_text_field(wp_unslash($_POST['agency_name'] ?? ''));
+        $username    = sanitize_user(wp_unslash($_POST['username'] ?? ''), true);
+        $email       = sanitize_email(wp_unslash($_POST['email'] ?? ''));
+        $password    = (string) wp_unslash($_POST['password'] ?? '');
+        $phone       = sanitize_text_field(wp_unslash($_POST['phone'] ?? ''));
+        $whatsapp    = sanitize_text_field(wp_unslash($_POST['whatsapp'] ?? ''));
+        $website     = esc_url_raw(wp_unslash($_POST['website'] ?? ''));
+        $address     = sanitize_textarea_field(wp_unslash($_POST['address'] ?? ''));
+        $city        = sanitize_text_field(wp_unslash($_POST['city'] ?? ''));
+        $country     = sanitize_text_field(wp_unslash($_POST['country'] ?? ''));
+        $description = sanitize_textarea_field(wp_unslash($_POST['description'] ?? ''));
 
         $kyc = [
-            'legal_name'   => sanitize_text_field($_POST['kyc_legal_name'] ?? ''),
-            'doc_type'     => in_array((string) ($_POST['kyc_doc_type'] ?? ''), ['fisica', 'juridica'], true) ? sanitize_text_field($_POST['kyc_doc_type']) : '',
-            'doc_number'   => sanitize_text_field($_POST['kyc_doc_number'] ?? ''),
-            'legal_tax_id' => sanitize_text_field($_POST['kyc_legal_tax_id'] ?? ''),
+            'legal_name'   => sanitize_text_field(wp_unslash($_POST['kyc_legal_name'] ?? '')),
+            'doc_type'     => in_array((string) ($_POST['kyc_doc_type'] ?? ''), ['fisica', 'juridica'], true) ? sanitize_text_field(wp_unslash($_POST['kyc_doc_type'])) : '',
+            'doc_number'   => sanitize_text_field(wp_unslash($_POST['kyc_doc_number'] ?? '')),
+            'legal_tax_id' => sanitize_text_field(wp_unslash($_POST['kyc_legal_tax_id'] ?? '')),
         ];
         $kyc_accept = !empty($_POST['kyc_accept']);
 
@@ -965,13 +970,13 @@ class TAP_Ajax {
         }
 
         $result = TAP_Leads::submit([
-            'name'       => $_POST['tap_name'] ?? '',
-            'email'      => $_POST['tap_email'] ?? '',
-            'phone'      => $_POST['tap_phone'] ?? '',
-            'message'    => $_POST['tap_message'] ?? '',
-            'agency_id'  => (int) ($_POST['agency_id'] ?? 0),
-            'service_id' => (int) ($_POST['service_id'] ?? 0),
-            'consent'    => $_POST['tap_privacy_consent'] ?? '',
+            'name'       => sanitize_text_field(wp_unslash($_POST['tap_name'] ?? '')),
+            'email'      => sanitize_email(wp_unslash($_POST['tap_email'] ?? '')),
+            'phone'      => sanitize_text_field(wp_unslash($_POST['tap_phone'] ?? '')),
+            'message'    => sanitize_textarea_field(wp_unslash($_POST['tap_message'] ?? '')),
+            'agency_id'  => intval($_POST['agency_id'] ?? 0),
+            'service_id' => intval($_POST['service_id'] ?? 0),
+            'consent'    => sanitize_key(wp_unslash($_POST['tap_privacy_consent'] ?? '')),
             'source'     => isset($_POST['service_id']) && (int) $_POST['service_id'] > 0 ? 'service' : 'agency',
         ]);
 
@@ -1058,7 +1063,7 @@ class TAP_Ajax {
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => __('Authentication required', 'travel-agency-platform')]);
         }
-        $paypal_order_id = sanitize_text_field($_POST['paypal_order_id'] ?? '');
+        $paypal_order_id = sanitize_text_field(wp_unslash($_POST['paypal_order_id'] ?? ''));
         if (!$paypal_order_id) {
             wp_send_json_error(['message' => __('Invalid order', 'travel-agency-platform')]);
         }
@@ -1138,7 +1143,7 @@ class TAP_Ajax {
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => __('Authentication required', 'travel-agency-platform')]);
         }
-        $paypal_order_id = sanitize_text_field($_POST['paypal_order_id'] ?? '');
+        $paypal_order_id = sanitize_text_field(wp_unslash($_POST['paypal_order_id'] ?? ''));
         if (!$paypal_order_id) {
             wp_send_json_error(['message' => __('Invalid order', 'travel-agency-platform')]);
         }
@@ -1708,7 +1713,7 @@ class TAP_Ajax {
             wp_send_json_error(['message' => __('Tu cuenta no tiene permiso para subir imágenes.', 'travel-agency-platform')], 403);
         }
 
-        $listing_type = isset($_POST['listing_type']) ? sanitize_key($_POST['listing_type']) : 'tap_accommodation';
+        $listing_type = isset($_POST['listing_type']) ? sanitize_key(wp_unslash($_POST['listing_type'])) : 'tap_accommodation';
         $listing_id   = isset($_POST['listing_id']) ? absint($_POST['listing_id']) : 0;
         if ($listing_id && !self::agency_owns_listing($listing_id, $listing_type)) {
             wp_send_json_error(['message' => __('Solo puedes adjuntar imágenes a tus propios listados.', 'travel-agency-platform')], 403);
@@ -1810,7 +1815,7 @@ class TAP_Ajax {
             wp_send_json_error(['message' => __('Debes iniciar sesión.', 'travel-agency-platform')], 403);
         }
 
-        $listing_type = isset($_POST['listing_type']) ? sanitize_key($_POST['listing_type']) : 'tap_accommodation';
+        $listing_type = isset($_POST['listing_type']) ? sanitize_key(wp_unslash($_POST['listing_type'])) : 'tap_accommodation';
         $listing_id   = isset($_POST['listing_id']) ? absint($_POST['listing_id']) : 0;
         if (!$listing_id || get_post_type($listing_id) !== $listing_type) {
             wp_send_json_error(['message' => __('Alojamiento no encontrado.', 'travel-agency-platform')]);
@@ -2055,7 +2060,7 @@ class TAP_Ajax {
             wp_send_json_error(['message' => __('Too many messages. Try again in a moment.', 'travel-agency-platform')], 429);
         }
 
-        $message = sanitize_text_field($_POST['message'] ?? '');
+        $message = sanitize_text_field(wp_unslash($_POST['message'] ?? ''));
         if ('' === trim($message)) {
             wp_send_json_error(['message' => __('Type your question...', 'travel-agency-platform')], 400);
         }

@@ -27,7 +27,7 @@ class TAP_Localization {
     public static function init() {
         add_shortcode('tap_lang_switcher', [__CLASS__, 'switcher']);
         if (!empty($_GET['lang'])) {
-            $lang = sanitize_key((string) $_GET['lang']);
+            $lang = sanitize_key(wp_unslash((string) $_GET['lang']));
             if (isset(self::$langs[$lang]) && !headers_sent()) {
                 setcookie('tap_lang', $lang, time() + YEAR_IN_SECONDS, COOKIEPATH ?: '/');
             }
@@ -48,13 +48,13 @@ class TAP_Localization {
         }
         $lang = '';
         if (!empty($_GET['lang'])) {
-            $candidate = sanitize_key((string) $_GET['lang']);
+            $candidate = sanitize_key(wp_unslash((string) $_GET['lang']));
             if (isset(self::$langs[$candidate])) {
                 $lang = $candidate;
             }
         }
         if ($lang === '' && !empty($_COOKIE['tap_lang'])) {
-            $candidate = sanitize_key((string) $_COOKIE['tap_lang']);
+            $candidate = sanitize_key(wp_unslash((string) $_COOKIE['tap_lang']));
             if (isset(self::$langs[$candidate])) {
                 $lang = $candidate;
             }

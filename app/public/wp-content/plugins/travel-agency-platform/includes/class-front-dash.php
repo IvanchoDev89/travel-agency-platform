@@ -107,7 +107,7 @@ class TAP_Front_Dash {
         $role  = current($roles) ?: 'subscriber';
 
         // Determine active section from query var
-        $section = sanitize_key($_GET['seccion'] ?? 'overview');
+        $section = sanitize_key(wp_unslash($_GET['seccion'] ?? 'overview'));
 
         // Route by role
         if (in_array('tap_agency_admin', $roles, true) || in_array('tap_agency_employee', $roles, true)) {
@@ -579,7 +579,7 @@ class TAP_Front_Dash {
         $is_admin = !in_array('tap_agency_employee', (array) $user->roles, true);
 
         $filters = ['all', 'request', 'pending', 'confirmed', 'completed', 'cancelled', 'refunded'];
-        $status  = sanitize_key($_GET['bo_status'] ?? 'all');
+        $status  = sanitize_key(wp_unslash($_GET['bo_status'] ?? 'all'));
         if (!in_array($status, $filters, true)) {
             $status = 'all';
         }
@@ -1200,7 +1200,7 @@ class TAP_Front_Dash {
         }
 
         $booking_id = absint($_POST['booking_id'] ?? 0);
-        $op         = sanitize_key($_POST['op'] ?? '');
+        $op         = sanitize_key(wp_unslash($_POST['op'] ?? ''));
         if (!$booking_id || !$op) {
             wp_send_json_error(['message' => __('Parámetros inválidos.', 'travel-agency-platform')], 400);
         }
@@ -1305,7 +1305,7 @@ class TAP_Front_Dash {
             wp_send_json_error(['message' => __('No tienes una agencia vinculada.', 'travel-agency-platform')], 400);
         }
 
-        $method = sanitize_key($_POST['method'] ?? 'bank_transfer');
+        $method = sanitize_key(wp_unslash($_POST['method'] ?? 'bank_transfer'));
         $note   = sanitize_textarea_field(wp_unslash($_POST['note'] ?? ''));
         $res    = TAP_Payouts::request($agency, $method, $note);
         if (is_wp_error($res)) {
