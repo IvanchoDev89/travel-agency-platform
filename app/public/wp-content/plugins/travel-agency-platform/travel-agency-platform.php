@@ -51,6 +51,7 @@ final class TravelAgencyPlatform {
         require_once TAP_PLUGIN_DIR . 'includes/class-shortcode-account.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-ajax.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-ajax-public.php';
+        require_once TAP_PLUGIN_DIR . 'includes/class-archive-query.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-chatbot.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-moderation.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-reviews.php';
@@ -101,9 +102,9 @@ final class TravelAgencyPlatform {
         add_action('init', ['TAP_Itinerary', 'init'], 14);
         add_action('init', ['TAP_Front_Dash', 'init'], 15);
         add_action('plugins_loaded', [$this, 'maybe_update_tables'], 5);
-        add_action('pre_get_posts', ['TAP_Ajax', 'filter_archive_query'], 10);
-        add_filter('posts_clauses', ['TAP_Ajax', 'rating_sort_clauses'], 10, 2);
-        add_filter('posts_clauses', ['TAP_Ajax', 'featured_sort_clauses'], 11, 2);
+        add_action('pre_get_posts', ['TAP_Archive_Query', 'filter_archive_query'], 10);
+        add_filter('posts_clauses', ['TAP_Archive_Query', 'rating_sort_clauses'], 10, 2);
+        add_filter('posts_clauses', ['TAP_Archive_Query', 'featured_sort_clauses'], 11, 2);
         add_action('init', function () {
             if (!wp_next_scheduled('tap_maintenance_hook')) {
                 wp_schedule_event(time(), 'hourly', 'tap_maintenance_hook');
