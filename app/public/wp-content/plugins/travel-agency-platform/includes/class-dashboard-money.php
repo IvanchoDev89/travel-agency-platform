@@ -7,7 +7,11 @@
 defined('ABSPATH') || exit;
 
 class TAP_Dashboard_Money {
-    public static function commissions_page() {
+    /**
+     * POST handling for the commissions screen. Every branch redirects and
+     * exits, so the screen never falls through to the renderer from here.
+     */
+    public static function handle_commissions_post() {
         global $wpdb;
         $b_table = $wpdb->prefix . 'tap_bookings';
         $p_table = $wpdb->prefix . 'tap_commission_payments';
@@ -102,6 +106,14 @@ class TAP_Dashboard_Money {
             wp_safe_redirect(admin_url('admin.php?page=tap-commissions&status=' . sanitize_key(wp_unslash($_POST['filter'] ?? 'all')) . '&payout_status=' . sanitize_key(wp_unslash($_POST['payout_filter'] ?? 'all'))));
             exit;
         }
+    }
+
+    public static function commissions_page() {
+        self::handle_commissions_post();
+
+        global $wpdb;
+        $b_table = $wpdb->prefix . 'tap_bookings';
+        $p_table = $wpdb->prefix . 'tap_commission_payments';
 
         $filter = sanitize_key(wp_unslash($_GET['status'] ?? 'all'));
         if (!in_array($filter, ['all', 'owed', 'paid', 'disputed', 'void'], true)) {
