@@ -233,11 +233,14 @@ class TAP_Dashboard_Content {
         $rows_rev = $wpdb->get_results("SELECT agency_id, COUNT(*) AS c, SUM(total_amount) AS rev, SUM(commission_amount) AS comm FROM {$wpdb->prefix}tap_bookings WHERE status NOT IN ('cancelled','refunded') GROUP BY agency_id");
         $revenue_map = [];
         foreach ($rows_rev as $r) { $revenue_map[(int) $r->agency_id] = $r; }
-        $listing_count = $wpdb->get_results(
+        $listing_keys = array_values(TAP_Post_Types::agency_meta_keys());
+        $listing_ph   = implode(',', array_fill(0, count($listing_keys), '%s'));
+        $listing_count = $wpdb->get_results($wpdb->prepare(
             "SELECT meta_value, COUNT(*) AS c FROM {$wpdb->postmeta}
-            WHERE meta_key IN ('_tap_acc_agency_id','_tap_tour_agency_id','_tap_trans_agency_id')
-            GROUP BY meta_value"
-        );
+            WHERE meta_key IN ($listing_ph)
+            GROUP BY meta_value",
+            $listing_keys
+        ));
         $listings_map = [];
         foreach ($listing_count as $l) { $listings_map[(int) $l->meta_value] = (int) $l->c; }
         $total_commission = $wpdb->get_var("SELECT SUM(commission_amount) FROM {$wpdb->prefix}tap_bookings WHERE status NOT IN ('cancelled','refunded')");
@@ -393,7 +396,7 @@ class TAP_Dashboard_Content {
                 update_post_meta($agency_id, '_tap_agency_commission', $c);
                 break;
             case 'delete':
-                $listing_types = ['tap_accommodation' => '_tap_acc_agency_id', 'tap_tour' => '_tap_tour_agency_id', 'tap_transport' => '_tap_trans_agency_id', 'tap_car_rental' => '_tap_car_agency_id', 'tap_boat' => '_tap_boat_agency_id', 'tap_package' => '_tap_pkg_agency_id'];
+                $listing_types = TAP_Post_Types::agency_meta_keys();
                 $listing_ids = get_posts(['post_type' => array_keys($listing_types), 'posts_per_page' => -1, 'fields' => 'ids', 'meta_query' => [['relation' => 'OR', ...array_map(fn($mk) => ['key' => $mk, 'value' => $agency_id], array_values($listing_types))]]]);
                 foreach ($listing_ids as $lid) {
                     foreach ($listing_types as $mk) {

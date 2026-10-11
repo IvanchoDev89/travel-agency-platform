@@ -45,7 +45,12 @@ tap_t_assert(strpos($email_src, 'page=tap-dashboard') === false, 'emails no long
 tap_t_assert(strpos($email_src, 'admin.php?page=tap-bookings') !== false, 'emails point to the bookings admin page');
 tap_t_assert(strpos($short_src, 'currency=USD') === false, 'paypal sdk urls do not hardcode USD');
 tap_t_assert(strpos($short_src, 'currency=') === false || strpos($short_src, 'TAP_Currency::code()') !== false, 'paypal sdk urls use the platform currency');
-tap_t_assert(strpos($dash_src, '_tap_car_agency_id') !== false && strpos($dash_src, '_tap_pkg_agency_id') !== false, 'agency delete cleans car/boat/package listings too');
+tap_t_assert(strpos($dash_src, 'TAP_Post_Types::agency_meta_keys()') !== false, 'agency delete uses the canonical agency meta keys');
+$agency_keys = TAP_Post_Types::agency_meta_keys();
+tap_t_assert(
+    isset($agency_keys['tap_car_rental'], $agency_keys['tap_boat'], $agency_keys['tap_package'], $agency_keys['tap_equipment']),
+    'agency delete cleans car/boat/package/equipment listings too'
+);
 
 $theme_dir = get_stylesheet_directory();
 $header_src = file_get_contents($theme_dir . '/header.php');

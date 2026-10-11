@@ -1277,17 +1277,7 @@ class TAP_Booking {
     }
 
     private static function resolve_agency_id($service_type, $service_id) {
-        $meta_key = '';
-
-        switch ($service_type) {
-            case 'tap_accommodation': $meta_key = '_tap_acc_agency_id'; break;
-            case 'tap_tour':          $meta_key = '_tap_tour_agency_id'; break;
-            case 'tap_transport':     $meta_key = '_tap_trans_agency_id'; break;
-            case 'tap_car_rental':    $meta_key = '_tap_car_agency_id'; break;
-            case 'tap_boat':          $meta_key = '_tap_boat_agency_id'; break;
-            case 'tap_package':       $meta_key = '_tap_pkg_agency_id'; break;
-            case 'tap_equipment':     $meta_key = '_tap_eq_agency_id'; break;
-        }
+        $meta_key = TAP_Post_Types::agency_meta_key($service_type);
 
         if ($meta_key) {
             $agency_id = get_post_meta($service_id, $meta_key, true);

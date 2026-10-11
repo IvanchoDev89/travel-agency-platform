@@ -15,6 +15,17 @@ tap_t_assert(!empty($types['tap_equipment']), 'tap_equipment in service types ma
 tap_t_assert('eq' === TAP_Post_Types::meta_prefix('tap_equipment'), 'meta_prefix eq for equipment');
 tap_t_assert('_tap_eq_price_day' === TAP_API::get_price_key('tap_equipment'), 'API price key = _tap_eq_price_day');
 
+// ---- canonical agency-ownership key (D4) ----
+tap_t_assert('_tap_eq_agency_id' === TAP_Post_Types::agency_meta_key('tap_equipment'), 'agency_meta_key for equipment');
+tap_t_assert('_tap_acc_agency_id' === TAP_Post_Types::agency_meta_key('tap_accommodation'), 'agency_meta_key for accommodation');
+tap_t_assert('' === TAP_Post_Types::agency_meta_key('not_a_type'), 'agency_meta_key is empty for unknown types');
+$agency_keys = TAP_Post_Types::agency_meta_keys();
+tap_t_assert(7 === count($agency_keys), 'agency_meta_keys covers all seven service types (got ' . count($agency_keys) . ')');
+tap_t_assert('_tap_eq_agency_id' === ($agency_keys['tap_equipment'] ?? ''), 'agency_meta_keys includes equipment');
+foreach ($agency_keys as $kt => $kv) {
+    tap_t_assert($kv === TAP_Post_Types::agency_meta_key($kt), "agency_meta_keys agrees with agency_meta_key for $kt");
+}
+
 // Fixture.
 $agency = tap_t_test_agency();
 $eq = wp_insert_post([

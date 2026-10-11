@@ -856,26 +856,27 @@ class TAP_Front_Dash {
             }
         }
 
-        $listing_types = [
-            'tap_accommodation' => ['meta' => '_tap_acc_agency_id',  'label' => __('Alojamientos', 'travel-agency-platform')],
-            'tap_tour'          => ['meta' => '_tap_tour_agency_id', 'label' => __('Tours', 'travel-agency-platform')],
-            'tap_transport'     => ['meta' => '_tap_trans_agency_id', 'label' => __('Transportes', 'travel-agency-platform')],
-            'tap_car_rental'    => ['meta' => '_tap_car_agency_id',  'label' => __('Alquiler de carros', 'travel-agency-platform')],
-            'tap_boat'          => ['meta' => '_tap_boat_agency_id', 'label' => __('Barcos', 'travel-agency-platform')],
-            'tap_package'       => ['meta' => '_tap_pkg_agency_id',  'label' => __('Paquetes', 'travel-agency-platform')],
+        $listing_labels = [
+            'tap_accommodation' => __('Alojamientos', 'travel-agency-platform'),
+            'tap_tour'          => __('Tours', 'travel-agency-platform'),
+            'tap_transport'     => __('Transportes', 'travel-agency-platform'),
+            'tap_car_rental'    => __('Alquiler de carros', 'travel-agency-platform'),
+            'tap_boat'          => __('Barcos', 'travel-agency-platform'),
+            'tap_package'       => __('Paquetes', 'travel-agency-platform'),
+            'tap_equipment'     => __('Equipo', 'travel-agency-platform'),
         ];
         $listings = [];
-        foreach ($listing_types as $type => $cfg) {
+        foreach ($listing_labels as $type => $label) {
             $ids = get_posts([
                 'post_type'      => $type,
                 'post_status'    => 'any',
                 'posts_per_page' => -1,
-                'meta_key'       => $cfg['meta'],
+                'meta_key'       => TAP_Post_Types::agency_meta_key($type),
                 'meta_value'     => $agency_id,
                 'fields'         => 'ids',
             ]);
             if ($ids) {
-                $listings[$type] = ['label' => $cfg['label'], 'count' => count($ids)];
+                $listings[$type] = ['label' => $label, 'count' => count($ids)];
             }
         }
 

@@ -107,14 +107,7 @@ class TAP_Subscriptions {
     }
 
     public static function listing_count($agency_id) {
-        $types = [
-            'tap_accommodation' => '_tap_acc_agency_id',
-            'tap_tour'          => '_tap_tour_agency_id',
-            'tap_transport'     => '_tap_trans_agency_id',
-            'tap_car_rental'    => '_tap_car_agency_id',
-            'tap_boat'          => '_tap_boat_agency_id',
-            'tap_package'       => '_tap_pkg_agency_id',
-        ];
+        $types = TAP_Post_Types::agency_meta_keys();
         $total = 0;
         foreach ($types as $post_type => $meta) {
             $ids = get_posts([

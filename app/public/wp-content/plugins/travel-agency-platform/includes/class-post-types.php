@@ -297,11 +297,10 @@ class TAP_Post_Types {
     }
 
     /**
-     * Resolve the per-type metadata prefix (without leading "_tap_").
-     * Canonical map for all service types' meta keys.
+     * Canonical prefixes of every service type's meta keys.
      */
-    public static function meta_prefix($post_type) {
-        $prefixes = [
+    private static function prefixes() {
+        return [
             'tap_accommodation' => 'acc',
             'tap_tour'          => 'tour',
             'tap_transport'     => 'trans',
@@ -310,7 +309,39 @@ class TAP_Post_Types {
             'tap_package'       => 'pkg',
             'tap_equipment'     => 'eq',
         ];
+    }
+
+    /**
+     * Resolve the per-type metadata prefix (without leading "_tap_").
+     * Canonical map for all service types' meta keys.
+     */
+    public static function meta_prefix($post_type) {
+        $prefixes = self::prefixes();
         return isset($prefixes[$post_type]) ? $prefixes[$post_type] : '';
+    }
+
+    /**
+     * Canonical key that stores the owning agency on a listing.
+     *
+     * Previously re-declared in six files and it had drifted: one covered
+     * three types, four covered six and only TAP_Booking covered all seven.
+     */
+    public static function agency_meta_key($post_type) {
+        $prefix = self::meta_prefix($post_type);
+        return $prefix ? '_tap_' . $prefix . '_agency_id' : '';
+    }
+
+    /**
+     * Canonical agency-ownership key per service type.
+     *
+     * @return array<string,string>
+     */
+    public static function agency_meta_keys() {
+        $keys = [];
+        foreach (array_keys(self::prefixes()) as $type) {
+            $keys[$type] = self::agency_meta_key($type);
+        }
+        return $keys;
     }
 
     public static function get_accommodation_rooms($accommodation_id) {
