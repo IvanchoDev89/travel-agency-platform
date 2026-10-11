@@ -995,7 +995,7 @@ class TAP_Acc_Wizard {
             $items[] = ['id' => $gid, 'url' => $gurl, 'thumb' => $gthumb ?: $gurl];
         }
         $initial = wp_json_encode($items);
-        $max_mb  = size_format(TAP_Ajax::agency_image_max_bytes());
+        $max_mb  = size_format(TAP_Agency_Media::agency_image_max_bytes());
         ob_start();
         ?>
         <div class="tap-uploader"
@@ -1003,7 +1003,7 @@ class TAP_Acc_Wizard {
              data-parent-id="<?php echo (int) $parent_id; ?>"
              data-post-type="<?php echo esc_attr($listing_type); ?>"
              data-initial="<?php echo esc_attr($initial); ?>"
-             data-max-bytes="<?php echo (int) TAP_Ajax::agency_image_max_bytes(); ?>">
+             data-max-bytes="<?php echo (int) TAP_Agency_Media::agency_image_max_bytes(); ?>">
             <div class="tap-uploader-bar">
                 <label class="tap-btn tap-btn-sm tap-uploader-pick">
                     <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple>
@@ -1121,7 +1121,7 @@ class TAP_Acc_Wizard {
             'currency'        => $currency_symbol,
             'currencyCode'    => $currency_code,
             'decimals'        => $currency_decimals,
-            'maxUploadBytes'  => TAP_Ajax::agency_image_max_bytes(),
+            'maxUploadBytes'  => TAP_Agency_Media::agency_image_max_bytes(),
             'bedTypes'        => self::acc_bed_labels(),
             'i18n' => [
                 'saved'         => __('Guardado', 'travel-agency-platform'),

@@ -98,21 +98,21 @@ $fe_tok = is_array($bed_types) && isset($bed_types['king'], $bed_types['queen'],
 tap_t_assert($fe_tok, 'TAP_Post_Types::bed_types exposes the expected bed vocabulary');
 
 /* ══ 1) F3-1: featured image + gallery sideload ───────────────────── */
-tap_t_assert(0 === TAP_Ajax::sideload_image('https://'), 'sideload_image rejects an invalid URL with 0');
+tap_t_assert(0 === TAP_Agency_Media::sideload_image('https://'), 'sideload_image rejects an invalid URL with 0');
 $fails = [];
 $cb_fail = function ($pre, $args, $url) use (&$fails) {
     $fails[] = $url;
     return new WP_Error('http_fail', 'unreachable');
 };
 add_filter('pre_http_request', $cb_fail, 10, 3);
-tap_t_assert(0 === TAP_Ajax::sideload_image('http://93.184.216.34/nope.png'), 'sideload_image degrades to 0 when the download fails');
+tap_t_assert(0 === TAP_Agency_Media::sideload_image('http://93.184.216.34/nope.png'), 'sideload_image degrades to 0 when the download fails');
 remove_filter('pre_http_request', $cb_fail, 10);
 tap_t_assert(count($fails) > 0, 'the download failure went through pre_http_request');
 
 $http_calls = [];
 $cb_ok = fe_install_http_ok(['img-a.png', 'img-b.png'], $http_calls);
-$att_a = TAP_Ajax::sideload_image('http://93.184.216.34/media/img-a.png');
-$att_b = TAP_Ajax::sideload_image('http://93.184.216.34/media/img-b.png');
+$att_a = TAP_Agency_Media::sideload_image('http://93.184.216.34/media/img-a.png');
+$att_b = TAP_Agency_Media::sideload_image('http://93.184.216.34/media/img-b.png');
 tap_t_assert(is_int($att_a) && $att_a > 0 && is_int($att_b) && $att_b > 0 && $att_a !== $att_b, 'sideload_image created two distinct Media Library attachments');
 $fe_atts[] = $att_a;
 $fe_atts[] = $att_b;

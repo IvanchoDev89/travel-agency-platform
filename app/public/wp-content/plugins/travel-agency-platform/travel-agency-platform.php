@@ -53,6 +53,7 @@ final class TravelAgencyPlatform {
         require_once TAP_PLUGIN_DIR . 'includes/class-shortcode-account.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-ajax.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-ajax-public.php';
+        require_once TAP_PLUGIN_DIR . 'includes/class-agency-media.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-archive-query.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-chatbot.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-moderation.php';
@@ -152,7 +153,7 @@ final class TravelAgencyPlatform {
         add_action('wp_ajax_tap_agency_save_listing', ['TAP_Ajax', 'agency_save_listing']);
         add_action('wp_ajax_tap_agency_save_room', ['TAP_Ajax', 'agency_save_room']);
         add_action('wp_ajax_tap_agency_delete_room', ['TAP_Ajax', 'agency_delete_room']);
-        add_action('wp_ajax_tap_agency_upload_image', ['TAP_Ajax', 'agency_upload_image']);
+        add_action('wp_ajax_tap_agency_upload_image', ['TAP_Agency_Media', 'agency_upload_image']);
         add_action('wp_ajax_tap_agency_toggle_publish', ['TAP_Ajax', 'agency_toggle_publish']);
         add_action('wp_ajax_tap_toggle_favorite', ['TAP_Ajax', 'toggle_favorite']);
         add_action('wp_ajax_tap_agency_subscribe', ['TAP_Ajax', 'agency_subscribe']);
