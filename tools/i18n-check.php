@@ -42,6 +42,47 @@ function tap_po_unquote($raw) {
     return stripcslashes($raw);
 }
 
+/**
+ * msgids whose msgstr is still empty.
+ *
+ * A `msgstr ""` opener is normal for a wrapped translation: the real text sits
+ * on the following "..." lines, so those continuations have to be joined
+ * before deciding an entry is untranslated. Plural entries (msgstr[0]) are
+ * skipped, as they do not use the plain msgstr form.
+ */
+function tap_po_untranslated($file) {
+    $empty = [];
+    $lines = file($file, FILE_IGNORE_NEW_LINES);
+    $i     = 0;
+    $n     = count($lines);
+    while ($i < $n) {
+        $line = trim($lines[$i]);
+        if (strpos($line, 'msgid ') !== 0) {
+            $i++;
+            continue;
+        }
+        $msg = tap_po_unquote(substr($line, 6));
+        $i++;
+        while ($i < $n && substr(trim($lines[$i]), 0, 1) === '"') {
+            $msg .= tap_po_unquote($lines[$i]);
+            $i++;
+        }
+        if ($msg === '' || $i >= $n || strpos(trim($lines[$i]), 'msgstr ') !== 0) {
+            continue;
+        }
+        $str = tap_po_unquote(substr(trim($lines[$i]), 7));
+        $i++;
+        while ($i < $n && substr(trim($lines[$i]), 0, 1) === '"') {
+            $str .= tap_po_unquote($lines[$i]);
+            $i++;
+        }
+        if ($str === '') {
+            $empty[] = $msg;
+        }
+    }
+    return $empty;
+}
+
 /** All msgids (and msgid_plural forms) declared in a .po file. */
 function tap_po_msgids($file) {
     $ids   = [];
@@ -200,10 +241,18 @@ foreach ($catalogs as $locale => $file) {
             fwrite(STDERR, "[i18n-check] $locale missing: $shown\n");
         }
     }
+    $untranslated = tap_po_untranslated($file);
+    if ($untranslated) {
+        $problems += count($untranslated);
+        foreach ($untranslated as $msg) {
+            $shown = strlen($msg) > 90 ? substr($msg, 0, 87) . '...' : $msg;
+            fwrite(STDERR, "[i18n-check] $locale untranslated: $shown\n");
+        }
+    }
 }
 
 if ($problems) {
-    fwrite(STDERR, "[i18n-check] FAILED: $problems missing catalog entries. Run 'make i18n'.\n");
+    fwrite(STDERR, "[i18n-check] FAILED: $problems catalog entries missing or untranslated. Run 'make i18n'.\n");
     exit(1);
 }
 echo "[i18n-check] OK\n";
