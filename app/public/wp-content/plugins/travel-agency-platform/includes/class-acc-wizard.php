@@ -177,10 +177,10 @@ class TAP_Acc_Wizard {
 
     public static function acc_cancellation_hint($key) {
         $hints = [
-            'flexible'   => __('Cancelación gratuita hasta 24 h antes de la llegada.', 'travel-agency-platform'),
-            'moderate'   => __('Cancelación gratuita hasta 5 días antes de la llegada.', 'travel-agency-platform'),
-            'strict'     => __('Cancelación gratuita hasta 10 días antes de la llegada.', 'travel-agency-platform'),
-            'nonrefund'  => __('Sin reembolso una vez confirmada la reserva.', 'travel-agency-platform'),
+            'flexible'       => __('Cancelación gratuita hasta 24 h antes de la llegada.', 'travel-agency-platform'),
+            'moderate'       => __('Cancelación gratuita hasta 5 días antes de la llegada.', 'travel-agency-platform'),
+            'strict'         => __('50% de reembolso hasta 7 días antes de la llegada.', 'travel-agency-platform'),
+            'non_refundable' => __('Sin reembolso una vez confirmada la reserva.', 'travel-agency-platform'),
         ];
         return isset($hints[$key]) ? $hints[$key] : '';
     }
