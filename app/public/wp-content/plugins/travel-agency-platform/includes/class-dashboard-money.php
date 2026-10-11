@@ -12,7 +12,7 @@ class TAP_Dashboard_Money {
         $b_table = $wpdb->prefix . 'tap_bookings';
         $p_table = $wpdb->prefix . 'tap_commission_payments';
 
-        if (isset($_POST['tap_pay_commissions']) && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'tap_pay_commissions')) {
+        if (TAP_Dashboard::post_verified('tap_pay_commissions', 'tap_pay_commissions')) {
             $ids   = array_map('intval', (array) ($_POST['booking_ids'] ?? []));
             $note  = sanitize_textarea_field(wp_unslash($_POST['note'] ?? ''));
             $method = sanitize_key(wp_unslash($_POST['method'] ?? 'bank_transfer'));
@@ -59,7 +59,7 @@ class TAP_Dashboard_Money {
             exit;
         }
 
-        if (isset($_POST['tap_settle_booking']) && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'tap_settle_booking')) {
+        if (TAP_Dashboard::post_verified('tap_settle_booking', 'tap_settle_booking')) {
             $booking_id = intval($_POST['booking_id'] ?? 0);
             $method = sanitize_key(wp_unslash($_POST['method'] ?? 'bank_transfer'));
             $note   = sanitize_textarea_field(wp_unslash($_POST['note'] ?? ''));
@@ -86,7 +86,7 @@ class TAP_Dashboard_Money {
         if (isset($_POST['tap_payout_action']) && isset($_POST['_wpnonce'])) {
             $payment_id = intval($_POST['payout_id'] ?? 0);
             $action     = sanitize_key(wp_unslash($_POST['tap_payout_action'] ?? ''));
-            if ($payment_id && in_array($action, ['complete', 'cancel', 'failed'], true) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'tap_payout_action_' . $payment_id)) {
+            if ($payment_id && in_array($action, ['complete', 'cancel', 'failed'], true) && TAP_Dashboard::post_nonce_ok('tap_payout_action_' . $payment_id)) {
                 if ('complete' === $action) {
                     TAP_Payouts::complete($payment_id);
                     set_transient('tap_commission_notice', __('Liquidación marcada como completada.', 'travel-agency-platform'), 60);
@@ -395,7 +395,7 @@ class TAP_Dashboard_Money {
         if (isset($_POST['tap_resolve_dispute']) && isset($_POST['_wpnonce'])) {
             $dispute_id = intval($_POST['dispute_id'] ?? 0);
             $outcome    = sanitize_key(wp_unslash($_POST['outcome'] ?? ''));
-            if ($dispute_id && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'tap_resolve_dispute_' . $dispute_id)) {
+            if ($dispute_id && TAP_Dashboard::post_nonce_ok('tap_resolve_dispute_' . $dispute_id)) {
                 $note = sanitize_textarea_field(wp_unslash($_POST['resolution_note'] ?? ''));
                 $res  = TAP_Disputes::resolve($dispute_id, $outcome, $note);
                 if (is_wp_error($res)) {

@@ -77,7 +77,7 @@ class TAP_Dashboard_Settings {
         global $wpdb;
         $t = $wpdb->prefix . 'tap_plans';
 
-        if (isset($_POST['tap_save_plans']) && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'tap_save_plans')) {
+        if (TAP_Dashboard::post_verified('tap_save_plans', 'tap_save_plans')) {
             foreach ((array) wp_unslash($_POST['tap_plans'] ?? []) as $id => $row) {
                 $id = (int) $id;
                 $existing = $wpdb->get_row($wpdb->prepare("SELECT * FROM $t WHERE id = %d", $id));
@@ -134,7 +134,7 @@ class TAP_Dashboard_Settings {
         $t_plan = $wpdb->prefix . 'tap_plans';
         $t_age  = $wpdb->prefix . 'tap_agencies';
 
-        if (isset($_POST['tap_mark_paid']) && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'tap_mark_subscription_paid')) {
+        if (TAP_Dashboard::post_verified('tap_mark_paid', 'tap_mark_subscription_paid')) {
             $sub_id = intval($_POST['sub_id'] ?? 0);
             $months = intval($_POST['months'] ?? 1);
             $result = TAP_Subscriptions::mark_paid($sub_id, get_current_user_id(), $months);
@@ -145,7 +145,7 @@ class TAP_Dashboard_Settings {
             }
         }
 
-        if (isset($_POST['tap_expire_sub']) && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'tap_expire_subscription')) {
+        if (TAP_Dashboard::post_verified('tap_expire_sub', 'tap_expire_subscription')) {
             $wpdb->update($t_sub, ['status' => 'expired'], ['id' => intval($_POST['sub_id'] ?? 0)]);
             echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Subscription expired.', 'travel-agency-platform') . '</p></div>';
         }
@@ -209,7 +209,7 @@ class TAP_Dashboard_Settings {
         $t_promo = $wpdb->prefix . 'tap_promos';
         $t_age   = $wpdb->prefix . 'tap_agencies';
 
-        if (isset($_POST['tap_promo_activate']) && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'tap_promo_activate_nonce')) {
+        if (TAP_Dashboard::post_verified('tap_promo_activate', 'tap_promo_activate_nonce')) {
             $months = min(24, max(1, intval($_POST['months'] ?? 1)));
             $result = class_exists('TAP_Promotions') ? TAP_Promotions::activate(intval($_POST['promo_id'] ?? 0), get_current_user_id(), $months) : null;
             if (is_wp_error($result)) {
@@ -219,7 +219,7 @@ class TAP_Dashboard_Settings {
             }
         }
 
-        if (isset($_POST['tap_promo_expire']) && isset($_POST['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'tap_promo_expire_nonce')) {
+        if (TAP_Dashboard::post_verified('tap_promo_expire', 'tap_promo_expire_nonce')) {
             if (class_exists('TAP_Promotions')) {
                 TAP_Promotions::expire(intval($_POST['promo_id'] ?? 0));
             }

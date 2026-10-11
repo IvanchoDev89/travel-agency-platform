@@ -187,4 +187,25 @@ class TAP_Dashboard {
         return $line;
     }
 
+    /**
+     * Verify the nonce carried by an admin POST.
+     *
+     * Shared by every back-office form handler, which previously re-declared
+     * the same isset/wp_unslash/sanitize/verify prologue nine times.
+     */
+    public static function post_nonce_ok($action) {
+        if (!isset($_POST['_wpnonce'])) {
+            return false;
+        }
+        $nonce = sanitize_text_field(wp_unslash($_POST['_wpnonce']));
+        return (bool) wp_verify_nonce($nonce, $action);
+    }
+
+    /**
+     * True when the form $trigger was submitted with a valid $action nonce.
+     */
+    public static function post_verified($trigger, $action) {
+        return isset($_POST[$trigger]) && self::post_nonce_ok($action);
+    }
+
 }
