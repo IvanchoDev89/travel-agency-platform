@@ -220,8 +220,9 @@ wp_set_current_user(0);
 
 // ── 7) wiring / source guards ───────────────────────────────────────
 $src_front = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-front-dash.php');
-tap_t_assert(false !== strpos($src_front, 'client_cancel_request($booking_id'), 'ajax_cancel_booking delegates to client_cancel_request');
-tap_t_assert(false === strpos($src_front, '"status"           => \'cancelled\',\n                \'cancelled_by\''), 'ajax_cancel_booking no longer writes the raw row');
+$src_dash = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-ajax-dash.php');
+tap_t_assert(false !== strpos($src_dash, 'client_cancel_request($booking_id'), 'ajax_cancel_booking delegates to client_cancel_request');
+tap_t_assert(false === strpos($src_dash, '"status"           => \'cancelled\',\n                \'cancelled_by\''), 'ajax_cancel_booking no longer writes the raw row');
 $src_ajax = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-ajax.php');
 tap_t_assert(false !== strpos($src_ajax, 'record_paid_capture('), 'capture_paypal_order delegates to the idempotent capture path');
 tap_t_assert(false !== strpos($src_ajax, "check_ajax_referer('tap_admin_booking', '_ajax_nonce')"), 'admin branch of update_booking_status is CSRF-protected');

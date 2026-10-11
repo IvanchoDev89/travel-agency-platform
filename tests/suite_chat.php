@@ -27,7 +27,7 @@ tap_t_assert(in_array('booking_id', $cols, true)
 tap_t_assert(get_option('tap_version') === TAP_VERSION, 'tap_version option current');
 tap_t_assert((bool) has_action('wp_ajax_tap_chat_client_thread', ['TAP_Ajax', 'chat_client_thread']), 'live chat: client thread endpoint registered');
 tap_t_assert((bool) has_action('wp_ajax_nopriv_tap_chat_client_thread', ['TAP_Ajax', 'chat_client_thread']), 'live chat: guest thread endpoint registered');
-tap_t_assert((bool) has_action('wp_ajax_tap_dash_chat_unread', ['TAP_Front_Dash', 'ajax_chat_unread']), 'live chat: agency unread endpoint registered');
+tap_t_assert((bool) has_action('wp_ajax_tap_dash_chat_unread', ['TAP_Ajax_Dash', 'ajax_chat_unread']), 'live chat: agency unread endpoint registered');
 
 // --- fixtures -----------------------------------------------------------------------
 $u = tap_t_make_subscriber();

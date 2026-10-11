@@ -150,8 +150,9 @@ if (has_action('wp_ajax_tap_dash_delete_review')) {
 // ---- 14) nonce + security wiring present in class source ----
 $src = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-front-dash.php');
 tap_t_assert(strpos($src, 'tap_front_dash_nonce') !== false, 'dashboard class defines front-dash nonce action');
-tap_t_assert(strpos($src, 'check_ajax_referer') !== false, 'dashboard AJAX handlers verify nonce');
-tap_t_assert(strpos($src, 'wp_send_json_error') !== false, 'dashboard AJAX handlers send error responses');
+$src_dash = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-ajax-dash.php');
+tap_t_assert(strpos($src_dash, 'check_ajax_referer') !== false, 'dashboard AJAX handlers verify nonce');
+tap_t_assert(strpos($src_dash, 'wp_send_json_error') !== false, 'dashboard AJAX handlers send error responses');
 
 // ---- 15) enqueue logic is active for singular dashboard page ----
 if (function_exists('wp_styles')) {
