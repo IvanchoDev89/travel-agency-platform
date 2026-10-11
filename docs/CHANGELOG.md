@@ -6,6 +6,37 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.14] — 2026-10-11
+
+Structural quality pass: eight focused classes extracted from the god classes, two real bugs fixed, and the static guards extended. No public API changed and no user-visible feature was added.
+
+### Fixed
+
+- **Propiedad de agencia (D4)**: `TAP_Post_Types` expone `prefixes()`, `agency_meta_key()` y `agency_meta_keys()` como fuente canónica. Los 6 sitios que derivaban `_tap_agency_id` de forma independiente —y divergían entre sí— ahora las usan. *Cambio de comportamiento deliberado*: los listados de equipo (`tap_equipment`) pasan a contar para los límites del plan, a aparecer en los paneles de agencia y en las estadísticas de admin, y a limpiarse al borrar la agencia. SQL del listado con `IN` ahora vía `$wpdb->prepare`.
+- **Pistas de cancelación (D13)**: `TAP_Acc_Wizard::acc_cancellation_hint` devolvía la clave inexistente `nonrefund` y una pista en blanco para `strict`. Ahora usa `non_refundable` y *"50% de reembolso hasta 7 días antes de la llegada."*.
+- **`ajax-nonce-check` ignoraba comentarios**: `tap_method_body()` trataba toda comilla como apertura de cadena sin saltarse `//` ni `/* */`. Un apóstrofo dentro de un comentario (`PayPal's`) abría una cadena fantasma, desbalanceaba el conteo de llaves y reportaba como *sin cuerpo* un handler existente, **dejándolo sin auditar**. El bucle ahora salta comentarios antes de mirar comillas; cobertura 27/27 → **35/35**.
+
+### Added
+
+- **Ocho clases extraídas** de los god classes, con sus cuerpos movidos *verbatim* y cableadas en el cargador: `TAP_Archive_Query` (144), `TAP_Booking_Stats` (91), `TAP_Acc_Wizard` (1498, desde `class-listing-editor.php`), `TAP_Agency_Media` (256), `TAP_Guest_Checkout` (33), `TAP_Ajax_Dash` (217), `TAP_Refunds` (159), `TAP_Ajax_Commerce` (342).
+- **`TAP_Dashboard::post_nonce_ok()` / `post_verified()`**: los 9 manejadores POST del back-office redeclaraban el mismo prologo de verificación de nonce.
+- **`i18n-check` valida traducciones**: la guarda solo comprobaba que los msgids existieran; una cadena presente pero sin traducir pasaba inadvertida. Ahora une las líneas de continuación (`msgstr ""` seguido de `"..."`) antes de decidirlo, y omite las entradas plurales.
+
+### Changed
+
+- **Tamaños**: `class-listing-editor.php` 2018 → 538 (−73 %), `class-ajax.php` 2075 → 1052 (−52 %), `class-booking.php` 1649 → 1412, `class-front-dash.php` 1316 → 1115.
+- **`commissions_page`** separa el POST (95 líneas, siempre termina en `redirect`+`exit`) del render (292). La firma pública no cambia. `plans`/`subscriptions`/`promotions_page` no se parten: no redirigen tras el POST, emiten el aviso en línea y siguen al marcado.
+- **Cotización de habitación**: `TAP_Pricing::get_quote` se pedía dos veces con argumentos idénticos en `TAP_Ajax_Public::quote_price`; ahora se pide una sola vez y el resultado alimenta el total y el desglose.
+- **CABecera del plugin** `Version:` corrige el 1.5.7 heredado; todo el código usa `TAP_VERSION`, que es quien gobierna el esquema.
+
+Se revisaron y **rechazaron** tres duplicaciones propuestas tras auditarlas, porque unificarlas habría cambiado comportamiento: los cálculos de noches difieren en su valor por defecto (0, 1 y sin guarda), las dos `csv_cell` tienen contratos distintos (`implode` necesita comillas, `fputcsv` ya cotiza) y los agregados de comisiones son de agencia frente a plataforma.
+
+### Verification
+
+- PHPStan nivel 1 sin errores; `includes-check`, `ajax-nonce-check` 35/35 e `i18n-check` (1823/1823, 0 sin traducir en `es_ES` y `en_US`) en verde.
+- Batería E2E **45/45 suites, 0 fallos**, ejecutada tras cada lote.
+- Los métodos extraídos se contrastaron contra su revisión previa en git: 8 de 9 idénticos byte a byte, y el noveno solo cambió `private`→`public`. Sin código muerto entre las clases nuevas.
+
 ## [1.5.13] — 2026-10-10
 
 ### Added
