@@ -646,7 +646,7 @@ class TAP_Ajax {
         if ($listing_type === 'tap_accommodation') {
             if (array_key_exists('_tap_acc_cancellation', $input)) {
                 $pol = sanitize_key((string) $input['_tap_acc_cancellation']);
-                if (in_array($pol, array_keys(TAP_Booking::cancellation_policies()), true)) {
+                if (in_array($pol, array_keys(TAP_Refunds::cancellation_policies()), true)) {
                     update_post_meta($new_id, '_tap_acc_cancellation', $pol);
                 }
             }

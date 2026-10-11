@@ -10,7 +10,7 @@ require __DIR__ . '/bootstrap.php';
 
 global $wpdb;
 
-$policies = TAP_Booking::cancellation_policies();
+$policies = TAP_Refunds::cancellation_policies();
 tap_t_assert(count($policies) === 4, 'cancellation_policies exposes 4 policies');
 
 // every canonical policy must render a hint in the listing form (D13).
@@ -45,34 +45,34 @@ $tours = get_posts(['post_type' => 'tap_tour', 'post_status' => 'publish', 'post
 $tour_id = $tours ? (int) $tours[0] : 0;
 tap_t_assert($tour_id > 0, 'published tap_tour exists for policy tests');
 
-$resolved = TAP_Booking::cancellation_policy('tap_tour', $tour_id);
+$resolved = TAP_Refunds::cancellation_policy('tap_tour', $tour_id);
 tap_t_assert($resolved === 'strict', 'tour resolves to strict by default, got ' . $resolved);
 
 update_post_meta($tour_id, '_tap_cancellation_policy', 'non_refundable');
-tap_t_assert(TAP_Booking::cancellation_policy('tap_tour', $tour_id) === 'non_refundable', 'listing meta overrides service default');
+tap_t_assert(TAP_Refunds::cancellation_policy('tap_tour', $tour_id) === 'non_refundable', 'listing meta overrides service default');
 delete_post_meta($tour_id, '_tap_cancellation_policy');
-tap_t_assert(TAP_Booking::cancellation_policy('tap_tour', $tour_id) === 'strict', 'listing meta removed -> falls back to service default');
+tap_t_assert(TAP_Refunds::cancellation_policy('tap_tour', $tour_id) === 'strict', 'listing meta removed -> falls back to service default');
 
 $accs = get_posts(['post_type' => 'tap_accommodation', 'post_status' => 'publish', 'posts_per_page' => 1, 'fields' => 'ids']);
 if ($accs) {
     $acc_id = (int) $accs[0];
     update_post_meta($acc_id, '_tap_acc_cancellation', 'moderate');
-    tap_t_assert(TAP_Booking::cancellation_policy('tap_accommodation', $acc_id) === 'moderate', 'accommodation legacy meta honored');
+    tap_t_assert(TAP_Refunds::cancellation_policy('tap_accommodation', $acc_id) === 'moderate', 'accommodation legacy meta honored');
     delete_post_meta($acc_id, '_tap_acc_cancellation');
 }
-tap_t_assert(TAP_Booking::cancellation_policy('tap_unknown_type', 0) === 'flexible', 'unknown service type falls back to flexible');
+tap_t_assert(TAP_Refunds::cancellation_policy('tap_unknown_type', 0) === 'flexible', 'unknown service type falls back to flexible');
 
 // ---- 3) refund_percent tables ----
-tap_t_assert(TAP_Booking::refund_percent('flexible', 1) === 100, 'flexible 1+ days -> 100%');
-tap_t_assert(TAP_Booking::refund_percent('flexible', 0) === 0, 'flexible 0 days -> 0%');
-tap_t_assert(TAP_Booking::refund_percent('moderate', 10) === 100, 'moderate 10d -> 100%');
-tap_t_assert(TAP_Booking::refund_percent('moderate', 4) === 50, 'moderate 4d -> 50%');
-tap_t_assert(TAP_Booking::refund_percent('moderate', 2) === 50, 'moderate 2d -> 50%');
-tap_t_assert(TAP_Booking::refund_percent('moderate', 1) === 0, 'moderate 1d -> 0%');
-tap_t_assert(TAP_Booking::refund_percent('strict', 7) === 50, 'strict 7d -> 50%');
-tap_t_assert(TAP_Booking::refund_percent('strict', 8) === 50, 'strict 8d -> 50%');
-tap_t_assert(TAP_Booking::refund_percent('strict', 6) === 0, 'strict 6d -> 0%');
-tap_t_assert(TAP_Booking::refund_percent('non_refundable', 30) === 0, 'non_refundable -> 0% always');
+tap_t_assert(TAP_Refunds::refund_percent('flexible', 1) === 100, 'flexible 1+ days -> 100%');
+tap_t_assert(TAP_Refunds::refund_percent('flexible', 0) === 0, 'flexible 0 days -> 0%');
+tap_t_assert(TAP_Refunds::refund_percent('moderate', 10) === 100, 'moderate 10d -> 100%');
+tap_t_assert(TAP_Refunds::refund_percent('moderate', 4) === 50, 'moderate 4d -> 50%');
+tap_t_assert(TAP_Refunds::refund_percent('moderate', 2) === 50, 'moderate 2d -> 50%');
+tap_t_assert(TAP_Refunds::refund_percent('moderate', 1) === 0, 'moderate 1d -> 0%');
+tap_t_assert(TAP_Refunds::refund_percent('strict', 7) === 50, 'strict 7d -> 50%');
+tap_t_assert(TAP_Refunds::refund_percent('strict', 8) === 50, 'strict 8d -> 50%');
+tap_t_assert(TAP_Refunds::refund_percent('strict', 6) === 0, 'strict 6d -> 0%');
+tap_t_assert(TAP_Refunds::refund_percent('non_refundable', 30) === 0, 'non_refundable -> 0% always');
 
 // ---- 4) cancellation_refund computation on a booking object ----
 $future = date('Y-m-d', strtotime('+10 days'));
@@ -86,7 +86,7 @@ $booking_far = (object) [
     'check_in'     => $future,
     'total_amount' => 200,
 ];
-$refund = TAP_Booking::cancellation_refund($booking_far);
+$refund = TAP_Refunds::cancellation_refund($booking_far);
 tap_t_assert($refund['policy'] === 'strict', 'computed policy is strict');
 tap_t_assert($refund['refund_percent'] === 50 && $refund['refund_amount'] === 100.0, 'strict 10d -> 50% of 200 = 100');
 
@@ -96,10 +96,10 @@ $booking_near = (object) [
     'check_in'     => date('Y-m-d', strtotime('+2 days')),
     'total_amount' => 200,
 ];
-$refund = TAP_Booking::cancellation_refund($booking_near);
+$refund = TAP_Refunds::cancellation_refund($booking_near);
 tap_t_assert($refund['refund_percent'] === 0 && $refund['refund_amount'] === 0.0, 'strict 2d -> 0% refund');
 
-tap_t_assert(TAP_Booking::refund_summary((object) ['service_type' => 'tap_tour', 'service_id' => $tour_id, 'check_in' => $future, 'total_amount' => 100, 'refund_amount' => 50]) !== '', 'refund_summary renders non-empty text');
+tap_t_assert(TAP_Refunds::refund_summary((object) ['service_type' => 'tap_tour', 'service_id' => $tour_id, 'check_in' => $future, 'total_amount' => 100, 'refund_amount' => 50]) !== '', 'refund_summary renders non-empty text');
 
 // ---- 5) client_cancel_request applies the policy on a paid booking ----
 $client_id = tap_t_make_subscriber();

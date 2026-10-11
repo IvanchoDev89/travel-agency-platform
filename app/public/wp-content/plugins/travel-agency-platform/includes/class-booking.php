@@ -24,33 +24,12 @@ class TAP_Booking {
      * TAP_Booking API stable for the plugin and for the test suites.
      */
 
-    public static function cancellation_policies() {
-        return TAP_Refunds::cancellation_policies();
-    }
 
-    public static function default_cancellation_policy($service_type = '') {
-        return TAP_Refunds::default_cancellation_policy($service_type);
-    }
 
-    public static function cancellation_policy($service_type = '', $service_id = 0) {
-        return TAP_Refunds::cancellation_policy($service_type, $service_id);
-    }
 
-    public static function refund_percent($policy, $days_before) {
-        return TAP_Refunds::refund_percent($policy, $days_before);
-    }
 
-    public static function cancellation_refund($booking) {
-        return TAP_Refunds::cancellation_refund($booking);
-    }
 
-    public static function execute_refund($booking_id, $booking = null, $amount = null) {
-        return TAP_Refunds::execute_refund($booking_id, $booking, $amount);
-    }
 
-    public static function refund_summary($booking) {
-        return TAP_Refunds::refund_summary($booking);
-    }
 
     /**
      * Supported service type slugs (used by settings and policy resolution).
@@ -442,7 +421,7 @@ class TAP_Booking {
         global $wpdb;
 
         $prev_status = $booking->status;
-        $refund = self::cancellation_refund($booking);
+        $refund = TAP_Refunds::cancellation_refund($booking);
 
         // Refund the money for real before marking the ledger as refunded.
         // When the gateway refund fails the booking stays cancelled but the
@@ -450,7 +429,7 @@ class TAP_Booking {
         // record why so the nightly cron can retry and reconcile.
         $refund_success = true;
         if ('paid' === $booking->payment_status && (float) $refund['refund_amount'] > 0) {
-            $refund_result = self::execute_refund($booking_id, $booking, $refund['refund_amount']);
+            $refund_result = TAP_Refunds::execute_refund($booking_id, $booking, $refund['refund_amount']);
             if (is_wp_error($refund_result)) {
                 $refund_success = false;
                 update_post_meta($booking_id, '_tap_refund_pending', current_time('mysql'));
@@ -662,13 +641,13 @@ class TAP_Booking {
 
             $amount = (float) ($booking->refund_amount ?? 0);
             if ($amount <= 0) {
-                $amount = self::cancellation_refund($booking)['refund_amount'];
+                $amount = TAP_Refunds::cancellation_refund($booking)['refund_amount'];
             }
             if ($amount <= 0) {
                 continue;
             }
 
-            $result = self::execute_refund($booking_id, $booking, $amount);
+            $result = TAP_Refunds::execute_refund($booking_id, $booking, $amount);
             if (is_wp_error($result)) {
                 continue;
             }

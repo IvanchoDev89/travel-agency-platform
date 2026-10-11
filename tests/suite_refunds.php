@@ -230,7 +230,8 @@ tap_t_assert(false !== strpos($src_ajax, "check_ajax_referer('tap_admin_booking'
 $src_booking = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-booking.php');
 tap_t_assert(false !== strpos($src_booking, "do_action('tap_payment_completed', (int) \$booking_id, \$method, \$capture_id)"), 'record_paid_capture fires tap_payment_completed (receipts + commission)');
 tap_t_assert(false !== strpos($src_booking, 'GET_LOCK'), 'create() serializes room/tour availability with an advisory MySQL lock');
-tap_t_assert(false !== strpos($src_booking, 'function execute_refund('), 'TAP_Booking::execute_refund exists');
+$src_refunds = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-refunds.php');
+tap_t_assert(false !== strpos($src_refunds, 'function execute_refund('), 'TAP_Refunds::execute_refund exists');
 $main_src = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/travel-agency-platform.php');
 tap_t_assert(false !== strpos($main_src, "wp_create_nonce('tap_admin_booking')"), 'admin nonce localized on the admin script');
 

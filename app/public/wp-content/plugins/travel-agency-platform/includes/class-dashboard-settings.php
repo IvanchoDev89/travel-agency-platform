@@ -61,7 +61,7 @@ class TAP_Dashboard_Settings {
             register_setting('tap_settings', 'tap_cancel_policy_' . $slug, [
                 'type' => 'string',
                 'sanitize_callback' => function ($value) {
-                    return in_array($value, array_keys(TAP_Booking::cancellation_policies()), true) ? $value : 'flexible';
+                    return in_array($value, array_keys(TAP_Refunds::cancellation_policies()), true) ? $value : 'flexible';
                 },
             ]);
         }
@@ -370,8 +370,8 @@ class TAP_Dashboard_Settings {
                             <th><label for="tap_cancel_policy_<?php echo esc_attr($slug); ?>"><?php echo esc_html(TAP_Booking::service_type_labels()[$slug] ?? $slug); ?></label></th>
                             <td>
                                 <select id="tap_cancel_policy_<?php echo esc_attr($slug); ?>" name="tap_cancel_policy_<?php echo esc_attr($slug); ?>">
-                                    <?php foreach (TAP_Booking::cancellation_policies() as $key => $label) : ?>
-                                        <option value="<?php echo esc_attr($key); ?>" <?php selected($key, get_option('tap_cancel_policy_' . $slug, TAP_Booking::default_cancellation_policy($slug))); ?>><?php echo esc_html($label); ?></option>
+                                    <?php foreach (TAP_Refunds::cancellation_policies() as $key => $label) : ?>
+                                        <option value="<?php echo esc_attr($key); ?>" <?php selected($key, get_option('tap_cancel_policy_' . $slug, TAP_Refunds::default_cancellation_policy($slug))); ?>><?php echo esc_html($label); ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </td>

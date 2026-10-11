@@ -331,7 +331,7 @@ class TAP_Emails {
                 esc_html(TAP_Currency::fmt((float) $booking->refund_amount))
             );
         } elseif ($status === 'cancelled' && !empty($booking->cancellation_policy)) {
-            $policies = TAP_Booking::cancellation_policies();
+            $policies = TAP_Refunds::cancellation_policies();
             $intro .= '<br><br>' . sprintf(
                 __('Política aplicada: %s.', 'travel-agency-platform'),
                 esc_html($policies[$booking->cancellation_policy] ?? $booking->cancellation_policy)

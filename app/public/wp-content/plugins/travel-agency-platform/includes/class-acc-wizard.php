@@ -26,7 +26,7 @@ class TAP_Acc_Wizard {
             return trim($symbol . ' ' . number_format((float) $amount, (int) $decimals));
         };
         $policy    = get_post_meta($listing_id, '_tap_acc_cancellation', true);
-        $policies  = TAP_Booking::cancellation_policies();
+        $policies  = TAP_Refunds::cancellation_policies();
         $mode      = TAP_Booking::booking_mode('tap_accommodation', $listing_id);
         $rules     = trim((string) get_post_meta($listing_id, '_tap_acc_house_rules', true));
         $thumb     = get_post_thumbnail_id($listing_id);
@@ -193,7 +193,7 @@ class TAP_Acc_Wizard {
         $listing = get_post($listing_id);
         $policy  = (string) get_post_meta($listing_id, '_tap_acc_cancellation', true);
         $rules   = (string) get_post_meta($listing_id, '_tap_acc_house_rules', true);
-        $policies = TAP_Booking::cancellation_policies();
+        $policies = TAP_Refunds::cancellation_policies();
         if ('' === $policy && isset($policies['flexible'])) {
             $policy = 'flexible';
         }

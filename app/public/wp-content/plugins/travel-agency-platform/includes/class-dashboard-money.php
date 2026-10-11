@@ -400,10 +400,11 @@ class TAP_Dashboard_Money {
     }
 
 
-    public static function disputes_page() {
-        global $wpdb;
-        $table = $wpdb->prefix . 'tap_disputes';
-
+    /**
+     * POST handling for the disputes screen. Every branch redirects and exits,
+     * so the screen never falls through to the renderer from here.
+     */
+    public static function handle_disputes_post() {
         if (isset($_POST['tap_resolve_dispute']) && isset($_POST['_wpnonce'])) {
             $dispute_id = intval($_POST['dispute_id'] ?? 0);
             $outcome    = sanitize_key(wp_unslash($_POST['outcome'] ?? ''));
@@ -419,6 +420,13 @@ class TAP_Dashboard_Money {
             wp_safe_redirect(admin_url('admin.php?page=tap-disputes&dfilter=' . sanitize_key(wp_unslash($_POST['dfilter'] ?? 'all'))));
             exit;
         }
+    }
+
+    public static function disputes_page() {
+        self::handle_disputes_post();
+
+        global $wpdb;
+        $table = $wpdb->prefix . 'tap_disputes';
 
         $filter = sanitize_key(wp_unslash($_GET['dfilter'] ?? 'all'));
         $counts = $wpdb->get_row("SELECT
