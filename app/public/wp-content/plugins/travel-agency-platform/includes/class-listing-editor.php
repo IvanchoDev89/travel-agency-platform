@@ -98,7 +98,7 @@ class TAP_Listing_Editor {
                     $args = [
                         'post_type'      => $pt,
                         /* Drafts and pending listings must stay visible: with the
-                           explicit publish action they are a normal state. */
+                            explicit publish action they are a normal state. */
                         'post_status'    => ['publish', 'pending', 'draft'],
                         'posts_per_page' => 50,
                         'orderby'        => 'modified',
@@ -338,7 +338,10 @@ class TAP_Listing_Editor {
                                 <?php
                                 $rgal_val = '';
                                 $rgal_ids = array_filter(array_map('trim', explode(',', (string) get_post_meta($r->ID, '_tap_room_gallery', true))));
-                                $rgal_urls = array_map(function ($id) { $u = wp_get_attachment_image_url((int) $id, 'full'); return $u ? $u : ''; }, $rgal_ids);
+                                $rgal_urls = array_map(function ($id) {
+									$u = wp_get_attachment_image_url((int) $id, 'full');
+									return $u ? $u : '';
+								}, $rgal_ids);
                                 $rgal_val = implode("\n", array_filter($rgal_urls));
                                 ?>
                                 <textarea name="gallery_urls" rows="4" placeholder="<?php esc_attr_e('https://…\nhttps://…', 'travel-agency-platform'); ?>"><?php echo esc_textarea($rgal_val); ?></textarea>
@@ -431,8 +434,8 @@ class TAP_Listing_Editor {
             function bedRowHTML(type, count){
                 var opts = bedTypes.map(function(t){ return '<option value="'+t+'"'+(t===type?' selected':'')+'>'+(bedLabels[t]||t)+'</option>'; }).join('');
                 return '<div class="tap-bed-row"><select class="tap-bed-type">'+opts+'</select>'+
-                       '<input type="number" class="tap-bed-count" min="1" value="'+(count||1)+'">'+
-                       '<button type="button" class="tap-bed-remove" aria-label="Quitar cama">&times;</button></div>';
+                        '<input type="number" class="tap-bed-count" min="1" value="'+(count||1)+'">'+
+                        '<button type="button" class="tap-bed-remove" aria-label="Quitar cama">&times;</button></div>';
             }
             function bindBedBuilder(form){
                 var rows = form.querySelector('.tap-beds-rows');

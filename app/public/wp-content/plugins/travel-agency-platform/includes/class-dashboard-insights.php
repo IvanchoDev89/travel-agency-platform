@@ -175,7 +175,10 @@ class TAP_Dashboard_Insights {
         $mpromo = $wpdb->get_results("SELECT DATE_FORMAT(p.updated_at,'%Y-%m') m, SUM(p.amount) amt FROM {$wpdb->prefix}tap_promos p WHERE p.payment_status='paid' GROUP BY m");
 
         foreach ($monthly as $k => &$row) {
-            foreach ($mbook as $r) { if ($r->m === $row['label']) { $row['bookings'] = (int) $r->c; $row['gmv'] = (float) $r->gmv; $row['commission'] = (float) $r->com; $row['fees'] = (float) $r->fee; } }
+            foreach ($mbook as $r) { if ($r->m === $row['label']) { $row['bookings'] = (int) $r->c;
+					$row['gmv'] = (float) $r->gmv;
+					$row['commission'] = (float) $r->com;
+					$row['fees'] = (float) $r->fee; } }
             foreach ($msub as $r) { if ($r->m === $row['label']) { $row['subs'] = (float) $r->amt; } }
             foreach ($mpromo as $r) { if ($r->m === $row['label']) { $row['promos'] = (float) $r->amt; } }
         }
@@ -389,11 +392,13 @@ class TAP_Dashboard_Insights {
             $header = ['Mes', 'Reservas', 'GMV', 'Comisiones', 'Booking fees', 'Suscripciones', 'Destacados', 'Vistas'];
             $subs = $wpdb->get_results("SELECT DATE_FORMAT(s.created_at,'%Y-%m') mes, SUM(p.price_monthly) total FROM {$wpdb->prefix}tap_agency_subscriptions s JOIN {$wpdb->prefix}tap_plans p ON p.id=s.plan_id WHERE s.payment_status='paid' GROUP BY mes");
             $promos = $wpdb->get_results("SELECT DATE_FORMAT(updated_at,'%Y-%m') mes, SUM(amount) total FROM {$wpdb->prefix}tap_promos WHERE payment_status='paid' GROUP BY mes");
-            $subs_map = []; foreach ($subs as $s) { $subs_map[$s->mes] = (float) $s->total; }
-            $promos_map = []; foreach ($promos as $q) { $promos_map[$q->mes] = (float) $q->total; }
+            $subs_map = [];
+			foreach ($subs as $s) { $subs_map[$s->mes] = (float) $s->total; }
+            $promos_map = [];
+			foreach ($promos as $q) { $promos_map[$q->mes] = (float) $q->total; }
             $views_by_month = [];
             if (class_exists('TAP_Analytics')) {
-                $vrows = $wpdb->get_results("SELECT DATE_FORMAT(view_date,'%Y-%m') mes, COALESCE(SUM(views),0) v FROM " . TAP_Analytics::views_table() . " GROUP BY mes");
+                $vrows = $wpdb->get_results("SELECT DATE_FORMAT(view_date,'%Y-%m') mes, COALESCE(SUM(views),0) v FROM " . TAP_Analytics::views_table() . ' GROUP BY mes');
                 foreach ($vrows as $v) { $views_by_month[$v->mes] = (float) $v->v; }
             }
         }
@@ -417,5 +422,4 @@ class TAP_Dashboard_Insights {
 
     /** Sheet-safe CSV cell: numeric stays untouched, anything the spreadsheet
      * would interpret as a formula gets neutralised with a leading quote. */
-
 }

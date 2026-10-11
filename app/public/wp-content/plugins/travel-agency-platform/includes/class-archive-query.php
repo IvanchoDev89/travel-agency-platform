@@ -26,7 +26,7 @@ class TAP_Archive_Query {
         }
         if (empty($guards)) return $clauses;
 
-        $featured = '(CASE WHEN ' . implode(' OR ', $guards) . " THEN 0 ELSE 1 END)";
+        $featured = '(CASE WHEN ' . implode(' OR ', $guards) . ' THEN 0 ELSE 1 END)';
         $clauses['orderby'] = $featured . ' ASC' . ($clauses['orderby'] ? ', ' . $clauses['orderby'] : '');
         return $clauses;
     }
@@ -140,5 +140,4 @@ class TAP_Archive_Query {
         $query->set('meta_query', $meta_query);
         if (!empty($tax_query)) $query->set('tax_query', $tax_query);
     }
-
 }

@@ -313,5 +313,4 @@ class TAP_Ajax_Public {
         $rooms = TAP_Booking::get_rooms_with_availability($accommodation_id, $check_in, $check_out, $adults);
         wp_send_json_success(['rooms' => $rooms]);
     }
-
 }

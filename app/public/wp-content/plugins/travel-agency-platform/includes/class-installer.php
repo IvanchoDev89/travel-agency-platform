@@ -300,7 +300,7 @@ class TAP_Installer {
         ];
         foreach ($tap_index_backfill as $idx) {
             $has_idx = $wpdb->get_var($wpdb->prepare(
-                "SELECT COUNT(*) FROM information_schema.STATISTICS WHERE table_schema = %s AND table_name = %s AND index_name = %s",
+                'SELECT COUNT(*) FROM information_schema.STATISTICS WHERE table_schema = %s AND table_name = %s AND index_name = %s',
                 DB_NAME,
                 $idx[0],
                 $idx[1]
@@ -358,7 +358,7 @@ class TAP_Installer {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_leads ADD COLUMN mod_reason varchar(50) DEFAULT NULL AFTER mod_status");
         }
 
-$cols_bookings = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
+		$cols_bookings = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
         if (!in_array('booking_fee', $cols_bookings)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN booking_fee decimal(15,2) DEFAULT 0.00 AFTER total_amount");
         }

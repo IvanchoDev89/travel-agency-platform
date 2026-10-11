@@ -18,18 +18,18 @@ class TAP_Subscriptions {
 
     public static function get_plans($include_inactive = false) {
         global $wpdb;
-        $sql = "SELECT * FROM " . self::plans_table();
+        $sql = 'SELECT * FROM ' . self::plans_table();
         if (!$include_inactive) {
-            $sql .= " WHERE is_active = 1";
+            $sql .= ' WHERE is_active = 1';
         }
-        $sql .= " ORDER BY price_monthly ASC, id ASC";
+        $sql .= ' ORDER BY price_monthly ASC, id ASC';
         return $wpdb->get_results($sql);
     }
 
     public static function get_plan($plan_id) {
         global $wpdb;
         return $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM " . self::plans_table() . " WHERE id = %d",
+            'SELECT * FROM ' . self::plans_table() . ' WHERE id = %d',
             (int) $plan_id
         ));
     }
@@ -52,9 +52,9 @@ class TAP_Subscriptions {
         global $wpdb;
         $tplans = self::plans_table();
         return $wpdb->get_row($wpdb->prepare(
-            "SELECT s.*, p.name AS plan_name, p.slug AS plan_slug, p.price_monthly,
+            'SELECT s.*, p.name AS plan_name, p.slug AS plan_slug, p.price_monthly,
                     p.commission_rate, p.listing_limit, p.featured_slots
-             FROM " . self::subs_table() . " s
+             FROM ' . self::subs_table() . " s
              LEFT JOIN $tplans p ON p.id = s.plan_id
              WHERE s.agency_id = %d
              ORDER BY s.created_at DESC LIMIT 1",
@@ -65,8 +65,8 @@ class TAP_Subscriptions {
     public static function active_plan($agency_id) {
         global $wpdb;
         $row = $wpdb->get_row($wpdb->prepare(
-            "SELECT s.*, p.id AS plan_id FROM " . self::subs_table() . " s
-             JOIN " . self::plans_table() . " p ON p.id = s.plan_id
+            'SELECT s.*, p.id AS plan_id FROM ' . self::subs_table() . ' s
+             JOIN ' . self::plans_table() . " p ON p.id = s.plan_id
              WHERE s.agency_id = %d AND s.status = 'active' AND s.paid_until >= CURDATE()
              ORDER BY s.paid_until DESC LIMIT 1",
             (int) $agency_id
@@ -155,7 +155,7 @@ class TAP_Subscriptions {
     public static function mark_paid($sub_id, $admin_id = 0, $months = 1) {
         global $wpdb;
         $sub = $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM " . self::subs_table() . " WHERE id = %d",
+            'SELECT * FROM ' . self::subs_table() . ' WHERE id = %d',
             (int) $sub_id
         ));
         if (!$sub) {
@@ -180,7 +180,7 @@ class TAP_Subscriptions {
         $until = $base->add(new DateInterval('P' . $months . 'M'))->format('Y-m-d');
 
         $wpdb->query($wpdb->prepare(
-            "UPDATE " . self::subs_table() . " SET status = 'expired' WHERE agency_id = %d AND id != %d AND status = 'active'",
+            'UPDATE ' . self::subs_table() . " SET status = 'expired' WHERE agency_id = %d AND id != %d AND status = 'active'",
             (int) $sub->agency_id,
             (int) $sub_id
         ));
@@ -203,7 +203,7 @@ class TAP_Subscriptions {
 
     public static function expire_active() {
         global $wpdb;
-        $wpdb->query("UPDATE " . self::subs_table() . " SET status = 'expired' WHERE status = 'active' AND paid_until < CURDATE()");
+        $wpdb->query('UPDATE ' . self::subs_table() . " SET status = 'expired' WHERE status = 'active' AND paid_until < CURDATE()");
     }
 
     public static function maybe_expire() {

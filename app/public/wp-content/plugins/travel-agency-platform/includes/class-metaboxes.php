@@ -462,7 +462,10 @@ class TAP_Metaboxes {
                         <img src="<?php echo esc_url($img[0]); ?>" style="width:100%;height:100%;object-fit:cover;">
                         <button type="button" class="tap-gallery-remove" data-id="<?php echo esc_attr($id); ?>" style="position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;border:none;background:rgba(0,0,0,0.6);color:#fff;font-size:12px;cursor:pointer;line-height:18px;padding:0;">&times;</button>
                     </div>
-                <?php endif; endforeach; ?>
+						<?php
+                endif;
+endforeach;
+				?>
             </div>
             <input type="hidden" name="_tap_acc_gallery" id="_tap_acc_gallery" value="<?php echo esc_attr($gallery); ?>">
             <button type="button" class="button" id="tap-gallery-add"><?php esc_html_e('Add Images', 'travel-agency-platform'); ?></button>
@@ -572,7 +575,7 @@ class TAP_Metaboxes {
                 $('#_tap_room_beds').val(JSON.stringify(data));
             }
             $('#tap-bed-add').on('click', function() {
-                var row = '<tr class="tap-bed-row"><td><select name="tap_bed_type[]" style="width:100%;"><?php echo str_replace("'", "\\'", str_replace("\n", "", self::bed_type_options_html())); ?></select></td><td><input type="number" name="tap_bed_count[]" value="1" min="1" style="width:60px;"></td><td><button type="button" class="button tap-bed-remove" style="background:#dc3545;color:#fff;border:none;cursor:pointer;">&times;</button></td></tr>';
+                var row = '<tr class="tap-bed-row"><td><select name="tap_bed_type[]" style="width:100%;"><?php echo str_replace("'", "\\'", str_replace("\n", '', self::bed_type_options_html())); ?></select></td><td><input type="number" name="tap_bed_count[]" value="1" min="1" style="width:60px;"></td><td><button type="button" class="button tap-bed-remove" style="background:#dc3545;color:#fff;border:none;cursor:pointer;">&times;</button></td></tr>';
                 $('#tap-beds-tbody').append(row);
             });
             $(document).on('click', '.tap-bed-remove', function() { $(this).closest('tr').remove(); rebuildBedsJson(); });
@@ -617,7 +620,10 @@ class TAP_Metaboxes {
                         <img src="<?php echo esc_url($img[0]); ?>" style="width:100%;height:100%;object-fit:cover;">
                         <button type="button" class="tap-room-gallery-remove" data-id="<?php echo esc_attr($id); ?>" style="position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;border:none;background:rgba(0,0,0,0.6);color:#fff;font-size:12px;cursor:pointer;line-height:18px;padding:0;">&times;</button>
                     </div>
-                <?php endif; endforeach; ?>
+						<?php
+                endif;
+endforeach;
+				?>
             </div>
             <input type="hidden" name="_tap_room_gallery" id="_tap_room_gallery" value="<?php echo esc_attr($gallery); ?>">
             <button type="button" class="button" id="tap-room-gallery-add"><?php esc_html_e('Add Photos', 'travel-agency-platform'); ?></button>

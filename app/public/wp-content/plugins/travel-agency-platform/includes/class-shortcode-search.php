@@ -366,8 +366,11 @@ class TAP_Shortcode_Search {
         $tap_prev_post = $GLOBALS['post'] ?? null;
         ?>
         <div class="tap-services-grid" style="display: grid; grid-template-columns: repeat(<?php echo intval($atts['columns']); ?>, 1fr); gap: 20px;">
-            <?php foreach ($all_posts as $post):
-                setup_postdata($post); $GLOBALS['post'] = $post; ?>
+            <?php
+            foreach ($all_posts as $post):
+                setup_postdata($post);
+				$GLOBALS['post'] = $post;
+                ?>
                 <div class="tap-service-card">
                     <?php if (has_post_thumbnail()): ?>
                         <a href="<?php the_permalink(); ?>"><?php the_post_thumbnail('medium', ['loading' => 'lazy', 'decoding' => 'async']); ?></a>
@@ -378,7 +381,11 @@ class TAP_Shortcode_Search {
                         <a href="<?php the_permalink(); ?>" class="tap-btn tap-btn-outline"><?php esc_html_e('View Details', 'travel-agency-platform'); ?></a>
                     </div>
                 </div>
-            <?php endforeach; wp_reset_postdata(); $GLOBALS['post'] = $tap_prev_post; ?>
+				<?php
+            endforeach;
+			wp_reset_postdata();
+			$GLOBALS['post'] = $tap_prev_post;
+			?>
         </div>
         <?php
         return ob_get_clean();
@@ -612,11 +619,13 @@ class TAP_Shortcode_Search {
         $tap_prev_post = $GLOBALS['post'] ?? null;
         ?>
         <div class="tap-grid tap-grid-auto">
-            <?php foreach ($all_posts as $post): setup_postdata($post); $GLOBALS['post'] = $post;
+            <?php
+            foreach ($all_posts as $post): setup_postdata($post);
+				$GLOBALS['post'] = $post;
                 $pt = $post->post_type;
                 $price_key = TAP_API::get_price_key($pt);
                 $price = $price_key ? floatval(get_post_meta($post->ID, $price_key, true)) : 0;
-            ?>
+				?>
             <div class="tap-card tap-service-card">
                 <div class="tap-card-img-wrapper">
                     <?php if (has_post_thumbnail($post->ID)): ?>
@@ -638,7 +647,11 @@ class TAP_Shortcode_Search {
                     <a href="<?php the_permalink(); ?>" class="tap-btn tap-btn-outline tap-btn-block"><?php esc_html_e('View Details', 'travel-agency-platform'); ?></a>
                 </div>
             </div>
-            <?php endforeach; wp_reset_postdata(); $GLOBALS['post'] = $tap_prev_post; ?>
+				<?php
+            endforeach;
+			wp_reset_postdata();
+			$GLOBALS['post'] = $tap_prev_post;
+			?>
         </div>
         <?php
         return ob_get_clean();

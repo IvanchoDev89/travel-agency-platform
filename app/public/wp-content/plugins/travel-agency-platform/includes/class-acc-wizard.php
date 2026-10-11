@@ -74,9 +74,13 @@ class TAP_Acc_Wizard {
                         </div>
                         <div class="tap-review-row">
                             <span><?php esc_html_e('Precio por noche', 'travel-agency-platform'); ?></span>
-                            <strong><?php echo $prices
+                            <strong>
+                            <?php
+                            echo $prices
                                 ? esc_html($fmt($min_p) . ($max_p > $min_p ? ' – ' . $fmt($max_p) : ''))
-                                : '—'; ?></strong>
+                                : '—';
+							?>
+                                </strong>
                         </div>
                         <div class="tap-review-row">
                             <span><?php esc_html_e('Días con precio especial', 'travel-agency-platform'); ?></span>
@@ -84,9 +88,13 @@ class TAP_Acc_Wizard {
                         </div>
                         <div class="tap-review-row">
                             <span><?php esc_html_e('Modo de reserva', 'travel-agency-platform'); ?></span>
-                            <strong><?php echo esc_html('request' === $mode
+                            <strong>
+                            <?php
+                            echo esc_html('request' === $mode
                                 ? __('Solicitud: la agencia confirma', 'travel-agency-platform')
-                                : __('Reserva directa', 'travel-agency-platform')); ?></strong>
+                                : __('Reserva directa', 'travel-agency-platform'));
+							?>
+                                </strong>
                         </div>
                         <div class="tap-review-row">
                             <span><?php esc_html_e('Cancelación', 'travel-agency-platform'); ?></span>
@@ -126,9 +134,13 @@ class TAP_Acc_Wizard {
                                 <a href="<?php echo esc_url($item['step'] > 1 ? $edit_base . '&step=' . (int) $item['step'] : $edit_base . '&step=1'); ?>"><?php echo esc_html($item['label']); ?></a>
                                 <?php if ('' !== $item['detail']): ?><span class="tap-check-hint"><?php echo esc_html($item['detail']); ?></span><?php endif; ?>
                             </span>
-                            <span class="tap-check-state"><?php echo $item['done']
+                            <span class="tap-check-state">
+                            <?php
+                            echo $item['done']
                                 ? esc_html__('Listo', 'travel-agency-platform')
-                                : esc_html__('Pendiente', 'travel-agency-platform'); ?></span>
+                                : esc_html__('Pendiente', 'travel-agency-platform');
+							?>
+                                </span>
                         </li>
                     <?php endforeach; ?>
                 </ul>
@@ -137,9 +149,13 @@ class TAP_Acc_Wizard {
             <section class="tap-card-block tap-publish-box<?php echo $is_live ? ' is-live' : ''; ?>">
                 <div class="tap-publish-inner">
                     <div>
-                        <h3 class="tap-block-title"><?php echo $is_live
+                        <h3 class="tap-block-title">
+                        <?php
+                        echo $is_live
                             ? esc_html__('Tu alojamiento está publicado', 'travel-agency-platform')
-                            : esc_html__('Publica tu alojamiento', 'travel-agency-platform'); ?></h3>
+                            : esc_html__('Publica tu alojamiento', 'travel-agency-platform');
+						?>
+                            </h3>
                         <p class="tap-block-sub">
                             <?php if ($is_live): ?>
                                 <?php esc_html_e('Los viajeros ya pueden encontrarlo y reservar. Puedes despublicarlo en cualquier momento.', 'travel-agency-platform'); ?>
@@ -154,9 +170,11 @@ class TAP_Acc_Wizard {
                     </div>
                     <div class="tap-publish-actions">
                         <button type="button" class="tap-btn <?php echo $is_live ? 'tap-btn-danger' : 'tap-btn-primary'; ?>" data-publish="<?php echo $is_live ? '0' : '1'; ?>">
-                            <?php echo $is_live
+                            <?php
+                            echo $is_live
                                 ? esc_html__('Despublicar', 'travel-agency-platform')
-                                : esc_html__('Publicar alojamiento', 'travel-agency-platform'); ?>
+                                : esc_html__('Publicar alojamiento', 'travel-agency-platform');
+							?>
                         </button>
                         <?php if (!$is_live && !$can_publish): ?>
                             <span class="tap-field-hint"><?php esc_html_e('Se enviará a moderación.', 'travel-agency-platform'); ?></span>
@@ -165,7 +183,11 @@ class TAP_Acc_Wizard {
                 </div>
                 <?php if ($missing): ?>
                     <p class="tap-field-hint"><?php esc_html_e('Recuerda revisar: ', 'travel-agency-platform'); ?>
-                        <?php echo esc_html(implode(', ', array_map(function ($item) { return $item['label']; }, $missing))); ?>
+                        <?php
+                        echo esc_html(implode(', ', array_map(function ($item) {
+							return $item['label'];
+						}, $missing)));
+						?>
                     </p>
                 <?php endif; ?>
             </section>
@@ -242,7 +264,7 @@ class TAP_Acc_Wizard {
                     <div class="tap-field">
                         <label class="tap-sr-only" for="tap-house-rules"><?php esc_html_e('Reglas de la casa', 'travel-agency-platform'); ?></label>
                         <textarea id="tap-house-rules" name="_tap_acc_house_rules" rows="7" maxlength="1000"
-                                  placeholder="<?php esc_attr_e('Una regla por línea. p.ej.', 'travel-agency-platform'); ?>&#10;<?php esc_attr_e('Check-in desde las 15:00 y check-out antes de las 11:00', 'travel-agency-platform'); ?>&#10;<?php esc_attr_e('No se permiten mascotas', 'travel-agency-platform'); ?>&#10;<?php esc_attr_e('No se fuma en interiores', 'travel-agency-platform'); ?>"><?php echo esc_textarea($rules); ?></textarea>
+                                    placeholder="<?php esc_attr_e('Una regla por línea. p.ej.', 'travel-agency-platform'); ?>&#10;<?php esc_attr_e('Check-in desde las 15:00 y check-out antes de las 11:00', 'travel-agency-platform'); ?>&#10;<?php esc_attr_e('No se permiten mascotas', 'travel-agency-platform'); ?>&#10;<?php esc_attr_e('No se fuma en interiores', 'travel-agency-platform'); ?>"><?php echo esc_textarea($rules); ?></textarea>
                         <span class="tap-field-hint"><?php esc_html_e('Separa cada regla con un punto y coma o una línea nueva.', 'travel-agency-platform'); ?></span>
                     </div>
                 </section>
@@ -304,7 +326,7 @@ class TAP_Acc_Wizard {
             __('Octubre', 'travel-agency-platform'), __('Noviembre', 'travel-agency-platform'), __('Diciembre', 'travel-agency-platform'),
         ];
         $dow_labels = [__('Dom', 'travel-agency-platform'), __('Lun', 'travel-agency-platform'), __('Mar', 'travel-agency-platform'),
-            __('Mié', 'travel-agency-platform'), __('Jue', 'travel-agency-platform'), __('Vie', 'travel-agency-platform'), __('Sáb', 'travel-agency-platform')];
+            __('Mié', 'travel-agency-platform'), __('Jue', 'travel-agency-platform'), __('Vie', 'travel-agency-platform'), __('Sáb', 'travel-agency-platform'),];
 
         wp_localize_script('tap-agency-calendar', 'tapAgencyCal', [
             'ajaxUrl'   => admin_url('admin-ajax.php'),
@@ -438,7 +460,8 @@ class TAP_Acc_Wizard {
                             <div class="tap-ac-dow-group" id="tap-ac-dow">
                                 <?php
                                 $dow_short = [1 => __('Lun', 'travel-agency-platform'), 2 => __('Mar', 'travel-agency-platform'), 3 => __('Mié', 'travel-agency-platform'), 4 => __('Jue', 'travel-agency-platform'), 5 => __('Vie', 'travel-agency-platform'), 6 => __('Sáb', 'travel-agency-platform'), 7 => __('Dom', 'travel-agency-platform')];
-                                foreach ($dow_short as $d => $dl): ?>
+                                foreach ($dow_short as $d => $dl):
+									?>
                                     <label class="tap-ac-dow"><input type="checkbox" value="<?php echo (int) $d; ?>"> <?php echo esc_html($dl); ?></label>
                                 <?php endforeach; ?>
                             </div>
@@ -517,9 +540,11 @@ class TAP_Acc_Wizard {
             <?php endif; ?>
 
             <div class="tap-rooms-list">
-                <?php foreach ($rooms as $room) {
+                <?php
+                foreach ($rooms as $room) {
                     echo self::render_room_form($room, $acc_id);
-                } ?>
+                }
+                ?>
             </div>
 
             <section class="tap-card-block tap-card-block-cta" id="tap-room-new-block">
@@ -562,12 +587,12 @@ class TAP_Acc_Wizard {
         ob_start();
         ?>
         <form class="tap-manage-form tap-room-form<?php echo $room_id ? '' : ' tap-room-form-new'; ?>"
-              id="<?php echo esc_attr($form_id); ?>"
-              data-room="<?php echo (int) $room_id; ?>"
-              <?php echo $room_id ? '' : 'data-new="1"'; ?>>
-              <?php echo $active ? '' : 'data-inactive="1"'; ?>>
-              <?php echo ($room_id || $open) ? '' : 'hidden'; ?>>
-              <div class="tap-unit-card<?php echo $active ? '' : ' is-inactive'; ?>">
+                id="<?php echo esc_attr($form_id); ?>"
+                data-room="<?php echo (int) $room_id; ?>"
+                <?php echo $room_id ? '' : 'data-new="1"'; ?>>
+                <?php echo $active ? '' : 'data-inactive="1"'; ?>>
+                <?php echo ($room_id || $open) ? '' : 'hidden'; ?>>
+                <div class="tap-unit-card<?php echo $active ? '' : ' is-inactive'; ?>">
             <header class="tap-unit-card-head">
                 <div class="tap-unit-card-title">
                     <strong><?php echo esc_html($is_new ? __('Nueva unidad', 'travel-agency-platform') : $room->post_title); ?></strong>
@@ -593,17 +618,17 @@ class TAP_Acc_Wizard {
                     <div class="tap-field">
                         <label for="<?php echo esc_attr($form_id); ?>-title"><?php esc_html_e('Nombre de la unidad', 'travel-agency-platform'); ?> <span class="tap-req" aria-hidden="true">*</span></label>
                         <input type="text" id="<?php echo esc_attr($form_id); ?>-title" name="title" required maxlength="120"
-                               placeholder="<?php esc_attr_e('p.ej. Habitación Doble Estándar', 'travel-agency-platform'); ?>"
-                               value="<?php echo esc_attr($is_new ? '' : $room->post_title); ?>">
+                                placeholder="<?php esc_attr_e('p.ej. Habitación Doble Estándar', 'travel-agency-platform'); ?>"
+                                value="<?php echo esc_attr($is_new ? '' : $room->post_title); ?>">
                     </div>
                     <div class="tap-field">
                         <label for="<?php echo esc_attr($form_id); ?>-price"><?php esc_html_e('Precio por noche', 'travel-agency-platform'); ?> <span class="tap-req" aria-hidden="true">*</span></label>
                         <div class="tap-number-row">
                             <button type="button" class="tap-num-btn" data-step="-1" aria-label="<?php esc_attr_e('Restar', 'travel-agency-platform'); ?>">&minus;</button>
                             <input type="number" id="<?php echo esc_attr($form_id); ?>-price" class="tap-num-input tap-field-input"
-                                   name="price_per_night" min="0.01" step="0.01" required
-                                   placeholder="<?php echo esc_attr(trim($currency_symbol)); ?>"
-                                   value="<?php echo esc_attr($meta('_tap_room_price_per_night')); ?>">
+                                    name="price_per_night" min="0.01" step="0.01" required
+                                    placeholder="<?php echo esc_attr(trim($currency_symbol)); ?>"
+                                    value="<?php echo esc_attr($meta('_tap_room_price_per_night')); ?>">
                             <button type="button" class="tap-num-btn" data-step="1" aria-label="<?php esc_attr_e('Sumar', 'travel-agency-platform'); ?>">+</button>
                         </div>
                         <span class="tap-field-hint"><?php esc_html_e('Es el precio base; los días especiales se ajustan en el paso de Precios.', 'travel-agency-platform'); ?></span>
@@ -654,8 +679,8 @@ class TAP_Acc_Wizard {
                     <div class="tap-field">
                         <label for="<?php echo esc_attr($form_id); ?>-amenities"><?php esc_html_e('Comodidades', 'travel-agency-platform'); ?></label>
                         <input type="text" id="<?php echo esc_attr($form_id); ?>-amenities" name="amenities"
-                               placeholder="<?php esc_attr_e('WiFi, Aire acondicionado, Desayuno', 'travel-agency-platform'); ?>"
-                               value="<?php echo esc_attr($amenity); ?>">
+                                placeholder="<?php esc_attr_e('WiFi, Aire acondicionado, Desayuno', 'travel-agency-platform'); ?>"
+                                value="<?php echo esc_attr($amenity); ?>">
                         <span class="tap-field-hint"><?php esc_html_e('Separadas por coma.', 'travel-agency-platform'); ?></span>
                     </div>
                 </div>
@@ -752,8 +777,8 @@ class TAP_Acc_Wizard {
 
         /* Bucket the registry fields into the wizard groups. */
         $groups = [
-            'identity'  => ['label' => __('Identidad del alojamiento', 'travel-agency-platform'), 'sub' => __('Lo primero que verá el viajero.', 'travel-agency-platform'), 'open' => true,  'keys' => ['_tap_' . $prefix . '_type', '_tap_' . $prefix . '_stars']],
-            'location'  => ['label' => __('Ubicación', 'travel-agency-platform'), 'sub' => __('Destino y coordenadas para el mapa.', 'travel-agency-platform'), 'open' => true,  'keys' => ['_tap_' . $prefix . '_lat', '_tap_' . $prefix . '_lng']],
+            'identity'  => ['label' => __('Identidad del alojamiento', 'travel-agency-platform'), 'sub' => __('Lo primero que verá el viajero.', 'travel-agency-platform'), 'open' => true, 'keys' => ['_tap_' . $prefix . '_type', '_tap_' . $prefix . '_stars']],
+            'location'  => ['label' => __('Ubicación', 'travel-agency-platform'), 'sub' => __('Destino y coordenadas para el mapa.', 'travel-agency-platform'), 'open' => true, 'keys' => ['_tap_' . $prefix . '_lat', '_tap_' . $prefix . '_lng']],
             'capacity'  => ['label' => __('Capacidad', 'travel-agency-platform'), 'sub' => __('Cuántas personas caben en total.', 'travel-agency-platform'), 'open' => false, 'keys' => ['_tap_' . $prefix . '_capacity', '_tap_' . $prefix . '_bedrooms', '_tap_' . $prefix . '_bathrooms', '_tap_' . $prefix . '_rooms']],
             'stay'      => ['label' => __('Llegada y salida', 'travel-agency-platform'), 'sub' => __('Horarios por defecto de check-in y check-out.', 'travel-agency-platform'), 'open' => false, 'keys' => ['_tap_' . $prefix . '_checkin_time', '_tap_' . $prefix . '_checkout_time']],
             'pricing'   => ['label' => __('Precio base', 'travel-agency-platform'), 'sub' => __('Suficiente con esto si todas tus unidades cuestan lo mismo.', 'travel-agency-platform'), 'open' => false, 'keys' => ['_tap_' . $prefix . '_price_per_night', '_tap_' . $prefix . '_currency']],
@@ -805,13 +830,13 @@ class TAP_Acc_Wizard {
                 <div class="tap-field">
                     <label for="tap-acc-title"><?php esc_html_e('Nombre del alojamiento', 'travel-agency-platform'); ?> <span class="tap-req" aria-hidden="true">*</span></label>
                     <input type="text" id="tap-acc-title" name="title" required maxlength="120"
-                           placeholder="<?php esc_attr_e('p.ej. Hotel Aurora – Habitación Vista Mar', 'travel-agency-platform'); ?>"
-                           value="<?php echo esc_attr($listing ? $listing->post_title : ''); ?>">
+                            placeholder="<?php esc_attr_e('p.ej. Hotel Aurora – Habitación Vista Mar', 'travel-agency-platform'); ?>"
+                            value="<?php echo esc_attr($listing ? $listing->post_title : ''); ?>">
                 </div>
                 <div class="tap-field">
                     <label for="tap-acc-description"><?php esc_html_e('Descripción', 'travel-agency-platform'); ?></label>
                     <textarea id="tap-acc-description" name="description" rows="6" maxlength="2000"
-                              placeholder="<?php esc_attr_e('Qué incluye, para quién es ideal, qué hace especial a tu alojamiento…', 'travel-agency-platform'); ?>"><?php echo esc_textarea($listing ? $listing->post_content : ''); ?></textarea>
+                                placeholder="<?php esc_attr_e('Qué incluye, para quién es ideal, qué hace especial a tu alojamiento…', 'travel-agency-platform'); ?>"><?php echo esc_textarea($listing ? $listing->post_content : ''); ?></textarea>
                     <span class="tap-char-count" data-count-for="tap-acc-description" data-count-max="2000"></span>
                 </div>
             </section>
@@ -919,8 +944,8 @@ class TAP_Acc_Wizard {
                                 $options = isset($copy['options']) ? $copy['options'] : (isset($cfg['options']) ? $cfg['options'] : []);
                                 $is_price = false !== strpos($key, 'price');
                                 $span     = ('textarea' === $ftype || 'checkbox' === $ftype || 'select_post' === $ftype) ? ' tap-span-2' : '';
-                        $field_id = 'tap-acc-' . sanitize_html_class(str_replace('_', '-', $key));
-                        ?>
+								$field_id = 'tap-acc-' . sanitize_html_class(str_replace('_', '-', $key));
+								?>
                                 <div class="tap-field<?php echo $span; ?>">
                                     <?php if ('checkbox' === $ftype): ?>
                                         <input type="hidden" name="<?php echo esc_attr($key); ?>" value="0">
@@ -944,9 +969,9 @@ class TAP_Acc_Wizard {
                                         <div class="tap-number-row">
                                             <button type="button" class="tap-num-btn" data-step="-1" aria-label="<?php esc_attr_e('Restar', 'travel-agency-platform'); ?>">&minus;</button>
                                             <input type="number" id="<?php echo esc_attr($field_id); ?>" class="tap-num-input tap-field-input" name="<?php echo esc_attr($key); ?>"
-                                                   min="0"<?php echo isset($cfg['step']) ? ' step="' . esc_attr($cfg['step']) . '"' : ''; ?>
-                                                   <?php echo $is_price ? 'placeholder="' . esc_attr(trim($currency_symbol)) . '"' : ''; ?>
-                                                   value="<?php echo esc_attr($value); ?>">
+                                                    min="0"<?php echo isset($cfg['step']) ? ' step="' . esc_attr($cfg['step']) . '"' : ''; ?>
+                                                    <?php echo $is_price ? 'placeholder="' . esc_attr(trim($currency_symbol)) . '"' : ''; ?>
+                                                    value="<?php echo esc_attr($value); ?>">
                                             <button type="button" class="tap-num-btn" data-step="1" aria-label="<?php esc_attr_e('Sumar', 'travel-agency-platform'); ?>">+</button>
                                         </div>
                                     <?php elseif ('time' === $ftype): ?>
@@ -999,11 +1024,11 @@ class TAP_Acc_Wizard {
         ob_start();
         ?>
         <div class="tap-uploader"
-             data-post-id="<?php echo (int) $listing_id; ?>"
-             data-parent-id="<?php echo (int) $parent_id; ?>"
-             data-post-type="<?php echo esc_attr($listing_type); ?>"
-             data-initial="<?php echo esc_attr($initial); ?>"
-             data-max-bytes="<?php echo (int) TAP_Agency_Media::agency_image_max_bytes(); ?>">
+            data-post-id="<?php echo (int) $listing_id; ?>"
+            data-parent-id="<?php echo (int) $parent_id; ?>"
+            data-post-type="<?php echo esc_attr($listing_type); ?>"
+            data-initial="<?php echo esc_attr($initial); ?>"
+            data-max-bytes="<?php echo (int) TAP_Agency_Media::agency_image_max_bytes(); ?>">
             <div class="tap-uploader-bar">
                 <label class="tap-btn tap-btn-sm tap-uploader-pick">
                     <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple>
@@ -1022,7 +1047,7 @@ class TAP_Acc_Wizard {
             </div>
 
             <div class="tap-uploader-drop" role="button" tabindex="0"
-                 aria-label="<?php esc_attr_e('Arrastra aquí tus imágenes o pulsa para elegir archivos', 'travel-agency-platform'); ?>">
+                aria-label="<?php esc_attr_e('Arrastra aquí tus imágenes o pulsa para elegir archivos', 'travel-agency-platform'); ?>">
                 <?php esc_html_e('Arrastra tus imágenes aquí o pulsa para elegir archivos', 'travel-agency-platform'); ?>
             </div>
 
@@ -1186,11 +1211,11 @@ class TAP_Acc_Wizard {
         $edit_base = home_url('/manage-listing/?id=' . (int) $listing_id);
         $new_url   = home_url('/manage-listing/?new=' . rawurlencode($type));
         $steps     = [
-            1 => ['label' => __('Información', 'travel-agency-platform'),    'hint' => __('Nombre, fotos y datos principales', 'travel-agency-platform')],
-            2 => ['label' => __('Unidades', 'travel-agency-platform'),       'hint' => __('Habitaciones, camas e inventario', 'travel-agency-platform')],
-            3 => ['label' => __('Precios', 'travel-agency-platform'),        'hint' => __('Temporadas y disponibilidad', 'travel-agency-platform')],
-            4 => ['label' => __('Políticas', 'travel-agency-platform'),      'hint' => __('Cancelación y reglas de la casa', 'travel-agency-platform')],
-            5 => ['label' => __('Publicar', 'travel-agency-platform'),       'hint' => __('Revisa y publica tu alojamiento', 'travel-agency-platform')],
+            1 => ['label' => __('Información', 'travel-agency-platform'), 'hint' => __('Nombre, fotos y datos principales', 'travel-agency-platform')],
+            2 => ['label' => __('Unidades', 'travel-agency-platform'), 'hint' => __('Habitaciones, camas e inventario', 'travel-agency-platform')],
+            3 => ['label' => __('Precios', 'travel-agency-platform'), 'hint' => __('Temporadas y disponibilidad', 'travel-agency-platform')],
+            4 => ['label' => __('Políticas', 'travel-agency-platform'), 'hint' => __('Cancelación y reglas de la casa', 'travel-agency-platform')],
+            5 => ['label' => __('Publicar', 'travel-agency-platform'), 'hint' => __('Revisa y publica tu alojamiento', 'travel-agency-platform')],
         ];
 
         $progress = self::acc_wizard_progress($listing_id, $type);
@@ -1211,12 +1236,16 @@ class TAP_Acc_Wizard {
                     <p class="tap-wizard-head-meta">
                         <span class="tap-wizard-head-type"><?php echo esc_html($type_label); ?></span>
                         <span class="tap-wizard-head-sep" aria-hidden="true">&middot;</span>
-                        <span><?php printf(
+                        <span>
+                        <?php
+                        printf(
                             /* translators: 1: current step number, 2: total steps */
                             esc_html__('Paso %1$d de %2$d', 'travel-agency-platform'),
                             (int) $step,
                             5
-                        ); ?> — <?php echo esc_html($steps[$step]['hint']); ?></span>
+								);
+						?>
+                        — <?php echo esc_html($steps[$step]['hint']); ?></span>
                     </p>
                 </div>
                 <div class="tap-wizard-head-side">
@@ -1298,7 +1327,8 @@ class TAP_Acc_Wizard {
                         </div>
                         <p class="tap-rail-lead"><?php esc_html_e('Completa estos puntos para que tu alojamiento esté listo para recibir reservas.', 'travel-agency-platform'); ?></p>
                         <ul class="tap-rail-list">
-                            <?php foreach ($progress['items'] as $item):
+                            <?php
+                            foreach ($progress['items'] as $item):
                                 if (5 === $item['step']) {
                                     continue;
                                 }
@@ -1315,13 +1345,13 @@ class TAP_Acc_Wizard {
                                     <?php if (!$item['done'] && !$item_locked): ?>
                                         <?php
                                         /* A brand new listing has no id yet, so step 1
-                                           must point at the "new" url, not ?id=0. */
+                                            must point at the "new" url, not ?id=0. */
                                         $item_url = (1 === (int) $item['step'] && !$is_edit)
                                             ? $new_url
                                             : $edit_base . '&step=' . (int) $item['step'];
                                         ?>
                                         <a class="tap-rail-link" href="<?php echo esc_url($item_url); ?>"
-                                           aria-label="<?php echo esc_attr(sprintf(/* translators: %s: item label */ __('Ir a: %s', 'travel-agency-platform'), $item['label'])); ?>">&rarr;</a>
+                                            aria-label="<?php echo esc_attr(sprintf(/* translators: %s: item label */ __('Ir a: %s', 'travel-agency-platform'), $item['label'])); ?>">&rarr;</a>
                                     <?php endif; ?>
                                 </li>
                             <?php endforeach; ?>
@@ -1389,7 +1419,7 @@ class TAP_Acc_Wizard {
         $priced_rooms = 0;
         foreach ($rooms as $r) {
             if ((float) get_post_meta($r->ID, '_tap_room_price_per_night', true) > 0) {
-                $priced_rooms++;
+                ++$priced_rooms;
             }
         }
         $overrides = $room_ids ? TAP_Pricing::override_count($room_ids) : 0;
@@ -1479,7 +1509,7 @@ class TAP_Acc_Wizard {
         $completed = 0;
         foreach ([1, 2, 3, 4] as $n) {
             if (!empty($by_step[$n]['done'])) {
-                $completed++;
+                ++$completed;
             }
         }
 
@@ -1494,5 +1524,4 @@ class TAP_Acc_Wizard {
             'rooms'     => count($room_ids),
         ];
     }
-
 }

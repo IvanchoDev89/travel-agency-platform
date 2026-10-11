@@ -10,23 +10,20 @@
  */
 defined('ABSPATH') || exit;
 
-class TAP_Itinerary
-{
-    public static function init()
-    {
+class TAP_Itinerary {
+
+    public static function init() {
         add_shortcode('tap_itinerary_builder', [self::class, 'render']);
         add_action('wp_ajax_tap_itinerary_search', [self::class, 'ajax_search']);
         add_action('wp_ajax_nopriv_tap_itinerary_search', [self::class, 'ajax_search']);
     }
 
-    public static function service_types()
-    {
+    public static function service_types() {
         return ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
     }
 
     /** Human label + price suffix per service type (msgid-aligned). */
-    public static function type_meta($type)
-    {
+    public static function type_meta($type) {
         $map = [
             'tap_accommodation' => ['label' => __('Alojamiento', 'travel-agency-platform'), 'suffix' => __('/noche', 'travel-agency-platform')],
             'tap_tour'          => ['label' => __('Tour', 'travel-agency-platform'), 'suffix' => __('/persona', 'travel-agency-platform')],
@@ -40,8 +37,7 @@ class TAP_Itinerary
     }
 
     /** Wizard data: interests, categories, destinations (2 levels) + budget defaults. */
-    public static function terms_data()
-    {
+    public static function terms_data() {
         $interests = [];
         $tourTypes = get_terms(['taxonomy' => 'tap_tour_type', 'hide_empty' => false]);
         if (is_array($tourTypes) && !is_wp_error($tourTypes)) {
@@ -97,8 +93,7 @@ class TAP_Itinerary
     }
 
     /** Normalise URL/AJAX params into a safe query spec. */
-    public static function parse_params($raw)
-    {
+    public static function parse_params($raw) {
         $interests = $categories = $locations = $types = [];
         $budget = ['min' => null, 'max' => null];
 
@@ -147,8 +142,7 @@ class TAP_Itinerary
      * Match services from established taxonomies + price band.
      * $relax drops the interest/category terms (keeps location + price).
      */
-    public static function build_query($params, $relax = false)
-    {
+    public static function build_query($params, $relax = false) {
         $params = self::parse_params($params);
         $types  = $params['types'] ?: self::service_types();
         $rows   = [];
@@ -225,8 +219,7 @@ class TAP_Itinerary
     }
 
     /** Shared card markup for a matching service (AJAX + server render). */
-    public static function render_item_card($post)
-    {
+    public static function render_item_card($post) {
         $meta      = self::type_meta($post->post_type);
         $priceKey  = TAP_API::get_price_key($post->post_type);
         $price     = $priceKey ? floatval(get_post_meta($post->ID, $priceKey, true)) : 0;
@@ -279,8 +272,7 @@ class TAP_Itinerary
     }
 
     /** Results grid used by AJAX, no-JS GET and the review step. */
-    public static function render_results_html($params, $relaxed = false)
-    {
+    public static function render_results_html($params, $relaxed = false) {
         $posts = self::build_query($params, $relaxed);
         ob_start();
         if ($posts) {
@@ -295,8 +287,7 @@ class TAP_Itinerary
         return ob_get_clean();
     }
 
-    public static function ajax_search()
-    {
+    public static function ajax_search() {
         check_ajax_referer('tap_nonce', 'nonce');
         $params = self::parse_params($_POST);
         $relaxed = !empty($_POST['relaxed']);
@@ -308,8 +299,7 @@ class TAP_Itinerary
     }
 
     /** Shareable "mi itinerario" view for ?itin=<id1,id2> (ids are post IDs). */
-    public static function share_view($raw_ids)
-    {
+    public static function share_view($raw_ids) {
         $ids = [];
         foreach (explode(',', (string) $raw_ids) as $id) {
             $id = intval($id);
@@ -350,9 +340,11 @@ class TAP_Itinerary
                 <p class="tap-itin-share-sub"><?php esc_html_e('Servicios seleccionados según tus intereses, destinos y presupuesto.', 'travel-agency-platform'); ?></p>
             </div>
             <ul class="tap-itin-share-list">
-                <?php foreach ($posts as $p): $meta = self::type_meta($p->post_type);
+                <?php
+                foreach ($posts as $p): $meta = self::type_meta($p->post_type);
                     $priceKey = TAP_API::get_price_key($p->post_type);
-                    $price = $priceKey ? floatval(get_post_meta($p->ID, $priceKey, true)) : 0; ?>
+                    $price = $priceKey ? floatval(get_post_meta($p->ID, $priceKey, true)) : 0;
+                    ?>
                     <li>
                         <div class="tap-itin-share-item">
                             <?php if (has_post_thumbnail($p->ID)): ?><?php echo get_the_post_thumbnail($p->ID, 'thumbnail'); ?><?php endif; ?>
@@ -379,8 +371,7 @@ class TAP_Itinerary
         return ob_get_clean();
     }
 
-    public static function render($atts, $content = null)
-    {
+    public static function render($atts, $content = null) {
         $atts = shortcode_atts(['title' => ''], $atts, 'tap_itinerary_builder');
 
         if (isset($_GET['itin']) && $_GET['itin'] !== '') {
@@ -462,7 +453,11 @@ class TAP_Itinerary
                     </form>
 
                     <div class="tap-itin-results" data-itin-results>
-                        <?php if ($results): echo $results; else: echo '<noscript><p class="tap-itin-nojs">' . esc_html__('Activá JavaScript para usar el constructor paso a paso, o usá la búsqueda por destino si preferís un flujo simple.', 'travel-agency-platform') . '</p></noscript>'; endif; ?>
+                        <?php
+                        if ($results): echo $results;
+else: echo '<noscript><p class="tap-itin-nojs">' . esc_html__('Activá JavaScript para usar el constructor paso a paso, o usá la búsqueda por destino si preferís un flujo simple.', 'travel-agency-platform') . '</p></noscript>';
+endif;
+?>
                     </div>
                 </div>
 

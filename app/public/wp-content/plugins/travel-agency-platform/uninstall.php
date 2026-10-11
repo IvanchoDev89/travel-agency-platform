@@ -39,7 +39,7 @@ foreach ($tables as $table) {
     // Verify it truly is ours before dropping (guards against prefix
     // collisions with unrelated tables).
     $exists = $wpdb->get_var($wpdb->prepare(
-        "SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = %s",
+        'SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = %s',
         $name
     ));
     if ($exists === $name) {
@@ -77,7 +77,7 @@ foreach ($roles as $role) {
 $admin = get_role('administrator');
 if ($admin) {
     foreach (['tap_manage_bookings', 'tap_manage_agencies', 'tap_manage_commissions', 'tap_manage_reviews',
-              'tap_manage_disputes', 'tap_view_reports', 'tap_manage_settings'] as $cap) {
+                'tap_manage_disputes', 'tap_view_reports', 'tap_manage_settings',] as $cap) {
         $admin->remove_cap($cap);
     }
 }
@@ -85,7 +85,7 @@ if ($admin) {
 // 5) Custom post types + their meta ----------------------------------------
 if (get_option('tap_uninstall_keep_content', '0') !== '1') {
     $post_types = ['tap_agency', 'tap_accommodation', 'tap_room', 'tap_tour', 'tap_transport',
-                   'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
+                    'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment',];
     $ids = $wpdb->get_col(
         "SELECT ID FROM {$wpdb->posts} WHERE post_type IN ('" . implode("','", array_map('esc_sql', $post_types)) . "')"
     );

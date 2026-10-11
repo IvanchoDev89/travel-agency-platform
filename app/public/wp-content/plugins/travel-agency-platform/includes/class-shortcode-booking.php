@@ -103,13 +103,13 @@ class TAP_Shortcode_Booking {
 
                 if (total <= 0) {
                     msg.removeClass('tap-success').addClass('tap-error')
-                       .html('<p><?php echo esc_js(__('Please select dates to calculate the price.', 'travel-agency-platform')); ?></p>');
+                        .html('<p><?php echo esc_js(__('Please select dates to calculate the price.', 'travel-agency-platform')); ?></p>');
                     return;
                 }
 
                 if (!form.find('input[name="tap_privacy_consent"]').is(':checked')) {
                     msg.removeClass('tap-success').addClass('tap-error')
-                       .html('<p><?php echo esc_js(__('Debes aceptar el Aviso de Privacidad para continuar.', 'travel-agency-platform')); ?></p>');
+                        .html('<p><?php echo esc_js(__('Debes aceptar el Aviso de Privacidad para continuar.', 'travel-agency-platform')); ?></p>');
                     return;
                 }
 
@@ -121,13 +121,13 @@ class TAP_Shortcode_Booking {
                 $.post(tap_ajax.ajax_url, data, function(res) {
                     if (res.success) {
                         msg.removeClass('tap-error').addClass('tap-success')
-                           .html('<p><?php echo $is_request ? esc_js(__('Solicitud enviada. La agencia la revisará y te avisaremos.', 'travel-agency-platform')) : esc_js(__('Booking created! Redirecting to payment...', 'travel-agency-platform')); ?></p>');
+                            .html('<p><?php echo $is_request ? esc_js(__('Solicitud enviada. La agencia la revisará y te avisaremos.', 'travel-agency-platform')) : esc_js(__('Booking created! Redirecting to payment...', 'travel-agency-platform')); ?></p>');
                         setTimeout(function() {
                             window.location.href = res.data.redirect || '<?php echo esc_js(home_url('/checkout')); ?>?code=' + res.data.booking_code;
                         }, 1000);
                     } else {
                         msg.removeClass('tap-success').addClass('tap-error')
-                           .html('<p>' + (res.data.message || '<?php echo esc_js(__('Error creating booking.', 'travel-agency-platform')); ?>') + '</p>');
+                            .html('<p>' + (res.data.message || '<?php echo esc_js(__('Error creating booking.', 'travel-agency-platform')); ?>') + '</p>');
                     }
                 }).fail(function() {
                     msg.removeClass('tap-success').addClass('tap-error')
@@ -169,11 +169,12 @@ class TAP_Shortcode_Booking {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($bookings as $booking):
+                        <?php
+                        foreach ($bookings as $booking):
                             $service = get_post($booking->service_id);
                             $service_marker = $booking->service_type . ':' . $booking->service_id;
                             $can_review = TAP_Booking::can_review_booking($booking, $reviewed);
-                        ?>
+							?>
                         <tr>
                             <td><?php echo esc_html($booking->booking_code); ?></td>
                             <td><?php echo $service ? esc_html($service->post_title) : 'N/A'; ?></td>
@@ -355,28 +356,36 @@ class TAP_Shortcode_Booking {
                 </table>
             </div>
 
-<?php if ($booking->total_amount > 0 && $booking->payment_status !== 'paid' && $booking->status !== 'request'): ?>
+		<?php if ($booking->total_amount > 0 && $booking->payment_status !== 'paid' && $booking->status !== 'request'): ?>
                 <div class="tap-checkout-payment">
                     <?php $tap_remaining = TAP_Booking::remaining_amount($booking); ?>
                     <?php if (TAP_Booking::amount_already_paid($booking) > 0 && $tap_remaining > 0): ?>
                         <div class="tap-booking-message">
-                            <p><?php echo esc_html(sprintf(
+                            <p>
+                            <?php
+                            echo esc_html(sprintf(
                                 __('Ya pagaste %1$s de %2$s. El saldo pendiente es de %3$s.', 'travel-agency-platform'),
                                 TAP_Currency::fmt(TAP_Booking::amount_already_paid($booking)),
                                 TAP_Currency::fmt((float) $booking->total_amount),
                                 TAP_Currency::fmt($tap_remaining)
-                            )); ?></p>
+                            ));
+							?>
+                            </p>
                         </div>
                     <?php elseif ('failed' === $booking->payment_status): ?>
                         <p class="tap-refund-note"><?php esc_html_e('Un intento de pago anterior falló. Reinicia el pago y vuelve a intentarlo.', 'travel-agency-platform'); ?></p>
                     <?php endif; ?>
                     <h3><?php esc_html_e('Pay with PayPal', 'travel-agency-platform'); ?></h3>
-                    <?php if (TAP_PayPal::is_ready()): ?>
+							<?php if (TAP_PayPal::is_ready()): ?>
                     <div id="tap-paypal-button-container"></div>
                     <div id="tap-paypal-message" class="tap-booking-message"></div>
-                    <p class="tap-pay-label"><?php echo $tap_remaining > 0 && TAP_Booking::amount_already_paid($booking) > 0
-                        ? esc_html(sprintf(__('Pagar el saldo restante de %s', 'travel-agency-platform'), TAP_Currency::fmt($tap_remaining)))
-                        : esc_html__('Completar el pago con PayPal', 'travel-agency-platform'); ?></p>
+                    <p class="tap-pay-label">
+								<?php
+								echo $tap_remaining > 0 && TAP_Booking::amount_already_paid($booking) > 0
+								? esc_html(sprintf(__('Pagar el saldo restante de %s', 'travel-agency-platform'), TAP_Currency::fmt($tap_remaining)))
+								: esc_html__('Completar el pago con PayPal', 'travel-agency-platform');
+								?>
+                        </p>
 
                     <script src="https://www.paypal.com/sdk/js?client-id=<?php echo esc_attr(TAP_PayPal::get_client_id()); ?>&currency=<?php echo esc_attr(TAP_Currency::code()); ?>" data-namespace="tapPayPal"></script>
                 <script>
@@ -420,13 +429,13 @@ class TAP_Shortcode_Booking {
                                 }).then(function(res) {
                                     if (res.success) {
                                         msg.removeClass('tap-error').addClass('tap-success')
-                                           .html('<p><?php echo esc_js(__('Payment successful! Your booking is confirmed.', 'travel-agency-platform')); ?></p>');
+                                            .html('<p><?php echo esc_js(__('Payment successful! Your booking is confirmed.', 'travel-agency-platform')); ?></p>');
                                         setTimeout(function() {
                                             window.location.href = '<?php echo esc_url($uid ? home_url('/my-bookings') : home_url('/booking-detail/?code=' . rawurlencode($booking->booking_code))); ?>';
                                         }, 2000);
                                     } else {
                                         msg.removeClass('tap-success').addClass('tap-error')
-                                           .html('<p>' + (res.data.message || '<?php echo esc_js(__('Payment failed.', 'travel-agency-platform')); ?>') + '</p>');
+                                            .html('<p>' + (res.data.message || '<?php echo esc_js(__('Payment failed.', 'travel-agency-platform')); ?>') + '</p>');
                                     }
                                 });
                             },
@@ -456,7 +465,7 @@ class TAP_Shortcode_Booking {
                     <p class="tap-empty"><?php esc_html_e('Online payment is temporarily unavailable. Your reservation is registered and will be confirmed by the agency.', 'travel-agency-platform'); ?></p>
                     <?php endif; ?>
                 </div>
-            <?php endif; ?>
+					<?php endif; ?>
         </div>
         <?php
         return ob_get_clean();
@@ -914,7 +923,8 @@ class TAP_Shortcode_Booking {
         ob_start();
         ?>
         <div class="tap-fav-grid">
-            <?php foreach ($posts as $post):
+            <?php
+            foreach ($posts as $post):
                 $type  = $post->post_type;
                 $price = floatval(get_post_meta($post->ID, TAP_API::get_price_key($type) ?: '', true));
                 $rat   = TAP_API::get_rating_stats($type, $post->ID);

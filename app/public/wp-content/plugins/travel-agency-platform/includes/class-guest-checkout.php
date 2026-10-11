@@ -29,5 +29,4 @@ class TAP_Guest_Checkout {
     public static function guest_bucket($email) {
         return 'tap_guest_book_' . md5(($_SERVER['REMOTE_ADDR'] ?? '') . '|' . strtolower((string) $email));
     }
-
 }

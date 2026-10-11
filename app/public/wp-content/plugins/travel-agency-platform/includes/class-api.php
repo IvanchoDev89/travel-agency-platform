@@ -508,15 +508,15 @@ class TAP_API {
             return new WP_Error('invalid_params', __('Parámetros inválidos.', 'travel-agency-platform'), ['status' => 400]);
         }
 
-        $where = "service_type = %s AND service_id = %d";
+        $where = 'service_type = %s AND service_id = %d';
         $params = [$type, $id];
 
         if ($from) {
-            $where .= " AND date >= %s";
+            $where .= ' AND date >= %s';
             $params[] = $from;
         }
         if ($to) {
-            $where .= " AND date <= %s";
+            $where .= ' AND date <= %s';
             $params[] = $to;
         }
 

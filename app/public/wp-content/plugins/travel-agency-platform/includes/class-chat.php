@@ -64,7 +64,7 @@ class TAP_Chat {
     public static function messages($booking_id, $limit = 200) {
         global $wpdb;
         return $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM " . self::table() . " WHERE booking_id = %d ORDER BY id ASC LIMIT %d",
+            'SELECT * FROM ' . self::table() . ' WHERE booking_id = %d ORDER BY id ASC LIMIT %d',
             (int) $booking_id,
             (int) $limit
         ));
@@ -75,8 +75,8 @@ class TAP_Chat {
         global $wpdb;
         $reader_type = in_array($reader_type, ['client', 'agency'], true) ? $reader_type : 'client';
         return (int) $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM " . self::table() . "
-             WHERE booking_id = %d AND author_type <> %s AND is_read = 0",
+            'SELECT COUNT(*) FROM ' . self::table() . '
+             WHERE booking_id = %d AND author_type <> %s AND is_read = 0',
             (int) $booking_id,
             $reader_type
         ));
@@ -94,7 +94,7 @@ class TAP_Chat {
         }
         $bookings = $wpdb->prefix . 'tap_bookings';
         return (int) $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(m.id) FROM " . self::table() . " m
+            'SELECT COUNT(m.id) FROM ' . self::table() . " m
              INNER JOIN {$bookings} b ON b.id = m.booking_id
              WHERE b.agency_id = %d AND m.author_type = 'client' AND m.is_read = 0",
             $agency_id
@@ -105,7 +105,7 @@ class TAP_Chat {
     public static function last_id($booking_id) {
         global $wpdb;
         return (int) $wpdb->get_var($wpdb->prepare(
-            "SELECT MAX(id) FROM " . self::table() . " WHERE booking_id = %d",
+            'SELECT MAX(id) FROM ' . self::table() . ' WHERE booking_id = %d',
             (int) $booking_id
         ));
     }
@@ -115,9 +115,9 @@ class TAP_Chat {
         global $wpdb;
         $reader_type = in_array($reader_type, ['client', 'agency'], true) ? $reader_type : 'client';
         return (bool) $wpdb->query($wpdb->prepare(
-            "UPDATE " . self::table() . "
+            'UPDATE ' . self::table() . '
                 SET is_read = 1
-              WHERE booking_id = %d AND author_type <> %s AND is_read = 0",
+              WHERE booking_id = %d AND author_type <> %s AND is_read = 0',
             (int) $booking_id,
             $reader_type
         ));

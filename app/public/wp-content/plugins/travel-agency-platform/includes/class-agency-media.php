@@ -252,5 +252,4 @@ class TAP_Agency_Media {
         }
         return $out;
     }
-
 }

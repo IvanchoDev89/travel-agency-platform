@@ -93,8 +93,8 @@ class TAP_PayPal {
                         'item_total' => [
                             'currency_code' => self::currency_code(),
                             'value'         => number_format($remaining, 2, '.', ''),
-                        ]
-                    ]
+                        ],
+                    ],
                 ],
                 'items' => [[
                     'name'     => $service_name,
@@ -104,17 +104,17 @@ class TAP_PayPal {
                     ],
                     'quantity' => '1',
                     'category' => 'DIGITAL_GOODS',
-                ]],
-            ]],
+                ],],
+            ],],
             'payment_source' => [
                 'paypal' => [
                     'experience_context' => [
                         'return_url' => $return_url,
                         'cancel_url' => $cancel_url,
                         'user_action' => 'PAY_NOW',
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ];
 
         $response = wp_remote_post($url, [
@@ -192,8 +192,8 @@ class TAP_PayPal {
                         'item_total' => [
                             'currency_code' => self::currency_code(),
                             'value'         => number_format((float) $amount, 2, '.', ''),
-                        ]
-                    ]
+                        ],
+                    ],
                 ],
                 'items' => [[
                     'name'        => $description,
@@ -203,8 +203,8 @@ class TAP_PayPal {
                     ],
                     'quantity' => '1',
                     'category' => 'DIGITAL_GOODS',
-                ]],
-            ]],
+                ],],
+            ],],
         ];
 
         $response = wp_remote_post($url, [

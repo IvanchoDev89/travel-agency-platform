@@ -72,7 +72,7 @@ class TAP_Booking_Stats {
     public static function get_booking_stats($agency_id = null) {
         global $wpdb;
         $table = $wpdb->prefix . 'tap_bookings';
-        $where = $agency_id ? $wpdb->prepare("WHERE agency_id = %d", $agency_id) : 'WHERE 1=1';
+        $where = $agency_id ? $wpdb->prepare('WHERE agency_id = %d', $agency_id) : 'WHERE 1=1';
 
         return [
             'total'      => $wpdb->get_var("SELECT COUNT(*) FROM $table $where"),
@@ -87,5 +87,4 @@ class TAP_Booking_Stats {
             'fees'       => $wpdb->get_var("SELECT COALESCE(SUM(booking_fee), 0) FROM $table $where AND status NOT IN ('cancelled', 'refunded')"),
         ];
     }
-
 }

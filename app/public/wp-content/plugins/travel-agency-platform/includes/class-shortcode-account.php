@@ -47,7 +47,7 @@ class TAP_Shortcode_Account {
         $commission = $agency_id ? TAP_Booking::get_agency_commission($agency_id) : 10;
         $stats      = TAP_Booking_Stats::get_booking_stats($agency_id);
 
-$comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
+		$comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
             "SELECT
                 COALESCE(SUM(CASE WHEN commission_status = 'owed' THEN commission_amount END),0) owed,
                 COALESCE(SUM(CASE WHEN commission_status = 'disputed' THEN commission_amount END),0) disputed,
@@ -79,10 +79,10 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
         $ab_page    = max(1, intval($_GET['ab_page'] ?? 1));
         $ab_per_page = 20;
         $where = $agency_id
-            ? $wpdb->prepare("WHERE agency_id = %d", $agency_id)
+            ? $wpdb->prepare('WHERE agency_id = %d', $agency_id)
             : 'WHERE 1=0';
         if ('all' !== $ab_status) {
-            $where .= $wpdb->prepare(" AND status = %s", $ab_status);
+            $where .= $wpdb->prepare(' AND status = %s', $ab_status);
         }
         $ab_count_rows = $agency_id ? $wpdb->get_results($wpdb->prepare(
             "SELECT status, COUNT(*) c FROM {$wpdb->prefix}tap_bookings WHERE agency_id = %d GROUP BY status",
@@ -154,12 +154,13 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                 <a href="<?php echo esc_url(home_url('/agency-profile/?id=' . $agency_id)); ?>" class="tap-btn"><?php esc_html_e('View Public Profile', 'travel-agency-platform'); ?></a>
             </div>
 
-            <?php if ($agency_id && class_exists('TAP_Subscriptions')):
+            <?php
+            if ($agency_id && class_exists('TAP_Subscriptions')):
                 $tap_plan    = TAP_Subscriptions::active_plan($agency_id);
                 $tap_current = TAP_Subscriptions::current_subscription($agency_id);
                 $tap_limit   = TAP_Subscriptions::listing_limit($agency_id);
                 $tap_used    = TAP_Subscriptions::listing_count($agency_id);
-            ?>
+				?>
             <div class="tap-plan-summary">
                 <span><?php esc_html_e('Plan', 'travel-agency-platform'); ?>: <strong><?php echo esc_html($tap_plan->name); ?></strong></span>
                 <?php if (!empty($tap_plan->paid_until)): ?>
@@ -169,7 +170,7 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                 <span><?php esc_html_e('Comisión', 'travel-agency-platform'); ?>: <strong><?php echo esc_html($commission); ?>%</strong></span>
                 <a href="<?php echo esc_url(home_url('/planes/')); ?>" class="tap-btn tap-btn-sm"><?php esc_html_e('Ver planes', 'travel-agency-platform'); ?></a>
             </div>
-            <?php if ($tap_current && 'pending' === $tap_current->status): ?>
+				<?php if ($tap_current && 'pending' === $tap_current->status): ?>
                 <div class="tap-capacity-note" style="background:#fffbeb;color:#92400e;font-size:13px;font-weight:600;padding:10px 14px;border-radius:10px;margin-bottom:16px;">
                     <?php esc_html_e('Tienes una suscripción pendiente de confirmación de pago.', 'travel-agency-platform'); ?>
                 </div>
@@ -177,7 +178,10 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                 <div class="tap-capacity-note tap-full" style="margin-bottom:16px;">
                     <?php echo esc_html(sprintf(__('Alcanzaste el límite de %d listados de tu plan. Mejora de plan para publicar más.', 'travel-agency-platform'), (int) $tap_limit)); ?>
                 </div>
-            <?php endif; endif; ?>
+				<?php
+            endif;
+endif;
+			?>
 
             <div class="tap-stats-grid">
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html($stats['total']); ?></span><span class="tap-stat-label"><?php esc_html_e('Total Bookings', 'travel-agency-platform'); ?></span></div>
@@ -206,7 +210,7 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                         'cancelled' => __('Cancelled', 'travel-agency-platform'),
                     ];
                     foreach ($tab_labels as $k => $l):
-                    ?>
+						?>
                     <a class="tap-tab <?php echo $ab_status === $k ? 'active' : ''; ?>" href="<?php echo esc_url(add_query_arg(['ab_status' => $k, 'ab_page' => 1])); ?>">
                         <?php echo esc_html($l); ?> <span class="tap-tab-count"><?php echo (int) ($ab_map[$k] ?? 0); ?></span>
                     </a>
@@ -231,7 +235,8 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($bookings as $b):
+                        <?php
+                        foreach ($bookings as $b):
                             $service_title = get_the_title($b->service_id);
                             if (empty($service_title)) {
                                 $service_title = __('Deleted listing', 'travel-agency-platform');
@@ -253,7 +258,7 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                             }
                             $b_display = $b_contact_open && $b_name ? $b_name : TAP_Attribution::mask_name($b_name ?: __('Deleted user', 'travel-agency-platform'));
                             $date_label = $b->check_in . ($b->check_out ? ' &rarr; ' . $b->check_out : '');
-                        ?>
+							?>
                         <tr>
                             <td><span class="tap-booking-code"><?php echo esc_html($b->booking_code); ?></span><br>
                                 <a class="tap-btn tap-btn-xs" href="<?php echo esc_url(home_url('/booking-detail/?code=' . $b->booking_code)); ?>"><?php esc_html_e('Ver voucher', 'travel-agency-platform'); ?></a>
@@ -262,7 +267,10 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                                 <a href="<?php echo esc_url(get_permalink($b->service_id) ?: home_url()); ?>"><?php echo esc_html($service_title); ?></a>
                                 <?php if ($b->room_id): $room = get_post($b->room_id); if ($room): ?>
                                     <span class="tap-booking-room"><?php echo esc_html($room->post_title); ?></span>
-                                <?php endif; endif; ?>
+										<?php
+                                endif;
+endif;
+								?>
                             </td>
                             <td><?php echo esc_html($b_display); ?><br>
                                 <?php if ($b_email): ?><small><?php echo esc_html($b_contact_open ? $b_email : TAP_Attribution::mask_email($b_email)); ?></small><?php endif; ?>
@@ -282,35 +290,42 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                             <td><?php echo esc_html(TAP_Currency::fmt(max(0, (float) $b->total_amount - (float) ($b->booking_fee ?? 0) - ($b->commission_status === 'void' ? 0 : (float) $b->commission_amount)))); ?></td>
                             <td><span class="tap-status tap-status-<?php echo esc_attr($b->status); ?>"><?php echo esc_html(TAP_Emails::status_label($b->status)); ?></span></td>
                             <td class="tap-actions">
-                                <?php if ($b->status === 'request'):
+                                <?php
+                                if ($b->status === 'request'):
                                     $options = ['pending' => __('Aceptar', 'travel-agency-platform'), 'cancelled' => __('Rechazar', 'travel-agency-platform')];
                                     foreach ($options as $s => $label):
-                                ?>
+										?>
                                     <button class="tap-btn tap-status-btn" data-booking-id="<?php echo intval($b->id); ?>" data-status="<?php echo esc_attr($s); ?>"><?php echo esc_html($label); ?></button>
-                                <?php endforeach; elseif (in_array($b->status, ['pending', 'confirmed'])):
+										<?php
+                                endforeach; elseif (in_array($b->status, ['pending', 'confirmed'])):
                                     $options = ['confirmed' => __('Confirm', 'travel-agency-platform'), 'completed' => __('Complete', 'travel-agency-platform'), 'cancelled' => __('Cancel', 'travel-agency-platform')];
                                     foreach ($options as $s => $label):
                                         if ($b->status === $s) continue;
-                                ?>
+										?>
                                     <button class="tap-btn tap-status-btn" data-booking-id="<?php echo intval($b->id); ?>" data-status="<?php echo esc_attr($s); ?>" <?php echo ($b->status === 'pending' && $s === 'completed') ? 'disabled' : ''; ?>><?php echo esc_html($label); ?></button>
-                                <?php endforeach; endif; ?>
+										<?php
+                                endforeach;
+endif;
+								?>
                             </td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
                 </div>
-                <?php if ($ab_pages > 1): ?>
-                <nav class="tap-pagination"><?php
-                    echo paginate_links([
+					<?php if ($ab_pages > 1): ?>
+                <nav class="tap-pagination">
+						<?php
+						echo paginate_links([
                         'base'      => add_query_arg('ab_page', '%#%'),
                         'format'    => '',
                         'current'   => $ab_page,
                         'total'     => $ab_pages,
                         'prev_text' => '&larr;',
                         'next_text' => '&rarr;',
-                    ]);
-                ?></nav>
+						]);
+						?>
+                </nav>
                 <?php endif; ?>
                 <?php endif; ?>
             </div>
@@ -328,7 +343,7 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                 <?php
                 $leads = TAP_Leads::for_agency($agency_id, 20);
                 if (!$leads):
-                ?>
+					?>
                     <p class="tap-agency-meta"><?php esc_html_e('Aún no has recibido mensajes de contacto. Cuando un visitante envíe el formulario de tu perfil o de un servicio, aparecerá aquí.', 'travel-agency-platform'); ?></p>
                 <?php else: ?>
                 <div class="tap-table-scroll">
@@ -343,16 +358,21 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($leads as $ld):
+                        <?php
+                        foreach ($leads as $ld):
                             $ld_service = $ld->service_id ? get_the_title($ld->service_id) : '';
                             $ld_open = class_exists('TAP_Attribution') && TAP_Attribution::contact_unlocked($agency_id, $ld->email);
                             $ld_email = $ld_open ? $ld->email : TAP_Attribution::mask_email($ld->email);
                             $ld_phone = $ld_open ? ($ld->phone ?? '') : TAP_Attribution::mask_phone($ld->phone ?? '');
-                        ?>
+							?>
                         <tr>
                             <td><strong><?php echo esc_html($ld_open ? $ld->name : TAP_Attribution::mask_name($ld->name)); ?></strong></td>
                             <td>
-                                <?php if (is_email($ld->email)): ?><a href="mailto:<?php echo esc_attr($ld_open ? $ld->email : ''); ?>"><?php echo esc_html($ld_email); ?></a><?php else: echo esc_html($ld_email); endif; ?>
+                                <?php if (is_email($ld->email)): ?><a href="mailto:<?php echo esc_attr($ld_open ? $ld->email : ''); ?>"><?php echo esc_html($ld_email); ?></a>
+									<?php
+                                else: echo esc_html($ld_email);
+endif;
+								?>
                                 <?php if ($ld_phone): ?><br><small><?php echo esc_html($ld_phone); ?></small><?php endif; ?>
                                 <?php if (!$ld_open): ?><br><small class="tap-muted"><?php esc_html_e('Contacto protegido — visible tras una reserva confirmada.', 'travel-agency-platform'); ?></small><?php endif; ?>
                             </td>
@@ -375,7 +395,8 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                     <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(home_url('/manage-listing/')); ?>">+ <?php esc_html_e('Nuevo alojamiento', 'travel-agency-platform'); ?></a>
                 </div>
                 <div class="tap-listing-grid">
-                    <?php foreach ($listings as $type => $info):
+                    <?php
+                    foreach ($listings as $type => $info):
                         $booked = 0;
                         $revenue = 0.0;
                         foreach ($info['ids'] as $pid) {
@@ -384,7 +405,7 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                                 $revenue += $booking_counts[$type . ':' . $pid][1];
                             }
                         }
-                    ?>
+						?>
                     <div class="tap-listing-card">
                         <div class="tap-listing-title"><?php echo esc_html($info['label']); ?></div>
                         <div class="tap-listing-count"><?php echo esc_html($info['count']); ?></div>
@@ -401,7 +422,8 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
             </div>
             <?php endif; ?>
 
-            <?php if ($agency_id && class_exists('TAP_Promotions')):
+            <?php
+            if ($agency_id && class_exists('TAP_Promotions')):
                 $promo_price = TAP_Promotions::get_price();
                 $promo_slots = TAP_Promotions::featured_slots($agency_id);
                 $promo_active = TAP_Promotions::active_promos($agency_id);
@@ -417,7 +439,7 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                 foreach ($promo_active as $pa) { $promo_active_ids[] = (int) $pa->listing_id; }
                 $promo_pending_ids = [];
                 foreach ($promo_pending as $pp) { $promo_pending_ids[] = (int) $pp->listing_id; }
-            ?>
+				?>
             <div class="tap-panel-section">
                 <div class="tap-section-head">
                     <h3><?php esc_html_e('Destacados (promociones)', 'travel-agency-platform'); ?></h3>
@@ -449,11 +471,12 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($promo_listings as $pl):
+                            <?php
+                            foreach ($promo_listings as $pl):
                                 $is_feat = TAP_Promotions::is_featured($pl['id']);
                                 $until = TAP_Promotions::featured_until($pl['id']);
                                 $is_pending_promo = in_array((int) $pl['id'], $promo_pending_ids, true);
-                            ?>
+								?>
                             <tr>
                                 <td><?php echo esc_html($pl['title']); ?></td>
                                 <td><?php echo esc_html($pl['label']); ?></td>
@@ -525,16 +548,18 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                             <td>#<?php echo (int) $s->id; ?></td>
                             <td><?php echo esc_html(TAP_Currency::fmt($s->amount)); ?></td>
                             <td><?php echo esc_html($s->method); ?></td>
-                            <td><?php
+                            <td>
+                            <?php
                                 $ids = array_filter(array_map('intval', explode(',', $s->booking_ids)));
-                                if ($ids) {
-                                    $ph = implode(',', array_fill(0, count($ids), '%d'));
-                                    $codes = $wpdb->get_col($wpdb->prepare("SELECT booking_code FROM {$wpdb->prefix}tap_bookings WHERE id IN ({$ph})", $ids));
-                                    echo esc_html(implode(', ', $codes ?: $ids));
-                                } else {
-                                    echo '—';
-                                }
-                            ?></td>
+							if ($ids) {
+								$ph = implode(',', array_fill(0, count($ids), '%d'));
+								$codes = $wpdb->get_col($wpdb->prepare("SELECT booking_code FROM {$wpdb->prefix}tap_bookings WHERE id IN ({$ph})", $ids));
+								echo esc_html(implode(', ', $codes ?: $ids));
+							} else {
+								echo '—';
+							}
+                            ?>
+                            </td>
                             <td><?php echo esc_html($s->note); ?></td>
                             <td>
                                 <span class="tap-status <?php echo 'completed' === $s->status ? 'tap-status-confirmed' : ('pending' === $s->status ? 'tap-status-pending' : 'tap-muted'); ?>"><?php echo esc_html(TAP_Payouts::status_label($s->status)); ?></span>
@@ -566,9 +591,10 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($agency_disputes as $ad):
+                        <?php
+                        foreach ($agency_disputes as $ad):
                             $ad_code = $wpdb->get_var($wpdb->prepare("SELECT booking_code FROM {$wpdb->prefix}tap_bookings WHERE id = %d", $ad->booking_id));
-                        ?>
+							?>
                         <tr>
                             <td><?php echo esc_html($ad_code ?: '#' . (int) $ad->booking_id); ?></td>
                             <td><?php echo esc_html(TAP_Disputes::reasons()[$ad->reason] ?? $ad->reason); ?>
@@ -609,7 +635,8 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                             <td><?php echo esc_html($cl->created_at); ?></td>
                             <td><?php echo esc_html(TAP_Currency::fmt($cl->total_amount)); ?></td>
                             <td><?php echo esc_html(TAP_Currency::fmt($cl->commission_amount)); ?></td>
-                            <td><?php
+                            <td>
+                            <?php
                                 $cl_label = [
                                     'paid'     => __('Cobrada', 'travel-agency-platform'),
                                     'disputed' => __('En disputa', 'travel-agency-platform'),
@@ -617,7 +644,8 @@ $comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
                                 ];
                                 $cl_ok = 'paid' === $cl->commission_status;
                                 echo '<span class="tap-status ' . ($cl_ok ? 'tap-status-confirmed' : ($cl->commission_status === 'owed' ? 'tap-status-pending' : 'tap-muted')) . '">' . esc_html($cl_label[$cl->commission_status] ?? __('Por cobrar', 'travel-agency-platform')) . '</span>';
-                            ?></td>
+								?>
+                            </td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>

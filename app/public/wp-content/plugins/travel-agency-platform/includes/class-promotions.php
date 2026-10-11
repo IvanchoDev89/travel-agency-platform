@@ -83,7 +83,7 @@ class TAP_Promotions {
     public static function active_promos_count($agency_id) {
         global $wpdb;
         return (int) $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM " . self::promos_table() . " WHERE agency_id = %d AND status = 'active' AND paid_until >= CURDATE()",
+            'SELECT COUNT(*) FROM ' . self::promos_table() . " WHERE agency_id = %d AND status = 'active' AND paid_until >= CURDATE()",
             (int) $agency_id
         ));
     }
@@ -91,7 +91,7 @@ class TAP_Promotions {
     public static function pending_promos($agency_id) {
         global $wpdb;
         return $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM " . self::promos_table() . " WHERE agency_id = %d AND status = 'pending' ORDER BY created_at DESC",
+            'SELECT * FROM ' . self::promos_table() . " WHERE agency_id = %d AND status = 'pending' ORDER BY created_at DESC",
             (int) $agency_id
         ));
     }
@@ -99,7 +99,7 @@ class TAP_Promotions {
     public static function active_promos($agency_id) {
         global $wpdb;
         return $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM " . self::promos_table() . " WHERE agency_id = %d AND status = 'active' ORDER BY paid_until DESC",
+            'SELECT * FROM ' . self::promos_table() . " WHERE agency_id = %d AND status = 'active' ORDER BY paid_until DESC",
             (int) $agency_id
         ));
     }
@@ -130,7 +130,7 @@ class TAP_Promotions {
         }
 
         $pending = $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM " . self::promos_table() . " WHERE listing_id = %d AND status = 'pending'",
+            'SELECT COUNT(*) FROM ' . self::promos_table() . " WHERE listing_id = %d AND status = 'pending'",
             $listing_id
         ));
         if ((int) $pending > 0) {
@@ -169,7 +169,7 @@ class TAP_Promotions {
     public static function activate($promo_id, $admin_id = 0, $months = 0) {
         global $wpdb;
         $promo = $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM " . self::promos_table() . " WHERE id = %d",
+            'SELECT * FROM ' . self::promos_table() . ' WHERE id = %d',
             (int) $promo_id
         ));
         if (!$promo) {
@@ -224,7 +224,7 @@ class TAP_Promotions {
     public static function expire($promo_id) {
         global $wpdb;
         $promo = $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM " . self::promos_table() . " WHERE id = %d",
+            'SELECT * FROM ' . self::promos_table() . ' WHERE id = %d',
             (int) $promo_id
         ));
         if (!$promo) {
@@ -238,7 +238,7 @@ class TAP_Promotions {
     public static function expire_active() {
         global $wpdb;
         $rows = $wpdb->get_results(
-            "SELECT id, listing_id FROM " . self::promos_table() . " WHERE status = 'active' AND paid_until < CURDATE()"
+            'SELECT id, listing_id FROM ' . self::promos_table() . " WHERE status = 'active' AND paid_until < CURDATE()"
         );
         foreach ($rows as $row) {
             self::expire((int) $row->id);
@@ -269,7 +269,7 @@ class TAP_Promotions {
     private static function listing_has_other_active_promo($listing_id) {
         global $wpdb;
         return (bool) $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM " . self::promos_table() . " WHERE listing_id = %d AND status = 'active'",
+            'SELECT COUNT(*) FROM ' . self::promos_table() . " WHERE listing_id = %d AND status = 'active'",
             (int) $listing_id
         ));
     }

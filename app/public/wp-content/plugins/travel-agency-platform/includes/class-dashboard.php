@@ -207,5 +207,4 @@ class TAP_Dashboard {
     public static function post_verified($trigger, $action) {
         return isset($_POST[$trigger]) && self::post_nonce_ok($action);
     }
-
 }

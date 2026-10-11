@@ -463,5 +463,4 @@ class TAP_Dashboard_Settings {
         </div>
         <?php
     }
-
 }

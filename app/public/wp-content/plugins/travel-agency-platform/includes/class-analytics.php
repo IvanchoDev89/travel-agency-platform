@@ -52,7 +52,7 @@ class TAP_Analytics {
         global $wpdb;
         $where = self::date_where($from, $to);
         return (float) $wpdb->get_var(
-            "SELECT COALESCE(SUM(views),0) FROM " . self::views_table() . " WHERE {$where}"
+            'SELECT COALESCE(SUM(views),0) FROM ' . self::views_table() . " WHERE {$where}"
         );
     }
 
@@ -60,8 +60,8 @@ class TAP_Analytics {
         global $wpdb;
         $where = self::date_where($from, $to);
         $rows = $wpdb->get_results(
-            "SELECT listing_id, COALESCE(SUM(views),0) views
-             FROM " . self::views_table() . " WHERE {$where}
+            'SELECT listing_id, COALESCE(SUM(views),0) views
+             FROM ' . self::views_table() . " WHERE {$where}
              GROUP BY listing_id
              LIMIT 1000",
             OBJECT_K
@@ -94,10 +94,10 @@ class TAP_Analytics {
         $paid      = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$b} WHERE {$w} AND payment_status = 'paid'");
 
         $stages = [
-            ['key' => 'views',     'label' => __('Vistas de listados', 'travel-agency-platform'),    'value' => $views],
-            ['key' => 'created',   'label' => __('Reservas creadas', 'travel-agency-platform'),      'value' => $created],
-            ['key' => 'confirmed', 'label' => __('Reservas confirmadas', 'travel-agency-platform'),  'value' => $confirmed],
-            ['key' => 'paid',      'label' => __('Reservas pagadas', 'travel-agency-platform'),      'value' => $paid],
+            ['key' => 'views', 'label' => __('Vistas de listados', 'travel-agency-platform'), 'value' => $views],
+            ['key' => 'created', 'label' => __('Reservas creadas', 'travel-agency-platform'), 'value' => $created],
+            ['key' => 'confirmed', 'label' => __('Reservas confirmadas', 'travel-agency-platform'), 'value' => $confirmed],
+            ['key' => 'paid', 'label' => __('Reservas pagadas', 'travel-agency-platform'), 'value' => $paid],
         ];
         $prev = 0;
         foreach ($stages as $i => &$s) {

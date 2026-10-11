@@ -57,7 +57,9 @@ class TAP_Discounts {
             }
         }
         if (empty($tiers)) $tiers = [['nights' => 7, 'percent' => 10], ['nights' => 14, 'percent' => 15]];
-        usort($tiers, function ($a, $b) { return $a['nights'] - $b['nights']; });
+        usort($tiers, function ($a, $b) {
+			return $a['nights'] - $b['nights'];
+		});
         $clean['long_tiers'] = $tiers;
 
         return $clean;
@@ -200,7 +202,9 @@ class TAP_Discounts {
             $percent = (float) $percent;
             if ($nights > 0 && $percent > 0) $tiers[] = ['nights' => $nights, 'percent' => $percent];
         }
-        usort($tiers, function ($a, $b) { return $a['nights'] - $b['nights']; });
+        usort($tiers, function ($a, $b) {
+			return $a['nights'] - $b['nights'];
+		});
         return $tiers;
     }
 

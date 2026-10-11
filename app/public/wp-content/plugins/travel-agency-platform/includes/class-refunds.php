@@ -155,5 +155,4 @@ class TAP_Refunds {
             'non_refundable' => __('No reembolsable', 'travel-agency-platform'),
         ];
     }
-
 }

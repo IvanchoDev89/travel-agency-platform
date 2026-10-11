@@ -67,14 +67,14 @@ class TAP_Destinations {
 
         $p_order = 0;
         foreach ($cr as $province => $cantones) {
-            $p_order++;
+            ++$p_order;
             $province_id = self::insert_term($province, 1, $p_order, $country_id);
             if (is_wp_error($province_id) || $province_id === null) {
                 continue;
             }
             $c_order = 0;
             foreach ($cantones as $key => $value) {
-                $c_order++;
+                ++$c_order;
                 if (is_array($value)) {
                     $canton = $key;
                     $places = $value;
@@ -89,7 +89,7 @@ class TAP_Destinations {
                 // Tourist places: level 4 (lugar under the canton/district).
                 $l_order = 0;
                 foreach ($places as $place) {
-                    $l_order++;
+                    ++$l_order;
                     self::insert_term($place, 4, $l_order, $canton_id);
                 }
             }
@@ -156,7 +156,7 @@ class TAP_Destinations {
             }
             array_unshift($chain, $term);
             $current = $term->parent ? (int) $term->parent : 0;
-            $guard++;
+            ++$guard;
         }
         return $chain;
     }
@@ -213,7 +213,7 @@ class TAP_Destinations {
         $parent = (int) get_term($term_id, self::TAX)->parent;
         $guard = 0;
         while ($parent) {
-            $depth++;
+            ++$depth;
             $term = get_term($parent, self::TAX);
             if (!$term || is_wp_error($term)) {
                 break;

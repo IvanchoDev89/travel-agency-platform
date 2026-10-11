@@ -290,10 +290,10 @@ class TAP_Privacy {
         $sql = "SELECT * FROM {$wpdb->prefix}tap_privacy_requests";
         $args = [];
         if (in_array($status, ['pending', 'done'], true)) {
-            $sql .= " WHERE status = %s";
+            $sql .= ' WHERE status = %s';
             $args[] = $status;
         }
-        $sql .= " ORDER BY id DESC LIMIT 500";
+        $sql .= ' ORDER BY id DESC LIMIT 500';
         return $args ? $wpdb->get_results($wpdb->prepare($sql, $args)) : $wpdb->get_results($sql);
     }
 
@@ -310,13 +310,15 @@ class TAP_Privacy {
     }
 
     public static function rights_label($key) {
-        $labels = self::rights_map(); return $labels[$key] ?? $key;
+        $labels = self::rights_map();
+		return $labels[$key] ?? $key;
     }
 
     public static function rights_labels($csv) {
         $out = [];
         foreach (array_filter(array_map('trim', explode(',', (string) $csv))) as $key) {
-            $labels = self::rights_map(); if (isset($labels[$key])) $out[] = $labels[$key];
+            $labels = self::rights_map();
+			if (isset($labels[$key])) $out[] = $labels[$key];
         }
         return $out;
     }
@@ -377,13 +379,13 @@ class TAP_Privacy {
                 'group_label' => __('Travel bookings', 'travel-agency-platform'),
                 'item_id'     => 'booking-' . (int) $b->id,
                 'data'        => [
-                    ['name' => __('Código', 'travel-agency-platform'),   'value' => $b->booking_code],
-                    ['name' => __('Estado', 'travel-agency-platform'),   'value' => $b->status],
-                    ['name' => __('Pago', 'travel-agency-platform'),     'value' => $b->payment_status],
+                    ['name' => __('Código', 'travel-agency-platform'), 'value' => $b->booking_code],
+                    ['name' => __('Estado', 'travel-agency-platform'), 'value' => $b->status],
+                    ['name' => __('Pago', 'travel-agency-platform'), 'value' => $b->payment_status],
                     ['name' => __('Servicio', 'travel-agency-platform'), 'value' => $b->service_type . ' #' . (int) $b->service_id],
-                    ['name' => __('Entrada', 'travel-agency-platform'),  'value' => $b->check_in],
-                    ['name' => __('Salida', 'travel-agency-platform'),   'value' => $b->check_out],
-                    ['name' => __('Total', 'travel-agency-platform'),    'value' => (string) $b->total_amount],
+                    ['name' => __('Entrada', 'travel-agency-platform'), 'value' => $b->check_in],
+                    ['name' => __('Salida', 'travel-agency-platform'), 'value' => $b->check_out],
+                    ['name' => __('Total', 'travel-agency-platform'), 'value' => (string) $b->total_amount],
                     ['name' => __('Invitado', 'travel-agency-platform'), 'value' => ($b->guest_name ?? '') . ' ' . ($b->guest_email ?? '')],
                 ],
             ];
@@ -404,11 +406,11 @@ class TAP_Privacy {
                 'group_label' => __('Contact messages', 'travel-agency-platform'),
                 'item_id'     => 'lead-' . (int) $l->id,
                 'data'        => [
-                    ['name' => __('Nombre', 'travel-agency-platform'),  'value' => $l->name],
-                    ['name' => __('Correo', 'travel-agency-platform'),  'value' => $l->email],
+                    ['name' => __('Nombre', 'travel-agency-platform'), 'value' => $l->name],
+                    ['name' => __('Correo', 'travel-agency-platform'), 'value' => $l->email],
                     ['name' => __('Teléfono', 'travel-agency-platform'), 'value' => $l->phone ?? ''],
                     ['name' => __('Mensaje', 'travel-agency-platform'), 'value' => $l->message ?? ''],
-                    ['name' => __('Fecha', 'travel-agency-platform'),   'value' => $l->created_at],
+                    ['name' => __('Fecha', 'travel-agency-platform'), 'value' => $l->created_at],
                 ],
             ];
         }
@@ -428,9 +430,9 @@ class TAP_Privacy {
                 'group_label' => __('Privacy consents', 'travel-agency-platform'),
                 'item_id'     => 'consent-' . (int) $c->id,
                 'data'        => [
-                    ['name' => __('Alcance', 'travel-agency-platform'),       'value' => $c->scope],
+                    ['name' => __('Alcance', 'travel-agency-platform'), 'value' => $c->scope],
                     ['name' => __('Versión política', 'travel-agency-platform'), 'value' => $c->policy_version],
-                    ['name' => __('Fecha', 'travel-agency-platform'),         'value' => $c->created_at],
+                    ['name' => __('Fecha', 'travel-agency-platform'), 'value' => $c->created_at],
                 ],
             ];
         }
@@ -453,9 +455,9 @@ class TAP_Privacy {
                     'data'        => [
                         ['name' => __('Servicio', 'travel-agency-platform'), 'value' => $r->service_type . ' #' . (int) $r->service_id],
                         ['name' => __('Valoración', 'travel-agency-platform'), 'value' => (string) $r->rating],
-                        ['name' => __('Título', 'travel-agency-platform'),  'value' => $r->title ?? ''],
+                        ['name' => __('Título', 'travel-agency-platform'), 'value' => $r->title ?? ''],
                         ['name' => __('Contenido', 'travel-agency-platform'), 'value' => $r->content ?? ''],
-                        ['name' => __('Fecha', 'travel-agency-platform'),   'value' => $r->created_at],
+                        ['name' => __('Fecha', 'travel-agency-platform'), 'value' => $r->created_at],
                     ],
                 ];
             }
@@ -596,7 +598,10 @@ class TAP_Privacy {
                                 <?php endif; ?>
                             </td>
                         </tr>
-                    <?php endforeach; endif; ?>
+							<?php
+                    endforeach;
+endif;
+					?>
                 </tbody>
             </table>
 
@@ -625,7 +630,10 @@ class TAP_Privacy {
                             <td><?php echo esc_html($consent->policy_version); ?></td>
                             <td><?php echo esc_html($consent->ip ?: '—'); ?></td>
                         </tr>
-                    <?php endforeach; endif; ?>
+							<?php
+                    endforeach;
+endif;
+					?>
                 </tbody>
             </table>
 

@@ -142,7 +142,7 @@ class TAP_Dashboard_Money {
         }
         $pwhere = '1=1';
         if ('all' !== $payout_filter) {
-            $pwhere = $wpdb->prepare("p.status = %s", $payout_filter);
+            $pwhere = $wpdb->prepare('p.status = %s', $payout_filter);
         }
         $payments = $wpdb->get_results(
             "SELECT p.*, a.post_title agency_name
@@ -214,7 +214,8 @@ class TAP_Dashboard_Money {
                             <td><?php echo esc_html(TAP_Currency::fmt($c->total_amount)); ?></td>
                             <td><?php echo esc_html($c->commission_percent); ?>%</td>
                             <td><?php echo esc_html(TAP_Currency::fmt($c->commission_amount)); ?></td>
-                            <td><?php
+                            <td>
+                            <?php
                                 $estado_label = [
                                     'owed'     => __('Por cobrar', 'travel-agency-platform'),
                                     'paid'     => __('Cobrada', 'travel-agency-platform'),
@@ -228,7 +229,8 @@ class TAP_Dashboard_Money {
                                     'void'     => '#64748b',
                                 ];
                                 echo '<span style="color:' . esc_attr($estado_color[$c->commission_status] ?? '#374151') . ';font-weight:600;">' . esc_html($estado_label[$c->commission_status] ?? $c->commission_status) . '</span>';
-                            ?></td>
+								?>
+                            </td>
                             <td><?php echo esc_html($c->created_at); ?></td>
                         </tr>
                         <?php endforeach; ?>
@@ -258,21 +260,25 @@ class TAP_Dashboard_Money {
 
             <h2 style="margin-top:32px;"><?php esc_html_e('Historial de liquidaciones', 'travel-agency-platform'); ?></h2>
             <nav class="nav-tab-wrapper" style="margin-bottom:12px;">
-                <?php $pay_tabs = [
+                <?php
+                $pay_tabs = [
                     'all'       => __('Todas', 'travel-agency-platform'),
                     'pending'   => __('Pendientes', 'travel-agency-platform'),
                     'completed' => __('Completadas', 'travel-agency-platform'),
                     'failed'    => __('Fallidas', 'travel-agency-platform'),
                     'cancelled' => __('Canceladas', 'travel-agency-platform'),
                 ];
-                foreach ($pay_tabs as $pk => $plabel):
-                    $pcount = isset($tab_counts[$pk]) ? (int) $tab_counts[$pk] : 0;
-                    $pclass = $payout_filter === $pk ? ' nav-tab-active' : ''; ?>
+				foreach ($pay_tabs as $pk => $plabel):
+					$pcount = isset($tab_counts[$pk]) ? (int) $tab_counts[$pk] : 0;
+					$pclass = $payout_filter === $pk ? ' nav-tab-active' : '';
+                    ?>
                     <a class="nav-tab<?php echo $pclass; ?>" href="<?php echo esc_url(admin_url('admin.php?page=tap-commissions&status=' . $filter . '&payout_status=' . $pk)); ?>"><?php echo esc_html($plabel); ?><?php if ($pcount > 0 && 'failed' === $pk): ?> <span class="update-plugins count-<?php echo $pcount; ?>" style="background:#b91c1c;border-radius:50%;color:#fff;font-size:11px;line-height:1.6;height:16px;min-width:16px;display:inline-block;text-align:center;"><span class="plugin-count"><?php echo $pcount; ?></span></span><?php endif; ?></a>
-                <?php endforeach; ?>
+								<?php endforeach; ?>
             </nav>
-            <?php $failed_count = $tab_counts['failed'] ?? 0;
-            if ($failed_count > 0): ?>
+            <?php
+            $failed_count = $tab_counts['failed'] ?? 0;
+            if ($failed_count > 0):
+				?>
                 <div class="notice notice-error inline" style="margin:0 0 12px;"><p><strong><?php echo esc_html(sprintf(__('%d liquidación(es) marcada(s) como fallida(s): el pago no llegó a completarse. Revisa y vuelve a procesarlas.', 'travel-agency-platform'), $failed_count)); ?></strong></p></div>
             <?php endif; ?>
             <table class="wp-list-table widefat fixed striped">
@@ -301,16 +307,18 @@ class TAP_Dashboard_Money {
                         <td><?php echo esc_html(TAP_Currency::fmt($p->amount)); ?></td>
                         <td><?php echo esc_html($p->method); ?></td>
                         <td><?php if ('agency' === ($p->source ?? 'admin')): ?><span class="button button-small" style="background:#fffbeb;border-color:#f59e0b;color:#92400e;"><?php esc_html_e('Sol. agencia', 'travel-agency-platform'); ?></span><?php else: ?><span class="button button-small" style="background:#eff6ff;border-color:#3b82f6;color:#1e40af;"><?php esc_html_e('Admin', 'travel-agency-platform'); ?></span><?php endif; ?></td>
-                        <td><?php
+                        <td>
+                        <?php
                             $ids = array_filter(array_map('intval', explode(',', $p->booking_ids)));
-                            if ($ids) {
-                                $ph = implode(',', array_fill(0, count($ids), '%d'));
-                                $codes = $wpdb->get_col($wpdb->prepare("SELECT booking_code FROM {$b_table} WHERE id IN ({$ph})", $ids));
-                                echo esc_html(implode(', ', $codes ?: $ids));
-                            } else {
-                                echo '—';
-                            }
-                        ?></td>
+						if ($ids) {
+							$ph = implode(',', array_fill(0, count($ids), '%d'));
+							$codes = $wpdb->get_col($wpdb->prepare("SELECT booking_code FROM {$b_table} WHERE id IN ({$ph})", $ids));
+							echo esc_html(implode(', ', $codes ?: $ids));
+						} else {
+							echo '—';
+						}
+                        ?>
+                        </td>
                         <td><?php echo esc_html($p->note); ?></td>
                         <td><span style="font-weight:600;color:<?php echo 'pending' === $p->status ? '#b45309' : ('failed' === $p->status ? '#b91c1c' : ('completed' === $p->status ? '#047857' : '#64748b')); ?>;"><?php echo esc_html(TAP_Payouts::status_label($p->status)); ?></span><?php if ($p->paid_at): ?><br><span class="description"><?php echo esc_html__('Pagada el', 'travel-agency-platform') . ' ' . esc_html($p->paid_at); ?></span><?php endif; ?></td>
                         <td><?php echo esc_html($p->created_at); ?></td>
@@ -531,6 +539,4 @@ class TAP_Dashboard_Money {
         </div>
         <?php
     }
-
-
 }

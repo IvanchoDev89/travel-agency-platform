@@ -256,9 +256,9 @@ class TAP_Booking {
                     'guest_email'       => !empty($data['guest_email']) ? sanitize_email($data['guest_email']) : null,
                     'guest_phone'       => !empty($data['guest_phone']) ? sanitize_text_field($data['guest_phone']) : null,
                 ]
-            );
+				);
 
-            if ($result === false) {
+				if ($result === false) {
                     $create_error = new WP_Error('booking_error', __('Could not create booking', 'travel-agency-platform'));
                 } else {
                     $booking_id = $wpdb->insert_id;
@@ -561,7 +561,7 @@ class TAP_Booking {
         }
 
         $prev = $wpdb->get_var($wpdb->prepare("SELECT status FROM {$wpdb->prefix}tap_bookings WHERE id = %d", $booking_id));
-        $booking = $prev ? TAP_Booking::get_booking($booking_id) : null;
+        $booking = $prev ? self::get_booking($booking_id) : null;
         if (!$booking) {
             return new WP_Error('not_found', __('Booking not found', 'travel-agency-platform'));
         }

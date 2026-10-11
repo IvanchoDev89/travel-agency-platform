@@ -392,11 +392,11 @@ class TAP_Pricing {
             $date = sanitize_text_field((string) $date);
             $res  = self::save_cell($room_id, $date, $price, $min_stay, $blocked, $label);
             if ($res['ok']) {
-                $applied[$res['action']]++;
+                ++$applied[$res['action']];
                 return true;
             }
             $bad[] = $date;
-            $applied['failed']++;
+            ++$applied['failed'];
             return false;
         };
 
@@ -417,7 +417,7 @@ class TAP_Pricing {
                     isset($cell['is_blocked']) ? (int) $cell['is_blocked'] : 0,
                     isset($cell['label']) ? (string) $cell['label'] : ''
                 );
-                $count++;
+                ++$count;
             }
             $applied['cells'] = $count;
         } else {

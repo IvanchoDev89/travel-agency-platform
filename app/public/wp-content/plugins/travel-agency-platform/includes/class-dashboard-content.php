@@ -62,8 +62,10 @@ class TAP_Dashboard_Content {
                 <?php esc_html_e('Solo las aprobadas se muestran en el sitio público.', 'travel-agency-platform'); ?></p>
             </div>
             <nav class="nav-tab-wrapper">
-                <?php foreach (['all' => __('Todas', 'travel-agency-platform'), 'pending' => __('Pendientes', 'travel-agency-platform'), 'approved' => __('Aprobadas', 'travel-agency-platform')] as $k => $label):
-                    $class = $filter === $k ? ' nav-tab-active' : ''; ?>
+                <?php
+                foreach (['all' => __('Todas', 'travel-agency-platform'), 'pending' => __('Pendientes', 'travel-agency-platform'), 'approved' => __('Aprobadas', 'travel-agency-platform')] as $k => $label):
+                    $class = $filter === $k ? ' nav-tab-active' : '';
+                    ?>
                     <a class="nav-tab<?php echo $class; ?>" href="<?php echo esc_url(admin_url('admin.php?page=tap-reviews&status=' . $k)); ?>"><?php echo esc_html($label); ?></a>
                 <?php endforeach; ?>
             </nav>
@@ -82,9 +84,10 @@ class TAP_Dashboard_Content {
                     <?php if (!$reviews): ?>
                     <tr><td colspan="6"><em><?php esc_html_e('No hay reseñas.', 'travel-agency-platform'); ?></em></td></tr>
                     <?php endif; ?>
-                    <?php foreach ($reviews as $r):
+                    <?php
+                    foreach ($reviews as $r):
                         $service = get_post($r->service_id);
-                    ?>
+						?>
                     <tr>
                         <td><span class="tap-admin-stars" style="color:#f59e0b;"><?php echo str_repeat('★', intval($r->rating)); ?></span> <span class="description"><?php echo esc_html($r->rating); ?></span></td>
                         <td>
@@ -139,7 +142,7 @@ class TAP_Dashboard_Content {
     public static function moderation_page() {
         $items = TAP_Moderation::queue();
         $blocked = ($GLOBALS['wpdb']->get_var("SELECT COUNT(*) FROM {$GLOBALS['wpdb']->prefix}tap_reviews WHERE mod_status = 'block'")) +
-                   (int) ($GLOBALS['wpdb']->get_var("SELECT COUNT(*) FROM {$GLOBALS['wpdb']->prefix}tap_leads WHERE mod_status = 'block'"));
+                    (int) ($GLOBALS['wpdb']->get_var("SELECT COUNT(*) FROM {$GLOBALS['wpdb']->prefix}tap_leads WHERE mod_status = 'block'"));
         $reviewed = (int) ($GLOBALS['wpdb']->get_var("SELECT COUNT(*) FROM {$GLOBALS['wpdb']->prefix}tap_reviews WHERE mod_status = 'review'")) +
                     (int) ($GLOBALS['wpdb']->get_var("SELECT COUNT(*) FROM {$GLOBALS['wpdb']->prefix}tap_leads WHERE mod_status = 'review'"));
         ?>
@@ -165,13 +168,14 @@ class TAP_Dashboard_Content {
                     <?php if (!$items): ?>
                     <tr><td colspan="5"><em><?php esc_html_e('No hay contenido en la cola de moderación.', 'travel-agency-platform'); ?></em></td></tr>
                     <?php endif; ?>
-                    <?php foreach ($items as $it):
+                    <?php
+                    foreach ($items as $it):
                         $is_review = 'review' === $it->kind;
                         $base = admin_url('admin.php?page=tap-moderation&kind=' . ($is_review ? 'review' : 'lead') . '&item_id=' . (int) $it->id);
                         $aw = wp_nonce_url($base . '&mod_action=approve', 'tap_mod_approve_' . ($is_review ? 'review' : 'lead') . '_' . (int) $it->id);
                         $bl = wp_nonce_url($base . '&mod_action=block', 'tap_mod_block_' . ($is_review ? 'review' : 'lead') . '_' . (int) $it->id);
                         $dl = wp_nonce_url($base . '&mod_action=delete', 'tap_mod_delete_' . ($is_review ? 'review' : 'lead') . '_' . (int) $it->id);
-                    ?>
+						?>
                     <tr>
                         <td><span class="dashicons <?php echo $is_review ? 'dashicons-star-filled' : 'dashicons-email-alt'; ?>"></span> <?php echo $is_review ? esc_html__('Reseña', 'travel-agency-platform') : esc_html__('Mensaje', 'travel-agency-platform'); ?></td>
                         <td>
@@ -220,7 +224,9 @@ class TAP_Dashboard_Content {
             'order' => 'ASC',
         ]);
 
-        $visible = array_values(array_filter($agencies, function ($a) { return 'trash' !== $a->post_status; }));
+        $visible = array_values(array_filter($agencies, function ($a) {
+			return 'trash' !== $a->post_status;
+		}));
 
         $verified = 0;
         $active   = 0;
@@ -248,10 +254,11 @@ class TAP_Dashboard_Content {
         <div class="wrap">
             <h1><?php esc_html_e('Agencies', 'travel-agency-platform'); ?></h1>
             <div class="notice notice-info inline" style="margin:10px 0;">
-                <p><?php
+                <p>
+                <?php
                     printf(esc_html__('Total: %1$d · Pendientes: %2$d · Verificadas: %3$d · Activas: %4$d · Comisiones acumuladas: %5$s', 'travel-agency-platform'),
                         count($visible), $pending, $verified, $active, esc_html(TAP_Currency::fmt((float) $total_commission)));
-                    ?>
+				?>
                     <span style="opacity:.7"> — <?php esc_html_e('El registro se sincroniza automáticamente al abrir esta página.', 'travel-agency-platform'); ?></span>
                 </p>
             </div>
@@ -274,7 +281,8 @@ class TAP_Dashboard_Content {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($page_set as $a):
+                    <?php
+                    foreach ($page_set as $a):
                         if ('trash' === $a->post_status) continue;
                         $is_verified = '1' === get_post_meta($a->ID, '_tap_agency_verified', true);
                         $is_active = '0' !== get_post_meta($a->ID, '_tap_agency_is_active', '1');
@@ -293,7 +301,7 @@ class TAP_Dashboard_Content {
                         $reject_url  = wp_nonce_url(admin_url('admin.php?page=tap-agencies&tap_action=reject&agency_id=' . $a->ID), 'reject_' . $a->ID);
                         $status = TAP_Approval::status($a->ID);
                         $kyc    = TAP_Approval::kyc($a->ID);
-                    ?>
+						?>
                     <tr>
                         <td>
                             <strong><?php echo esc_html($a->post_title); ?></strong>
@@ -310,7 +318,10 @@ class TAP_Dashboard_Content {
                             <?php endif; ?>
                         </td>
                         <td>
-                            <?php if ($u): echo esc_html($u->display_name) . ' <span class="description">@' . esc_html($u->user_login) . '</span><br>'; endif; ?>
+                            <?php
+                            if ($u): echo esc_html($u->display_name) . ' <span class="description">@' . esc_html($u->user_login) . '</span><br>';
+endif;
+							?>
                             <?php echo esc_html($email); ?>
                         </td>
                         <td><?php echo (int) $listings; ?></td>
@@ -318,7 +329,10 @@ class TAP_Dashboard_Content {
                             <?php if ($rev): ?>
                                 <?php echo (int) $rev->c; ?> · <strong><?php echo esc_html(TAP_Currency::fmt((float) $rev->rev)); ?></strong><br>
                                 <span class="description"><?php esc_html_e('comisión', 'travel-agency-platform'); ?> <?php echo esc_html(TAP_Currency::fmt((float) $rev->comm)); ?></span>
-                            <?php else: echo '—'; endif; ?>
+								<?php
+                            else: echo '—';
+endif;
+							?>
                         </td>
                         <td>
                             <form method="get" action="<?php echo esc_url(admin_url('admin.php')); ?>" style="display:inline-flex;gap:4px;align-items:center;">

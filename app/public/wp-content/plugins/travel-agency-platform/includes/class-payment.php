@@ -9,7 +9,7 @@ class TAP_Payment {
 
     public static function record_order($paypal_order_id, $object_type, $object_id, $amount, $status = 'created', $capture_id = null) {
         global $wpdb;
-        $existing = $wpdb->get_var($wpdb->prepare("SELECT id FROM " . self::orders_table() . " WHERE paypal_order_id = %s", $paypal_order_id));
+        $existing = $wpdb->get_var($wpdb->prepare('SELECT id FROM ' . self::orders_table() . ' WHERE paypal_order_id = %s', $paypal_order_id));
         if ($existing) {
             return $wpdb->update(self::orders_table(), [
                 'status'     => $status,
@@ -30,7 +30,7 @@ class TAP_Payment {
     public static function resolve_order($paypal_order_id) {
         global $wpdb;
         return $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM " . self::orders_table() . " WHERE paypal_order_id = %s",
+            'SELECT * FROM ' . self::orders_table() . ' WHERE paypal_order_id = %s',
             $paypal_order_id
         ));
     }
@@ -140,7 +140,7 @@ class TAP_Payment {
         global $wpdb;
 
         $booking_id = $wpdb->get_var($wpdb->prepare(
-            "SELECT object_id FROM " . self::orders_table() . "
+            'SELECT object_id FROM ' . self::orders_table() . "
              WHERE paypal_order_id = %s AND object_type = 'booking' AND object_id > 0 LIMIT 1",
             $paypal_order_id
         ));
@@ -193,10 +193,10 @@ class TAP_Payment {
         self::record_order($paypal_order_id, $order->object_type, $order->object_id, $order->amount, 'completed', $capture->id ?? '');
 
         if ('subscription' === $order->object_type) {
-            $sub_pay = TAP_Payment::confirm_subscription_payment((int) $order->object_id, 'paypal', $capture->id ?? '');
+            $sub_pay = self::confirm_subscription_payment((int) $order->object_id, 'paypal', $capture->id ?? '');
             do_action('tap_payment_completed', 0, 'paypal', $capture->id ?? '');
         } elseif ('promotion' === $order->object_type) {
-            TAP_Payment::confirm_promotion_payment((int) $order->object_id, 'paypal', $capture->id ?? '');
+            self::confirm_promotion_payment((int) $order->object_id, 'paypal', $capture->id ?? '');
             do_action('tap_payment_completed', 0, 'paypal', $capture->id ?? '');
         }
     }
@@ -205,7 +205,7 @@ class TAP_Payment {
     public static function confirm_subscription_payment($sub_id, $method = 'paypal', $capture_id = '') {
         global $wpdb;
         $sub = $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM " . $wpdb->prefix . 'tap_agency_subscriptions' . " WHERE id = %d AND status = 'pending' AND payment_status = 'pending'",
+            'SELECT * FROM ' . $wpdb->prefix . 'tap_agency_subscriptions' . " WHERE id = %d AND status = 'pending' AND payment_status = 'pending'",
             (int) $sub_id
         ));
         if (!$sub) return;
@@ -220,7 +220,7 @@ class TAP_Payment {
     public static function confirm_promotion_payment($promo_id, $method = 'paypal', $capture_id = '') {
         global $wpdb;
         $promo = $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM " . $wpdb->prefix . 'tap_promos' . " WHERE id = %d AND status = 'pending' AND payment_status = 'pending'",
+            'SELECT * FROM ' . $wpdb->prefix . 'tap_promos' . " WHERE id = %d AND status = 'pending' AND payment_status = 'pending'",
             (int) $promo_id
         ));
         if (!$promo) return;

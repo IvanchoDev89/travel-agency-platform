@@ -213,5 +213,4 @@ class TAP_Ajax_Dash {
 
         wp_send_json_success(['message' => __('Reserva cancelada.', 'travel-agency-platform')]);
     }
-
 }

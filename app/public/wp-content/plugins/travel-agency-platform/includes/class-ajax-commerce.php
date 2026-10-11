@@ -338,5 +338,4 @@ class TAP_Ajax_Commerce {
 
         wp_send_json_success($result);
     }
-
 }

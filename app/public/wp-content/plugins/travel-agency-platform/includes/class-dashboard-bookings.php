@@ -33,8 +33,10 @@ class TAP_Dashboard_Bookings {
             'monthly' => $monthly,
             'status' => [array_values($status), array_keys($status)],
             'breakdown' => [
-                'labels' => array_map(function ($r) use ($service_labels) { return $service_labels[$r->service_type] ?? $r->service_type; }, $breakdown),
-                'data' => array_map(function ($r) { return (int) $r->cnt; }, $breakdown),
+                'labels' => array_map(function ($r) use ($service_labels) {
+					return $service_labels[$r->service_type] ?? $r->service_type; }, $breakdown),
+                'data' => array_map(function ($r) {
+					return (int) $r->cnt; }, $breakdown),
             ],
         ]);
         ?>
@@ -97,11 +99,12 @@ class TAP_Dashboard_Bookings {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($recent as $b):
+                        <?php
+                        foreach ($recent as $b):
                             $client = get_userdata($b->client_id);
                             $service = get_post($b->service_id);
                             $status_key = isset($status_labels[$b->status]) ? $b->status : 'pending';
-                        ?>
+							?>
                         <tr>
                             <td><a href="admin.php?page=tap-bookings"><?php echo esc_html($b->booking_code); ?></a></td>
                             <td><?php echo $client ? esc_html($client->display_name) : 'N/A'; ?></td>
@@ -277,10 +280,11 @@ class TAP_Dashboard_Bookings {
                     <?php if (!$bookings): ?>
                         <tr><td colspan="9"><?php esc_html_e('No bookings found.', 'travel-agency-platform'); ?></td></tr>
                     <?php endif; ?>
-                    <?php foreach ($bookings as $b):
+                    <?php
+                    foreach ($bookings as $b):
                         $service = get_post($b->service_id);
                         $agency = get_post($b->agency_id);
-                    ?>
+						?>
                     <tr>
                         <td><a href="<?php echo esc_url(home_url('/booking-detail/?code=' . rawurlencode($b->booking_code))); ?>" target="_blank"><?php echo esc_html($b->booking_code); ?></a></td>
                         <td><?php echo $b->display_name ? esc_html($b->display_name) : 'N/A'; ?></td>
@@ -309,6 +313,4 @@ class TAP_Dashboard_Bookings {
         </div>
         <?php
     }
-
-
 }
