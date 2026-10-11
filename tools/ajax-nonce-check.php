@@ -71,6 +71,7 @@ function tap_method_body($src, $method) {
     $quote = null;
     for ($i = $open; $i < $len; $i++) {
         $ch = $src[$i];
+
         if ($quote !== null) {
             if ($ch === '\\') {
                 $i++;
@@ -79,6 +80,26 @@ function tap_method_body($src, $method) {
             }
             continue;
         }
+
+        // Comments must be skipped before quotes: an apostrophe inside one
+        // (for example "PayPal's" in a docblock) would open a phantom string
+        // and unbalance the brace count, making an existing body look missing.
+        if ($ch === '/' && $i + 1 < $len && $src[$i + 1] === '/') {
+            $nl = strpos($src, "\n", $i);
+            $i  = ($nl === false) ? $len : $nl;
+            continue;
+        }
+        if ($ch === '#' && !($i + 1 < $len && $src[$i + 1] === '[')) {
+            $nl = strpos($src, "\n", $i);
+            $i  = ($nl === false) ? $len : $nl;
+            continue;
+        }
+        if ($ch === '/' && $i + 1 < $len && $src[$i + 1] === '*') {
+            $end = strpos($src, '*/', $i + 2);
+            $i   = ($end === false) ? $len : $end + 1;
+            continue;
+        }
+
         if ($ch === "'" || $ch === '"') {
             $quote = $ch;
             continue;
