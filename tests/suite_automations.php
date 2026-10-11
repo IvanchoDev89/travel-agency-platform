@@ -36,6 +36,26 @@ function auto_booking($wpdb, $base, $extra)
     return $extra + $base + ['booking_code' => 'AUTO-' . wp_generate_password(6, false, false), 'created_at' => date('Y-m-d H:i:s')];
 }
 
+/**
+ * Cron fires each automation once per tick and the batch cursor persists
+ * between ticks, so a fixture inserted behind BATCH older rows is never
+ * reached by a single call. Drain the backlog the same way cron would.
+ */
+function tap_drain_automations(callable $fn)
+{
+    global $wpdb;
+    $like  = $wpdb->esc_like('tap_auto_cursor_') . '%';
+    $table = $wpdb->options;
+    $guard = 200;
+    do {
+        $fn();
+        $left = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM {$table} WHERE option_name LIKE %s",
+            $like
+        ));
+    } while ($left > 0 && --$guard > 0);
+}
+
 // ---- 1) payment reminders ----
 update_option('tap_auto_payment_reminders', '1');
 update_option('tap_payment_reminder_hours', 12);
@@ -51,14 +71,14 @@ $wpdb->insert($wpdb->prefix . 'tap_bookings', $b2);
 $bid2 = $wpdb->insert_id;
 
 $mails = [];
-TAP_Automations::payment_reminders();
+tap_drain_automations(function () { TAP_Automations::payment_reminders(); });
 $logPay = get_option('tap_auto_sent_pay', []);
 tap_t_assert(in_array('auto-pay@example.com', $mails, true), 'reminder emailed stale pending booking');
 tap_t_assert(!in_array('auto-fresh@example.com', $mails, true), 'too-recent booking skipped');
 tap_t_assert(isset($logPay[(string) $bid1]), 'reminder logged for ageing booking');
 tap_t_assert(!isset($logPay[(string) $bid2]), 'fresh booking not logged');
 $count = count($mails);
-TAP_Automations::payment_reminders();
+tap_drain_automations(function () { TAP_Automations::payment_reminders(); });
 tap_t_assert(count($mails) === $count, 'no duplicate reminder emails');
 
 // ---- 2) pre-arrival ----
@@ -69,12 +89,12 @@ $wpdb->insert($wpdb->prefix . 'tap_bookings', $b3);
 $bid3 = $wpdb->insert_id;
 
 $mails = [];
-TAP_Automations::prearrival_messages();
+tap_drain_automations(function () { TAP_Automations::prearrival_messages(); });
 $logPre = get_option('tap_auto_sent_pre', []);
 tap_t_assert(in_array('auto-pre@example.com', $mails, true), 'pre-arrival emailed guest');
 tap_t_assert(isset($logPre[(string) $bid3]), 'pre-arrival logged');
 $count = count($mails);
-TAP_Automations::prearrival_messages();
+tap_drain_automations(function () { TAP_Automations::prearrival_messages(); });
 tap_t_assert(count($mails) === $count, 'no duplicate pre-arrival emails');
 
 // ---- 3) post-stay review requests ----
@@ -85,7 +105,7 @@ $wpdb->insert($wpdb->prefix . 'tap_bookings', $b4);
 $bid4 = $wpdb->insert_id;
 
 $mails = [];
-TAP_Automations::review_requests();
+tap_drain_automations(function () { TAP_Automations::review_requests(); });
 $logRev = get_option('tap_auto_sent_rev', []);
 tap_t_assert(in_array('auto-rev@example.com', $mails, true), 'review request emailed guest');
 tap_t_assert(isset($logRev[(string) $bid4]), 'review request logged');
@@ -104,7 +124,7 @@ $wpdb->insert($wpdb->prefix . 'tap_promos', ['agency_id' => $aid, 'listing_id' =
 $pid = $wpdb->insert_id;
 
 $mails = [];
-TAP_Automations::expiry_warnings();
+tap_drain_automations(function () { TAP_Automations::expiry_warnings(); });
 $logExp = get_option('tap_auto_sent_exp', []);
 tap_t_assert(count($mails) === 2 && in_array('auto-agency@example.com', $mails, true), 'expiry warnings emailed agency for plan and promo');
 tap_t_assert(isset($logExp['sub:' . $sid . ':' . $soon]) && isset($logExp['prom:' . $pid . ':' . $soon]), 'expiry warnings logged with sub/promo keys');
