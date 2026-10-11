@@ -101,6 +101,10 @@ class TAP_Ajax_Public {
         $total  = 0;
         $nights = 0;
         $min_stay = 1;
+        $price_breakdown = [];
+        $base_total = 0;
+        $savings = 0;
+        $discounts = [];
 
         if ($check_in && $check_out) {
             $d1 = new DateTime($check_in);
@@ -109,33 +113,27 @@ class TAP_Ajax_Public {
         }
 
         if ($service_type === 'tap_accommodation' && $room_id && class_exists('TAP_Pricing')) {
+            // A single get_quote() drives both the price and the breakdown:
+            // it was being fetched twice with the same arguments, the second
+            // call simply overwriting the first.
             $quote = TAP_Pricing::get_quote($room_id, $check_in, $check_out);
             if ($quote['available']) {
-                $total = $quote['total'];
+                $base_total = $quote['base_total'];
+                $total      = $quote['total'];
+                $savings    = $quote['savings'];
+                $discounts  = $quote['discounts'];
             } else {
-                $total = TAP_Booking::calculate_price($service_type, $service_id, $check_in, $check_out, $adults, $children, $room_id);
+                $total      = TAP_Booking::calculate_price($service_type, $service_id, $check_in, $check_out, $adults, $children, $room_id);
+                $base_total = $total;
             }
-            $min_stay = TAP_Pricing::get_max_min_stay_for_range($room_id, $check_in, $check_out);
-        } else {
-            $total = TAP_Booking::calculate_price($service_type, $service_id, $check_in, $check_out, $adults, $children, $room_id);
-        }
-
-        $price_breakdown = [];
-        $base_total = $total;
-        $savings = 0;
-        $discounts = [];
-        if ($service_type === 'tap_accommodation' && $room_id && class_exists('TAP_Pricing')) {
             $range_result = TAP_Pricing::get_prices_for_range($room_id, $check_in, $check_out);
             if ($range_result['available']) {
                 $price_breakdown = $range_result['prices'];
             }
-            $quote = TAP_Pricing::get_quote($room_id, $check_in, $check_out);
-            if ($quote['available']) {
-                $base_total = $quote['base_total'];
-                $total = $quote['total'];
-                $savings = $quote['savings'];
-                $discounts = $quote['discounts'];
-            }
+            $min_stay = TAP_Pricing::get_max_min_stay_for_range($room_id, $check_in, $check_out);
+        } else {
+            $total      = TAP_Booking::calculate_price($service_type, $service_id, $check_in, $check_out, $adults, $children, $room_id);
+            $base_total = $total;
         }
 
         $fee = TAP_Booking::get_booking_fee($total);
