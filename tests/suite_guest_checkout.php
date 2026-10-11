@@ -138,12 +138,12 @@ tap_t_assert(stripos($html, 'verifica el correo') !== false, 'guest checkout rej
 $_GET = ['code' => $gcode, 'email' => $guest_email];
 $html = do_shortcode('[tap_checkout]');
 tap_t_assert(stripos($html, 'tap-checkout-summary') !== false && stripos($html, $gcode) !== false, 'guest checkout shows summary after email verification');
-tap_t_assert(TAP_Ajax::get_guest_pay_token($gcode), 'guest payment token set after checkout verification');
+tap_t_assert(TAP_Guest_Checkout::get_guest_pay_token($gcode), 'guest payment token set after checkout verification');
 
 // Payment gate helpers --------------------------------------------------------
 $pay_token = $gcode;
-TAP_Ajax::set_guest_pay_token($pay_token);
-tap_t_assert(TAP_Ajax::get_guest_pay_token($pay_token), 'guest pay token set via helper');
+TAP_Guest_Checkout::set_guest_pay_token($pay_token);
+tap_t_assert(TAP_Guest_Checkout::get_guest_pay_token($pay_token), 'guest pay token set via helper');
 
 // 6) Guest cancellation --------------------------------------------------------
 $cancel_noemail = TAP_Booking::client_cancel_request($gid, 0);
@@ -172,12 +172,12 @@ tap_t_assert(true === $cancel_owner, 'registered customer can cancel own booking
 // 7) Rate limiting --------------------------------------------------------------
 $rl_email = 'rl_' . wp_generate_password(5, false) . '@example.test';
 for ($i = 0; $i < 4; $i++) {
-    TAP_Ajax::guest_book_rate_bump($rl_email);
+    TAP_Guest_Checkout::guest_book_rate_bump($rl_email);
 }
-tap_t_assert(!TAP_Ajax::guest_book_rate_blocked($rl_email), 'rate limit not reached below threshold');
-TAP_Ajax::guest_book_rate_bump($rl_email);
-tap_t_assert(TAP_Ajax::guest_book_rate_blocked($rl_email), 'rate limit reached after 5 guest bookings');
-delete_transient(TAP_Ajax::guest_bucket($rl_email));
+tap_t_assert(!TAP_Guest_Checkout::guest_book_rate_blocked($rl_email), 'rate limit not reached below threshold');
+TAP_Guest_Checkout::guest_book_rate_bump($rl_email);
+tap_t_assert(TAP_Guest_Checkout::guest_book_rate_blocked($rl_email), 'rate limit reached after 5 guest bookings');
+delete_transient(TAP_Guest_Checkout::guest_bucket($rl_email));
 
 gco_cleanup();
 tap_t_finish();

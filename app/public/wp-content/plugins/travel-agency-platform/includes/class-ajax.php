@@ -32,7 +32,7 @@ class TAP_Ajax {
                 wp_send_json_error(['message' => __('Indica tu nombre y un correo electrónico válido para completar la reserva.', 'travel-agency-platform')]);
             }
 
-            if (self::guest_book_rate_blocked($guest_email)) {
+            if (TAP_Guest_Checkout::guest_book_rate_blocked($guest_email)) {
                 wp_send_json_error(['message' => __('Demasiadas reservas en poco tiempo. Intenta nuevamente más tarde.', 'travel-agency-platform')]);
             }
         }
@@ -78,8 +78,8 @@ class TAP_Ajax {
         }
 
         if (!is_user_logged_in() && is_email($guest_email)) {
-            self::guest_book_rate_bump($guest_email);
-            self::set_guest_pay_token($result['booking_code']);
+            TAP_Guest_Checkout::guest_book_rate_bump($guest_email);
+            TAP_Guest_Checkout::set_guest_pay_token($result['booking_code']);
         }
 
         $consent_email = is_user_logged_in() ? wp_get_current_user()->user_email : $guest_email;
@@ -91,27 +91,6 @@ class TAP_Ajax {
     }
 
     /* ===== Guest checkout helpers (testable, no die) ===== */
-
-    public static function guest_bucket($email) {
-        return 'tap_guest_book_' . md5(($_SERVER['REMOTE_ADDR'] ?? '') . '|' . strtolower((string) $email));
-    }
-
-    public static function guest_book_rate_blocked($email) {
-        return (int) get_transient(self::guest_bucket((string) $email)) >= 5;
-    }
-
-    public static function guest_book_rate_bump($email) {
-        $key = self::guest_bucket((string) $email);
-        set_transient($key, (int) get_transient($key) + 1, 15 * MINUTE_IN_SECONDS);
-    }
-
-    public static function set_guest_pay_token($booking_code) {
-        set_transient('tap_guest_pay_' . (string) $booking_code, 1, 30 * MINUTE_IN_SECONDS);
-    }
-
-    public static function get_guest_pay_token($booking_code) {
-        return (bool) get_transient('tap_guest_pay_' . (string) $booking_code);
-    }
 
     public static function cancel_booking() {
         check_ajax_referer('tap_booking_nonce', 'nonce');
@@ -280,7 +259,7 @@ class TAP_Ajax {
 
         $uid = get_current_user_id();
         $owner_ok = $uid && (int) $booking->client_id === $uid;
-        $guest_ok = !$uid && (int) $booking->client_id === 0 && self::get_guest_pay_token($booking->booking_code);
+        $guest_ok = !$uid && (int) $booking->client_id === 0 && TAP_Guest_Checkout::get_guest_pay_token($booking->booking_code);
         if (!$owner_ok && !$guest_ok) {
             wp_send_json_error(['message' => __('Booking not found', 'travel-agency-platform')]);
         }
@@ -330,7 +309,7 @@ class TAP_Ajax {
         $booking = TAP_Booking::get_booking($booking_id);
         $uid = get_current_user_id();
         $owner_ok = $uid && $booking && (int) $booking->client_id === $uid;
-        $guest_ok = !$uid && $booking && (int) $booking->client_id === 0 && self::get_guest_pay_token($booking->booking_code);
+        $guest_ok = !$uid && $booking && (int) $booking->client_id === 0 && TAP_Guest_Checkout::get_guest_pay_token($booking->booking_code);
         if (!$booking || (!$owner_ok && !$guest_ok)) {
             wp_send_json_error(['message' => __('Booking not found', 'travel-agency-platform')]);
         }
@@ -777,7 +756,7 @@ class TAP_Ajax {
         return TAP_Post_Types::meta_prefix($type);
     }
 
-    private static function agency_owns_listing($listing_id, $type) {
+    public static function agency_owns_listing($listing_id, $type) {
         global $wpdb;
         $user   = wp_get_current_user();
         $agency = self::current_agency_for($user->ID);

@@ -266,11 +266,11 @@ class TAP_Shortcode_Booking {
         if ($can) {
             $guest_verified = true;
         } elseif ($is_guest) {
-            $guest_verified = TAP_Ajax::get_guest_pay_token($booking->booking_code);
+            $guest_verified = TAP_Guest_Checkout::get_guest_pay_token($booking->booking_code);
             if (!$guest_verified) {
                 $email = sanitize_email(wp_unslash($_GET['email'] ?? ''));
                 if (is_email($email) && strcasecmp($email, (string) $booking->guest_email) === 0) {
-                    TAP_Ajax::set_guest_pay_token($booking->booking_code);
+                    TAP_Guest_Checkout::set_guest_pay_token($booking->booking_code);
                     $guest_verified = true;
                 }
             }

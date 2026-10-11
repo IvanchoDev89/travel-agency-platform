@@ -133,13 +133,13 @@ tap_t_assert('cancelled' === TAP_Booking::get_booking($retr_id)->status, 'retrac
 /* --- Guest-accessible checkout notices for request / cancelled bookings. --- */
 $req3 = $mk_booking($tour_request, 'guestreq', 58);
 $req3_id = (int) $req3['booking_id'];
-TAP_Ajax::set_guest_pay_token($req3['booking_code']);
+TAP_Guest_Checkout::set_guest_pay_token($req3['booking_code']);
 $chk = TAP_Shortcode_Booking::checkout(['code' => $req3['booking_code']]);
 tap_t_assert(false !== strpos($chk, 'pendiente de confirmación'), 'checkout shows pending notice for open request');
 $rej2 = $mk_booking($tour_request, 'guestrej', 60);
 $rej2_id = (int) $rej2['booking_id'];
 TAP_Booking::update_status($rej2_id, 'cancelled');
-TAP_Ajax::set_guest_pay_token($rej2['booking_code']);
+TAP_Guest_Checkout::set_guest_pay_token($rej2['booking_code']);
 $chk2 = TAP_Shortcode_Booking::checkout(['code' => $rej2['booking_code']]);
 tap_t_assert(false !== strpos($chk2, 'cancelada o rechazada'), 'checkout shows rejected notice for cancelled request');
 
