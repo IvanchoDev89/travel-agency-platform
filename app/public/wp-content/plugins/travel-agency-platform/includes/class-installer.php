@@ -545,7 +545,7 @@ class TAP_Installer {
                 );
             }
         }
-        $bc_unique = $wpdb->get_var("SHOW INDEX FROM {$wpdb->prefix}tap_bookings WHERE Key_name = 'booking_code' AND Not_unique = 0");
+        $bc_unique = $wpdb->get_var("SHOW INDEX FROM {$wpdb->prefix}tap_bookings WHERE Key_name = 'booking_code' AND Non_unique = 0");
         if (!$bc_unique) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings DROP INDEX booking_code");
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD UNIQUE KEY booking_code (booking_code)");
