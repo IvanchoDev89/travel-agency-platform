@@ -561,7 +561,7 @@ endforeach;
                 </tbody>
             </table>
             <button type="button" class="button" id="tap-bed-add"><?php esc_html_e('+ Add Bed Type', 'travel-agency-platform'); ?></button>
-            <input type="hidden" name="_tap_room_beds" id="_tap_room_beds" value='<?php echo esc_attr(json_encode($beds)); ?>'>
+            <input type="hidden" name="_tap_room_beds" id="_tap_room_beds" value='<?php echo esc_attr(wp_json_encode($beds)); ?>'>
         </div>
         <script>
         jQuery(document).ready(function($) {

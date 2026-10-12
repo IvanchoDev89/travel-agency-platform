@@ -122,7 +122,7 @@ class TAP_PayPal {
                 'Authorization' => 'Bearer ' . $token,
                 'Content-Type'  => 'application/json',
             ],
-            'body'    => json_encode($body),
+            'body'    => wp_json_encode($body),
             'timeout' => 30,
         ]);
 
@@ -212,7 +212,7 @@ class TAP_PayPal {
                 'Authorization' => 'Bearer ' . $token,
                 'Content-Type'  => 'application/json',
             ],
-            'body'    => json_encode($body),
+            'body'    => wp_json_encode($body),
             'timeout' => 30,
         ]);
 
@@ -288,7 +288,7 @@ class TAP_PayPal {
                 'Authorization' => 'Basic ' . base64_encode(self::$client_id . ':' . self::$client_secret),
                 'Content-Type' => 'application/json',
             ],
-            'body' => json_encode([
+            'body' => wp_json_encode([
                 'auth_algo'         => $headers['PAYPAL-AUTH-ALGO'] ?? '',
                 'cert_url'          => $headers['PAYPAL-CERT-URL'] ?? '',
                 'transmission_id'   => $headers['PAYPAL-TRANSMISSION-ID'] ?? '',
@@ -325,7 +325,7 @@ class TAP_PayPal {
                 'Authorization' => 'Bearer ' . $token,
                 'Content-Type'  => 'application/json',
             ],
-            'body'    => json_encode($body),
+            'body'    => wp_json_encode($body),
             'timeout' => 30,
         ]);
 

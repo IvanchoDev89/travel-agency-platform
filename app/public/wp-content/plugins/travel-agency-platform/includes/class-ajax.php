@@ -895,12 +895,12 @@ class TAP_Ajax {
             }
         }
         if ( $beds_raw !== '' || count( $beds_out ) > 0 ) {
-            update_post_meta( $new_id, '_tap_room_beds', json_encode( $beds_out, JSON_UNESCAPED_UNICODE ) );
+            update_post_meta( $new_id, '_tap_room_beds', wp_json_encode( $beds_out, JSON_UNESCAPED_UNICODE ) );
         }
 
         $amenities_raw = isset( $input['amenities'] ) ? sanitize_text_field( wp_unslash( $input['amenities'] ) ) : '';
         $amenities = array_values( array_unique( array_filter( array_map( 'trim', explode( ',', $amenities_raw ) ) ) ) );
-        update_post_meta( $new_id, '_tap_room_amenities', json_encode( $amenities, JSON_UNESCAPED_UNICODE ) );
+        update_post_meta( $new_id, '_tap_room_amenities', wp_json_encode( $amenities, JSON_UNESCAPED_UNICODE ) );
 
         // Images: attachment ids from the wizard uploader take precedence over
         // the legacy URL fields, which are reused when already known.

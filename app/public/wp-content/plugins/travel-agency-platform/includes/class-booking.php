@@ -858,7 +858,7 @@ class TAP_Booking {
                         update_post_meta((int) $booking_id, '_tap_paypal_capture_id', $capture_id);
                     }
                     if (null !== $details) {
-                        $payload = is_string($details) ? $details : json_encode($details, JSON_UNESCAPED_UNICODE);
+                        $payload = is_string($details) ? $details : wp_json_encode($details, JSON_UNESCAPED_UNICODE);
                         update_post_meta((int) $booking_id, '_tap_payment_details', $payload);
                     }
                     self::update_status((int) $booking_id, 'confirmed');
@@ -874,7 +874,7 @@ class TAP_Booking {
                     update_post_meta((int) $booking_id, '_tap_paypal_capture_id', $capture_id);
                 }
                 if (null !== $details) {
-                    $payload = is_string($details) ? $details : json_encode($details, JSON_UNESCAPED_UNICODE);
+                    $payload = is_string($details) ? $details : wp_json_encode($details, JSON_UNESCAPED_UNICODE);
                     update_post_meta((int) $booking_id, '_tap_payment_details', $payload);
                 }
                 return new WP_Error('partial', __('Pago parcial recibido; la reserva aún no está pagada por completo.', 'travel-agency-platform'));
@@ -895,7 +895,7 @@ class TAP_Booking {
             update_post_meta((int) $booking_id, '_tap_paypal_capture_id', $capture_id);
         }
         if (null !== $details) {
-            $payload = is_string($details) ? $details : json_encode($details, JSON_UNESCAPED_UNICODE);
+            $payload = is_string($details) ? $details : wp_json_encode($details, JSON_UNESCAPED_UNICODE);
             update_post_meta((int) $booking_id, '_tap_payment_details', $payload);
         }
         do_action('tap_payment_completed', (int) $booking_id, $method, $capture_id);
