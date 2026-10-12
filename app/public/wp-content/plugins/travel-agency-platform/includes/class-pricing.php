@@ -19,7 +19,7 @@ class TAP_Pricing {
     }
 
     public static function enqueue_assets($hook) {
-        if (!in_array($hook, ['post.php', 'post-new.php'])) return;
+        if (!in_array($hook, ['post.php', 'post-new.php'], true)) return;
         if (get_post_type() !== 'tap_room') return;
 
         wp_enqueue_style('tap-pricing', TAP_PLUGIN_URL . 'assets/css/admin-pricing.css', [], TAP_VERSION);

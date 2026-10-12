@@ -556,7 +556,7 @@ class TAP_Booking {
         global $wpdb;
 
         $valid_statuses = ['pending', 'request', 'confirmed', 'cancelled', 'completed', 'refunded'];
-        if (!in_array($status, $valid_statuses)) {
+        if (!in_array($status, $valid_statuses, true)) {
             return new WP_Error('invalid_status', __('Invalid status', 'travel-agency-platform'));
         }
 
@@ -760,7 +760,7 @@ class TAP_Booking {
         global $wpdb;
 
         $valid_statuses = ['pending', 'paid', 'partial', 'refunded', 'failed'];
-        if (!in_array($payment_status, $valid_statuses)) {
+        if (!in_array($payment_status, $valid_statuses, true)) {
             return new WP_Error('invalid_status', __('Invalid payment status', 'travel-agency-platform'));
         }
 

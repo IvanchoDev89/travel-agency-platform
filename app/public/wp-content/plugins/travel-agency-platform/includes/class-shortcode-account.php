@@ -15,7 +15,7 @@ class TAP_Shortcode_Account {
         }
 
         $user = wp_get_current_user();
-        $is_agency = in_array('tap_agency_admin', (array) $user->roles) || in_array('tap_agency_employee', (array) $user->roles);
+        $is_agency = in_array('tap_agency_admin', (array) $user->roles, true) || in_array('tap_agency_employee', (array) $user->roles, true);
 
         if ($is_agency) {
             return self::agency_panel($user);
@@ -297,7 +297,7 @@ endif;
 										?>
                                     <button class="tap-btn tap-status-btn" data-booking-id="<?php echo intval($b->id); ?>" data-status="<?php echo esc_attr($s); ?>"><?php echo esc_html($label); ?></button>
 										<?php
-                                endforeach; elseif (in_array($b->status, ['pending', 'confirmed'])):
+                                endforeach; elseif (in_array($b->status, ['pending', 'confirmed'], true)):
                                     $options = ['confirmed' => __('Confirm', 'travel-agency-platform'), 'completed' => __('Complete', 'travel-agency-platform'), 'cancelled' => __('Cancel', 'travel-agency-platform')];
                                     foreach ($options as $s => $label):
                                         if ($b->status === $s) continue;

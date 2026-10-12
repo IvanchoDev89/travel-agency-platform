@@ -371,7 +371,7 @@ class TAP_Metaboxes {
             foreach ($room_text as $key) {
                 if (isset($_POST[$key])) {
                     $val = sanitize_text_field(wp_unslash($_POST[$key]));
-                    if (in_array($key, ['_tap_room_price_per_night', '_tap_room_max_adults', '_tap_room_max_children', '_tap_room_max_occupancy', '_tap_room_inventory', '_tap_room_floor'])) {
+                    if (in_array($key, ['_tap_room_price_per_night', '_tap_room_max_adults', '_tap_room_max_children', '_tap_room_max_occupancy', '_tap_room_inventory', '_tap_room_floor'], true)) {
                         $val = floatval($val);
                     }
                     update_post_meta($post_id, $key, $val);

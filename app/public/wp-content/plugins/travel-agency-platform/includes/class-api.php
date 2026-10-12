@@ -114,7 +114,7 @@ class TAP_API {
         $type = $request->get_param('type');
         $valid_types = ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
 
-        if (!in_array($type, $valid_types)) {
+        if (!in_array($type, $valid_types, true)) {
             return new WP_Error('invalid_type', __('Invalid service type', 'travel-agency-platform'), ['status' => 400]);
         }
 

@@ -458,7 +458,7 @@ class TAP_Shortcode_Search {
 
                 foreach ($all_meta as $key => $values) {
                     if (strpos($key, $prefix) !== 0) continue;
-                    if (in_array($key, $exclude_keys)) continue;
+                    if (in_array($key, $exclude_keys, true)) continue;
 
                     $label = str_replace([$prefix . '_', '_'], ['', ' '], $key);
                     $label = ucwords(trim($label));

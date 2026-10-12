@@ -244,23 +244,23 @@ class TAP_Installer {
         global $wpdb;
 
         $columns = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
-        if (!in_array('room_id', $columns)) {
+        if (!in_array('room_id', $columns, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN room_id bigint(20) DEFAULT NULL AFTER service_id");
         }
-        if (!in_array('nights', $columns)) {
+        if (!in_array('nights', $columns, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN nights int(11) DEFAULT 0 AFTER children");
         }
-        if (!in_array('bed_config', $columns)) {
+        if (!in_array('bed_config', $columns, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN bed_config text AFTER nights");
         }
 
         $columns_items = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_booking_items");
-        if (!in_array('room_id', $columns_items)) {
+        if (!in_array('room_id', $columns_items, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_booking_items ADD COLUMN room_id bigint(20) DEFAULT NULL AFTER service_id");
         }
 
         $cols_bookings = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
-        if (!in_array('commission_status', $cols_bookings)) {
+        if (!in_array('commission_status', $cols_bookings, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN commission_status varchar(20) DEFAULT 'owed' AFTER commission_percent");
         }
 
@@ -281,13 +281,13 @@ class TAP_Installer {
         }
 
         $cols_payouts = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_commission_payments");
-        if (!in_array('status', $cols_payouts)) {
+        if (!in_array('status', $cols_payouts, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_commission_payments ADD COLUMN status varchar(20) DEFAULT 'pending' AFTER method");
         }
-        if (!in_array('paid_at', $cols_payouts)) {
+        if (!in_array('paid_at', $cols_payouts, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_commission_payments ADD COLUMN paid_at datetime DEFAULT NULL AFTER status");
         }
-        if (!in_array('source', $cols_payouts)) {
+        if (!in_array('source', $cols_payouts, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_commission_payments ADD COLUMN source varchar(10) DEFAULT 'admin' AFTER note");
         }
 
@@ -331,42 +331,42 @@ class TAP_Installer {
         }
 
         $cols_reviews = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_reviews");
-        if (!in_array('reply', $cols_reviews)) {
+        if (!in_array('reply', $cols_reviews, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_reviews ADD COLUMN reply text AFTER content");
         }
-        if (!in_array('reply_author', $cols_reviews)) {
+        if (!in_array('reply_author', $cols_reviews, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_reviews ADD COLUMN reply_author varchar(100) DEFAULT NULL AFTER reply");
         }
-        if (!in_array('reply_at', $cols_reviews)) {
+        if (!in_array('reply_at', $cols_reviews, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_reviews ADD COLUMN reply_at datetime DEFAULT NULL AFTER reply_author");
         }
-        if (!in_array('mod_status', $cols_reviews)) {
+        if (!in_array('mod_status', $cols_reviews, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_reviews ADD COLUMN mod_status varchar(20) DEFAULT 'ok' AFTER is_approved");
         }
-        if (!in_array('mod_reason', $cols_reviews)) {
+        if (!in_array('mod_reason', $cols_reviews, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_reviews ADD COLUMN mod_reason varchar(50) DEFAULT NULL AFTER mod_status");
         }
-        if (!in_array('is_verified', $cols_reviews)) {
+        if (!in_array('is_verified', $cols_reviews, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_reviews ADD COLUMN is_verified tinyint(1) DEFAULT 0 AFTER booking_id");
         }
 
         $cols_leads = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_leads");
-        if (!in_array('mod_status', $cols_leads)) {
+        if (!in_array('mod_status', $cols_leads, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_leads ADD COLUMN mod_status varchar(20) DEFAULT 'ok' AFTER source");
         }
-        if (!in_array('mod_reason', $cols_leads)) {
+        if (!in_array('mod_reason', $cols_leads, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_leads ADD COLUMN mod_reason varchar(50) DEFAULT NULL AFTER mod_status");
         }
 
 		$cols_bookings = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
-        if (!in_array('booking_fee', $cols_bookings)) {
+        if (!in_array('booking_fee', $cols_bookings, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN booking_fee decimal(15,2) DEFAULT 0.00 AFTER total_amount");
         }
-        if (!in_array('amount_paid', $cols_bookings)) {
+        if (!in_array('amount_paid', $cols_bookings, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN amount_paid decimal(15,2) DEFAULT 0.00 AFTER total_amount");
             $wpdb->query("UPDATE {$wpdb->prefix}tap_bookings SET amount_paid = total_amount WHERE payment_status = 'paid'");
         }
-        if (!in_array('cancel_reason', $cols_bookings)) {
+        if (!in_array('cancel_reason', $cols_bookings, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN cancel_reason text AFTER notes");
         }
 
@@ -482,34 +482,34 @@ class TAP_Installer {
                 'is_active' => 1,
             ]);
         }
-        if (!in_array('guest_name', $cols_bookings)) {
+        if (!in_array('guest_name', $cols_bookings, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN guest_name varchar(150) DEFAULT NULL AFTER client_id");
         }
-        if (!in_array('guest_email', $cols_bookings)) {
+        if (!in_array('guest_email', $cols_bookings, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN guest_email varchar(150) DEFAULT NULL AFTER guest_name");
         }
-        if (!in_array('guest_phone', $cols_bookings)) {
+        if (!in_array('guest_phone', $cols_bookings, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN guest_phone varchar(50) DEFAULT NULL AFTER guest_email");
         }
-        if (!in_array('cancel_requested_at', $cols_bookings)) {
+        if (!in_array('cancel_requested_at', $cols_bookings, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN cancel_requested_at datetime DEFAULT NULL AFTER guest_phone");
         }
-        if (!in_array('cancelled_by', $cols_bookings)) {
+        if (!in_array('cancelled_by', $cols_bookings, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN cancelled_by varchar(20) DEFAULT NULL AFTER cancel_requested_at");
         }
-        if (!in_array('lead_id', $cols_bookings)) {
+        if (!in_array('lead_id', $cols_bookings, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN lead_id bigint(20) DEFAULT NULL AFTER cancelled_by");
         }
-        if (!in_array('refund_amount', $cols_bookings)) {
+        if (!in_array('refund_amount', $cols_bookings, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN refund_amount decimal(15,2) DEFAULT 0.00 AFTER lead_id");
         }
-        if (!in_array('refund_percent', $cols_bookings)) {
+        if (!in_array('refund_percent', $cols_bookings, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN refund_percent decimal(5,2) DEFAULT 0.00 AFTER refund_amount");
         }
-        if (!in_array('cancellation_policy', $cols_bookings)) {
+        if (!in_array('cancellation_policy', $cols_bookings, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN cancellation_policy varchar(30) DEFAULT NULL AFTER refund_percent");
         }
-        if (!in_array('refunded_at', $cols_bookings)) {
+        if (!in_array('refunded_at', $cols_bookings, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN refunded_at datetime DEFAULT NULL AFTER cancellation_policy");
         }
 
@@ -566,7 +566,7 @@ class TAP_Installer {
         }
 
         $cols_disputes = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_disputes");
-        if (!in_array('prev_commission', $cols_disputes)) {
+        if (!in_array('prev_commission', $cols_disputes, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_disputes ADD COLUMN prev_commission varchar(20) DEFAULT NULL AFTER status");
         }
 

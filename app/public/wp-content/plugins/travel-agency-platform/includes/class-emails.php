@@ -1075,8 +1075,8 @@ class TAP_Emails {
         $muted    = '#64748b';
         $border   = '#e2e8f0';
         $status_color = '#d97706';
-        if (in_array($status, ['confirmed', 'completed'])) $status_color = '#16a34a';
-        if (in_array($status, ['cancelled', 'refunded'])) $status_color = '#dc2626';
+        if (in_array($status, ['confirmed', 'completed'], true)) $status_color = '#16a34a';
+        if (in_array($status, ['cancelled', 'refunded'], true)) $status_color = '#dc2626';
 
         $rows = '';
         $rows .= self::row(__('Código', 'travel-agency-platform'), esc_html($ctx['booking_code']));
