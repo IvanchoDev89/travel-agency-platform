@@ -43,7 +43,7 @@ class TAP_Front_Dash {
 
     public static function dashboard_redirect() {
         if (is_page('dashboard') && !is_admin() && !empty($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'GET') {
-            wp_redirect(home_url('/mi-cuenta/'), 301);
+            wp_safe_redirect(home_url('/mi-cuenta/'), 301);
             exit;
         }
     }
