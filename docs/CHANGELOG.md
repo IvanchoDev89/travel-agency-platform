@@ -6,6 +6,39 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.15] — 2026-10-12
+
+Static-analysis pass over the whole plugin: the report goes from 1044 to 703 findings, the SQL and escaping audits close, and the invariants they established are locked in a new test suite. No public API changed and no user-visible feature was added.
+
+### Added
+
+- **`tests/suite_security.php`** (46ª suite, registrada en `run.sh`): ningún suite anterior cubría escaping ni nonces de formulario. Fija los invariantes que la auditoría estableció —clave canónica de agencia (D4), pistas de cancelación resolviendo todas las políticas (D13), helpers de nonce compartidos, IDs enteros en los `IN ()`, los 8 sitios de `esc_attr` corregidos y msgids sin renumerar placeholders— para que cualquier refactor que los suelte falle la batería en lugar de llegar a producción.
+
+### Fixed
+
+- **Sanitización de `label`**: las celdas de precio en bloque de `TAP_Pricing` pasaban `label` por `(string)` a secas; ahora `sanitize_text_field`. El resto de campos ya iban casteados a `int`/`float`, y las listas de escalones se parsean a `(int)`/`(float)`.
+- **`IN ()` endurecido**: la lista de IDs de agencia de `class-dashboard-money.php` se construía con `implode` sobre valores de la BD; ahora `array_map('intval', …)`.
+- **Ocho `esc_attr()`** en contexto de atributo donde una variable se emitía a secas dentro de `class=` o `value=` (`shortcode-account` ×2, `dashboard-content`, `dashboard-money` ×3, `acc-wizard` ×2).
+- **`wp_redirect` → `wp_safe_redirect`** en el redirect legacy del dashboard. El destino es `home_url('/mi-cuenta/')`, ya presente en la lista de hosts permitidos; el cambio endurece el código si la URL dejara de ser fija.
+- **41 `in_array` con comparación estricta**. Se revisaron las listas antes de convertirlas: todas son literales de cadena (estados, tipos de servicio, hooks de admin, nombres de columna de `SHOW COLUMNS`) o arrays de roles, y las agujas son cadenas o `null`. Ningún caso mezcla enteros con cadenas, que es donde la estricta rompería algo.
+- **13 `json_encode` → `wp_json_encode`**: misma salida para entrada válida, pero aplica los filtros `json_encode_pre` y degrada mejor si la codificación falla.
+- **Dos parámetros muertos eliminados**: `TAP_Dashboard::paginate` recibía `$page_slug` en 4 call sites sin usarlo, y `TAP_Emails::money` tenía `$currency` con valor por defecto que ningún caller pasaba.
+
+### Changed
+
+- **`.phpcs.xml.dist` excluye tres convenciones deliberadas** —placeholders sin renumerar, nombres de fichero `class-*.php`, `meta_query`— con su justificación escrita en el propio fichero. El informe deja de mezclar deuda con decisiones ya tomadas: 1044 → 760.
+- **`phpcbf` aplicado** a 376 errores de formato, excluyendo la categoría `WordPress.WP.I18n` porque su autofix reescribe `%d` a un placeholder numerado, cambia el msgid y rompe todas las traducciones.
+
+### Audit
+
+Se revisaron y **rechazaron** como falsos positivos los hallazgos que más peso tenían. **No hay inyección SQL activa**: los 198 hallazgos de `PreparedSQL` se agruparon por variable (25 en total) y las cinco sospechosas se verificaron una a una —`$lock` ya iba casteado a `int` en su propia función, `$payment_orders` y `$key`/`$col` del instalador son nombre de tabla y array literal. Los dos `ReplacementsWrongNumber` son el sniff sin ver los placeholders dentro de la variable interpolada; el `array_merge` alinea argumentos y el código es correcto. Los 96 `OutputNotEscaped` son renderers internos que devuelven HTML ya escapado o funciones de WordPress, salvo los 8 corregidos arriba. Los 92 `NonceVerification` se verifican vía `TAP_Dashboard::post_verified`/`post_nonce_ok`, que el sniff no resuelve. Los 26 `UnusedFunctionParameter` restantes son firmas de callbacks de WordPress (shortcodes, `save_post`, `do_action`): quitarlos rompería los ganchos. Los 8 `GlobalVariablesOverride` son el patrón guardar/restaurar de `$GLOBALS['post']` al renderizar otros posts dentro de shortcodes. Se dejaron sin tocar los 16 `date()` y los 7 `current_time('timestamp')`: cambiarlos es semántica de zona horaria y puede desplazar un día en las automatizaciones.
+
+### Verification
+
+- PHPStan nivel 1 sin errores; `includes-check`, `ajax-nonce-check` 35/35 e `i18n-check` (1823/1823, 0 sin traducir en `es_ES` y `en_US`) en verde.
+- Batería E2E **46/46 suites, 0 fallos**, ejecutada tras cada lote.
+- PHPCS: **1044 → 703** hallazgos en 56 → 41 ficheros.
+
 ## [1.5.14] — 2026-10-11
 
 Structural quality pass: eight focused classes extracted from the god classes, two real bugs fixed, and the static guards extended. No public API changed and no user-visible feature was added.
