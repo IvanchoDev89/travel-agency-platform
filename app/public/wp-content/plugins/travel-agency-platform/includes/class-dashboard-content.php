@@ -66,7 +66,7 @@ class TAP_Dashboard_Content {
                 foreach (['all' => __('Todas', 'travel-agency-platform'), 'pending' => __('Pendientes', 'travel-agency-platform'), 'approved' => __('Aprobadas', 'travel-agency-platform')] as $k => $label):
                     $class = $filter === $k ? ' nav-tab-active' : '';
                     ?>
-                    <a class="nav-tab<?php echo $class; ?>" href="<?php echo esc_url(admin_url('admin.php?page=tap-reviews&status=' . $k)); ?>"><?php echo esc_html($label); ?></a>
+                    <a class="nav-tab<?php echo esc_attr($class); ?>" href="<?php echo esc_url(admin_url('admin.php?page=tap-reviews&status=' . $k)); ?>"><?php echo esc_html($label); ?></a>
                 <?php endforeach; ?>
             </nav>
             <table class="wp-list-table widefat fixed striped">

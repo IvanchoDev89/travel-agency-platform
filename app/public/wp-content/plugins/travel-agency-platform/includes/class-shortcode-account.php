@@ -499,7 +499,7 @@ endif;
                                             <input type="hidden" name="listing_id" value="<?php echo (int) $pl['id']; ?>">
                                             <select name="months" class="tap-promo-months">
                                                 <?php foreach ([1, 3, 6, 12, 24] as $m): ?>
-                                                    <option value="<?php echo $m; ?>"><?php echo esc_html($m); ?> <?php esc_html_e('mes(es)', 'travel-agency-platform'); ?></option>
+                                                    <option value="<?php echo esc_attr($m); ?>"><?php echo esc_html($m); ?> <?php esc_html_e('mes(es)', 'travel-agency-platform'); ?></option>
                                                 <?php endforeach; ?>
                                             </select>
                                             <div class="tap-promo-paypal-btn" data-listing-id="<?php echo (int) $pl['id']; ?>" data-price="<?php echo esc_attr((float) TAP_Promotions::get_price()); ?>"></div>
@@ -509,7 +509,7 @@ endif;
                                             <input type="hidden" name="listing_id" value="<?php echo (int) $pl['id']; ?>">
                                             <select name="months" class="tap-promo-months">
                                                 <?php foreach ([1, 3, 6, 12, 24] as $m): ?>
-                                                    <option value="<?php echo $m; ?>"><?php echo esc_html($m); ?> <?php esc_html_e('mes(es)', 'travel-agency-platform'); ?></option>
+                                                    <option value="<?php echo esc_attr($m); ?>"><?php echo esc_html($m); ?> <?php esc_html_e('mes(es)', 'travel-agency-platform'); ?></option>
                                                 <?php endforeach; ?>
                                             </select>
                                             <button type="submit" class="tap-btn tap-btn-sm tap-promo-btn"><?php esc_html_e('Destacar', 'travel-agency-platform'); ?></button>

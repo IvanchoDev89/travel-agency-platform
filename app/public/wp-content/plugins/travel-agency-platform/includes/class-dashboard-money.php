@@ -52,7 +52,7 @@ class TAP_Dashboard_Money {
                             'created_by' => get_current_user_id(),
                         ]);
                         $payment_id = $wpdb->insert_id;
-                        $id_list = implode(',', $agency_ids);
+                        $id_list = implode(',', array_map('intval', $agency_ids));
                         $wpdb->query("UPDATE {$b_table} SET commission_status = 'paid' WHERE id IN ({$id_list})");
                         do_action('tap_commission_paid', $agency_id, $payment_id);
                     }
@@ -272,7 +272,7 @@ class TAP_Dashboard_Money {
 					$pcount = isset($tab_counts[$pk]) ? (int) $tab_counts[$pk] : 0;
 					$pclass = $payout_filter === $pk ? ' nav-tab-active' : '';
                     ?>
-                    <a class="nav-tab<?php echo $pclass; ?>" href="<?php echo esc_url(admin_url('admin.php?page=tap-commissions&status=' . $filter . '&payout_status=' . $pk)); ?>"><?php echo esc_html($plabel); ?><?php if ($pcount > 0 && 'failed' === $pk): ?> <span class="update-plugins count-<?php echo $pcount; ?>" style="background:#b91c1c;border-radius:50%;color:#fff;font-size:11px;line-height:1.6;height:16px;min-width:16px;display:inline-block;text-align:center;"><span class="plugin-count"><?php echo $pcount; ?></span></span><?php endif; ?></a>
+                    <a class="nav-tab<?php echo esc_attr($pclass); ?>" href="<?php echo esc_url(admin_url('admin.php?page=tap-commissions&status=' . $filter . '&payout_status=' . $pk)); ?>"><?php echo esc_html($plabel); ?><?php if ($pcount > 0 && 'failed' === $pk): ?> <span class="update-plugins count-<?php echo esc_attr($pcount); ?>" style="background:#b91c1c;border-radius:50%;color:#fff;font-size:11px;line-height:1.6;height:16px;min-width:16px;display:inline-block;text-align:center;"><span class="plugin-count"><?php echo esc_attr($pcount); ?></span></span><?php endif; ?></a>
 								<?php endforeach; ?>
             </nav>
             <?php

@@ -946,7 +946,7 @@ class TAP_Acc_Wizard {
                                 $span     = ('textarea' === $ftype || 'checkbox' === $ftype || 'select_post' === $ftype) ? ' tap-span-2' : '';
 								$field_id = 'tap-acc-' . sanitize_html_class(str_replace('_', '-', $key));
 								?>
-                                <div class="tap-field<?php echo $span; ?>">
+                                <div class="tap-field<?php echo esc_attr($span); ?>">
                                     <?php if ('checkbox' === $ftype): ?>
                                         <input type="hidden" name="<?php echo esc_attr($key); ?>" value="0">
                                         <label class="tap-switch" for="<?php echo esc_attr($field_id); ?>">
@@ -1281,7 +1281,7 @@ class TAP_Acc_Wizard {
                             ? ($is_edit ? $edit_base . '&step=1' : $new_url)
                             : $edit_base . '&step=' . $n;
                         ?>
-                        <li class="tap-wizard-step<?php echo $cls; ?>"<?php echo $is_active ? ' aria-current="step"' : ''; ?>>
+                        <li class="tap-wizard-step<?php echo esc_attr($cls); ?>"<?php echo $is_active ? ' aria-current="step"' : ''; ?>>
                             <?php if ($locked): ?>
                                 <span>
                                     <span class="tap-wizard-step-num" aria-hidden="true"><?php echo (int) $n; ?></span>
