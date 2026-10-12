@@ -51,6 +51,21 @@
 
 		<!-- Custom tables: $wpdb usage is intentional and covered by tests. -->
 		<exclude name="WordPress.DB.DirectDatabaseQuery"/>
+
+		<!-- meta_query / tax_query are the WordPress query API; flagging them
+		     as slow is a smell the plugin cannot act on without abandoning
+		     the platform's own querying model. -->
+		<exclude name="WordPress.DB.SlowDBQuery"/>
+
+		<!-- Renumbering placeholders (%d -> %1$d) rewrites the msgid, which
+		     desynchronises every catalog and silently drops translations at
+		     runtime. Placeholder order stays a source-level decision. -->
+		<exclude name="WordPress.WP.I18n.UnorderedPlaceholdersText"/>
+
+		<!-- Classes live in class-*.php by project convention. Honouring the
+		     WordPress file-naming sniff would mean renaming files and every
+		     require_once that points at them. -->
+		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
 	</rule>
 
 	<config name="minimum_wp_version" value="6.4"/>
