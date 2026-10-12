@@ -280,7 +280,8 @@ class TAP_Taxonomies {
             $value = get_post_meta($post_id, '_tap_tour_difficulty', true);
             $term  = $value && term_exists($value, 'tap_tour_difficulty') ? $value : '';
             if ($term) {
-                $term_id = (int) (is_array($tt = term_exists($term, 'tap_tour_difficulty')) ? $tt['term_id'] : $tt);
+                $tt = term_exists($term, 'tap_tour_difficulty');
+                $term_id = (int) (is_array($tt) ? $tt['term_id'] : $tt);
                 wp_set_object_terms($post_id, [$term_id], 'tap_tour_difficulty', false);
             }
         }

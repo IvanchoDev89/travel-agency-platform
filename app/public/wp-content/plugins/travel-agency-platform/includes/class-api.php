@@ -570,7 +570,8 @@ class TAP_API {
         $data['content'] = apply_filters('the_content', $post->post_content);
         $data['meta'] = self::get_all_meta($post->ID, $prefix);
 
-        if ($agency_id = $data['agency_id']) {
+        $agency_id = $data['agency_id'];
+        if ($agency_id) {
             $agency = get_post($agency_id);
             $data['agency'] = $agency ? [
                 'id'    => $agency->ID,

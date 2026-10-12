@@ -108,7 +108,7 @@ class TAP_Payouts {
         if (!$row) {
             return false;
         }
-        if (!self::_transition($payment_id, [self::PENDING], self::COMPLETED)) {
+        if (!self::transition($payment_id, [self::PENDING], self::COMPLETED)) {
             return false;
         }
         if ($row->booking_ids) {
@@ -139,7 +139,7 @@ class TAP_Payouts {
     /** Cancel a pending payout; reverts its commissions to 'owed'. */
     public static function cancel($payment_id) {
         global $wpdb;
-        if (!self::_transition($payment_id, [self::PENDING], self::CANCELLED)) {
+        if (!self::transition($payment_id, [self::PENDING], self::CANCELLED)) {
             return false;
         }
         $row = $wpdb->get_row($wpdb->prepare("SELECT booking_ids FROM {$wpdb->prefix}tap_commission_payments WHERE id = %d", $payment_id));
@@ -167,7 +167,7 @@ class TAP_Payouts {
         if (!$exists) {
             return false;
         }
-        if (!self::_transition($payment_id, [self::PENDING], self::FAILED)) {
+        if (!self::transition($payment_id, [self::PENDING], self::FAILED)) {
             return false;
         }
         $note  = trim((string) $note);
@@ -189,7 +189,7 @@ class TAP_Payouts {
         return true;
     }
 
-    private static function _transition($id, array $from, $to) {
+    private static function transition($id, array $from, $to) {
         global $wpdb;
         $id = intval($id);
         $row = $wpdb->get_row($wpdb->prepare("SELECT status FROM {$wpdb->prefix}tap_commission_payments WHERE id = %d", $id));

@@ -39,9 +39,9 @@ class TAP_Itinerary {
     /** Wizard data: interests, categories, destinations (2 levels) + budget defaults. */
     public static function terms_data() {
         $interests = [];
-        $tourTypes = get_terms(['taxonomy' => 'tap_tour_type', 'hide_empty' => false]);
-        if (is_array($tourTypes) && !is_wp_error($tourTypes)) {
-            foreach ($tourTypes as $t) {
+        $tour_types = get_terms(['taxonomy' => 'tap_tour_type', 'hide_empty' => false]);
+        if (is_array($tour_types) && !is_wp_error($tour_types)) {
+            foreach ($tour_types as $t) {
                 $interests[] = ['slug' => $t->slug, 'name' => $t->name, 'count' => (int) $t->count];
             }
         }
@@ -58,11 +58,11 @@ class TAP_Itinerary {
         $tops = get_terms(['taxonomy' => 'tap_location', 'parent' => 0, 'hide_empty' => false, 'orderby' => 'count', 'order' => 'DESC', 'number' => 40]);
         if (is_array($tops) && !is_wp_error($tops)) {
             foreach ($tops as $t) {
-                $parentName = $t->name;
+                $parent_name = $t->name;
                 $kids = get_terms(['taxonomy' => 'tap_location', 'parent' => (int) $t->term_id, 'hide_empty' => false, 'orderby' => 'count', 'order' => 'DESC']);
                 if (is_array($kids) && !is_wp_error($kids) && $kids) {
                     foreach ($kids as $c) {
-                        $destinations[] = ['id' => (int) $c->term_id, 'name' => $c->name, 'parent' => $parentName, 'count' => (int) $c->count];
+                        $destinations[] = ['id' => (int) $c->term_id, 'name' => $c->name, 'parent' => $parent_name, 'count' => (int) $c->count];
                         if (count($destinations) >= 40) {
                             break;
                         }
@@ -94,7 +94,10 @@ class TAP_Itinerary {
 
     /** Normalise URL/AJAX params into a safe query spec. */
     public static function parse_params($raw) {
-        $interests = $categories = $locations = $types = [];
+        $interests  = [];
+        $categories = [];
+        $locations  = [];
+        $types      = [];
         $budget = ['min' => null, 'max' => null];
 
         foreach ((array) ($raw['interests'] ?? []) as $slug) {
@@ -221,8 +224,8 @@ class TAP_Itinerary {
     /** Shared card markup for a matching service (AJAX + server render). */
     public static function render_item_card($post) {
         $meta      = self::type_meta($post->post_type);
-        $priceKey  = TAP_API::get_price_key($post->post_type);
-        $price     = $priceKey ? floatval(get_post_meta($post->ID, $priceKey, true)) : 0;
+        $price_key  = TAP_API::get_price_key($post->post_type);
+        $price     = $price_key ? floatval(get_post_meta($post->ID, $price_key, true)) : 0;
         $rating    = TAP_API::get_rating_stats($post->post_type, $post->ID);
         $avg       = (float) ($rating['avg'] ?? 0);
         $count     = (int) ($rating['count'] ?? 0);
@@ -329,8 +332,8 @@ class TAP_Itinerary {
 
         $total = 0;
         foreach ($posts as $p) {
-            $priceKey = TAP_API::get_price_key($p->post_type);
-            $total += $priceKey ? floatval(get_post_meta($p->ID, $priceKey, true)) : 0;
+            $price_key = TAP_API::get_price_key($p->post_type);
+            $total += $price_key ? floatval(get_post_meta($p->ID, $price_key, true)) : 0;
         }
         ?>
         <div class="tap-itin-share">
@@ -342,8 +345,8 @@ class TAP_Itinerary {
             <ul class="tap-itin-share-list">
                 <?php
                 foreach ($posts as $p): $meta = self::type_meta($p->post_type);
-                    $priceKey = TAP_API::get_price_key($p->post_type);
-                    $price = $priceKey ? floatval(get_post_meta($p->ID, $priceKey, true)) : 0;
+                    $price_key = TAP_API::get_price_key($p->post_type);
+                    $price = $price_key ? floatval(get_post_meta($p->ID, $price_key, true)) : 0;
                     ?>
                     <li>
                         <div class="tap-itin-share-item">

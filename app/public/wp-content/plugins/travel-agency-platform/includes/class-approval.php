@@ -200,7 +200,8 @@ class TAP_Approval {
             }
         }
         if (empty($keys)) {
-            return self::$excluded_cache = [];
+            self::$excluded_cache = [];
+            return self::$excluded_cache;
         }
         $in = "'" . implode("','", array_map('esc_sql', $keys)) . "'";
         $rows = $wpdb->get_results(
@@ -211,7 +212,8 @@ class TAP_Approval {
                 $out[] = (int) $r->post_id;
             }
         }
-        return self::$excluded_cache = $out;
+        self::$excluded_cache = $out;
+        return self::$excluded_cache;
     }
 
     /**

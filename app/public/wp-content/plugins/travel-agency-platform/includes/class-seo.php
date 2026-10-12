@@ -293,9 +293,9 @@ class TAP_SEO {
         }
         $qa[] = ['q' => __('¿Cómo pago?', 'travel-agency-platform'), 'a' => __('Aceptamos pago online seguro con tarjeta o PayPal al confirmar la reserva.', 'travel-agency-platform')];
 
-        $mainEntity = [];
+        $main_entity = [];
         foreach ($qa as $i => $item) {
-            $mainEntity[] = [
+            $main_entity[] = [
                 '@type' => 'Question',
                 'name'  => $item['q'],
                 'acceptedAnswer' => ['@type' => 'Answer', 'text' => $item['a']],
@@ -305,7 +305,7 @@ class TAP_SEO {
         $graph = [
             '@context'   => 'https://schema.org',
             '@type'      => 'FAQPage',
-            'mainEntity' => $mainEntity,
+            'mainEntity' => $main_entity,
         ];
         echo '<script type="application/ld+json">' . wp_json_encode($graph, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
     }

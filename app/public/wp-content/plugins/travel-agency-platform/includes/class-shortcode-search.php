@@ -221,7 +221,8 @@ class TAP_Shortcode_Search {
         ?>
         <form class="tap-search-filters" method="get" action="<?php echo esc_url($current_url); ?>">
             <?php if (isset($_GET['keyword'])): ?>
-                <input type="hidden" name="keyword" value="<?php echo esc_attr($keyword = sanitize_text_field(wp_unslash($_GET['keyword'] ?? ''))); ?>">
+                <?php $keyword = sanitize_text_field(wp_unslash($_GET['keyword'] ?? '')); ?>
+                <input type="hidden" name="keyword" value="<?php echo esc_attr($keyword); ?>">
             <?php endif; ?>
             <label><?php esc_html_e('Tipo', 'travel-agency-platform'); ?>
                 <select name="type">

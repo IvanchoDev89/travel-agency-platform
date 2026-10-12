@@ -679,7 +679,8 @@ class TAP_Front_Dash {
                         <td>
                         <?php
                         echo esc_html($b_title);
-						if ($b->room_id && ($room = get_post($b->room_id))):
+						$room = $b->room_id ? get_post($b->room_id) : null;
+						if ($room):
                             ?>
                             <span class="tap-booking-room"><?php echo esc_html($room->post_title); ?></span><?php endif; ?></td>
                         <td><?php echo esc_html($b->check_in . ($b->check_out ? ' &rarr; ' . $b->check_out : '')); ?></td>

@@ -45,8 +45,8 @@ class TAP_Automations {
             return;
         }
         $hours    = max(1, (int) get_option('tap_payment_reminder_hours', 12));
-        $staleRaw = get_option('tap_stale_booking_hours', '24');
-        $stale    = (false === $staleRaw || '' === $staleRaw) ? 24 : max(1, (int) $staleRaw);
+        $stale_raw = get_option('tap_stale_booking_hours', '24');
+        $stale    = (false === $stale_raw || '' === $stale_raw) ? 24 : max(1, (int) $stale_raw);
         $stale    = max($hours + 1, $stale);
         $now   = current_time('timestamp');
 

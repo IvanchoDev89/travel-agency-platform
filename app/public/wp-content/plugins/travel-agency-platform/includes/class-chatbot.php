@@ -32,15 +32,15 @@ class TAP_Chatbot {
     public static function answer($message) {
         $msg = self::normalize((string) $message);
         $best = 'fallback';
-        $bestScore = 0;
+        $best_score = 0;
 
         foreach (self::intents() as $key => $spec) {
             if ('fallback' === $key) {
                 continue;
             }
             $score = self::score($msg, $spec['patterns']);
-            if ($score > $bestScore) {
-                $bestScore = $score;
+            if ($score > $best_score) {
+                $best_score = $score;
                 $best = $key;
             }
         }
