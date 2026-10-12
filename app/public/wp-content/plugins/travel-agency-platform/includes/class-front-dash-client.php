@@ -408,5 +408,4 @@ class TAP_Front_Dash_Client {
 
         return ob_get_clean();
     }
-
 }

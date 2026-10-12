@@ -289,7 +289,4 @@ class TAP_Acc_Wizard_Room_Form {
         <?php
         return ob_get_clean();
     }
-
-
-
 }

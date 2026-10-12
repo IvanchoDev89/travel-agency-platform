@@ -240,5 +240,4 @@ class TAP_Booking_Pricing {
         }
         return implode(', ', $parts);
     }
-
 }
