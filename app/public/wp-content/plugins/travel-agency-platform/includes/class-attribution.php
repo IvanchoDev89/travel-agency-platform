@@ -199,6 +199,8 @@ class TAP_Attribution {
     }
 
     /**
+     * Normalizes a list of emails.
+     *
      * @param array|string $emails
      * @return string[] Lowercased, deduplicated, non-empty emails.
      */

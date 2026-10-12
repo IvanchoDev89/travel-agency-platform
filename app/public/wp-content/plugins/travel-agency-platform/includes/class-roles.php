@@ -6,7 +6,7 @@ class TAP_Roles {
      * Bump when this class adds/removes roles or capabilities so the setup
      * below re-runs exactly once after each deploy that changes the catalog.
      *
-     * v3: administrator catalog derived from each CPT's real capability_type
+     * Version 3: administrator catalog derived from each CPT's real capability_type
      * (adds the missing edit_published_ and private_ primitives, equipment and
      * rooms) and the cleanup loop no longer deletes the correct plural caps.
      */

@@ -645,7 +645,7 @@ class TAP_Front_Dash {
                     $furl = add_query_arg(['seccion' => 'bo-operations', 'bo_status' => $fk, 'bo_page' => 1], $base);
                     ?>
                     <a class="tap-tab <?php echo $status === $fk ? 'active' : ''; ?>" href="<?php echo esc_url($furl); ?>">
-                        <?php echo esc_html__($fk === 'all' ? __('Todas', 'travel-agency-platform') : ucfirst($fk), 'travel-agency-platform'); ?>
+                        <?php echo esc_html($fk === 'all' ? __('Todas', 'travel-agency-platform') : ucfirst($fk)); ?>
                         <span class="tap-tab-count"><?php echo (int) ($counts[$fk] ?? 0); ?></span>
                     </a>
                 <?php endforeach; ?>

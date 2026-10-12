@@ -141,7 +141,7 @@ class TAP_Dashboard_Settings {
             if (is_wp_error($result)) {
                 echo '<div class="notice notice-error is-dismissible"><p>' . esc_html($result->get_error_message()) . '</p></div>';
             } else {
-                echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Subscription marked as paid until ' . $result, 'travel-agency-platform') . '</p></div>';
+                echo '<div class="notice notice-success is-dismissible"><p>' . esc_html(sprintf(/* translators: %s: fecha de vencimiento de la suscripción. */ __('Subscription marked as paid until %s', 'travel-agency-platform'), $result)) . '</p></div>';
             }
         }
 
@@ -215,7 +215,7 @@ class TAP_Dashboard_Settings {
             if (is_wp_error($result)) {
                 echo '<div class="notice notice-error is-dismissible"><p>' . esc_html($result->get_error_message()) . '</p></div>';
             } else {
-                echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Promotion activated until ' . $result, 'travel-agency-platform') . '</p></div>';
+                echo '<div class="notice notice-success is-dismissible"><p>' . esc_html(sprintf(/* translators: %s: fecha de vencimiento de la promoción. */ __('Promotion activated until %s', 'travel-agency-platform'), $result)) . '</p></div>';
             }
         }
 

@@ -112,6 +112,8 @@ class TAP_Booking {
     }
 
     /**
+     * Creates a booking from a raw payload and returns its id and code.
+     *
      * @param array $data Raw booking payload (service_type, service_id, dates…).
      * @return array{booking_id:int, booking_code:string}|WP_Error
      */
@@ -756,6 +758,8 @@ class TAP_Booking {
     }
 
     /**
+     * Updates the payment status of a booking.
+     *
      * @return true|WP_Error
      */
     public static function update_payment_status($booking_id, $payment_status) {

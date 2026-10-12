@@ -15,7 +15,7 @@ defined('ABSPATH') || exit;
 class TAP_Localization {
     const DOMAIN = 'travel-agency-platform';
 
-    /** code => WP locale. */
+    /** Map of language code to WP locale. */
     protected static $langs = [
         'es' => 'es_ES',
         'en' => 'en_US',

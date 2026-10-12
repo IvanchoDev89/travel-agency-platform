@@ -25,7 +25,7 @@ class TAP_Metaboxes {
     }
 
     /**
-     * register()/get_fields() are also reached from the front-end back-office,
+     * The register() and get_fields() helpers are also reached from the front-end back-office,
      * where add_meta_box() (wp-admin/includes/template.php) is not loaded.
      * The field registry must populate everywhere; the meta box UI is admin-only.
      */

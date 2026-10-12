@@ -420,7 +420,7 @@ class TAP_Dashboard_Money {
                 $note = sanitize_textarea_field(wp_unslash($_POST['resolution_note'] ?? ''));
                 $res  = TAP_Disputes::resolve($dispute_id, $outcome, $note);
                 if (is_wp_error($res)) {
-                    set_transient('tap_dispute_notice', __($res->get_error_message(), 'travel-agency-platform'), 60);
+                    set_transient('tap_dispute_notice', $res->get_error_message(), 60);
                 } else {
                     set_transient('tap_dispute_notice', __('Disputa resuelta. Comisión liberada o anulada según el resultado.', 'travel-agency-platform'), 60);
                 }

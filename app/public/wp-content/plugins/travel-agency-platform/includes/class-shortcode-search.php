@@ -241,7 +241,7 @@ class TAP_Shortcode_Search {
                     $tours = get_terms(['taxonomy' => 'tap_tour_type', 'hide_empty' => false, 'orderby' => 'name']);
                     if (!is_wp_error($tours)) {
                         foreach ($tours as $t) {
-                            printf('<option value="%s" %s>%s</option>', esc_attr($t->slug), selected($tour_type, $t->slug, false), esc_html(__($t->name, 'travel-agency-platform')));
+                            printf('<option value="%s" %s>%s</option>', esc_attr($t->slug), selected($tour_type, $t->slug, false), esc_html($t->name));
                         }
                     }
                     ?>
@@ -254,7 +254,7 @@ class TAP_Shortcode_Search {
                     $diffs = get_terms(['taxonomy' => 'tap_tour_difficulty', 'hide_empty' => false, 'orderby' => 'name']);
                     if (!is_wp_error($diffs)) {
                         foreach ($diffs as $d) {
-                            printf('<option value="%s" %s>%s</option>', esc_attr($d->slug), selected($difficulty, $d->slug, false), esc_html(__($d->name, 'travel-agency-platform')));
+                            printf('<option value="%s" %s>%s</option>', esc_attr($d->slug), selected($difficulty, $d->slug, false), esc_html($d->name));
                         }
                     }
                     ?>
