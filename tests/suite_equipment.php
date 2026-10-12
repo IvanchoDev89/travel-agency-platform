@@ -48,8 +48,8 @@ $in  = gmdate('Y-m-d', strtotime('+30 days'));
 $out = gmdate('Y-m-d', strtotime('+31 days'));   // 1 day
 $out3 = gmdate('Y-m-d', strtotime('+33 days'));  // 3 days
 
-tap_t_assert(25.0 === TAP_Booking::calculate_price('tap_equipment', $eq, $in, $out), 'equipment price = price_day x 1 day');
-tap_t_assert(75.0 === TAP_Booking::calculate_price('tap_equipment', $eq, $in, $out3), 'equipment price = price_day x 3 days');
+tap_t_assert(25.0 === TAP_Booking_Pricing::calculate_price('tap_equipment', $eq, $in, $out), 'equipment price = price_day x 1 day');
+tap_t_assert(75.0 === TAP_Booking_Pricing::calculate_price('tap_equipment', $eq, $in, $out3), 'equipment price = price_day x 3 days');
 
 $eq_hourly = wp_insert_post(['post_type' => 'tap_equipment', 'post_status' => 'publish', 'post_title' => 'Hourly E2E']);
 if ($eq_hourly && !is_wp_error($eq_hourly)) {
@@ -59,7 +59,7 @@ if ($eq_hourly && !is_wp_error($eq_hourly)) {
     update_post_meta($eq_hourly, '_tap_eq_agency_id', $agency);
 }
 tap_t_assert($eq_hourly && !is_wp_error($eq_hourly), 'created hourly equipment fixture');
-tap_t_assert(30.0 === TAP_Booking::calculate_price('tap_equipment', $eq_hourly, $in, $out3), 'equipment falls back to hour price x days when no day price');
+tap_t_assert(30.0 === TAP_Booking_Pricing::calculate_price('tap_equipment', $eq_hourly, $in, $out3), 'equipment falls back to hour price x days when no day price');
 
 // Booking create: agency resolved from _tap_eq_agency_id, totals per-day.
 $b = TAP_Booking::create([

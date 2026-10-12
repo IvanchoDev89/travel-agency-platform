@@ -123,7 +123,7 @@ class TAP_Ajax_Public {
                 $savings    = $quote['savings'];
                 $discounts  = $quote['discounts'];
             } else {
-                $total      = TAP_Booking::calculate_price($service_type, $service_id, $check_in, $check_out, $adults, $children, $room_id);
+                $total      = TAP_Booking_Pricing::calculate_price($service_type, $service_id, $check_in, $check_out, $adults, $children, $room_id);
                 $base_total = $total;
             }
             $range_result = TAP_Pricing::get_prices_for_range($room_id, $check_in, $check_out);
@@ -132,7 +132,7 @@ class TAP_Ajax_Public {
             }
             $min_stay = TAP_Pricing::get_max_min_stay_for_range($room_id, $check_in, $check_out);
         } else {
-            $total      = TAP_Booking::calculate_price($service_type, $service_id, $check_in, $check_out, $adults, $children, $room_id);
+            $total      = TAP_Booking_Pricing::calculate_price($service_type, $service_id, $check_in, $check_out, $adults, $children, $room_id);
             $base_total = $total;
         }
 
@@ -310,7 +310,7 @@ class TAP_Ajax_Public {
             wp_send_json_error(['message' => __('Invalid accommodation', 'travel-agency-platform')]);
         }
 
-        $rooms = TAP_Booking::get_rooms_with_availability($accommodation_id, $check_in, $check_out, $adults);
+        $rooms = TAP_Booking_Pricing::get_rooms_with_availability($accommodation_id, $check_in, $check_out, $adults);
         wp_send_json_success(['rooms' => $rooms]);
     }
 }

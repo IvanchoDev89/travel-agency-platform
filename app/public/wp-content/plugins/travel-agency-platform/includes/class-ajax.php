@@ -51,7 +51,7 @@ class TAP_Ajax {
         $adults   = intval($_POST['adults'] ?? 1);
         $children = intval($_POST['children'] ?? 0);
 
-        $total = TAP_Booking::calculate_price(
+        $total = TAP_Booking_Pricing::calculate_price(
             sanitize_text_field(wp_unslash($_POST['service_type'])),
             intval($_POST['service_id']),
             $check_in, $check_out, $adults, $children, $room_id

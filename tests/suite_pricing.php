@@ -79,27 +79,27 @@ $in2  = gmdate('Y-m-d', strtotime('+30 days'));
 $out2 = gmdate('Y-m-d', strtotime('+32 days'));
 
 $acc_id = pr_make_post('tap_accommodation', ['_tap_acc_price_per_night' => 90]);
-tap_t_assert(TAP_Booking::calculate_price('tap_accommodation', $acc_id, $in2, $out2) === 180.0, 'accommodation price = per-night x nights');
+tap_t_assert(TAP_Booking_Pricing::calculate_price('tap_accommodation', $acc_id, $in2, $out2) === 180.0, 'accommodation price = per-night x nights');
 
 $tour_id = pr_make_post('tap_tour', ['_tap_tour_price_adult' => 100, '_tap_tour_price_child' => 60]);
-tap_t_assert(TAP_Booking::calculate_price('tap_tour', $tour_id, $in2, $out2, 2, 1) === 260.0, 'tour price = adults + children');
+tap_t_assert(TAP_Booking_Pricing::calculate_price('tap_tour', $tour_id, $in2, $out2, 2, 1) === 260.0, 'tour price = adults + children');
 
 $trans_id = pr_make_post('tap_transport', ['_tap_trans_price' => 50]);
-tap_t_assert(TAP_Booking::calculate_price('tap_transport', $trans_id, $in2, $out2) === 50.0, 'transport price flat');
+tap_t_assert(TAP_Booking_Pricing::calculate_price('tap_transport', $trans_id, $in2, $out2) === 50.0, 'transport price flat');
 
 $car_id = pr_make_post('tap_car_rental', ['_tap_car_price_per_day' => 40]);
-tap_t_assert(TAP_Booking::calculate_price('tap_car_rental', $car_id, $in2, $out2) === 80.0, 'car price = per-day x days');
+tap_t_assert(TAP_Booking_Pricing::calculate_price('tap_car_rental', $car_id, $in2, $out2) === 80.0, 'car price = per-day x days');
 
 $boat_id = pr_make_post('tap_boat', ['_tap_boat_price_half' => 120]);
-tap_t_assert(TAP_Booking::calculate_price('tap_boat', $boat_id, $in2, $out2) === 120.0, 'boat price flat');
+tap_t_assert(TAP_Booking_Pricing::calculate_price('tap_boat', $boat_id, $in2, $out2) === 120.0, 'boat price flat');
 
 $pkg_id = pr_make_post('tap_package', ['_tap_pkg_price' => 55, '_tap_pkg_price_per_person' => 55]);
-tap_t_assert(TAP_Booking::calculate_price('tap_package', $pkg_id, $in2, $out2, 2, 1) === 165.0, 'package price = per-person x people');
+tap_t_assert(TAP_Booking_Pricing::calculate_price('tap_package', $pkg_id, $in2, $out2, 2, 1) === 165.0, 'package price = per-person x people');
 $pkg2 = pr_make_post('tap_package', ['_tap_pkg_price' => 300]);
-tap_t_assert(TAP_Booking::calculate_price('tap_package', $pkg2, $in2, $out2, 2, 1) === 300.0, 'package falls back to flat price');
+tap_t_assert(TAP_Booking_Pricing::calculate_price('tap_package', $pkg2, $in2, $out2, 2, 1) === 300.0, 'package falls back to flat price');
 
 // 5) room-based accommodation price -------------------------------------------
-tap_t_assert(TAP_Booking::calculate_price('tap_accommodation', $room_id, $in2, $out2, 1, 0, $room_id) === 200.0, 'room-based accommodation price uses room base');
+tap_t_assert(TAP_Booking_Pricing::calculate_price('tap_accommodation', $room_id, $in2, $out2, 1, 0, $room_id) === 200.0, 'room-based accommodation price uses room base');
 
 foreach ($created_posts as $pid) {
     wp_delete_post($pid, true);

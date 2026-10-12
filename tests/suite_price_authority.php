@@ -17,7 +17,7 @@ tap_t_assert($fid > 0 && $ftype !== '', "discovered published service ({$ftype} 
 $in  = gmdate('Y-m-d', strtotime('+40 days'));
 $out = gmdate('Y-m-d', strtotime('+43 days'));
 
-$authoritative = TAP_Booking::calculate_price($ftype, $fid, $in, $out, 2, 0, 0);
+$authoritative = TAP_Booking_Pricing::calculate_price($ftype, $fid, $in, $out, 2, 0, 0);
 $authoritative = round($authoritative, 2);
 $fee           = TAP_Booking::get_booking_fee($authoritative);
 $expected_total = round($authoritative + $fee, 2);

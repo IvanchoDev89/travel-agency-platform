@@ -30,7 +30,7 @@ while (have_posts()): the_post();
     $bathrooms = get_post_meta($id, '_tap_acc_bathrooms', true);
     $capacity = get_post_meta($id, '_tap_acc_capacity', true);
     $price_fallback = floatval(get_post_meta($id, '_tap_acc_price_per_night', true));
-    $rooms = TAP_Booking::get_rooms_with_availability($id);
+    $rooms = TAP_Booking_Pricing::get_rooms_with_availability($id);
 
     $has_rooms = !empty($rooms);
     $type_labels = [

@@ -83,7 +83,7 @@ tap_t_assert($row !== null && (int) $row->client_id === 0, 'guest booking stored
 tap_t_assert($row !== null && $row->guest_email === $guest_email, 'guest booking stored with guest_email');
 tap_t_assert($row !== null && $row->guest_name === $guest_name, 'guest booking stored with guest_name');
 tap_t_assert($row !== null && $row->guest_phone === '5000-1234', 'guest booking stored with guest_phone');
-$sub = TAP_Booking::calculate_price($service_type, $service_id, $future_in, $future_out, 2, 0, 0);
+$sub = TAP_Booking_Pricing::calculate_price($service_type, $service_id, $future_in, $future_out, 2, 0, 0);
 $fee = TAP_Booking::get_booking_fee($sub);
 tap_t_assert($row !== null && abs((float) $row->total_amount - round($sub + $fee, 2)) < 0.001, 'guest booking total derives from server price + booking fee');
 
