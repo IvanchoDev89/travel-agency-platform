@@ -415,7 +415,7 @@ class TAP_Pricing {
                     isset($cell['price']) && $cell['price'] !== '' ? (float) $cell['price'] : null,
                     isset($cell['min_stay']) && $cell['min_stay'] !== '' ? (int) $cell['min_stay'] : null,
                     isset($cell['is_blocked']) ? (int) $cell['is_blocked'] : 0,
-                    isset($cell['label']) ? (string) $cell['label'] : ''
+                    isset($cell['label']) ? sanitize_text_field((string) $cell['label']) : ''
                 );
                 ++$count;
             }

@@ -968,7 +968,7 @@ class TAP_Emails {
         return (bool) wp_mail($to, $subject, $body);
     }
 
-    private static function money($amount, $currency = '') {
+    private static function money($amount) {
         return TAP_Currency::fmt((float) $amount);
     }
 

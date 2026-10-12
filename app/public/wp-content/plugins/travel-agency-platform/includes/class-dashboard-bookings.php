@@ -261,7 +261,7 @@ class TAP_Dashboard_Bookings {
                 <a class="button button-secondary" href="<?php echo esc_url($export_url); ?>"><?php esc_html_e('Exportar CSV', 'travel-agency-platform'); ?></a>
             </form>
 
-            <?php echo TAP_Dashboard::paginate($total, $per_page, $paged, 'tap-bookings'); ?>
+            <?php echo TAP_Dashboard::paginate($total, $per_page, $paged); ?>
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
@@ -309,7 +309,7 @@ class TAP_Dashboard_Bookings {
                     <?php endforeach; ?>
                 </tbody>
             </table>
-            <?php echo TAP_Dashboard::paginate($total, $per_page, $paged, 'tap-bookings'); ?>
+            <?php echo TAP_Dashboard::paginate($total, $per_page, $paged); ?>
         </div>
         <?php
     }

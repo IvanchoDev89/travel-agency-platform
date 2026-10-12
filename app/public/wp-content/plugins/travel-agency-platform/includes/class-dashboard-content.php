@@ -266,7 +266,7 @@ class TAP_Dashboard_Content {
             $paged    = max(1, intval($_GET['paged'] ?? 1));
             $per_page = 20;
             $page_set = array_slice($visible, ($paged - 1) * $per_page, $per_page);
-            echo TAP_Dashboard::paginate(count($visible), $per_page, $paged, 'tap-agencies');
+            echo TAP_Dashboard::paginate(count($visible), $per_page, $paged);
             ?>
             <table class="wp-list-table widefat fixed striped">
                 <thead>
@@ -376,7 +376,7 @@ endif;
                     <?php endforeach; ?>
                 </tbody>
             </table>
-            <?php echo TAP_Dashboard::paginate(count($visible), $per_page, $paged, 'tap-agencies'); ?>
+            <?php echo TAP_Dashboard::paginate(count($visible), $per_page, $paged); ?>
         </div>
         <?php
     }
