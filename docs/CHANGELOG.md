@@ -6,6 +6,49 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.16] — 2026-10-12
+
+Closing pass over the static-analysis report. The translator-comment backlog is gone, four strings that never reached the translation layer are fixed, and the naming/style debt is cleared. PHPCS drops from 703 to 521 and what remains is false positives already audited and deliberately left. No public API changed.
+
+### Fixed
+
+- **Traducciones que no llegaban a ejecutarse.** Cuatro patrones rompían la i18n sin dar ningún error visible:
+  - `class-dashboard-settings` construía el msgid concatenando la fecha (`'Subscription marked as paid until ' . $result`), así que el msgid nunca coincidía con ninguna entrada del catálogo y el aviso se mostraba siempre en inglés. Ahora usa `sprintf` con `%s`, y las dos entradas nuevas se añaden traducidas a `es_ES` y `en_US`.
+  - `class-dashboard-money` envolvía `get_error_message()` en `__()`. Los mensajes de `WP_Error` ya vienen traducidos; el `__()` exterior los buscaba en el catálogo como si fueran literales.
+  - `class-front-dash` doblaba la traducción de *"Todas"* (`esc_html__(__())`) y además pasaba por `__()` un slug dinámico (`ucfirst($fk)`), que no puede estar en ningún catálogo.
+  - `class-shortcode-search` traducía los nombres de términos de taxonomía (`__($t->name)`). Son datos que introduce el administrador, no cadenas del catálogo.
+- **Sanitización de `label`** en las celdas de precio en bloque de `TAP_Pricing`: iba por `(string)` a secas. Los demás campos ya iban casteados a `int`/`float`.
+- **`IN ()` endurecido** en `class-dashboard-money.php`: la lista de IDs de agencia pasa por `array_map('intval', …)`.
+- **Ocho `esc_attr()`** en contexto de atributo.
+- **`wp_redirect` → `wp_safe_redirect`** en el redirect legacy del dashboard.
+- **41 `in_array` con comparación estricta**, previa revisión de cada lista para confirmar que ninguna mezcla enteros con cadenas.
+- **13 `json_encode` → `wp_json_encode`**.
+- **Dos parámetros muertos eliminados**: `TAP_Dashboard::paginate::$page_slug` y `TAP_Emails::money::$currency`.
+
+### Added
+
+- **`/* translators: */` en los 132 sitios que faltaban.** Los textos traducibles llevaban huecos `%s`/`%d` sin decir al traductor qué significa cada uno, lo que obliga a adivinar el orden. 137 comentarios quedaban en contexto de plantilla HTML y no podían salirse de `<?php ?>` porque se habrían impreso en la página; esos van en la misma línea justo antes de la función i18n, que es el segundo formato que acepta WPCS. La colocación se verificó con `token_get_all` de PHP: 137 dentro, 0 fuera.
+- **`tests/suite_security.php`** (46ª suite): ningún suite anterior cubría escaping ni nonces de formulario.
+
+### Changed
+
+- **Naming**: 25 variables locales en camelCase pasan a snake_case (`$staleRaw`, `$bestScore`, `$tourTypes`, `$parentName`, `$priceKey`, `$mainEntity`). Se dejaron `$bc_col->Type` y `$idx->Key_name`, que son propiedades que devuelve MySQL. `TAP_Payouts::_transition()` pasa a `transition()`.
+- **Estilo**: se separan 9 asignaciones encadenadas y 3 asignaciones dentro de condición, que ocultan el efecto secundario detrás de un `if` o de un `return`.
+- **Docblocks**: 6 comentarios de documento sin resumen o con resumen en minúscula.
+- **`.phpcs.xml.dist`** excluye tres convenciones deliberadas —placeholders sin renumerar, nombres de fichero `class-*.php`, `meta_query`— con su justificación escrita en el propio fichero.
+
+### Audit
+
+Se revisaron y **rechazaron** como falsos positivos los hallazgos que más peso tenían, incluidos los grupos que faltaban por auditar. **No hay inyección SQL activa**: los 198 hallazgos de `PreparedSQL` se agruparon por variable (25 en total) y las cinco sospechosas se verificaron una a una. Los 12 `UnfinishedPrepare` y los 2 `ReplacementsWrongNumber` son el sniff sin ver los placeholders dentro de la variable interpolada; el `array_merge` alinea argumentos y el código es correcto. Los 96 `OutputNotEscaped` son renderers internos que devuelven HTML ya escapado o funciones de WordPress. Los 92 `NonceVerification` se verifican vía `TAP_Dashboard::post_verified`/`post_nonce_ok`, que el sniff no resuelve. Los 26 `UnusedFunctionParameter` son firmas de callbacks de WordPress (shortcodes, `save_post`, `do_action`): quitarlos rompería los ganchos. Los 8 `GlobalVariablesOverride` son el patrón guardar/restaurar de `$GLOBALS['post']`. El `error_log` es el hook `wp_mail_failed` de diagnóstico, los tres `NonEnqueuedScript` son el SDK de PayPal con parámetros de query, y `TAP()` es el accessor público del plugin. Se dejaron sin tocar los 16 `date()` y los 7 `current_time('timestamp')`, porque cambiarlos es semántica de zona horaria y puede desplazar un día en las automatizaciones.
+
+Las 5 `NonSingularStringLiteralText` restantes son las respuestas del chatbot y los chips de preguntas frecuentes, que sí están en el catálogo como entradas curadas —`tools/i18n.sh` lo documenta y las rescata del `msgmerge`.
+
+### Verification
+
+- PHPStan nivel 1 sin errores; `includes-check`, `ajax-nonce-check` 35/35 e `i18n-check` (1825/1825, 0 sin traducir en `es_ES` y `en_US`) en verde.
+- Batería E2E **46/46 suites, 0 fallos**, ejecutada tras cada tanda.
+- PHPCS: **703 → 521** hallazgos en 41 → 31 ficheros.
+
 ## [1.5.15] — 2026-10-12
 
 Static-analysis pass over the whole plugin: the report goes from 1044 to 703 findings, the SQL and escaping audits close, and the invariants they established are locked in a new test suite. No public API changed and no user-visible feature was added.
