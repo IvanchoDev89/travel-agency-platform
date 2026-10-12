@@ -106,6 +106,7 @@ class TAP_Ajax_Commerce {
         $amount = round(TAP_Promotions::get_price() * $months, 2);
         $result = TAP_PayPal::create_order_generic(
             $amount,
+            /* translators: 1: número de meses de destacado, 2: ID del listado */
             sprintf(__('Destacado %d mes(es) — listing #%d', 'travel-agency-platform'), $months, $listing_id),
             'PROMO-' . $promo_id,
             'promotion',
@@ -182,6 +183,7 @@ class TAP_Ajax_Commerce {
 
         $result = TAP_PayPal::create_order_generic(
             (float) $plan->price_monthly,
+            /* translators: %s: nombre del plan */
             sprintf(__('%s — suscripción mensual (agencia)', 'travel-agency-platform'), $plan->name),
             'SUB-' . $sub_id,
             'subscription',

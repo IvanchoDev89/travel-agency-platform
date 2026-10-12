@@ -182,7 +182,7 @@ class TAP_Shortcode_Booking {
                             <td>
                                 <?php echo esc_html(TAP_Currency::fmt($booking->total_amount)); ?>
                                 <?php if ((float) ($booking->refund_amount ?? 0) > 0): ?>
-                                    <br><span class="tap-refund-note"><?php echo esc_html(sprintf(__('Reembolso: %s', 'travel-agency-platform'), TAP_Currency::fmt((float) $booking->refund_amount))); ?></span>
+                                    <br><span class="tap-refund-note"><?php echo esc_html(sprintf(/* translators: %s: importe reembolsado */ __('Reembolso: %s', 'travel-agency-platform'), TAP_Currency::fmt((float) $booking->refund_amount))); ?></span>
                                 <?php elseif (in_array($booking->status, ['cancelled', 'refunded'], true) && !empty($booking->cancellation_policy) && in_array($booking->service_type, TAP_Booking::service_type_slugs(), true)): ?>
                                     <br><span class="tap-refund-note"><?php esc_html_e('Política no reembolsable', 'travel-agency-platform'); ?></span>
                                 <?php endif; ?>
@@ -364,6 +364,7 @@ class TAP_Shortcode_Booking {
                             <p>
                             <?php
                             echo esc_html(sprintf(
+                                /* translators: 1: importe ya pagado, 2: importe total, 3: saldo pendiente */
                                 __('Ya pagaste %1$s de %2$s. El saldo pendiente es de %3$s.', 'travel-agency-platform'),
                                 TAP_Currency::fmt(TAP_Booking::amount_already_paid($booking)),
                                 TAP_Currency::fmt((float) $booking->total_amount),
@@ -382,6 +383,7 @@ class TAP_Shortcode_Booking {
                     <p class="tap-pay-label">
 								<?php
 								echo $tap_remaining > 0 && TAP_Booking::amount_already_paid($booking) > 0
+								/* translators: %s: importe del saldo pendiente */
 								? esc_html(sprintf(__('Pagar el saldo restante de %s', 'travel-agency-platform'), TAP_Currency::fmt($tap_remaining)))
 								: esc_html__('Completar el pago con PayPal', 'travel-agency-platform');
 								?>
@@ -727,7 +729,7 @@ class TAP_Shortcode_Booking {
                     </div>
 
                     <div class="tap-voucher-notes tap-voucher-privacy">
-                        <small><?php echo wp_kses_post(sprintf(__('Consulta nuestro <a href="%s" target="_blank" rel="noopener">Aviso de Privacidad</a> para saber cómo tratamos tus datos y cómo ejercer tus derechos.', 'travel-agency-platform'), esc_url(TAP_Privacy::policy_url()))); ?></small>
+                        <small><?php echo wp_kses_post(sprintf(/* translators: %s: enlace al aviso de privacidad */ __('Consulta nuestro <a href="%s" target="_blank" rel="noopener">Aviso de Privacidad</a> para saber cómo tratamos tus datos y cómo ejercer tus derechos.', 'travel-agency-platform'), esc_url(TAP_Privacy::policy_url()))); ?></small>
                     </div>
 
                     <?php $is_traveler = ($uid && (int) $booking->client_id === $uid) || ((int) $booking->client_id === 0 && '' !== $email); ?>

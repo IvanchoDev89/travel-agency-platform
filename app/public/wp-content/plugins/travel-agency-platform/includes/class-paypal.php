@@ -85,6 +85,7 @@ class TAP_PayPal {
             'intent' => 'CAPTURE',
             'purchase_units' => [[
                 'reference_id' => $booking->booking_code,
+                /* translators: 1: código de la reserva, 2: nombre del servicio */
                 'description'  => sprintf(__('Booking %s - %s', 'travel-agency-platform'), $booking->booking_code, $service_name),
                 'amount' => [
                     'currency_code' => self::currency_code(),

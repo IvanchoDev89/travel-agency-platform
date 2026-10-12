@@ -40,6 +40,7 @@ class TAP_Ajax {
         $required = ['service_type', 'service_id'];
         foreach ($required as $field) {
             if (empty($_POST[$field])) {
+                /* translators: %s: nombre del campo obligatorio */
                 wp_send_json_error(['message' => sprintf(__('Field %s is required', 'travel-agency-platform'), $field)]);
             }
         }
@@ -523,6 +524,7 @@ class TAP_Ajax {
             $is_decimal = isset($cfg['step']) && false !== strpos($cfg['step'], '.');
             $value      = $is_decimal ? floatval($raw) : intval($raw);
             if ($value <= 0) {
+                /* translators: %s: etiqueta del tipo de tarifa */
                 return sprintf(__('El precio %s debe ser mayor que 0.', 'travel-agency-platform'), isset($cfg['label']) ? $cfg['label'] : $meta_key);
             }
         }
@@ -530,6 +532,7 @@ class TAP_Ajax {
         if (null !== $agency && class_exists('TAP_Subscriptions')) {
             $limit = TAP_Subscriptions::listing_limit($agency);
             if ($limit >= 0 && !$listing_id && TAP_Subscriptions::listing_count($agency) >= $limit) {
+                /* translators: %d: número máximo de listados permitidos por el plan */
                 return sprintf(__('Your plan allows a maximum of %d listings. Upgrading your plan unlocks more.', 'travel-agency-platform'), $limit);
             }
         }

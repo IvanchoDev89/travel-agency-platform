@@ -224,6 +224,7 @@ class TAP_Booking {
                 if ($slots['booked'] + $guests > $slots['capacity']) {
                     $create_error = new WP_Error(
                         'tour_full',
+                        /* translators: 1: cupos disponibles, 2: cupos solicitados */
                         sprintf(__('El tour está completo para la fecha seleccionada. Quedan %1$d cupos y solicitaste %2$d.', 'travel-agency-platform'), $slots['remaining'], $guests)
                     );
                 }
@@ -576,6 +577,7 @@ class TAP_Booking {
             return new WP_Error(
                 'invalid_transition',
                 sprintf(
+                    /* translators: 1: estado actual de la reserva, 2: estado solicitado */
                     __('No se puede pasar el estado de "%1$s" a "%2$s".', 'travel-agency-platform'),
                     $prev,
                     $status

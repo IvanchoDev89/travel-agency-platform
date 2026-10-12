@@ -164,6 +164,7 @@ class TAP_Dashboard {
     public static function paginate($total, $per_page, $paged) {
         $pages = (int) ceil($total / $per_page);
         if ($pages <= 1) return '';
+        /* translators: %d: número total de elementos paginados */
         return '<div class="tablenav"><div class="tablenav-pages"><span class="displaying-num">' . sprintf(esc_html__('%d items', 'travel-agency-platform'), (int) $total) . '</span>'
             . paginate_links([
                 'base'      => add_query_arg('paged', '%#%'),

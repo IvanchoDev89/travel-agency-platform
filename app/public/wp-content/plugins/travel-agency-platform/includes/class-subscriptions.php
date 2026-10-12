@@ -192,6 +192,7 @@ class TAP_Subscriptions {
                 'paid_until'     => $until,
                 'payment_status' => 'paid',
                 'payment_method' => $sub->payment_method ?: 'manual',
+                /* translators: 1: número de meses pagados, 2: fecha del pago */
                 'notes'          => sprintf(__('Paid %d month(s) on %s', 'travel-agency-platform'), $months, current_time('Y-m-d')),
             ],
             ['id' => (int) $sub_id]

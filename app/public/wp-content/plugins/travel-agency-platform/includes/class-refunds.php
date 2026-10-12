@@ -10,6 +10,7 @@ class TAP_Refunds {
         $policies = self::cancellation_policies();
         $label = $policies[$info['policy']] ?? $info['policy'];
         $line = sprintf(
+            /* translators: %s: nombre de la política de cancelación */
             __('Política de cancelación: %s', 'travel-agency-platform'),
             $label
         );
@@ -18,6 +19,7 @@ class TAP_Refunds {
             : $info['refund_amount'];
         if ($refund > 0) {
             $line .= ' · ' . sprintf(
+                /* translators: 1: importe reembolsado, 2: porcentaje reembolsado */
                 __('Reembolso: %s (remaining %d%%)', 'travel-agency-platform'),
                 TAP_Currency::fmt($refund),
                 $info['refund_percent']

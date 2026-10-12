@@ -279,7 +279,7 @@ class TAP_Dashboard_Money {
             $failed_count = $tab_counts['failed'] ?? 0;
             if ($failed_count > 0):
 				?>
-                <div class="notice notice-error inline" style="margin:0 0 12px;"><p><strong><?php echo esc_html(sprintf(__('%d liquidación(es) marcada(s) como fallida(s): el pago no llegó a completarse. Revisa y vuelve a procesarlas.', 'travel-agency-platform'), $failed_count)); ?></strong></p></div>
+                <div class="notice notice-error inline" style="margin:0 0 12px;"><p><strong><?php echo esc_html(sprintf(/* translators: %d: número de liquidaciones marcadas como fallidas */ __('%d liquidación(es) marcada(s) como fallida(s): el pago no llegó a completarse. Revisa y vuelve a procesarlas.', 'travel-agency-platform'), $failed_count)); ?></strong></p></div>
             <?php endif; ?>
             <table class="wp-list-table widefat fixed striped">
                 <thead>

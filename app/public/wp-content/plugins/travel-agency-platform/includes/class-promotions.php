@@ -124,6 +124,7 @@ class TAP_Promotions {
             $plan = class_exists('TAP_Subscriptions') ? TAP_Subscriptions::active_plan($agency_id) : null;
             $plan_name = $plan ? $plan->name : __('tu plan', 'travel-agency-platform');
             return new WP_Error('no_slots', sprintf(
+                /* translators: %s: nombre del plan actual */
                 __('Tu plan actual (%s) no incluye destacados. Mejora tu plan para promocionar tus listados.', 'travel-agency-platform'),
                 $plan_name
             ));
@@ -139,6 +140,7 @@ class TAP_Promotions {
 
         if (self::active_promos_count($agency_id) >= $slots) {
             return new WP_Error('slots_full', sprintf(
+                /* translators: %d: número de destacados activos */
                 __('Ya tienes %d destacados activos (el máximo de tu plan). Espera a que expire uno o mejora de plan.', 'travel-agency-platform'),
                 $slots
             ));
@@ -155,6 +157,7 @@ class TAP_Promotions {
                 'status'         => 'pending',
                 'payment_status' => 'pending',
                 'payment_method' => 'manual',
+                /* translators: %d: número de meses solicitados */
                 'notes'          => sprintf(__('Promoción de %d mes(es) solicitada', 'travel-agency-platform'), $months),
             ]
         );
@@ -209,6 +212,7 @@ class TAP_Promotions {
                 'paid_until'     => $until,
                 'payment_status' => 'paid',
                 'payment_method' => $promo->payment_method ?: 'manual',
+                /* translators: %s: fecha de confirmación */
                 'notes'          => sprintf(__('Confirmada el %s por el administrador', 'travel-agency-platform'), current_time('Y-m-d')),
             ],
             ['id' => (int) $promo_id]

@@ -101,8 +101,10 @@ class TAP_Emails {
         $agency_email = get_post_meta($agency_id, '_tap_agency_email', true);
         if (!is_email($agency_email)) $agency_email = $user->user_email;
 
+        /* translators: %s: nombre de la agencia */
         $welcome_headline = sprintf(__('Bienvenido, %s!', 'travel-agency-platform'), $agency->post_title);
         $welcome_intro = sprintf(
+            /* translators: 1: nombre de la agencia, 2: enlace al panel de agencia */
             __('Tu agencia <strong>%s</strong> ha sido registrada y ahora está <strong>en revisión</strong>.<br><br>Un administrador verificará tus datos de identificación. En cuanto tu agencia sea aprobada te avisaremos por correo y podrás publicar tus servicios y recibir reservas. Accede a tu <a href="%s" style="color:#0d9488;">panel de agencia</a> para adelantar tus listados.', 'travel-agency-platform'),
             esc_html($agency->post_title),
             esc_url(home_url('/mi-cuenta/'))
@@ -115,10 +117,12 @@ class TAP_Emails {
             $kyc_line = esc_html(trim(($kyc['legal_name'] ?? '') . ' ' . ($kyc['doc_number'] ?? ''))) . ($kyc['legal_tax_id'] ? ' · C. jurídica ' . esc_html($kyc['legal_tax_id']) : '');
             self::send(
                 $admin_email,
+                /* translators: %s: nombre de la agencia */
                 sprintf(__('[Aprobar agencia] %s', 'travel-agency-platform'), $agency->post_title),
                 self::info_template(
                     __('Nueva agencia pendiente de aprobación', 'travel-agency-platform'),
                     sprintf(
+                        /* translators: 1: nombre de la agencia, 2: correo del usuario registrador, 3: resumen del estado del KYC, 4: enlace al panel de agencias */
                         __('La agencia <strong>%s</strong> (%s) se registró y espera la verificación de sus datos.<br>KYC: %s<br><br><a href="%s" style="color:#0d9488;">Revisar en el panel de agencias</a>.', 'travel-agency-platform'),
                         esc_html($agency->post_title),
                         esc_html($user->user_email),
@@ -139,8 +143,10 @@ class TAP_Emails {
             $email,
             __('¡Tu agencia fue aprobada!', 'travel-agency-platform'),
             self::info_template(
+                /* translators: %s: nombre de la agencia */
                 sprintf(__('Aprobada — %s', 'travel-agency-platform'), $agency->post_title),
                 sprintf(
+                    /* translators: 1: nombre de la agencia, 2: enlace al panel de agencia */
                     __('Tu agencia <strong>%s</strong> fue aprobada y ya es visible para los viajeros.<br><br>Ya puedes publicar servicios y recibir reservas desde tu <a href="%s" style="color:#0d9488;">panel de agencia</a>.', 'travel-agency-platform'),
                     esc_html($agency->post_title),
                     esc_url(home_url('/mi-cuenta/'))
@@ -158,8 +164,10 @@ class TAP_Emails {
             $email,
             __('Tu agencia no fue aprobada', 'travel-agency-platform'),
             self::info_template(
+                /* translators: %s: nombre de la agencia */
                 sprintf(__('Agencia en revisión — %s', 'travel-agency-platform'), $agency->post_title),
                 sprintf(
+                    /* translators: 1: nombre de la agencia, 2: enlace de contacto de soporte */
                     __('Lamentablemente tu agencia <strong>%s</strong> no fue aprobada en esta revisión.<br><br>Contacta a soporte en <a href="%s" style="color:#0d9488;">info@visitnuevoarenal.com</a> para corregir los datos de identificación y volver a intentarlo.', 'travel-agency-platform'),
                     esc_html($agency->post_title),
                     esc_url(home_url('/'))
@@ -177,8 +185,10 @@ class TAP_Emails {
         $payment = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_commission_payments WHERE id = %d", $payment_id));
         if (!$payment) return;
 
+        /* translators: %s: nombre de la agencia */
         $headline = sprintf(__('Liquidación registrada — %s', 'travel-agency-platform'), $agency->post_title);
         $intro = sprintf(
+            /* translators: 1: importe de la liquidación, 2: identificador de la liquidación */
             __('Hemos registrado una liquidación de comisiones por <strong>%s</strong> (referencia #%d).<br><br>Los montos ya figuran como cobrados en tu panel de agencia. Si necesitas el comprobante, contacta a soporte.', 'travel-agency-platform'),
             esc_html(self::money($payment->amount)),
             (int) $payment->id
@@ -199,8 +209,10 @@ class TAP_Emails {
 
         $headline = __('Nuevo mensaje de contacto', 'travel-agency-platform');
         $lines = [];
+        /* translators: %s: nombre de quien envió el mensaje */
         $lines[] = sprintf(__('Recibiste un mensaje de <strong>%s</strong>.', 'travel-agency-platform'), esc_html($lead->name));
         if ($service_name) {
+            /* translators: %s: nombre del servicio de interés */
             $lines[] = sprintf(__('Servicio de interés: <strong>%s</strong>', 'travel-agency-platform'), esc_html($service_name));
         }
         $lines[] = __('Correo: ', 'travel-agency-platform') . esc_html($lead->email);
@@ -225,6 +237,7 @@ class TAP_Emails {
                 self::info_template(
                     __('Gracias por contactarnos', 'travel-agency-platform'),
                     sprintf(
+                        /* translators: 1: nombre del servicio, 2: enlace a la página de búsqueda */
                         __('Recibimos tu mensaje sobre <strong>%s</strong>. La agencia te responderá lo antes posible.<br><br>Mientras tanto, puedes seguir explorando nuestras <a href="%s" style="color:#0d9488;">experiencias y alojamientos</a>.', 'travel-agency-platform'),
                         esc_html($service_name ?: __('nuestros servicios', 'travel-agency-platform')),
                         esc_url(home_url('/search-results/'))
@@ -270,8 +283,10 @@ class TAP_Emails {
 
         $ctx = self::build_context($booking);
         if ($booking->status === 'request') {
+            /* translators: %s: código de la reserva */
             $subject = sprintf(__('Solicitud de reserva %s recibida', 'travel-agency-platform'), $booking->booking_code);
             $body = self::template(
+                /* translators: %s: nombre del cliente */
                 sprintf(__('¡Gracias %s! Hemos recibido tu solicitud.', 'travel-agency-platform'), $name),
                 __('La agencia revisará tu solicitud y te avisaremos por correo cuando sea aceptada. No se realizará ningún cobro hasta entonces.', 'travel-agency-platform'),
                 $ctx,
@@ -281,8 +296,10 @@ class TAP_Emails {
             return;
         }
 
+        /* translators: %s: código de la reserva */
         $subject = sprintf(__('Reserva %s recibida', 'travel-agency-platform'), $booking->booking_code);
         $body = self::template(
+            /* translators: %s: nombre del cliente */
             sprintf(__('¡Gracias %s! Tu reserva ha sido recibida.', 'travel-agency-platform'), $name),
             __('Estamos procesando tu solicitud. En breve recibirás la confirmación una vez el pago sea verificado.', 'travel-agency-platform'),
             $ctx,
@@ -307,6 +324,7 @@ class TAP_Emails {
             'cancelled' => __('Tu reserva ha sido cancelada', 'travel-agency-platform'),
             'completed' => __('Tu reserva se ha completado', 'travel-agency-platform'),
             'refunded'  => __('Tu reserva ha sido reembolsada', 'travel-agency-platform'),
+        /* translators: %s: estado de la reserva */
         ][$status] ?? sprintf(__('Estado de tu reserva: %s', 'travel-agency-platform'), $label);
 
         $intro = [
@@ -319,6 +337,7 @@ class TAP_Emails {
         if ($status === 'pending' && $prev === 'request') {
             $headline = __('¡Tu solicitud fue aceptada!', 'travel-agency-platform');
             $intro = sprintf(
+                /* translators: %s: enlace de pago */
                 __('La agencia aceptó tu solicitud de reserva. Completa el pago para confirmar: <a href="%s" style="color:#0d9488;">Pagar ahora</a>.', 'travel-agency-platform'),
                 esc_url(home_url('/checkout?code=' . rawurlencode($booking->booking_code)))
             );
@@ -327,17 +346,20 @@ class TAP_Emails {
             $intro = __('La agencia no pudo aceptar tu solicitud de reserva. No se realizó ningún cobro. Contacta a la agencia o prueba con otras fechas.', 'travel-agency-platform');
         } elseif ($status === 'cancelled' && (float) ($booking->refund_amount ?? 0) > 0) {
             $intro .= '<br><br>' . sprintf(
+                /* translators: %s: importe reembolsado */
                 __('Reembolso aplicado según la política de cancelación: %s.', 'travel-agency-platform'),
                 esc_html(TAP_Currency::fmt((float) $booking->refund_amount))
             );
         } elseif ($status === 'cancelled' && !empty($booking->cancellation_policy)) {
             $policies = TAP_Refunds::cancellation_policies();
             $intro .= '<br><br>' . sprintf(
+                /* translators: %s: nombre de la política de cancelación */
                 __('Política aplicada: %s.', 'travel-agency-platform'),
                 esc_html($policies[$booking->cancellation_policy] ?? $booking->cancellation_policy)
             );
         }
 
+        /* translators: 1: código de la reserva, 2: nuevo estado de la reserva */
         $subject = sprintf(__('Actualización de reserva %s: %s', 'travel-agency-platform'), $booking->booking_code, $label);
         $body = self::template($headline, $intro, $ctx, $status);
 
@@ -353,6 +375,7 @@ class TAP_Emails {
 
         $ctx = self::build_context($booking);
         $ctx['payment_status'] = __('Pagada', 'travel-agency-platform');
+        /* translators: %s: código de la reserva */
         $subject = sprintf(__('Pago recibido para la reserva %s', 'travel-agency-platform'), $booking->booking_code);
         $body = self::template(
             __('¡Pago confirmado!', 'travel-agency-platform'),
@@ -376,9 +399,11 @@ class TAP_Emails {
 
         $ctx = self::build_context($booking, true);
         if ($booking->status === 'request') {
+            /* translators: 1: código de la reserva, 2: tipo de servicio */
             $subject = sprintf(__('[Nueva solicitud] %s — %s', 'travel-agency-platform'), $booking->booking_code, $booking->service_type);
             $body = self::template(
                 __('Nueva solicitud de reserva', 'travel-agency-platform'),
+                /* translators: 1: código de la reserva, 2: importe total de la reserva */
                 sprintf(__('Tienes una nueva solicitud de reserva (<strong>%s</strong>) por un total de <strong>%s</strong>. Revisa el panel para aceptarla o rechazarla.', 'travel-agency-platform'),
                     $booking->booking_code,
                     self::money($booking->total_amount)),
@@ -390,9 +415,11 @@ class TAP_Emails {
             return;
         }
 
+        /* translators: 1: código de la reserva, 2: tipo de servicio */
         $subject = sprintf(__('[Nueva reserva] %s — %s', 'travel-agency-platform'), $booking->booking_code, $booking->service_type);
         $body = self::template(
             __('Nueva reserva recibida', 'travel-agency-platform'),
+            /* translators: 1: código de la reserva, 2: importe total de la reserva */
             sprintf(__('Se ha registrado una nueva reserva (<strong>%s</strong>) por un total de <strong>%s</strong>. Revisa el panel para gestionarla.', 'travel-agency-platform'),
                 $booking->booking_code,
                 self::money($booking->total_amount)),
@@ -412,6 +439,7 @@ class TAP_Emails {
     public static function send_subscription_paid($agency_id, $plan_name, $until) {
         $to = self::get_agency_email($agency_id);
         if (!$to) return;
+        /* translators: %s: nombre del plan */
         $subject = sprintf(__('[Plan activado] %s', 'travel-agency-platform'), $plan_name);
         $heading = __('Tu plan está activo', 'travel-agency-platform');
         $body = '<!DOCTYPE html><html><body style="margin:0;padding:0;background-color:#f1f5f9;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;">
@@ -425,6 +453,7 @@ class TAP_Emails {
                 <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#16a34a;margin-bottom:8px;">' . esc_html__('Suscripción', 'travel-agency-platform') . '</div>
                 <h1 style="font-size:22px;color:#0f172a;margin:0 0 8px;line-height:1.3;">' . esc_html($heading) . '</h1>
                 <p style="font-size:15px;color:#64748b;line-height:1.6;margin:0 0 24px;">' .
+                    /* translators: 1: nombre del plan, 2: fecha de vencimiento del plan */
                     sprintf(esc_html__('Se confirmó el pago de tu suscripción al plan <strong>%s</strong>. Tu plan es válido hasta el <strong>%s</strong>. Gracias por confiar en la plataforma.', 'travel-agency-platform'),
                         esc_html($plan_name),
                         esc_html($until)) . '</p>
@@ -458,6 +487,7 @@ class TAP_Emails {
                 <h1 style="font-size:22px;color:#0f172a;margin:0 0 8px;line-height:1.3;">' . esc_html($heading) . '</h1>
                 <p style="font-size:15px;color:#64748b;line-height:1.6;margin:0 0 24px;">' .
                     sprintf(
+                        /* translators: 1: nombre del listado, 2: fecha de fin de la promoción, 3: importe pagado */
                         esc_html__('Se confirmó el pago de tu promoción para <strong>%s</strong>. El listado estará destacado hasta el <strong>%s</strong> (monto: %s).', 'travel-agency-platform'),
                         esc_html($listing_title ?: __('su listado', 'travel-agency-platform')),
                         esc_html($until),
@@ -486,10 +516,12 @@ class TAP_Emails {
         if ($email) {
             self::send(
                 $email,
+                /* translators: %s: código de la reserva */
                 sprintf(__('El pago de la reserva %s no pudo completarse', 'travel-agency-platform'), $booking->booking_code),
                 self::info_template(
                     __('No pudimos procesar tu pago', 'travel-agency-platform'),
                     sprintf(
+                        /* translators: 1: código de la reserva, 2: enlace de pago */
                         __('Tu reserva <strong>%s</strong> sigue activa, pero su pago falló. Puedes intentarlo de nuevo desde el <a href="%s" style="color:#0d9488;">checkout</a>.', 'travel-agency-platform'),
                         esc_html($booking->booking_code),
                         esc_url(home_url('/checkout?code=' . rawurlencode($booking->booking_code)))
@@ -501,10 +533,12 @@ class TAP_Emails {
         if (is_email($admin)) {
             self::send(
                 $admin,
+                /* translators: %s: código de la reserva */
                 sprintf(__('[Pago fallido] Reserva %s', 'travel-agency-platform'), $booking->booking_code),
                 self::info_template(
                     __('Fallo de pago', 'travel-agency-platform'),
                     sprintf(
+                        /* translators: 1: código de la reserva, 2: tipo de servicio */
                         __('El pago de la reserva <strong>%s</strong> (%s) falló y requiere revisión.', 'travel-agency-platform'),
                         esc_html($booking->booking_code),
                         esc_html(self::get_service_name($booking))
@@ -526,10 +560,12 @@ class TAP_Emails {
         $amount = (float) ($booking->refund_amount ?? 0) > 0 ? (float) $booking->refund_amount : (float) $booking->total_amount;
         self::send(
             $email,
+            /* translators: %s: código de la reserva */
             sprintf(__('Reembolso de la reserva %s', 'travel-agency-platform'), $booking->booking_code),
             self::info_template(
                 __('Reembolso procesado', 'travel-agency-platform'),
                 sprintf(
+                    /* translators: 1: importe reembolsado, 2: código de la reserva */
                     __('Hemos reembolsado <strong>%s</strong> por la reserva <strong>%s</strong>. El dinero regresará a tu cuenta en los próximos días.', 'travel-agency-platform'),
                     esc_html(self::money($amount)),
                     esc_html($booking->booking_code)
@@ -550,6 +586,7 @@ class TAP_Emails {
             self::info_template(
                 __('Disputa abierta', 'travel-agency-platform'),
                 sprintf(
+                    /* translators: %s: código de la reserva */
                     __('Un viajero abrió una disputa sobre la reserva <strong>%s</strong>. La revisaremos y te notificaremos el resultado.', 'travel-agency-platform'),
                     esc_html($booking ? $booking->booking_code : (string) $booking_id)
                 )
@@ -579,6 +616,7 @@ class TAP_Emails {
             self::info_template(
                 __('Disputa resuelta', 'travel-agency-platform'),
                 sprintf(
+                    /* translators: 1: código de la reserva, 2: resultado de la disputa */
                     __('La disputa asociada a la reserva <strong>%s</strong> fue resuelta: <strong>%s</strong>.', 'travel-agency-platform'),
                     esc_html((string) $booking_id),
                     esc_html($label)
@@ -600,10 +638,12 @@ class TAP_Emails {
         if ($email) {
             self::send(
                 $email,
+                /* translators: %s: código de la reserva */
                 sprintf(__('Tu reserva %s fue cancelada', 'travel-agency-platform'), $booking->booking_code),
                 self::info_template(
                     __('Reserva cancelada', 'travel-agency-platform'),
                     sprintf(
+                        /* translators: 1: nombre del cliente, 2: código de la reserva, 3: nombre del servicio, 4: texto sobre el motivo de cancelación, 5: enlace al detalle de la reserva */
                         __('Hola %s, tu reserva <strong>%s</strong> (%s) quedó cancelada. %sSi esperabas un reembolso, lo verás según la política de cancelación. <a href="%s" style="color:#0d9488;">Ver detalle</a>.', 'travel-agency-platform'),
                         esc_html($name),
                         esc_html($booking->booking_code),
@@ -618,10 +658,12 @@ class TAP_Emails {
         if ($agency_email) {
             self::send(
                 $agency_email,
+                /* translators: %s: código de la reserva */
                 sprintf(__('Reserva %s cancelada', 'travel-agency-platform'), $booking->booking_code),
                 self::info_template(
                     __('Cancelación de reserva', 'travel-agency-platform'),
                     sprintf(
+                        /* translators: 1: código de la reserva, 2: nombre del servicio, 3: texto sobre el motivo de cancelación */
                         __('La reserva <strong>%s</strong> (%s) quedó cancelada. %sSi tenía comisión devengada, se anuló.', 'travel-agency-platform'),
                         esc_html($booking->booking_code),
                         esc_html(self::get_service_name($booking)),
@@ -641,10 +683,12 @@ class TAP_Emails {
         if ($agency_email) {
             self::send(
                 $agency_email,
+                /* translators: %s: código de la reserva */
                 sprintf(__('Pago aprobado — reserva %s', 'travel-agency-platform'), $booking->booking_code),
                 self::info_template(
                     __('¡Pago recibido!', 'travel-agency-platform'),
                     sprintf(
+                        /* translators: 1: nombre del servicio, 2: código de la reserva, 3: método de pago, 4: enlace a tu cuenta */
                         __('Se aprobó el pago de <strong>%s</strong> para la reserva <strong>%s</strong> mediante %s. Puedes coordinar el servicio con el huésped desde <a href="%s" style="color:#0d9488;">tu cuenta</a>.', 'travel-agency-platform'),
                         esc_html(self::get_service_name($booking)),
                         esc_html($booking->booking_code),
@@ -666,10 +710,12 @@ class TAP_Emails {
         $row    = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_commission_payments WHERE id = %d", $payment_id));
         self::send(
             $admin,
+            /* translators: %d: identificador de la agencia */
             sprintf(__('Solicitud de liquidación — agencia #%d', 'travel-agency-platform'), (int) $agency_id),
             self::info_template(
                 __('Nueva solicitud de pago', 'travel-agency-platform'),
                 sprintf(
+                    /* translators: 1: nombre de la agencia, 2: importe solicitado, 3: identificador de la liquidación, 4: enlace al panel de comisiones */
                     __('La agencia <strong>%s</strong> solicitó una liquidación de <strong>%s</strong> (ref. #%d). Revisa el pago en el <a href="%s" style="color:#0d9488;">panel de comisiones</a>.', 'travel-agency-platform'),
                     esc_html($agency ? $agency->post_title : (string) $agency_id),
                     esc_html(self::money($amount)),
@@ -688,10 +734,12 @@ class TAP_Emails {
         }
         self::send(
             $admin,
+            /* translators: %s: código de la reserva */
             sprintf(__('[Reintento de reembolso] Reserva %s', 'travel-agency-platform'), $booking->booking_code),
             self::info_template(
                 __('Reembolso reintentado', 'travel-agency-platform'),
                 sprintf(
+                    /* translators: 1: código de la reserva, 2: tipo de servicio */
                     __('Se reintentó el reembolso automático de la reserva <strong>%s</strong> (%s). Si volvió a fallar, requiere revisión manual del equipo de soporte.', 'travel-agency-platform'),
                     esc_html($booking->booking_code),
                     esc_html(self::get_service_name($booking))
@@ -718,11 +766,13 @@ class TAP_Emails {
                 $completed ? __('Liquidación transferida', 'travel-agency-platform') : __('Liquidación cancelada', 'travel-agency-platform'),
                 $completed
                     ? sprintf(
+                        /* translators: 1: importe de la liquidación, 2: identificador de la liquidación */
                         __('Tu liquidación de comisiones por <strong>%s</strong> (referencia #%d) fue confirmada como transferida.', 'travel-agency-platform'),
                         esc_html(self::money($payment->amount)),
                         (int) $payment->id
                     )
                     : sprintf(
+                        /* translators: 1: importe de la liquidación, 2: identificador de la liquidación */
                         __('La liquidación de comisiones por <strong>%s</strong> (referencia #%d) fue cancelada y los montos volvieron a estado "por cobrar".', 'travel-agency-platform'),
                         esc_html(self::money($payment->amount)),
                         (int) $payment->id
@@ -747,6 +797,7 @@ class TAP_Emails {
             self::info_template(
                 __('No se pudo completar tu liquidación', 'travel-agency-platform'),
                 sprintf(
+                    /* translators: 1: importe de la liquidación, 2: identificador de la liquidación */
                     __('La liquidación de comisiones por <strong>%s</strong> (referencia #%d) no pudo completarse. Los montos volvieron a estado "por cobrar" para que puedas solicitarla de nuevo.', 'travel-agency-platform'),
                     esc_html(self::money($payment->amount)),
                     (int) $payment->id
@@ -790,15 +841,18 @@ class TAP_Emails {
             }
             self::send(
                 $to,
+                /* translators: %s: código de la reserva */
                 sprintf(__('Nuevo mensaje de la agencia — reserva %s', 'travel-agency-platform'), $booking->booking_code),
                 self::info_template(
                     __('Tienes un nuevo mensaje', 'travel-agency-platform'),
                     sprintf(
+                        /* translators: %s: código de la reserva */
                         __('La agencia escribió sobre tu reserva <strong>%s</strong>:', 'travel-agency-platform'),
                         esc_html($booking->booking_code)
                     )
                     . '<br><br>&ldquo;' . esc_html($excerpt) . '&rdquo;<br><br>'
                     . sprintf(
+                        /* translators: %s: enlace al detalle de la reserva */
                         __('<a href="%s" style="color:#0d9488;">Responde desde el detalle de la reserva</a>.', 'travel-agency-platform'),
                         esc_url(home_url('/booking-detail/?code=' . rawurlencode($booking->booking_code)))
                     )
@@ -813,15 +867,18 @@ class TAP_Emails {
         }
         self::send(
             $to,
+            /* translators: %s: código de la reserva */
             sprintf(__('Nuevo mensaje del huésped — reserva %s', 'travel-agency-platform'), $booking->booking_code),
             self::info_template(
                 __('Tienes un nuevo mensaje', 'travel-agency-platform'),
                 sprintf(
+                    /* translators: %s: código de la reserva */
                     __('El huésped escribió sobre la reserva <strong>%s</strong>:', 'travel-agency-platform'),
                     esc_html($booking->booking_code)
                 )
                 . '<br><br>&ldquo;' . esc_html($excerpt) . '&rdquo;<br><br>'
                 . sprintf(
+                    /* translators: %s: enlace al panel de agencia */
                     __('<a href="%s" style="color:#0d9488;">Responde desde tu panel</a>.', 'travel-agency-platform'),
                     esc_url(home_url('/mi-cuenta/'))
                 )
@@ -842,6 +899,7 @@ class TAP_Emails {
             self::info_template(
                 __('Nueva suscripción por revisar', 'travel-agency-platform'),
                 sprintf(
+                    /* translators: 1: nombre de la agencia, 2: nombre del plan, 3: enlace al panel de suscripciones */
                     __('La agencia <strong>%s</strong> solicitó el plan <strong>%s</strong>. Revisa su pago en el <a href="%s" style="color:#0d9488;">panel de suscripciones</a>.', 'travel-agency-platform'),
                     esc_html($agency ? $agency->post_title : (string) $agency_id),
                     esc_html($plan),
@@ -864,6 +922,7 @@ class TAP_Emails {
             self::info_template(
                 __('Nueva promoción por revisar', 'travel-agency-platform'),
                 sprintf(
+                    /* translators: 1: nombre de la agencia, 2: nombre del listado, 3: enlace al panel de promociones */
                     __('La agencia <strong>%s</strong> solicitó destacar <strong>%s</strong>. Revisa su pago en el <a href="%s" style="color:#0d9488;">panel de promociones</a>.', 'travel-agency-platform'),
                     esc_html($agency ? $agency->post_title : (string) $agency_id),
                     esc_html($listing),
@@ -882,10 +941,13 @@ class TAP_Emails {
         if (!$email) {
             return false;
         }
+        /* translators: %s: código de la reserva */
         $subject = sprintf(__('Recordatorio de pago — reserva %s', 'travel-agency-platform'), $booking->booking_code);
         $body = self::template(
+            /* translators: %s: nombre del cliente */
             sprintf(__('Hola %s, tu reserva está esperando pago', 'travel-agency-platform'), $name),
             sprintf(
+                /* translators: %s: enlace de pago */
                 __('Tienes una reserva pendiente de pago. Completa el pago para mantenerla confirmada: <a href="%s" style="color:#0d9488;">Pagar ahora</a>.', 'travel-agency-platform'),
                 esc_url(home_url('/checkout?code=' . rawurlencode($booking->booking_code)))
             ),
@@ -901,10 +963,13 @@ class TAP_Emails {
             return false;
         }
         $ctx = self::build_context($booking);
+        /* translators: %s: código de la reserva */
         $subject = sprintf(__('Tu viaje comienza muy pronto — %s', 'travel-agency-platform'), $booking->booking_code);
         $body = self::template(
+            /* translators: %s: nombre del cliente */
             sprintf(__('¡Hola %s! Tu viaje está por comenzar', 'travel-agency-platform'), $name),
             sprintf(
+                /* translators: 1: nombre del servicio, 2: fecha de llegada, 3: código de la reserva, 4: enlace al voucher */
                 __('Tu estancia en <strong>%s</strong> comienza el <strong>%s</strong>. Ten a mano el código <strong>%s</strong> y tu <a href="%s" style="color:#0d9488;">voucher</a> para el check-in.', 'travel-agency-platform'),
                 esc_html($ctx['service_name']),
                 esc_html($ctx['check_in']),
@@ -924,10 +989,12 @@ class TAP_Emails {
         }
         $review_url = add_query_arg('tap_review', $booking->booking_code, get_permalink($booking->service_id));
         $service = self::get_service_name($booking);
+        /* translators: %s: nombre del servicio */
         $subject = sprintf(__('¿Cómo fue tu experiencia en %s?', 'travel-agency-platform'), $service);
         $body = self::info_template(
             __('Gracias por viajar con nosotros', 'travel-agency-platform'),
             sprintf(
+                /* translators: 1: nombre del cliente, 2: nombre del servicio */
                 __('¡Hola %s! Esperamos que hayas disfrutado tu estancia en <strong>%s</strong>. Tu opinión ayuda a otros viajeros: <a href="%s" style="color:#0d9488;">Deja tu reseña</a>.', 'travel-agency-platform'),
                 esc_html($name),
                 esc_html($service),
@@ -946,6 +1013,7 @@ class TAP_Emails {
         if ('subscription' === $type) {
             $headline = __('Tu plan está por vencer', 'travel-agency-platform');
             $intro = sprintf(
+                /* translators: 1: nombre del plan, 2: fecha de vencimiento */
                 __('Tu suscripción al plan <strong>%s</strong> finaliza el <strong>%s</strong>. Renueva para no perder el acceso a sus funciones.', 'travel-agency-platform'),
                 esc_html($label),
                 esc_html($date)
@@ -954,6 +1022,7 @@ class TAP_Emails {
         } else {
             $headline = __('Tu destacado está por vencer', 'travel-agency-platform');
             $intro = sprintf(
+                /* translators: 1: nombre del listado, 2: fecha de fin de la promoción */
                 __('El servicio <strong>%s</strong> dejará de estar destacado el <strong>%s</strong>. Puedes renovar su promoción desde tu panel de agencia.', 'travel-agency-platform'),
                 esc_html($label),
                 esc_html($date)

@@ -316,6 +316,7 @@ class TAP_API {
         $required = ['service_type', 'service_id'];
         foreach ($required as $field) {
             if (empty($params[$field])) {
+                /* translators: %s: nombre del campo obligatorio */
                 return new WP_Error('missing_field', sprintf(__('Field %s is required', 'travel-agency-platform'), $field), ['status' => 400]);
             }
         }
@@ -421,6 +422,7 @@ class TAP_API {
 
         foreach ($required as $field) {
             if (empty($params[$field])) {
+                /* translators: %s: nombre del campo obligatorio */
                 return new WP_Error('missing_field', sprintf(__('Field %s is required', 'travel-agency-platform'), $field), ['status' => 400]);
             }
         }

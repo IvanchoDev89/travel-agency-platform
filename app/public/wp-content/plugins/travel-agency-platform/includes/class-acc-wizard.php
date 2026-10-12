@@ -1462,6 +1462,7 @@ class TAP_Acc_Wizard {
                 'key'    => 'rooms',
                 'label'  => __('Unidades creadas', 'travel-agency-platform'),
                 'done'   => (bool) $room_ids,
+                /* translators: %d: número de unidades creadas */
                 'detail' => $room_ids ? sprintf(_n('%d unidad', '%d unidades', count($room_ids), 'travel-agency-platform'), count($room_ids)) : __('Añade tu primera unidad', 'travel-agency-platform'),
             ],
             [
@@ -1476,6 +1477,7 @@ class TAP_Acc_Wizard {
                 'key'    => 'calendar',
                 'label'  => __('Ajustes de precios y disponibilidad', 'travel-agency-platform'),
                 'done'   => $overrides > 0,
+                /* translators: %d: número de días con ajuste de precio o disponibilidad */
                 'detail' => $overrides > 0 ? sprintf(_n('%d día ajustado', '%d días ajustados', $overrides, 'travel-agency-platform'), $overrides) : __('Opcional: fija temporadas o bloquea fechas', 'travel-agency-platform'),
             ],
             [

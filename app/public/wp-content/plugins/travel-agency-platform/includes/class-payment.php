@@ -210,6 +210,7 @@ class TAP_Payment {
         ));
         if (!$sub) return;
         if ($capture_id) {
+            /* translators: %s: identificador de la captura de PayPal */
             $wpdb->update($wpdb->prefix . 'tap_agency_subscriptions', ['notes' => sprintf(__('Paid via PayPal (capture %s)', 'travel-agency-platform'), $capture_id)], ['id' => (int) $sub_id]);
         }
         $until = TAP_Subscriptions::mark_paid((int) $sub_id, get_current_user_id(), 1);
@@ -225,6 +226,7 @@ class TAP_Payment {
         ));
         if (!$promo) return;
         if ($capture_id) {
+            /* translators: %s: identificador de la captura de PayPal */
             $wpdb->update($wpdb->prefix . 'tap_promos', ['notes' => sprintf(__('Paid via PayPal (capture %s)', 'travel-agency-platform'), $capture_id)], ['id' => (int) $promo_id]);
         }
         TAP_Promotions::activate((int) $promo_id);

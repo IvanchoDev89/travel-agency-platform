@@ -422,7 +422,7 @@ class TAP_Shortcode_Search {
                     <h1><?php the_title(); ?></h1>
                     <?php if ($rating['count'] > 0): ?>
                         <span class="tap-rating">
-                            <?php echo esc_html(number_format($rating['avg'], 1)); ?> ★ <small><?php echo esc_html(sprintf(_n('(%d reseña)', '(%d reseñas)', (int) $rating['count'], 'travel-agency-platform'), (int) $rating['count'])); ?></small>
+                            <?php echo esc_html(number_format($rating['avg'], 1)); ?> ★ <small><?php echo esc_html(sprintf(/* translators: %d: número de reseñas */ _n('(%d reseña)', '(%d reseñas)', (int) $rating['count'], 'travel-agency-platform'), (int) $rating['count'])); ?></small>
                         </span>
                     <?php endif; ?>
                     <?php if ($agency): ?>

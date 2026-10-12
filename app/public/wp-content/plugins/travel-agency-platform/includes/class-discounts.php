@@ -291,6 +291,7 @@ class TAP_Discounts {
             $total_discount_pct += (float) $cfg['early_percent'];
             $discounts[] = [
                 'type' => 'early',
+                /* translators: %d: número mínimo de días de antelación */
                 'label' => sprintf(__('Early Bird (%d+ días)', 'travel-agency-platform'), $cfg['early_days']),
                 'percent' => (float) $cfg['early_percent'],
                 'applied_on' => 'total',
@@ -301,6 +302,7 @@ class TAP_Discounts {
             $total_discount_pct += (float) $cfg['last_percent'];
             $discounts[] = [
                 'type' => 'last',
+                /* translators: %d: número de días de antelación */
                 'label' => sprintf(__('Última hora (%d días)', 'travel-agency-platform'), $cfg['last_days']),
                 'percent' => (float) $cfg['last_percent'],
                 'applied_on' => 'total',
@@ -321,6 +323,7 @@ class TAP_Discounts {
                 $total_discount_pct += $best;
                 $discounts[] = [
                     'type' => 'long',
+                    /* translators: %d: número mínimo de noches de estadía */
                     'label' => sprintf(__('Estadía larga (%d+ noches)', 'travel-agency-platform'), $best_tier_nights),
                     'percent' => $best,
                     'applied_on' => 'per_night',

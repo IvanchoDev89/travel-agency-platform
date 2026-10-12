@@ -239,6 +239,7 @@ class TAP_Dashboard_Settings {
 
         echo '<div class="wrap">';
         echo '<h1>' . esc_html__('Listado Promotions (Destacados)', 'travel-agency-platform') . '</h1>';
+        /* translators: %s: precio mensual del destacado */
         echo '<p class="description">' . esc_html(sprintf(__('Precio por destacado: %s/mes por listado. Confirma el pago para activar la promoción hasta la fecha correspondiente.', 'travel-agency-platform'), TAP_Currency::fmt($price))) . '</p>';
         echo '<div class="tap-stat-grid" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;">';
         echo '<div class="tap-stat-card"><span class="tap-stat-number" style="color:#047857;">' . esc_html($active) . '</span><span class="tap-stat-label">' . esc_html__('Activos', 'travel-agency-platform') . '</span></div>';

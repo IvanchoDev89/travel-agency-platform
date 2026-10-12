@@ -157,6 +157,7 @@ class TAP_Listing_Editor {
         $prefix    = TAP_Post_Types::meta_prefix($type);
         $type_label = TAP_Post_Types::get_service_types()[$type] ?? ucfirst($type);
         $fields    = TAP_Metaboxes::get_fields($type);
+        /* translators: %s: etiqueta del tipo de servicio */
         $action    = $is_edit ? __('Edit listing', 'travel-agency-platform') : sprintf(__('New %s', 'travel-agency-platform'), $type_label);
 
         if ('tap_accommodation' === $type) {

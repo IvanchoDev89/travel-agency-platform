@@ -53,6 +53,7 @@ class TAP_SEO {
             $term = get_queried_object();
             if ($term instanceof WP_Term) {
                 $name = $term->name;
+                /* translators: %s: nombre del término */
                 $desc = term_description($term->term_id) ?: sprintf(__('Listados en %s.', 'travel-agency-platform'), $term->name);
                 self::archive_tags($name, wp_strip_all_tags($desc), get_term_link($term));
             }
@@ -278,13 +279,16 @@ class TAP_SEO {
         $price = $price > 0 ? TAP_Currency::fmt($price) : '';
 
         $qa = [
+            /* translators: %s: nombre del listado */
             ['q' => sprintf(__('¿Cómo reservar %s?', 'travel-agency-platform'), $title), 'a' => __('Completá el formulario de reserva en la página, elegí fechas y cantidad de huéspedes, y confirmá el pago para recibir tu voucher.', 'travel-agency-platform')],
             ['q' => __('¿Puedo cancelar o modificar mi reserva?', 'travel-agency-platform'), 'a' => __('Podés cancelar desde tu panel de reservas según la política de cancelación del operador. Las reservas pendientes se cancelan automáticamente tras un tiempo sin confirmación.', 'travel-agency-platform')],
         ];
         if ($price) {
+            /* translators: %s: precio publicado */
             $qa[] = ['q' => __('¿Cuánto cuesta?', 'travel-agency-platform'), 'a' => sprintf(__('El precio publicado es %s, sujeto a disponibilidad y a las tarifas por fechas seleccionadas. El total se calcula al elegir fechas en el formulario.', 'travel-agency-platform'), $price)];
         }
         if ($agency_name) {
+            /* translators: %s: nombre de la agencia */
             $qa[] = ['q' => __('¿Quién opera este servicio?', 'travel-agency-platform'), 'a' => sprintf(__('%s es la agencia de viajes verificada que opera este listado.', 'travel-agency-platform'), $agency_name)];
         }
         $qa[] = ['q' => __('¿Cómo pago?', 'travel-agency-platform'), 'a' => __('Aceptamos pago online seguro con tarjeta o PayPal al confirmar la reserva.', 'travel-agency-platform')];

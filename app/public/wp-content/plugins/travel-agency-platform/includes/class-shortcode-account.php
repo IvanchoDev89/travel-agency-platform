@@ -24,7 +24,7 @@ class TAP_Shortcode_Account {
         ob_start();
         ?>
         <div class="tap-dashboard">
-            <h2><?php printf(esc_html__('Welcome, %s!', 'travel-agency-platform'), esc_html($user->display_name)); ?></h2>
+            <h2><?php printf(/* translators: %s: nombre del usuario */ esc_html__('Welcome, %s!', 'travel-agency-platform'), esc_html($user->display_name)); ?></h2>
             <div class="tap-dashboard-links">
                 <a href="<?php echo esc_url(home_url('/my-bookings')); ?>" class="tap-btn"><?php esc_html_e('My Bookings', 'travel-agency-platform'); ?></a>
                 <a href="<?php echo esc_url(home_url('/agency-profile')); ?>" class="tap-btn"><?php esc_html_e('Agency Profile', 'travel-agency-platform'); ?></a>
@@ -139,6 +139,7 @@ class TAP_Shortcode_Account {
             }
         }
 
+        /* translators: %s: porcentaje de comisión */
         $empty_state = sprintf(__('No bookings yet. Share your listing and start receiving reservations. Commission: %s%%', 'travel-agency-platform'), esc_html($commission));
         ?>
         <div class="tap-agency-panel">
@@ -176,7 +177,7 @@ class TAP_Shortcode_Account {
                 </div>
             <?php elseif ((int) $tap_limit >= 0 && $tap_used >= (int) $tap_limit): ?>
                 <div class="tap-capacity-note tap-full" style="margin-bottom:16px;">
-                    <?php echo esc_html(sprintf(__('Alcanzaste el límite de %d listados de tu plan. Mejora de plan para publicar más.', 'travel-agency-platform'), (int) $tap_limit)); ?>
+                    <?php echo esc_html(sprintf(/* translators: %d: número máximo de listados permitidos por el plan */ __('Alcanzaste el límite de %d listados de tu plan. Mejora de plan para publicar más.', 'travel-agency-platform'), (int) $tap_limit)); ?>
                 </div>
 				<?php
             endif;
@@ -444,7 +445,7 @@ endif;
                 <div class="tap-section-head">
                     <h3><?php esc_html_e('Destacados (promociones)', 'travel-agency-platform'); ?></h3>
                     <?php if ($promo_slots > 0): ?>
-                        <span class="tap-agency-meta"><?php echo esc_html(sprintf(__('Disponibles: %d de %d · %s/mes por listado', 'travel-agency-platform'), count($promo_active_ids), $promo_slots, TAP_Currency::fmt($promo_price))); ?></span>
+                        <span class="tap-agency-meta"><?php echo esc_html(sprintf(/* translators: 1: destacados disponibles, 2: máximo de destacados del plan, 3: precio mensual por listado */ __('Disponibles: %d de %d · %s/mes por listado', 'travel-agency-platform'), count($promo_active_ids), $promo_slots, TAP_Currency::fmt($promo_price))); ?></span>
                     <?php endif; ?>
                 </div>
                 <?php if ($promo_slots <= 0): ?>
@@ -763,8 +764,10 @@ endif;
             }
             $limit_txt = (int) $plan->listing_limit < 0
                 ? __('Listados ilimitados', 'travel-agency-platform')
+                /* translators: %d: número máximo de listados permitidos por el plan */
                 : sprintf(__('Hasta %d listados', 'travel-agency-platform'), (int) $plan->listing_limit);
             $commission_txt = null !== $plan->commission_rate
+                /* translators: %s: porcentaje de comisión */
                 ? sprintf(__('Comisión solo %s%%', 'travel-agency-platform'), (float) $plan->commission_rate)
                 : __('Comisión estándar', 'travel-agency-platform');
 
@@ -776,6 +779,7 @@ endif;
             $html .= '<ul class="tap-plan-features">';
             $html .= '<li>' . esc_html($limit_txt) . '</li>';
             $html .= '<li>' . esc_html($commission_txt) . '</li>';
+            /* translators: %d: número de destacados incluidos en el plan */
             $html .= '<li>' . sprintf(esc_html__('%d destacado(s)', 'travel-agency-platform'), (int) $plan->featured_slots) . '</li>';
             foreach ($features as $f) {
                 if (is_string($f) && '' !== trim($f)) {

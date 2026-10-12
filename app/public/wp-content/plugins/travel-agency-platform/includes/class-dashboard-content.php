@@ -58,7 +58,7 @@ class TAP_Dashboard_Content {
         <div class="wrap">
             <h1><?php esc_html_e('Reviews', 'travel-agency-platform'); ?></h1>
             <div class="notice notice-info inline" style="margin:10px 0;">
-                <p><?php printf(esc_html__('Reseñas pendientes de aprobación: %d', 'travel-agency-platform'), $pending); ?> —
+                <p><?php printf(/* translators: %d: número de reseñas pendientes de aprobación */ esc_html__('Reseñas pendientes de aprobación: %d', 'travel-agency-platform'), $pending); ?> —
                 <?php esc_html_e('Solo las aprobadas se muestran en el sitio público.', 'travel-agency-platform'); ?></p>
             </div>
             <nav class="nav-tab-wrapper">
@@ -150,7 +150,7 @@ class TAP_Dashboard_Content {
             <h1><?php esc_html_e('Moderación de contenido', 'travel-agency-platform'); ?></h1>
             <div class="notice notice-info inline" style="margin:10px 0;">
                 <p>
-                    <?php printf(esc_html__('Reseñas y mensajes marcados automáticamente: %d en revisión, %d bloqueados.', 'travel-agency-platform'), $reviewed, $blocked); ?>
+                    <?php printf(/* translators: 1: elementos puestos en revisión, 2: elementos bloqueados */ esc_html__('Reseñas y mensajes marcados automáticamente: %d en revisión, %d bloqueados.', 'travel-agency-platform'), $reviewed, $blocked); ?>
                     — <?php esc_html_e('Aprobar publica la reseña / limpia el mensaje; bloquear los oculta; eliminar los borra.', 'travel-agency-platform'); ?>
                 </p>
             </div>
@@ -256,6 +256,7 @@ class TAP_Dashboard_Content {
             <div class="notice notice-info inline" style="margin:10px 0;">
                 <p>
                 <?php
+                    /* translators: 1: total de agencias, 2: pendientes de verificación, 3: verificadas, 4: activas, 5: comisiones acumuladas */
                     printf(esc_html__('Total: %1$d · Pendientes: %2$d · Verificadas: %3$d · Activas: %4$d · Comisiones acumuladas: %5$s', 'travel-agency-platform'),
                         count($visible), $pending, $verified, $active, esc_html(TAP_Currency::fmt((float) $total_commission)));
 				?>

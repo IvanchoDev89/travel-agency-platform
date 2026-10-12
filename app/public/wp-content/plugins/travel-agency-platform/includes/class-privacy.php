@@ -89,11 +89,11 @@ class TAP_Privacy {
         ?>
         <div class="tap-privacy-policy">
             <h2><?php esc_html_e('Aviso de Privacidad', 'travel-agency-platform'); ?></h2>
-            <p class="tap-privacy-meta"><?php echo esc_html(sprintf(__('Versión %s', 'travel-agency-platform'), self::POLICY_VERSION)); ?> · <?php echo $stamp; ?></p>
+            <p class="tap-privacy-meta"><?php echo esc_html(sprintf(/* translators: %s: número de versión de la política de privacidad */ __('Versión %s', 'travel-agency-platform'), self::POLICY_VERSION)); ?> · <?php echo $stamp; ?></p>
 
             <h3><?php esc_html_e('1. Responsable del tratamiento', 'travel-agency-platform'); ?></h3>
-            <p><?php echo wp_kses_post(sprintf(__('%s (en adelante "la Plataforma") es responsable del tratamiento de los datos personales que se recogen a través de este sitio web.', 'travel-agency-platform'), '<strong>' . esc_html(get_bloginfo('name')) . '</strong>')); ?></p>
-            <p><?php echo wp_kses_post(sprintf(__('Contacto para asuntos de protección de datos: <a href="mailto:%s">%s</a>.', 'travel-agency-platform'), esc_attr($contact), esc_html($contact))); ?></p>
+            <p><?php echo wp_kses_post(sprintf(/* translators: %s: nombre del sitio */ __('%s (en adelante "la Plataforma") es responsable del tratamiento de los datos personales que se recogen a través de este sitio web.', 'travel-agency-platform'), '<strong>' . esc_html(get_bloginfo('name')) . '</strong>')); ?></p>
+            <p><?php echo wp_kses_post(sprintf(/* translators: 1: dirección de correo para el atributo href, 2: dirección de correo visible */ __('Contacto para asuntos de protección de datos: <a href="mailto:%s">%s</a>.', 'travel-agency-platform'), esc_attr($contact), esc_html($contact))); ?></p>
 
             <h3><?php esc_html_e('2. Datos que recopilamos', 'travel-agency-platform'); ?></h3>
             <p><?php esc_html_e('Recopilamos únicamente los datos necesarios para prestar el servicio de reservas: nombre, correo electrónico, teléfono, datos de la reserva (fechas, servicio, montos), datos de la agencia y, cuando aplica, datos de identificación requeridos para la verificación de agencias y la facturación.', 'travel-agency-platform'); ?></p>
@@ -108,7 +108,7 @@ class TAP_Privacy {
             <p><?php esc_html_e('No vendemos ni compartimos sus datos personales con terceros ajenos a la Plataforma, salvo: agencias responsables de su reserva, procesadores de pago, proveedores de servicios técnicos y cuando la ley lo exija.', 'travel-agency-platform'); ?></p>
 
             <h3><?php esc_html_e('6. Sus derechos', 'travel-agency-platform'); ?></h3>
-            <p><?php echo wp_kses_post(sprintf(__('Puede ejercer los derechos de información, acceso, rectificación, actualización, supresión y oposición, así como revocar su consentimiento, mediante el formulario de esta página o escribiendo a <a href="mailto:%s">%s</a>.', 'travel-agency-platform'), esc_attr($contact), esc_html($contact))); ?></p>
+            <p><?php echo wp_kses_post(sprintf(/* translators: 1: dirección de correo para el atributo href, 2: dirección de correo visible */ __('Puede ejercer los derechos de información, acceso, rectificación, actualización, supresión y oposición, así como revocar su consentimiento, mediante el formulario de esta página o escribiendo a <a href="mailto:%s">%s</a>.', 'travel-agency-platform'), esc_attr($contact), esc_html($contact))); ?></p>
             <ul class="tap-privacy-list">
                 <li><?php esc_html_e('Acceso: conocer qué datos tenemos y cómo los tratamos.', 'travel-agency-platform'); ?></li>
                 <li><?php esc_html_e('Rectificación y actualización: corregir o actualizar sus datos.', 'travel-agency-platform'); ?></li>
@@ -197,7 +197,7 @@ class TAP_Privacy {
         ?>
         <label class="tap-check-label tap-privacy-consent">
             <input type="checkbox" name="tap_privacy_consent" value="1" required>
-            <?php echo wp_kses_post(sprintf(__('Acepto el <a href="%s" target="_blank" rel="noopener">Aviso de Privacidad</a> y consiento el tratamiento de mis datos personales para gestionar esta solicitud.', 'travel-agency-platform'), esc_url($url))); ?>
+            <?php echo wp_kses_post(sprintf(/* translators: %s: enlace al aviso de privacidad */ __('Acepto el <a href="%s" target="_blank" rel="noopener">Aviso de Privacidad</a> y consiento el tratamiento de mis datos personales para gestionar esta solicitud.', 'travel-agency-platform'), esc_url($url))); ?>
         </label>
         <?php
         return ob_get_clean();
@@ -330,6 +330,7 @@ class TAP_Privacy {
         $url = self::policy_url();
         $sep = '<br>-----------------------------------<br>';
         $note = sprintf(
+            /* translators: 1: enlace al aviso de privacidad, 2: dirección de correo de contacto */
             __('Procesamos tus datos personales de acuerdo con nuestro <a href="%1$s">Aviso de Privacidad</a>. Puedes ejercer tus derechos de acceso, rectificación, supresión u oposición escribiendo a <a href="mailto:%2$s">%2$s</a>.', 'travel-agency-platform'),
             esc_url($url),
             esc_attr($contact)

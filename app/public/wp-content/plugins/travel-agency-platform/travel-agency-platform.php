@@ -245,9 +245,12 @@ final class TravelAgencyPlatform {
             'reviewsError'   => __('Error al enviar', 'travel-agency-platform'),
             'reviewSubmitted'=> __('Review submitted', 'travel-agency-platform'),
             'reviewError2'   => __('Error al enviar la reseña', 'travel-agency-platform'),
+            /* translators: %s: nombre del servicio */
             'reviewThanks'   => __('Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!', 'travel-agency-platform'),
             'reviewVerified' => __('Reseña verificada', 'travel-agency-platform'),
+            /* translators: 1: cupos disponibles, 2: cupos totales */
             'capacityAvailable' => __('Cupos disponibles: %s de %s', 'travel-agency-platform'),
+            /* translators: 1: cupos ocupados, 2: cupos totales */
             'capacityFull'   => __('Cupo completo para esta fecha (%s/%s). Elige otra fecha.', 'travel-agency-platform'),
             'tourFull'       => __('El tour está completo para esta fecha.', 'travel-agency-platform'),
             'bookNow'        => __('Book Now', 'travel-agency-platform'),

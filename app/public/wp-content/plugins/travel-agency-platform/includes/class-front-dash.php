@@ -138,6 +138,7 @@ class TAP_Front_Dash {
                 <p class="tap-dash-login-register">
                     <?php
                     printf(
+                        /* translators: %s: enlace de registro */
                         esc_html__('¿No tienes cuenta? %s', 'travel-agency-platform'),
                         '<a href="' . esc_url(wp_registration_url()) . '">' . esc_html__('Regístrate', 'travel-agency-platform') . '</a>'
                     );
@@ -245,7 +246,7 @@ class TAP_Front_Dash {
         ?>
         <div class="tap-dash-header">
             <div class="tap-dash-header-text">
-                <h1><?php printf(esc_html__('Hola, %s', 'travel-agency-platform'), esc_html($user->display_name)); ?></h1>
+                <h1><?php printf(/* translators: %s: nombre del usuario */ esc_html__('Hola, %s', 'travel-agency-platform'), esc_html($user->display_name)); ?></h1>
                 <p><?php esc_html_e('Bienvenido a tu panel personal. Desde aquí puedes gestionar todo tu viaje.', 'travel-agency-platform'); ?></p>
             </div>
             <div class="tap-dash-header-avatar">
@@ -785,12 +786,12 @@ class TAP_Front_Dash {
             <?php if ($pending): ?>
                 <div class="tap-notice">
                     <span class="tap-notice-icon" aria-hidden="true">⚠</span>
-                    <span><?php echo esc_html(sprintf(__('Tienes una solicitud de liquidación de %s pendiente de confirmación por el administrador (#%d).', 'travel-agency-platform'), TAP_Currency::fmt($pending->amount), (int) $pending->id)); ?></span>
+                    <span><?php echo esc_html(sprintf(/* translators: 1: importe de la liquidación solicitada, 2: identificador de la liquidación */ __('Tienes una solicitud de liquidación de %s pendiente de confirmación por el administrador (#%d).', 'travel-agency-platform'), TAP_Currency::fmt($pending->amount), (int) $pending->id)); ?></span>
                 </div>
             <?php elseif ($failed_count > 0): ?>
                 <div class="tap-notice tap-notice-error">
                     <span class="tap-notice-icon" aria-hidden="true">⚠</span>
-                    <span><?php echo esc_html(sprintf(__('Tienes %d liquidación(es) fallida(s): el pago no llegó a completarse. Solicita de nuevo una liquidación o contacta al administrador.', 'travel-agency-platform'), $failed_count)); ?></span>
+                    <span><?php echo esc_html(sprintf(/* translators: %d: número de liquidaciones fallidas */ __('Tienes %d liquidación(es) fallida(s): el pago no llegó a completarse. Solicita de nuevo una liquidación o contacta al administrador.', 'travel-agency-platform'), $failed_count)); ?></span>
                 </div>
             <?php elseif (isset($totals->owed) && (float) $totals->owed > 0): ?>
                 <div class="tap-dash-card" style="margin-top:16px;">
@@ -808,7 +809,7 @@ class TAP_Front_Dash {
                         <label><?php esc_html_e('Nota (opcional)', 'travel-agency-platform'); ?>
                             <textarea name="note" rows="2" placeholder="Referencia para el administrador"></textarea>
                         </label>
-                        <button type="submit" class="tap-btn tap-btn-primary"><?php echo esc_html(sprintf(__('Solicitar %s', 'travel-agency-platform'), TAP_Currency::fmt($totals->owed))); ?></button>
+                        <button type="submit" class="tap-btn tap-btn-primary"><?php echo esc_html(sprintf(/* translators: %s: importe solicitado */ __('Solicitar %s', 'travel-agency-platform'), TAP_Currency::fmt($totals->owed))); ?></button>
                     </form>
                 </div>
             <?php endif; ?>
@@ -962,7 +963,7 @@ class TAP_Front_Dash {
                 </div>
             <?php elseif ((int) $tap_limit >= 0 && $tap_used >= (int) $tap_limit): ?>
                 <div class="tap-capacity-note tap-full" style="margin-bottom:16px;">
-                    <?php echo esc_html(sprintf(__('Alcanzaste el límite de %d listados de tu plan. Mejora de plan para publicar más.', 'travel-agency-platform'), (int) $tap_limit)); ?>
+                    <?php echo esc_html(sprintf(/* translators: %d: número máximo de listados permitidos por el plan */ __('Alcanzaste el límite de %d listados de tu plan. Mejora de plan para publicar más.', 'travel-agency-platform'), (int) $tap_limit)); ?>
                 </div>
 				<?php
             endif;
@@ -1005,7 +1006,7 @@ endif;
                     <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(add_query_arg('seccion', 'bo-operations', $base)); ?>"><?php esc_html_e('Ver operaciones', 'travel-agency-platform'); ?></a>
                 </div>
                 <?php if (!$recent): ?>
-                    <p class="tap-agency-meta"><?php echo esc_html(sprintf(__('Aún no tienes reservas. Comparte tus listados para empezar a recibir solicitudes. Comisión: %s%%', 'travel-agency-platform'), esc_html($commission))); ?></p>
+                    <p class="tap-agency-meta"><?php echo esc_html(sprintf(/* translators: %s: porcentaje de comisión de la agencia */ __('Aún no tienes reservas. Comparte tus listados para empezar a recibir solicitudes. Comisión: %s%%', 'travel-agency-platform'), esc_html($commission))); ?></p>
                 <?php else: ?>
                 <div class="tap-table-scroll"><table class="tap-table tap-table-compact">
                     <thead><tr>
