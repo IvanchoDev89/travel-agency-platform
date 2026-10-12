@@ -84,6 +84,7 @@ final class TravelAgencyPlatform {
         require_once TAP_PLUGIN_DIR . 'includes/class-itinerary.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-automations.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-front-dash.php';
+        require_once TAP_PLUGIN_DIR . 'includes/class-front-dash-client.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-ajax-dash.php';
     }
 
