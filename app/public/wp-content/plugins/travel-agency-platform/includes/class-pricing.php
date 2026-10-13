@@ -300,8 +300,13 @@ class TAP_Pricing {
     /**
      * Shared daily-cell upsert. Clears the override when every field is empty,
      * otherwise creates/updates the row. Returns a result array; never dies.
+     *
+     * With $keep_missing = true (bulk tools: range / weekday rules) a null or
+     * empty field means "keep the stored value" instead of clearing it, so
+     * "No cambiar" / "vacío = no cambiar" never unblocks a blocked day or
+     * wipes a label/price the user did not touch. All-null is a no-op.
      */
-    public static function save_cell($room_id, $date, $price, $min_stay, $blocked, $label) {
+    public static function save_cell($room_id, $date, $price, $min_stay, $blocked, $label, $keep_missing = false) {
         $room_id = (int) $room_id;
         $date    = (string) $date;
 
@@ -313,39 +318,54 @@ class TAP_Pricing {
             return ['ok' => false, 'success' => false, 'message' => 'Habitación inválida'];
         }
 
-        $price    = $price !== null && $price !== '' ? (float) $price : null;
-        $min_stay = $min_stay !== null && $min_stay !== '' ? max(0, (int) $min_stay) : null;
-        $blocked  = (int) $blocked ? 1 : 0;
-        $label    = sanitize_text_field((string) $label);
-        if (mb_strlen($label) > 100) {
-            $label = mb_substr($label, 0, 100);
-        }
-
         global $wpdb;
-        $existing = $wpdb->get_var($wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}tap_daily_pricing WHERE room_id = %d AND date = %s",
+        $existing_row = $wpdb->get_row($wpdb->prepare(
+            "SELECT id, price, min_stay, is_blocked, label FROM {$wpdb->prefix}tap_daily_pricing WHERE room_id = %d AND date = %s",
             $room_id, $date
         ));
 
-        if ($price === null && $min_stay === null && !$blocked && '' === $label) {
-            if ($existing) {
-                $wpdb->delete($wpdb->prefix . 'tap_daily_pricing', ['room_id' => $room_id, 'date' => $date]);
+        if ($keep_missing) {
+            $price    = ($price === null || '' === $price) ? null : (float) $price;
+            $min_stay = ($min_stay === null || '' === $min_stay) ? null : max(0, (int) $min_stay);
+            $blocked  = ($blocked === null || '' === $blocked) ? null : ((int) $blocked ? 1 : 0);
+            $label    = ($label === null || '' === $label) ? null : sanitize_text_field((string) $label);
+            if (null === $price && null === $min_stay && null === $blocked && null === $label) {
+                return ['ok' => true, 'success' => true, 'action' => 'noop', 'date' => $date];
+            }
+            $price    = null !== $price ? $price : ($existing_row ? $existing_row->price : null);
+            $min_stay = null !== $min_stay ? $min_stay : ($existing_row ? $existing_row->min_stay : null);
+            $blocked  = null !== $blocked ? $blocked : ($existing_row ? (int) $existing_row->is_blocked : 0);
+            $label    = null !== $label ? $label : ($existing_row ? (string) $existing_row->label : '');
+        } else {
+            $price    = $price !== null && $price !== '' ? (float) $price : null;
+            $min_stay = $min_stay !== null && $min_stay !== '' ? max(0, (int) $min_stay) : null;
+            $blocked  = (int) $blocked ? 1 : 0;
+            $label    = sanitize_text_field((string) $label);
+        }
+        if (mb_strlen((string) $label) > 100) {
+            $label = mb_substr((string) $label, 0, 100);
+        }
+        $label = (string) $label;
+
+        if (!$keep_missing && $price === null && $min_stay === null && !$blocked && '' === $label) {
+            if ($existing_row) {
+                $wpdb->delete($wpdb->prefix . 'tap_daily_pricing', ['id' => $existing_row->id]);
                 return ['ok' => true, 'success' => true, 'action' => 'deleted', 'date' => $date];
             }
             return ['ok' => true, 'success' => true, 'action' => 'noop', 'date' => $date];
         }
 
         $data = [
-            'room_id'   => $room_id,
-            'date'      => $date,
-            'price'     => $price,
-            'min_stay'  => $min_stay,
-            'is_blocked'=> $blocked,
-            'label'     => $label,
+            'room_id'    => $room_id,
+            'date'       => $date,
+            'price'      => $price,
+            'min_stay'   => $min_stay,
+            'is_blocked' => (int) $blocked,
+            'label'      => $label,
         ];
 
-        if ($existing) {
-            $wpdb->update($wpdb->prefix . 'tap_daily_pricing', $data, ['id' => $existing]);
+        if ($existing_row) {
+            $wpdb->update($wpdb->prefix . 'tap_daily_pricing', $data, ['id' => $existing_row->id]);
             return ['ok' => true, 'success' => true, 'action' => 'updated', 'date' => $date];
         }
         $wpdb->insert($wpdb->prefix . 'tap_daily_pricing', $data);
@@ -388,9 +408,9 @@ class TAP_Pricing {
         $applied = ['created' => 0, 'updated' => 0, 'deleted' => 0, 'noop' => 0, 'failed' => 0];
         $bad     = [];
 
-        $save_one = function ($date, $price, $min_stay, $blocked, $label) use ($room_id, &$applied, &$bad) {
+        $save_one = function ($date, $price, $min_stay, $blocked, $label, $keep = false) use ($room_id, &$applied, &$bad) {
             $date = sanitize_text_field((string) $date);
-            $res  = self::save_cell($room_id, $date, $price, $min_stay, $blocked, $label);
+            $res  = self::save_cell($room_id, $date, $price, $min_stay, $blocked, $label, $keep);
             if ($res['ok']) {
                 ++$applied[$res['action']];
                 return true;
@@ -410,12 +430,16 @@ class TAP_Pricing {
                 if (!is_array($cell) || !isset($cell['date'])) {
                     continue;
                 }
+                // Bulk keeps stored values for absent/empty fields ("vacío =
+                // no cambiar"), so is_blocked/label/price/min_stay default to
+                // null here instead of 0/''.
                 $save_one(
                     $cell['date'],
                     isset($cell['price']) && $cell['price'] !== '' ? (float) $cell['price'] : null,
                     isset($cell['min_stay']) && $cell['min_stay'] !== '' ? (int) $cell['min_stay'] : null,
-                    isset($cell['is_blocked']) ? (int) $cell['is_blocked'] : 0,
-                    isset($cell['label']) ? sanitize_text_field((string) $cell['label']) : ''
+                    isset($cell['is_blocked']) && '' !== $cell['is_blocked'] ? (int) $cell['is_blocked'] : null,
+                    isset($cell['label']) && '' !== $cell['label'] ? sanitize_text_field((string) $cell['label']) : null,
+                    true
                 );
                 ++$count;
             }
@@ -439,6 +463,7 @@ class TAP_Pricing {
                 ? __('Algunas fechas no pudieron guardarse.', 'travel-agency-platform')
                 : __('Guardado', 'travel-agency-platform'),
             'applied' => $applied,
+            'bad'     => $bad,
         ]);
     }
 

@@ -88,6 +88,19 @@ class TAP_Ajax_Listing {
         if ($listing_id && !TAP_Listing_Access::agency_owns_listing($listing_id, $listing_type)) {
             return __('You can only manage your own listings.', 'travel-agency-platform');
         }
+        if (!$listing_id) {
+            // Creating requires the CPT create capability and a linked agency
+            // (admins bypass both), so arbitrary logged-in users cannot litter
+            // the catalog with orphan listings.
+            $type_obj   = get_post_type_object($listing_type);
+            $can_create = ($type_obj && current_user_can($type_obj->cap->create_posts)) || current_user_can('manage_options');
+            if (!$can_create) {
+                return __('No tienes permiso para crear listados.', 'travel-agency-platform');
+            }
+            if (!$agency && !current_user_can('manage_options')) {
+                return __('No tienes una agencia vinculada.', 'travel-agency-platform');
+            }
+        }
 
         $title = isset($input['title']) ? sanitize_text_field(wp_unslash($input['title'])) : '';
         if ('' === $title) {
@@ -104,7 +117,9 @@ class TAP_Ajax_Listing {
             if ($raw === null && $listing_type === 'tap_accommodation' && $meta_key === '_tap_acc_price_per_night') {
                 $raw = isset($input['price_per_night']) ? $input['price_per_night'] : null;
             }
-            if ($raw === null) {
+            // Blank means "not provided" (the listing-level price is optional
+            // when prices live on the units); only a present value is checked.
+            if ($raw === null || (is_scalar($raw) && '' === trim((string) $raw))) {
                 continue;
             }
             $is_decimal = isset($cfg['step']) && false !== strpos($cfg['step'], '.');

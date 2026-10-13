@@ -27,6 +27,12 @@
         return i18n[key] != null ? i18n[key] : fallback;
     }
 
+    /* cfg.stepUrl is a base URL string ("…?id=N&step=") localized by PHP,
+     * not a function; navigate with stepUrl(n). */
+    function stepUrl(step) {
+        return (cfg.stepUrl || '') + step;
+    }
+
     function money(value) {
         var num = parseFloat(value || 0);
         var dec = cfg.decimals != null ? parseInt(cfg.decimals, 10) : 2;
@@ -699,7 +705,7 @@
                     return false;
                 }
                 toast(json.data.message || t('saved', 'Guardado.'), 'success');
-                var target = cfg.isEdit ? cfg.stepUrl(2) : (json.data.edit_url || '') + '&step=2';
+                var target = cfg.isEdit ? stepUrl(2) : (json.data.edit_url || '') + '&step=2';
                 window.location.href = target;
                 return true;
             })
@@ -725,7 +731,7 @@
                     return false;
                 }
                 toast(json.data.message || t('saved', 'Guardado.'), 'success');
-                window.location.href = cfg.stepUrl(5);
+                window.location.href = stepUrl(5);
                 return true;
             })
             .catch(function () {
@@ -749,7 +755,7 @@
                     return false;
                 }
                 toast(json.data.message || t('saved', 'Guardado.'), 'success');
-                window.location.href = cfg.stepUrl(backToStep);
+                window.location.href = stepUrl(backToStep);
                 return true;
             })
             .catch(function () {
@@ -778,7 +784,7 @@
                         return false;
                     }
                     toast(t('deleted', 'Unidad eliminada.'), 'success');
-                    window.location.href = cfg.stepUrl(2);
+                    window.location.href = stepUrl(2);
                     return true;
                 }).catch(function () {
                     setBusy(okBtn, false);

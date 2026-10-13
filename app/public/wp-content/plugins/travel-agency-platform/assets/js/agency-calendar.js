@@ -332,13 +332,21 @@
             var d = new Date(from + 'T00:00:00');
             var end = new Date(to + 'T00:00:00');
             while (d <= end) {
-                cells.push({
+                // "vacío = no cambiar": price/min_stay empty and avail on
+                // "No cambiar" are omitted so the server keeps stored values.
+                var cell = {
                     date: iso(d),
                     price: price !== '' ? price : '',
-                    min_stay: minstay !== '' ? minstay : '',
-                    is_blocked: avail === 'no' ? 1 : 0,
-                    label: label !== '' ? label : (avail === 'no' ? t('blockedShort', 'Bloqueado') : '')
-                });
+                    min_stay: minstay !== '' ? minstay : ''
+                };
+                if (avail === 'no') {
+                    cell.is_blocked = 1;
+                    cell.label = label !== '' ? label : t('blockedShort', 'Bloqueado');
+                } else {
+                    if (avail === 'yes') { cell.is_blocked = 0; }
+                    if (label !== '') { cell.label = label; }
+                }
+                cells.push(cell);
                 d.setDate(d.getDate() + 1);
             }
             setBusy(btn, true);
@@ -370,7 +378,7 @@
             var cells = [];
             state.days.forEach(function (day) {
                 if (selected.indexOf(day.dow) === -1) { return; }
-                var cell = { date: day.date, is_blocked: 0 };
+                var cell = { date: day.date };
                 if (op === 'clear') {
                     cell.price = ''; cell.min_stay = ''; cell.is_blocked = 0; cell.label = '';
                 } else {
@@ -381,9 +389,10 @@
                         var current = parseFloat(day.price) || state.basePrice;
                         cell.price = Math.round(current * (op === 'add_pct' ? (1 + pct) : (1 - pct)) * 100) / 100;
                     }
-                    cell.min_stay = minstay !== '' ? minstay : '';
-                    cell.is_blocked = avail === 'no' ? 1 : 0;
-                    cell.label = '';
+                    // Omitted fields ("vacío = no cambiar") keep stored values.
+                    if (minstay !== '') { cell.min_stay = minstay; }
+                    if (avail === 'no') { cell.is_blocked = 1; }
+                    else if (avail === 'yes') { cell.is_blocked = 0; }
                 }
                 cells.push(cell);
             });
@@ -550,10 +559,19 @@
             .then(function (j) {
                 if (j && j.success) {
                     var app = j.data && j.data.applied;
+                    var failed = app ? (parseInt(app.failed, 10) || 0) : 0;
                     var total = app ? (app.created + app.updated + app.deleted + app.noop) : 0;
-                    var text = (t('saved', 'Guardado') + ' · ' + total);
-                    setMsg(msgScope, text);
-                    toast(text, 'success');
+                    if (failed > 0) {
+                        // Partial save: surface the server warning as an error
+                        // instead of toasting a full success.
+                        var partial = ((j.data && j.data.message) || t('error', 'Error')) + ' · ' + total;
+                        setMsg(msgScope, partial, true);
+                        toast(partial, 'error');
+                    } else {
+                        var text = (t('saved', 'Guardado') + ' · ' + total);
+                        setMsg(msgScope, text);
+                        toast(text, 'success');
+                    }
                 } else {
                     var message = (j && j.data && j.data.message) || t('error', 'Error');
                     setMsg(msgScope, message, true);

@@ -12,6 +12,7 @@
         var $btn = $(this);
         var id   = $btn.data('id');
         var code = $btn.data('code') || '';
+        var originalLabel = $btn.text();
 
         if (!confirm((cfg.i18n && cfg.i18n.confirm_cancel) + ' ' + code + '?')) {
             return;
@@ -30,11 +31,11 @@
                 });
             } else {
                 alert(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error));
-                $btn.prop('disabled', false).text('Cancelar');
+                $btn.prop('disabled', false).text(originalLabel);
             }
         }).fail(function () {
             alert(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error');
-            $btn.prop('disabled', false).text('Cancelar');
+            $btn.prop('disabled', false).text(originalLabel);
         });
     });
 
@@ -42,6 +43,8 @@
     $(document).on('click', '.tap-dash-fav-remove', function () {
         var $btn   = $(this);
         var postId = $btn.data('id');
+
+        $btn.prop('disabled', true);
 
         $.post(cfg.ajax_url, {
             action:  'tap_dash_toggle_favorite',
@@ -52,7 +55,13 @@
                 $btn.closest('.tap-dash-fav-card').fadeOut(300, function () {
                     $(this).remove();
                 });
+            } else {
+                alert(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error));
+                $btn.prop('disabled', false);
             }
+        }).fail(function () {
+            alert(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error');
+            $btn.prop('disabled', false);
         });
     });
 
@@ -93,12 +102,14 @@
         var id    = $btn.data('id');
         var name  = $btn.data('name') || '';
         var reason = '';
+        var originalLabel = $btn.text();
 
         if (op === 'cancel') {
-            reason = window.prompt(cfg.i18n && cfg.i18n.cancel_reason ? cfg.i18n.cancel_reason : 'Motivo de cancelación (opcional):', '') || '';
-            if (reason === null) {
+            var reasonInput = window.prompt(cfg.i18n && cfg.i18n.cancel_reason ? cfg.i18n.cancel_reason : 'Motivo de cancelación (opcional):', '');
+            if (reasonInput === null) {
                 return;
             }
+            reason = reasonInput || '';
         }
 
         if (!confirm((cfg.i18n && cfg.i18n.confirm_op ? cfg.i18n.confirm_op : '¿Realizar esta operación?') + ' ' + name + '?')) {
@@ -122,11 +133,11 @@
                 location.reload();
             } else {
                 alert(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error));
-                $btn.prop('disabled', false).text($btn.data('op'));
+                $btn.prop('disabled', false).text(originalLabel);
             }
         }).fail(function () {
             alert(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error');
-            $btn.prop('disabled', false).text($btn.data('op'));
+            $btn.prop('disabled', false).text(originalLabel);
         });
     });
 

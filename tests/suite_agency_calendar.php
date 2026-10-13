@@ -206,6 +206,28 @@ tap_t_assert(TAP_Pricing::get_price_for_night($room, $d1) === 100.0, 'cleared da
 $inv = TAP_Pricing::save_cell($room, '2026-13-99', 100, 1, 0, '');
 tap_t_assert($inv['ok'] === false, 'save_cell rejects an invalid date');
 
+// 6b) save_cell() keep-mode (bulk "vacío = no cambiar"): null/empty fields
+//     preserve the stored values instead of clearing them.
+$k1 = TAP_Pricing::save_cell($room, $d1, 130, 3, 0, 'KeepBase', true);
+tap_t_assert($k1['ok'] && $k1['action'] === 'created', 'keep-mode creates a row when the day had none');
+
+$k2 = TAP_Pricing::save_cell($room, $d1, null, null, null, null, true);
+tap_t_assert($k2['ok'] && $k2['action'] === 'noop', 'keep-mode with every field null is a no-op');
+
+$k3 = TAP_Pricing::save_cell($room, $d1, 140, null, null, null, true);
+$rowk = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$dp} WHERE room_id = %d AND date = %s", $room, $d1));
+tap_t_assert($k3['ok'] && $k3['action'] === 'updated', 'keep-mode price-only change updates');
+tap_t_assert($rowk && (float) $rowk->price === 140.0 && (int) $rowk->min_stay === 3 && $rowk->label === 'KeepBase' && (int) $rowk->is_blocked === 0, 'keep-mode preserves min_stay/label/is_blocked when those fields are null');
+
+$k4 = TAP_Pricing::save_cell($room, $d15, null, null, null, null, true);
+tap_t_assert($k4['ok'] && $k4['action'] === 'noop', 'keep-mode leaves an existing blocked day untouched');
+
+$k5 = TAP_Pricing::save_cell($room, $d1, '', '', '', '', true);
+tap_t_assert($k5['ok'] && $k5['action'] === 'noop', 'keep-mode treats empty strings like null (no wipe)');
+$rowk2 = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$dp} WHERE room_id = %d AND date = %s", $room, $d1));
+tap_t_assert($rowk2 && (float) $rowk2->price === 140.0, 'empty-string keep call did not wipe the price');
+$wpdb->delete($dp, ['room_id' => $room, 'date' => $d1]); // restore the post-clear state for later sections
+
 // 7) Booked nights: a confirmed booking marks its nights occupied.
 $bk_code = 'TAP-E2E-' . wp_generate_password(6, false);
 $wpdb->insert($wpdb->prefix . 'tap_bookings', [

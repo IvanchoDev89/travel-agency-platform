@@ -44,6 +44,12 @@ class TAP_Ajax_Dash {
         if (!TAP_Booking::user_can_manage_booking($user->ID, $booking)) {
             wp_send_json_error(['message' => __('No tienes permiso sobre esta reserva.', 'travel-agency-platform')], 403);
         }
+        // Agency-side only: the client of the booking must not be able to post
+        // as the agency or clear the agency's unread badge.
+        $my_agency = (int) TAP_Booking::get_agency_for_user($user->ID);
+        if (!user_can($user, 'manage_options') && (!$my_agency || $my_agency !== (int) $booking->agency_id)) {
+            wp_send_json_error(['message' => __('No tienes permiso sobre esta reserva.', 'travel-agency-platform')], 403);
+        }
 
         $message = sanitize_textarea_field(wp_unslash($_POST['message'] ?? ''));
         $agency  = (int) TAP_Booking::get_agency_for_user($user->ID);
@@ -86,6 +92,12 @@ class TAP_Ajax_Dash {
             wp_send_json_error(['message' => __('Reserva no encontrada.', 'travel-agency-platform')], 404);
         }
         if (!TAP_Booking::user_can_manage_booking($user->ID, $booking)) {
+            wp_send_json_error(['message' => __('No tienes permiso sobre esta reserva.', 'travel-agency-platform')], 403);
+        }
+        // Agency-side only (same guard as ajax_chat_send): fetching the thread
+        // marks the agency's messages read, so clients must not reach it.
+        $my_agency = (int) TAP_Booking::get_agency_for_user($user->ID);
+        if (!user_can($user, 'manage_options') && (!$my_agency || $my_agency !== (int) $booking->agency_id)) {
             wp_send_json_error(['message' => __('No tienes permiso sobre esta reserva.', 'travel-agency-platform')], 403);
         }
 

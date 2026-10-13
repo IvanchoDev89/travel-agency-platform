@@ -140,7 +140,7 @@ class TAP_Front_Dash {
                     printf(
                         /* translators: %s: enlace de registro */
                         esc_html__('¿No tienes cuenta? %s', 'travel-agency-platform'),
-                        '<a href="' . esc_url(wp_registration_url()) . '">' . esc_html__('Regístrate', 'travel-agency-platform') . '</a>'
+                        '<a href="' . esc_url(home_url('/register/')) . '">' . esc_html__('Regístrate', 'travel-agency-platform') . '</a>'
                     );
                     ?>
                 </p>

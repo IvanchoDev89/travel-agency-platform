@@ -338,7 +338,11 @@ class TAP_Shortcode_Account {
                         if (res && res.success) {
                             $msg.removeClass('tap-error').addClass('tap-success')
                                 .html('<p>' + (res.data.message || 'OK') + '</p>');
-                            window.location.href = res.data.redirect;
+                            if (res.data.redirect) {
+                                window.location.href = res.data.redirect;
+                            } else {
+                                $btn.prop('disabled', false).text('<?php echo esc_js(__('Crear mi cuenta de agencia', 'travel-agency-platform')); ?>');
+                            }
                         } else {
                             $msg.removeClass('tap-success').addClass('tap-error')
                                 .html('<p>' + (res && res.data ? res.data.message : 'Error') + '</p>');

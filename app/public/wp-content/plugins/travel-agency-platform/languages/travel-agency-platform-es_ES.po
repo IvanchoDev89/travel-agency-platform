@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-10-13T14:46:48+00:00\n"
+"POT-Creation-Date: 2026-10-13T19:49:41+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -711,7 +711,7 @@ msgid "Guardar"
 msgstr "Guardar"
 
 #: includes/class-acc-wizard-steps.php:380 includes/class-acc-wizard.php:28
-#: includes/class-front-dash.php:93 includes/class-pricing.php:440
+#: includes/class-front-dash.php:93 includes/class-pricing.php:464
 msgid "Guardado"
 msgstr "Guardado"
 
@@ -1578,7 +1578,7 @@ msgstr "El archivo no es una imagen válida."
 #: includes/class-ajax-commerce.php:11 includes/class-ajax-commerce.php:49
 #: includes/class-ajax-commerce.php:82 includes/class-ajax-commerce.php:130
 #: includes/class-ajax-commerce.php:163 includes/class-ajax-commerce.php:207
-#: includes/class-ajax-listing.php:20 includes/class-ajax-listing.php:448
+#: includes/class-ajax-listing.php:20 includes/class-ajax-listing.php:463
 msgid "Authentication required"
 msgstr "Autenticación requerida"
 
@@ -1703,9 +1703,9 @@ msgstr ""
 "podrás pagar."
 
 #: includes/class-ajax-dash.php:11 includes/class-ajax-dash.php:37
-#: includes/class-ajax-dash.php:70 includes/class-ajax-dash.php:81
-#: includes/class-ajax-dash.php:111 includes/class-ajax-dash.php:134
-#: includes/class-ajax-dash.php:167 includes/class-ajax-dash.php:198
+#: includes/class-ajax-dash.php:76 includes/class-ajax-dash.php:87
+#: includes/class-ajax-dash.php:123 includes/class-ajax-dash.php:146
+#: includes/class-ajax-dash.php:179 includes/class-ajax-dash.php:210
 msgid "No autenticado."
 msgstr "No autenticado."
 
@@ -1713,8 +1713,9 @@ msgstr "No autenticado."
 msgid "Solo el administrador de la agencia puede solicitar liquidaciones."
 msgstr "Solo el administrador de la agencia puede solicitar liquidaciones."
 
-#: includes/class-ajax-dash.php:21 includes/class-front-dash.php:216
-#: includes/class-front-dash.php:353 includes/class-front-dash.php:471
+#: includes/class-ajax-dash.php:21 includes/class-ajax-listing.php:101
+#: includes/class-front-dash.php:216 includes/class-front-dash.php:353
+#: includes/class-front-dash.php:471
 msgid "No tienes una agencia vinculada."
 msgstr "No tienes una agencia vinculada."
 
@@ -1722,7 +1723,7 @@ msgstr "No tienes una agencia vinculada."
 msgid "Solicitud de liquidación enviada al administrador."
 msgstr "Solicitud de liquidación enviada al administrador."
 
-#: includes/class-ajax-dash.php:42 includes/class-ajax-dash.php:86
+#: includes/class-ajax-dash.php:42 includes/class-ajax-dash.php:92
 #: includes/class-ajax.php:135 includes/class-ajax.php:170
 #: includes/class-booking.php:371 includes/class-booking.php:385
 #: includes/class-booking.php:391 includes/class-booking.php:500
@@ -1731,13 +1732,14 @@ msgstr "Solicitud de liquidación enviada al administrador."
 msgid "Reserva no encontrada."
 msgstr "Reserva no encontrada."
 
-#: includes/class-ajax-dash.php:45 includes/class-ajax-dash.php:89
+#: includes/class-ajax-dash.php:45 includes/class-ajax-dash.php:51
+#: includes/class-ajax-dash.php:95 includes/class-ajax-dash.php:101
 #: includes/class-ajax.php:176 includes/class-booking.php:513
 #: includes/class-booking.php:523
 msgid "No tienes permiso sobre esta reserva."
 msgstr "No tienes permiso sobre esta reserva."
 
-#: includes/class-ajax-dash.php:54 includes/class-chat.php:49
+#: includes/class-ajax-dash.php:60 includes/class-chat.php:49
 #: includes/class-chat.php:156 includes/class-dashboard-bookings.php:176
 #: includes/class-dashboard-content.php:275
 #: includes/class-dashboard-insights.php:103
@@ -1746,29 +1748,29 @@ msgstr "No tienes permiso sobre esta reserva."
 msgid "Agencia"
 msgstr "Agencia"
 
-#: includes/class-ajax-dash.php:117 includes/class-api.php:394
+#: includes/class-ajax-dash.php:129 includes/class-api.php:394
 #: includes/class-api.php:510
 msgid "Parámetros inválidos."
 msgstr "Parámetros inválidos."
 
-#: includes/class-ajax-dash.php:126
+#: includes/class-ajax-dash.php:138
 msgid "Reserva actualizada."
 msgstr "Reserva actualizada."
 
-#: includes/class-ajax-dash.php:139 includes/class-ajax-dash.php:172
-#: includes/class-ajax-dash.php:203
+#: includes/class-ajax-dash.php:151 includes/class-ajax-dash.php:184
+#: includes/class-ajax-dash.php:215
 msgid "ID inválido."
 msgstr "ID inválido."
 
-#: includes/class-ajax-dash.php:150
+#: includes/class-ajax-dash.php:162
 msgid "Reseña no encontrada."
 msgstr "Reseña no encontrada."
 
-#: includes/class-ajax-dash.php:159
+#: includes/class-ajax-dash.php:171
 msgid "Reseña eliminada."
 msgstr "Reseña eliminada."
 
-#: includes/class-ajax-dash.php:214
+#: includes/class-ajax-dash.php:226
 msgid "Reserva cancelada."
 msgstr "Reserva cancelada."
 
@@ -1780,87 +1782,91 @@ msgstr "Listado actualizado"
 msgid "Listing created"
 msgstr "Listado creado"
 
-#: includes/class-ajax-listing.php:89 includes/class-ajax-listing.php:453
-#: includes/class-ajax-listing.php:616 includes/class-listing-editor.php:41
+#: includes/class-ajax-listing.php:89 includes/class-ajax-listing.php:468
+#: includes/class-ajax-listing.php:631 includes/class-listing-editor.php:41
 msgid "You can only manage your own listings."
 msgstr "Solo puedes gestionar tus propios listados."
 
-#: includes/class-ajax-listing.php:94
+#: includes/class-ajax-listing.php:98
+msgid "No tienes permiso para crear listados."
+msgstr "No tienes permiso para crear listados."
+
+#: includes/class-ajax-listing.php:107
 msgid "Name is required"
 msgstr "El nombre es obligatorio"
 
 #. translators: %s: etiqueta del tipo de tarifa
-#: includes/class-ajax-listing.php:114
+#: includes/class-ajax-listing.php:129
 #, php-format
 msgid "El precio %s debe ser mayor que 0."
 msgstr "El precio %s debe ser mayor que 0."
 
 #. translators: %d: número máximo de listados permitidos por el plan
-#: includes/class-ajax-listing.php:122
+#: includes/class-ajax-listing.php:137
 #, php-format
 msgid ""
 "Your plan allows a maximum of %d listings. Upgrading your plan unlocks more."
 msgstr ""
 "Tu plan permite un máximo de %d listados. Mejorar tu plan desbloquea más."
 
-#: includes/class-ajax-listing.php:155
+#: includes/class-ajax-listing.php:170
 msgid "Could not save the listing"
 msgstr "No se pudo guardar el listado"
 
-#: includes/class-ajax-listing.php:376 includes/class-ajax-listing.php:429
+#: includes/class-ajax-listing.php:391 includes/class-ajax-listing.php:444
 msgid "Alojamiento no encontrado."
 msgstr "Alojamiento no encontrado."
 
-#: includes/class-ajax-listing.php:390
+#: includes/class-ajax-listing.php:405
 msgid "Alojamiento despublicado. Ya no aparece en el buscador."
 msgstr "Alojamiento despublicado. Ya no aparece en el buscador."
 
-#: includes/class-ajax-listing.php:401
+#: includes/class-ajax-listing.php:416
 msgid "¡Alojamiento publicado! Ya está visible para los viajeros."
 msgstr "¡Alojamiento publicado! Ya está visible para los viajeros."
 
-#: includes/class-ajax-listing.php:409
+#: includes/class-ajax-listing.php:424
 msgid "Enviado a revisión. Un administrador lo aprobará y quedará visible."
 msgstr "Enviado a revisión. Un administrador lo aprobará y quedará visible."
 
-#: includes/class-ajax-listing.php:423 includes/class-booking.php:395
+#: includes/class-ajax-listing.php:438 includes/class-booking.php:395
 #: includes/class-booking.php:495
 msgid "Debes iniciar sesión."
 msgstr "Debes iniciar sesión."
 
-#: includes/class-ajax-listing.php:432
+#: includes/class-ajax-listing.php:447
 msgid "Solo puedes gestionar tus propios alojamientos."
 msgstr "Solo puedes gestionar tus propios alojamientos."
 
-#: includes/class-ajax-listing.php:463
+#: includes/class-ajax-listing.php:478
 msgid "Room updated"
 msgstr "Habitación actualizada"
 
-#: includes/class-ajax-listing.php:463
+#: includes/class-ajax-listing.php:478
 msgid "Room created"
 msgstr "Habitación creada"
 
-#: includes/class-ajax-listing.php:485
+#: includes/class-ajax-listing.php:500
 msgid "Room name is required"
 msgstr "El nombre de la habitación es obligatorio"
 
-#: includes/class-ajax-listing.php:489 includes/class-ajax-listing.php:612
+#: includes/class-ajax-listing.php:504 includes/class-ajax-listing.php:627
 msgid "Invalid room"
 msgstr "Habitación inválida"
 
-#: includes/class-ajax-listing.php:494
+#: includes/class-ajax-listing.php:509
 msgid "Price per night must be greater than 0"
 msgstr "El precio por noche debe ser mayor que 0"
 
-#: includes/class-ajax-listing.php:512
+#: includes/class-ajax-listing.php:527
 msgid "Could not save the room"
 msgstr "No se pudo guardar la habitación"
 
-#: includes/class-ajax-listing.php:626
+#: includes/class-ajax-listing.php:641
 msgid "This room has future bookings and cannot be deleted."
 msgstr "Esta habitación tiene reservas futuras y no puede eliminarse."
 
-#: includes/class-ajax-listing.php:630
+#: includes/class-ajax-listing.php:645
 msgid "Room deleted"
 msgstr "Habitación eliminada"
 
@@ -5050,7 +5056,7 @@ msgstr "Cargando conversación..."
 msgid "Responder al huésped..."
 msgstr "Responder al huésped..."
 
-#: includes/class-front-dash.php:328 includes/class-shortcode-account.php:393
+#: includes/class-front-dash.php:328 includes/class-shortcode-account.php:397
 #: includes/class-shortcode-booking.php:793 travel-agency-platform.php:274
 msgid "Enviar"
 msgstr "Enviar"
@@ -6547,7 +6553,7 @@ msgstr "Habitación"
 msgid "No autorizado para este alojamiento."
 msgstr "No autorizado para este alojamiento."
 
-#: includes/class-pricing.php:439
+#: includes/class-pricing.php:463
 msgid "Algunas fechas no pudieron guardarse."
 msgstr "Algunas fechas no pudieron guardarse."
 
@@ -7309,21 +7315,22 @@ msgstr ""
 "verificación."
 
 #: includes/class-shortcode-account.php:320
-#: includes/class-shortcode-account.php:345
-#: includes/class-shortcode-account.php:351
+#: includes/class-shortcode-account.php:344
+#: includes/class-shortcode-account.php:349
+#: includes/class-shortcode-account.php:355
 msgid "Crear mi cuenta de agencia"
 msgstr "Crear mi cuenta de agencia"
 
-#: includes/class-shortcode-account.php:350
+#: includes/class-shortcode-account.php:354
 msgid "Network error. Please try again."
 msgstr "Error de red. Inténtalo de nuevo."
 
-#: includes/class-shortcode-account.php:377
-#: includes/class-shortcode-account.php:379 travel-agency-platform.php:270
+#: includes/class-shortcode-account.php:381
+#: includes/class-shortcode-account.php:383 travel-agency-platform.php:270
 msgid "Asistente de viajes"
 msgstr "Asistente de viajes"
 
-#: includes/class-shortcode-account.php:383 travel-agency-platform.php:275
+#: includes/class-shortcode-account.php:387 travel-agency-platform.php:275
 msgid ""
 "¡Hola! Soy el asistente de viajes. Pregunta por alojamientos, tours, bonos o "
 "agencias, o toca una sugerencia."
@@ -7331,8 +7338,8 @@ msgstr ""
 "¡Hola! Soy el asistente de viajes. Pregunta por alojamientos, tours, bonos o "
 "agencias, o toca una sugerencia."
 
-#: includes/class-shortcode-account.php:391
-#: includes/class-shortcode-account.php:392 travel-agency-platform.php:273
+#: includes/class-shortcode-account.php:395
+#: includes/class-shortcode-account.php:396 travel-agency-platform.php:273
 msgid "Escribe tu pregunta…"
 msgstr "Escribe tu pregunta…"
 
