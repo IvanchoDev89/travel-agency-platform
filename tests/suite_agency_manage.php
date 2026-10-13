@@ -2,7 +2,7 @@
 /**
  * TAP E2E suite: auto-service listing manager (Fase 1 / P2).
  *
- * Exercises the generalized agency listing save handler (TAP_Ajax::save_listing_data)
+ * Exercises the generalized agency listing save handler (TAP_Ajax_Listing::save_listing_data)
  * across all six public service post types, ownership enforcement, and the legacy
  * accommodation short-name mapping. Site-agnostic: it discovers the agencies and
  * users present on the target install instead of hardcoding a particular site.
@@ -131,7 +131,7 @@ foreach ($cases as $type => $field) {
     } else {
         $input += $field;
     }
-    $res = TAP_Ajax::save_listing_data($owner_uid, $input);
+    $res = TAP_Ajax_Listing::save_listing_data($owner_uid, $input);
     $id  = isset($GLOBALS['_tap_saved_listing']) ? (int) $GLOBALS['_tap_saved_listing'] : 0;
     tap_t_assert(true === $res && $id > 0, "create {$type} ok (id={$id})");
     $created[$type] = $id;
@@ -155,23 +155,23 @@ tap_t_assert((int) get_post_meta($acc, '_tap_acc_agency_id', true) === (int) $ow
 
 // 3) Edit an existing listing keeps owner and updates fields.
 $tour = $created['tap_tour'];
-$res  = TAP_Ajax::save_listing_data($owner_uid, ['listing_id' => $tour, 'title' => "P2 tour edit {$suffix}", 'description' => 'e', 'listing_type' => 'tap_tour', '_tap_tour_price_adult' => '77.50']);
+$res  = TAP_Ajax_Listing::save_listing_data($owner_uid, ['listing_id' => $tour, 'title' => "P2 tour edit {$suffix}", 'description' => 'e', 'listing_type' => 'tap_tour', '_tap_tour_price_adult' => '77.50']);
 $edit_id = isset($GLOBALS['_tap_saved_listing']) ? (int) $GLOBALS['_tap_saved_listing'] : 0;
 tap_t_assert(true === $res && $edit_id === $tour, 'tour edit ok (same id)');
 tap_t_assert(get_post_meta($tour, '_tap_tour_price_adult', true) === '77.5', 'tour edit price updated');
 tap_t_assert((int) get_post_meta($tour, '_tap_tour_agency_id', true) === (int) $owner_agency, 'tour owner preserved after edit');
 
 // 4) Ownership enforcement: a different agency cannot edit a listing it does not own.
-$r2 = TAP_Ajax::save_listing_data($other_uid, ['listing_id' => $tour, 'title' => 'hijack', 'description' => 'x', 'listing_type' => 'tap_tour']);
+$r2 = TAP_Ajax_Listing::save_listing_data($other_uid, ['listing_id' => $tour, 'title' => 'hijack', 'description' => 'x', 'listing_type' => 'tap_tour']);
 tap_t_assert(true !== $r2, 'cross-agency edit rejected');
 
 // 5) A listing created by the second agency is owned by the second agency.
-$r3         = TAP_Ajax::save_listing_data($other_uid, ['title' => "P2 owner-other {$suffix}", 'description' => 'c', 'listing_type' => 'tap_tour', '_tap_tour_price_adult' => '10']);
+$r3         = TAP_Ajax_Listing::save_listing_data($other_uid, ['title' => "P2 owner-other {$suffix}", 'description' => 'c', 'listing_type' => 'tap_tour', '_tap_tour_price_adult' => '10']);
 $id_other   = isset($GLOBALS['_tap_saved_listing']) ? (int) $GLOBALS['_tap_saved_listing'] : 0;
 tap_t_assert(true === $r3 && (int) get_post_meta($id_other, '_tap_tour_agency_id', true) === (int) $other_agency, "second agency owns its listing (agency {$other_agency})");
 
 // 6) tap_room is not creatable as a listing type (fails back to accommodation).
-$res = TAP_Ajax::save_listing_data($owner_uid, ['title' => "P2 fallback {$suffix}", 'description' => 'f', 'listing_type' => 'tap_room']);
+$res = TAP_Ajax_Listing::save_listing_data($owner_uid, ['title' => "P2 fallback {$suffix}", 'description' => 'f', 'listing_type' => 'tap_room']);
 $fid = isset($GLOBALS['_tap_saved_listing']) ? (int) $GLOBALS['_tap_saved_listing'] : 0;
 tap_t_assert(true === $res && get_post_type($fid) === 'tap_accommodation', 'tap_room listing_type falls back to accommodation (not creatable)');
 

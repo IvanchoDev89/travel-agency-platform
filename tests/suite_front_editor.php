@@ -119,7 +119,7 @@ $fe_atts[] = $att_b;
 tap_t_assert(count($http_calls) >= 2, 'the PNG downloads were served through the mocked HTTP layer');
 
 wp_set_current_user($owner_uid);
-$acc = TAP_Ajax::save_listing_data($owner_uid, [
+$acc = TAP_Ajax_Listing::save_listing_data($owner_uid, [
     'title'               => 'FE Casa ' . wp_generate_password(4, false),
     'description'         => 'Casa de prueba',
     'listing_type'        => 'tap_accommodation',
@@ -136,7 +136,7 @@ $g = array_filter(array_map('intval', explode(',', (string) get_post_meta($acc_i
 tap_t_assert(count($g) >= 2, 'gallery meta stores two distinct attachment ids');
 
 // empty featured URL clears the thumbnail (edit)
-$acc2 = TAP_Ajax::save_listing_data($owner_uid, [
+$acc2 = TAP_Ajax_Listing::save_listing_data($owner_uid, [
     'listing_id'      => $acc_id,
     'title'           => get_the_title($acc_id),
     'description'     => 'edit',
@@ -146,7 +146,7 @@ $acc2 = TAP_Ajax::save_listing_data($owner_uid, [
 tap_t_assert(true === $acc2 && !get_post_thumbnail_id($acc_id), 'clearing the featured URL removes the thumbnail');
 
 // a bad image URL does not crash the save and leaves no thumbnail
-$noimg = TAP_Ajax::save_listing_data($owner_uid, [
+$noimg = TAP_Ajax_Listing::save_listing_data($owner_uid, [
     'listing_id'       => $acc_id,
     'title'            => get_the_title($acc_id),
     'description'      => 'edit2',
@@ -179,7 +179,7 @@ $room_post = [
     'room_thumbnail_url'    => 'http://93.184.216.34/media/img-a.png',
     'gallery_urls'          => "http://93.184.216.34/media/img-a.png\nhttp://93.184.216.34/media/img-b.png",
 ];
-$room_res = TAP_Ajax::save_room_data($acc_id, 0, $room_post);
+$room_res = TAP_Ajax_Listing::save_room_data($acc_id, 0, $room_post);
 $room_id  = is_int($room_res) ? $room_res : 0;
 $fe_posts[] = $room_id;
 tap_t_assert(is_int($room_res) && $room_id > 0, 'room editor core returns a room id');
@@ -203,29 +203,29 @@ $room_post['room_id']        = $room_id;
 $room_post['title']          = 'Habitación Ocean View Deluxe';
 $room_post['price_per_night']= '95.00';
 $room_post['floor']          = '3';
-$room_edit = TAP_Ajax::save_room_data($acc_id, $room_id, $room_post);
+$room_edit = TAP_Ajax_Listing::save_room_data($acc_id, $room_id, $room_post);
 tap_t_assert((int) $room_edit === (int) $room_id, 'editing the room returns the same id');
 tap_t_assert('Habitación Ocean View Deluxe' === get_the_title($room_id) && (int) get_post_meta($room_id, '_tap_room_floor', true) === 3, 'room edit persisted title + floor');
 
 // room price <= 0 is rejected server-side
 $room_post['room_id'] = $room_id;
 $room_post['price_per_night'] = '0';
-$bad_price = TAP_Ajax::save_room_data($acc_id, $room_id, $room_post);
+$bad_price = TAP_Ajax_Listing::save_room_data($acc_id, $room_id, $room_post);
 tap_t_assert(is_wp_error($bad_price) && 'invalid_price' === $bad_price->get_error_code(), 'room price of 0 is rejected by the editor core');
 // a room that belongs to another accommodation cannot be edited through its id
-$other = TAP_Ajax::save_room_data(-1, $room_id, $room_post);
+$other = TAP_Ajax_Listing::save_room_data(-1, $room_id, $room_post);
 tap_t_assert(is_wp_error($other) && 'invalid_room' === $other->get_error_code(), 'room id mismatch with the accommodation is rejected');
 fe_remove_http_mock($cb_ok);
 
 /* ══ 3) F3-3: price guard on save_listing_data ────────────────────── */
 $sz = strtolower(wp_generate_password(4, false));
-$bad0 = TAP_Ajax::save_listing_data($owner_uid, ['title' => "FE zero {$sz}", 'description' => 'x', 'listing_type' => 'tap_tour', '_tap_tour_price_adult' => '0']);
+$bad0 = TAP_Ajax_Listing::save_listing_data($owner_uid, ['title' => "FE zero {$sz}", 'description' => 'x', 'listing_type' => 'tap_tour', '_tap_tour_price_adult' => '0']);
 tap_t_assert(true !== $bad0 && false !== strpos((string) $bad0, 'mayor que 0'), 'tour with price 0 is rejected before creating a post');
-$bad1 = TAP_Ajax::save_listing_data($owner_uid, ['title' => "FE neg {$sz}", 'description' => 'x', 'listing_type' => 'tap_tour', '_tap_tour_price_adult' => '-5']);
+$bad1 = TAP_Ajax_Listing::save_listing_data($owner_uid, ['title' => "FE neg {$sz}", 'description' => 'x', 'listing_type' => 'tap_tour', '_tap_tour_price_adult' => '-5']);
 tap_t_assert(true !== $bad1, 'tour with a negative price is rejected');
-$bad2 = TAP_Ajax::save_listing_data($owner_uid, ['title' => "FE acc0 {$sz}", 'description' => 'x', 'listing_type' => 'tap_accommodation', 'price_per_night' => '0']);
+$bad2 = TAP_Ajax_Listing::save_listing_data($owner_uid, ['title' => "FE acc0 {$sz}", 'description' => 'x', 'listing_type' => 'tap_accommodation', 'price_per_night' => '0']);
 tap_t_assert(true !== $bad2, 'accommodation legacy price of 0 is rejected');
-$ok = TAP_Ajax::save_listing_data($owner_uid, ['title' => "FE tour ok {$sz}", 'description' => 'x', 'listing_type' => 'tap_tour', '_tap_tour_price_adult' => '49.90']);
+$ok = TAP_Ajax_Listing::save_listing_data($owner_uid, ['title' => "FE tour ok {$sz}", 'description' => 'x', 'listing_type' => 'tap_tour', '_tap_tour_price_adult' => '49.90']);
 $tour_id = isset($GLOBALS['_tap_saved_listing']) ? (int) $GLOBALS['_tap_saved_listing'] : 0;
 $fe_posts[] = $tour_id;
 tap_t_assert(true === $ok && $tour_id > 0, 'a valid positive price still creates the listing');

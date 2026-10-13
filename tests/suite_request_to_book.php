@@ -64,7 +64,7 @@ tap_t_assert('request' === TAP_Booking::booking_mode('tap_tour', $tour_request),
 tap_t_assert('instant' === TAP_Booking::booking_mode('tap_tour', $tour_no_mode), 'booking_mode defaults to instant when meta absent');
 
 /* --- save_listing_data persists the mode. --- */
-$saved = TAP_Ajax::save_listing_data(1, [
+$saved = TAP_Ajax_Listing::save_listing_data(1, [
     'title'        => 'Listing saved RTB E2E ' . wp_generate_password(6, false),
     'listing_type' => 'tap_tour',
     'booking_mode' => 'request',

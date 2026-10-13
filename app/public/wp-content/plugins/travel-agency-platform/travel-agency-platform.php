@@ -55,6 +55,8 @@ final class TravelAgencyPlatform {
         require_once TAP_PLUGIN_DIR . 'includes/class-shortcode-booking.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-shortcode-account.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-ajax.php';
+        require_once TAP_PLUGIN_DIR . 'includes/class-ajax-listing.php';
+        require_once TAP_PLUGIN_DIR . 'includes/class-listing-access.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-ajax-public.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-ajax-commerce.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-guest-checkout.php';
@@ -158,11 +160,11 @@ final class TravelAgencyPlatform {
         add_action('wp_ajax_tap_update_booking_status', ['TAP_Ajax', 'update_booking_status']);
         add_action('wp_ajax_tap_agency_register', ['TAP_Ajax', 'agency_register']);
         add_action('wp_ajax_nopriv_tap_agency_register', ['TAP_Ajax', 'agency_register']);
-        add_action('wp_ajax_tap_agency_save_listing', ['TAP_Ajax', 'agency_save_listing']);
-        add_action('wp_ajax_tap_agency_save_room', ['TAP_Ajax', 'agency_save_room']);
-        add_action('wp_ajax_tap_agency_delete_room', ['TAP_Ajax', 'agency_delete_room']);
+        add_action('wp_ajax_tap_agency_save_listing', ['TAP_Ajax_Listing', 'agency_save_listing']);
+        add_action('wp_ajax_tap_agency_save_room', ['TAP_Ajax_Listing', 'agency_save_room']);
+        add_action('wp_ajax_tap_agency_delete_room', ['TAP_Ajax_Listing', 'agency_delete_room']);
         add_action('wp_ajax_tap_agency_upload_image', ['TAP_Agency_Media', 'agency_upload_image']);
-        add_action('wp_ajax_tap_agency_toggle_publish', ['TAP_Ajax', 'agency_toggle_publish']);
+        add_action('wp_ajax_tap_agency_toggle_publish', ['TAP_Ajax_Listing', 'agency_toggle_publish']);
         add_action('wp_ajax_tap_toggle_favorite', ['TAP_Ajax', 'toggle_favorite']);
         add_action('wp_ajax_tap_agency_subscribe', ['TAP_Ajax_Commerce', 'agency_subscribe']);
         add_action('wp_ajax_tap_subscribe_paypal', ['TAP_Ajax_Commerce', 'subscribe_paypal']);

@@ -99,7 +99,7 @@ $suffix = wp_generate_password(5, false);
 $dp     = $wpdb->prefix . 'tap_daily_pricing';
 
 // 1) Owner accommodation created via the agency save path, with policies.
-$res  = TAP_Ajax::save_listing_data($owner_uid, [
+$res  = TAP_Ajax_Listing::save_listing_data($owner_uid, [
     'title'          => "ACAL acc {$suffix}",
     'description'    => 'wizard suite',
     'listing_type'   => 'tap_accommodation',
@@ -117,7 +117,7 @@ tap_t_assert(get_post_meta($acc, '_tap_acc_house_rules', true) === 'No party pol
 tap_t_assert((int) get_post_meta($acc, '_tap_acc_agency_id', true) === (int) $owner_agency, 'accommodation owned by agency ' . $owner_agency);
 
 // 2) Owner room via the shared room editor.
-$room = TAP_Ajax::save_room_data($acc, 0, [
+$room = TAP_Ajax_Listing::save_room_data($acc, 0, [
     'title'           => "Deluxe {$suffix}",
     'price_per_night' => 100,
     'min_stay'        => 1,
@@ -130,7 +130,7 @@ $created_posts[] = $room;
 $pricing_rows[]  = $room;
 
 // 3) Cross-agency accommodation + room (owned by $other_agency).
-$res2 = TAP_Ajax::save_listing_data($other_uid, [
+$res2 = TAP_Ajax_Listing::save_listing_data($other_uid, [
     'title'        => "ACAL other {$suffix}",
     'description'  => 'x',
     'listing_type' => 'tap_accommodation',
@@ -141,7 +141,7 @@ $res2 = TAP_Ajax::save_listing_data($other_uid, [
 $acc2  = isset($GLOBALS['_tap_saved_listing']) ? (int) $GLOBALS['_tap_saved_listing'] : 0;
 tap_t_assert(true === $res2 && $acc2 > 0, "other-agency accommodation created (id={$acc2})");
 $created_posts[] = $acc2;
-$room2 = TAP_Ajax::save_room_data($acc2, 0, ['title' => "Shared {$suffix}", 'price_per_night' => 35, 'min_stay' => 1, 'inventory' => 1]);
+$room2 = TAP_Ajax_Listing::save_room_data($acc2, 0, ['title' => "Shared {$suffix}", 'price_per_night' => 35, 'min_stay' => 1, 'inventory' => 1]);
 tap_t_assert(is_int($room2) && $room2 > 0, "other-agency room created (id={$room2})");
 $created_posts[] = $room2;
 $pricing_rows[]  = $room2;

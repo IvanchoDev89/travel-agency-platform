@@ -17,7 +17,7 @@ class TAP_Agency_Media {
 
         $listing_type = isset($_POST['listing_type']) ? sanitize_key(wp_unslash($_POST['listing_type'])) : 'tap_accommodation';
         $listing_id   = isset($_POST['listing_id']) ? absint($_POST['listing_id']) : 0;
-        if ($listing_id && !TAP_Ajax::agency_owns_listing($listing_id, $listing_type)) {
+        if ($listing_id && !TAP_Listing_Access::agency_owns_listing($listing_id, $listing_type)) {
             wp_send_json_error(['message' => __('Solo puedes adjuntar imágenes a tus propios listados.', 'travel-agency-platform')], 403);
         }
 
