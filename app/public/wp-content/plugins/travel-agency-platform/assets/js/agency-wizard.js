@@ -33,6 +33,20 @@
         return (cfg.stepUrl || '') + step;
     }
 
+    /* ── unsaved changes guard ──────────────────────────────────────── */
+
+    var tapDirty = false;
+
+    function markDirty() { tapDirty = true; }
+    function clearDirty() { tapDirty = false; }
+
+    /* All in-app navigations go through here so a successful save never
+     * triggers the beforeunload prompt for the form that was just saved. */
+    function navigate(url) {
+        clearDirty();
+        window.location.href = url;
+    }
+
     function money(value) {
         var num = parseFloat(value || 0);
         var dec = cfg.decimals != null ? parseInt(cfg.decimals, 10) : 2;
@@ -706,7 +720,7 @@
                 }
                 toast(json.data.message || t('saved', 'Guardado.'), 'success');
                 var target = cfg.isEdit ? stepUrl(2) : (json.data.edit_url || '') + '&step=2';
-                window.location.href = target;
+                navigate(target);
                 return true;
             })
             .catch(function () {
@@ -731,7 +745,7 @@
                     return false;
                 }
                 toast(json.data.message || t('saved', 'Guardado.'), 'success');
-                window.location.href = stepUrl(5);
+                navigate(stepUrl(5));
                 return true;
             })
             .catch(function () {
@@ -755,7 +769,7 @@
                     return false;
                 }
                 toast(json.data.message || t('saved', 'Guardado.'), 'success');
-                window.location.href = stepUrl(backToStep);
+                navigate(stepUrl(backToStep));
                 return true;
             })
             .catch(function () {
@@ -784,7 +798,7 @@
                         return false;
                     }
                     toast(t('deleted', 'Unidad eliminada.'), 'success');
-                    window.location.href = stepUrl(2);
+                    navigate(stepUrl(2));
                     return true;
                 }).catch(function () {
                     setBusy(okBtn, false);
@@ -815,6 +829,7 @@
                         return false;
                     }
                     toast(json.data.message || t('saved', 'Guardado.'), 'success');
+                    clearDirty();
                     window.setTimeout(function () { window.location.reload(); }, 900);
                     return true;
                 }).catch(function () {
@@ -870,6 +885,17 @@
         initUnitCards();
         initSteppers();
         initCounters();
+
+        /* Dirty tracking: any input/change in a form arms the prompt. */
+        qsa('form').forEach(function (form) {
+            form.addEventListener('input', markDirty);
+            form.addEventListener('change', markDirty);
+        });
+        window.addEventListener('beforeunload', function (ev) {
+            if (!tapDirty) { return; }
+            ev.preventDefault();
+            ev.returnValue = '';
+        });
     }
 
     window.TapWizard = {

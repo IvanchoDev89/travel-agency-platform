@@ -424,18 +424,34 @@ class TAP_Booking {
         global $wpdb;
 
         $prev_status = $booking->status;
+
+        // CAS: atomically claim the cancellation so a concurrent client+agency
+        // cancel (or a double click) can only ever execute the refund path once.
+        $claimed = $wpdb->query($wpdb->prepare(
+            "UPDATE {$wpdb->prefix}tap_bookings SET status = 'cancelled', cancel_requested_at = %s, cancelled_by = %s WHERE id = %d AND status = %s",
+            current_time('mysql'),
+            $cancelled_by,
+            (int) $booking_id,
+            $prev_status
+        ));
+        if (!$claimed) {
+            return new WP_Error('bad_status', __('Esta reserva ya no puede cancelarse.', 'travel-agency-platform'));
+        }
+
         $refund = TAP_Refunds::cancellation_refund($booking);
 
         // Refund the money for real before marking the ledger as refunded.
         // When the gateway refund fails the booking stays cancelled but the
         // payment_status remains 'paid' and _tap_refund_error/_tap_refund_pending
-        // record why so the nightly cron can retry and reconcile.
+        // record why so the nightly cron can retry and reconcile. The pending
+        // marker is written before the gateway call so a fatal mid-refund is
+        // still reconcilable.
         $refund_success = true;
         if ('paid' === $booking->payment_status && (float) $refund['refund_amount'] > 0) {
+            update_post_meta($booking_id, '_tap_refund_pending', current_time('mysql'));
             $refund_result = TAP_Refunds::execute_refund($booking_id, $booking, $refund['refund_amount']);
             if (is_wp_error($refund_result)) {
                 $refund_success = false;
-                update_post_meta($booking_id, '_tap_refund_pending', current_time('mysql'));
             } else {
                 delete_post_meta($booking_id, '_tap_refund_pending');
             }

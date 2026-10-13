@@ -87,6 +87,33 @@ class TAP_Acc_Wizard {
         $status   = $is_edit ? get_post_status($listing_id) : 'draft';
         $is_live  = 'publish' === $status && '1' === get_post_meta($listing_id, '_tap_acc_is_active', true);
 
+        // UX pre-check: block entry when the plan limit is already reached.
+        // save_listing_data() enforces the real limit server-side.
+        if (!$is_edit && !current_user_can('manage_options') && class_exists('TAP_Subscriptions')) {
+            $limit_agency = TAP_Booking::get_agency_for_user();
+            if ($limit_agency) {
+                $limit = TAP_Subscriptions::listing_limit($limit_agency);
+                if ($limit >= 0 && TAP_Subscriptions::listing_count($limit_agency) >= $limit) {
+                    ob_start();
+                    ?>
+                    <div class="tap-agency-panel tap-manage-wrap">
+                        <div class="tap-dash-login-card">
+                            <h2 class="tap-panel-title"><?php esc_html_e('Límite de listados alcanzado', 'travel-agency-platform'); ?></h2>
+                            <p>
+                            <?php
+                            /* translators: %d: número máximo de listados permitidos por el plan */
+                            printf(esc_html__('Your plan allows a maximum of %d listings. Upgrading your plan unlocks more.', 'travel-agency-platform'), (int) $limit);
+                            ?>
+                            </p>
+                            <a class="tap-btn tap-btn-primary" href="<?php echo esc_url(home_url('/planes/')); ?>"><?php esc_html_e('Ver planes', 'travel-agency-platform'); ?></a>
+                        </div>
+                    </div>
+                    <?php
+                    return ob_get_clean();
+                }
+            }
+        }
+
         wp_enqueue_style('tap-agency-calendar', TAP_PLUGIN_URL . 'assets/css/agency-calendar.css', ['tap-public'], TAP_VERSION);
 
         ob_start();

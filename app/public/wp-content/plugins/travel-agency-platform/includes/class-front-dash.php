@@ -251,17 +251,17 @@ class TAP_Front_Dash {
             <div class="tap-agency-tabs">
                 <?php
                 foreach ($filters as $fk):
-                    $furl = add_query_arg(['seccion' => 'bo-operations', 'bo_status' => $fk, 'bo_page' => 1], $base);
+                    $furl = add_query_arg(['seccion' => 'bo-operations', 'bo_status' => $fk], $base);
                     ?>
                     <a class="tap-tab <?php echo $status === $fk ? 'active' : ''; ?>" href="<?php echo esc_url($furl); ?>">
-                        <?php echo esc_html($fk === 'all' ? __('Todas', 'travel-agency-platform') : ucfirst($fk)); ?>
+                        <?php echo esc_html('all' === $fk ? __('Todas', 'travel-agency-platform') : TAP_Emails_Send::status_label($fk)); ?>
                         <span class="tap-tab-count"><?php echo (int) ($counts[$fk] ?? 0); ?></span>
                     </a>
                 <?php endforeach; ?>
             </div>
 
             <?php if (!$bookings): ?>
-                <p class="tap-empty"><?php esc_html_e('No hay reservas en este estado.', 'travel-agency-platform'); ?></p>
+                <p class="tap-empty"><?php echo esc_html('all' === $status ? __('No hay reservas todavía.', 'travel-agency-platform') : __('No hay reservas en este estado.', 'travel-agency-platform')); ?></p>
             <?php else: ?>
             <div class="tap-table-scroll">
             <table class="tap-table tap-table-compact">
@@ -293,10 +293,10 @@ class TAP_Front_Dash {
                             ?>
                             <span class="tap-booking-room"><?php echo esc_html($room->post_title); ?></span><?php endif; ?></td>
                         <td><?php echo esc_html($b->check_in . ($b->check_out ? ' &rarr; ' . $b->check_out : '')); ?></td>
-                        <td><?php echo esc_html($b->adults . ' ' . __('ad', 'travel-agency-platform') . ($b->children ? ', ' . $b->children . ' ' . __('niños', 'travel-agency-platform') : '')); ?></td>
+                        <td><?php echo esc_html($b->adults . ' ' . __('Adults', 'travel-agency-platform') . ($b->children ? ', ' . $b->children . ' ' . __('niños', 'travel-agency-platform') : '')); ?></td>
                         <td><?php echo esc_html(TAP_Currency::fmt($b->total_amount)); ?></td>
                         <td><?php $pay_cls = 'paid' === $b->payment_status ? 'confirmed' : ('refunded' === $b->payment_status ? 'cancelled' : 'pending'); ?><span class="tap-status tap-status-<?php echo $pay_cls; ?>"><?php echo esc_html(TAP_Emails_Send::payment_label($b->payment_status)); ?></span></td>
-                        <td><span class="tap-status tap-status-<?php echo in_array($b->status, ['confirmed', 'completed'], true) ? 'confirmed' : 'pending'; ?>"><?php echo esc_html($b->status); ?></span><?php if (!empty($b->cancel_reason)): ?><br><span class="tap-cancel-reason"><?php echo esc_html($b->cancel_reason); ?></span><?php endif; ?></td>
+                        <td><span class="tap-status tap-status-<?php echo in_array($b->status, ['confirmed', 'completed'], true) ? 'confirmed' : 'pending'; ?>"><?php echo esc_html(TAP_Emails_Send::status_label($b->status)); ?></span><?php if (!empty($b->cancel_reason)): ?><br><span class="tap-cancel-reason"><?php echo esc_html($b->cancel_reason); ?></span><?php endif; ?></td>
                         <td>
                             <?php if (!$is_admin): ?>
                                 <span class="tap-agency-meta"><?php esc_html_e('Solo lectura para empleados.', 'travel-agency-platform'); ?></span>
@@ -422,6 +422,8 @@ class TAP_Front_Dash {
                         <button type="submit" class="tap-btn tap-btn-primary"><?php echo esc_html(sprintf(/* translators: %s: importe solicitado */ __('Solicitar %s', 'travel-agency-platform'), TAP_Currency::fmt($totals->owed))); ?></button>
                     </form>
                 </div>
+            <?php else: ?>
+                <p class="tap-agency-meta"><?php esc_html_e('No tienes comisiones por cobrar disponibles para liquidar.', 'travel-agency-platform'); ?></p>
             <?php endif; ?>
 
             <div class="tap-dash-section-header" style="margin-top:24px;">
@@ -607,6 +609,14 @@ endif;
                         <div class="tap-stat-card"><span class="tap-stat-number"><?php echo (int) $linfo['count']; ?></span><span class="tap-stat-label"><?php echo esc_html($linfo['label']); ?></span></div>
                     <?php endforeach; ?>
                 </div>
+            </div>
+            <?php elseif ($agency_id): ?>
+            <div class="tap-panel-section" style="margin-top:24px;">
+                <div class="tap-section-head">
+                    <h3><?php esc_html_e('Tus listados', 'travel-agency-platform'); ?></h3>
+                    <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(home_url('/manage-listing/')); ?>"><?php esc_html_e('Nuevo alojamiento', 'travel-agency-platform'); ?></a>
+                </div>
+                <p class="tap-empty"><?php esc_html_e('Aún no tienes listados.', 'travel-agency-platform'); ?></p>
             </div>
             <?php endif; ?>
 

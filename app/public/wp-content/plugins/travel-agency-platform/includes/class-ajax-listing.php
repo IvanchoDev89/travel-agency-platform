@@ -157,9 +157,17 @@ class TAP_Ajax_Listing {
             }
             $new_id     = wp_update_post($post, true);
         } else {
-            // Creating: only publish when the user can; otherwise it goes to
-            // review so an employee cannot self-publish.
-            $post['post_status'] = $can_publish ? 'publish' : 'pending';
+            // Creating: accommodations always start as draft — publishing is
+            // an explicit wizard step-5 action. Other types keep publishing
+            // immediately because the legacy editor has no publish control.
+            // Non-publishers still go to review so an employee cannot self-publish.
+            if (!$can_publish) {
+                $post['post_status'] = 'pending';
+            } elseif ('tap_accommodation' === $listing_type) {
+                $post['post_status'] = 'draft';
+            } else {
+                $post['post_status'] = 'publish';
+            }
             $new_id = wp_insert_post($post, true);
         }
 

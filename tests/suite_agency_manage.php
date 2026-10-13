@@ -143,6 +143,10 @@ foreach ($cases as $type => $field) {
         tap_t_assert(get_post_meta($id, $wrong, true) === '', "{$type} no stray owner on wrong key {$wrong}");
     }
     tap_t_assert(get_post_type($id) === $type, "{$type} post_type correct");
+    if ('tap_accommodation' === $type) {
+        $st = get_post_status($id);
+        tap_t_assert(in_array($st, ['draft', 'pending'], true), "{$type} starts unpublished after create (status={$st})");
+    }
 }
 
 // 2) Legacy accommodation short names were mapped.
