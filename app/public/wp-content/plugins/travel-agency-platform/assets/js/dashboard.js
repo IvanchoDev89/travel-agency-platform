@@ -341,4 +341,56 @@
         });
     });
 
+    /* ── Agency back-office: team management ──────────────────────── */
+    $(document).on('submit', '#tap-team-add', function (e) {
+        e.preventDefault();
+        var $form = $(this);
+        var $btn  = $form.find('button[type="submit"]').prop('disabled', true);
+        var email = $form.find('[name="email"]').val() || '';
+
+        $.post(cfg.ajax_url, {
+            action: 'tap_dash_team_add',
+            nonce:  cfg.nonce,
+            email:  email
+        }).done(function (res) {
+            if (res && res.success) {
+                location.reload();
+            } else {
+                alert(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error));
+                $btn.prop('disabled', false);
+            }
+        }).fail(function () {
+            alert(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error');
+            $btn.prop('disabled', false);
+        });
+    });
+
+    $(document).on('click', '.tap-team-remove', function () {
+        var $btn = $(this);
+        var id   = $btn.data('id');
+        var name = $btn.data('name') || '';
+
+        if (!confirm((cfg.i18n && cfg.i18n.confirm_team_remove ? cfg.i18n.confirm_team_remove : '¿Quitar a este usuario del equipo?') + ' ' + name + '?')) {
+            return;
+        }
+
+        $btn.prop('disabled', true);
+
+        $.post(cfg.ajax_url, {
+            action:  'tap_dash_team_remove',
+            nonce:   cfg.nonce,
+            user_id: id
+        }).done(function (res) {
+            if (res && res.success) {
+                location.reload();
+            } else {
+                alert(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error));
+                $btn.prop('disabled', false);
+            }
+        }).fail(function () {
+            alert(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error');
+            $btn.prop('disabled', false);
+        });
+    });
+
 })(jQuery);

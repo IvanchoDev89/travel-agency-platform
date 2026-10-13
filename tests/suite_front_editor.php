@@ -9,9 +9,10 @@
  *        builder (invalid types fall back to 'double', count<=0 dropped),
  *        room thumbnail and gallery.
  *  F3-3  money-integrity price guard in save_listing_data (price <= 0 is
- *        rejected for every type), employees cannot operate bookings even
- *        when linked to an agency, and the bo-operations table renders
- *        read-only (no action buttons) for employees.
+ *        rejected for every type), mapped agency employees CAN operate
+ *        bookings (confirm/complete/cancel, never mark_paid), unmapped
+ *        employees are denied, and the bo-operations table renders the
+ *        action buttons for mapped employees.
  */
 require __DIR__ . '/bootstrap.php';
 
@@ -230,19 +231,41 @@ $tour_id = isset($GLOBALS['_tap_saved_listing']) ? (int) $GLOBALS['_tap_saved_li
 $fe_posts[] = $tour_id;
 tap_t_assert(true === $ok && $tour_id > 0, 'a valid positive price still creates the listing');
 
-/* ══ 4) F3-3: employees cannot operate bookings (even when linked) ── */
+/* ══ 4) F3-3 (rediseño de equipo): empleados vinculados operan reservas ── */
 $fe_bookings = [];
 $fe_bookings[] = tap_t_seed_booking(['agency_id' => $emp_aid, 'status' => 'pending']);
 wp_set_current_user($emp_uid);
 $r = TAP_Booking::agency_booking_action($fe_bookings[0], 'confirm');
-tap_t_assert(is_wp_error($r) && 'no_agency' === $r->get_error_code(), 'a linked employee is still denied booking operations');
+tap_t_assert(true === $r, 'a mapped employee can confirm a booking of their agency');
+$bk = TAP_Booking::get_booking($fe_bookings[0]);
+tap_t_assert($bk && 'confirmed' === $bk->status, 'booking flips to confirmed after the employee action');
 
-// bo-operations renders read-only (no action buttons) for employees
+// mark_paid stays platform-admin only
+$mp = TAP_Booking::agency_booking_action($fe_bookings[0], 'mark_paid');
+tap_t_assert(is_wp_error($mp), 'employee cannot mark a booking as paid (platform admin only)');
+
+// bo-operations renders action buttons for the mapped employee now
 $_GET['seccion'] = 'bo-operations';
 $out = do_shortcode('[tap_front_dash]');
 unset($_GET['seccion']);
-tap_t_assert(false !== strpos($out, 'Solo lectura para empleados.'), 'employee sees the read-only marker in operations');
-tap_t_assert(false === strpos($out, 'tap-bo-api') && false === strpos($out, 'Confirmar'), 'employee operations table hides every action button');
+tap_t_assert(false === strpos($out, 'Solo lectura para empleados.'), 'employee no longer sees the read-only marker');
+tap_t_assert(false !== strpos($out, 'tap-bo-api') && false !== strpos($out, 'Completar'), 'employee operations table shows action buttons');
+
+// an employee role WITHOUT the agency mapping is still denied
+$fe_suffix = wp_generate_password(5, false);
+$fe_unmapped = wp_insert_user([
+    'user_login'   => 'fe_unmapped_' . $fe_suffix,
+    'user_pass'    => wp_generate_password(12, false),
+    'user_email'   => 'fe_unmapped_' . $fe_suffix . '@example.test',
+    'role'         => 'tap_agency_employee',
+    'display_name' => 'FE unmapped employee',
+]);
+$fe_users[] = (int) $fe_unmapped;
+wp_set_current_user($fe_unmapped);
+$ru = TAP_Booking::agency_booking_action($fe_bookings[0], 'confirm');
+tap_t_assert(is_wp_error($ru) && 'no_agency' === $ru->get_error_code(), 'an unmapped employee is denied booking operations');
+$out = do_shortcode('[tap_front_dash]');
+tap_t_assert(false !== strpos($out, 'Cuenta sin agencia vinculada'), 'unmapped employee sees the friendly no-agency callout');
 
 // the very same section still renders the buttons for the agency admin
 $fe_bookings[] = tap_t_seed_booking(['agency_id' => $owner_aid, 'status' => 'pending']);

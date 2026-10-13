@@ -225,4 +225,106 @@ class TAP_Ajax_Dash {
 
         wp_send_json_success(['message' => __('Reserva cancelada.', 'travel-agency-platform')]);
     }
+
+    /* ── agency team (employee ↔ agency mapping) ────────────────────── */
+
+    /**
+     * Add an existing WP user to the agency staff: grants the
+     * tap_agency_employee role and stores `_tap_agency_id` on the user.
+     * Core is testable: returns TRUE or a WP_Error, never dies.
+     */
+    public static function team_add($agency_id, $email) {
+        $agency_id = (int) $agency_id;
+        if (!$agency_id || 'tap_agency' !== get_post_type($agency_id)) {
+            return new WP_Error('bad_agency', __('Agencia no encontrada.', 'travel-agency-platform'));
+        }
+        $email = sanitize_email($email);
+        if (!$email || !is_email($email)) {
+            return new WP_Error('bad_email', __('Introduce un email válido.', 'travel-agency-platform'));
+        }
+        $user = get_user_by('email', $email);
+        if (!$user) {
+            return new WP_Error('unknown_user', __('No existe ningún usuario con ese email. Debe registrarse primero.', 'travel-agency-platform'));
+        }
+        if (user_can($user, 'manage_options')) {
+            return new WP_Error('is_admin', __('No puedes agregar usuarios administradores de la plataforma.', 'travel-agency-platform'));
+        }
+        $current = (int) TAP_Booking::get_agency_for_user($user->ID);
+        if ($current === $agency_id) {
+            // Already linked (owner or staff): idempotent success.
+            return true;
+        }
+        if ($current) {
+            return new WP_Error('other_agency', __('Este usuario ya pertenece a otra agencia.', 'travel-agency-platform'));
+        }
+        $user->add_role('tap_agency_employee');
+        update_user_meta($user->ID, '_tap_agency_id', $agency_id);
+        return true;
+    }
+
+    /**
+     * Remove a staff member from the agency: clears `_tap_agency_id` and the
+     * employee role. Only actual staff (by meta) can be removed, so the
+     * agency owner is never affected. Core is testable: TRUE or WP_Error.
+     */
+    public static function team_remove($agency_id, $user_id) {
+        $agency_id = (int) $agency_id;
+        $user_id   = (int) $user_id;
+        if (!$agency_id || !$user_id) {
+            return new WP_Error('bad_args', __('Parámetros inválidos.', 'travel-agency-platform'));
+        }
+        // Meta-based guard: the owner maps through the agency post, not this
+        // meta, so removing "the owner" is a no-op error by design.
+        if ((int) get_user_meta($user_id, '_tap_agency_id', true) !== $agency_id) {
+            return new WP_Error('not_staff', __('Este usuario no pertenece a tu equipo.', 'travel-agency-platform'));
+        }
+        delete_user_meta($user_id, '_tap_agency_id');
+        $user = get_userdata($user_id);
+        if ($user) {
+            $user->remove_role('tap_agency_employee');
+        }
+        return true;
+    }
+
+    public static function ajax_team_add() {
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => __('No autenticado.', 'travel-agency-platform')], 401);
+        }
+        $user = wp_get_current_user();
+        if (!in_array('tap_agency_admin', (array) $user->roles, true)) {
+            wp_send_json_error(['message' => __('Solo el administrador de la agencia gestiona el equipo.', 'travel-agency-platform')], 403);
+        }
+        $agency = TAP_Booking::get_agency_for_user($user->ID);
+        if (!$agency) {
+            wp_send_json_error(['message' => __('No tienes una agencia vinculada.', 'travel-agency-platform')], 400);
+        }
+        $email = sanitize_text_field(wp_unslash($_POST['email'] ?? ''));
+        $res   = self::team_add($agency, $email);
+        if (is_wp_error($res)) {
+            wp_send_json_error(['message' => $res->get_error_message()], 400);
+        }
+        wp_send_json_success(['message' => __('Empleado agregado al equipo.', 'travel-agency-platform')]);
+    }
+
+    public static function ajax_team_remove() {
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => __('No autenticado.', 'travel-agency-platform')], 401);
+        }
+        $user = wp_get_current_user();
+        if (!in_array('tap_agency_admin', (array) $user->roles, true)) {
+            wp_send_json_error(['message' => __('Solo el administrador de la agencia gestiona el equipo.', 'travel-agency-platform')], 403);
+        }
+        $agency = TAP_Booking::get_agency_for_user($user->ID);
+        if (!$agency) {
+            wp_send_json_error(['message' => __('No tienes una agencia vinculada.', 'travel-agency-platform')], 400);
+        }
+        $target = absint($_POST['user_id'] ?? 0);
+        $res    = self::team_remove($agency, $target);
+        if (is_wp_error($res)) {
+            wp_send_json_error(['message' => $res->get_error_message()], 400);
+        }
+        wp_send_json_success(['message' => __('Empleado quitado del equipo.', 'travel-agency-platform')]);
+    }
 }

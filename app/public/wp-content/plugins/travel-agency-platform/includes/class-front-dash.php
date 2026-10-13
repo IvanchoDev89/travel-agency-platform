@@ -31,6 +31,8 @@ class TAP_Front_Dash {
         add_action('wp_ajax_tap_dash_chat_thread', ['TAP_Ajax_Dash', 'ajax_chat_thread']);
         add_action('wp_ajax_tap_dash_chat_send', ['TAP_Ajax_Dash', 'ajax_chat_send']);
         add_action('wp_ajax_tap_dash_chat_unread', ['TAP_Ajax_Dash', 'ajax_chat_unread']);
+        add_action('wp_ajax_tap_dash_team_add', ['TAP_Ajax_Dash', 'ajax_team_add']);
+        add_action('wp_ajax_tap_dash_team_remove', ['TAP_Ajax_Dash', 'ajax_team_remove']);
 
         // 301 redirect legacy /dashboard/ page to the unified /mi-cuenta/ back-office
         add_action('template_redirect', [__CLASS__, 'dashboard_redirect']);
@@ -91,6 +93,7 @@ class TAP_Front_Dash {
                 'no_messages'    => __('Aún no hay mensajes en esta conversación.', 'travel-agency-platform'),
                 'error'          => __('Ocurrió un error. Intenta de nuevo.', 'travel-agency-platform'),
                 'saved'          => __('Guardado', 'travel-agency-platform'),
+                'confirm_team_remove' => __('¿Quitar a este usuario del equipo?', 'travel-agency-platform'),
             ],
         ]);
     }
@@ -104,7 +107,19 @@ class TAP_Front_Dash {
 
         $user  = wp_get_current_user();
         $roles = (array) $user->roles;
-        $role  = current($roles) ?: 'subscriber';
+        // Canonical role for routing/nav: agency roles win over the user's
+        // original role (team members keep e.g. tap_client plus the employee
+        // role added by team_add).
+        $role = 'subscriber';
+        if (in_array('tap_agency_admin', $roles, true)) {
+            $role = 'tap_agency_admin';
+        } elseif (in_array('tap_agency_employee', $roles, true)) {
+            $role = 'tap_agency_employee';
+        } elseif (in_array('tap_client', $roles, true)) {
+            $role = 'tap_client';
+        } elseif (current($roles)) {
+            $role = current($roles);
+        }
 
         // Determine active section from query var
         $section = sanitize_key(wp_unslash($_GET['seccion'] ?? 'overview'));
@@ -177,6 +192,20 @@ class TAP_Front_Dash {
      * ================================================================== */
 
     private static function render_agency_dash($user, $role, $section) {
+        // Agency-role users must resolve to an agency (owner or staff meta);
+        // unmapped employees get a friendly dead-end instead of scattered errors.
+        if (!TAP_Booking::get_agency_for_user($user->ID)) {
+            ob_start(); ?>
+            <div class="tap-dash tap-dash-agency">
+                <div class="tap-dash-login-card" style="margin:2rem auto;max-width:28rem;">
+                    <h2><?php esc_html_e('Cuenta sin agencia vinculada', 'travel-agency-platform'); ?></h2>
+                    <p><?php esc_html_e('Tu cuenta de empleado aún no está vinculada a una agencia. Pide al administrador que te agregue desde la sección Equipo de su panel.', 'travel-agency-platform'); ?></p>
+                </div>
+            </div>
+            <?php
+            return ob_get_clean();
+        }
+
         // Agency admin/employee get the existing panel wrapped in a sidebar
         $sections = self::agency_nav($role, $section);
 
@@ -197,6 +226,9 @@ class TAP_Front_Dash {
                     case 'bo-listings':
                         echo TAP_Listing_Editor::agency_manage([]);
                         break;
+                    case 'bo-team':
+                        echo self::agency_team($user);
+                        break;
                     default:
                         echo self::agency_overview($user);
                 }
@@ -215,7 +247,7 @@ class TAP_Front_Dash {
         if (!$agency) {
             return '<p class="tap-empty">' . esc_html__('No tienes una agencia vinculada.', 'travel-agency-platform') . '</p>';
         }
-        $is_admin = !in_array('tap_agency_employee', (array) $user->roles, true);
+        $is_admin = user_can($user, 'manage_options') || in_array('tap_agency_admin', (array) $user->roles, true);
 
         $filters = ['all', 'request', 'pending', 'confirmed', 'completed', 'cancelled', 'refunded'];
         $status  = sanitize_key(wp_unslash($_GET['bo_status'] ?? 'all'));
@@ -298,16 +330,13 @@ class TAP_Front_Dash {
                         <td><?php $pay_cls = 'paid' === $b->payment_status ? 'confirmed' : ('refunded' === $b->payment_status ? 'cancelled' : 'pending'); ?><span class="tap-status tap-status-<?php echo $pay_cls; ?>"><?php echo esc_html(TAP_Emails_Send::payment_label($b->payment_status)); ?></span></td>
                         <td><span class="tap-status tap-status-<?php echo in_array($b->status, ['confirmed', 'completed'], true) ? 'confirmed' : 'pending'; ?>"><?php echo esc_html(TAP_Emails_Send::status_label($b->status)); ?></span><?php if (!empty($b->cancel_reason)): ?><br><span class="tap-cancel-reason"><?php echo esc_html($b->cancel_reason); ?></span><?php endif; ?></td>
                         <td>
-                            <?php if (!$is_admin): ?>
-                                <span class="tap-agency-meta"><?php esc_html_e('Solo lectura para empleados.', 'travel-agency-platform'); ?></span>
-                            <?php else: ?>
 								<?php if (in_array($b->status, ['request', 'pending'], true)): ?>
                                 <button class="tap-btn tap-btn-sm tap-bo-api" data-op="confirm" data-name="<?php echo esc_attr($b->booking_code); ?>" data-id="<?php echo (int) $b->id; ?>"><?php esc_html_e('Confirmar', 'travel-agency-platform'); ?></button>
                             <?php endif; ?>
 								<?php if ('confirmed' === $b->status): ?>
                                 <button class="tap-btn tap-btn-sm tap-bo-api" data-op="complete" data-name="<?php echo esc_attr($b->booking_code); ?>" data-id="<?php echo (int) $b->id; ?>"><?php esc_html_e('Completar', 'travel-agency-platform'); ?></button>
                             <?php endif; ?>
-								<?php if (user_can($user, 'manage_options') && in_array($b->status, ['confirmed', 'completed'], true) && in_array($b->payment_status, ['pending', 'partial', 'failed'], true)): ?>
+								<?php if ($is_admin && user_can($user, 'manage_options') && in_array($b->status, ['confirmed', 'completed'], true) && in_array($b->payment_status, ['pending', 'partial', 'failed'], true)): ?>
                                 <button class="tap-btn tap-btn-sm tap-bo-api" data-op="mark_paid" data-name="<?php echo esc_attr($b->booking_code); ?>" data-id="<?php echo (int) $b->id; ?>"><?php esc_html_e('Marcar pagada', 'travel-agency-platform'); ?></button>
                             <?php endif; ?>
 								<?php if (in_array($b->status, ['request', 'pending', 'confirmed'], true) && (!$b->check_in || $b->check_in >= $today)): ?>
@@ -315,7 +344,6 @@ class TAP_Front_Dash {
                             <?php endif; ?>
 								<?php $b_unread = TAP_Chat::unread_for($b->id, 'agency'); ?>
                             <button class="tap-btn tap-btn-sm tap-chat-toggle" data-id="<?php echo (int) $b->id; ?>"><?php esc_html_e('Chat', 'travel-agency-platform'); ?><?php if ($b_unread): ?> <span class="tap-chat-badge"><?php echo (int) $b_unread; ?></span><?php endif; ?></button>
-                            <?php endif; ?>
                         </td>
                     </tr>
                     <tr class="tap-chat-row" data-id="<?php echo (int) $b->id; ?>" style="display:none;">
@@ -462,11 +490,68 @@ class TAP_Front_Dash {
         return ob_get_clean();
     }
 
+    /* ── agency back-office: team (employees) ──────────────────────── */
+
+    private static function agency_team($user) {
+        if (in_array('tap_agency_employee', (array) $user->roles, true)) {
+            return '<p class="tap-empty">' . esc_html__('Solo el administrador de la agencia gestiona el equipo.', 'travel-agency-platform') . '</p>';
+        }
+        $agency = (int) TAP_Booking::get_agency_for_user($user->ID);
+        if (!$agency) {
+            return '<p class="tap-empty">' . esc_html__('No tienes una agencia vinculada.', 'travel-agency-platform') . '</p>';
+        }
+        $staff = TAP_Booking::get_staff_for_agency($agency);
+        ob_start();
+        ?>
+        <div class="tap-dash-section">
+            <div class="tap-dash-section-header">
+                <h2><?php esc_html_e('Equipo', 'travel-agency-platform'); ?></h2>
+            </div>
+            <div class="tap-dash-card" style="margin-top:16px;">
+                <h3><?php esc_html_e('Agregar empleado', 'travel-agency-platform'); ?></h3>
+                <p class="tap-agency-meta"><?php esc_html_e('El usuario debe existir ya en la plataforma (que se haya registrado primero). Se le asignará el rol de empleado y acceso a esta agencia.', 'travel-agency-platform'); ?></p>
+                <form id="tap-team-add" class="tap-bo-form">
+                    <label><?php esc_html_e('Email del usuario', 'travel-agency-platform'); ?>
+                        <input type="email" name="email" required placeholder="usuario@ejemplo.com">
+                    </label>
+                    <button type="submit" class="tap-btn tap-btn-primary"><?php esc_html_e('Agregar', 'travel-agency-platform'); ?></button>
+                </form>
+            </div>
+            <div class="tap-dash-section-header" style="margin-top:24px;">
+                <h3><?php esc_html_e('Miembros del equipo', 'travel-agency-platform'); ?></h3>
+            </div>
+            <?php if (!$staff): ?>
+                <p class="tap-empty"><?php esc_html_e('Aún no hay empleados en el equipo.', 'travel-agency-platform'); ?></p>
+            <?php else: ?>
+            <div class="tap-table-scroll"><table class="tap-table tap-table-compact">
+                <thead><tr>
+                    <th><?php esc_html_e('Nombre', 'travel-agency-platform'); ?></th>
+                    <th><?php esc_html_e('Email', 'travel-agency-platform'); ?></th>
+                    <th><?php esc_html_e('Acciones', 'travel-agency-platform'); ?></th>
+                </tr></thead>
+                <tbody>
+                <?php foreach ($staff as $member): ?>
+                    <tr>
+                        <td><?php echo esc_html($member->display_name); ?></td>
+                        <td><?php echo esc_html($member->user_email); ?></td>
+                        <td>
+                            <button class="tap-btn tap-btn-sm tap-btn-danger tap-team-remove" data-id="<?php echo (int) $member->ID; ?>" data-name="<?php echo esc_attr($member->display_name); ?>"><?php esc_html_e('Quitar', 'travel-agency-platform'); ?></button>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table></div>
+            <?php endif; ?>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
     /* ── agency back-office: overview (resumen) ─────────────────────── */
 
     private static function agency_overview($user) {
         global $wpdb;
-        $is_admin  = !in_array('tap_agency_employee', (array) $user->roles, true);
+        $is_admin  = user_can($user, 'manage_options') || in_array('tap_agency_admin', (array) $user->roles, true);
         $agency_id = TAP_Booking::get_agency_for_user($user->ID);
         $agency    = $agency_id ? get_post($agency_id) : null;
         if (!$agency_id && !current_user_can('manage_options')) {
@@ -703,16 +788,20 @@ endif;
     private static function agency_nav($role, $active) {
         $base = home_url('/mi-cuenta/');
         $agency = (int) TAP_Booking::get_agency_for_user(get_current_user_id());
-        $unread = ($agency && 'tap_agency_employee' !== $role) ? TAP_Chat::unread_total_for_agency($agency) : 0;
+        $unread = $agency ? TAP_Chat::unread_total_for_agency($agency) : 0;
+        $is_team_admin = ('tap_agency_employee' !== $role);
         $nav = [
             ['key' => 'overview', 'label' => __('Resumen', 'travel-agency-platform'), 'icon' => 'home', 'url' => $base],
             ['key' => 'bo-operations', 'label' => __('Operaciones', 'travel-agency-platform'), 'icon' => 'calendar', 'url' => add_query_arg('seccion', 'bo-operations', $base), 'badge' => $unread],
-            ['key' => 'bo-finances', 'label' => __('Finanzas', 'travel-agency-platform'), 'icon' => 'wallet', 'url' => add_query_arg('seccion', 'bo-finances', $base)],
-            ['key' => 'bo-listings', 'label' => __('Listados', 'travel-agency-platform'), 'icon' => 'grid', 'url' => add_query_arg('seccion', 'bo-listings', $base)],
         ];
-        // Employees see fewer options (resumen + operaciones; sin finanzas).
-        if ($role === 'tap_agency_employee') {
-            return array_slice($nav, 0, 2);
+        // Finanzas y Equipo son solo del administrador de la agencia;
+        // los empleados ven Resumen, Operaciones y Listados.
+        if ($is_team_admin) {
+            $nav[] = ['key' => 'bo-finances', 'label' => __('Finanzas', 'travel-agency-platform'), 'icon' => 'wallet', 'url' => add_query_arg('seccion', 'bo-finances', $base)];
+        }
+        $nav[] = ['key' => 'bo-listings', 'label' => __('Listados', 'travel-agency-platform'), 'icon' => 'grid', 'url' => add_query_arg('seccion', 'bo-listings', $base)];
+        if ($is_team_admin) {
+            $nav[] = ['key' => 'bo-team', 'label' => __('Equipo', 'travel-agency-platform'), 'icon' => 'users', 'url' => add_query_arg('seccion', 'bo-team', $base)];
         }
         return $nav;
     }
@@ -734,7 +823,15 @@ endif;
             'tap_client'         => __('Viajero', 'travel-agency-platform'),
             'subscriber'         => __('Viajero', 'travel-agency-platform'),
         ];
-        $role = $user->roles[0] ?? 'subscriber';
+        // Multi-role users (e.g. tap_client + tap_agency_employee) show the
+        // agency label, not the first role in the array.
+        $role = 'subscriber';
+        foreach (['tap_agency_admin', 'tap_agency_employee', 'tap_client'] as $candidate) {
+            if (in_array($candidate, (array) $user->roles, true)) {
+                $role = $candidate;
+                break;
+            }
+        }
         ?>
         <aside class="tap-dash-sidebar">
             <div class="tap-dash-sidebar-header">
@@ -779,6 +876,7 @@ endif;
             'settings' => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
             'wallet'   => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2" ry="2"/><path d="M2 10h6a2 2 0 0 1 2 2 2 2 0 0 1-2 2H2"/><circle cx="17" cy="14" r="1"/></svg>',
             'grid'     => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>',
+            'users'    => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
         ];
         echo $icons[$icon] ?? '';
     }

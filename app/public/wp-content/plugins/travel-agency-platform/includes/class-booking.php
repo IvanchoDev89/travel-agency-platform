@@ -517,10 +517,9 @@ class TAP_Booking {
         }
 
         $is_admin = user_can($user, 'manage_options');
-        $is_employee = in_array('tap_agency_employee', (array) $user->roles, true);
-        if ($is_employee && !$is_admin) {
-            return new WP_Error('no_agency', __('Solo cuentas de agencia pueden operar reservas.', 'travel-agency-platform'));
-        }
+        // Employees act with the same booking operations as the agency admin
+        // (confirm/complete/cancel) once they are mapped to the booking's
+        // agency; mark_paid below stays platform-admin only.
         $user_agency = (int) self::get_agency_for_user($user_id);
         if (!$is_admin && !$user_agency) {
             return new WP_Error('no_agency', __('Solo cuentas de agencia pueden operar reservas.', 'travel-agency-platform'));
@@ -1157,6 +1156,10 @@ class TAP_Booking {
 
     /**
      * Find the tap_agency post linked to a WordPress user.
+     *
+     * Resolution order: the agency owner (`_tap_agency_user_id` post meta on
+     * the agency), then an agency employee (`_tap_agency_id` user meta written
+     * when the agency admin adds them to the team).
      */
     public static function get_agency_for_user($user_id = null) {
         if (!$user_id) $user_id = get_current_user_id();
@@ -1170,7 +1173,35 @@ class TAP_Booking {
             'posts_per_page' => 1,
             'fields'         => 'ids',
         ]);
+        if ($posts) {
+            return intval($posts[0]);
+        }
 
-        return $posts ? intval($posts[0]) : 0;
+        // Employee fallback: staff users carry the agency in their user meta.
+        $staff_agency = (int) get_user_meta($user_id, '_tap_agency_id', true);
+        if ($staff_agency > 0 && 'tap_agency' === get_post_type($staff_agency)) {
+            return $staff_agency;
+        }
+
+        return 0;
+    }
+
+    /**
+     * Staff users (employees) mapped to an agency via the `_tap_agency_id`
+     * user meta. The agency owner is not part of this list.
+     *
+     * @return array<int, WP_User>
+     */
+    public static function get_staff_for_agency($agency_id) {
+        $agency_id = (int) $agency_id;
+        if (!$agency_id) {
+            return [];
+        }
+        return get_users([
+            'meta_key'   => '_tap_agency_id',
+            'meta_value' => $agency_id,
+            'number'     => 100,
+            'orderby'    => 'display_name',
+        ]);
     }
 }
