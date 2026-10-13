@@ -266,6 +266,7 @@ jQuery(document).ready(function($) {
     var checkOut = $('#bw-check-out').val() || '';
     $.post(tap_ajax.ajax_url, {
       action: 'tap_calculate_booking_total',
+      nonce: tap_ajax.nonce,
       service_type: '<?php echo esc_js($pt); ?>',
       service_id: <?php echo (int) $id; ?>,
       check_in: checkIn,

@@ -432,7 +432,7 @@ jQuery(document).ready(function($) {
 
     $.post(tap_ajax.ajax_url, {
       action: 'tap_calculate_booking_total',
-      nonce: '<?php echo esc_js(wp_create_nonce('tap_booking_nonce')); ?>',
+      nonce: tap_ajax.nonce,
       service_type: 'tap_accommodation',
       service_id: <?php echo esc_js($id); ?>,
       room_id: selectedRoomId,
