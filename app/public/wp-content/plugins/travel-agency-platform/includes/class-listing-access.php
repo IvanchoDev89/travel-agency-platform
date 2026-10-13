@@ -45,6 +45,4 @@ class TAP_Listing_Access {
     public static function agency_owns_accommodation($acc_id) {
         return self::agency_owns_listing($acc_id, 'tap_accommodation');
     }
-
-
 }

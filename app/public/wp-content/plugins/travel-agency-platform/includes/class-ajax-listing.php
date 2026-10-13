@@ -629,6 +629,4 @@ class TAP_Ajax_Listing {
         wp_delete_post( $room_id, false );
         wp_send_json_success( [ 'message' => __( 'Room deleted', 'travel-agency-platform' ) ] );
     }
-
-
 }
