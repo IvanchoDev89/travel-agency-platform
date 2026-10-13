@@ -194,23 +194,6 @@ class TAP_Listing_Editor {
                             <img class="tap-img-preview" src="<?php echo esc_url(get_the_post_thumbnail_url($listing_id, 'medium')); ?>" alt="" style="max-width:180px;height:auto;margin-top:6px;border-radius:6px;">
                         <?php endif; ?>
                     </div>
-                    <?php if ($type === 'tap_accommodation'): ?>
-                    <div class="tap-field tap-span-2">
-                        <label><?php esc_html_e('Galería (URLs de imágenes, una por línea)', 'travel-agency-platform'); ?></label>
-                        <?php
-                        $gal_val = '';
-                        if ($is_edit) {
-                            $gal_ids = array_filter(array_map('trim', explode(',', (string) get_post_meta($listing_id, '_tap_acc_gallery', true))));
-                            $gal_urls = array_map(function ($id) {
-                                $u = wp_get_attachment_image_url((int) $id, 'full');
-                                return $u ? $u : '';
-                            }, $gal_ids);
-                            $gal_val = implode("\n", array_filter($gal_urls));
-                        }
-                        ?>
-                        <textarea name="gallery_urls" rows="4" placeholder="<?php esc_attr_e('https://…\nhttps://…', 'travel-agency-platform'); ?>"><?php echo esc_textarea($gal_val); ?></textarea>
-                    </div>
-                    <?php endif; ?>
                     <?php
                     foreach ($fields as $meta_key => $cfg) {
                         if (strpos($meta_key, '_tap_' . $prefix . '_agency_id') !== false) {
@@ -291,100 +274,6 @@ class TAP_Listing_Editor {
                 <span class="tap-form-msg"></span>
             </form>
 
-            <?php if ($is_edit && $type === 'tap_accommodation'): ?>
-                <?php
-                $acc_id = $listing_id;
-                $rooms = get_posts(['post_type' => 'tap_room', 'post_status' => ['publish', 'draft'], 'posts_per_page' => -1, 'orderby' => 'ID', 'order' => 'ASC', 'meta_key' => '_tap_room_accommodation_id', 'meta_value' => $acc_id]);
-                ?>
-                <hr class="tap-manage-hr">
-                <h3 class="tap-panel-title"><?php esc_html_e('Habitaciones', 'travel-agency-platform'); ?></h3>
-
-                <?php if ($rooms): ?>
-                <div class="tap-rooms-list">
-                    <?php foreach ($rooms as $r): ?>
-                    <form class="tap-manage-form tap-room-form" data-room="<?php echo (int) $r->ID; ?>">
-                        <?php wp_nonce_field('tap_agency_listing_nonce', 'nonce'); ?>
-                        <input type="hidden" name="room_id" value="<?php echo (int) $r->ID; ?>">
-                        <input type="hidden" name="accommodation_id" value="<?php echo (int) $acc_id; ?>">
-                        <div class="tap-form-grid">
-                            <div class="tap-field"><label><?php esc_html_e('Nombre *', 'travel-agency-platform'); ?></label><input type="text" name="title" required value="<?php echo esc_attr($r->post_title); ?>"></div>
-                            <div class="tap-field"><label><?php esc_html_e('Precio/noche ($) *', 'travel-agency-platform'); ?></label><input type="number" name="price_per_night" min="0.01" step="0.01" required value="<?php echo esc_attr(get_post_meta($r->ID, '_tap_room_price_per_night', true)); ?>"></div>
-                            <div class="tap-field tap-span-2"><label><?php esc_html_e('Descripción de la habitación', 'travel-agency-platform'); ?></label><textarea name="description" rows="3"><?php echo esc_textarea($r->post_excerpt); ?></textarea></div>
-                            <div class="tap-field"><label><?php esc_html_e('Máx. adultos', 'travel-agency-platform'); ?></label><input type="number" name="max_adults" min="1" value="<?php echo esc_attr(get_post_meta($r->ID, '_tap_room_max_adults', true)); ?>"></div>
-                            <div class="tap-field"><label><?php esc_html_e('Máx. ocupación', 'travel-agency-platform'); ?></label><input type="number" name="max_occupancy" min="1" value="<?php echo esc_attr(get_post_meta($r->ID, '_tap_room_max_occupancy', true)); ?>"></div>
-                            <div class="tap-field"><label><?php esc_html_e('Cantidad de esta habitación', 'travel-agency-platform'); ?></label><input type="number" name="inventory" min="1" value="<?php echo esc_attr(get_post_meta($r->ID, '_tap_room_inventory', true)); ?>"></div>
-                            <div class="tap-field"><label><?php esc_html_e('Estadía mínima', 'travel-agency-platform'); ?></label><input type="number" name="min_stay" min="1" value="<?php echo esc_attr(get_post_meta($r->ID, '_tap_room_min_stay', true)); ?>"></div>
-                            <div class="tap-field"><label><?php esc_html_e('Tamaño', 'travel-agency-platform'); ?></label><input type="text" name="size" value="<?php echo esc_attr(get_post_meta($r->ID, '_tap_room_size', true)); ?>"></div>
-                            <div class="tap-field"><label><?php esc_html_e('Vista', 'travel-agency-platform'); ?></label><input type="text" name="view" value="<?php echo esc_attr(get_post_meta($r->ID, '_tap_room_view', true)); ?>"></div>
-                            <div class="tap-field"><label><?php esc_html_e('Piso', 'travel-agency-platform'); ?></label><input type="number" name="floor" min="0" value="<?php echo esc_attr(get_post_meta($r->ID, '_tap_room_floor', true)); ?>"></div>
-                            <div class="tap-field"><label><?php esc_html_e('Comodidades (separadas por coma)', 'travel-agency-platform'); ?></label><input type="text" name="amenities" placeholder="WiFi, Aire acondicionado, Desayuno" value="<?php echo esc_attr(implode(', ', (array) TAP_Post_Types::get_room_amenities($r->ID))); ?>"></div>
-                            <?php $room_beds = TAP_Post_Types::get_room_beds($r->ID); ?>
-                            <div class="tap-field tap-span-2">
-                                <label><?php esc_html_e('Camas', 'travel-agency-platform'); ?></label>
-                                <div class="tap-beds-rows" data-beds>
-                                    <?php foreach ((array) $room_beds as $bed): ?>
-                                    <div class="tap-bed-row">
-                                        <select class="tap-bed-type"><?php foreach (TAP_Post_Types::bed_types() as $bt => $bl): ?><option value="<?php echo esc_attr($bt); ?>" <?php selected($bt, $bed['type'] ?? ''); ?>><?php echo esc_html($bl); ?></option><?php endforeach; ?></select>
-                                        <input type="number" class="tap-bed-count" min="1" value="<?php echo esc_attr($bed['count'] ?? 1); ?>">
-                                        <button type="button" class="tap-bed-remove" aria-label="<?php esc_attr_e('Quitar cama', 'travel-agency-platform'); ?>">&times;</button>
-                                    </div>
-                                    <?php endforeach; ?>
-                                </div>
-                                <button type="button" class="tap-btn tap-btn-sm tap-bed-add">+ <?php esc_html_e('Añadir cama', 'travel-agency-platform'); ?></button>
-                                <input type="hidden" name="_tap_room_beds" class="tap-beds-json">
-                            </div>
-                            <div class="tap-field tap-span-2"><label><?php esc_html_e('Foto principal (URL de la imagen)', 'travel-agency-platform'); ?></label><input type="url" name="room_thumbnail_url" placeholder="https://…" value="<?php echo esc_url((string) get_the_post_thumbnail_url($r->ID, 'full')); ?>"></div>
-                            <div class="tap-field tap-span-2">
-                                <label><?php esc_html_e('Fotos de la habitación (URLs, una por línea)', 'travel-agency-platform'); ?></label>
-                                <?php
-                                $rgal_val = '';
-                                $rgal_ids = array_filter(array_map('trim', explode(',', (string) get_post_meta($r->ID, '_tap_room_gallery', true))));
-                                $rgal_urls = array_map(function ($id) {
-									$u = wp_get_attachment_image_url((int) $id, 'full');
-									return $u ? $u : '';
-								}, $rgal_ids);
-                                $rgal_val = implode("\n", array_filter($rgal_urls));
-                                ?>
-                                <textarea name="gallery_urls" rows="4" placeholder="<?php esc_attr_e('https://…\nhttps://…', 'travel-agency-platform'); ?>"><?php echo esc_textarea($rgal_val); ?></textarea>
-                            </div>
-                            <div class="tap-field">
-                                <label class="tap-check-label"><input type="checkbox" name="is_active" value="1" <?php checked('1', get_post_meta($r->ID, '_tap_room_is_active', true)); ?>> <?php esc_html_e('Activa', 'travel-agency-platform'); ?></label>
-                            </div>
-                            <div class="tap-field tap-field-actions">
-                                <button type="submit" class="tap-btn tap-btn-primary tap-btn-sm"><?php esc_html_e('Guardar', 'travel-agency-platform'); ?></button>
-                                <button type="button" class="tap-btn tap-btn-danger tap-btn-sm tap-delete-room"><?php esc_html_e('Eliminar', 'travel-agency-platform'); ?></button>
-                            </div>
-                        </div>
-                    </form>
-                    <?php endforeach; ?>
-                </div>
-                <?php endif; ?>
-
-                <form class="tap-manage-form tap-room-form" id="tap-room-add">
-                    <?php wp_nonce_field('tap_agency_listing_nonce', 'nonce'); ?>
-                    <input type="hidden" name="room_id" value="0">
-                    <input type="hidden" name="accommodation_id" value="<?php echo (int) $acc_id; ?>">
-                    <div class="tap-form-grid">
-                        <div class="tap-field"><label><?php esc_html_e('Nueva habitación — nombre *', 'travel-agency-platform'); ?></label><input type="text" name="title" required placeholder="<?php esc_attr_e('e.g. Habitación Doble Estándar', 'travel-agency-platform'); ?>"></div>
-                        <div class="tap-field"><label><?php esc_html_e('Precio/noche ($) *', 'travel-agency-platform'); ?></label><input type="number" name="price_per_night" min="0.01" step="0.01" required></div>
-                        <div class="tap-field tap-span-2"><label><?php esc_html_e('Descripción de la habitación', 'travel-agency-platform'); ?></label><textarea name="description" rows="3"></textarea></div>
-                        <div class="tap-field"><label><?php esc_html_e('Máx. adultos', 'travel-agency-platform'); ?></label><input type="number" name="max_adults" min="1" value="2"></div>
-                        <div class="tap-field"><label><?php esc_html_e('Máx. ocupación', 'travel-agency-platform'); ?></label><input type="number" name="max_occupancy" min="1" value="2"></div>
-                        <div class="tap-field"><label><?php esc_html_e('Cantidad de esta habitación', 'travel-agency-platform'); ?></label><input type="number" name="inventory" min="1" value="1"></div>
-                        <div class="tap-field"><label><?php esc_html_e('Piso', 'travel-agency-platform'); ?></label><input type="number" name="floor" min="0" value="0"></div>
-                        <div class="tap-field"><label><?php esc_html_e('Comodidades (separadas por coma)', 'travel-agency-platform'); ?></label><input type="text" name="amenities" placeholder="WiFi, Aire acondicionado, Desayuno"></div>
-                        <div class="tap-field tap-span-2">
-                            <label><?php esc_html_e('Camas', 'travel-agency-platform'); ?></label>
-                            <div class="tap-beds-rows" data-beds></div>
-                            <button type="button" class="tap-btn tap-btn-sm tap-bed-add">+ <?php esc_html_e('Añadir cama', 'travel-agency-platform'); ?></button>
-                            <input type="hidden" name="_tap_room_beds" class="tap-beds-json">
-                        </div>
-                        <div class="tap-field tap-span-2"><label><?php esc_html_e('Foto principal (URL de la imagen)', 'travel-agency-platform'); ?></label><input type="url" name="room_thumbnail_url" placeholder="https://…"></div>
-                        <div class="tap-field tap-span-2"><label><?php esc_html_e('Fotos de la habitación (URLs, una por línea)', 'travel-agency-platform'); ?></label><textarea name="gallery_urls" rows="4" placeholder="<?php esc_attr_e('https://…\nhttps://…', 'travel-agency-platform'); ?>"></textarea></div>
-                        <div class="tap-field tap-field-actions"><button type="submit" class="tap-btn tap-btn-primary">+ <?php esc_html_e('Añadir habitación', 'travel-agency-platform'); ?></button><span class="tap-form-msg"></span></div>
-                    </div>
-                </form>
-            <?php endif; ?>
         </div>
 
         <script>
