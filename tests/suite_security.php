@@ -37,11 +37,11 @@ tap_t_assert(
 // ===== B. Cancellation hints resolve every policy (D13) ====================
 // The listing wizard used to look up the non-existent key "nonrefund" and
 // return a blank hint for "strict", leaving the agency without a refund rule.
-$strict_hint = TAP_Acc_Wizard::acc_cancellation_hint('strict');
+$strict_hint = TAP_Acc_Wizard_Steps::acc_cancellation_hint('strict');
 tap_t_assert('' !== $strict_hint, 'strict policy has a hint (was blank before D13)');
 tap_t_assert(false !== mb_strpos($strict_hint, '50%'), 'strict hint states the refund percentage');
-tap_t_assert('' !== TAP_Acc_Wizard::acc_cancellation_hint('non_refundable'), 'non_refundable key resolves (was "nonrefund")');
-tap_t_assert('' === TAP_Acc_Wizard::acc_cancellation_hint('nonexistent'), 'unknown policy key falls back to empty');
+tap_t_assert('' !== TAP_Acc_Wizard_Steps::acc_cancellation_hint('non_refundable'), 'non_refundable key resolves (was "nonrefund")');
+tap_t_assert('' === TAP_Acc_Wizard_Steps::acc_cancellation_hint('nonexistent'), 'unknown policy key falls back to empty');
 
 // ===== C. Canonical nonce helpers exist ====================================
 tap_t_assert(is_callable(['TAP_Dashboard', 'post_nonce_ok']), 'TAP_Dashboard::post_nonce_ok is the shared nonce verifier');
@@ -74,6 +74,7 @@ tap_t_assert(
 );
 $acc_wizard  = $src('includes/class-acc-wizard.php');
 $acc_wizard .= $src('includes/class-acc-wizard-room-form.php');
+$acc_wizard .= $src('includes/class-acc-wizard-steps.php');
 tap_t_assert(
     false !== strpos($acc_wizard, 'class="tap-field<?php echo esc_attr($span); ?>"'),
     'wizard field class is attribute-escaped'

@@ -16,9 +16,9 @@ tap_t_assert(count($policies) === 4, 'cancellation_policies exposes 4 policies')
 // every canonical policy must render a hint in the listing form (D13).
 // 'nonrefund' was a stale key, so that hint was never shown.
 foreach ($policies as $pkey => $plabel) {
-    tap_t_assert('' !== TAP_Acc_Wizard::acc_cancellation_hint($pkey), "cancellation hint exists for $pkey");
+    tap_t_assert('' !== TAP_Acc_Wizard_Steps::acc_cancellation_hint($pkey), "cancellation hint exists for $pkey");
 }
-tap_t_assert('' === TAP_Acc_Wizard::acc_cancellation_hint('nonrefund'), 'stale nonrefund key no longer resolves');
+tap_t_assert('' === TAP_Acc_Wizard_Steps::acc_cancellation_hint('nonrefund'), 'stale nonrefund key no longer resolves');
 
 // ---- 1) Settings defaults seeded by the installer ----
 $defaults = [
