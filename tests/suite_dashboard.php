@@ -148,7 +148,8 @@ if (has_action('wp_ajax_tap_dash_delete_review')) {
 }
 
 // ---- 14) nonce + security wiring present in class source ----
-$src = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-front-dash.php');
+$src  = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-front-dash.php');
+$src .= file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-front-dash-client.php');
 tap_t_assert(strpos($src, 'tap_front_dash_nonce') !== false, 'dashboard class defines front-dash nonce action');
 $src_dash = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-ajax-dash.php');
 tap_t_assert(strpos($src_dash, 'check_ajax_referer') !== false, 'dashboard AJAX handlers verify nonce');

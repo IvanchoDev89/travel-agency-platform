@@ -54,6 +54,7 @@ final class TravelAgencyPlatform {
         require_once TAP_PLUGIN_DIR . 'includes/class-shortcode-search.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-shortcode-booking.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-shortcode-account.php';
+        require_once TAP_PLUGIN_DIR . 'includes/class-shortcode-agency-panel.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-ajax.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-ajax-listing.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-listing-access.php';

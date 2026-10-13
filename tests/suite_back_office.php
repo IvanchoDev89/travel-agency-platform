@@ -178,7 +178,8 @@ tap_t_assert('owed' === TAP_Booking::get_booking($p3)->commission_status, 'cance
 tap_t_assert(false === TAP_Payouts::complete($pid2), 'a cancelled payout cannot be completed');
 
 // ── 7) front-office sections + wiring ────────────────────────────────
-$src = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-front-dash.php');
+$src  = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-front-dash.php');
+$src .= file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-front-dash-client.php');
 tap_t_assert(false !== strpos($src, 'tap_dash_agency_booking') && false !== strpos($src, 'tap_dash_agency_payout'), 'dashboard class defines the book-office AJAX actions');
 tap_t_assert(has_action('wp_ajax_tap_dash_agency_booking') && has_action('wp_ajax_tap_dash_agency_payout'), 'book-office AJAX endpoints are registered');
 tap_t_assert(false !== strpos($src, "'bo-operations'") && false !== strpos($src, "'bo-finances'") && false !== strpos($src, "'bo-listings'"), 'back-office sections wired in the dashboard nav/routing');
@@ -213,7 +214,7 @@ tap_t_assert(false !== strpos($out, 'Solo el administrador de la agencia'), 'emp
 
 // legacy /dashboard/ redirect + unified back-office links
 tap_t_assert(has_action('template_redirect') && false !== strpos($src, 'dashboard_redirect'), 'legacy /dashboard/ page 301-redirects to /mi-cuenta/');
-$all_includes = implode("\n", array_map(function ($f) { return file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/' . $f); }, ['class-emails.php', 'class-ajax.php', 'class-chatbot.php', 'class-shortcodes.php', 'class-front-dash.php']));
+$all_includes = implode("\n", array_map(function ($f) { return file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/' . $f); }, ['class-emails.php', 'class-emails-send.php', 'class-ajax.php', 'class-ajax-listing.php', 'class-listing-access.php', 'class-chatbot.php', 'class-shortcodes.php', 'class-front-dash.php', 'class-front-dash-client.php']));
 tap_t_assert(false === strpos($all_includes, "home_url('/dashboard/')") && false === strpos($all_includes, 'home_url("/dashboard/")'), 'no plugin code links to the legacy /dashboard/ page anymore');
 
 $cols = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_commission_payments");

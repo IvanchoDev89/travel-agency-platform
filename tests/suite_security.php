@@ -59,7 +59,10 @@ tap_t_assert(
 // ===== E. Attribute-context output is escaped ==============================
 // Bare echoes into class=/value= attributes are the XSS-shaped half of the
 // EscapeOutput report; the fixed sites must stay fixed.
-$account = $src('includes/class-shortcode-account.php');
+// The agency panel was split out of this file in 1.5.17, so the source-level
+// invariants below have to look at both halves.
+$account  = $src('includes/class-shortcode-account.php');
+$account .= $src('includes/class-shortcode-agency-panel.php');
 tap_t_assert(
     false !== strpos($account, '<option value="<?php echo esc_attr($m); ?>">'),
     'plan duration option values are attribute-escaped'
@@ -69,7 +72,8 @@ tap_t_assert(
     false !== strpos($dash_content, 'class="nav-tab<?php echo esc_attr($class); ?>"'),
     'admin nav tab class is attribute-escaped'
 );
-$acc_wizard = $src('includes/class-acc-wizard.php');
+$acc_wizard  = $src('includes/class-acc-wizard.php');
+$acc_wizard .= $src('includes/class-acc-wizard-room-form.php');
 tap_t_assert(
     false !== strpos($acc_wizard, 'class="tap-field<?php echo esc_attr($span); ?>"'),
     'wizard field class is attribute-escaped'
@@ -95,7 +99,8 @@ tap_t_assert(
 // ===== G. Refunds have a single route ======================================
 // TAP_Booking used to carry seven delegating wrappers; both classes must not
 // define the same entry point any more.
-$booking_src = $src('includes/class-booking.php');
+$booking_src  = $src('includes/class-booking.php');
+$booking_src .= $src('includes/class-booking-pricing.php');
 tap_t_assert(
     false === strpos($booking_src, 'return TAP_Refunds::'),
     'TAP_Booking no longer delegates to TAP_Refunds'

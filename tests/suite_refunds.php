@@ -219,15 +219,19 @@ if (!is_wp_error($first)) {
 wp_set_current_user(0);
 
 // ── 7) wiring / source guards ───────────────────────────────────────
-$src_front = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-front-dash.php');
+$src_front  = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-front-dash.php');
+$src_front .= file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-front-dash-client.php');
 $src_dash = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-ajax-dash.php');
 tap_t_assert(false !== strpos($src_dash, 'client_cancel_request($booking_id'), 'ajax_cancel_booking delegates to client_cancel_request');
 tap_t_assert(false === strpos($src_dash, '"status"           => \'cancelled\',\n                \'cancelled_by\''), 'ajax_cancel_booking no longer writes the raw row');
-$src_ajax = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-ajax.php');
+$src_ajax  = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-ajax.php');
+$src_ajax .= file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-ajax-listing.php');
+$src_ajax .= file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-listing-access.php');
 $src_commerce = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-ajax-commerce.php');
 tap_t_assert(false !== strpos($src_commerce, 'record_paid_capture('), 'capture_paypal_order delegates to the idempotent capture path');
 tap_t_assert(false !== strpos($src_ajax, "check_ajax_referer('tap_admin_booking', '_ajax_nonce')"), 'admin branch of update_booking_status is CSRF-protected');
-$src_booking = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-booking.php');
+$src_booking  = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-booking.php');
+$src_booking .= file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-booking-pricing.php');
 tap_t_assert(false !== strpos($src_booking, "do_action('tap_payment_completed', (int) \$booking_id, \$method, \$capture_id)"), 'record_paid_capture fires tap_payment_completed (receipts + commission)');
 tap_t_assert(false !== strpos($src_booking, 'GET_LOCK'), 'create() serializes room/tour availability with an advisory MySQL lock');
 $src_refunds = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-refunds.php');
