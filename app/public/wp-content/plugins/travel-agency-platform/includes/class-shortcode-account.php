@@ -289,7 +289,7 @@ endif;
                                 <?php endif; ?>
                             </td>
                             <td><?php echo esc_html(TAP_Currency::fmt(max(0, (float) $b->total_amount - (float) ($b->booking_fee ?? 0) - ($b->commission_status === 'void' ? 0 : (float) $b->commission_amount)))); ?></td>
-                            <td><span class="tap-status tap-status-<?php echo esc_attr($b->status); ?>"><?php echo esc_html(TAP_Emails::status_label($b->status)); ?></span></td>
+                            <td><span class="tap-status tap-status-<?php echo esc_attr($b->status); ?>"><?php echo esc_html(TAP_Emails_Send::status_label($b->status)); ?></span></td>
                             <td class="tap-actions">
                                 <?php
                                 if ($b->status === 'request'):

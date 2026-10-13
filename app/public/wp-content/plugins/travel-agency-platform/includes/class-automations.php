@@ -76,7 +76,7 @@ class TAP_Automations {
             if (self::sent('pay', $id)) {
                 continue;
             }
-            if (TAP_Emails::send_payment_reminder($booking)) {
+            if (TAP_Emails_Send::send_payment_reminder($booking)) {
                 self::mark('pay', $id);
             }
         }
@@ -120,7 +120,7 @@ class TAP_Automations {
             if (self::sent('pre', $id)) {
                 continue;
             }
-            if (TAP_Emails::send_prearrival_msg($booking)) {
+            if (TAP_Emails_Send::send_prearrival_msg($booking)) {
                 self::mark('pre', $id);
             }
         }
@@ -167,7 +167,7 @@ class TAP_Automations {
             if (self::sent('rev', $id)) {
                 continue;
             }
-            if (TAP_Emails::send_review_request($booking)) {
+            if (TAP_Emails_Send::send_review_request($booking)) {
                 self::mark('rev', $id);
             }
         }
@@ -202,7 +202,7 @@ class TAP_Automations {
                 continue;
             }
             $label = get_the_title((int) $s->plan_id) ?: __('Plan', 'travel-agency-platform');
-            if (TAP_Emails::send_expiry_warning((int) $s->agency_id, 'subscription', $label, $s->paid_until)) {
+            if (TAP_Emails_Send::send_expiry_warning((int) $s->agency_id, 'subscription', $label, $s->paid_until)) {
                 self::mark('exp', $key);
             }
         }
@@ -222,7 +222,7 @@ class TAP_Automations {
                 continue;
             }
             $label = get_the_title((int) $p->listing_id) ?: __('Servicio destacado', 'travel-agency-platform');
-            if (TAP_Emails::send_expiry_warning((int) $p->agency_id, 'promo', $label, $p->paid_until)) {
+            if (TAP_Emails_Send::send_expiry_warning((int) $p->agency_id, 'promo', $label, $p->paid_until)) {
                 self::mark('exp', $key);
             }
         }

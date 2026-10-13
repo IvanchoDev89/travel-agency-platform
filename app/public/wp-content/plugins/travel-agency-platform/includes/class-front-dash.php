@@ -295,7 +295,7 @@ class TAP_Front_Dash {
                         <td><?php echo esc_html($b->check_in . ($b->check_out ? ' &rarr; ' . $b->check_out : '')); ?></td>
                         <td><?php echo esc_html($b->adults . ' ' . __('ad', 'travel-agency-platform') . ($b->children ? ', ' . $b->children . ' ' . __('niños', 'travel-agency-platform') : '')); ?></td>
                         <td><?php echo esc_html(TAP_Currency::fmt($b->total_amount)); ?></td>
-                        <td><?php $pay_cls = 'paid' === $b->payment_status ? 'confirmed' : ('refunded' === $b->payment_status ? 'cancelled' : 'pending'); ?><span class="tap-status tap-status-<?php echo $pay_cls; ?>"><?php echo esc_html(TAP_Emails::payment_label($b->payment_status)); ?></span></td>
+                        <td><?php $pay_cls = 'paid' === $b->payment_status ? 'confirmed' : ('refunded' === $b->payment_status ? 'cancelled' : 'pending'); ?><span class="tap-status tap-status-<?php echo $pay_cls; ?>"><?php echo esc_html(TAP_Emails_Send::payment_label($b->payment_status)); ?></span></td>
                         <td><span class="tap-status tap-status-<?php echo in_array($b->status, ['confirmed', 'completed'], true) ? 'confirmed' : 'pending'; ?>"><?php echo esc_html($b->status); ?></span><?php if (!empty($b->cancel_reason)): ?><br><span class="tap-cancel-reason"><?php echo esc_html($b->cancel_reason); ?></span><?php endif; ?></td>
                         <td>
                             <?php if (!$is_admin): ?>
@@ -637,7 +637,7 @@ endif;
                             <td><?php echo esc_html($b_title); ?></td>
                             <td><?php echo esc_html($b->check_in . ($b->check_out ? ' &rarr; ' . $b->check_out : '')); ?></td>
                             <td><?php echo esc_html(TAP_Currency::fmt($b->total_amount)); ?></td>
-                            <td><span class="tap-status tap-status-<?php echo in_array($b->status, ['confirmed', 'completed'], true) ? 'confirmed' : 'pending'; ?>"><?php echo esc_html(TAP_Emails::status_label($b->status)); ?></span></td>
+                            <td><span class="tap-status tap-status-<?php echo in_array($b->status, ['confirmed', 'completed'], true) ? 'confirmed' : 'pending'; ?>"><?php echo esc_html(TAP_Emails_Send::status_label($b->status)); ?></span></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>

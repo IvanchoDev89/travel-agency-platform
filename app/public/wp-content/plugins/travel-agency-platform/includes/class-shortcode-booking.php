@@ -187,7 +187,7 @@ class TAP_Shortcode_Booking {
                                     <br><span class="tap-refund-note"><?php esc_html_e('Política no reembolsable', 'travel-agency-platform'); ?></span>
                                 <?php endif; ?>
                             </td>
-<td><span class="tap-status tap-status-<?php echo esc_attr($booking->status); ?>"><?php echo esc_html(TAP_Emails::status_label($booking->status)); ?></span></td>
+<td><span class="tap-status tap-status-<?php echo esc_attr($booking->status); ?>"><?php echo esc_html(TAP_Emails_Send::status_label($booking->status)); ?></span></td>
                             <td><span class="tap-status tap-status-<?php echo esc_attr($booking->payment_status); ?>"><?php echo esc_html(ucfirst($booking->payment_status)); ?></span></td>
                             <td>
                                 <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(home_url('/booking-detail/?code=' . $booking->booking_code)); ?>"><?php esc_html_e('Ver voucher', 'travel-agency-platform'); ?></a>
@@ -590,7 +590,7 @@ class TAP_Shortcode_Booking {
             ],
         ];
 
-        $status_labels = TAP_Emails::status_labels();
+        $status_labels = TAP_Emails_Send::status_labels();
         $pstatus = [
             'pending' => __('Pendiente', 'travel-agency-platform'),
             'paid'    => __('Pagado', 'travel-agency-platform'),

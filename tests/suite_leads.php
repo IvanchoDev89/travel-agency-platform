@@ -60,8 +60,12 @@ function ld_make_service($agency_id, $label) {
 
 // ===== Setup =====
 $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}tap_leads WHERE email LIKE %s", $pref . '_%'));
-$any = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}tap_leads");
-tap_t_assert(0 === (int) $any, 'leads table is empty before suite');
+// Scope the emptiness check to this suite's own namespace. Requiring the whole
+// table to be empty made the suite fail depending on run order, because
+// suite_attribution, suite_moderation and the installer's seeded leads all
+// legitimately leave rows behind.
+$any = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}tap_leads WHERE email LIKE %s", $pref . '_%'));
+tap_t_assert(0 === (int) $any, 'no leftover leads from this suite namespace');
 
 $ld_owner_uid = ld_make_user($pref . '_o');
 tap_t_assert($ld_owner_uid > 0, 'created lead test owner user');

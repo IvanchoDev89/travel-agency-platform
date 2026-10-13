@@ -37,6 +37,8 @@ foreach (glob($plugin . 'includes/class-dashboard*.php') ?: [] as $tap_dash_file
     $dash_src .= file_get_contents($tap_dash_file);
 }
 $email_src = file_get_contents($plugin . 'includes/class-emails.php');
+// The message template (and the admin links inside it) lives in the send half.
+$email_src .= file_get_contents($plugin . 'includes/class-emails-send.php');
 $short_src = file_get_contents($plugin . 'includes/class-shortcodes.php');
 
 tap_t_assert(strpos($dash_src, 'get_edit_post_link($b->id)') === false, 'admin booking code no longer links to a fake edit post url');

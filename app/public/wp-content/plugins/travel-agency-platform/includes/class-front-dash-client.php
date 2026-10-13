@@ -170,7 +170,7 @@ class TAP_Front_Dash_Client {
                                     <td><?php echo $svc ? esc_html($svc->post_title) : '—'; ?></td>
                                     <td><?php echo esc_html($b->check_in . ($b->check_out ? ' → ' . $b->check_out : '')); ?></td>
                                     <td class="tap-dash-amount"><?php echo esc_html(TAP_Currency::fmt($b->total_amount)); ?></td>
-                                    <td><span class="tap-status tap-status-<?php echo esc_attr($b->status); ?>"><?php echo esc_html(TAP_Emails::status_label($b->status)); ?></span></td>
+                                    <td><span class="tap-status tap-status-<?php echo esc_attr($b->status); ?>"><?php echo esc_html(TAP_Emails_Send::status_label($b->status)); ?></span></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -255,7 +255,7 @@ class TAP_Front_Dash_Client {
                                     <span class="tap-dash-booking-code"><?php echo esc_html($b->booking_code); ?></span>
                                     <h3><?php echo $svc ? esc_html($svc->post_title) : '—'; ?></h3>
                                 </div>
-                                <span class="tap-status tap-status-<?php echo esc_attr($b->status); ?>"><?php echo esc_html(TAP_Emails::status_label($b->status)); ?></span>
+                                <span class="tap-status tap-status-<?php echo esc_attr($b->status); ?>"><?php echo esc_html(TAP_Emails_Send::status_label($b->status)); ?></span>
                             </div>
                             <div class="tap-dash-booking-meta">
                                 <span>

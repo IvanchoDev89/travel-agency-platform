@@ -11,16 +11,16 @@ global $wpdb;
 $p = $wpdb->prefix;
 
 /* 1) localized label maps ---------------------------------------------------- */
-$status = TAP_Emails::status_labels();
+$status = TAP_Emails_Send::status_labels();
 tap_t_assert(is_array($status) && count($status) === 6, 'status_labels() returns 6 statuses');
 tap_t_assert($status['pending'] === 'Pendiente' && $status['confirmed'] === 'Confirmada', 'status_labels() source strings are Spanish');
-tap_t_assert(TAP_Emails::status_label('confirmed') === 'Confirmada', 'status_label() resolves known status');
-tap_t_assert(TAP_Emails::status_label('bogus_status') === 'bogus_status', 'status_label() falls back to raw value');
+tap_t_assert(TAP_Emails_Send::status_label('confirmed') === 'Confirmada', 'status_label() resolves known status');
+tap_t_assert(TAP_Emails_Send::status_label('bogus_status') === 'bogus_status', 'status_label() falls back to raw value');
 
-$payment = TAP_Emails::payment_labels();
+$payment = TAP_Emails_Send::payment_labels();
 tap_t_assert(is_array($payment) && count($payment) === 5, 'payment_labels() returns 5 payment states');
-tap_t_assert(TAP_Emails::payment_label('refunded') === 'Reembolsada', 'payment_label() resolves known state');
-tap_t_assert(TAP_Emails::payment_label('unknown') === 'unknown', 'payment_label() falls back to raw value');
+tap_t_assert(TAP_Emails_Send::payment_label('refunded') === 'Reembolsada', 'payment_label() resolves known state');
+tap_t_assert(TAP_Emails_Send::payment_label('unknown') === 'unknown', 'payment_label() falls back to raw value');
 tap_t_assert(!defined('TAP_Emails::STATUS_LABELS'), 'legacy STATUS_LABELS const removed (callers migrated)');
 
 /* 2) handler wiring ---------------------------------------------------------- */

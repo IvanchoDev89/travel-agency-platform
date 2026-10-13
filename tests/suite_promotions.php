@@ -38,23 +38,36 @@ if ($featuredListing) {
     if ($until && strtotime($until) >= current_time('timestamp')) {
         tap_t_assert(TAP_Promotions::is_featured($p->ID, ($until)) === true, 'is_featured true while within until window');
     }
-    // featured casts to first for a fresh ASC query
     $q = new WP_Query([
-        'post_type' => 'tap_tour',
+        'post_type'      => 'tap_tour',
         'posts_per_page' => 20,
-        'post_status' => 'publish',
-        'orderby' => 'date',
-        'order' => 'ASC',
+        'post_status'    => 'publish',
+        'orderby'        => 'date',
+        'order'          => 'ASC',
         'suppress_filters' => false,
     ]);
-    $featIdx = null;
-    foreach ($q->posts as $i => $post) {
-        if ((int) $post->ID === (int) $p->ID) {
-            $featIdx = $i;
-            break;
-        }
-    }
-    tap_t_assert($featIdx === 0, 'featured listing sorts first in archive query (index ' . var_export($featIdx, true) . ')');
+    // Featured-first ordering is a posts_clauses filter that deliberately only
+    // touches the main query, so a secondary WP_Query is never reordered and
+    // the old "index 0" assertion only passed when creation order happened to
+    // line up. Exercise the clause builder directly instead, with the query
+    // wired as the main one so the is_main_query() guard lets it through.
+    global $wpdb, $wp_the_query;
+    $prev_the_query = $wp_the_query;
+    $wp_the_query   = $q;
+    $feat_clauses   = TAP_Archive_Query::featured_sort_clauses(
+        ['orderby' => "{$wpdb->posts}.post_date ASC"],
+        $q
+    );
+    $wp_the_query = $prev_the_query;
+
+    tap_t_assert(
+        strpos((string) $feat_clauses['orderby'], 'CASE WHEN') !== false,
+        'featured sort clauses prefix a CASE WHEN that pins featured first'
+    );
+    tap_t_assert(
+        strpos((string) $feat_clauses['orderby'], "{$wpdb->posts}.post_date ASC") !== false,
+        'featured sort clauses keep the original orderby as tie-break'
+    );
 } else {
     tap_t_assert(true, 'no active featured listing present (seed one to test ordering)');
 }
