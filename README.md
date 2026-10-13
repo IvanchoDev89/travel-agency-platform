@@ -176,7 +176,7 @@ make install      # composer install (PHPCS + PHPStan dev tooling)
 make check        # analyse + lint + test + i18n-check (the full local gate)
 
 # or run the pieces individually
-make analyse      # PHPStan (level 1) — must stay green
+make analyse      # PHPStan (level 3) — must stay green
 make lint         # PHPStan + PHPCS report
 make lint-fix     # PHPCS auto-fix
 make test         # E2E suites against a real WP install (mutates the DB)
@@ -187,7 +187,7 @@ make includes-check     # fail if a class file in includes/ is not require_once'
 make audit-security     # security/DB-only PHPCS report (no formatting rules)
 ```
 
-- **Static analysis** — PHPStan level 1 with the WordPress stubs (`phpstan.neon.dist`); the `TAP_*`/WP constants come from `tools/phpstan-bootstrap.php`.
+- **Static analysis** — PHPStan level 3 with the WordPress stubs (`phpstan.neon.dist`); the `TAP_*`/WP constants come from `tools/phpstan-bootstrap.php`.
 - **Coding standards** — the `WordPress` ruleset trimmed to correctness, security, database and i18n sniffs (`.phpcs.xml.dist`); the report is informational while the pre-existing debt is burned down.
 - **Tests** — the E2E suites in `tests/` run against a real WordPress + MySQL install (they modify data, hence the guard flag).
 - **Translations** — `tools/i18n.sh` regenerates the POT and refreshes/compiles the `es_ES` and `en_US` catalogs without dropping curated entries.

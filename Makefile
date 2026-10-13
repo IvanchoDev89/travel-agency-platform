@@ -1,7 +1,7 @@
 # Travel Agency Platform — developer workflow.
 #
 #   make install     composer install (PHPStan + PHPCS)
-#   make analyse     PHPStan level 1 (must stay green)
+#   make analyse     PHPStan level 3 (must stay green)
 #   make lint        PHPStan + PHPCS (informational)
 #   make lint-fix    PHPCS autofix for the fixable subset
 #   make test        E2E suites against the real WordPress install
@@ -20,7 +20,7 @@ help:
 install: ## install dev dependencies
 	$(COMPOSER) install
 
-analyse: ## PHPStan level 1
+analyse: ## PHPStan level 3
 	vendor/bin/phpstan analyse --no-progress
 
 lint: ## PHPStan + PHPCS report

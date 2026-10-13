@@ -99,13 +99,13 @@ class TAP_Analytics {
             ['key' => 'confirmed', 'label' => __('Reservas confirmadas', 'travel-agency-platform'), 'value' => $confirmed],
             ['key' => 'paid', 'label' => __('Reservas pagadas', 'travel-agency-platform'), 'value' => $paid],
         ];
-        $prev = 0;
-        foreach ($stages as $i => &$s) {
-            $s['rate'] = ($i > 0 && $prev > 0) ? round($s['value'] / $prev * 100, 1) : 0.0;
-            $prev = $s['value'];
+        $prev  = 0;
+        $out   = [];
+        foreach ($stages as $i => $s) {
+            $out[] = $s + ['rate' => ($i > 0 && $prev > 0) ? round($s['value'] / $prev * 100, 1) : 0.0];
+            $prev  = $s['value'];
         }
-        unset($s);
-        return $stages;
+        return $out;
     }
 
     private static function date_where($from, $to) {

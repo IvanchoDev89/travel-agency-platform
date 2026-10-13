@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   static-analysis:
-    name: PHPStan (level 1)
+    name: PHPStan (level 3)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
