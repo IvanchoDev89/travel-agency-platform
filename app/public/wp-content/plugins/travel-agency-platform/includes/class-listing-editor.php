@@ -278,6 +278,8 @@ class TAP_Listing_Editor {
 
         <script>
         (function(){
+            var boot = function(){
+            if (typeof tap_ajax === 'undefined') { return; }
             var url = tap_ajax.ajax_url;
             var nonce = tap_ajax.listing_nonce;
             var msgBox = function(f, m){ var el = f.querySelector('.tap-form-msg'); if(el){ el.textContent = m; } };
@@ -376,7 +378,9 @@ class TAP_Listing_Editor {
 });
                 }
             }
-        });
+        );
+            };
+            if ('loading' === document.readyState) { document.addEventListener('DOMContentLoaded', boot); } else { boot(); }
         })();
         </script>
         <?php

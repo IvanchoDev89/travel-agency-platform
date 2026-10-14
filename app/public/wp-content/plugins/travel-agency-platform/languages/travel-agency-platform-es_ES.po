@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-10-14T06:11:02+00:00\n"
+"POT-Creation-Date: 2026-10-14T07:02:46+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -1422,7 +1422,7 @@ msgid "Límite de listados alcanzado"
 msgstr "Límite de listados alcanzado"
 
 #. translators: %d: número máximo de listados permitidos por el plan
-#: includes/class-acc-wizard.php:105 includes/class-ajax-listing.php:137
+#: includes/class-acc-wizard.php:105 includes/class-ajax-listing.php:150
 #, php-format
 msgid ""
 "Your plan allows a maximum of %d listings. Upgrading your plan unlocks more."
@@ -1598,7 +1598,7 @@ msgstr "El archivo no es una imagen válida."
 #: includes/class-ajax-commerce.php:11 includes/class-ajax-commerce.php:49
 #: includes/class-ajax-commerce.php:82 includes/class-ajax-commerce.php:130
 #: includes/class-ajax-commerce.php:163 includes/class-ajax-commerce.php:207
-#: includes/class-ajax-listing.php:20 includes/class-ajax-listing.php:471
+#: includes/class-ajax-listing.php:20 includes/class-ajax-listing.php:484
 msgid "Authentication required"
 msgstr "Autenticación requerida"
 
@@ -1735,7 +1735,7 @@ msgid "Solo el administrador de la agencia puede solicitar liquidaciones."
 msgstr "Solo el administrador de la agencia puede solicitar liquidaciones."
 
 #: includes/class-ajax-dash.php:21 includes/class-ajax-dash.php:300
-#: includes/class-ajax-dash.php:321 includes/class-ajax-listing.php:101
+#: includes/class-ajax-dash.php:321 includes/class-ajax-listing.php:114
 #: includes/class-front-dash.php:262 includes/class-front-dash.php:396
 #: includes/class-front-dash.php:523 includes/class-front-dash.php:580
 #: includes/class-front-dash.php:714
@@ -1842,83 +1842,88 @@ msgstr "Listado actualizado"
 msgid "Listing created"
 msgstr "Listado creado"
 
-#: includes/class-ajax-listing.php:89 includes/class-ajax-listing.php:476
-#: includes/class-ajax-listing.php:639 includes/class-listing-editor.php:41
+#: includes/class-ajax-listing.php:90 includes/class-ajax-listing.php:93
+#: includes/class-ajax-listing.php:489 includes/class-ajax-listing.php:656
+#: includes/class-listing-editor.php:41
 msgid "You can only manage your own listings."
 msgstr "Solo puedes gestionar tus propios listados."
 
-#: includes/class-ajax-listing.php:98
+#: includes/class-ajax-listing.php:101
+msgid "No tienes permiso para editar listados."
+msgstr "No tienes permiso para editar listados."
+
+#: includes/class-ajax-listing.php:111
 msgid "No tienes permiso para crear listados."
 msgstr "No tienes permiso para crear listados."
 
-#: includes/class-ajax-listing.php:107
+#: includes/class-ajax-listing.php:120
 msgid "Name is required"
 msgstr "El nombre es obligatorio"
 
 #. translators: %s: etiqueta del tipo de tarifa
-#: includes/class-ajax-listing.php:129
+#: includes/class-ajax-listing.php:142
 #, php-format
 msgid "El precio %s debe ser mayor que 0."
 msgstr "El precio %s debe ser mayor que 0."
 
-#: includes/class-ajax-listing.php:178
+#: includes/class-ajax-listing.php:191
 msgid "Could not save the listing"
 msgstr "No se pudo guardar el listado"
 
-#: includes/class-ajax-listing.php:399 includes/class-ajax-listing.php:452
+#: includes/class-ajax-listing.php:412 includes/class-ajax-listing.php:465
 msgid "Alojamiento no encontrado."
 msgstr "Alojamiento no encontrado."
 
-#: includes/class-ajax-listing.php:413
+#: includes/class-ajax-listing.php:426
 msgid "Alojamiento despublicado. Ya no aparece en el buscador."
 msgstr "Alojamiento despublicado. Ya no aparece en el buscador."
 
-#: includes/class-ajax-listing.php:424
+#: includes/class-ajax-listing.php:437
 msgid "¡Alojamiento publicado! Ya está visible para los viajeros."
 msgstr "¡Alojamiento publicado! Ya está visible para los viajeros."
 
-#: includes/class-ajax-listing.php:432
+#: includes/class-ajax-listing.php:445
 msgid "Enviado a revisión. Un administrador lo aprobará y quedará visible."
 msgstr "Enviado a revisión. Un administrador lo aprobará y quedará visible."
 
-#: includes/class-ajax-listing.php:446 includes/class-booking.php:395
+#: includes/class-ajax-listing.php:459 includes/class-booking.php:395
 #: includes/class-booking.php:511
 msgid "Debes iniciar sesión."
 msgstr "Debes iniciar sesión."
 
-#: includes/class-ajax-listing.php:455
+#: includes/class-ajax-listing.php:468
 msgid "Solo puedes gestionar tus propios alojamientos."
 msgstr "Solo puedes gestionar tus propios alojamientos."
 
-#: includes/class-ajax-listing.php:486
+#: includes/class-ajax-listing.php:499
 msgid "Room updated"
 msgstr "Habitación actualizada"
 
-#: includes/class-ajax-listing.php:486
+#: includes/class-ajax-listing.php:499
 msgid "Room created"
 msgstr "Habitación creada"
 
-#: includes/class-ajax-listing.php:508
+#: includes/class-ajax-listing.php:521
 msgid "Room name is required"
 msgstr "El nombre de la habitación es obligatorio"
 
-#: includes/class-ajax-listing.php:512 includes/class-ajax-listing.php:635
+#: includes/class-ajax-listing.php:525 includes/class-ajax-listing.php:652
 msgid "Invalid room"
 msgstr "Habitación inválida"
 
-#: includes/class-ajax-listing.php:517
+#: includes/class-ajax-listing.php:530
 msgid "Price per night must be greater than 0"
 msgstr "El precio por noche debe ser mayor que 0"
 
-#: includes/class-ajax-listing.php:535
+#: includes/class-ajax-listing.php:552
 msgid "Could not save the room"
 msgstr "No se pudo guardar la habitación"
 
-#: includes/class-ajax-listing.php:649
+#: includes/class-ajax-listing.php:666
 msgid "This room has future bookings and cannot be deleted."
 msgstr "Esta habitación tiene reservas futuras y no puede eliminarse."
 
-#: includes/class-ajax-listing.php:653
+#: includes/class-ajax-listing.php:670
 msgid "Room deleted"
 msgstr "Habitación eliminada"
 
@@ -6396,7 +6401,7 @@ msgstr "Solicitud de liquidación"
 msgid "No se pudo registrar la solicitud."
 msgstr "No se pudo registrar la solicitud."
 
-#: includes/class-payouts.php:176
+#: includes/class-payouts.php:177
 msgid "Pago no completado por el banco/procesador."
 msgstr "Pago no completado por el banco/procesador."
 

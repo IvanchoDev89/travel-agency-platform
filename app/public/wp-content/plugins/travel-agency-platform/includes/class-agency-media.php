@@ -225,7 +225,19 @@ class TAP_Agency_Media {
     }
 
 
-    public static function usable_attachment_ids($raw, $limit = 0) {
+    /**
+     * Filter attachment ids sent by the front-end uploader. Images owned by
+     * the current user (or admins) are accepted, plus two safe exceptions so
+     * a save never silently drops media: images already referenced by the
+     * listing being edited, and images uploaded by a teammate of the same
+     * agency. Other agencies' media stays blocked.
+     *
+     * @param mixed $raw       Array or comma separated list of attachment ids.
+     * @param int   $limit     Max number of ids to keep (0 = unlimited).
+     * @param int   $context_id Post (listing or room) the ids are saved into.
+     * @return array<int,int> Ids as values, keyed by id.
+     */
+    public static function usable_attachment_ids($raw, $limit = 0, $context_id = 0) {
         $ids = is_array($raw) ? $raw : explode(',', (string) $raw);
         $uid = get_current_user_id();
         $is_admin = user_can($uid, 'manage_options');
@@ -242,7 +254,7 @@ class TAP_Agency_Media {
             if (0 !== strpos((string) get_post_mime_type($id), 'image/')) {
                 continue;
             }
-            if (!$is_admin && (int) $att->post_author !== $uid) {
+            if (!$is_admin && (int) $att->post_author !== $uid && !self::may_reuse_attachment($att, $uid, $context_id)) {
                 continue;
             }
             $out[$id] = $id;
@@ -251,5 +263,51 @@ class TAP_Agency_Media {
             }
         }
         return $out;
+    }
+
+    /**
+     * A foreign-authored image may still be kept when the listing already
+     * uses it (the resubmitted gallery would otherwise drop it) or when its
+     * author belongs to the same agency as the current user.
+     */
+    private static function may_reuse_attachment($att, $uid, $context_id) {
+        $context_id = (int) $context_id;
+        if ($context_id) {
+            if ((int) get_post_thumbnail_id($context_id) === (int) $att->ID) {
+                return true;
+            }
+            foreach (['_tap_acc_gallery', '_tap_room_gallery'] as $gallery_key) {
+                $gallery = (string) get_post_meta($context_id, $gallery_key, true);
+                if ('' !== $gallery && in_array((string) $att->ID, array_map('trim', explode(',', $gallery)), true)) {
+                    return true;
+                }
+            }
+        }
+        $author_agency = self::agency_id_for_user((int) $att->post_author);
+        $caller_agency = self::agency_id_for_user((int) $uid);
+        return $author_agency > 0 && $author_agency === $caller_agency;
+    }
+
+    /**
+     * Agency post id that manages a user: staff meta first, then the agency
+     * post owned by the user. 0 when the user belongs to no agency.
+     */
+    private static function agency_id_for_user($user_id) {
+        if ($user_id <= 0) {
+            return 0;
+        }
+        $staff = (int) get_user_meta($user_id, '_tap_agency_id', true);
+        if ($staff > 0 && 'tap_agency' === get_post_type($staff)) {
+            return $staff;
+        }
+        $posts = get_posts([
+            'post_type'      => 'tap_agency',
+            'post_status'    => 'any',
+            'meta_key'       => '_tap_agency_user_id',
+            'meta_value'     => $user_id,
+            'posts_per_page' => 1,
+            'fields'         => 'ids',
+        ]);
+        return $posts ? (int) $posts[0] : 0;
     }
 }

@@ -85,8 +85,21 @@ class TAP_Ajax_Listing {
         $prefix = TAP_Listing_Access::listing_prefix($listing_type);
 
         $listing_id = isset($input['listing_id']) ? intval($input['listing_id']) : 0;
-        if ($listing_id && !TAP_Listing_Access::agency_owns_listing($listing_id, $listing_type)) {
-            return __('You can only manage your own listings.', 'travel-agency-platform');
+        if ($listing_id) {
+            if (get_post_type($listing_id) !== $listing_type) {
+                return __('You can only manage your own listings.', 'travel-agency-platform');
+            }
+            if (!TAP_Listing_Access::agency_owns_listing($listing_id, $listing_type)) {
+                return __('You can only manage your own listings.', 'travel-agency-platform');
+            }
+            // Editing requires the CPT edit capability (agency admins and
+            // employees hold it; plain clients do not), mirroring the
+            // create-path guard below.
+            $edit_obj = get_post_type_object($listing_type);
+            $can_edit = ($edit_obj && current_user_can($edit_obj->cap->edit_posts)) || current_user_can('manage_options');
+            if (!$can_edit) {
+                return __('No tienes permiso para editar listados.', 'travel-agency-platform');
+            }
         }
         if (!$listing_id) {
             // Creating requires the CPT create capability and a linked agency
@@ -272,7 +285,7 @@ class TAP_Ajax_Listing {
         // attachment ids, so nothing is re-downloaded. The legacy URL fields
         // keep working for the older editors and reuse existing attachments.
         if (array_key_exists('featured_attachment_id', $input)) {
-            $att = TAP_Agency_Media::usable_attachment_ids($input['featured_attachment_id'], 1);
+            $att = TAP_Agency_Media::usable_attachment_ids($input['featured_attachment_id'], 1, $new_id);
             if ($att) {
                 set_post_thumbnail($new_id, (int) array_key_first($att));
             } else {
@@ -294,7 +307,7 @@ class TAP_Ajax_Listing {
 
         if ($listing_type === 'tap_accommodation') {
             if (array_key_exists('gallery_attachment_ids', $input)) {
-                $ids = TAP_Agency_Media::usable_attachment_ids($input['gallery_attachment_ids']);
+                $ids = TAP_Agency_Media::usable_attachment_ids($input['gallery_attachment_ids'], 0, $new_id);
                 update_post_meta($new_id, '_tap_acc_gallery', implode(',', array_keys($ids)));
             } elseif (array_key_exists('gallery_urls', $input)) {
                 $urls  = array_values(array_filter(array_map('trim', explode("\n", (string) $input['gallery_urls']))));
@@ -517,9 +530,13 @@ class TAP_Ajax_Listing {
             return new WP_Error( 'invalid_price', __( 'Price per night must be greater than 0', 'travel-agency-platform' ) );
         }
 
+        // Rooms follow the accommodation's visibility: a room created while
+        // the listing is still a draft must not leak as published content.
+        $acc_status  = get_post_status( $acc_id );
+        $room_status = ( !$acc_status || 'publish' === $acc_status ) ? 'publish' : $acc_status;
         $post = [
             'post_type'   => 'tap_room',
-            'post_status' => 'publish',
+            'post_status' => $room_status,
             'post_title'  => $title,
             'post_excerpt'=> isset( $input['description'] ) ? wp_kses_post( wp_unslash( $input['description'] ) ) : '',
         ];
@@ -566,7 +583,7 @@ class TAP_Ajax_Listing {
         // Images: attachment ids from the wizard uploader take precedence over
         // the legacy URL fields, which are reused when already known.
         if ( array_key_exists( 'room_attachment_id', $input ) ) {
-            $att = TAP_Agency_Media::usable_attachment_ids( $input['room_attachment_id'], 1 );
+            $att = TAP_Agency_Media::usable_attachment_ids( $input['room_attachment_id'], 1, $new_id );
             if ( $att ) {
                 set_post_thumbnail( $new_id, (int) array_key_first( $att ) );
             } else {
@@ -586,7 +603,7 @@ class TAP_Ajax_Listing {
         }
 
         if ( array_key_exists( 'gallery_attachment_ids', $input ) ) {
-            $ids = TAP_Agency_Media::usable_attachment_ids( $input['gallery_attachment_ids'] );
+            $ids = TAP_Agency_Media::usable_attachment_ids( $input['gallery_attachment_ids'], 0, $new_id );
             update_post_meta( $new_id, '_tap_room_gallery', implode( ',', array_keys( $ids ) ) );
         } elseif ( array_key_exists( 'gallery_urls', $input ) ) {
             $urls  = array_values( array_filter( array_map( 'trim', explode( "\n", (string) $input['gallery_urls'] ) ) ) );
@@ -649,7 +666,7 @@ class TAP_Ajax_Listing {
             wp_send_json_error( [ 'message' => __( 'This room has future bookings and cannot be deleted.', 'travel-agency-platform' ) ] );
         }
 
-        wp_delete_post( $room_id, false );
+        wp_delete_post( $room_id, true );
         wp_send_json_success( [ 'message' => __( 'Room deleted', 'travel-agency-platform' ) ] );
     }
 }

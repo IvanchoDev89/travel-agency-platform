@@ -35,8 +35,8 @@ class TAP_Acc_Wizard_Room_Form {
         <form class="tap-manage-form tap-room-form<?php echo $room_id ? '' : ' tap-room-form-new'; ?>"
                 id="<?php echo esc_attr($form_id); ?>"
                 data-room="<?php echo (int) $room_id; ?>"
-                <?php echo $room_id ? '' : 'data-new="1"'; ?>>
-                <?php echo $active ? '' : 'data-inactive="1"'; ?>>
+                <?php echo $room_id ? '' : 'data-new="1"'; ?>
+                <?php echo $active ? '' : 'data-inactive="1"'; ?>
                 <?php echo ($room_id || $open) ? '' : 'hidden'; ?>>
                 <div class="tap-unit-card<?php echo $active ? '' : ' is-inactive'; ?>">
             <header class="tap-unit-card-head">
