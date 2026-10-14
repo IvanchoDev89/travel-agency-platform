@@ -393,4 +393,77 @@
         });
     });
 
+    /* ── Agency back-office: destacadoss (promos) ───────────────────── */
+    $(document).on('submit', '.tap-promo-form', function (e) {
+        e.preventDefault();
+        var $form = $(this);
+        var $btn  = $form.find('.tap-promo-btn').prop('disabled', true);
+
+        $.post(cfg.ajax_url, {
+            action:     'tap_promo_request',
+            nonce:      cfg.nonce,
+            listing_id: $form.find('[name="listing_id"]').val(),
+            months:     $form.find('[name="months"]').val()
+        }).done(function (res) {
+            if (res && res.success) {
+                location.reload();
+            } else {
+                alert(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error));
+                $btn.prop('disabled', false);
+            }
+        }).fail(function () {
+            alert(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error');
+            $btn.prop('disabled', false);
+        });
+    });
+
+    var tapPromoPayPalInit = false;
+    function tapInitPromoPayPal() {
+        if (typeof window.tapPayPal === 'undefined' || tapPromoPayPalInit) {
+            return;
+        }
+        tapPromoPayPalInit = true;
+        document.querySelectorAll('.tap-promo-paypal-btn').forEach(function (holder) {
+            var $row       = $(holder).closest('form.tap-promo-paypal-form');
+            var listingId  = holder.getAttribute('data-listing-id');
+            window.tapPayPal.Buttons({
+                style: { label: 'paypal', layout: 'horizontal', height: 32 },
+                createOrder: function () {
+                    return $.post(cfg.ajax_url, {
+                        action:     'tap_promo_paypal',
+                        nonce:      cfg.nonce,
+                        listing_id: listingId,
+                        months:     $row.find('[name="months"]').val() || 1
+                    }).then(function (res) {
+                        if (res && res.success) {
+                            return res.data.order_id;
+                        }
+                        throw new Error(res && res.data && res.data.message ? res.data.message : 'Error');
+                    });
+                },
+                onApprove: function (data) {
+                    return $.post(cfg.ajax_url, {
+                        action:           'tap_capture_promo_paypal',
+                        nonce:            cfg.nonce,
+                        paypal_order_id:  data.orderID
+                    }).then(function (res) {
+                        if (res && res.success) {
+                            alert(res.data.message);
+                            location.reload();
+                        } else {
+                            alert(res && res.data && res.data.message ? res.data.message : 'Error');
+                        }
+                    });
+                }
+            }).render(holder);
+        });
+    }
+    var tapPromoPayPalCheck = setInterval(function () {
+        if (typeof window.tapPayPal !== 'undefined') {
+            tapInitPromoPayPal();
+            clearInterval(tapPromoPayPalCheck);
+        }
+    }, 300);
+    setTimeout(function () { clearInterval(tapPromoPayPalCheck); }, 15000);
+
 })(jQuery);

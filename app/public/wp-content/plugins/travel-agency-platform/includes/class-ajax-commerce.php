@@ -6,7 +6,7 @@ defined('ABSPATH') || exit;
  */
 class TAP_Ajax_Commerce {
     public static function promo_request() {
-        check_ajax_referer( 'tap_agency_nonce', 'nonce' );
+        check_ajax_referer( 'tap_front_dash_nonce', 'nonce' );
         if ( ! is_user_logged_in() ) {
             wp_send_json_error( [ 'message' => __( 'Authentication required', 'travel-agency-platform' ) ] );
         }
@@ -44,7 +44,7 @@ class TAP_Ajax_Commerce {
 
 
     public static function capture_promo_paypal() {
-        check_ajax_referer('tap_agency_nonce', 'nonce');
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => __('Authentication required', 'travel-agency-platform')]);
         }
@@ -77,7 +77,7 @@ class TAP_Ajax_Commerce {
 
 
     public static function promo_request_paypal() {
-        check_ajax_referer('tap_agency_nonce', 'nonce');
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => __('Authentication required', 'travel-agency-platform')]);
         }

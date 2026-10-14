@@ -226,6 +226,9 @@ class TAP_Front_Dash {
                     case 'bo-listings':
                         echo TAP_Listing_Editor::agency_manage([]);
                         break;
+                    case 'bo-promos':
+                        echo self::agency_promos($user);
+                        break;
                     case 'bo-team':
                         echo self::agency_team($user);
                         break;
@@ -547,6 +550,139 @@ class TAP_Front_Dash {
         return ob_get_clean();
     }
 
+    /* ── agency back-office: destacadoss (promos) ───────────────────── */
+
+    private static function agency_promos($user) {
+        if (in_array('tap_agency_employee', (array) $user->roles, true)) {
+            return '<p class="tap-empty">' . esc_html__('Solo el administrador de la agencia gestiona los destacados.', 'travel-agency-platform') . '</p>';
+        }
+        $agency = (int) TAP_Booking::get_agency_for_user($user->ID);
+        if (!$agency || !class_exists('TAP_Promotions')) {
+            return '<p class="tap-empty">' . esc_html__('No tienes una agencia vinculada.', 'travel-agency-platform') . '</p>';
+        }
+
+        $price        = TAP_Promotions::get_price();
+        $slots        = TAP_Promotions::featured_slots($agency);
+        $active_promos = TAP_Promotions::active_promos($agency);
+        $pending      = TAP_Promotions::pending_promos($agency);
+        $active_ids   = array_map(static fn($p) => (int) $p->listing_id, (array) $active_promos);
+        $pending_ids  = array_map(static fn($p) => (int) $p->listing_id, (array) $pending);
+        $paypal_ready = class_exists('TAP_PayPal') && TAP_PayPal::is_ready();
+
+        $listing_labels = [
+            'tap_accommodation' => __('Alojamientos', 'travel-agency-platform'),
+            'tap_tour'          => __('Tours', 'travel-agency-platform'),
+            'tap_transport'     => __('Transportes', 'travel-agency-platform'),
+            'tap_car_rental'    => __('Alquiler de carros', 'travel-agency-platform'),
+            'tap_boat'          => __('Barcos', 'travel-agency-platform'),
+            'tap_package'       => __('Paquetes', 'travel-agency-platform'),
+            'tap_equipment'     => __('Equipo', 'travel-agency-platform'),
+        ];
+        $rows = [];
+        foreach ($listing_labels as $type => $label) {
+            $ids = get_posts([
+                'post_type'      => $type,
+                'post_status'    => 'publish',
+                'posts_per_page' => -1,
+                'meta_key'       => TAP_Post_Types::agency_meta_key($type),
+                'meta_value'     => $agency,
+                'fields'         => 'ids',
+            ]);
+            foreach ($ids as $pid) {
+                $rows[] = ['id' => (int) $pid, 'type' => $type, 'label' => $label, 'title' => get_the_title($pid)];
+                if (count($rows) >= 15) {
+                    break 2;
+                }
+            }
+        }
+
+        ob_start();
+        ?>
+        <div class="tap-dash-section">
+            <div class="tap-dash-section-header">
+                <h2><?php esc_html_e('Destacados', 'travel-agency-platform'); ?></h2>
+                <?php if ($slots > 0) : ?>
+                    <p class="tap-agency-meta"><?php echo esc_html(sprintf(/* translators: 1: destacados activos, 2: máximo de destacados del plan, 3: precio mensual por listado */ __('Disponibles: %d de %d · %s/mes por listado', 'travel-agency-platform'), count($active_ids), $slots, TAP_Currency::fmt($price))); ?></p>
+                <?php endif; ?>
+            </div>
+            <?php if ($slots <= 0) : ?>
+                <div class="tap-capacity-note" style="background:#fffbeb;color:#92400e;font-size:13px;font-weight:600;padding:10px 14px;border-radius:10px;">
+                    <?php esc_html_e('Tu plan actual no incluye listados destacados. Mejora tu plan para destacar tus servicios en la plataforma.', 'travel-agency-platform'); ?>
+                    <a href="<?php echo esc_url(home_url('/planes/')); ?>" class="tap-btn tap-btn-sm" style="margin-left:8px;"><?php esc_html_e('Ver planes', 'travel-agency-platform'); ?></a>
+                </div>
+            <?php elseif (!$rows) : ?>
+                <p class="tap-empty"><?php esc_html_e('Aún no tienes listados publicados para destacar.', 'travel-agency-platform'); ?></p>
+            <?php else : ?>
+                <?php if ($pending) : ?>
+                    <div class="tap-capacity-note" style="background:#fffbeb;color:#92400e;font-size:13px;font-weight:600;padding:10px 14px;border-radius:10px;margin-bottom:12px;">
+                        <?php esc_html_e('Tienes solicitudes de destacado pendientes de confirmación de pago.', 'travel-agency-platform'); ?>
+                    </div>
+                <?php endif; ?>
+                <div class="tap-table-scroll"><table class="tap-table tap-table-compact">
+                    <thead><tr>
+                        <th><?php esc_html_e('Listado', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Tipo', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Estado', 'travel-agency-platform'); ?></th>
+                        <th></th>
+                    </tr></thead>
+                    <tbody>
+                    <?php foreach ($rows as $row) :
+                        $is_feat  = TAP_Promotions::is_featured($row['id']);
+                        $until    = TAP_Promotions::featured_until($row['id']);
+                        $is_pend  = in_array($row['id'], $pending_ids, true);
+                        ?>
+                        <tr>
+                            <td><?php echo esc_html($row['title']); ?></td>
+                            <td><?php echo esc_html($row['label']); ?></td>
+                            <td>
+                                <?php if ($is_feat && $until) : ?>
+                                    <span class="tap-status tap-status-confirmed">★ <?php esc_html_e('Destacado hasta', 'travel-agency-platform'); ?> <?php echo esc_html($until); ?></span>
+                                <?php elseif ($is_pend) : ?>
+                                    <span class="tap-status tap-status-pending"><?php esc_html_e('Pendiente de pago', 'travel-agency-platform'); ?></span>
+                                <?php else : ?>
+                                    <span class="tap-status tap-status-pending"><?php esc_html_e('No destacado', 'travel-agency-platform'); ?></span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if ($is_feat) : ?>
+                                    <span class="tap-promo-badge">★</span>
+                                <?php elseif ($is_pend) : ?>
+                                    <span class="tap-promo-badge" style="background:#ffedd5;color:#c2410c;">&#8987;</span>
+                                <?php elseif ($paypal_ready) : ?>
+                                    <form class="tap-promo-paypal-form">
+                                        <input type="hidden" name="listing_id" value="<?php echo (int) $row['id']; ?>">
+                                        <select name="months" class="tap-promo-months">
+                                            <?php foreach ([1, 3, 6, 12, 24] as $m) : ?>
+                                                <option value="<?php echo esc_attr($m); ?>"><?php echo esc_html($m); ?> <?php esc_html_e('mes(es)', 'travel-agency-platform'); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <div class="tap-promo-paypal-btn" data-listing-id="<?php echo (int) $row['id']; ?>" data-price="<?php echo esc_attr((float) $price); ?>"></div>
+                                    </form>
+                                <?php else : ?>
+                                    <form class="tap-promo-form">
+                                        <input type="hidden" name="listing_id" value="<?php echo (int) $row['id']; ?>">
+                                        <select name="months" class="tap-promo-months">
+                                            <?php foreach ([1, 3, 6, 12, 24] as $m) : ?>
+                                                <option value="<?php echo esc_attr($m); ?>"><?php echo esc_html($m); ?> <?php esc_html_e('mes(es)', 'travel-agency-platform'); ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <button type="submit" class="tap-btn tap-btn-sm tap-promo-btn"><?php esc_html_e('Destacar', 'travel-agency-platform'); ?></button>
+                                    </form>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table></div>
+            <?php endif; ?>
+        </div>
+        <?php if ($paypal_ready && $rows && $slots > 0) : ?>
+        <script src="https://www.paypal.com/sdk/js?client-id=<?php echo esc_attr(TAP_PayPal::get_client_id()); ?>&currency=<?php echo esc_attr(TAP_Currency::code()); ?>" data-namespace="tapPayPal"></script>
+        <?php endif; ?>
+        <?php
+        return ob_get_clean();
+    }
+
     /* ── agency back-office: overview (resumen) ─────────────────────── */
 
     private static function agency_overview($user) {
@@ -801,6 +937,7 @@ endif;
         }
         $nav[] = ['key' => 'bo-listings', 'label' => __('Listados', 'travel-agency-platform'), 'icon' => 'grid', 'url' => add_query_arg('seccion', 'bo-listings', $base)];
         if ($is_team_admin) {
+            $nav[] = ['key' => 'bo-promos', 'label' => __('Destacados', 'travel-agency-platform'), 'icon' => 'star', 'url' => add_query_arg('seccion', 'bo-promos', $base)];
             $nav[] = ['key' => 'bo-team', 'label' => __('Equipo', 'travel-agency-platform'), 'icon' => 'users', 'url' => add_query_arg('seccion', 'bo-team', $base)];
         }
         return $nav;
