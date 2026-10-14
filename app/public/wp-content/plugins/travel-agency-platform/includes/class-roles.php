@@ -29,6 +29,21 @@ class TAP_Roles {
         $user->set_role('tap_client');
     }
 
+    /** True when the user holds the tap_agency_admin role (not platform admins). */
+    public static function is_agency_admin($user) {
+        return in_array('tap_agency_admin', (array) $user->roles, true);
+    }
+
+    /** True when the user holds the tap_agency_employee role. */
+    public static function is_agency_employee($user) {
+        return in_array('tap_agency_employee', (array) $user->roles, true);
+    }
+
+    /** Who may use the agency back-office sections (platform admins included). */
+    public static function can_manage_agency_panel($user) {
+        return user_can($user, 'manage_options') || self::is_agency_admin($user);
+    }
+
     private static function add_agency_admin_role() {
         $caps = [
             'read'                      => true,

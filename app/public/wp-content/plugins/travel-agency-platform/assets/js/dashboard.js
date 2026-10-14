@@ -142,6 +142,26 @@
     });
 
     /* ── Agency back-office: guest chat ────────────────────────────── */
+    /* ── Chat: open/close with keyboard support (focus management) ──── */
+    function tapChatFocusInput($row) {
+        $row.find('textarea[name="message"]').trigger('focus');
+    }
+
+    function tapChatClose($row) {
+        var id = $row.data('id');
+        $row.hide();
+        $('.tap-chat-toggle[data-id="' + id + '"]').trigger('focus');
+    }
+
+    $(document).on('keydown', function (e) {
+        if (e.key === 'Escape') {
+            var $open = $('.tap-chat-row:visible').last();
+            if ($open.length) {
+                tapChatClose($open);
+            }
+        }
+    });
+
     $(document).on('click', '.tap-chat-toggle', function () {
         var $btn = $(this);
         var id   = $btn.data('id');
@@ -150,13 +170,14 @@
             return;
         }
         if ($row.is(':visible')) {
-            $row.hide();
+            tapChatClose($row);
             return;
         }
         var loaded = $row.data('loaded');
         if (loaded) {
             $row.show();
             $btn.find('.tap-chat-badge').remove();
+            tapChatFocusInput($row);
             return;
         }
         $.post(cfg.ajax_url, {
@@ -176,6 +197,7 @@
             if ($tail.length) {
                 $tail[0].scrollIntoView({ block: 'nearest' });
             }
+            tapChatFocusInput($row);
         }).fail(function () {
             alert(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error');
         });

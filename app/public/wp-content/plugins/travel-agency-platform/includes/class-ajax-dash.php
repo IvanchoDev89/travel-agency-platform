@@ -12,7 +12,7 @@ class TAP_Ajax_Dash {
         }
 
         $user = wp_get_current_user();
-        if (!in_array('tap_agency_admin', (array) $user->roles, true)) {
+        if (!TAP_Roles::is_agency_admin($user)) {
             wp_send_json_error(['message' => __('Solo el administrador de la agencia puede solicitar liquidaciones.', 'travel-agency-platform')], 403);
         }
 
@@ -292,7 +292,7 @@ class TAP_Ajax_Dash {
             wp_send_json_error(['message' => __('No autenticado.', 'travel-agency-platform')], 401);
         }
         $user = wp_get_current_user();
-        if (!in_array('tap_agency_admin', (array) $user->roles, true)) {
+        if (!TAP_Roles::is_agency_admin($user)) {
             wp_send_json_error(['message' => __('Solo el administrador de la agencia gestiona el equipo.', 'travel-agency-platform')], 403);
         }
         $agency = TAP_Booking::get_agency_for_user($user->ID);
@@ -313,7 +313,7 @@ class TAP_Ajax_Dash {
             wp_send_json_error(['message' => __('No autenticado.', 'travel-agency-platform')], 401);
         }
         $user = wp_get_current_user();
-        if (!in_array('tap_agency_admin', (array) $user->roles, true)) {
+        if (!TAP_Roles::is_agency_admin($user)) {
             wp_send_json_error(['message' => __('Solo el administrador de la agencia gestiona el equipo.', 'travel-agency-platform')], 403);
         }
         $agency = TAP_Booking::get_agency_for_user($user->ID);

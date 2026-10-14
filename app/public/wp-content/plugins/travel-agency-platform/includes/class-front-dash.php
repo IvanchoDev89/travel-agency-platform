@@ -242,6 +242,17 @@ class TAP_Front_Dash {
         return ob_get_clean();
     }
 
+    /**
+     * @internal Prime post caches so get_the_title()/get_post() inside a loop
+     *           does not query per row. Shared with TAP_Front_Dash_Client.
+     */
+    public static function prime_titles($ids) {
+        $ids = array_values(array_unique(array_filter(array_map('intval', (array) $ids))));
+        if ($ids) {
+            _prime_post_caches($ids, false, false);
+        }
+    }
+
     /* ── agency back-office: operations ─────────────────────────────── */
 
     private static function agency_operations($user) {
@@ -250,7 +261,7 @@ class TAP_Front_Dash {
         if (!$agency) {
             return '<p class="tap-empty">' . esc_html__('No tienes una agencia vinculada.', 'travel-agency-platform') . '</p>';
         }
-        $is_admin = user_can($user, 'manage_options') || in_array('tap_agency_admin', (array) $user->roles, true);
+        $is_admin = TAP_Roles::can_manage_agency_panel($user);
 
         $filters = ['all', 'request', 'pending', 'confirmed', 'completed', 'cancelled', 'refunded'];
         $status  = sanitize_key(wp_unslash($_GET['bo_status'] ?? 'all'));
@@ -274,6 +285,7 @@ class TAP_Front_Dash {
         $bookings = $wpdb->get_results(
             "SELECT * FROM {$wpdb->prefix}tap_bookings {$where} ORDER BY created_at DESC LIMIT 40"
         );
+        self::prime_titles(array_map(static fn($b) => (int) $b->service_id, $bookings));
 
         $today = gmdate('Y-m-d');
         $base  = home_url('/mi-cuenta/');
@@ -376,7 +388,7 @@ class TAP_Front_Dash {
 
     private static function agency_finances($user) {
         global $wpdb;
-        if (in_array('tap_agency_employee', (array) $user->roles, true)) {
+        if (TAP_Roles::is_agency_employee($user)) {
             return '<p class="tap-empty">' . esc_html__('Solo el administrador de la agencia gestiona las finanzas.', 'travel-agency-platform') . '</p>';
         }
         $agency = TAP_Booking::get_agency_for_user($user->ID);
@@ -496,7 +508,7 @@ class TAP_Front_Dash {
     /* ── agency back-office: team (employees) ──────────────────────── */
 
     private static function agency_team($user) {
-        if (in_array('tap_agency_employee', (array) $user->roles, true)) {
+        if (TAP_Roles::is_agency_employee($user)) {
             return '<p class="tap-empty">' . esc_html__('Solo el administrador de la agencia gestiona el equipo.', 'travel-agency-platform') . '</p>';
         }
         $agency = (int) TAP_Booking::get_agency_for_user($user->ID);
@@ -553,7 +565,7 @@ class TAP_Front_Dash {
     /* ── agency back-office: destacadoss (promos) ───────────────────── */
 
     private static function agency_promos($user) {
-        if (in_array('tap_agency_employee', (array) $user->roles, true)) {
+        if (TAP_Roles::is_agency_employee($user)) {
             return '<p class="tap-empty">' . esc_html__('Solo el administrador de la agencia gestiona los destacados.', 'travel-agency-platform') . '</p>';
         }
         $agency = (int) TAP_Booking::get_agency_for_user($user->ID);
@@ -588,6 +600,7 @@ class TAP_Front_Dash {
                 'meta_value'     => $agency,
                 'fields'         => 'ids',
             ]);
+            self::prime_titles($ids);
             foreach ($ids as $pid) {
                 $rows[] = ['id' => (int) $pid, 'type' => $type, 'label' => $label, 'title' => get_the_title($pid)];
                 if (count($rows) >= 15) {
@@ -687,7 +700,7 @@ class TAP_Front_Dash {
 
     private static function agency_overview($user) {
         global $wpdb;
-        $is_admin  = user_can($user, 'manage_options') || in_array('tap_agency_admin', (array) $user->roles, true);
+        $is_admin = TAP_Roles::can_manage_agency_panel($user);
         $agency_id = TAP_Booking::get_agency_for_user($user->ID);
         $agency    = $agency_id ? get_post($agency_id) : null;
         if (!$agency_id && !current_user_can('manage_options')) {
@@ -717,6 +730,7 @@ class TAP_Front_Dash {
              ORDER BY created_at DESC LIMIT 8",
             $agency_id
         )) : [];
+        self::prime_titles(array_map(static fn($b) => (int) $b->service_id, $recent));
 
         $counts = [];
         if ($agency_id) {
@@ -886,6 +900,7 @@ endif;
                 </div>
                 <?php
                 $leads = TAP_Leads::for_agency($agency_id, 10);
+                self::prime_titles(array_map(static fn($ld) => (int) $ld->service_id, $leads));
                 if (!$leads):
 					?>
                     <p class="tap-agency-meta"><?php esc_html_e('Aún no has recibido mensajes de contacto. Cuando un visitante envíe el formulario de tu perfil o de un servicio, aparecerá aquí.', 'travel-agency-platform'); ?></p>

@@ -6,6 +6,40 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.18] — 2026-10-13
+
+Agency-panel recovery and monetization pass. The front-end booking flow broken by the nonce hardening was repaired, two tandas of panel fixes landed, and two revenue paths that had been left dead (agency highlight purchase, traveler self-registration) were brought back to life on the new panel. Internal quality: duplicated permission predicates unified, N+1 title queries primed, chat gained keyboard support.
+
+### Fixed
+
+- **Frontend bookings were broken by the nonce hardening** (`00271ab`): the booking form posted a nonce the handler no longer accepted. Restored the correct nonce end to end.
+- **Panel Tanda 1** (`cf4a464`): agency wizard, chat, registration and calendar fixes on the legacy panel seams that still served production pages.
+- **Header "Regístrate" was a dead button** (`30e6984`): it pointed at `wp-login.php?action=register` while `users_can_register` was off. The header now links to `/register/`, which became a hub offering both audiences: a native traveler registration form (new users land as `tap_client` via the existing hook) and the existing agency form.
+- **Double-cancel race on cancellations** (`f8e208b`): `apply_cancellation` now claims the transition with an atomic conditional `UPDATE`, writes `_tap_refund_pending` before touching the gateway and clears it on success; a second cancel is rejected instead of double-refunding.
+
+### Added
+
+- **Highlight (destacado) purchase on the new panel** (`3d918df`): new "Destacados" section (`bo-promos`, agency-admin only) listing the agency's published listings with plan slots, monthly price and 1/3/6/12/24-month selection. Both inherited paths work: PayPal payment when configured, or an admin-confirm request otherwise. The three promo AJAX endpoints now validate the panel's `tap_front_dash_nonce`.
+- **Full employee ↔ agency mapping with an "Equipo" section** (`04c7773`): `TAP_Booking::get_agency_for_user` falls back to the `_tap_agency_id` user meta; `team_add`/`team_remove` cores plus nonce-guarded AJAX endpoints; employees operate bookings of their own agency (hard-block removed, `mark_paid` stays admin-only); multi-role users get the canonical agency role in nav and routing.
+- **Plan-limit pre-check in the listing wizard** (`f8e208b`): non-admin agencies at their listing limit see the upgrade note instead of the wizard; admins bypass.
+- **Registration as traveler** (see Fixed above): `/register/` renders both forms; `users_can_register` enabled on the live site.
+
+### Changed
+
+- **Draft-on-create for accommodations only** (`f8e208b`): new `tap_accommodation` listings start as `draft` (the legacy editor has no publish control); other types keep publish-on-create; non-publishers get `pending`.
+- **Agency nav slimmed for employees**: Resumen / Operaciones / Listados only; Finanzas, Destacados and Equipo are agency-admin sections. Employees see action buttons on their own agency's bookings.
+- **Dirty-form guard on the agency wizard** (`f8e208b`): `beforeunload` fires only when the form was actually modified; all navigations go through a `navigate()` helper that clears the flag.
+- **Permission predicates unified** (this release): `TAP_Roles::is_agency_admin`, `is_agency_employee` and `can_manage_agency_panel` replace the inlined role checks repeated across `TAP_Front_Dash`, `TAP_Front_Dash_Client` and `TAP_Ajax_Dash`.
+- **Dashboard N+1 title lookups primed** (this release): booking, leads and favorites loops prime post caches (`TAP_Front_Dash::prime_titles`) so `get_the_title()`/`get_post()` no longer queries per row.
+- **Chat keyboard support** (this release): opening a thread focuses the message input; Escape closes the visible thread and returns focus to its toggle button.
+
+### Tooling
+
+- **PHPStan raised to level 3** (`982b184`); dead code removed from `class-listing-editor.php` (`615ce95`).
+- New test suites: `suite_agency_team` (employee mapping, 17 assertions) and promo-panel render coverage inside `suite_promotions`.
+
+---
+
 ## [1.5.17] — 2026-10-12
 
 Structural pass. Seven god classes were split along seams chosen from their actual `self::` dependency graphs, one latent installer bug was fixed, and three order-dependent test failures were repaired. No public API changed and no user-visible behaviour moved.

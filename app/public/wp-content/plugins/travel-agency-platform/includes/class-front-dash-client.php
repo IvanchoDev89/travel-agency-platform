@@ -66,6 +66,7 @@ class TAP_Front_Dash_Client {
         global $wpdb;
 
         $bookings = TAP_Booking::get_client_bookings($user->ID);
+        TAP_Front_Dash::prime_titles(array_map(static fn($b) => (int) $b->service_id, $bookings));
         $total    = count($bookings);
         $upcoming = 0;
         $spent    = 0.0;
@@ -217,6 +218,7 @@ class TAP_Front_Dash_Client {
 
     private static function client_bookings($user) {
         $bookings = TAP_Booking::get_client_bookings($user->ID);
+        TAP_Front_Dash::prime_titles(array_map(static fn($b) => (int) $b->service_id, $bookings));
         $reviewed = TAP_Booking::reviewed_markers($user->ID);
 
         ob_start();
@@ -300,6 +302,7 @@ class TAP_Front_Dash_Client {
     private static function client_favorites($user) {
         $favorites = get_user_meta($user->ID, 'tap_favorites', true);
         $favorites = is_array($favorites) ? array_filter(array_map('absint', $favorites)) : [];
+        TAP_Front_Dash::prime_titles($favorites);
 
         ob_start();
         ?>
@@ -357,6 +360,7 @@ class TAP_Front_Dash_Client {
             "SELECT * FROM {$wpdb->prefix}tap_reviews WHERE user_id = %d ORDER BY created_at DESC",
             $user->ID
         ));
+        TAP_Front_Dash::prime_titles(array_map(static fn($r) => (int) $r->service_id, $reviews));
 
         ob_start();
         ?>
