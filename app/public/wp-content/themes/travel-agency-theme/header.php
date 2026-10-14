@@ -63,7 +63,7 @@
                 </div>
                 <?php else: ?>
                     <a href="<?php echo esc_url(wp_login_url()); ?>" class="tap-btn tap-btn-sm tap-btn-ghost"><?php esc_html_e('Log In', 'travel-agency-platform'); ?></a>
-                    <a href="<?php echo esc_url(wp_registration_url()); ?>" class="tap-btn tap-btn-sm tap-btn-primary"><?php esc_html_e('Sign Up', 'travel-agency-platform'); ?></a>
+                    <a href="<?php echo esc_url(home_url('/register/')); ?>" class="tap-btn tap-btn-sm tap-btn-primary"><?php esc_html_e('Sign Up', 'travel-agency-platform'); ?></a>
                 <?php endif; ?>
             </div>
         </div>
