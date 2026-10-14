@@ -713,8 +713,9 @@ class TAP_Booking {
      *
      * @param bool $force When true, also voids 'paid' commissions (used when a
      *                    paid booking is cancelled/refunded so the commission
-     *                    stops accruing; the payout amount is reconciled by
-     *                    TAP_Payouts::complete() for pending payouts).
+     *                    stops accruing; a pending payout covering this booking
+     *                    reconciles its amount against the still-eligible set
+     *                    when TAP_Payouts::complete() runs).
      */
     public static function void_commission($booking_id, $force = false) {
         global $wpdb;
@@ -1150,7 +1151,13 @@ class TAP_Booking {
             }
         }
         $commission = get_post_meta($agency_id, '_tap_agency_commission', true);
-        return $commission ? floatval($commission) : 10;
+        if ($commission) {
+            return floatval($commission);
+        }
+        // Falling back to the admin-configured default instead of a hardcoded
+        // rate: agencies registered before a settings change pick it up too.
+        $default = get_option('tap_commission_default', '');
+        return (is_numeric($default) && (float) $default >= 0) ? (float) $default : 10;
     }
 
 

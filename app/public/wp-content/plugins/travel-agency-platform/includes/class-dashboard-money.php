@@ -42,6 +42,11 @@ class TAP_Dashboard_Money {
                     }
                     foreach ($by_agency as $agency_id => $amount) {
                         $agency_ids = array_column(array_filter($rows, fn($r) => (int) $r->agency_id === (int) $agency_id), 'id');
+                        // Same per-agency lock as the agency self-service path so
+                        // an admin settle cannot interleave with a concurrent
+                        // agency payout request over the same bookings.
+                        $lock   = 'tap_payout_request_' . (int) $agency_id;
+                        $locked = 1 === (int) $wpdb->query($wpdb->prepare("SELECT GET_LOCK(%s, 5)", $lock));
                         $wpdb->insert($p_table, [
                             'agency_id'  => $agency_id,
                             'amount'     => round($amount, 2),
@@ -53,7 +58,12 @@ class TAP_Dashboard_Money {
                         ]);
                         $payment_id = $wpdb->insert_id;
                         $id_list = implode(',', array_map('intval', $agency_ids));
-                        $wpdb->query("UPDATE {$b_table} SET commission_status = 'paid' WHERE id IN ({$id_list})");
+                        // CAS: only bookings still 'owed' flip to 'paid', so a
+                        // concurrent dispute/cancel can never be overwritten.
+                        $wpdb->query("UPDATE {$b_table} SET commission_status = 'paid' WHERE id IN ({$id_list}) AND commission_status = 'owed'");
+                        if ($locked) {
+                            $wpdb->query($wpdb->prepare("SELECT RELEASE_LOCK(%s)", $lock));
+                        }
                         do_action('tap_commission_paid', $agency_id, $payment_id);
                     }
                     set_transient('tap_commission_notice', __('Liquidación registrada y comisiones marcadas como pagadas.', 'travel-agency-platform'), 60);
@@ -67,7 +77,22 @@ class TAP_Dashboard_Money {
             $booking_id = intval($_POST['booking_id'] ?? 0);
             $method = sanitize_key(wp_unslash($_POST['method'] ?? 'bank_transfer'));
             $note   = sanitize_textarea_field(wp_unslash($_POST['note'] ?? ''));
-            $booking = $booking_id ? $wpdb->get_row($wpdb->prepare("SELECT * FROM {$b_table} WHERE id = %d AND commission_status = 'owed' AND payment_status = 'paid' AND commission_amount > 0 AND status NOT IN ('cancelled', 'refunded')", $booking_id)) : null;
+            // Same pending-payout exclusion as the bulk path: a booking already
+            // frozen inside an agency request must not be settled a second time.
+            $booking = $booking_id ? $wpdb->get_row($wpdb->prepare(
+                "SELECT * FROM {$b_table} b
+                  WHERE b.id = %d
+                    AND b.commission_status = 'owed'
+                    AND b.payment_status = 'paid'
+                    AND b.commission_amount > 0
+                    AND b.status NOT IN ('cancelled', 'refunded')
+                    AND NOT EXISTS (
+                        SELECT 1 FROM {$p_table} p
+                         WHERE p.status = 'pending'
+                           AND FIND_IN_SET(b.id, p.booking_ids)
+                    )",
+                $booking_id
+            )) : null;
             if ($booking) {
                 $wpdb->insert($p_table, [
                     'agency_id'   => (int) $booking->agency_id,
@@ -79,7 +104,10 @@ class TAP_Dashboard_Money {
                     'created_by'  => get_current_user_id(),
                 ]);
                 $payment_id = $wpdb->insert_id;
-                $wpdb->update($b_table, ['commission_status' => 'paid'], ['id' => $booking_id]);
+                $wpdb->query($wpdb->prepare(
+                    "UPDATE {$b_table} SET commission_status = 'paid' WHERE id = %d AND commission_status = 'owed'",
+                    $booking_id
+                ));
                 do_action('tap_commission_paid', (int) $booking->agency_id, $payment_id);
                 set_transient('tap_commission_notice', __('Comisión liquidada individualmente.', 'travel-agency-platform'), 60);
             }
@@ -218,12 +246,14 @@ class TAP_Dashboard_Money {
                             <?php
                                 $estado_label = [
                                     'owed'     => __('Por cobrar', 'travel-agency-platform'),
+                                    'waiting'  => __('Pendiente de pago', 'travel-agency-platform'),
                                     'paid'     => __('Cobrada', 'travel-agency-platform'),
                                     'disputed' => __('En disputa', 'travel-agency-platform'),
                                     'void'     => __('Comisión no pagada', 'travel-agency-platform'),
                                 ];
                                 $estado_color = [
                                     'owed'     => '#b45309',
+                                    'waiting'  => '#64748b',
                                     'paid'     => '#047857',
                                     'disputed' => '#b91c1c',
                                     'void'     => '#64748b',

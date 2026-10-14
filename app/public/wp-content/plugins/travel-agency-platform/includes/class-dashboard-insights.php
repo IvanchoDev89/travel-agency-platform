@@ -15,7 +15,7 @@ class TAP_Dashboard_Insights {
             "SELECT DATE_FORMAT(created_at, '%Y-%m') as month,
                     COUNT(*) as bookings,
                     SUM(total_amount) as revenue,
-                    SUM(commission_amount) as commission,
+                    SUM(CASE WHEN payment_status = 'paid' AND commission_status <> 'void' THEN commission_amount ELSE 0 END) as commission,
                     SUM(booking_fee) as fees
             FROM {$wpdb->prefix}tap_bookings
             WHERE status NOT IN ('cancelled', 'refunded')
@@ -24,13 +24,13 @@ class TAP_Dashboard_Insights {
         $totals = $wpdb->get_row(
             "SELECT COUNT(*) as bookings,
                     SUM(total_amount) as gmv,
-                    SUM(commission_amount) as commission,
+                    SUM(CASE WHEN payment_status = 'paid' AND commission_status <> 'void' THEN commission_amount ELSE 0 END) as commission,
                     SUM(booking_fee) as fees
             FROM $table
             WHERE status NOT IN ('cancelled', 'refunded')"
         );
         $promo_revenue = (float) $wpdb->get_var(
-            "SELECT COALESCE(SUM(amount),0) FROM {$wpdb->prefix}tap_promos WHERE status = 'active'"
+            "SELECT COALESCE(SUM(amount),0) FROM {$wpdb->prefix}tap_promos WHERE payment_status = 'paid'"
         );
         ?>
         <div class="wrap">
@@ -145,7 +145,7 @@ class TAP_Dashboard_Insights {
 
         $totals = $wpdb->get_row($wpdb->prepare(
             "SELECT COUNT(*) AS bookings, COALESCE(SUM(b.total_amount),0) AS gmv,
-                    COALESCE(SUM(b.commission_amount),0) AS commission, COALESCE(SUM(b.booking_fee),0) AS fees
+                    COALESCE(SUM(CASE WHEN b.payment_status = 'paid' AND b.commission_status <> 'void' THEN b.commission_amount ELSE 0 END),0) AS commission, COALESCE(SUM(b.booking_fee),0) AS fees
              FROM {$wpdb->prefix}tap_bookings b WHERE {$bwhere}",
             ...$bparams
         ));
@@ -159,7 +159,7 @@ class TAP_Dashboard_Insights {
              WHERE s.status = 'active'"
         );
         $promo_revenue = (float) $wpdb->get_var(
-            "SELECT COALESCE(SUM(amount),0) FROM {$wpdb->prefix}tap_promos WHERE status = 'active'"
+            "SELECT COALESCE(SUM(amount),0) FROM {$wpdb->prefix}tap_promos WHERE payment_status = 'paid'"
         );
 
         $monthly = array_fill(0, 12, ['label' => '', 'bookings' => 0, 'gmv' => 0, 'commission' => 0, 'fees' => 0, 'subs' => 0, 'promos' => 0]);
@@ -170,9 +170,9 @@ class TAP_Dashboard_Insights {
             $monthly[$i]['label'] = $m->format('Y-m');
         }
 
-        $mbook = $wpdb->get_results("SELECT DATE_FORMAT(b.created_at,'%Y-%m') m, COUNT(*) c, SUM(b.total_amount) gmv, SUM(b.commission_amount) com, SUM(b.booking_fee) fee FROM {$wpdb->prefix}tap_bookings b WHERE b.status NOT IN ('cancelled','refunded') GROUP BY m");
+        $mbook = $wpdb->get_results("SELECT DATE_FORMAT(b.created_at,'%Y-%m') m, COUNT(*) c, SUM(b.total_amount) gmv, SUM(CASE WHEN b.payment_status = 'paid' AND b.commission_status <> 'void' THEN b.commission_amount ELSE 0 END) com, SUM(b.booking_fee) fee FROM {$wpdb->prefix}tap_bookings b WHERE b.status NOT IN ('cancelled','refunded') GROUP BY m");
         $msub  = $wpdb->get_results("SELECT DATE_FORMAT(s.created_at,'%Y-%m') m, SUM(p.price_monthly) amt FROM {$wpdb->prefix}tap_agency_subscriptions s JOIN {$wpdb->prefix}tap_plans p ON p.id=s.plan_id WHERE s.payment_status='paid' GROUP BY m");
-        $mpromo = $wpdb->get_results("SELECT DATE_FORMAT(p.updated_at,'%Y-%m') m, SUM(p.amount) amt FROM {$wpdb->prefix}tap_promos p WHERE p.payment_status='paid' GROUP BY m");
+        $mpromo = $wpdb->get_results("SELECT DATE_FORMAT(p.created_at,'%Y-%m') m, SUM(p.amount) amt FROM {$wpdb->prefix}tap_promos p WHERE p.payment_status='paid' GROUP BY m");
 
         foreach ($monthly as $k => &$row) {
             foreach ($mbook as $r) { if ($r->m === $row['label']) { $row['bookings'] = (int) $r->c;
@@ -187,7 +187,7 @@ class TAP_Dashboard_Insights {
         $top_agencies = $wpdb->get_results($wpdb->prepare(
             "SELECT b.agency_id, COALESCE(ag.post_title, a.name, CONCAT('#', b.agency_id)) AS name,
                     COUNT(*) AS bookings, COALESCE(SUM(b.total_amount),0) AS gmv,
-                    COALESCE(SUM(b.commission_amount),0) AS commission, COALESCE(SUM(b.booking_fee),0) AS fees
+                    COALESCE(SUM(CASE WHEN b.payment_status = 'paid' AND b.commission_status <> 'void' THEN b.commission_amount ELSE 0 END),0) AS commission, COALESCE(SUM(b.booking_fee),0) AS fees
              FROM {$wpdb->prefix}tap_bookings b
              LEFT JOIN {$wpdb->posts} ag ON ag.ID = b.agency_id AND ag.post_type = 'tap_agency'
              LEFT JOIN {$wpdb->prefix}tap_agencies a ON a.id = b.agency_id
@@ -386,12 +386,12 @@ class TAP_Dashboard_Insights {
             if ($to)   { $bwhere .= $wpdb->prepare(" AND DATE_FORMAT(created_at,'%%Y-%%m') <= %s", $to); }
             $rows = $wpdb->get_results(
                 "SELECT DATE_FORMAT(created_at,'%Y-%m') mes,
-                        COUNT(*) reservas, SUM(total_amount) gmv, SUM(commission_amount) comisiones, SUM(booking_fee) fees
+                        COUNT(*) reservas, SUM(total_amount) gmv, SUM(CASE WHEN payment_status = 'paid' AND commission_status <> 'void' THEN commission_amount ELSE 0 END) comisiones, SUM(booking_fee) fees
                  FROM {$wpdb->prefix}tap_bookings WHERE {$bwhere} GROUP BY mes ORDER BY mes DESC"
             );
             $header = ['Mes', 'Reservas', 'GMV', 'Comisiones', 'Booking fees', 'Suscripciones', 'Destacados', 'Vistas'];
             $subs = $wpdb->get_results("SELECT DATE_FORMAT(s.created_at,'%Y-%m') mes, SUM(p.price_monthly) total FROM {$wpdb->prefix}tap_agency_subscriptions s JOIN {$wpdb->prefix}tap_plans p ON p.id=s.plan_id WHERE s.payment_status='paid' GROUP BY mes");
-            $promos = $wpdb->get_results("SELECT DATE_FORMAT(updated_at,'%Y-%m') mes, SUM(amount) total FROM {$wpdb->prefix}tap_promos WHERE payment_status='paid' GROUP BY mes");
+            $promos = $wpdb->get_results("SELECT DATE_FORMAT(created_at,'%Y-%m') mes, SUM(amount) total FROM {$wpdb->prefix}tap_promos WHERE payment_status='paid' GROUP BY mes");
             $subs_map = [];
 			foreach ($subs as $s) { $subs_map[$s->mes] = (float) $s->total; }
             $promos_map = [];

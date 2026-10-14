@@ -98,7 +98,7 @@ $wpdb->insert($p, ['agency_id' => tap_t_test_agency(), 'amount' => 50, 'booking_
 $payout2 = (int) $wpdb->insert_id;
 tap_t_assert(TAP_Payouts::cancel($payout2), 'pending payout cancelled');
 tap_t_assert('cancelled' === $wpdb->get_var($wpdb->prepare("SELECT status FROM {$p} WHERE id=%d", $payout2)), 'payout status cancelled');
-tap_t_assert('owed' === $wpdb->get_var($wpdb->prepare("SELECT commission_status FROM {$b} WHERE id=%d", $paid_bk)), 'cancelled payout reverts commission to owed');
+tap_t_assert('paid' === $wpdb->get_var($wpdb->prepare("SELECT commission_status FROM {$b} WHERE id=%d", $paid_bk)), 'cancelled payout does not release a booking already settled by another completed payout');
 tap_t_assert(!TAP_Payouts::cancel($payout), 'completed payout cannot be cancelled');
 tap_t_assert('Pendiente' === TAP_Payouts::status_label('pending'), 'payout status label ES');
 

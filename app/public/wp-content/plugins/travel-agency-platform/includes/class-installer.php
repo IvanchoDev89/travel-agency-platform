@@ -261,8 +261,14 @@ class TAP_Installer {
 
         $cols_bookings = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
         if (!in_array('commission_status', $cols_bookings, true)) {
-            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN commission_status varchar(20) DEFAULT 'owed' AFTER commission_percent");
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN commission_status varchar(20) DEFAULT 'waiting' AFTER commission_percent");
         }
+        // Commission semantics: a commission is only 'owed' once the client
+        // has actually paid (mark_commission_owed flips waiting → owed on
+        // tap_payment_completed). Backfill unpaid bookings so "por cobrar"
+        // totals stop counting money that was never collected.
+        $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings MODIFY commission_status varchar(20) DEFAULT 'waiting'");
+        $wpdb->query("UPDATE {$wpdb->prefix}tap_bookings SET commission_status = 'waiting' WHERE commission_status = 'owed' AND payment_status <> 'paid'");
 
         if ($wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}tap_commission_payments'") !== "{$wpdb->prefix}tap_commission_payments") {
             $wpdb->query("CREATE TABLE {$wpdb->prefix}tap_commission_payments (

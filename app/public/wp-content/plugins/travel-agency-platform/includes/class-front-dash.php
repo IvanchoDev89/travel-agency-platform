@@ -436,17 +436,24 @@ class TAP_Front_Dash {
                 <div class="tap-stat-card"><span class="tap-stat-number" style="color:#047857;"><?php echo esc_html(TAP_Currency::fmt($totals->settled ?? 0)); ?></span><span class="tap-stat-label"><?php esc_html_e('Cobrado', 'travel-agency-platform'); ?></span></div>
             </div>
 
-            <?php if ($pending): ?>
+            <?php if ($pending && 'agency' === (string) $pending->source) : ?>
                 <div class="tap-notice">
                     <span class="tap-notice-icon" aria-hidden="true">⚠</span>
                     <span><?php echo esc_html(sprintf(/* translators: 1: importe de la liquidación solicitada, 2: identificador de la liquidación */ __('Tienes una solicitud de liquidación de %s pendiente de confirmación por el administrador (#%d).', 'travel-agency-platform'), TAP_Currency::fmt($pending->amount), (int) $pending->id)); ?></span>
                 </div>
-            <?php elseif ($failed_count > 0): ?>
+            <?php elseif ($pending) : ?>
+                <div class="tap-notice">
+                    <span class="tap-notice-icon" aria-hidden="true">⏳</span>
+                    <span><?php echo esc_html(sprintf(/* translators: importe de la liquidación que procesa el administrador */ __('El administrador está procesando una liquidación de tus comisiones por %s (#%d).', 'travel-agency-platform'), TAP_Currency::fmt($pending->amount), (int) $pending->id)); ?></span>
+                </div>
+            <?php endif; ?>
+            <?php $tap_pending_blocked = $pending && 'agency' === (string) $pending->source; ?>
+            <?php if (!$tap_pending_blocked && $failed_count > 0) : ?>
                 <div class="tap-notice tap-notice-error">
                     <span class="tap-notice-icon" aria-hidden="true">⚠</span>
                     <span><?php echo esc_html(sprintf(/* translators: %d: número de liquidaciones fallidas */ __('Tienes %d liquidación(es) fallida(s): el pago no llegó a completarse. Solicita de nuevo una liquidación o contacta al administrador.', 'travel-agency-platform'), $failed_count)); ?></span>
                 </div>
-            <?php elseif (isset($totals->owed) && (float) $totals->owed > 0): ?>
+            <?php elseif (!$tap_pending_blocked && isset($totals->owed) && (float) $totals->owed > 0): ?>
                 <div class="tap-dash-card" style="margin-top:16px;">
                     <h3><?php esc_html_e('Solicitar liquidación', 'travel-agency-platform'); ?></h3>
                     <p class="tap-agency-meta"><?php esc_html_e('Tu comisión por cobrar queda agrupada en una sola solicitud que el administrador confirma antes de transferirte.', 'travel-agency-platform'); ?></p>
@@ -465,7 +472,7 @@ class TAP_Front_Dash {
                         <button type="submit" class="tap-btn tap-btn-primary"><?php echo esc_html(sprintf(/* translators: %s: importe solicitado */ __('Solicitar %s', 'travel-agency-platform'), TAP_Currency::fmt($totals->owed))); ?></button>
                     </form>
                 </div>
-            <?php else: ?>
+            <?php elseif (!$tap_pending_blocked) : ?>
                 <p class="tap-agency-meta"><?php esc_html_e('No tienes comisiones por cobrar disponibles para liquidar.', 'travel-agency-platform'); ?></p>
             <?php endif; ?>
 
