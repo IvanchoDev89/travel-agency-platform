@@ -252,6 +252,15 @@ class TAP_Ajax {
             wp_send_json_success(['message' => __('Gracias por tu interés.', 'travel-agency-platform')]);
         }
 
+        // Tanda C (C15): rate limit per IP so bots cannot mass-register agencies.
+        $tap_reg_ip    = (string) ($_SERVER['REMOTE_ADDR'] ?? '');
+        $tap_reg_key   = 'tap_agency_reg_' . md5($tap_reg_ip);
+        $tap_reg_tries = (int) get_transient($tap_reg_key);
+        if ($tap_reg_tries >= 5) {
+            wp_send_json_error(['message' => __('Demasiados registros en poco tiempo. Intenta nuevamente más tarde.', 'travel-agency-platform')]);
+        }
+        set_transient($tap_reg_key, $tap_reg_tries + 1, HOUR_IN_SECONDS);
+
         $fullname    = sanitize_text_field(wp_unslash($_POST['agency_name'] ?? ''));
         $username    = sanitize_user(wp_unslash($_POST['username'] ?? ''), true);
         $email       = sanitize_email(wp_unslash($_POST['email'] ?? ''));

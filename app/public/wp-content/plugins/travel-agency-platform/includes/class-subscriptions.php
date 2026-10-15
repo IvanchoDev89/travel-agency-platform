@@ -34,6 +34,15 @@ class TAP_Subscriptions {
         ));
     }
 
+    /** Agency that owns the given subscription row (0 when unknown). */
+    public static function agency_for_subscription($sub_id) {
+        global $wpdb;
+        return (int) $wpdb->get_var($wpdb->prepare(
+            'SELECT agency_id FROM ' . self::subs_table() . ' WHERE id = %d',
+            (int) $sub_id
+        ));
+    }
+
     public static function default_plan() {
         foreach (self::get_plans() as $plan) {
             if ((float) $plan->price_monthly <= 0) {
@@ -125,6 +134,11 @@ class TAP_Subscriptions {
 
     public static function subscribe($agency_id, $plan_id) {
         global $wpdb;
+        // Tanda C (C14): only approved agencies may contract a plan; pending or
+        // rejected ones must wait for the admin review.
+        if (!TAP_Approval::is_approved((int) $agency_id)) {
+            return new WP_Error('agency_not_approved', __('Tu agencia debe ser aprobada por un administrador antes de contratar un plan.', 'travel-agency-platform'));
+        }
         $plan = self::get_plan($plan_id);
         if (!$plan || !(int) $plan->is_active) {
             return new WP_Error('plan_invalid', __('The selected plan is not available.', 'travel-agency-platform'));

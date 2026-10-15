@@ -384,6 +384,11 @@ endif;
 
 
     private static function handle_agency_action($action, $agency_id, $params) {
+        // Tanda C (C15): defense in depth — only platform managers may act on
+        // agencies, even if this method is ever reached outside the admin page.
+        if (!current_user_can('tap_manage_agencies')) {
+            wp_die(esc_html__('No tienes permiso para realizar esta acción.', 'travel-agency-platform'));
+        }
         $wpdb = $GLOBALS['wpdb'];
         switch ($action) {
             case 'verify':
@@ -412,7 +417,7 @@ endif;
                 break;
             case 'delete':
                 $listing_types = TAP_Post_Types::agency_meta_keys();
-                $listing_ids = get_posts(['post_type' => array_keys($listing_types), 'posts_per_page' => -1, 'fields' => 'ids', 'meta_query' => [['relation' => 'OR', ...array_map(fn($mk) => ['key' => $mk, 'value' => $agency_id], array_values($listing_types))]]]);
+                $listing_ids = get_posts(['post_type' => array_keys($listing_types), 'post_status' => 'any', 'posts_per_page' => -1, 'fields' => 'ids', 'meta_query' => [['relation' => 'OR', ...array_map(fn($mk) => ['key' => $mk, 'value' => $agency_id], array_values($listing_types))]]]);
                 foreach ($listing_ids as $lid) {
                     foreach ($listing_types as $mk) {
                         if ((string) get_post_meta($lid, $mk, true) === (string) $agency_id) {
@@ -421,8 +426,30 @@ endif;
                     }
                 }
                 $uid = get_post_meta($agency_id, '_tap_agency_user_id', true);
+                // Tanda C (C7): a deleted agency must not keep an approved
+                // record (a restore would skip review) nor its verification flag.
+                TAP_Approval::pending($agency_id);
+                delete_post_meta($agency_id, '_tap_agency_verified');
                 if ($uid) {
                     $wpdb->query($wpdb->prepare("UPDATE {$wpdb->prefix}tap_agencies SET is_active = 0 WHERE user_id = %d", $uid));
+                    // Owner loses the agency-admin role with the agency.
+                    $owner = get_user_by('id', (int) $uid);
+                    if ($owner) {
+                        $owner->remove_role('tap_agency_admin');
+                        if (!array_intersect(['tap_client', 'subscriber', 'tap_agency_employee', 'tap_agency_admin'], (array) $owner->roles)) {
+                            $owner->add_role(get_role('tap_client') ? 'tap_client' : 'subscriber');
+                        }
+                    }
+                }
+                // Staff mapped through _tap_agency_id keep agency access after
+                // the post is gone (get_post_type() still matches in trash):
+                // drop the mapping and the employee role with it.
+                foreach (TAP_Booking::get_staff_for_agency($agency_id) as $staff_user) {
+                    delete_user_meta($staff_user->ID, '_tap_agency_id');
+                    $staff_user->remove_role('tap_agency_employee');
+                    if (!array_intersect(['tap_client', 'subscriber', 'tap_agency_admin'], (array) $staff_user->roles)) {
+                        $staff_user->add_role(get_role('tap_client') ? 'tap_client' : 'subscriber');
+                    }
                 }
                 wp_trash_post($agency_id);
                 break;

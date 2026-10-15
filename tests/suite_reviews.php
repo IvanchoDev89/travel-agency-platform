@@ -12,7 +12,7 @@ if (!did_action('rest_api_init')) {
 }
 
 $rev_table = $wpdb->prefix . 'tap_reviews';
-list($fid, $ftype) = tap_t_find_service();
+list($fid, $ftype) = tap_t_find_clean_service();
 tap_t_assert($fid > 0, 'discovered service to review');
 
 $u1 = tap_t_make_subscriber();

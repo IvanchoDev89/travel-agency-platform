@@ -27,8 +27,11 @@ class TAP_Shortcode_Agency_Panel {
         $verified   = $agency_id ? get_post_meta($agency_id, '_tap_agency_verified', true) : false;
         $commission = $agency_id ? TAP_Booking::get_agency_commission($agency_id) : 10;
         $stats      = TAP_Booking_Stats::get_booking_stats($agency_id);
+        // Tanda C: employees only see operations (bookings/leads/listings);
+        // money sections and their queries stay with the agency admin.
+        $can_money  = TAP_Roles::can_manage_agency_panel($user);
 
-		$comm_rows = $agency_id ? $wpdb->get_row($wpdb->prepare(
+		$comm_rows = ($can_money && $agency_id) ? $wpdb->get_row($wpdb->prepare(
             "SELECT
                 COALESCE(SUM(CASE WHEN commission_status = 'owed' THEN commission_amount END),0) owed,
                 COALESCE(SUM(CASE WHEN commission_status = 'disputed' THEN commission_amount END),0) disputed,
@@ -40,12 +43,12 @@ class TAP_Shortcode_Agency_Panel {
                AND status NOT IN ('cancelled', 'refunded')",
             $agency_id
         )) : (object) ['owed' => 0, 'disputed' => 0, 'settled' => 0];
-        $settlements = $agency_id ? $wpdb->get_results($wpdb->prepare(
+        $settlements = ($can_money && $agency_id) ? $wpdb->get_results($wpdb->prepare(
             "SELECT * FROM {$wpdb->prefix}tap_commission_payments WHERE agency_id = %d ORDER BY created_at DESC LIMIT 10",
             $agency_id
         )) : [];
 
-        $comm_ledger = $agency_id ? $wpdb->get_results($wpdb->prepare(
+        $comm_ledger = ($can_money && $agency_id) ? $wpdb->get_results($wpdb->prepare(
             "SELECT booking_code, CAST(created_at AS CHAR) created_at, total_amount, commission_amount, commission_status
              FROM {$wpdb->prefix}tap_bookings
              WHERE agency_id = %d AND commission_amount > 0
@@ -137,6 +140,22 @@ class TAP_Shortcode_Agency_Panel {
             </div>
 
             <?php
+            // Tanda C (C20): approval status banner for the agency's team.
+            if ($agency_id && !current_user_can('manage_options')) {
+                $tap_ap_status = TAP_Approval::status($agency_id);
+                if ('pending' === $tap_ap_status) {
+                    ?>
+                    <div class="tap-notice"><span class="tap-notice-icon" aria-hidden="true">⚠</span><span><strong><?php esc_html_e('Tu agencia está en revisión', 'travel-agency-platform'); ?>.</strong> <?php esc_html_e('Puedes preparar tus listados, pero serán visibles para los viajeros solo cuando el administrador apruebe tu agencia.', 'travel-agency-platform'); ?></span></div>
+                    <?php
+                } elseif ('rejected' === $tap_ap_status) {
+                    ?>
+                    <div class="tap-notice tap-notice-error"><span class="tap-notice-icon" aria-hidden="true">⚠</span><span><strong><?php esc_html_e('Tu agencia no fue aprobada', 'travel-agency-platform'); ?>.</strong> <?php esc_html_e('Contacta a soporte para corregir tus datos y volver a solicitar la revisión.', 'travel-agency-platform'); ?></span></div>
+                    <?php
+                }
+            }
+            ?>
+
+            <?php
             if ($agency_id && class_exists('TAP_Subscriptions')):
                 $tap_plan    = TAP_Subscriptions::active_plan($agency_id);
                 $tap_current = TAP_Subscriptions::current_subscription($agency_id);
@@ -173,10 +192,12 @@ endif;
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(number_format($stats['completed'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Completed', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(TAP_Currency::fmt($stats['revenue'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Revenue', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(TAP_Currency::fmt($stats['commission'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Commission', 'travel-agency-platform'); ?></span></div>
+                <?php if ($can_money): ?>
                 <div class="tap-stat-card"><span class="tap-stat-number" style="color:#047857;"><?php echo esc_html(TAP_Currency::fmt($stats['net'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Net to you', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b45309;"><?php echo esc_html(TAP_Currency::fmt($comm_rows->owed)); ?></span><span class="tap-stat-label"><?php esc_html_e('Por cobrar', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b91c1c;"><?php echo esc_html(TAP_Currency::fmt($comm_rows->disputed)); ?></span><span class="tap-stat-label"><?php esc_html_e('En disputa', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number" style="color:#047857;"><?php echo esc_html(TAP_Currency::fmt($comm_rows->settled)); ?></span><span class="tap-stat-label"><?php esc_html_e('Cobrado', 'travel-agency-platform'); ?></span></div>
+                <?php endif; ?>
             </div>
 
             <div class="tap-panel-section">
@@ -210,8 +231,10 @@ endif;
                             <th><?php esc_html_e('Guest', 'travel-agency-platform'); ?></th>
                             <th><?php esc_html_e('Dates', 'travel-agency-platform'); ?></th>
                             <th><?php esc_html_e('Total', 'travel-agency-platform'); ?></th>
+                            <?php if ($can_money): ?>
                             <th><?php esc_html_e('Commission', 'travel-agency-platform'); ?></th>
                             <th><?php esc_html_e('Net', 'travel-agency-platform'); ?></th>
+                            <?php endif; ?>
                             <th><?php esc_html_e('Status', 'travel-agency-platform'); ?></th>
                             <th></th>
                         </tr>
@@ -262,6 +285,7 @@ endif;
                             </td>
                             <td><?php echo esc_html($date_label); ?></td>
                             <td><?php echo esc_html(TAP_Currency::fmt($b->total_amount)); ?></td>
+                            <?php if ($can_money): ?>
                             <td>
                                 <?php if ($b->commission_status === 'void'): ?>
                                     <span class="tap-muted">—</span>
@@ -270,6 +294,7 @@ endif;
                                 <?php endif; ?>
                             </td>
                             <td><?php echo esc_html(TAP_Currency::fmt(max(0, (float) $b->total_amount - (float) ($b->booking_fee ?? 0) - ($b->commission_status === 'void' ? 0 : (float) $b->commission_amount)))); ?></td>
+                            <?php endif; ?>
                             <td><span class="tap-status tap-status-<?php echo esc_attr($b->status); ?>"><?php echo esc_html(TAP_Emails_Send::status_label($b->status)); ?></span></td>
                             <td class="tap-actions">
                                 <?php
@@ -404,6 +429,7 @@ endif;
             </div>
             <?php endif; ?>
 
+            <?php if ($can_money): // Destacados, liquidaciones, disputas y libro de comisiones: solo el administrador de la agencia. ?>
             <?php
             if ($agency_id && class_exists('TAP_Promotions')):
                 $promo_price = TAP_Promotions::get_price();
@@ -635,6 +661,7 @@ endif;
                 </div>
                 <?php endif; ?>
             </div>
+            <?php endif; // $can_money: secciones de dinero. ?>
 
         </div>
         <script>

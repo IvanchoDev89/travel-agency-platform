@@ -108,6 +108,35 @@ if (!function_exists('tap_t_find_service')) {
         return [0, ''];
     }
 
+    /** Like tap_t_find_service() but skips services that already carry reviews,
+     *  so review suites never inherit junk left on a shared listing by an
+     *  earlier failed run. Falls back to the first published service. */
+    function tap_t_find_clean_service($prefer_non_tour = true) {
+        global $wpdb;
+        $order = $prefer_non_tour
+            ? ['tap_package', 'tap_boat', 'tap_transport', 'tap_car_rental', 'tap_accommodation', 'tap_tour']
+            : ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
+        $fallback = [0, ''];
+        foreach ($order as $t) {
+            $ids = get_posts(['post_type' => $t, 'post_status' => 'publish', 'posts_per_page' => -1, 'fields' => 'ids']);
+            foreach ($ids as $id) {
+                $id = (int) $id;
+                if (!$fallback[0]) {
+                    $fallback = [$id, $t];
+                }
+                $has = (int) $wpdb->get_var($wpdb->prepare(
+                    "SELECT COUNT(*) FROM {$wpdb->prefix}tap_reviews WHERE service_type = %s AND service_id = %d",
+                    $t,
+                    $id
+                ));
+                if (!$has) {
+                    return [$id, $t];
+                }
+            }
+        }
+        return $fallback;
+    }
+
     /** Throwaway subscriber user; returns uid or 0. */
     function tap_t_make_subscriber() {
         $suffix = wp_generate_password(5, false);
@@ -205,3 +234,12 @@ if (!function_exists('tap_t_find_service')) {
         return is_object($d) ? (array) $d : $d;
     }
 }
+
+// Tanda C: fresh agency-register rate-limit bucket per suite run, so repeated
+// in-hour battery runs never trip the per-IP limit from previous executions.
+global $wpdb;
+$wpdb->query(
+    "DELETE FROM {$wpdb->options}
+     WHERE option_name LIKE '_transient_tap_agency_reg_%'
+        OR option_name LIKE '_transient_timeout_tap_agency_reg_%'"
+);

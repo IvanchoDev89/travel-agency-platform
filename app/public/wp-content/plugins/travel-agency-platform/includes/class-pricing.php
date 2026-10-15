@@ -248,7 +248,9 @@ class TAP_Pricing {
 
     public static function ajax_save_pricing() {
         check_ajax_referer('tap_pricing', 'nonce');
-        if (!is_user_logged_in() || !current_user_can('edit_posts')) {
+        // Tanda C (C9): employees hold edit service caps but not edit_posts;
+        // can_manage_room() below is the real authorization (agency ownership).
+        if (!is_user_logged_in()) {
             wp_send_json(['success' => false, 'message' => 'No autorizado']);
         }
 

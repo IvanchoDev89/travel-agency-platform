@@ -397,6 +397,11 @@ class TAP_Shortcode_Search {
         $post = get_post(intval($atts['id']));
 
         if (!$post) return '<p>' . __('Service not found.', 'travel-agency-platform') . '</p>';
+        // Tanda C (C8): only published services are public; drafts/pending
+        // remain visible to their editor (owner/agency admin) for preview.
+        if ('publish' !== $post->post_status && !current_user_can('edit_post', $post->ID)) {
+            return '<p>' . __('Service not found.', 'travel-agency-platform') . '</p>';
+        }
 
         $tap_prev_post = $GLOBALS['post'] ?? null;
         setup_postdata($post);
