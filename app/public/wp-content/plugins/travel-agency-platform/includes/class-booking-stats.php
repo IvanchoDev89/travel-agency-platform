@@ -35,7 +35,7 @@ class TAP_Booking_Stats {
             "SELECT DATE_FORMAT(created_at, '%Y-%m') as month,
                     COUNT(*) as bookings,
                     COALESCE(SUM(CASE WHEN status NOT IN ('cancelled','refunded') THEN total_amount ELSE 0 END), 0) as revenue,
-                    COALESCE(SUM(CASE WHEN status NOT IN ('cancelled','refunded') AND payment_status = 'paid' AND commission_status <> 'void' THEN commission_amount ELSE 0 END), 0) as commission,
+                    COALESCE(SUM(CASE WHEN status NOT IN ('cancelled','refunded') AND commission_status <> 'void' THEN commission_amount ELSE 0 END), 0) as commission,
                     COALESCE(SUM(CASE WHEN status IN ('cancelled','refunded') THEN 1 ELSE 0 END), 0) as cancelled
             FROM $table
             GROUP BY month ORDER BY month ASC"
@@ -82,7 +82,7 @@ class TAP_Booking_Stats {
             'completed'  => $wpdb->get_var("SELECT COUNT(*) FROM $table $where AND status = 'completed'"),
             'cancelled'  => $wpdb->get_var("SELECT COUNT(*) FROM $table $where AND status = 'cancelled'"),
             'revenue'    => $wpdb->get_var("SELECT COALESCE(SUM(total_amount), 0) FROM $table $where AND status NOT IN ('cancelled', 'refunded')"),
-            'commission' => $wpdb->get_var("SELECT COALESCE(SUM(CASE WHEN payment_status = 'paid' AND commission_status <> 'void' THEN commission_amount ELSE 0 END), 0) FROM $table $where AND status NOT IN ('cancelled', 'refunded')"),
+            'commission' => $wpdb->get_var("SELECT COALESCE(SUM(CASE WHEN commission_status <> 'void' THEN commission_amount ELSE 0 END), 0) FROM $table $where AND status NOT IN ('cancelled', 'refunded')"),
             'net'        => $wpdb->get_var("SELECT COALESCE(SUM(total_amount - booking_fee - CASE WHEN commission_status <> 'void' THEN commission_amount ELSE 0 END), 0) FROM $table $where AND status NOT IN ('cancelled', 'refunded')"),
             'fees'       => $wpdb->get_var("SELECT COALESCE(SUM(booking_fee), 0) FROM $table $where AND status NOT IN ('cancelled', 'refunded')"),
         ];

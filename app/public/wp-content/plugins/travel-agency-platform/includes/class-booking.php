@@ -703,10 +703,11 @@ class TAP_Booking {
      *
      * NOTE: commission_amount is intentionally left untouched so the voided
      * amount stays visible in the "cancelled commissions" audit views
-     * (TAP_Dashboard_Money totals, agency panel). Consumers that report EARNED
-     * commission MUST therefore filter on the status: the canonical predicate
-     * is `payment_status = 'paid' AND commission_status <> 'void'` (see
-     * TAP_Dashboard_Insights and TAP_Booking_Stats).
+     * (TAP_Dashboard_Money totals, agency panel). Consumers that report
+     * commission MUST therefore filter on the status: reporting uses
+     * `commission_status <> 'void'` over active bookings (TAP_Booking_Stats,
+     * TAP_Dashboard_Content), while settlement uses the stricter
+     * `commission_status = 'owed' AND payment_status = 'paid'` (TAP_Payouts).
      *
      * @param bool $force When true, also voids 'paid' commissions (used when a
      *                    paid booking is cancelled/refunded so the commission

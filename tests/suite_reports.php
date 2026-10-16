@@ -4,9 +4,10 @@
  * Run: wp --path="<site>/app/public" eval-file tests/suite_reports.php
  *
  * Regression guard: cancelled/voided commissions must NOT be counted as
- * earned platform commission, and a voided commission must not reduce the
- * agency net. The canonical predicate (already used by TAP_Dashboard_Insights)
- * is: payment_status = 'paid' AND commission_status <> 'void'.
+ * platform commission, and a voided commission must not reduce the agency net.
+ * All reports share one base (active bookings) and the predicate
+ * commission_status <> 'void', so revenue - fees - commission reconciles with
+ * net exactly.
  */
 require_once __DIR__ . '/bootstrap.php';
 
@@ -22,10 +23,10 @@ function tap_t_near($a, $b) {
     return abs((float) $a - (float) $b) < 0.01;
 }
 
-// A: active, paid, owed            -> counts (100)
-// B: cancelled, void               -> ignored
-// C: active, UNPAID (waiting)      -> not earned yet
-// D: active, paid, but void        -> ignored, and must not reduce net
+// A: active, paid, owed        -> counts (100)
+// B: cancelled, void           -> ignored
+// C: active, unpaid (waiting)  -> counts (30): reports use active bookings base
+// D: active, paid, but void    -> ignored, and must not reduce net
 $a = tap_t_seed_booking(['agency_id' => $aid, 'total_amount' => 1000, 'commission_amount' => 100, 'commission_status' => 'owed',    'payment_status' => 'paid',    'status' => 'confirmed']);
 $b = tap_t_seed_booking(['agency_id' => $aid, 'total_amount' => 500,  'commission_amount' => 50,  'commission_status' => 'void',    'payment_status' => 'paid',    'status' => 'cancelled']);
 $c = tap_t_seed_booking(['agency_id' => $aid, 'total_amount' => 300,  'commission_amount' => 30,  'commission_status' => 'waiting', 'payment_status' => 'pending', 'status' => 'confirmed']);
@@ -34,9 +35,10 @@ $booking_ids = array_merge($booking_ids, [$a, $b, $c, $d]);
 
 $stats = TAP_Booking_Stats::get_booking_stats($aid);
 tap_t_assert(tap_t_near($stats['revenue'], 1500), 'revenue counts active bookings only (1000+300+200)');
-tap_t_assert(tap_t_near($stats['commission'], 100), 'commission excludes cancelled/unpaid/void (100)');
+tap_t_assert(tap_t_near($stats['commission'], 130), 'commission excludes cancelled/void, counts active incl. unpaid (100+30)');
 tap_t_assert(tap_t_near($stats['net'], 1370), 'net zeroes void commission, keeps active commission (1370)');
-tap_t_assert(tap_t_near($stats['revenue'], 1500) && tap_t_near($stats['fees'], 0), 'revenue/fees come from active bookings (1500 / 0)');
+tap_t_assert(tap_t_near($stats['fees'], 0), 'fees come from active bookings (0)');
+tap_t_assert(tap_t_near($stats['revenue'] - $stats['fees'] - $stats['commission'], $stats['net']), 'revenue - fees - commission reconciles with net exactly');
 
 // Monthly series: a paid commission increases it, a void one does not.
 // Delta approach because the series is site-wide (no agency filter).
