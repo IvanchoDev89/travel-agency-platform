@@ -5,10 +5,16 @@
  */
 require __DIR__ . '/bootstrap.php';
 
+// The analytics page is capability-gated; render it as an administrator.
+$admin_id = tap_t_make_admin();
+wp_set_current_user($admin_id);
+
 // render the analytics admin page to an output buffer
 ob_start();
 TAP_Dashboard_Insights::analytics_page();
 $html = ob_get_clean();
+
+wp_set_current_user(0);
 
 // KPIs from M5
 foreach ([
@@ -43,5 +49,9 @@ foreach ($funnel as $stage) {
     }
 }
 tap_t_assert($valid, 'funnel stages carry non-negative integer counts + numeric rates');
+
+if ($admin_id) {
+    wp_delete_user($admin_id);
+}
 
 tap_t_finish();

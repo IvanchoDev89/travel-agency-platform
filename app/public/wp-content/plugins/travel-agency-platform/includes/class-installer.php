@@ -269,6 +269,13 @@ class TAP_Installer {
         // totals stop counting money that was never collected.
         $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings MODIFY commission_status varchar(20) DEFAULT 'waiting'");
         $wpdb->query("UPDATE {$wpdb->prefix}tap_bookings SET commission_status = 'waiting' WHERE commission_status = 'owed' AND payment_status <> 'paid'");
+        // Cancelled/refunded bookings must never carry a live commission. Rows
+        // written before the cancel path called void_commission() can still be
+        // 'waiting'/'owed'/'disputed'; flip them to 'void' so the audit views
+        // stay coherent. Settled commissions ('paid') are left untouched: the
+        // platform already transferred that money and a clawback is a manual,
+        // out-of-band decision.
+        $wpdb->query("UPDATE {$wpdb->prefix}tap_bookings SET commission_status = 'void' WHERE status IN ('cancelled', 'refunded') AND commission_status IN ('waiting', 'owed', 'disputed')");
 
         if ($wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}tap_commission_payments'") !== "{$wpdb->prefix}tap_commission_payments") {
             $wpdb->query("CREATE TABLE {$wpdb->prefix}tap_commission_payments (

@@ -169,6 +169,19 @@ if (!function_exists('tap_t_find_service')) {
         return (is_wp_error($uid) || !$uid) ? 0 : (int) $uid;
     }
 
+    /** Temporary administrator (holds every TAP capability) for admin-page tests. */
+    function tap_t_make_admin() {
+        $suffix = wp_generate_password(5, false);
+        $uid = wp_insert_user([
+            'user_login'   => 'tap_admin_' . $suffix,
+            'user_pass'    => wp_generate_password(12, false),
+            'user_email'   => 'tap_admin_' . $suffix . '@example.test',
+            'role'         => 'administrator',
+            'display_name' => 'TAP Admin',
+        ]);
+        return (is_wp_error($uid) || !$uid) ? 0 : (int) $uid;
+    }
+
     /** Install a pre_http_request mock for PayPal; responses keyed by URL shape. */
     function tap_t_install_paypal_mock() {
         $GLOBALS['tap_pp_log'] = [];
