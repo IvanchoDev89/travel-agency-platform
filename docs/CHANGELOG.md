@@ -6,6 +6,42 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.21] — 2026-10-16
+
+Reporting single-source and booking-clock consistency. The commission definition now lives in exactly one place, and booking timestamps no longer depend on the database server's timezone.
+
+### Fixed
+
+- **Commission drift is now structurally impossible**: the committed-commission predicate (`commission_status <> 'void'` over active bookings) lives in one place — `TAP_Booking_Stats::commission_case()` and `net_expr()` — used by the Dashboard, Reports, Analytics and the CSV export, instead of diverging inline copies.
+- **`create()` relied on the MySQL server default for `created_at`**, so bookings were stamped in the database server's timezone rather than WordPress'. Bookings are now stamped with `current_time('mysql')`, matching every other timestamp in the plugin (seeding, cancellations, reminders).
+- **`cancel_stale_bookings()` compared `created_at` against `gmdate()` (UTC)**, disagreeing with WordPress local time; it now uses the same `current_time('timestamp')` basis as the rest of the plugin, so the stale window is exact in any site timezone.
+
+### Tooling
+
+- `suite_reports` gained anti-regression guards: the helper SQL must key on `commission_status <> 'void'` and never on `payment_status`, plus a dashboard-vs-stats congruence check. `suite_booking_flow` asserts `create()` stamps `created_at` on the WordPress clock.
+
+## [1.5.20] — 2026-10-16
+
+Unified committed-commission base across all reporting views.
+
+### Fixed
+
+- Reports/Analytics/export now count committed commission over active bookings (`status NOT IN ('cancelled','refunded')` **and** `commission_status <> 'void'`), matching the Dashboard, so `revenue − fees − commission = net` holds in every view. The previous `payment_status = 'paid'` gate silently zeroed whole reports on a site where no booking had settled.
+- Idempotent migration: cancelled/refunded bookings still marked `waiting`/`owed`/`disputed` are flipped to `commission_status = 'void'` (settled `paid` rows untouched).
+- `net` is now NULL-safe (`COALESCE(booking_fee, 0)`).
+
+### Security
+
+- `reports_page` and `analytics_page` now require the `tap_view_reports` capability.
+
+## [1.5.19] — 2026-10-16
+
+### Fixed
+
+- Cancelled/refunded bookings no longer contribute commission in the stats, dashboard totals and Reports/Analytics (`commission_status = 'void'` is excluded); added the `(commission_status, payment_status)` index.
+
+---
+
 ## [1.5.18] — 2026-10-13
 
 Agency-panel recovery and monetization pass. The front-end booking flow broken by the nonce hardening was repaired, two tandas of panel fixes landed, and two revenue paths that had been left dead (agency highlight purchase, traveler self-registration) were brought back to life on the new panel. Internal quality: duplicated permission predicates unified, N+1 title queries primed, chat gained keyboard support.

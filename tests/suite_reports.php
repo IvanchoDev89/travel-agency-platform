@@ -62,6 +62,25 @@ $row = $wpdb->get_row($wpdb->prepare("SELECT commission_amount, commission_statu
 tap_t_assert($row && $row->commission_status === 'void', 'void_commission() sets commission_status=void');
 tap_t_assert($row && tap_t_near($row->commission_amount, 70), 'void_commission() preserves commission_amount for audit');
 
+// Anti-regression: the single-source helper is the ONLY place the commission
+// predicate may live, and it must never re-introduce the payment_status gate
+// that silently zeroed Reports/Analytics.
+$cc = TAP_Booking_Stats::commission_case();
+$ne = TAP_Booking_Stats::net_expr();
+tap_t_assert(false !== strpos($cc, "commission_status <> 'void'"), 'commission_case() keys on commission_status <> void');
+tap_t_assert(false === strpos($cc, 'payment_status'), 'commission_case() must NOT gate on payment_status');
+tap_t_assert(false !== strpos($ne, 'booking_fee'), 'net_expr() subtracts booking_fee (NULL-safe)');
+tap_t_assert(false === strpos($ne, 'payment_status'), 'net_expr() must NOT gate on payment_status');
+tap_t_assert(false !== strpos(TAP_Booking_Stats::commission_case('b.'), 'b.commission_status'), 'commission_case() honours a table alias');
+
+// Congruence: the Agencies dashboard aggregate and the stats API must agree.
+$stats_now = TAP_Booking_Stats::get_booking_stats($aid);
+$dash_comm = (float) $wpdb->get_var($wpdb->prepare(
+    'SELECT COALESCE(SUM(' . TAP_Booking_Stats::commission_case() . "),0) FROM {$wpdb->prefix}tap_bookings WHERE status NOT IN ('cancelled','refunded') AND agency_id = %d",
+    $aid
+));
+tap_t_assert(tap_t_near($dash_comm, $stats_now['commission']), 'Agencies dashboard commission == stats commission (no drift)');
+
 // Client-supplied line-item prices must never be persisted by create().
 list($service_id, $service_type) = tap_t_find_service(true);
 if ($service_id > 0) {

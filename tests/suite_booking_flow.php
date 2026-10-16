@@ -36,6 +36,7 @@ $booking_ids[] = $idA;
 $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_bookings WHERE id = %d", $idA));
 tap_t_assert($row !== null && in_array($row->status, ['pending', 'confirmed'], true), 'booking starts pending (or auto-confirmed)');
 tap_t_assert($row !== null && (int) $row->client_id === $uid, 'booking stored for current user');
+tap_t_assert($row !== null && abs(strtotime($row->created_at) - strtotime(current_time('mysql'))) < 120, 'create() stamps created_at on the WP-local clock (not the MySQL server tz)');
 
 // get_booking() + get_booking_by_code() roundtrip
 tap_t_assert((int) TAP_Booking::get_booking($idA)->id === $idA, 'get_booking returns the row');
@@ -96,7 +97,7 @@ $stale = $wpdb->insert($wpdb->prefix . 'tap_bookings', [
     'commission_amount' => 4,
     'commission_percent'=> 10,
     'status'            => 'pending',
-    'created_at'        => gmdate('Y-m-d H:i:s', time() - 5 * HOUR_IN_SECONDS),
+    'created_at'        => date('Y-m-d H:i:s', current_time('timestamp') - 5 * HOUR_IN_SECONDS),
 ]);
 $stale_id = (int) $wpdb->insert_id;
 $booking_ids[] = $stale_id;
@@ -113,7 +114,7 @@ $fresh = $wpdb->insert($wpdb->prefix . 'tap_bookings', [
     'commission_amount' => 4,
     'commission_percent'=> 10,
     'status'            => 'pending',
-    'created_at'        => gmdate('Y-m-d H:i:s', time() - 10 * MINUTE_IN_SECONDS),
+    'created_at'        => date('Y-m-d H:i:s', current_time('timestamp') - 10 * MINUTE_IN_SECONDS),
 ]);
 $fresh_id = (int) $wpdb->insert_id;
 $booking_ids[] = $fresh_id;
@@ -135,7 +136,7 @@ $stale_req = $wpdb->insert($wpdb->prefix . 'tap_bookings', [
     'commission_amount' => 4,
     'commission_percent'=> 10,
     'status'            => 'request',
-    'created_at'        => gmdate('Y-m-d H:i:s', time() - 5 * HOUR_IN_SECONDS),
+    'created_at'        => date('Y-m-d H:i:s', current_time('timestamp') - 5 * HOUR_IN_SECONDS),
 ]);
 $stale_req_id = (int) $wpdb->insert_id;
 $booking_ids[] = $stale_req_id;

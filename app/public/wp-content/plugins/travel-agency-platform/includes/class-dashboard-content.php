@@ -236,7 +236,7 @@ class TAP_Dashboard_Content {
             if ('0' !== get_post_meta($a->ID, '_tap_agency_is_active', '1')) $active++;
             if (TAP_Approval::is_pending($a->ID)) $pending++;
         }
-        $rows_rev = $wpdb->get_results("SELECT agency_id, COUNT(*) AS c, SUM(total_amount) AS rev, SUM(CASE WHEN commission_status <> 'void' THEN commission_amount ELSE 0 END) AS comm FROM {$wpdb->prefix}tap_bookings WHERE status NOT IN ('cancelled','refunded') GROUP BY agency_id");
+        $rows_rev = $wpdb->get_results("SELECT agency_id, COUNT(*) AS c, SUM(total_amount) AS rev, SUM(" . TAP_Booking_Stats::commission_case() . ") AS comm FROM {$wpdb->prefix}tap_bookings WHERE status NOT IN ('cancelled','refunded') GROUP BY agency_id");
         $revenue_map = [];
         foreach ($rows_rev as $r) { $revenue_map[(int) $r->agency_id] = $r; }
         $listing_keys = array_values(TAP_Post_Types::agency_meta_keys());
@@ -249,7 +249,7 @@ class TAP_Dashboard_Content {
         ));
         $listings_map = [];
         foreach ($listing_count as $l) { $listings_map[(int) $l->meta_value] = (int) $l->c; }
-        $total_commission = $wpdb->get_var("SELECT SUM(CASE WHEN commission_status <> 'void' THEN commission_amount ELSE 0 END) FROM {$wpdb->prefix}tap_bookings WHERE status NOT IN ('cancelled','refunded')");
+        $total_commission = $wpdb->get_var("SELECT SUM(" . TAP_Booking_Stats::commission_case() . ") FROM {$wpdb->prefix}tap_bookings WHERE status NOT IN ('cancelled','refunded')");
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Agencies', 'travel-agency-platform'); ?></h1>

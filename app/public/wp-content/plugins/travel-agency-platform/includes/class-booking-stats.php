@@ -5,6 +5,32 @@ defined('ABSPATH') || exit;
  * Reporting queries for the back office dashboard: aggregate booking\n * counters, the monthly series, the status distribution and the breakdown by\n * service type. Read-only (wpdb get_results/get_var), with no lifecycle or\n * money logic, so they are kept out of TAP_Booking.
  */
 class TAP_Booking_Stats {
+    /**
+     * Single source of truth for the "committed commission" SQL expression.
+     * Every reporting view (Dashboard, Reports, Analytics, CSV export) must use
+     * this so the numbers can never drift again: a commission is counted on
+     * active bookings unless it was voided. It deliberately does NOT require
+     * payment_status = 'paid' — that gate silently zeroed whole reports.
+     *
+     * @param string $alias Optional table alias prefix (e.g. 'b').
+     */
+    public static function commission_case($alias = '') {
+        $p = $alias ? rtrim($alias, '.') . '.' : '';
+        return "CASE WHEN {$p}commission_status <> 'void' THEN {$p}commission_amount ELSE 0 END";
+    }
+
+    /**
+     * Single source of truth for the agency net of a booking:
+     * total_amount - booking_fee - committed commission. Voided commissions do
+     * not reduce the net, so revenue - fees - commission reconciles exactly.
+     *
+     * @param string $alias Optional table alias prefix (e.g. 'b').
+     */
+    public static function net_expr($alias = '') {
+        $p = $alias ? rtrim($alias, '.') . '.' : '';
+        return "{$p}total_amount - COALESCE({$p}booking_fee,0) - " . self::commission_case($alias);
+    }
+
     public static function get_status_distribution() {
         global $wpdb;
         $table = $wpdb->prefix . 'tap_bookings';
@@ -35,7 +61,7 @@ class TAP_Booking_Stats {
             "SELECT DATE_FORMAT(created_at, '%Y-%m') as month,
                     COUNT(*) as bookings,
                     COALESCE(SUM(CASE WHEN status NOT IN ('cancelled','refunded') THEN total_amount ELSE 0 END), 0) as revenue,
-                    COALESCE(SUM(CASE WHEN status NOT IN ('cancelled','refunded') AND commission_status <> 'void' THEN commission_amount ELSE 0 END), 0) as commission,
+                    COALESCE(SUM(CASE WHEN status NOT IN ('cancelled','refunded') THEN " . self::commission_case() . " ELSE 0 END), 0) as commission,
                     COALESCE(SUM(CASE WHEN status IN ('cancelled','refunded') THEN 1 ELSE 0 END), 0) as cancelled
             FROM $table
             GROUP BY month ORDER BY month ASC"
@@ -82,8 +108,8 @@ class TAP_Booking_Stats {
             'completed'  => $wpdb->get_var("SELECT COUNT(*) FROM $table $where AND status = 'completed'"),
             'cancelled'  => $wpdb->get_var("SELECT COUNT(*) FROM $table $where AND status = 'cancelled'"),
             'revenue'    => $wpdb->get_var("SELECT COALESCE(SUM(total_amount), 0) FROM $table $where AND status NOT IN ('cancelled', 'refunded')"),
-            'commission' => $wpdb->get_var("SELECT COALESCE(SUM(CASE WHEN commission_status <> 'void' THEN commission_amount ELSE 0 END), 0) FROM $table $where AND status NOT IN ('cancelled', 'refunded')"),
-            'net'        => $wpdb->get_var("SELECT COALESCE(SUM(total_amount - COALESCE(booking_fee,0) - CASE WHEN commission_status <> 'void' THEN commission_amount ELSE 0 END), 0) FROM $table $where AND status NOT IN ('cancelled', 'refunded')"),
+            'commission' => $wpdb->get_var("SELECT COALESCE(SUM(" . self::commission_case() . "), 0) FROM $table $where AND status NOT IN ('cancelled', 'refunded')"),
+            'net'        => $wpdb->get_var("SELECT COALESCE(SUM(" . self::net_expr() . "), 0) FROM $table $where AND status NOT IN ('cancelled', 'refunded')"),
             'fees'       => $wpdb->get_var("SELECT COALESCE(SUM(booking_fee), 0) FROM $table $where AND status NOT IN ('cancelled', 'refunded')"),
         ];
     }

@@ -258,6 +258,7 @@ class TAP_Booking {
                     'guest_name'        => !empty($data['guest_name']) ? sanitize_text_field($data['guest_name']) : null,
                     'guest_email'       => !empty($data['guest_email']) ? sanitize_email($data['guest_email']) : null,
                     'guest_phone'       => !empty($data['guest_phone']) ? sanitize_text_field($data['guest_phone']) : null,
+                    'created_at'        => current_time('mysql'),
                 ]
 				);
 
@@ -309,7 +310,7 @@ class TAP_Booking {
         $hours  = (int) apply_filters('tap_stale_booking_hours', get_option('tap_stale_booking_hours', 24));
         if ($hours < 1) return;
 
-        $cutoff = gmdate('Y-m-d H:i:s', time() - $hours * HOUR_IN_SECONDS);
+        $cutoff = date('Y-m-d H:i:s', current_time('timestamp') - $hours * HOUR_IN_SECONDS);
 
         $ids = $wpdb->get_col($wpdb->prepare(
             "SELECT id FROM $table WHERE status IN ('pending', 'request') AND created_at < %s",
