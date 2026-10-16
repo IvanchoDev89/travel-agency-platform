@@ -5133,6 +5133,16 @@ msgstr ""
 "Tu cuenta de empleado aún no está vinculada a una agencia. Pide al "
 "administrador que te agregue desde la sección Equipo de su panel."
 
+#: includes/class-front-dash.php:207
+msgid ""
+"Tu cuenta aún no está vinculada a una agencia. Si registraste una agencia, "
+"pide al administrador que confirme la vinculación; si aún no la creaste, "
+"puedes registrarla de nuevo."
+msgstr ""
+"Tu cuenta aún no está vinculada a una agencia. Si registraste una agencia, "
+"pide al administrador que confirme la vinculación; si aún no la creaste, "
+"puedes registrarla de nuevo."
+
 #: includes/class-front-dash.php:296
 msgid "Operaciones de reservas"
 msgstr "Operaciones de reservas"

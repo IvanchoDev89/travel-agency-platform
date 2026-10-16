@@ -53,6 +53,19 @@ tap_t_assert($owner2_uid && $aid2 && !is_wp_error($aid2), 'created agency #2 + o
 update_post_meta($aid2, '_tap_agency_user_id', $owner2_uid);
 $team_agencies = [(int) $aid, (int) $aid2];
 
+/* ── 0) recovery: agency-role user whose agency lost the owner link ─── */
+$orphan_uid = team_make_user('tap_agency_admin');
+$orphan_aid = wp_insert_post([
+    'post_type'   => 'tap_agency',
+    'post_status' => 'draft',
+    'post_title'  => 'Team Orphan Agency ' . wp_generate_password(4, false),
+    'post_author' => $orphan_uid,
+]);
+tap_t_assert($orphan_aid && !is_wp_error($orphan_aid), 'created an agency-role user with an unlinked agency');
+tap_t_assert((int) TAP_Booking::get_agency_for_user($orphan_uid) === (int) $orphan_aid, 'get_agency_for_user recovers an agency by authorship');
+tap_t_assert((int) get_post_meta($orphan_aid, '_tap_agency_user_id', true) === (int) $orphan_uid, 'recovery heals the missing owner link');
+$team_agencies[] = (int) $orphan_aid;
+
 /* ── 1) team_add links an existing user by email ──────────────────── */
 $staff_uid   = team_make_user('tap_client');
 $staff_email = get_userdata($staff_uid)->user_email;

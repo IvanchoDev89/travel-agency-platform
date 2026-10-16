@@ -1215,6 +1215,30 @@ class TAP_Booking {
             return $staff_agency;
         }
 
+        // Recovery for agency-role users whose agency lost the owner link
+        // (legacy rows, agencies created by hand from wp-admin). Without this
+        // they are locked out of their own panel. Match by authorship and heal
+        // the missing `_tap_agency_user_id` so later calls take the fast path.
+        $user = get_userdata($user_id);
+        if ($user && array_intersect(['tap_agency_admin', 'tap_agency_employee'], (array) $user->roles)) {
+            $owned = get_posts([
+                'post_type'      => 'tap_agency',
+                'post_status'    => ['publish', 'draft', 'pending', 'private', 'future'],
+                'author'         => $user_id,
+                'posts_per_page' => 1,
+                'fields'         => 'ids',
+                'orderby'        => 'ID',
+                'order'          => 'ASC',
+            ]);
+            if ($owned) {
+                $agency_id = (int) $owned[0];
+                if ('' === (string) get_post_meta($agency_id, '_tap_agency_user_id', true)) {
+                    update_post_meta($agency_id, '_tap_agency_user_id', $user_id);
+                }
+                return $agency_id;
+            }
+        }
+
         return 0;
     }
 

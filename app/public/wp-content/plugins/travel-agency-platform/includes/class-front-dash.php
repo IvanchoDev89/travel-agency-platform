@@ -195,11 +195,16 @@ class TAP_Front_Dash {
         // Agency-role users must resolve to an agency (owner or staff meta);
         // unmapped employees get a friendly dead-end instead of scattered errors.
         if (!TAP_Booking::get_agency_for_user($user->ID)) {
+            $user_roles  = (array) $user->roles;
+            $is_employee = in_array('tap_agency_employee', $user_roles, true) && !in_array('tap_agency_admin', $user_roles, true);
+            $message = $is_employee
+                ? __('Tu cuenta de empleado aún no está vinculada a una agencia. Pide al administrador que te agregue desde la sección Equipo de su panel.', 'travel-agency-platform')
+                : __('Tu cuenta aún no está vinculada a una agencia. Si registraste una agencia, pide al administrador que confirme la vinculación; si aún no la creaste, puedes registrarla de nuevo.', 'travel-agency-platform');
             ob_start(); ?>
             <div class="tap-dash tap-dash-agency">
                 <div class="tap-dash-login-card" style="margin:2rem auto;max-width:28rem;">
                     <h2><?php esc_html_e('Cuenta sin agencia vinculada', 'travel-agency-platform'); ?></h2>
-                    <p><?php esc_html_e('Tu cuenta de empleado aún no está vinculada a una agencia. Pide al administrador que te agregue desde la sección Equipo de su panel.', 'travel-agency-platform'); ?></p>
+                    <p><?php echo esc_html($message); ?></p>
                 </div>
             </div>
             <?php

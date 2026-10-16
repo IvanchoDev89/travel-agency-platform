@@ -5117,6 +5117,16 @@ msgstr ""
 "Your employee account is not linked to an agency yet. Ask the administrator "
 "to add you from the Team section of their panel."
 
+#: includes/class-front-dash.php:207
+msgid ""
+"Tu cuenta aún no está vinculada a una agencia. Si registraste una agencia, "
+"pide al administrador que confirme la vinculación; si aún no la creaste, "
+"puedes registrarla de nuevo."
+msgstr ""
+"Your account is not linked to an agency yet. If you registered an agency, "
+"ask the administrator to confirm the link; if you have not created one yet, "
+"you can register again."
+
 #: includes/class-front-dash.php:296
 msgid "Operaciones de reservas"
 msgstr "Booking operations"
