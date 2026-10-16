@@ -116,18 +116,19 @@ class TAP_Subscriptions {
     }
 
     public static function listing_count($agency_id) {
-        $types = TAP_Post_Types::agency_meta_keys();
         $total = 0;
-        foreach ($types as $post_type => $meta) {
-            $ids = get_posts([
-                'post_type'   => $post_type,
-                'post_status' => 'any',
-                'meta_key'    => $meta,
-                'meta_value'  => (int) $agency_id,
-                'fields'      => 'ids',
-                'posts_per_page' => -1,
+        foreach (TAP_Post_Types::agency_meta_keys() as $post_type => $meta) {
+            // Count via found_posts so we never load every listing id: the
+            // previous -1 fetch pulled the full ID list just to count it.
+            $query = new WP_Query([
+                'post_type'      => $post_type,
+                'post_status'    => 'any',
+                'meta_key'       => $meta,
+                'meta_value'     => (int) $agency_id,
+                'fields'         => 'ids',
+                'posts_per_page' => 1,
             ]);
-            $total += count($ids);
+            $total += (int) $query->found_posts;
         }
         return $total;
     }

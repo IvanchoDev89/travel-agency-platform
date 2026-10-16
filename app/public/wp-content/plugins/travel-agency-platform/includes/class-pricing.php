@@ -4,6 +4,13 @@ defined('ABSPATH') || exit;
 class TAP_Pricing {
     private static $table;
 
+    /**
+     * Per-request memo for room/range price lookups. A single availability or
+     * quote request asks for the same range several times (quote + breakdown +
+     * min-stay, and once per room), so caching avoids repeating the SQL.
+     */
+    private static $range_memo = [];
+
     public static function init() {
         global $wpdb;
         self::$table = $wpdb->prefix . 'tap_daily_pricing';
@@ -484,21 +491,49 @@ class TAP_Pricing {
     }
 
     public static function get_prices_for_range($room_id, $check_in, $check_out) {
+        $memo_key = $room_id . '|' . $check_in . '|' . $check_out;
+        if (isset(self::$range_memo[$memo_key])) {
+            return self::$range_memo[$memo_key];
+        }
+
+        global $wpdb;
+        $base = (float) get_post_meta($room_id, '_tap_room_price_per_night', true);
+
+        // One query for the whole range instead of one per night.
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT date, price, is_blocked FROM {$wpdb->prefix}tap_daily_pricing
+             WHERE room_id = %d AND date >= %s AND date < %s",
+            $room_id,
+            $check_in,
+            $check_out
+        ));
+        $overrides = [];
+        foreach ($rows as $r) {
+            $overrides[$r->date] = $r;
+        }
+
         $prices = [];
         $current = new DateTime($check_in);
         $end = new DateTime($check_out);
-
         while ($current < $end) {
             $date = $current->format('Y-m-d');
-            $price = self::get_price_for_night($room_id, $date);
+            if (isset($overrides[$date])) {
+                $row = $overrides[$date];
+                if ($row->is_blocked) {
+                    return self::$range_memo[$memo_key] = ['available' => false, 'date' => $date];
+                }
+                $price = $row->price !== null ? (float) $row->price : $base;
+            } else {
+                $price = $base ?: false;
+            }
             if ($price === false) {
-                return ['available' => false, 'date' => $date];
+                return self::$range_memo[$memo_key] = ['available' => false, 'date' => $date];
             }
             $prices[$date] = $price;
             $current->modify('+1 day');
         }
 
-        return ['available' => true, 'prices' => $prices, 'total' => array_sum($prices)];
+        return self::$range_memo[$memo_key] = ['available' => true, 'prices' => $prices, 'total' => array_sum($prices)];
     }
 
     public static function calculate_total($room_id, $check_in, $check_out, $apply_discounts = true) {
@@ -544,15 +579,36 @@ class TAP_Pricing {
     }
 
     public static function get_max_min_stay_for_range($room_id, $check_in, $check_out) {
+        $memo_key = 'ms|' . $room_id . '|' . $check_in . '|' . $check_out;
+        if (isset(self::$range_memo[$memo_key])) {
+            return self::$range_memo[$memo_key];
+        }
+
+        global $wpdb;
+        $base = (int) get_post_meta($room_id, '_tap_room_min_stay', true) ?: 1;
+
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT date, min_stay FROM {$wpdb->prefix}tap_daily_pricing
+             WHERE room_id = %d AND date >= %s AND date < %s AND min_stay IS NOT NULL",
+            $room_id,
+            $check_in,
+            $check_out
+        ));
+        $overrides = [];
+        foreach ($rows as $r) {
+            $overrides[$r->date] = (int) $r->min_stay;
+        }
+
         $max = 0;
         $current = new DateTime($check_in);
         $end = new DateTime($check_out);
         while ($current < $end) {
-            $ms = self::get_min_stay_for_date($room_id, $current->format('Y-m-d'));
+            $date = $current->format('Y-m-d');
+            $ms = !empty($overrides[$date]) ? $overrides[$date] : $base;
             $max = max($max, $ms);
             $current->modify('+1 day');
         }
-        return $max;
+        return self::$range_memo[$memo_key] = $max;
     }
 
     public static function is_date_available($room_id, $date) {

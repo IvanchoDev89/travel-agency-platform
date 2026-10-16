@@ -60,6 +60,28 @@ tap_t_assert(TAP_Pricing::get_max_min_stay_for_range($room_id, $d0, $d2) === 2, 
 tap_t_assert(TAP_Pricing::calculate_total($room_id, $d0, $d2, false) === 175.0, 'calculate_total sums nights');
 $wpdb->delete($dp_table, ['room_id' => $room_id]);
 
+// 2b) wide range is a bounded number of queries, not one per night ------------
+$wide = pr_make_post('tap_room', ['_tap_room_price_per_night' => 50]);
+$win  = gmdate('Y-m-d', strtotime('+60 days'));
+$wout = gmdate('Y-m-d', strtotime('+90 days')); // 30 nights
+
+$before = $wpdb->num_queries;
+$wrange = TAP_Pricing::get_prices_for_range($wide, $win, $wout);
+$used   = $wpdb->num_queries - $before;
+tap_t_assert($wrange['available'] === true && count($wrange['prices']) === 30, 'wide range returns 30 nights');
+tap_t_assert(abs($wrange['total'] - 1500.0) < 0.001, 'wide range total = base x nights');
+tap_t_assert($used <= 3, "wide range uses a bounded number of queries (got {$used})");
+
+$before = $wpdb->num_queries;
+$ms     = TAP_Pricing::get_max_min_stay_for_range($wide, $win, $wout);
+$used_ms = $wpdb->num_queries - $before;
+tap_t_assert($ms === 1, 'wide range default min-stay is 1');
+tap_t_assert($used_ms <= 3, "min-stay range uses a bounded number of queries (got {$used_ms})");
+
+$before = $wpdb->num_queries;
+TAP_Pricing::get_prices_for_range($wide, $win, $wout);
+tap_t_assert($wpdb->num_queries === $before, 'a repeated range lookup is served from the per-request memo');
+
 // 3) discount quote: last-minute 15% applies ----------------------------------
 $orig_disc = get_option(TAP_Discounts::OPTION_KEY, []);
 $disc = TAP_Discounts::get_settings();
