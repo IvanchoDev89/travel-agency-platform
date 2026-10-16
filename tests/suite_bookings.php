@@ -40,6 +40,16 @@ $bs = TAP_Booking_Stats::get_booking_stats($agency_id);
 tap_t_assert(isset($bs['total'], $bs['commission'], $bs['revenue']), 'get_booking_stats returns total/commission/revenue keys');
 tap_t_assert((float) $bs['commission'] >= 25.0, 'get_booking_stats commission includes seeded booking');
 
+// 4b) batched items: get_booking_items_for groups by booking in a single query
+$wpdb->insert($wpdb->prefix . 'tap_booking_items', ['booking_id' => $b, 'service_type' => 'tap_tour', 'service_id' => 1, 'quantity' => 2, 'unit_price' => 10, 'subtotal' => 20]);
+$wpdb->insert($wpdb->prefix . 'tap_booking_items', ['booking_id' => $b, 'service_type' => 'tap_tour', 'service_id' => 1, 'quantity' => 1, 'unit_price' => 5, 'subtotal' => 5]);
+$batched = TAP_Booking::get_booking_items_for([$b, 0, -3]);
+tap_t_assert(isset($batched[$b]) && count($batched[$b]) === 2, 'get_booking_items_for groups rows per booking');
+tap_t_assert(count(TAP_Booking::get_booking_items_for([$b])) === 1 && count(TAP_Booking::get_booking_items($b)) === 2, 'get_booking_items_for returns the same rows as get_booking_items');
+tap_t_assert(TAP_Booking::get_booking_items_for([0, -3]) === [], 'get_booking_items_for ignores invalid ids');
+tap_t_assert(TAP_Booking::get_booking_items_for([]) === [], 'get_booking_items_for with no ids is empty');
+$wpdb->delete($wpdb->prefix . 'tap_booking_items', ['booking_id' => $b]);
+
 tap_t_cleanup_bookings($ids);
 
 // 5) REGRESSION: both front-end booking forms must pass the create_booking nonce guard.

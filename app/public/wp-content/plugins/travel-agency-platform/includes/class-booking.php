@@ -1089,6 +1089,31 @@ class TAP_Booking {
         ));
     }
 
+    /**
+     * Items for many bookings in one query, grouped by booking id (empty arrays
+     * for bookings with no rows). Avoids the per-booking query in listing loops.
+     *
+     * @return array<int,array<int,object>>
+     */
+    public static function get_booking_items_for(array $booking_ids) {
+        global $wpdb;
+        $ids = [];
+        foreach ($booking_ids as $id) {
+            $id = (int) $id;
+            if ($id > 0) $ids[$id] = $id;
+        }
+        if (!$ids) return [];
+        $in = implode(',', $ids);
+        $rows = $wpdb->get_results(
+            "SELECT * FROM {$wpdb->prefix}tap_booking_items WHERE booking_id IN ({$in}) ORDER BY booking_id ASC, id ASC"
+        );
+        $out = [];
+        foreach ($rows as $row) {
+            $out[(int) $row->booking_id][] = $row;
+        }
+        return $out;
+    }
+
     public static function get_agency_bookings_count($agency_id) {
         global $wpdb;
         return $wpdb->get_var($wpdb->prepare(

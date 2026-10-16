@@ -15,6 +15,21 @@ class TAP_Archive_Query {
         }
         if (empty($types)) return $clauses;
 
+        // Cheap path: order by precomputed featured IDs. The memoized set costs
+        // one flat query per type instead of the two correlated postmeta
+        // subqueries per type that used to execute for every candidate row.
+        if (class_exists('TAP_Promotions')) {
+            $featured_ids = TAP_Promotions::featured_ids($types);
+            if (empty($featured_ids)) return $clauses;
+            if (count($featured_ids) <= 1000) {
+                global $wpdb;
+                $in = implode(',', array_map('intval', $featured_ids));
+                $clauses['orderby'] = "({$wpdb->posts}.ID IN ({$in})) = 0 ASC" . ($clauses['orderby'] ? ', ' . $clauses['orderby'] : '');
+                return $clauses;
+            }
+        }
+
+        // Fallback (pathologically large featured sets): original per-type guard.
         $guards = [];
         foreach ($types as $type) {
             $keys = class_exists('TAP_Promotions') ? TAP_Promotions::keys_for_type($type) : null;

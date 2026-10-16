@@ -355,10 +355,22 @@ class TAP_API {
         $user_id = get_current_user_id();
         $bookings = TAP_Booking::get_client_bookings($user_id);
 
+        // Prime the service posts and fetch every item set in one query so the
+        // loop below never queries per booking.
+        if ($bookings) {
+            get_posts([
+                'post__in'         => array_values(array_filter(array_map(static fn($b) => (int) $b->service_id, $bookings))),
+                'post_type'        => 'any',
+                'post_status'      => 'any',
+                'posts_per_page'   => -1,
+            ]);
+        }
+        $items_by_booking = TAP_Booking::get_booking_items_for(array_map(static fn($b) => (int) $b->id, $bookings));
+
         foreach ($bookings as &$booking) {
             $service = get_post($booking->service_id);
             $booking->service_title = $service ? $service->post_title : 'N/A';
-            $booking->items = TAP_Booking::get_booking_items($booking->id);
+            $booking->items = $items_by_booking[(int) $booking->id] ?? [];
         }
 
         return rest_ensure_response($bookings);

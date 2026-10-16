@@ -83,6 +83,36 @@ class TAP_Chat {
     }
 
     /**
+     * Unread counts grouped by booking, in a single query. Keyed by booking id
+     * (omitting bookings with zero unread), so a listing loop avoids the N+1
+     * of calling unread_for() once per row.
+     *
+     * @return array<int,int>
+     */
+    public static function unread_counts_for_bookings(array $booking_ids, $reader_type) {
+        global $wpdb;
+        $ids = [];
+        foreach ($booking_ids as $id) {
+            $id = (int) $id;
+            if ($id > 0) $ids[$id] = $id;
+        }
+        if (!$ids) return [];
+        $reader_type = in_array($reader_type, ['client', 'agency'], true) ? $reader_type : 'client';
+        $in = implode(',', $ids);
+        $rows = $wpdb->get_results($wpdb->prepare(
+            'SELECT booking_id, COUNT(*) AS unread FROM ' . self::table() . "
+             WHERE booking_id IN ({$in}) AND author_type <> %s AND is_read = 0
+             GROUP BY booking_id",
+            $reader_type
+        ));
+        $out = [];
+        foreach ($rows as $row) {
+            $out[(int) $row->booking_id] = (int) $row->unread;
+        }
+        return $out;
+    }
+
+    /**
      * Unread guest messages across every booking that belongs to an agency.
      * Powers the global badge in the agency back-office.
      */

@@ -61,12 +61,18 @@ if ($featuredListing) {
     $wp_the_query = $prev_the_query;
 
     tap_t_assert(
-        strpos((string) $feat_clauses['orderby'], 'CASE WHEN') !== false,
-        'featured sort clauses prefix a CASE WHEN that pins featured first'
+        strpos((string) $feat_clauses['orderby'], "{$wpdb->posts}.ID IN (") !== false,
+        'featured sort clauses pin featured listings first via the precomputed ID set'
     );
     tap_t_assert(
         strpos((string) $feat_clauses['orderby'], "{$wpdb->posts}.post_date ASC") !== false,
         'featured sort clauses keep the original orderby as tie-break'
+    );
+    // The featured listing must be part of the precomputed ordering set, so the
+    // IN-expression promotes it ahead of the rest under ASC.
+    tap_t_assert(
+        in_array((int) $p->ID, TAP_Promotions::featured_ids(['tap_tour']), true),
+        'featured listing id belongs to the precomputed ordering set'
     );
 } else {
     tap_t_assert(true, 'no active featured listing present (seed one to test ordering)');

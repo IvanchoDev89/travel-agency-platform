@@ -70,6 +70,46 @@ class TAP_Promotions {
         return (string) get_post_meta($post_id, $keys['until_key'], true);
     }
 
+    /**
+     * IDs of currently-featured published listings for the given post types.
+     * Two flat queries per type (no correlated subquery), memoized per request.
+     * Mirrors the archive guard: flag = '1' AND until >= today.
+     *
+     * @param string[] $types
+     * @return int[]
+     */
+    public static function featured_ids(array $types) {
+        $types = array_values(array_filter(array_map('strval', $types)));
+        if (!$types) return [];
+        $cache_key = 'featured_ids_' . md5(implode('|', $types));
+        $cached = wp_cache_get($cache_key, 'tap_promotions');
+        if (false !== $cached) return $cached;
+
+        global $wpdb;
+        $today = current_time('Y-m-d');
+        $ids = [];
+        foreach ($types as $type) {
+            $keys = self::keys_for_type($type);
+            if (!$keys) continue;
+            $rows = $wpdb->get_col($wpdb->prepare(
+                "SELECT p.ID FROM {$wpdb->posts} p
+                 INNER JOIN {$wpdb->postmeta} f ON f.post_id = p.ID AND f.meta_key = %s AND f.meta_value = '1'
+                 INNER JOIN {$wpdb->postmeta} u ON u.post_id = p.ID AND u.meta_key = %s AND u.meta_value <> '' AND u.meta_value >= %s
+                 WHERE p.post_type = %s AND p.post_status = 'publish'",
+                $keys['flag_key'],
+                $keys['until_key'],
+                $today,
+                $type
+            ));
+            foreach ($rows as $id) {
+                $ids[] = (int) $id;
+            }
+        }
+        $ids = array_values(array_unique($ids));
+        wp_cache_set($cache_key, $ids, 'tap_promotions', 300);
+        return $ids;
+    }
+
     public static function featured_slots($agency_id) {
         if (class_exists('TAP_Subscriptions')) {
             $plan = TAP_Subscriptions::active_plan($agency_id);

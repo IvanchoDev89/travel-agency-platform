@@ -286,6 +286,13 @@ class TAP_Front_Dash {
             "SELECT * FROM {$wpdb->prefix}tap_bookings {$where} ORDER BY created_at DESC LIMIT 40"
         );
         self::prime_titles(array_map(static fn($b) => (int) $b->service_id, $bookings));
+        // Prime the room posts and batch the unread chat counts so the row loop
+        // below issues no per-booking queries.
+        $room_ids = array_filter(array_map(static fn($b) => (int) $b->room_id, $bookings));
+        if ($room_ids) {
+            get_posts(['post__in' => $room_ids, 'post_type' => 'any', 'post_status' => 'any', 'posts_per_page' => -1]);
+        }
+        $unread_by_booking = TAP_Chat::unread_counts_for_bookings(array_map(static fn($b) => (int) $b->id, $bookings), 'agency');
 
         $today = gmdate('Y-m-d');
         $base  = home_url('/mi-cuenta/');
@@ -357,7 +364,7 @@ class TAP_Front_Dash {
 								<?php if (in_array($b->status, ['request', 'pending', 'confirmed'], true) && (!$b->check_in || $b->check_in >= $today)): ?>
                                 <button class="tap-btn tap-btn-sm tap-btn-danger tap-bo-api" data-op="cancel" data-name="<?php echo esc_attr($b->booking_code); ?>" data-id="<?php echo (int) $b->id; ?>"><?php esc_html_e('Cancelar', 'travel-agency-platform'); ?></button>
                             <?php endif; ?>
-								<?php $b_unread = TAP_Chat::unread_for($b->id, 'agency'); ?>
+								<?php $b_unread = (int) ($unread_by_booking[(int) $b->id] ?? 0); ?>
                             <button class="tap-btn tap-btn-sm tap-chat-toggle" data-id="<?php echo (int) $b->id; ?>"><?php esc_html_e('Chat', 'travel-agency-platform'); ?><?php if ($b_unread): ?> <span class="tap-chat-badge"><?php echo (int) $b_unread; ?></span><?php endif; ?></button>
                         </td>
                     </tr>

@@ -80,6 +80,19 @@ TAP_Chat::mark_read($gid, 'agency');
 tap_t_assert(TAP_Chat::unread_total_for_agency($agency) === $baseline, 'global unread total drops after reading the threads');
 tap_t_assert(TAP_Chat::last_id($bk) > 0 && TAP_Chat::last_id($gid) > 0, 'last_id resolves per thread');
 
+// --- batched unread (dashboard listing avoids the per-row N+1) ---------------------------
+TAP_Chat::send($bk, 'client', $u, 'Marcelo', 'Batch 1');
+TAP_Chat::send($bk, 'client', $u, 'Marcelo', 'Batch 2');
+TAP_Chat::send($gid, 'client', 0, 'Ana Viajera', 'Batch 3');
+$batch = TAP_Chat::unread_counts_for_bookings([$bk, $gid, 0, -4], 'agency');
+tap_t_assert(($batch[$bk] ?? 0) === 2, 'batched unread counts client messages per booking');
+tap_t_assert(($batch[$gid] ?? 0) === 1, 'batched unread covers every booking in the set');
+tap_t_assert(!isset($batch[0]) && !isset($batch[-4]), 'batched unread ignores invalid booking ids');
+tap_t_assert(TAP_Chat::unread_counts_for_bookings([], 'agency') === [], 'batched unread with no ids is empty');
+tap_t_assert(($batch[$bk] ?? 0) === (int) TAP_Chat::unread_for($bk, 'agency'), 'batched count matches single-booking count');
+TAP_Chat::mark_read($bk, 'agency');
+TAP_Chat::mark_read($gid, 'agency');
+
 // --- ownership guards --------------------------------------------------------------------
 $wk = $wpdb->get_var($wpdb->prepare("SELECT guest_email FROM {$b} WHERE id=%d", $bk));
 list($ok, $name) = TAP_Chat::can_client_chat((object) ['client_id' => $u, 'agency_id' => 0, 'guest_email' => (string) $wk], $u, '');
