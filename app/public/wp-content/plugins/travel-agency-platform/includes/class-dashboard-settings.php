@@ -115,10 +115,10 @@ class TAP_Dashboard_Settings {
             echo '<tr>';
             echo '<td><input type="text" name="tap_plans[' . (int) $p->id . '][name]" value="' . esc_attr($p->name) . '" class="regular-text"></td>';
             echo '<td><input type="number" name="tap_plans[' . (int) $p->id . '][price_monthly]" value="' . esc_attr($p->price_monthly) . '" min="0" step="0.01" style="width:90px;"></td>';
-            echo '<td><input type="number" name="tap_plans[' . (int) $p->id . '][commission_rate]" value="' . esc_attr($p->commission_rate === null ? '' : $p->commission_rate) . '" min="0" step="0.01" style="width:70px;" placeholder="estándar"></td>';
+            echo '<td><input type="number" name="tap_plans[' . (int) $p->id . '][commission_rate]" value="' . esc_attr($p->commission_rate === null ? '' : $p->commission_rate) . '" min="0" step="0.01" style="width:70px;" placeholder="' . esc_attr__('estándar', 'travel-agency-platform') . '"></td>';
             echo '<td><input type="number" name="tap_plans[' . (int) $p->id . '][listing_limit]" value="' . esc_attr($p->listing_limit) . '" style="width:80px;"></td>';
             echo '<td><input type="number" name="tap_plans[' . (int) $p->id . '][featured_slots]" value="' . esc_attr($p->featured_slots) . '" min="0" style="width:70px;"></td>';
-            echo '<td><textarea name="tap_plans[' . (int) $p->id . '][features]" rows="3" cols="30" placeholder="una por línea">' . esc_textarea($features_txt) . '</textarea></td>';
+            echo '<td><textarea name="tap_plans[' . (int) $p->id . '][features]" rows="3" cols="30" placeholder="' . esc_attr__('una por línea', 'travel-agency-platform') . '">' . esc_textarea($features_txt) . '</textarea></td>';
             echo '<td><input type="checkbox" name="tap_plans[' . (int) $p->id . '][is_active]" value="1" ' . checked(1, $p->is_active, false) . '></td>';
             echo '</tr>';
         }

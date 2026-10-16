@@ -8,6 +8,10 @@
 require_once __DIR__ . '/bootstrap.php';
 
 global $wpdb;
+// pr_make_post() mutates this through `global`; bind the top-level var to the
+// same global so the cleanup section sees it (eval-file scope).
+global $created_posts;
+
 $created_posts = [];
 $dp_table = $wpdb->prefix . 'tap_daily_pricing';
 

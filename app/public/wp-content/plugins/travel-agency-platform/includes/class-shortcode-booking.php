@@ -301,7 +301,7 @@ class TAP_Shortcode_Booking {
                         <div class="tap-form-grid">
                             <div class="tap-field tap-span-2">
                                 <label><?php esc_html_e('Correo de la reserva', 'travel-agency-platform'); ?></label>
-                                <input type="email" name="email" required autocomplete="email" placeholder="tucorreo@ejemplo.com">
+                                <input type="email" name="email" required autocomplete="email" placeholder="<?php echo esc_attr__('tucorreo@ejemplo.com', 'travel-agency-platform'); ?>">
                             </div>
                             <input type="hidden" name="code" value="<?php echo esc_attr($booking->booking_code); ?>">
                             <div class="tap-field tap-field-actions">
@@ -493,7 +493,7 @@ class TAP_Shortcode_Booking {
                         <?php if (!$uid): ?>
                         <div class="tap-field tap-span-2">
                             <label><?php esc_html_e('Correo electrónico de la reserva', 'travel-agency-platform'); ?></label>
-                            <input type="email" name="email" required placeholder="tucorreo@ejemplo.com">
+                            <input type="email" name="email" required placeholder="<?php echo esc_attr__('tucorreo@ejemplo.com', 'travel-agency-platform'); ?>">
                         </div>
                         <?php endif; ?>
                         <div class="tap-field tap-field-actions">
@@ -537,7 +537,7 @@ class TAP_Shortcode_Booking {
                         <div class="tap-form-grid">
                             <div class="tap-field tap-span-2">
                                 <label><?php esc_html_e('Correo electrónico de la reserva', 'travel-agency-platform'); ?></label>
-                                <input type="email" name="email" required autocomplete="email" placeholder="tucorreo@ejemplo.com">
+                                <input type="email" name="email" required autocomplete="email" placeholder="<?php echo esc_attr__('tucorreo@ejemplo.com', 'travel-agency-platform'); ?>">
                             </div>
                             <input type="hidden" name="code" value="<?php echo esc_attr($code); ?>">
                             <div class="tap-field tap-field-actions">

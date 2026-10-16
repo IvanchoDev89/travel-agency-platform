@@ -509,6 +509,36 @@ endif;
     }
 
 
+    /**
+     * Tanda D: keep the tap_agencies registry free of orphans. The admin
+     * "delete" action only deactivates + trashes the post, but a hard delete
+     * (permanent delete, WP-CLI, programmatic wp_delete_post) used to leave the
+     * registry row behind forever. Drop it when the agency post is destroyed.
+     *
+     * @param int          $post_id
+     * @param WP_Post|null $post
+     */
+    public static function on_agency_deleted($post_id, $post = null) {
+        $post = $post ?: get_post($post_id);
+        if (!$post || 'tap_agency' !== $post->post_type) {
+            return;
+        }
+        global $wpdb;
+        $table = $wpdb->prefix . 'tap_agencies';
+        if (!$wpdb->get_var("SHOW TABLES LIKE '$table'")) {
+            return;
+        }
+        $uid = (int) get_post_meta($post_id, '_tap_agency_user_id', true);
+        if ($uid) {
+            $wpdb->delete($table, ['user_id' => $uid]);
+        }
+        // No owner mapping (legacy/imported rows): fall back to the slug.
+        if (!empty($post->post_name)) {
+            $wpdb->delete($table, ['slug' => $post->post_name]);
+        }
+    }
+
+
     public static function add_agency_column($columns) {
         $columns['agency'] = __('Agency', 'travel-agency-platform');
         return $columns;

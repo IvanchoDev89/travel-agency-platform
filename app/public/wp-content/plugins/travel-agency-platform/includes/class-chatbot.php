@@ -226,17 +226,7 @@ class TAP_Chatbot {
      * Per-IP rate limit for the chat endpoint (12 messages / 10 min).
      */
     public static function rate_limited($ip) {
-        $key  = 'tap_chat_' . md5($ip . '|' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : ''));
-        $data = get_transient($key);
-        if (false === $data) {
-            set_transient($key, 1, 10 * MINUTE_IN_SECONDS);
-            return false;
-        }
-        if ((int) $data >= 12) {
-            return true;
-        }
-        set_transient($key, (int) $data + 1, 10 * MINUTE_IN_SECONDS);
-        return false;
+        return TAP_Rate_Limit::too_many('chat', 12, 10 * MINUTE_IN_SECONDS, $ip);
     }
 
     /** Log an aggregate chat event (no PII). */

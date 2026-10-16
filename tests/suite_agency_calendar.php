@@ -14,6 +14,10 @@ global $wpdb;
 // Bypass the plan listing limit so the suite can create freely.
 add_filter('tap_listing_limit', function () { return -1; });
 
+// Helpers below mutate these through `global`; bind the top-level vars to the
+// same globals so the cleanup section sees them (eval-file scope).
+global $created_agencies, $created_users, $pricing_rows;
+
 $created_agencies = [];
 $created_users    = [];
 $created_posts    = [];

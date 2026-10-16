@@ -188,6 +188,13 @@ foreach ($at_booking_codes as $code) {
 foreach ($at_lead_ids as $lid) {
     $wpdb->delete($wpdb->prefix . 'tap_leads', ['id' => (int) $lid]);
 }
+// Consents recorded when the consenting leads were submitted (scope 'lead').
+$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}tap_consents WHERE email LIKE %s", $token . '%'));
+// Agency registry rows: hard-deleting the post no longer cascades on old
+// installs, so remove the two rows this suite inserted explicitly.
+foreach ([$agency, $agency_b] as $at_agency_pair) {
+    $wpdb->delete($wpdb->prefix . 'tap_agencies', ['id' => (int) $at_agency_pair[0]]);
+}
 foreach ($at_post_ids as $pid) {
     delete_post_meta($pid, '_tap_booking_mode');
     wp_delete_post($pid, true);

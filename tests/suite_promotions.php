@@ -75,6 +75,10 @@ if ($featuredListing) {
 /* ── 4) panel Destacados (bo-promos): compra reactivada ───────────── */
 
 global $wpdb;
+// promo_make_user() mutates this through `global`; bind the top-level var to
+// the same global so the cleanup section sees it (eval-file scope).
+global $promo_users;
+
 $promo_users  = [];
 $promo_posts  = [];
 $promo_plan_id = 0;

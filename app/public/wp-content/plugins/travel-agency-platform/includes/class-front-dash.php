@@ -467,7 +467,7 @@ class TAP_Front_Dash {
                             </select>
                         </label>
                         <label><?php esc_html_e('Nota (opcional)', 'travel-agency-platform'); ?>
-                            <textarea name="note" rows="2" placeholder="Referencia para el administrador"></textarea>
+                            <textarea name="note" rows="2" placeholder="<?php echo esc_attr__('Referencia para el administrador', 'travel-agency-platform'); ?>"></textarea>
                         </label>
                         <button type="submit" class="tap-btn tap-btn-primary"><?php echo esc_html(sprintf(/* translators: %s: importe solicitado */ __('Solicitar %s', 'travel-agency-platform'), TAP_Currency::fmt($totals->owed))); ?></button>
                     </form>
@@ -534,7 +534,7 @@ class TAP_Front_Dash {
                 <p class="tap-agency-meta"><?php esc_html_e('El usuario debe existir ya en la plataforma (que se haya registrado primero). Se le asignará el rol de empleado y acceso a esta agencia.', 'travel-agency-platform'); ?></p>
                 <form id="tap-team-add" class="tap-bo-form">
                     <label><?php esc_html_e('Email del usuario', 'travel-agency-platform'); ?>
-                        <input type="email" name="email" required placeholder="usuario@ejemplo.com">
+                        <input type="email" name="email" required placeholder="<?php echo esc_attr__('usuario@ejemplo.com', 'travel-agency-platform'); ?>">
                     </label>
                     <button type="submit" class="tap-btn tap-btn-primary"><?php esc_html_e('Agregar', 'travel-agency-platform'); ?></button>
                 </form>

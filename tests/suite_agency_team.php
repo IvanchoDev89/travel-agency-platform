@@ -16,6 +16,8 @@
  */
 require __DIR__ . '/bootstrap.php';
 
+global $team_users, $team_agencies;
+
 $team_users    = [];
 $team_agencies = [];
 

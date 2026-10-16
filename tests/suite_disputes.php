@@ -134,9 +134,9 @@ tap_t_assert(strpos($post, 'retenida') !== false, 'voucher confirms dispute open
 tap_t_assert((int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$d} WHERE booking_id=%d AND status='open'", $bk)) === 1, 'page submission stored an open dispute');
 
 // --- cleanup ----------------------------------------------------------------------------------
-$wpdb->query("DELETE FROM {$d} WHERE booking_id IN (" . implode(',', array_map('intval', [$bk, $pending, $paid_bk, $bk2])) . ")");
-$wpdb->delete($p, ['id' => $payout]);
-$wpdb->delete($p, ['id' => $payout2]);
-$wpdb->query("DELETE FROM {$b} WHERE id IN (" . implode(',', array_map('intval', [$bk, $pending, $paid_bk, $bk2])) . ")");
+$dispute_bookings = array_map('intval', [$bk, $pending, $paid_bk, $bk2, $paid_bk2]);
+$wpdb->query("DELETE FROM {$d} WHERE booking_id IN (" . implode(',', $dispute_bookings) . ")");
+$wpdb->query($wpdb->prepare("DELETE FROM {$p} WHERE id IN (%d,%d,%d)", $payout, $payout2, $payout3));
+$wpdb->query("DELETE FROM {$b} WHERE id IN (" . implode(',', $dispute_bookings) . ")");
 wp_delete_user($u);
 tap_t_finish();

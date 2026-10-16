@@ -219,6 +219,7 @@ foreach ($GLOBALS['ld_post_ids'] as $_pid) {
     }
 }
 $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}tap_leads WHERE email LIKE %s", $pref . '_%'));
+$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}tap_consents WHERE email LIKE %s", $pref . '_%'));
 $wpdb->query("DELETE FROM {$wpdb->prefix}tap_agencies WHERE name LIKE 'Lead Test Agency " . $pref . "%'");
 
 tap_t_finish();

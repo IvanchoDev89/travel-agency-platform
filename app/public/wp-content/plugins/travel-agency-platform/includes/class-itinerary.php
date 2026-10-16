@@ -12,6 +12,9 @@ defined('ABSPATH') || exit;
 
 class TAP_Itinerary {
 
+    /** Per-request memo so ajax_search() counts without re-running the query. */
+    private static $query_memo = [];
+
     public static function init() {
         add_shortcode('tap_itinerary_builder', [self::class, 'render']);
         add_action('wp_ajax_tap_itinerary_search', [self::class, 'ajax_search']);
@@ -147,6 +150,12 @@ class TAP_Itinerary {
      */
     public static function build_query($params, $relax = false) {
         $params = self::parse_params($params);
+
+        $memo_key = md5(wp_json_encode($params) . '|' . (int) $relax);
+        if (isset(self::$query_memo[$memo_key])) {
+            return self::$query_memo[$memo_key];
+        }
+
         $types  = $params['types'] ?: self::service_types();
         $rows   = [];
 
@@ -218,7 +227,9 @@ class TAP_Itinerary {
             return strcmp($b->post_date, $a->post_date);
         });
 
-        return array_slice($rows, 0, 60);
+        $result = array_slice($rows, 0, 60);
+        self::$query_memo[$memo_key] = $result;
+        return $result;
     }
 
     /** Shared card markup for a matching service (AJAX + server render). */
@@ -292,6 +303,9 @@ class TAP_Itinerary {
 
     public static function ajax_search() {
         check_ajax_referer('tap_nonce', 'nonce');
+        if (TAP_Rate_Limit::too_many('itinerary', 60, 5 * MINUTE_IN_SECONDS)) {
+            wp_send_json_error(['message' => __('Demasiadas búsquedas seguidas. Esperá unos minutos e intentá de nuevo.', 'travel-agency-platform')], 429);
+        }
         $params = self::parse_params($_POST);
         $relaxed = !empty($_POST['relaxed']);
         $html = self::render_results_html($params, $relaxed);

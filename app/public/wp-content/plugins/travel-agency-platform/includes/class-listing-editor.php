@@ -327,7 +327,7 @@ class TAP_Listing_Editor {
                 var opts = bedTypes.map(function(t){ return '<option value="'+t+'"'+(t===type?' selected':'')+'>'+(bedLabels[t]||t)+'</option>'; }).join('');
                 return '<div class="tap-bed-row"><select class="tap-bed-type">'+opts+'</select>'+
                         '<input type="number" class="tap-bed-count" min="1" value="'+(count||1)+'">'+
-                        '<button type="button" class="tap-bed-remove" aria-label="Quitar cama">&times;</button></div>';
+                        '<button type="button" class="tap-bed-remove" aria-label="<?php echo esc_attr__('Quitar cama', 'travel-agency-platform'); ?>">&times;</button></div>';
             }
             function bindBedBuilder(form){
                 var rows = form.querySelector('.tap-beds-rows');

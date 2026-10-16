@@ -37,9 +37,19 @@ if (!function_exists('tap_t_pass')) {
         if (!$booking_ids) {
             return;
         }
-        $in = implode(',', array_map('intval', $booking_ids));
+        $ids = array_values(array_unique(array_map('intval', $booking_ids)));
+        $in  = implode(',', $ids);
         $wpdb->query("DELETE FROM {$wpdb->prefix}tap_bookings WHERE id IN ({$in})");
-        $wpdb->query("DELETE FROM {$wpdb->prefix}tap_commission_payments WHERE booking_ids IN ({$in})");
+        // A ledger row may group several bookings in one booking_ids cell
+        // ("5,9"); IN() only matches single-id rows, so also drop any row whose
+        // whole set is contained in the ids we are cleaning up.
+        $commission_table = $wpdb->prefix . 'tap_commission_payments';
+        foreach ($wpdb->get_results("SELECT id, booking_ids FROM {$commission_table}") as $row) {
+            $parts = array_filter(array_map('intval', explode(',', (string) $row->booking_ids)));
+            if ($parts && !array_diff($parts, $ids)) {
+                $wpdb->delete($commission_table, ['id' => (int) $row->id]);
+            }
+        }
     }
 
     function tap_t_seed_booking($overrides = []) {
@@ -59,6 +69,15 @@ if (!function_exists('tap_t_pass')) {
         ];
         $wpdb->insert($wpdb->prefix . 'tap_bookings', array_merge($defaults, $overrides));
         return (int) $wpdb->insert_id;
+    }
+
+    /** Drop consent rows left behind by throwaway (@example.*) test users. */
+    function tap_t_cleanup_test_consents() {
+        global $wpdb;
+        $wpdb->query(
+            "DELETE FROM {$wpdb->prefix}tap_consents
+             WHERE email LIKE '%@example.test' OR email LIKE '%@example.invalid'"
+        );
     }
 
     /** Agency post id used as the default for seeded bookings. */
@@ -235,11 +254,15 @@ if (!function_exists('tap_t_find_service')) {
     }
 }
 
-// Tanda C: fresh agency-register rate-limit bucket per suite run, so repeated
-// in-hour battery runs never trip the per-IP limit from previous executions.
+// Tanda C/D: fresh public rate-limit buckets per suite run, so repeated
+// in-hour battery runs never trip a per-IP limit from previous executions.
 global $wpdb;
 $wpdb->query(
     "DELETE FROM {$wpdb->options}
-     WHERE option_name LIKE '_transient_tap_agency_reg_%'
-        OR option_name LIKE '_transient_timeout_tap_agency_reg_%'"
+     WHERE option_name LIKE '_transient_tap_rl_%'
+        OR option_name LIKE '_transient_timeout_tap_rl_%'
+        OR option_name LIKE '_transient_tap_agency_reg_%'
+        OR option_name LIKE '_transient_timeout_tap_agency_reg_%'
+        OR option_name LIKE '_transient_tap_chat_%'
+        OR option_name LIKE '_transient_timeout_tap_chat_%'"
 );

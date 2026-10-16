@@ -120,6 +120,7 @@ tap_t_assert(tap_t_rest_error_code($noconsent) === 'consent_required', 'REST boo
 
 // cleanup --------------------------------------------------------------------
 tap_t_cleanup_bookings($created);
+tap_t_cleanup_test_consents();
 foreach (array_unique(array_filter([$creator, $victim, $uid])) as $uid_del) {
     wp_delete_user($uid_del);
 }

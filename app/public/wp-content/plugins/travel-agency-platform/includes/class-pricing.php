@@ -71,11 +71,11 @@ class TAP_Pricing {
                 <table class="tap-edit-table">
                     <tr>
                         <td><label>Precio ($)</label></td>
-                        <td><input type="number" step="0.01" min="0" class="tap-edit-price tap-edit-field" placeholder="Usar base"></td>
+                        <td><input type="number" step="0.01" min="0" class="tap-edit-price tap-edit-field" placeholder="<?php echo esc_attr__('Usar base', 'travel-agency-platform'); ?>"></td>
                     </tr>
                     <tr>
                         <td><label>Estadía mínima (noches)</label></td>
-                        <td><input type="number" min="0" step="1" class="tap-edit-minstay tap-edit-field" placeholder="Usar base"></td>
+                        <td><input type="number" min="0" step="1" class="tap-edit-minstay tap-edit-field" placeholder="<?php echo esc_attr__('Usar base', 'travel-agency-platform'); ?>"></td>
                     </tr>
                     <tr>
                         <td><label>Disponible</label></td>
@@ -89,7 +89,7 @@ class TAP_Pricing {
                     </tr>
                     <tr>
                         <td><label>Etiqueta</label></td>
-                        <td><input type="text" class="tap-edit-label tap-edit-field" placeholder="p.ej. Temporada Alta" maxlength="100"></td>
+                        <td><input type="text" class="tap-edit-label tap-edit-field" placeholder="<?php echo esc_attr__('p.ej. Temporada Alta', 'travel-agency-platform'); ?>" maxlength="100"></td>
                     </tr>
                 </table>
                 <div class="tap-edit-actions">

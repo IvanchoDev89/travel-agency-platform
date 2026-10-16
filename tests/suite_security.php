@@ -111,4 +111,35 @@ tap_t_assert(
     'TAP_Refunds is the single home of refund logic'
 );
 
+// ===== H. Public rate limiter ==============================================
+// One transient-based throttle backs every public endpoint; the boundary must
+// reject the (limit + 1)-th request, and separate buckets must not bleed.
+$_SERVER['REMOTE_ADDR'] = '203.0.113.9';
+$rl_bucket = 'suite_security_rl_' . wp_generate_password(6, false);
+$rl_key    = TAP_Rate_Limit::key($rl_bucket);
+delete_transient($rl_key);
+
+$rl_passed = 0;
+for ($rl_i = 0; $rl_i < 3; $rl_i++) {
+    if (!TAP_Rate_Limit::too_many($rl_bucket, 3, MINUTE_IN_SECONDS)) {
+        $rl_passed++;
+    }
+}
+tap_t_assert(3 === $rl_passed, 'rate limiter allows exactly the limit');
+tap_t_assert(
+    true === TAP_Rate_Limit::too_many($rl_bucket, 3, MINUTE_IN_SECONDS),
+    'rate limiter blocks the request past the limit'
+);
+
+$rl_other = 'suite_security_rl2_' . wp_generate_password(6, false);
+delete_transient(TAP_Rate_Limit::key($rl_other));
+tap_t_assert(
+    false === TAP_Rate_Limit::too_many($rl_other, 1, MINUTE_IN_SECONDS),
+    'separate buckets keep independent budgets'
+);
+
+delete_transient($rl_key);
+delete_transient(TAP_Rate_Limit::key($rl_other));
+unset($_SERVER['REMOTE_ADDR']);
+
 tap_t_finish();

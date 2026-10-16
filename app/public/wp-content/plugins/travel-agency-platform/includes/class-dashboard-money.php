@@ -280,7 +280,7 @@ class TAP_Dashboard_Money {
                     </tr>
                     <tr>
                         <th><?php esc_html_e('Nota', 'travel-agency-platform'); ?></th>
-                        <td><textarea name="note" rows="2" class="widefat" placeholder="Referencia, comprobante, etc."></textarea></td>
+                        <td><textarea name="note" rows="2" class="widefat" placeholder="<?php echo esc_attr__('Referencia, comprobante, etc.', 'travel-agency-platform'); ?>"></textarea></td>
                     </tr>
                 </table>
                 <p class="submit">
@@ -405,7 +405,7 @@ class TAP_Dashboard_Money {
                     </tr>
                     <tr>
                         <th><?php esc_html_e('Nota', 'travel-agency-platform'); ?></th>
-                        <td><input type="text" name="note" class="widefat" placeholder="Comprobante / referencia"></td>
+                        <td><input type="text" name="note" class="widefat" placeholder="<?php echo esc_attr__('Comprobante / referencia', 'travel-agency-platform'); ?>"></td>
                     </tr>
                 </table>
                 <p class="submit" style="margin-bottom:0;">

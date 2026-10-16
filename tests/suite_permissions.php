@@ -330,8 +330,8 @@ tap_t_assert(
 
 /* --- C15b: agency register rate limit --------------------------------------- */
 $pc_ip   = '203.0.113.77';
-$pc_key  = 'tap_agency_reg_' . md5($pc_ip);
 $_SERVER['REMOTE_ADDR'] = $pc_ip;
+$pc_key  = TAP_Rate_Limit::key('agency_reg');
 delete_transient($pc_key);
 wp_set_current_user(0);
 $pc_reg = ['nonce' => wp_create_nonce('tap_register_nonce')];

@@ -339,7 +339,7 @@ class TAP_SEO {
         }
 
         ob_start();
-        echo '<nav class="tap-breadcrumbs" aria-label="Breadcrumb">';
+        echo '<nav class="tap-breadcrumbs" aria-label="' . esc_attr__('Breadcrumb', 'travel-agency-platform') . '">';
         foreach ($parts as $i => $p) {
             if ($i > 0) {
                 echo '<span class="tap-breadcrumb-sep">›</span>';

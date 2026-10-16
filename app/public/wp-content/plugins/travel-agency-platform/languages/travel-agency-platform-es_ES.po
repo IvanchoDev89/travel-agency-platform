@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-10-14T08:29:52+00:00\n"
+"POT-Creation-Date: 2026-10-16T00:16:34+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -171,6 +171,7 @@ msgid "Cantidad"
 msgstr "Cantidad"
 
 #: includes/class-acc-wizard-room-form.php:145 includes/class-acc-wizard.php:38
+#: includes/class-listing-editor.php:330
 msgid "Quitar cama"
 msgstr "Quitar cama"
 
@@ -683,7 +684,8 @@ msgstr "1 día ajustado"
 msgid "Disponibilidad"
 msgstr "Disponibilidad"
 
-#: includes/class-acc-wizard-steps.php:373
+#: includes/class-acc-wizard-steps.php:373 includes/class-pricing.php:74
+#: includes/class-pricing.php:78
 msgid "Usar base"
 msgstr "Usar base"
 
@@ -695,7 +697,7 @@ msgstr "Bloquear estas fechas"
 msgid "Etiqueta (temporada)"
 msgstr "Etiqueta (temporada)"
 
-#: includes/class-acc-wizard-steps.php:376
+#: includes/class-acc-wizard-steps.php:376 includes/class-pricing.php:92
 msgid "p.ej. Temporada Alta"
 msgstr "p.ej. Temporada Alta"
 
@@ -820,7 +822,7 @@ msgstr ""
 #: includes/class-shortcode-booking.php:814
 #: includes/class-shortcode-booking.php:816
 #: includes/class-shortcode-booking.php:839
-#: includes/class-shortcode-booking.php:842 travel-agency-platform.php:265
+#: includes/class-shortcode-booking.php:842 travel-agency-platform.php:268
 msgid "Error"
 msgstr "Error"
 
@@ -1076,7 +1078,7 @@ msgstr ""
 "puedes."
 
 #: includes/class-acc-wizard-steps.php:730
-#: includes/class-acc-wizard-steps.php:929 includes/class-ajax-public.php:273
+#: includes/class-acc-wizard-steps.php:929 includes/class-ajax-public.php:285
 #: includes/class-listing-editor.php:245
 msgid "Destino"
 msgstr "Destino"
@@ -1525,7 +1527,7 @@ msgstr "Guardar y continuar"
 msgid "Crear y continuar"
 msgstr "Crear y continuar"
 
-#: includes/class-acc-wizard.php:284 includes/class-itinerary.php:453
+#: includes/class-acc-wizard.php:284 includes/class-itinerary.php:467
 msgid "Continuar"
 msgstr "Continuar"
 
@@ -1928,25 +1930,29 @@ msgstr "Esta habitación tiene reservas futuras y no puede eliminarse."
 msgid "Room deleted"
 msgstr "Habitación eliminada"
 
-#: includes/class-ajax-public.php:98
+#: includes/class-ajax-public.php:17
+msgid "Demasiadas solicitudes. Esperá unos minutos e intentá de nuevo."
+msgstr "Demasiadas solicitudes. Esperá unos minutos e intentá de nuevo."
+
+#: includes/class-ajax-public.php:108
 msgid "Invalid request"
 msgstr "Solicitud inválida"
 
-#: includes/class-ajax-public.php:170
+#: includes/class-ajax-public.php:181
 msgid "Parámetros inválidos"
 msgstr "Parámetros inválidos"
 
-#: includes/class-ajax-public.php:256 includes/class-booking.php:54
-#: includes/class-emails-send.php:510 includes/class-itinerary.php:28
-#: includes/class-itinerary.php:85 includes/class-shortcode-booking.php:917
+#: includes/class-ajax-public.php:268 includes/class-booking.php:54
+#: includes/class-emails-send.php:510 includes/class-itinerary.php:31
+#: includes/class-itinerary.php:88 includes/class-shortcode-booking.php:917
 msgid "Alojamiento"
 msgstr "Alojamiento"
 
-#: includes/class-ajax-public.php:310
+#: includes/class-ajax-public.php:323
 msgid "Invalid accommodation"
 msgstr "Alojamiento inválido"
 
-#: includes/class-ajax.php:13 includes/class-ajax.php:467
+#: includes/class-ajax.php:13 includes/class-ajax.php:463
 msgid "Security check failed."
 msgstr "Falló la verificación de seguridad."
 
@@ -2025,51 +2031,51 @@ msgstr "Estado actualizado"
 msgid "Gracias por tu interés."
 msgstr "Gracias por tu interés."
 
-#: includes/class-ajax.php:260
+#: includes/class-ajax.php:257
 msgid "Demasiados registros en poco tiempo. Intenta nuevamente más tarde."
 msgstr "Demasiados registros en poco tiempo. Intenta nuevamente más tarde."
 
-#: includes/class-ajax.php:285
+#: includes/class-ajax.php:281
 msgid "Agency name is required."
 msgstr "El nombre de la agencia es obligatorio."
 
-#: includes/class-ajax.php:288
+#: includes/class-ajax.php:284
 msgid "Please enter a valid username (letters and numbers only)."
 msgstr "Ingresa un nombre de usuario válido (solo letras y números)."
 
-#: includes/class-ajax.php:291
+#: includes/class-ajax.php:287
 msgid "Please enter a valid email address."
 msgstr "Ingresa un correo electrónico válido."
 
-#: includes/class-ajax.php:294
+#: includes/class-ajax.php:290
 msgid "Password must be at least 8 characters."
 msgstr "La contraseña debe tener al menos 8 caracteres."
 
-#: includes/class-ajax.php:297
+#: includes/class-ajax.php:293
 msgid "That username is already taken."
 msgstr "Ese nombre de usuario ya está en uso."
 
-#: includes/class-ajax.php:300
+#: includes/class-ajax.php:296
 msgid "That email is already registered."
 msgstr "Ese correo ya está registrado."
 
-#: includes/class-ajax.php:304
+#: includes/class-ajax.php:300
 msgid "Indica el nombre del representante legal o de la empresa."
 msgstr "Indica el nombre del representante legal o de la empresa."
 
-#: includes/class-ajax.php:307
+#: includes/class-ajax.php:303
 msgid "Indica el tipo y número de documento (cédula)."
 msgstr "Indica el tipo y número de documento (cédula)."
 
-#: includes/class-ajax.php:310
+#: includes/class-ajax.php:306
 msgid "Para persona jurídica indica la cédula jurídica."
 msgstr "Para persona jurídica indica la cédula jurídica."
 
-#: includes/class-ajax.php:313
+#: includes/class-ajax.php:309
 msgid "Debes aceptar los términos y condiciones."
 msgstr "Debes aceptar los términos y condiciones."
 
-#: includes/class-ajax.php:316
+#: includes/class-ajax.php:312
 msgid ""
 "Debes aceptar el Aviso de Privacidad y consentir el tratamiento de tus datos "
 "para registrar tu agencia."
@@ -2077,37 +2083,37 @@ msgstr ""
 "Debes aceptar el Aviso de Privacidad y consentir el tratamiento de tus datos "
 "para registrar tu agencia."
 
-#: includes/class-ajax.php:344
+#: includes/class-ajax.php:340
 msgid "Could not create the agency. Please try again."
 msgstr "No se pudo crear la agencia. Inténtalo de nuevo."
 
-#: includes/class-ajax.php:399
+#: includes/class-ajax.php:395
 msgid ""
 "Tu agencia está en revisión. Te avisaremos por correo cuando sea aprobada."
 msgstr ""
 "Tu agencia está en revisión. Te avisaremos por correo cuando sea aprobada."
 
-#: includes/class-ajax.php:408
+#: includes/class-ajax.php:404
 msgid "Gracias por tu mensaje."
 msgstr "Gracias por tu mensaje."
 
-#: includes/class-ajax.php:426 includes/class-leads.php:260
+#: includes/class-ajax.php:422 includes/class-leads.php:260
 msgid "Mensaje enviado. La agencia te contactará pronto."
 msgstr "Mensaje enviado. La agencia te contactará pronto."
 
-#: includes/class-ajax.php:433
+#: includes/class-ajax.php:429
 msgid "Please log in to save favorites."
 msgstr "Inicia sesión para guardar favoritos."
 
-#: includes/class-ajax.php:438
+#: includes/class-ajax.php:434
 msgid "Invalid service."
 msgstr "Servicio inválido."
 
-#: includes/class-ajax.php:472
+#: includes/class-ajax.php:468
 msgid "Too many messages. Try again in a moment."
 msgstr "Demasiados mensajes. Inténtalo de nuevo en un momento."
 
-#: includes/class-ajax.php:477
+#: includes/class-ajax.php:473
 msgid "Type your question..."
 msgstr "Escribe tu pregunta..."
 
@@ -2224,14 +2230,14 @@ msgid "Futon"
 msgstr "Futón"
 
 #: includes/class-booking.php:55 includes/class-dashboard-bookings.php:26
-#: includes/class-emails-send.php:512 includes/class-itinerary.php:29
+#: includes/class-emails-send.php:512 includes/class-itinerary.php:32
 #: includes/class-post-types.php:104 includes/class-post-types.php:275
 #: includes/class-shortcode-booking.php:918
 msgid "Tour"
 msgstr "Tour"
 
 #: includes/class-booking.php:56 includes/class-emails-send.php:513
-#: includes/class-itinerary.php:30 includes/class-itinerary.php:87
+#: includes/class-itinerary.php:33 includes/class-itinerary.php:90
 #: includes/class-seo.php:67 includes/class-shortcode-booking.php:919
 #: includes/class-shortcode-search.php:208
 msgid "Transporte"
@@ -2242,19 +2248,19 @@ msgid "Alquiler de coches"
 msgstr "Alquiler de coches"
 
 #: includes/class-booking.php:58 includes/class-emails-send.php:515
-#: includes/class-itinerary.php:32 includes/class-itinerary.php:89
+#: includes/class-itinerary.php:35 includes/class-itinerary.php:92
 msgid "Barco"
 msgstr "Barco"
 
 #: includes/class-booking.php:59 includes/class-emails-send.php:516
-#: includes/class-itinerary.php:33 includes/class-shortcode-booking.php:922
+#: includes/class-itinerary.php:36 includes/class-shortcode-booking.php:922
 msgid "Paquete"
 msgstr "Paquete"
 
 #: includes/class-booking.php:60 includes/class-emails-send.php:517
 #: includes/class-front-dash.php:530 includes/class-front-dash.php:598
 #: includes/class-front-dash.php:760 includes/class-front-dash.php:963
-#: includes/class-itinerary.php:34
+#: includes/class-itinerary.php:37
 msgid "Equipo"
 msgstr "Equipo"
 
@@ -2742,7 +2748,7 @@ msgid "Service"
 msgstr "Servicio"
 
 #: includes/class-dashboard-bookings.php:271
-#: includes/class-dashboard-content.php:513
+#: includes/class-dashboard-content.php:543
 #: includes/class-dashboard-money.php:223
 #: includes/class-dashboard-money.php:318 includes/class-metaboxes.php:95
 #: includes/class-metaboxes.php:117 includes/class-metaboxes.php:143
@@ -3301,6 +3307,10 @@ msgstr "Efectivo"
 msgid "Nota"
 msgstr "Nota"
 
+#: includes/class-dashboard-money.php:283
+msgid "Referencia, comprobante, etc."
+msgstr "Referencia, comprobante, etc."
+
 #: includes/class-dashboard-money.php:287
 msgid "Registrar pago de comisiones seleccionadas"
 msgstr "Registrar pago de comisiones seleccionadas"
@@ -3389,6 +3399,10 @@ msgstr "Cancelar esta liquidación y devolver las comisiones a por cobrar?"
 msgid "Liquidar comisión"
 msgstr "Liquidar comisión"
 
+#: includes/class-dashboard-money.php:408
+msgid "Comprobante / referencia"
+msgstr "Comprobante / referencia"
+
 #: includes/class-dashboard-money.php:412
 msgid "Confirmar liquidación"
 msgstr "Confirmar liquidación"
@@ -3463,6 +3477,14 @@ msgstr ""
 "La tasa de comisión (%) se usa mientras el plan está activo; déjala vacía "
 "para conservar la comisión de la agencia/global. Límite de listados -1 = "
 "ilimitado."
+
+#: includes/class-dashboard-settings.php:118
+msgid "estándar"
+msgstr "estándar"
+
+#: includes/class-dashboard-settings.php:121
+msgid "una por línea"
+msgstr "una por línea"
 
 #: includes/class-dashboard-settings.php:126
 msgid "Save plans"
@@ -4975,7 +4997,7 @@ msgstr "Explora nuestros tours y alojamientos para planear tu próximo viaje."
 msgid "Explorar tours"
 msgstr "Explorar tours"
 
-#: includes/class-front-dash-client.php:279 includes/class-itinerary.php:361
+#: includes/class-front-dash-client.php:279 includes/class-itinerary.php:375
 #: includes/class-shortcode-booking.php:948
 #: includes/class-shortcode-search.php:310
 msgid "Ver detalles"
@@ -5153,7 +5175,7 @@ msgid "Responder al huésped..."
 msgstr "Responder al huésped..."
 
 #: includes/class-front-dash.php:371 includes/class-shortcode-account.php:397
-#: includes/class-shortcode-booking.php:793 travel-agency-platform.php:274
+#: includes/class-shortcode-booking.php:793 travel-agency-platform.php:277
 msgid "Enviar"
 msgstr "Enviar"
 
@@ -5224,6 +5246,10 @@ msgstr "Cheque"
 msgid "Nota (opcional)"
 msgstr "Nota (opcional)"
 
+#: includes/class-front-dash.php:470
+msgid "Referencia para el administrador"
+msgstr "Referencia para el administrador"
+
 #. translators: %s: importe solicitado
 #: includes/class-front-dash.php:472
 #, php-format
@@ -5253,6 +5279,10 @@ msgstr ""
 #: includes/class-front-dash.php:536
 msgid "Email del usuario"
 msgstr "Email del usuario"
+
+#: includes/class-front-dash.php:537
+msgid "usuario@ejemplo.com"
+msgstr "usuario@ejemplo.com"
 
 #: includes/class-front-dash.php:539
 msgid "Agregar"
@@ -5299,7 +5329,7 @@ msgid "Barcos"
 msgstr "Barcos"
 
 #: includes/class-front-dash.php:597 includes/class-front-dash.php:759
-#: includes/class-itinerary.php:90 includes/class-shortcode-search.php:211
+#: includes/class-itinerary.php:93 includes/class-shortcode-search.php:211
 msgid "Paquetes"
 msgstr "Paquetes"
 
@@ -5402,7 +5432,7 @@ msgstr ""
 msgid "Confirmadas"
 msgstr "Confirmadas"
 
-#: includes/class-front-dash.php:835
+#: includes/class-front-dash.php:836
 msgid "Neto para ti"
 msgstr "Neto para ti"
 
@@ -5466,40 +5496,40 @@ msgstr "Viajero"
 msgid "Cerrar sesión"
 msgstr "Cerrar sesión"
 
-#: includes/class-itinerary.php:28
+#: includes/class-itinerary.php:31
 msgid "/noche"
 msgstr "/noche"
 
-#: includes/class-itinerary.php:29
+#: includes/class-itinerary.php:32
 msgid "/persona"
 msgstr "/persona"
 
-#: includes/class-itinerary.php:30
+#: includes/class-itinerary.php:33
 msgid "/trayecto"
 msgstr "/trayecto"
 
-#: includes/class-itinerary.php:31 includes/class-itinerary.php:88
+#: includes/class-itinerary.php:34 includes/class-itinerary.php:91
 msgid "Renta de auto"
 msgstr "Renta de auto"
 
-#: includes/class-itinerary.php:31 includes/class-itinerary.php:32
-#: includes/class-itinerary.php:34
+#: includes/class-itinerary.php:34 includes/class-itinerary.php:35
+#: includes/class-itinerary.php:37
 msgid "/día"
 msgstr "/día"
 
-#: includes/class-itinerary.php:86
+#: includes/class-itinerary.php:89
 msgid "Tours y experiencias"
 msgstr "Tours y experiencias"
 
-#: includes/class-itinerary.php:268
+#: includes/class-itinerary.php:279
 msgid "Consultar precio"
 msgstr "Consultar precio"
 
-#: includes/class-itinerary.php:270 includes/class-itinerary.php:391
+#: includes/class-itinerary.php:281 includes/class-itinerary.php:405
 msgid "Añadir al itinerario"
 msgstr "Añadir al itinerario"
 
-#: includes/class-itinerary.php:288
+#: includes/class-itinerary.php:299
 msgid ""
 "No encontramos servicios que matchen exactamente con tus intereses. Probá "
 "ampliar el presupuesto, quitar algún interés o elegir otro destino."
@@ -5507,27 +5537,31 @@ msgstr ""
 "No encontramos servicios que matchen exactamente con tus intereses. Probá "
 "ampliar el presupuesto, quitar algún interés o elegir otro destino."
 
-#: includes/class-itinerary.php:329
+#: includes/class-itinerary.php:307
+msgid "Demasiadas búsquedas seguidas. Esperá unos minutos e intentá de nuevo."
+msgstr "Demasiadas búsquedas seguidas. Esperá unos minutos e intentá de nuevo."
+
+#: includes/class-itinerary.php:343
 msgid "El itinerario que intentás abrir está vacío o ya no está disponible."
 msgstr "El itinerario que intentás abrir está vacío o ya no está disponible."
 
-#: includes/class-itinerary.php:341
+#: includes/class-itinerary.php:355
 msgid "Tu itinerario"
 msgstr "Tu itinerario"
 
-#: includes/class-itinerary.php:342
+#: includes/class-itinerary.php:356
 msgid "Así queda tu viaje"
 msgstr "Así queda tu viaje"
 
-#: includes/class-itinerary.php:343
+#: includes/class-itinerary.php:357
 msgid "Servicios seleccionados según tus intereses, destinos y presupuesto."
 msgstr "Servicios seleccionados según tus intereses, destinos y presupuesto."
 
-#: includes/class-itinerary.php:367 includes/class-itinerary.php:472
+#: includes/class-itinerary.php:381 includes/class-itinerary.php:486
 msgid "Total estimado"
 msgstr "Total estimado"
 
-#: includes/class-itinerary.php:370
+#: includes/class-itinerary.php:384
 msgid ""
 "Monto estimado según tarifas publicadas por persona/noche. La reserva y el "
 "pago se gestionan directo con cada agencia."
@@ -5535,19 +5569,19 @@ msgstr ""
 "Monto estimado según tarifas publicadas por persona/noche. La reserva y el "
 "pago se gestionan directo con cada agencia."
 
-#: includes/class-itinerary.php:371
+#: includes/class-itinerary.php:385
 msgid "Imprimir itinerario"
 msgstr "Imprimir itinerario"
 
-#: includes/class-itinerary.php:392
+#: includes/class-itinerary.php:406
 msgid "Agregado ✓"
 msgstr "Agregado ✓"
 
-#: includes/class-itinerary.php:393
+#: includes/class-itinerary.php:407
 msgid "Hubo un problema al cargar los resultados. Reintentá en unos segundos."
 msgstr "Hubo un problema al cargar los resultados. Reintentá en unos segundos."
 
-#: includes/class-itinerary.php:394
+#: includes/class-itinerary.php:408
 msgid ""
 "Todavía no hay destinos publicados. Podés continuar igual y explorar por "
 "intereses."
@@ -5555,15 +5589,15 @@ msgstr ""
 "Todavía no hay destinos publicados. Podés continuar igual y explorar por "
 "intereses."
 
-#: includes/class-itinerary.php:409
+#: includes/class-itinerary.php:423
 msgid "Tu viaje, paso a paso"
 msgstr "Tu viaje, paso a paso"
 
-#: includes/class-itinerary.php:410
+#: includes/class-itinerary.php:424
 msgid "Armá tu itinerario"
 msgstr "Armá tu itinerario"
 
-#: includes/class-itinerary.php:411
+#: includes/class-itinerary.php:425
 msgid ""
 "Elegí tus intereses, destinos y presupuesto. En segundos encontrás "
 "experiencias que matchean con tu plan."
@@ -5571,57 +5605,57 @@ msgstr ""
 "Elegí tus intereses, destinos y presupuesto. En segundos encontrás "
 "experiencias que matchean con tu plan."
 
-#: includes/class-itinerary.php:425
+#: includes/class-itinerary.php:439
 msgid "1. Lo que te apasiona"
 msgstr "1. Lo que te apasiona"
 
-#: includes/class-itinerary.php:426
+#: includes/class-itinerary.php:440
 msgid "Elegí uno o más intereses. Podés cambiar de idea cuando quieras."
 msgstr "Elegí uno o más intereses. Podés cambiar de idea cuando quieras."
 
-#: includes/class-itinerary.php:432
+#: includes/class-itinerary.php:446
 msgid "2. ¿Hacia dónde viajás?"
 msgstr "2. ¿Hacia dónde viajás?"
 
-#: includes/class-itinerary.php:433
+#: includes/class-itinerary.php:447
 msgid "Podés combinar varios destinos en un mismo itinerario."
 msgstr "Podés combinar varios destinos en un mismo itinerario."
 
-#: includes/class-itinerary.php:438
+#: includes/class-itinerary.php:452
 msgid "3. Presupuesto y tipo de servicio"
 msgstr "3. Presupuesto y tipo de servicio"
 
-#: includes/class-itinerary.php:439
+#: includes/class-itinerary.php:453
 msgid "Dejá libre el rango si querés que te mostremos todo."
 msgstr "Dejá libre el rango si querés que te mostremos todo."
 
-#: includes/class-itinerary.php:441
+#: includes/class-itinerary.php:455
 msgid "Presupuesto mínimo"
 msgstr "Presupuesto mínimo"
 
-#: includes/class-itinerary.php:443
+#: includes/class-itinerary.php:457
 msgid "Presupuesto máximo"
 msgstr "Presupuesto máximo"
 
-#: includes/class-itinerary.php:446
+#: includes/class-itinerary.php:460
 msgid "Incluir"
 msgstr "Incluir"
 
-#: includes/class-itinerary.php:448
+#: includes/class-itinerary.php:462
 msgid ""
 "La búsqueda se hace en servicios activos publicados por agencias verificadas."
 msgstr ""
 "La búsqueda se hace en servicios activos publicados por agencias verificadas."
 
-#: includes/class-itinerary.php:452
+#: includes/class-itinerary.php:466
 msgid "Anterior"
 msgstr "Anterior"
 
-#: includes/class-itinerary.php:454
+#: includes/class-itinerary.php:468
 msgid "Buscar mi itinerario"
 msgstr "Buscar mi itinerario"
 
-#: includes/class-itinerary.php:461
+#: includes/class-itinerary.php:475
 msgid ""
 "Activá JavaScript para usar el constructor paso a paso, o usá la búsqueda "
 "por destino si preferís un flujo simple."
@@ -5629,23 +5663,23 @@ msgstr ""
 "Activá JavaScript para usar el constructor paso a paso, o usá la búsqueda "
 "por destino si preferís un flujo simple."
 
-#: includes/class-itinerary.php:469
+#: includes/class-itinerary.php:483
 msgid "Mi itinerario"
 msgstr "Mi itinerario"
 
-#: includes/class-itinerary.php:471
+#: includes/class-itinerary.php:485
 msgid "Todavía no agregaste ninguna experiencia."
 msgstr "Todavía no agregaste ninguna experiencia."
 
-#: includes/class-itinerary.php:473
+#: includes/class-itinerary.php:487
 msgid "Ver mi itinerario"
 msgstr "Ver mi itinerario"
 
-#: includes/class-itinerary.php:474
+#: includes/class-itinerary.php:488
 msgid "Vaciar"
 msgstr "Vaciar"
 
-#: includes/class-itinerary.php:476
+#: includes/class-itinerary.php:490
 msgid "La reserva final se hace directo con cada agencia."
 msgstr "La reserva final se hace directo con cada agencia."
 
@@ -7356,6 +7390,10 @@ msgstr ""
 msgid "Inicio"
 msgstr "Inicio"
 
+#: includes/class-seo.php:342 includes/class-shortcode-search.php:181
+msgid "Breadcrumb"
+msgstr "Migas de pan"
+
 #: includes/class-seo.php:394
 msgid "Home"
 msgstr "Inicio"
@@ -7521,11 +7559,11 @@ msgid "Network error. Please try again."
 msgstr "Error de red. Inténtalo de nuevo."
 
 #: includes/class-shortcode-account.php:381
-#: includes/class-shortcode-account.php:383 travel-agency-platform.php:270
+#: includes/class-shortcode-account.php:383 travel-agency-platform.php:273
 msgid "Asistente de viajes"
 msgstr "Asistente de viajes"
 
-#: includes/class-shortcode-account.php:387 travel-agency-platform.php:275
+#: includes/class-shortcode-account.php:387 travel-agency-platform.php:278
 msgid ""
 "¡Hola! Soy el asistente de viajes. Pregunta por alojamientos, tours, bonos o "
 "agencias, o toca una sugerencia."
@@ -7534,7 +7572,7 @@ msgstr ""
 "agencias, o toca una sugerencia."
 
 #: includes/class-shortcode-account.php:395
-#: includes/class-shortcode-account.php:396 travel-agency-platform.php:273
+#: includes/class-shortcode-account.php:396 travel-agency-platform.php:276
 msgid "Escribe tu pregunta…"
 msgstr "Escribe tu pregunta…"
 
@@ -7713,7 +7751,7 @@ msgid "Solicitar reserva"
 msgstr "Solicitar reserva"
 
 #: includes/class-shortcode-booking.php:31
-#: includes/class-shortcode-booking.php:69 travel-agency-platform.php:264
+#: includes/class-shortcode-booking.php:69 travel-agency-platform.php:267
 msgid "Book Now"
 msgstr "Reservar ahora"
 
@@ -7838,6 +7876,12 @@ msgstr ""
 #: includes/class-shortcode-booking.php:303
 msgid "Correo de la reserva"
 msgstr "Correo de la reserva"
+
+#: includes/class-shortcode-booking.php:304
+#: includes/class-shortcode-booking.php:496
+#: includes/class-shortcode-booking.php:540
+msgid "tucorreo@ejemplo.com"
+msgstr "tucorreo@ejemplo.com"
 
 #: includes/class-shortcode-booking.php:308
 msgid "Continuar al pago"
@@ -8172,10 +8216,6 @@ msgstr "Buscar"
 #: includes/class-shortcode-search.php:172
 msgid "Busca servicios por destino, nombre o tipo para ver resultados."
 msgstr "Busca servicios por destino, nombre o tipo para ver resultados."
-
-#: includes/class-shortcode-search.php:181
-msgid "Breadcrumb"
-msgstr "Migas de pan"
 
 #. translators: %d: number of results found.
 #: includes/class-shortcode-search.php:188
@@ -8682,117 +8722,117 @@ msgstr "Avistamiento de fauna"
 msgid "Senderismo"
 msgstr "Senderismo"
 
-#: travel-agency-platform.php:242
+#: travel-agency-platform.php:245
 msgid "results found"
 msgstr "resultados encontrados"
 
-#: travel-agency-platform.php:243
+#: travel-agency-platform.php:246
 msgid "No results found"
 msgstr "No se encontraron resultados"
 
-#: travel-agency-platform.php:244
+#: travel-agency-platform.php:247
 msgid "Guardado en favoritos"
 msgstr "Guardado en favoritos"
 
-#: travel-agency-platform.php:245
+#: travel-agency-platform.php:248
 msgid "Quitado de favoritos"
 msgstr "Quitado de favoritos"
 
-#: travel-agency-platform.php:246
+#: travel-agency-platform.php:249
 msgid "Aún no hay reseñas."
 msgstr "Aún no hay reseñas."
 
-#: travel-agency-platform.php:247
+#: travel-agency-platform.php:250
 msgid "Aún no hay reseñas. Sé el primero en compartir tu experiencia."
 msgstr "Aún no hay reseñas. Sé el primero en compartir tu experiencia."
 
-#: travel-agency-platform.php:248
+#: travel-agency-platform.php:251
 msgid "reseña"
 msgstr "reseña"
 
-#: travel-agency-platform.php:249
+#: travel-agency-platform.php:252
 msgid "reseñas"
 msgstr "reseñas"
 
-#: travel-agency-platform.php:250
+#: travel-agency-platform.php:253
 msgid "Anónimo"
 msgstr "Anónimo"
 
-#: travel-agency-platform.php:251
+#: travel-agency-platform.php:254
 msgid "Enviando..."
 msgstr "Enviando..."
 
-#: travel-agency-platform.php:252
+#: travel-agency-platform.php:255
 msgid "¡Reseña enviada! Pendiente de aprobación."
 msgstr "¡Reseña enviada! Pendiente de aprobación."
 
-#: travel-agency-platform.php:253
+#: travel-agency-platform.php:256
 msgid "Error al enviar"
 msgstr "Error al enviar"
 
-#: travel-agency-platform.php:254
+#: travel-agency-platform.php:257
 msgid "Review submitted"
 msgstr "Reseña enviada"
 
-#: travel-agency-platform.php:255
+#: travel-agency-platform.php:258
 msgid "Error al enviar la reseña"
 msgstr "Error al enviar la reseña"
 
 #. translators: %s: nombre del servicio
-#: travel-agency-platform.php:257
+#: travel-agency-platform.php:260
 #, php-format
 msgid "Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!"
 msgstr "Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!"
 
-#: travel-agency-platform.php:258
+#: travel-agency-platform.php:261
 msgid "Reseña verificada"
 msgstr "Reseña verificada"
 
 #. translators: 1: cupos disponibles, 2: cupos totales
-#: travel-agency-platform.php:260
+#: travel-agency-platform.php:263
 #, php-format
 msgid "Cupos disponibles: %s de %s"
 msgstr "Cupos disponibles: %s de %s"
 
 #. translators: 1: cupos ocupados, 2: cupos totales
-#: travel-agency-platform.php:262
+#: travel-agency-platform.php:265
 #, php-format
 msgid "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
 msgstr "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
 
-#: travel-agency-platform.php:263
+#: travel-agency-platform.php:266
 msgid "El tour está completo para esta fecha."
 msgstr "El tour está completo para esta fecha."
 
-#: travel-agency-platform.php:266
+#: travel-agency-platform.php:269
 msgid "Image gallery"
 msgstr "Galería de imágenes"
 
-#: travel-agency-platform.php:267
+#: travel-agency-platform.php:270
 msgid "Close image gallery"
 msgstr "Cerrar galería de imágenes"
 
-#: travel-agency-platform.php:268
+#: travel-agency-platform.php:271
 msgid "Previous image"
 msgstr "Imagen anterior"
 
-#: travel-agency-platform.php:269
+#: travel-agency-platform.php:272
 msgid "Next image"
 msgstr "Imagen siguiente"
 
-#: travel-agency-platform.php:271
+#: travel-agency-platform.php:274
 msgid "Abrir asistente"
 msgstr "Abrir asistente"
 
-#: travel-agency-platform.php:272
+#: travel-agency-platform.php:275
 msgid "Cerrar asistente"
 msgstr "Cerrar asistente"
 
-#: travel-agency-platform.php:276
+#: travel-agency-platform.php:279
 msgid "Pensando…"
 msgstr "Pensando…"
 
-#: travel-agency-platform.php:277
+#: travel-agency-platform.php:280
 msgid "Hubo un problema. Inténtalo de nuevo."
 msgstr "Hubo un problema. Inténtalo de nuevo."
 

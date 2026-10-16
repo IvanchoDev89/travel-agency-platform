@@ -39,6 +39,7 @@ final class TravelAgencyPlatform {
         require_once TAP_PLUGIN_DIR . 'includes/class-destinations.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-approval.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-roles.php';
+        require_once TAP_PLUGIN_DIR . 'includes/class-rate-limit.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-metaboxes.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-pricing.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-discounts.php';
@@ -134,6 +135,8 @@ final class TravelAgencyPlatform {
         add_action('tap_payment_completed', ['TAP_Booking', 'mark_commission_owed'], 20, 1);
         add_action('add_meta_boxes', ['TAP_Metaboxes', 'register']);
         add_action('save_post', ['TAP_Metaboxes', 'save'], 10, 2);
+        // Tanda D: drop the tap_agencies registry row when an agency is hard-deleted.
+        add_action('deleted_post', ['TAP_Dashboard_Content', 'on_agency_deleted'], 10, 2);
         add_action('rest_api_init', ['TAP_API', 'register_routes']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_public_assets']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);

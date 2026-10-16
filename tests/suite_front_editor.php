@@ -17,6 +17,9 @@
 require __DIR__ . '/bootstrap.php';
 
 global $wpdb;
+// Helpers below mutate these through `global`; bind the top-level vars to the
+// same globals so the cleanup section sees them (eval-file scope).
+global $fe_users, $fe_agencies;
 
 $fe_users    = [];
 $fe_agencies = [];

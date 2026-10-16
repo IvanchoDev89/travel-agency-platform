@@ -111,6 +111,7 @@ tap_t_assert(tap_t_rest_error_code($forbidden) === 'forbidden', 'another user ca
 
 // cleanup ---------------------------------------------------------------------------
 tap_t_cleanup_bookings([$bid]);
+tap_t_cleanup_test_consents();
 wp_delete_user($uid);
 wp_delete_user($stranger);
 tap_t_finish();

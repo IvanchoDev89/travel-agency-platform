@@ -125,6 +125,7 @@ tap_t_assert($M::reason_label('pii') === 'Datos personales', 'pii label ES');
 // ===== Cleanup =====
 $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}tap_reviews WHERE user_id IN (%d,%d)", $u1, $u2));
 $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}tap_leads WHERE email LIKE %s", $pref . '_%'));
+$wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->prefix}tap_consents WHERE email LIKE %s", $pref . '_%'));
 $wpdb->delete($wpdb->prefix . 'tap_agencies', ['id' => $agency_id]);
 wp_delete_post($apost, true);
 tap_t_cleanup_bookings([$mb1, $mb2]);

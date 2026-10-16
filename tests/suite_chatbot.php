@@ -104,7 +104,7 @@ for ($i = 0; $i < 12; $i++) {
 }
 tap_t_assert($limited === false, 'first 12 messages pass the rate limit');
 tap_t_assert($C::rate_limited($ip) === true, '13th message blocked by rate limit');
-delete_transient('tap_chat_' . md5($ip . '|'));
+delete_transient(TAP_Rate_Limit::key('chat', $ip));
 
 // --- event log: aggregates only, fallback skipped ---
 global $wpdb;

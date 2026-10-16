@@ -10,8 +10,17 @@ defined('ABSPATH') || exit;
  * audit (every write stays in one file).
  */
 class TAP_Ajax_Public {
+
+    /** Reject a visitor who hammered a public read-only endpoint (5 min window). */
+    private static function throttle($bucket, $limit) {
+        if (TAP_Rate_Limit::too_many($bucket, $limit, 5 * MINUTE_IN_SECONDS)) {
+            wp_send_json_error(['message' => __('Demasiadas solicitudes. Esperá unos minutos e intentá de nuevo.', 'travel-agency-platform')], 429);
+        }
+    }
+
     public static function search_services() {
         check_ajax_referer('tap_nonce', 'nonce');
+        self::throttle('search', 60);
         $keyword = sanitize_text_field(wp_unslash($_POST['keyword'] ?? ''));
         $type = sanitize_text_field(wp_unslash($_POST['type'] ?? ''));
         $location = intval($_POST['location'] ?? 0);
@@ -86,6 +95,7 @@ class TAP_Ajax_Public {
 
     public static function calculate_booking_total() {
         check_ajax_referer('tap_nonce', 'nonce');
+        self::throttle('pricing', 120);
         $service_id   = intval($_POST['service_id'] ?? 0);
         $service_type = sanitize_text_field(wp_unslash($_POST['service_type'] ?? ''));
         $room_id      = intval($_POST['room_id'] ?? 0);
@@ -155,6 +165,7 @@ class TAP_Ajax_Public {
 
     public static function get_public_pricing() {
         check_ajax_referer('tap_nonce', 'nonce');
+        self::throttle('pricing', 120);
         $year     = intval($_POST['year'] ?? 0);
         $month    = intval($_POST['month'] ?? 0);
         $single   = intval($_POST['room_id'] ?? 0);
@@ -237,6 +248,7 @@ class TAP_Ajax_Public {
 
     public static function search_suggestions() {
         check_ajax_referer('tap_nonce', 'nonce');
+        self::throttle('search', 60);
         $keyword = sanitize_text_field(wp_unslash($_POST['keyword'] ?? ''));
         if (strlen($keyword) < 2) wp_send_json_success(['results' => []]);
 
@@ -301,6 +313,7 @@ class TAP_Ajax_Public {
 
     public static function get_rooms() {
         check_ajax_referer('tap_nonce', 'nonce');
+        self::throttle('pricing', 120);
         $accommodation_id = intval($_POST['accommodation_id'] ?? 0);
         $check_in  = sanitize_text_field(wp_unslash($_POST['check_in'] ?? ''));
         $check_out = sanitize_text_field(wp_unslash($_POST['check_out'] ?? ''));
