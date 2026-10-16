@@ -375,6 +375,17 @@ class TAP_Installer {
         if (!in_array('cancel_reason', $cols_bookings, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN cancel_reason text AFTER notes");
         }
+        // Reporting and settlement queries filter the commission lifecycle;
+        // index it so those scans stay fast as tap_bookings grows.
+        $has_commission_idx = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM information_schema.statistics
+              WHERE table_schema = DATABASE() AND table_name = %s AND index_name = %s",
+            $wpdb->prefix . 'tap_bookings',
+            'commission_status'
+        ));
+        if (!$has_commission_idx) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD KEY commission_status (commission_status, payment_status)");
+        }
 
         $plans_table = $wpdb->prefix . 'tap_plans';
         if ($wpdb->get_var("SHOW TABLES LIKE '{$plans_table}'") !== $plans_table) {

@@ -266,23 +266,13 @@ class TAP_Booking {
                 } else {
                     $booking_id = $wpdb->insert_id;
 
-                    if (!empty($data['items']) && is_array($data['items'])) {
-                        foreach ($data['items'] as $item) {
-                            $wpdb->insert(
-                                $wpdb->prefix . 'tap_booking_items',
-                                [
-                                    'booking_id'   => $booking_id,
-                                    'service_type' => sanitize_text_field($item['service_type']),
-                                    'service_id'   => intval($item['service_id']),
-                                    'quantity'     => intval($item['quantity'] ?? 1),
-                                    'unit_price'   => floatval($item['unit_price']),
-                                    'subtotal'     => floatval($item['subtotal']),
-                                    'date_from'    => !empty($item['date_from']) ? sanitize_text_field($item['date_from']) : null,
-                                    'date_to'      => !empty($item['date_to']) ? sanitize_text_field($item['date_to']) : null,
-                                ]
-                            );
-                        }
-                    }
+                    // Line items are NOT written from client input: a booking
+                    // covers a single service whose authoritative amount is the
+                    // server-computed total_amount/subtotal above, and there is
+                    // no server-side cart to validate per-item prices. Trusting
+                    // caller-supplied unit_price/subtotal would let a client
+                    // forge the voucher breakdown. Internal callers that need
+                    // line items must write them from server-derived prices.
                 }
             }
         } finally {
@@ -710,6 +700,13 @@ class TAP_Booking {
     /**
      * Revert a booking's commission to void when it can no longer be collected,
      * but never touch commissions already settled or frozen by a dispute.
+     *
+     * NOTE: commission_amount is intentionally left untouched so the voided
+     * amount stays visible in the "cancelled commissions" audit views
+     * (TAP_Dashboard_Money totals, agency panel). Consumers that report EARNED
+     * commission MUST therefore filter on the status: the canonical predicate
+     * is `payment_status = 'paid' AND commission_status <> 'void'` (see
+     * TAP_Dashboard_Insights and TAP_Booking_Stats).
      *
      * @param bool $force When true, also voids 'paid' commissions (used when a
      *                    paid booking is cancelled/refunded so the commission

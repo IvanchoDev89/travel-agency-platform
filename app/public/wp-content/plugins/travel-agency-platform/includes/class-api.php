@@ -309,6 +309,10 @@ class TAP_API {
     public static function create_booking($request) {
         $params = $request->get_params();
 
+        // Never accept line-item prices from the client; the booking amount is
+        // recomputed server-side by TAP_Booking::create().
+        unset($params['items']);
+
         if (empty($params['privacy_consent'])) {
             return new WP_Error('consent_required', __('Debes aceptar el Aviso de Privacidad.', 'travel-agency-platform'), ['status' => 400]);
         }
