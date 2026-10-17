@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.26] — 2026-10-17
+
+The destination cascading picker actually cascades now.
+
+### Fixed
+
+- **The picker rendered only one dropdown ("País") on a fresh form.** `render_picker()` stopped at the first empty level and the script only toggled visibility on already-rendered options, so on a new search/listing you could never reach provincia → cantón → distrito. The picker now renders all five levels and the script rebuilds the next level's options from the parent→children map whenever a level changes (resetting deeper levels to their placeholder), so the hidden field always carries the deepest selected term.
+
+### Changed
+
+- Selects carry a `data-placeholder` attribute so the cascade can restore the "— Nivel —" option when a parent changes.
+
+---
+
 ## [1.5.25] — 2026-10-17
 
 Destination taxonomy (`tap_location`) hygiene: coherent país → provincia → cantón → distrito hierarchy.

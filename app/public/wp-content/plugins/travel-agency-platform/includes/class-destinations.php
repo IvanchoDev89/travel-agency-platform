@@ -360,61 +360,46 @@ class TAP_Destinations {
     public static function render_picker($selected, $name = 'location') {
         $selected = intval($selected) ? intval($selected) : 0;
         $chain    = $selected ? self::chain($selected) : [];
-        $levels   = self::levels();
         $map      = self::term_map();
         $uid      = 'tap-dest-' . wp_rand(1000, 9999);
 
-        // Per-level options based on the current chain (stop at first empty level).
-        $level_options = [];
-        $parent = 0;
-        $render_levels = [];
-        foreach ($levels as $level => $label) {
-            $options = isset($map[$parent]) ? $map[$parent] : [];
-            $sel = $chain[$level] ?? null;
-            $level_options[$level] = $options;
-            $render_levels[] = $level;
-            if (!$sel) {
-                break;
+        // Always render every level so the cascade can grow client-side. The
+        // option list for a level is the children of the term chosen at the
+        // previous level; beyond the current selection the list stays empty and
+        // the picker JS fills it once the parent is known.
+        $rows = [];
+        foreach (self::levels() as $level => $label) {
+            $sel_term = $chain[$level] ?? null;
+            $sel_id   = $sel_term ? (int) $sel_term->term_id : 0;
+            if (0 === $level) {
+                $options = $map[0] ?? [];
+            } elseif (isset($chain[$level - 1])) {
+                $parent  = (int) $chain[$level - 1]->term_id;
+                $options = $map[$parent] ?? [];
+            } else {
+                $options = [];
             }
-            $parent = (int) $sel->term_id;
+            $rows[] = ['level' => $level, 'label' => $label, 'options' => $options, 'sel' => $sel_id];
         }
 
         ob_start();
         ?>
         <div class="tap-dest-picker" id="<?php echo esc_attr($uid); ?>">
             <input type="hidden" name="<?php echo esc_attr($name); ?>" value="<?php echo esc_attr($selected); ?>">
-            <?php foreach ($render_levels as $level): ?>
-                <?php
-                $options = $level_options[$level];
-                $sel = $chain[$level] ?? null;
-                $label = self::level_label($level);
-                ?>
+            <?php foreach ($rows as $row): ?>
+                <?php $placeholder = '— ' . $row['label'] . ' —'; ?>
                 <label class="tap-dest-level">
-                    <span><?php echo esc_html($label); ?></span>
-                    <select class="tap-dest-select" data-level="<?php echo esc_attr($level); ?>">
-                        <option value="0"><?php echo esc_html('— ' . $label . ' —'); ?></option>
-                        <?php foreach ($options as $opt): ?>
-                            <?php
-                            $active = ($sel && (int) $sel->term_id === (int) $opt['id']) ? ' selected' : '';
-                            $selected_attr = $active ? 'selected="selected"' : '';
-                            ?>
-                            <option value="<?php echo esc_attr($opt['id']); ?>" <?php echo $selected_attr; ?>><?php echo esc_html($opt['name']); ?></option>
+                    <span><?php echo esc_html($row['label']); ?></span>
+                    <select class="tap-dest-select" data-level="<?php echo esc_attr($row['level']); ?>" data-placeholder="<?php echo esc_attr($placeholder); ?>">
+                        <option value="0"><?php echo esc_html($placeholder); ?></option>
+                        <?php foreach ($row['options'] as $opt): ?>
+                            <?php $sel_attr = ((int) $opt['id'] === (int) $row['sel']) ? 'selected="selected"' : ''; ?>
+                            <option value="<?php echo esc_attr($opt['id']); ?>" <?php echo $sel_attr; ?>><?php echo esc_html($opt['name']); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </label>
-                <?php if (!$sel): ?>
-                    <?php break; ?>
-                <?php endif; ?>
             <?php endforeach; ?>
         </div>
-        <script>
-            (function ($) {
-                var $root = $('#<?php echo esc_js($uid); ?>');
-                if (!$root.length || !$root[0].dataset || !$root.data('booted')) {
-                    $root.data('booted', 1);
-                }
-            })(jQuery);
-        </script>
         <?php
         $html = ob_get_clean();
 
@@ -423,9 +408,13 @@ class TAP_Destinations {
 
     /**
      * Injects the term map + cascade behaviour into the picker markup.
+     *
+     * Changing a level refills the next level with that term's children and
+     * resets every deeper level back to its placeholder, so the hidden field
+     * always carries the deepest (most specific) selected term.
      */
     private static function picker_script($html, array $map) {
-        $json = wp_json_encode($map);
+        $json   = wp_json_encode($map);
         $script = '<script>
             (function ($) {
                 var MAP = ' . $json . ';
@@ -435,59 +424,21 @@ class TAP_Destinations {
                     $root.data("destBooted", 1);
                     var $hidden = $root.find("input[type=hidden]");
                     var $selects = $root.find("select.tap-dest-select");
-                    function optionsFor(parent) {
-                        return (MAP[parent] || []).slice();
+                    function childrenOf(parentId) {
+                        return MAP[parentId] || [];
                     }
-                    function renderLevel($select) {
-                        var level = parseInt($select.data("level"), 10);
-                        // Rebuild options from the parent selected at level-1.
-                        var parentId = 0;
-                        if (level > 0) {
-                            var $prev = $selects.filter("[data-level=" + (level - 1) + "]");
-                            parentId = parseInt($prev.val() || "0", 10);
-                        }
-                        var keep = parseInt($select.val() || "0", 10);
-                        $select.find("option").each(function () {
-                            var v = parseInt(this.value, 10);
-                            if (v === 0) return;
-                            // Level 0 has no parent: its options are the roots, always valid.
-                            if (level === 0) {
-                                $(this).css("display", "");
-                                return;
-                            }
-                            if (parentId === 0) {
-                                $(this).css("display", "none");
-                            } else if ((MAP[parentId] || []).some(function (o) { return o.id === v; })) {
-                                $(this).css("display", "");
-                            } else {
-                                $(this).css("display", "none");
-                            }
+                    function fill($select, parentId) {
+                        var ph = $select.data("placeholder") || "";
+                        $select.empty().append($("<option>").val("0").text(ph));
+                        childrenOf(parentId).forEach(function (c) {
+                            $select.append($("<option>").val(String(c.id)).text(c.name));
                         });
-                        // If the current value no longer belongs to the parent, reset to 0.
-                        if (level > 0 && parentId !== 0 && keep !== 0 && !(MAP[parentId] || []).some(function (o) { return o.id === keep; })) {
-                            $select.val("0");
-                            $select.trigger("change");
-                        }
+                        $select.val("0");
                     }
-                    $selects.on("change", function () {
-                        var $cur = $(this);
-                        var curLevel = parseInt($cur.data("level"), 10);
-                        // Reset and re-render every deeper level.
-                        $selects.filter(function () {
-                            return parseInt($(this).data("level"), 10) > curLevel;
-                        }).each(function () {
-                            var level = parseInt($(this).data("level"), 10);
-                            var $sel = $(this);
-                            // prune options not valid under new parent
-                            renderLevel($sel);
-                            var v = parseInt($sel.val() || "0", 10);
-                            if ($sel.find("option:visible[value=" + v + "]").length === 0) {
-                                $sel.val("0");
-                            }
-                        });
-                        renderLevel($cur);
-                        syncHidden();
-                    });
+                    function reset($select) {
+                        var ph = $select.data("placeholder") || "";
+                        $select.empty().append($("<option>").val("0").text(ph)).val("0");
+                    }
                     function syncHidden() {
                         var deepest = 0;
                         $selects.each(function () {
@@ -496,8 +447,21 @@ class TAP_Destinations {
                         });
                         $hidden.val(deepest);
                     }
-                    // Initial state: show options belonging to the correct parents.
-                    $selects.each(function () { renderLevel($(this)); });
+                    $selects.on("change", function () {
+                        var $cur = $(this);
+                        var curLevel = parseInt($cur.data("level"), 10);
+                        var parent = parseInt($cur.val() || "0", 10);
+                        $selects.each(function () {
+                            var level = parseInt($(this).data("level"), 10);
+                            if (level <= curLevel) return;
+                            if (level === curLevel + 1) {
+                                fill($(this), parent);
+                            } else {
+                                reset($(this));
+                            }
+                        });
+                        syncHidden();
+                    });
                     syncHidden();
                 });
             })(jQuery);

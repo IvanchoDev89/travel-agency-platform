@@ -106,6 +106,12 @@ tap_t_assert(strpos($html, 'selected="selected">La Fortuna') !== false, 'picker 
 tap_t_assert(strpos($html, 'Charlotte') === false, 'picker options are children of selected level only');
 tap_t_assert(strpos($html, '>Cantón') !== false || strpos($html, '>Distrito') !== false, 'picker shows intermediate level labels');
 
+// Fresh picker: renders every level so the JS cascade can grow downward.
+$fresh = TAP_Destinations::render_picker(0, 'location');
+tap_t_assert(substr_count($fresh, '<select') === 5, 'fresh picker renders all five levels');
+tap_t_assert(strpos($fresh, '>Costa Rica</option>') !== false, 'fresh picker level-0 offers the country root');
+tap_t_assert(strpos($fresh, 'var MAP = {') !== false, 'picker embeds the parent->children map for cascading');
+
 // seed_cr is idempotent: re-running must not duplicate terms.
 $before = wp_count_terms('tap_location');
 TAP_Destinations::seed_cr();
