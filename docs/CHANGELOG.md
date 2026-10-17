@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.23] — 2026-10-16
+
+Production-readiness pass: uninstaller now removes plugin user meta, and the plugin declares its WordPress/PHP baseline.
+
+### Fixed
+
+- **Uninstaller left plugin user meta behind**: `tap_favorites`, `_tap_agency_id` (agency↔staff link) and `tap_lang` were written to users but never cleaned on delete. `uninstall.php` now deletes them for every user, so deleting the plugin leaves no trace.
+
+### Changed
+
+- **Plugin headers**: added `Requires at least: 6.4` and `Requires PHP: 8.1` to match the project's declared baseline (`.phpcs.xml.dist`).
+- **README** version/schema cells synced to the current release.
+
+---
+
 ## [1.5.22] — 2026-10-16
 
 Date boundary consistency. Every check that compares a stored business date (booking `check_in`/`check_out`) or "today" against the clock now uses the site's local date instead of UTC, so the day boundary is correct in any site timezone.

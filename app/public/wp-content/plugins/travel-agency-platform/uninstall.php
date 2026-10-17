@@ -82,6 +82,11 @@ if ($admin) {
     }
 }
 
+// 4b) User meta written by the plugin (favorites, staff agency link, language)
+foreach (['tap_favorites', '_tap_agency_id', 'tap_lang'] as $meta_key) {
+    delete_metadata('user', 0, $meta_key, '', true);
+}
+
 // 5) Custom post types + their meta ----------------------------------------
 if (get_option('tap_uninstall_keep_content', '0') !== '1') {
     $post_types = ['tap_agency', 'tap_accommodation', 'tap_room', 'tap_tour', 'tap_transport',
