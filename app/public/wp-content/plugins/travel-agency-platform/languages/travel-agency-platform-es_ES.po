@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-10-17T20:12:56+00:00\n"
+"POT-Creation-Date: 2026-10-17T21:07:14+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -1945,6 +1945,7 @@ msgstr "Parámetros inválidos"
 #: includes/class-ajax-public.php:268 includes/class-booking.php:54
 #: includes/class-emails-send.php:510 includes/class-itinerary.php:31
 #: includes/class-itinerary.php:88 includes/class-shortcode-booking.php:917
+#: includes/class-taxonomies.php:278
 msgid "Alojamiento"
 msgstr "Alojamiento"
 
@@ -3038,25 +3039,25 @@ msgstr "No tienes permiso para realizar esta acción."
 msgid "No tienes permiso para ver esta pantalla."
 msgstr "No tienes permiso para ver esta pantalla."
 
-#: includes/class-dashboard-destinations.php:88
+#: includes/class-dashboard-destinations.php:87
 msgid "Destinos guardados."
 msgstr "Destinos guardados."
 
-#: includes/class-dashboard-destinations.php:91
+#: includes/class-dashboard-destinations.php:90
 msgid "Destino agregado."
 msgstr "Destino agregado."
 
-#: includes/class-dashboard-destinations.php:94
+#: includes/class-dashboard-destinations.php:93
 msgid "No se pudo guardar el destino."
 msgstr "No se pudo guardar el destino."
 
-#: includes/class-dashboard-destinations.php:98
+#: includes/class-dashboard-destinations.php:97
 #: includes/class-dashboard.php:148 includes/class-dashboard.php:149
 #: includes/class-taxonomies.php:18 includes/class-taxonomies.php:28
 msgid "Destinations"
 msgstr "Destinos"
 
-#: includes/class-dashboard-destinations.php:99
+#: includes/class-dashboard-destinations.php:98
 msgid ""
 "Reordena, recoloca y agrega destinos. El nivel (país, provincia, cantón, "
 "distrito, lugar) se deriva de la posición en el árbol."
@@ -3064,45 +3065,45 @@ msgstr ""
 "Reordena, recoloca y agrega destinos. El nivel (país, provincia, cantón, "
 "distrito, lugar) se deriva de la posición en el árbol."
 
-#: includes/class-dashboard-destinations.php:107
+#: includes/class-dashboard-destinations.php:106
 #: includes/class-metaboxes.php:40 includes/class-metaboxes.php:214
 #: includes/class-shortcode-search.php:24 includes/class-taxonomies.php:19
 msgid "Destination"
 msgstr "Destino"
 
-#: includes/class-dashboard-destinations.php:108
+#: includes/class-dashboard-destinations.php:107
 msgid "Level"
 msgstr "Nivel"
 
-#: includes/class-dashboard-destinations.php:109
-#: includes/class-dashboard-destinations.php:165
+#: includes/class-dashboard-destinations.php:108
+#: includes/class-dashboard-destinations.php:164
 msgid "Order"
 msgstr "Orden"
 
-#: includes/class-dashboard-destinations.php:110
-#: includes/class-dashboard-destinations.php:154
+#: includes/class-dashboard-destinations.php:109
+#: includes/class-dashboard-destinations.php:153
 msgid "Parent"
 msgstr "Padre"
 
-#: includes/class-dashboard-destinations.php:130
-#: includes/class-dashboard-destinations.php:157
+#: includes/class-dashboard-destinations.php:129
+#: includes/class-dashboard-destinations.php:156
 msgid "— Root —"
 msgstr "— Raíz —"
 
-#: includes/class-dashboard-destinations.php:144
-#: includes/class-dashboard-destinations.php:169
+#: includes/class-dashboard-destinations.php:143
+#: includes/class-dashboard-destinations.php:168
 msgid "Add destination"
 msgstr "Agregar destino"
 
-#: includes/class-dashboard-destinations.php:150
+#: includes/class-dashboard-destinations.php:149
 msgid "Name"
 msgstr "Nombre"
 
-#: includes/class-dashboard-destinations.php:182
+#: includes/class-dashboard-destinations.php:181
 msgid "No tienes permiso para editar destinos."
 msgstr "No tienes permiso para editar destinos."
 
-#: includes/class-dashboard-destinations.php:218
+#: includes/class-dashboard-destinations.php:217
 msgid "No tienes permiso para agregar destinos."
 msgstr "No tienes permiso para agregar destinos."
 
@@ -5417,6 +5418,7 @@ msgstr "Barcos"
 
 #: includes/class-front-dash.php:609 includes/class-front-dash.php:771
 #: includes/class-itinerary.php:93 includes/class-shortcode-search.php:211
+#: includes/class-taxonomies.php:282
 msgid "Paquetes"
 msgstr "Paquetes"
 
@@ -6162,7 +6164,7 @@ msgstr "Detalles del transporte"
 msgid "Service Type"
 msgstr "Tipo de servicio"
 
-#: includes/class-metaboxes.php:163 includes/class-taxonomies.php:162
+#: includes/class-metaboxes.php:163 includes/class-taxonomies.php:163
 msgid "Vehicle Type"
 msgstr "Tipo de vehículo"
 
@@ -6242,7 +6244,7 @@ msgstr "Seguro incluido"
 msgid "Boat Details"
 msgstr "Detalles del barco"
 
-#: includes/class-metaboxes.php:206 includes/class-taxonomies.php:184
+#: includes/class-metaboxes.php:206 includes/class-taxonomies.php:185
 msgid "Boat Type"
 msgstr "Tipo de barco"
 
@@ -8536,265 +8538,289 @@ msgstr "Agregar nuevo destino"
 msgid "New Destination Name"
 msgstr "Nombre del nuevo destino"
 
-#: includes/class-taxonomies.php:53
+#: includes/class-taxonomies.php:54
 msgid "Service Categories"
 msgstr "Categorías de servicio"
 
-#: includes/class-taxonomies.php:54
+#: includes/class-taxonomies.php:55
 msgid "Service Category"
 msgstr "Categoría de servicio"
 
-#: includes/class-taxonomies.php:55
+#: includes/class-taxonomies.php:56
 msgid "Search Categories"
 msgstr "Buscar categorías"
 
-#: includes/class-taxonomies.php:56
+#: includes/class-taxonomies.php:57
 msgid "All Categories"
 msgstr "Todas las categorías"
 
-#: includes/class-taxonomies.php:57
+#: includes/class-taxonomies.php:58
 msgid "Edit Category"
 msgstr "Editar categoría"
 
-#: includes/class-taxonomies.php:58
+#: includes/class-taxonomies.php:59
 msgid "Update Category"
 msgstr "Actualizar categoría"
 
-#: includes/class-taxonomies.php:59
+#: includes/class-taxonomies.php:60
 msgid "Add New Category"
 msgstr "Agregar nueva categoría"
 
-#: includes/class-taxonomies.php:60
+#: includes/class-taxonomies.php:61
 msgid "Categories"
 msgstr "Categorías"
 
-#: includes/class-taxonomies.php:77 includes/class-taxonomies.php:84
+#: includes/class-taxonomies.php:78 includes/class-taxonomies.php:85
 msgid "Property Types"
 msgstr "Tipos de propiedad"
 
-#: includes/class-taxonomies.php:78
+#: includes/class-taxonomies.php:79
 msgid "Property Type"
 msgstr "Tipo de propiedad"
 
-#: includes/class-taxonomies.php:79
+#: includes/class-taxonomies.php:80
 msgid "Search Property Types"
 msgstr "Buscar tipos de propiedad"
 
-#: includes/class-taxonomies.php:80
+#: includes/class-taxonomies.php:81
 msgid "All Property Types"
 msgstr "Todos los tipos de propiedad"
 
-#: includes/class-taxonomies.php:81
+#: includes/class-taxonomies.php:82
 msgid "Edit Property Type"
 msgstr "Editar tipo de propiedad"
 
-#: includes/class-taxonomies.php:82
+#: includes/class-taxonomies.php:83
 msgid "Update Property Type"
 msgstr "Actualizar tipo de propiedad"
 
-#: includes/class-taxonomies.php:83
+#: includes/class-taxonomies.php:84
 msgid "Add New Property Type"
 msgstr "Agregar nuevo tipo de propiedad"
 
-#: includes/class-taxonomies.php:117 includes/class-taxonomies.php:124
+#: includes/class-taxonomies.php:118 includes/class-taxonomies.php:125
 msgid "Amenities"
 msgstr "Comodidades"
 
-#: includes/class-taxonomies.php:118
+#: includes/class-taxonomies.php:119
 msgid "Amenity"
 msgstr "Comodidad"
 
-#: includes/class-taxonomies.php:119
+#: includes/class-taxonomies.php:120
 msgid "Search Amenities"
 msgstr "Buscar comodidades"
 
-#: includes/class-taxonomies.php:120
+#: includes/class-taxonomies.php:121
 msgid "All Amenities"
 msgstr "Todas las comodidades"
 
-#: includes/class-taxonomies.php:121
+#: includes/class-taxonomies.php:122
 msgid "Edit Amenity"
 msgstr "Editar comodidad"
 
-#: includes/class-taxonomies.php:122
+#: includes/class-taxonomies.php:123
 msgid "Update Amenity"
 msgstr "Actualizar comodidad"
 
-#: includes/class-taxonomies.php:123
+#: includes/class-taxonomies.php:124
 msgid "Add New Amenity"
 msgstr "Agregar nueva comodidad"
 
-#: includes/class-taxonomies.php:139 includes/class-taxonomies.php:146
+#: includes/class-taxonomies.php:140 includes/class-taxonomies.php:147
 msgid "Tour Types"
 msgstr "Tipos de tour"
 
-#: includes/class-taxonomies.php:140
+#: includes/class-taxonomies.php:141
 msgid "Tour Type"
 msgstr "Tipo de tour"
 
-#: includes/class-taxonomies.php:141
+#: includes/class-taxonomies.php:142
 msgid "Search Tour Types"
 msgstr "Buscar tipos de tour"
 
-#: includes/class-taxonomies.php:142
+#: includes/class-taxonomies.php:143
 msgid "All Tour Types"
 msgstr "Todos los tipos de tour"
 
-#: includes/class-taxonomies.php:143
+#: includes/class-taxonomies.php:144
 msgid "Edit Tour Type"
 msgstr "Editar tipo de tour"
 
-#: includes/class-taxonomies.php:144
+#: includes/class-taxonomies.php:145
 msgid "Update Tour Type"
 msgstr "Actualizar tipo de tour"
 
-#: includes/class-taxonomies.php:145
+#: includes/class-taxonomies.php:146
 msgid "Add New Tour Type"
 msgstr "Agregar nuevo tipo de tour"
 
-#: includes/class-taxonomies.php:161 includes/class-taxonomies.php:168
+#: includes/class-taxonomies.php:162 includes/class-taxonomies.php:169
 msgid "Vehicle Types"
 msgstr "Tipos de vehículo"
 
-#: includes/class-taxonomies.php:163
+#: includes/class-taxonomies.php:164
 msgid "Search Vehicle Types"
 msgstr "Buscar tipos de vehículo"
 
-#: includes/class-taxonomies.php:164
+#: includes/class-taxonomies.php:165
 msgid "All Vehicle Types"
 msgstr "Todos los tipos de vehículo"
 
-#: includes/class-taxonomies.php:165
+#: includes/class-taxonomies.php:166
 msgid "Edit Vehicle Type"
 msgstr "Editar tipo de vehículo"
 
-#: includes/class-taxonomies.php:166
+#: includes/class-taxonomies.php:167
 msgid "Update Vehicle Type"
 msgstr "Actualizar tipo de vehículo"
 
-#: includes/class-taxonomies.php:167
+#: includes/class-taxonomies.php:168
 msgid "Add New Vehicle Type"
 msgstr "Agregar nuevo tipo de vehículo"
 
-#: includes/class-taxonomies.php:183 includes/class-taxonomies.php:190
+#: includes/class-taxonomies.php:184 includes/class-taxonomies.php:191
 msgid "Boat Types"
 msgstr "Tipos de barco"
 
-#: includes/class-taxonomies.php:185
+#: includes/class-taxonomies.php:186
 msgid "Search Boat Types"
 msgstr "Buscar tipos de barco"
 
-#: includes/class-taxonomies.php:186
+#: includes/class-taxonomies.php:187
 msgid "All Boat Types"
 msgstr "Todos los tipos de barco"
 
-#: includes/class-taxonomies.php:187
+#: includes/class-taxonomies.php:188
 msgid "Edit Boat Type"
 msgstr "Editar tipo de barco"
 
-#: includes/class-taxonomies.php:188
+#: includes/class-taxonomies.php:189
 msgid "Update Boat Type"
 msgstr "Actualizar tipo de barco"
 
-#: includes/class-taxonomies.php:189
+#: includes/class-taxonomies.php:190
 msgid "Add New Boat Type"
 msgstr "Agregar nuevo tipo de barco"
 
-#: includes/class-taxonomies.php:205
+#: includes/class-taxonomies.php:206
 msgid "Tour Difficulties"
 msgstr "Dificultades del tour"
 
-#: includes/class-taxonomies.php:206
+#: includes/class-taxonomies.php:207
 msgid "Tour Difficulty"
 msgstr "Dificultad del tour"
 
-#: includes/class-taxonomies.php:207
+#: includes/class-taxonomies.php:208
 msgid "Search Difficulties"
 msgstr "Buscar dificultades"
 
-#: includes/class-taxonomies.php:208
+#: includes/class-taxonomies.php:209
 msgid "All Difficulties"
 msgstr "Todas las dificultades"
 
-#: includes/class-taxonomies.php:209
+#: includes/class-taxonomies.php:210
 msgid "Edit Difficulty"
 msgstr "Editar dificultad"
 
-#: includes/class-taxonomies.php:210
+#: includes/class-taxonomies.php:211
 msgid "Update Difficulty"
 msgstr "Actualizar dificultad"
 
-#: includes/class-taxonomies.php:211
+#: includes/class-taxonomies.php:212
 msgid "Add New Difficulty"
 msgstr "Agregar nueva dificultad"
 
-#: includes/class-taxonomies.php:212
+#: includes/class-taxonomies.php:213
 msgid "Difficulties"
 msgstr "Dificultades"
 
-#: includes/class-taxonomies.php:233
+#: includes/class-taxonomies.php:234
 msgid "Fácil"
 msgstr "Fácil"
 
-#: includes/class-taxonomies.php:234
+#: includes/class-taxonomies.php:235
 msgid "Moderado"
 msgstr "Moderado"
 
-#: includes/class-taxonomies.php:235
+#: includes/class-taxonomies.php:236
 msgid "Difícil"
 msgstr "Difícil"
 
-#: includes/class-taxonomies.php:236
+#: includes/class-taxonomies.php:237
 msgid "Extremo"
 msgstr "Extremo"
 
-#: includes/class-taxonomies.php:245
+#: includes/class-taxonomies.php:246 includes/class-taxonomies.php:283
 msgid "Aventura"
 msgstr "Aventura"
 
-#: includes/class-taxonomies.php:246
+#: includes/class-taxonomies.php:247 includes/class-taxonomies.php:284
 msgid "Naturaleza"
 msgstr "Naturaleza"
 
-#: includes/class-taxonomies.php:247
+#: includes/class-taxonomies.php:248
 msgid "Cultural"
 msgstr "Cultural"
 
-#: includes/class-taxonomies.php:248
+#: includes/class-taxonomies.php:249
 msgid "Playa"
 msgstr "Playa"
 
-#: includes/class-taxonomies.php:249
+#: includes/class-taxonomies.php:250
 msgid "Gastronómico"
 msgstr "Gastronómico"
 
-#: includes/class-taxonomies.php:250
+#: includes/class-taxonomies.php:251
 msgid "Relax"
 msgstr "Relax"
 
-#: includes/class-taxonomies.php:251
+#: includes/class-taxonomies.php:252
 msgid "Aéreo"
 msgstr "Aéreo"
 
-#: includes/class-taxonomies.php:252
+#: includes/class-taxonomies.php:253 includes/class-taxonomies.php:281
 msgid "Náutico"
 msgstr "Náutico"
 
-#: includes/class-taxonomies.php:253
+#: includes/class-taxonomies.php:254
 msgid "Deportivo"
 msgstr "Deportivo"
 
-#: includes/class-taxonomies.php:254
+#: includes/class-taxonomies.php:255
 msgid "Familiar"
 msgstr "Familiar"
 
-#: includes/class-taxonomies.php:255
+#: includes/class-taxonomies.php:256
 msgid "Avistamiento de fauna"
 msgstr "Avistamiento de fauna"
 
-#: includes/class-taxonomies.php:256
+#: includes/class-taxonomies.php:257
 msgid "Senderismo"
 msgstr "Senderismo"
+
+#: includes/class-taxonomies.php:277
+msgid "Tours guiados"
+msgstr "Tours guiados"
+
+#: includes/class-taxonomies.php:279
+msgid "Transporte y traslados"
+msgstr "Transporte y traslados"
+
+#: includes/class-taxonomies.php:280
+msgid "Alquiler de vehículos"
+msgstr "Alquiler de vehículos"
+
+#: includes/class-taxonomies.php:285
+msgid "Bienestar & Spa"
+msgstr "Bienestar & Spa"
+
+#: includes/class-taxonomies.php:286
+msgid "Gastronomía"
+msgstr "Gastronomía"
+
+#: includes/class-taxonomies.php:287
+msgid "Traslados aeropuerto"
+msgstr "Traslados aeropuerto"
 
 #: travel-agency-platform.php:249
 msgid "results found"

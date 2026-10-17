@@ -46,6 +46,7 @@ class TAP_Taxonomies {
             TAP_Destinations::normalize();
         }
         self::seed_tour_types();
+        self::seed_service_categories();
     }
 
     private static function register_service_category() {
@@ -261,6 +262,36 @@ class TAP_Taxonomies {
             }
         }
         update_option('tap_tour_types_seeded', 1);
+    }
+
+    /**
+     * Categories of service (the itinerary wizard's "categories" step). This is
+     * a cross-cutting axis independent from tour types (themes): an admin tags
+     * any listing with the kind of service it offers.
+     */
+    private static function seed_service_categories() {
+        if (get_option('tap_service_cat_seeded')) {
+            return;
+        }
+        $terms = [
+            'tours-guiados'         => __('Tours guiados', 'travel-agency-platform'),
+            'alojamiento'           => __('Alojamiento', 'travel-agency-platform'),
+            'transporte-traslados'  => __('Transporte y traslados', 'travel-agency-platform'),
+            'alquiler-vehiculos'    => __('Alquiler de vehículos', 'travel-agency-platform'),
+            'nautico'               => __('Náutico', 'travel-agency-platform'),
+            'paquetes'              => __('Paquetes', 'travel-agency-platform'),
+            'aventura'              => __('Aventura', 'travel-agency-platform'),
+            'naturaleza'            => __('Naturaleza', 'travel-agency-platform'),
+            'bienestar'             => __('Bienestar & Spa', 'travel-agency-platform'),
+            'gastronomia'           => __('Gastronomía', 'travel-agency-platform'),
+            'traslados-aeropuerto'  => __('Traslados aeropuerto', 'travel-agency-platform'),
+        ];
+        foreach ($terms as $slug => $name) {
+            if (!term_exists($slug, 'tap_service_cat')) {
+                wp_insert_term($name, 'tap_service_cat', ['slug' => $slug]);
+            }
+        }
+        update_option('tap_service_cat_seeded', 1);
     }
 
     /**

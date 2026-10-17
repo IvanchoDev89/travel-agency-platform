@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.28] — 2026-10-17
+
+Seed the service categories so the itinerary wizard's first step is not empty.
+
+### Added
+
+- **11 service categories seeded into `tap_service_cat`** (`seed_service_categories()`, idempotent and guarded by the `tap_service_cat_seeded` option, run from `TAP_Taxonomies::seed()`): Tours guiados, Alojamiento, Transporte y traslados, Alquiler de vehículos, Náutico, Paquetes, Aventura, Naturaleza, Bienestar & Spa, Gastronomía, Traslados aeropuerto. This taxonomy is the "categories" step of `[tap_itinerary_builder]`, which previously rendered with no options.
+
+---
+
 ## [1.5.27] — 2026-10-17
 
 Admin screen to manage the destination hierarchy.

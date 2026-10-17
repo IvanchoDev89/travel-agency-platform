@@ -72,6 +72,18 @@ tap_t_assert($nuevo && $nuevo->parent > 0, 'Nuevo Arenal is a child term');
 $fortuna = get_term_by('slug', 'la-fortuna', 'tap_location');
 tap_t_assert($fortuna && $fortuna->parent > 0, 'La Fortuna is a child term');
 
+// ---- 5b) service categories seeded (itinerary wizard "categories" step) ----
+$svc_slugs = ['tours-guiados', 'alojamiento', 'transporte-traslados', 'alquiler-vehiculos', 'nautico', 'paquetes', 'aventura', 'naturaleza', 'bienestar', 'gastronomia', 'traslados-aeropuerto'];
+$svc_terms = get_terms(['taxonomy' => 'tap_service_cat', 'hide_empty' => false, 'fields' => 'ids']);
+tap_t_assert(is_array($svc_terms) && count($svc_terms) >= 11, 'at least 11 tap_service_cat terms (got ' . (is_array($svc_terms) ? count($svc_terms) : 0) . ')');
+foreach ($svc_slugs as $sl) {
+    tap_t_assert((bool) term_exists($sl, 'tap_service_cat'), "service category {$sl} seeded");
+}
+$svc_before = count($svc_terms);
+TAP_Taxonomies::seed();
+$svc_after = count(get_terms(['taxonomy' => 'tap_service_cat', 'hide_empty' => false, 'fields' => 'ids']));
+tap_t_assert($svc_before === $svc_after, 'seed does not duplicate service categories');
+
 // ---- 6) blog posts ----
 $posts = get_posts(['post_type' => 'post', 'post_status' => 'publish', 'numberposts' => -1, 'meta_key' => '_tap_t5_seeded', 'meta_value' => '1']);
 tap_t_assert(count($posts) >= 8, 'at least 8 seeded blog posts (got ' . count($posts) . ')');
