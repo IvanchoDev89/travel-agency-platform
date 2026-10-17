@@ -632,6 +632,12 @@ class TAP_Installer {
             add_option('tap_booking_auto_complete', '1');
         }
 
+        // Destination taxonomy hygiene (level = depth, order backfill, orphan
+        // places reparented). Idempotent, guarded so it runs once per version.
+        if (class_exists('TAP_Destinations')) {
+            TAP_Destinations::normalize();
+        }
+
         if (class_exists('TAP_Privacy')) {
             TAP_Privacy::ensure_privacy_page();
         }

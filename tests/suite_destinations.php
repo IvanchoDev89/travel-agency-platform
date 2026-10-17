@@ -46,7 +46,7 @@ tap_t_assert($ok, 'term_map keys are parent term ids');
 // Breadcrumbs walk the parent chain.
 $la = get_term_by('slug', 'la-fortuna', 'tap_location');
 tap_t_assert($la instanceof WP_Term, 'san carlos has La Fortuna place');
-tap_t_assert(4 === TAP_Destinations::term_level($la->term_id), 'La Fortuna is a level-4 place');
+tap_t_assert(3 === TAP_Destinations::term_level($la->term_id), 'La Fortuna is a level-3 distrito');
 $bc = TAP_Destinations::breadcrumb($la->term_id);
 tap_t_assert('Costa Rica / Alajuela / San Carlos / La Fortuna' === $bc, 'La Fortuna breadcrumb correct: ' . $bc);
 $ala = get_term_by('slug', 'alajuela', 'tap_location');
@@ -69,6 +69,34 @@ foreach ($kids as $c) {
     $prev = $o;
 }
 tap_t_assert($sorted, 'children() orders by tap_dest_order ascending');
+
+// normalize() keeps level == depth and reparents orphan tourist places.
+$lago  = get_term_by('name', 'Lago Arenal', 'tap_location');
+$nuevo = get_term_by('name', 'Nuevo Arenal', 'tap_location');
+$sc    = get_term_by('name', 'San Carlos', 'tap_location');
+$til   = get_term_by('name', 'Tilarán', 'tap_location');
+tap_t_assert($lago instanceof WP_Term && $sc instanceof WP_Term && (int) $lago->parent === (int) $sc->term_id, 'Lago Arenal reparented under San Carlos canton');
+tap_t_assert($nuevo instanceof WP_Term && $til instanceof WP_Term && (int) $nuevo->parent === (int) $til->term_id, 'Nuevo Arenal reparented under Tilarán canton');
+
+$all_terms = get_terms(['taxonomy' => 'tap_location', 'hide_empty' => false, 'number' => 0]);
+$coherent  = true;
+foreach ($all_terms as $t) {
+    if (TAP_Destinations::term_level($t->term_id) !== TAP_Destinations::term_depth($t->term_id)) {
+        $coherent = false;
+        break;
+    }
+}
+tap_t_assert($coherent, 'every destination tap_dest_level equals its tree depth');
+
+// on_term_created backfills level/order for terms added via the WP term UI.
+$tmp = wp_insert_term('TAP Test Temp Distrito', 'tap_location', ['parent' => (int) $sc->term_id]);
+tap_t_assert(!is_wp_error($tmp), 'temp destination term created');
+if (!is_wp_error($tmp)) {
+    $tmp_id = (int) $tmp['term_id'];
+    tap_t_assert(3 === TAP_Destinations::term_level($tmp_id), 'new term under a canton gets level 3 (distrito)');
+    tap_t_assert((int) get_term_meta($tmp_id, 'tap_dest_order', true) > 0, 'new term gets a backfilled order');
+    wp_delete_term($tmp_id, 'tap_location');
+}
 
 // Cascading picker: renders ancestor selects, leaves children out, preselected.
 $html = TAP_Destinations::render_picker($la->term_id, 'location');

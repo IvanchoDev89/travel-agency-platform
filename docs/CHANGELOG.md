@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.25] — 2026-10-17
+
+Destination taxonomy (`tap_location`) hygiene: coherent país → provincia → cantón → distrito hierarchy.
+
+### Fixed
+
+- **Two orphan tourist places hung directly under the country** (`Lago Arenal`, `Nuevo Arenal`), so the cascade listed them as if they were provinces. `TAP_Destinations::normalize()` now reparents them under their canton (`San Carlos`, `Alajuela` and `Tilarán`, `Guanacaste` respectively).
+- **`tap_dest_level` did not match a term's real depth**: the seed labelled the tourist places `4` (lugar) while they sit at depth 3 (distrito), and manually created terms carried no level at all. Levels are now normalized to mirror depth (`país = 0 … distrito = 3`) and a missing `tap_dest_order` is backfilled, so the picker labels the cascade correctly.
+
+### Changed
+
+- **Seed places are now created at level 3 (distrito)** instead of 4, matching the hierarchy the picker renders (país → provincia → cantón → distrito). Real distritos remain fully editable and addable from the admin.
+- A term created through WordPress's own term UI now gets `tap_dest_level` / `tap_dest_order` backfilled automatically (`created_term` hook), so new destinations stay consistent no matter how they are added.
+
+### Tooling
+
+- `normalize()` is idempotent and guarded by the `tap_dest_norm` option, so it runs once per plugin version instead of on every page load; it is invoked from both `TAP_Installer::migrate()` and `TAP_Taxonomies::seed()`.
+
+---
+
 ## [1.5.24] — 2026-10-16
 
 Commission integrity reconciliation.

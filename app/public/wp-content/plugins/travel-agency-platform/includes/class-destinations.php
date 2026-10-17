@@ -13,6 +13,7 @@ class TAP_Destinations {
 
     const TAX = 'tap_location';
     const SEED_OPTION = 'tap_cr_seed';
+    const NORM_OPTION = 'tap_dest_norm';
 
     /**
      * Level labels. Keys 0..4 follow: país, provincia, cantón, distrito, lugar.
@@ -86,11 +87,14 @@ class TAP_Destinations {
                 if (is_wp_error($canton_id) || $canton_id === null) {
                     continue;
                 }
-                // Tourist places: level 4 (lugar under the canton/district).
+                // Tourist places sit at depth 3 (distrito level), directly under
+                // their canton: the seed skips the distrito layer for now but the
+                // admin can insert real distritos later — normalize() keeps
+                // `tap_dest_level` equal to the term's depth either way.
                 $l_order = 0;
                 foreach ($places as $place) {
                     ++$l_order;
-                    self::insert_term($place, 4, $l_order, $canton_id);
+                    self::insert_term($place, 3, $l_order, $canton_id);
                 }
             }
         }
@@ -111,6 +115,127 @@ class TAP_Destinations {
         }
         self::set_level((int) $res['term_id'], $level, $order);
         return (int) $res['term_id'];
+    }
+
+    /** Register the term-creation hook that keeps new destinations consistent. */
+    public static function init() {
+        add_action('created_term', [__CLASS__, 'on_term_created'], 10, 3);
+    }
+
+    /**
+     * Backfill `tap_dest_level` / `tap_dest_order` when a destination is created
+     * through WordPress's own term UI (instead of the seed), so the cascade
+     * stays coherent no matter how the term is added.
+     */
+    public static function on_term_created($term_id, $tt_id, $taxonomy) {
+        if (self::TAX !== $taxonomy) {
+            return;
+        }
+        $term_id = (int) $term_id;
+        if (null !== self::term_level($term_id)) {
+            return; // an explicit level was supplied
+        }
+        $term = get_term($term_id, self::TAX);
+        if (!$term || is_wp_error($term)) {
+            return;
+        }
+        update_term_meta($term_id, 'tap_dest_level', self::term_depth($term_id));
+        if (!get_term_meta($term_id, 'tap_dest_order', true)) {
+            update_term_meta($term_id, 'tap_dest_order', self::next_sibling_order((int) $term->parent));
+        }
+    }
+
+    /** Smallest order value not yet used among a parent's children. */
+    private static function next_sibling_order($parent) {
+        $max = 0;
+        $siblings = get_terms(['taxonomy' => self::TAX, 'parent' => (int) $parent, 'hide_empty' => false]);
+        if (!is_wp_error($siblings)) {
+            foreach ($siblings as $s) {
+                $max = max($max, (int) get_term_meta($s->term_id, 'tap_dest_order', true));
+            }
+        }
+        return $max + 1;
+    }
+
+    /**
+     * Normalize the destination tree so the cascade stays coherent:
+     *   - `tap_dest_level` mirrors the term's depth (país = 0 … distrito = 3).
+     *   - `tap_dest_order` is backfilled for terms that never got one.
+     *   - Known orphan tourist places that hang directly under the country are
+     *     reparented under their canton.
+     *
+     * Idempotent, guarded by `tap_dest_norm` so it runs once per plugin version
+     * instead of on every page load.
+     */
+    public static function normalize() {
+        if (get_option(self::NORM_OPTION) === TAP_VERSION) {
+            return;
+        }
+        // migrate() may call this during plugins_loaded, before the taxonomy is
+        // registered on init: get_terms() would return invalid_taxonomy and the
+        // guard below would lock in a no-op. Bail without arming the guard so a
+        // later call (from seed(), once registered) does the real work.
+        if (!taxonomy_exists(self::TAX)) {
+            return;
+        }
+        self::reparent_orphans();
+        self::walk_levels(0, 0);
+        update_option(self::NORM_OPTION, TAP_VERSION);
+    }
+
+    /** Move mis-placed tourist places that were created as direct country children. */
+    private static function reparent_orphans() {
+        $roots = get_terms(['taxonomy' => self::TAX, 'parent' => 0, 'hide_empty' => false, 'number' => 1]);
+        $country_id = ($roots && !is_wp_error($roots)) ? (int) $roots[0]->term_id : 0;
+        if (!$country_id) {
+            return;
+        }
+        $moves = [
+            'Lago Arenal'  => 'San Carlos', // cantón de Alajuela
+            'Nuevo Arenal' => 'Tilarán',    // cantón de Guanacaste
+        ];
+        foreach ($moves as $name => $canton) {
+            $term = get_term_by('name', $name, self::TAX);
+            if (!$term || is_wp_error($term) || (int) $term->parent !== $country_id) {
+                continue; // missing, or already placed correctly
+            }
+            $canton_id = self::find_term_id($canton);
+            if ($canton_id) {
+                wp_update_term((int) $term->term_id, self::TAX, ['parent' => $canton_id]);
+            }
+        }
+    }
+
+    private static function find_term_id($name) {
+        $term = get_term_by('name', $name, self::TAX);
+        return ($term && !is_wp_error($term)) ? (int) $term->term_id : 0;
+    }
+
+    /** Depth-first: set level = depth and backfill a missing order per sibling. */
+    private static function walk_levels($parent, $depth) {
+        $children = get_terms([
+            'taxonomy'   => self::TAX,
+            'parent'     => (int) $parent,
+            'hide_empty' => false,
+            'orderby'    => 'name',
+        ]);
+        if (is_wp_error($children) || !$children) {
+            return;
+        }
+        $max_order = 0;
+        foreach ($children as $c) {
+            $max_order = max($max_order, (int) get_term_meta($c->term_id, 'tap_dest_order', true));
+        }
+        foreach ($children as $c) {
+            $order = (int) get_term_meta($c->term_id, 'tap_dest_order', true);
+            if (!$order) {
+                update_term_meta($c->term_id, 'tap_dest_order', ++$max_order);
+            }
+            if (self::term_level($c->term_id) !== $depth) {
+                update_term_meta($c->term_id, 'tap_dest_level', $depth);
+            }
+            self::walk_levels($c->term_id, $depth + 1);
+        }
     }
 
     /**
@@ -381,9 +506,10 @@ class TAP_Destinations {
     }
 
     /**
-     * The full Costa Rican administrative tree: provincia → cantón → lugares turísticos.
+     * The full Costa Rican administrative tree: provincia → cantón → distrito.
      *
-     * Levels: provincias = 1, cantones = 2, lugares = 4 (distritos 3 no se siembran).
+     * Levels: provincias = 1, cantones = 2, distritos/lugares = 3 (los distritos
+     * oficiales no se siembran: el admin los agrega desde la UI cuando quiera).
      */
     public static function cr_tree() {
         return [

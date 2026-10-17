@@ -43,6 +43,7 @@ class TAP_Taxonomies {
     public static function seed() {
         if (class_exists('TAP_Destinations')) {
             TAP_Destinations::seed_cr();
+            TAP_Destinations::normalize();
         }
         self::seed_tour_types();
     }
