@@ -187,6 +187,58 @@ try {
     tap_t_assert($pb2 && $pb2->payment_status === 'paid', 'retry payment flips booking to paid');
     tap_t_assert($pb2 && round((float) $pb2->amount_paid, 2) === 100.0, 'amount_paid equals total after retry');
 
+    // ── full online payment (mocked PayPal HTTP) earns the commission ─────────
+    // Drives the real chain the frontend uses: create_order -> capture_order ->
+    // record_paid_capture, proving the commission flips waiting -> owed on a
+    // genuine capture and that a replay cannot re-earn it.
+    $orig_cid = get_option('tap_paypal_client_id', '');
+    $orig_sec = get_option('tap_paypal_secret', '');
+    update_option('tap_paypal_client_id', 'test-client');
+    update_option('tap_paypal_secret', 'test-secret');
+    tap_t_install_paypal_mock();
+
+    $pay_full = tap_t_seed_booking([
+        'total_amount' => 99, 'commission_amount' => 9.9,
+        'payment_status' => 'pending', 'status' => 'pending', 'commission_status' => 'waiting',
+    ]);
+    $pay_track('bookings', $pay_full);
+
+    $order = TAP_PayPal::create_order($pay_full, home_url('/checkout'), home_url('/'));
+    tap_t_assert(is_array($order) && !empty($order['order_id']), 'E2E: create_order returns an order id');
+    $oid = $order['order_id'];
+    $pay_track('orders', $oid);
+
+    $ledger = TAP_Payment::resolve_order($oid);
+    tap_t_assert($ledger && 'booking' === $ledger->object_type && (int) $ledger->object_id === $pay_full, 'E2E: order recorded in the payment ledger for the booking');
+    tap_t_assert((int) TAP_Payment::find_booking_by_order($oid) === $pay_full, 'E2E: find_booking_by_order resolves the booking via the ledger');
+
+    $cap = TAP_PayPal::capture_order($oid);
+    tap_t_assert(is_array($cap) && 'COMPLETED' === $cap['capture_status'], 'E2E: capture completes');
+
+    $done = TAP_Booking::record_paid_capture($pay_full, 'paypal', $cap['capture_id'], $cap['full_response']);
+    $row = TAP_Booking::get_booking($pay_full);
+    tap_t_assert(true === $done, 'E2E: record_paid_capture succeeds');
+    tap_t_assert($row && 'paid' === $row->payment_status && 'confirmed' === $row->status, 'E2E: booking becomes paid + confirmed');
+    tap_t_assert($row && round((float) $row->amount_paid, 2) === 99.0, 'E2E: amount_paid equals the order total');
+    tap_t_assert($row && 'owed' === $row->commission_status, 'E2E: capture earns the commission (waiting -> owed)');
+
+    $replay = TAP_Booking::record_paid_capture($pay_full, 'paypal', $cap['capture_id'], $cap['full_response']);
+    tap_t_assert(is_wp_error($replay) && 'already_paid' === $replay->get_error_code(), 'E2E: replayed capture is idempotent (already_paid)');
+
+    // Webhook-shaped capture resource (amount at the top level) earns it too.
+    $wh = tap_t_seed_booking([
+        'total_amount' => 40, 'commission_amount' => 4,
+        'payment_status' => 'pending', 'status' => 'pending', 'commission_status' => 'waiting',
+    ]);
+    $pay_track('bookings', $wh);
+    $whres = TAP_Booking::record_paid_capture($wh, 'paypal', 'CAP-WH-1', (object) ['id' => 'CAP-WH-1', 'amount' => (object) ['value' => '40.00', 'currency_code' => TAP_Currency::code()]]);
+    $whrow = TAP_Booking::get_booking($wh);
+    tap_t_assert(true === $whres && $whrow && 'owed' === $whrow->commission_status, 'E2E: webhook-shaped capture earns the commission too');
+
+    tap_t_remove_paypal_mock();
+    update_option('tap_paypal_client_id', $orig_cid);
+    update_option('tap_paypal_secret', $orig_sec);
+
     $pay_done = tap_t_seed_booking(['total_amount' => 60, 'payment_status' => 'paid', 'commission_amount' => 6]);
     $pay_track('bookings', $pay_done);
     $no_order = TAP_PayPal::create_order($pay_done, 'https://example.local/return', 'https://example.local/cancel');

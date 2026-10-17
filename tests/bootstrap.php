@@ -186,6 +186,7 @@ if (!function_exists('tap_t_find_service')) {
     function tap_t_install_paypal_mock() {
         $GLOBALS['tap_pp_log'] = [];
         $GLOBALS['tap_pp_counter'] = 0;
+        $GLOBALS['tap_pp_amounts'] = [];
         $GLOBALS['tap_pp_mock'] = function ($pre, $args, $url) {
             $GLOBALS['tap_pp_log'][] = ['url' => $url, 'args' => $args];
             $json = function ($data) {
@@ -194,14 +195,19 @@ if (!function_exists('tap_t_find_service')) {
             if (strpos($url, '/v1/oauth2/token') !== false) {
                 return $json(['access_token' => 'tok-test', 'token_type' => 'Bearer', 'expires_in' => 3600]);
             }
-            if (preg_match('#/capture$#', $url)) {
+            if (preg_match('#/v2/checkout/orders/([^/]+)/capture$#', $url, $m)) {
+                // Echo back the amount that was requested for THIS order, so a
+                // capture is verifiable against the booking total (a real PayPal
+                // capture resource always carries amount.value/currency_code).
+                $amt = $GLOBALS['tap_pp_amounts'][$m[1]] ?? ['value' => '10.00', 'currency_code' => 'USD'];
                 return $json([
-                    'id'     => 'ORD-PP-1',
+                    'id'     => $m[1],
                     'status' => 'COMPLETED',
                     'purchase_units' => [[
                         'payments' => ['captures' => [[
                             'id' => 'CAP-PP-1', 'status' => 'COMPLETED',
-                            'seller_receivable_breakdown' => ['gross_amount' => ['value' => '10.00', 'currency_code' => 'USD']],
+                            'amount' => $amt,
+                            'seller_receivable_breakdown' => ['gross_amount' => $amt],
                         ]]],
                     ]],
                 ]);
@@ -215,6 +221,11 @@ if (!function_exists('tap_t_find_service')) {
                 // silently overwrite an existing ledger row.
                 $GLOBALS['tap_pp_counter']++;
                 $oid = 'ORD-PP-' . $GLOBALS['tap_pp_counter'];
+                $body = json_decode($args['body'] ?? '', true);
+                $amt = $body['purchase_units'][0]['amount'] ?? null;
+                if (is_array($amt) && isset($amt['value'])) {
+                    $GLOBALS['tap_pp_amounts'][$oid] = ['value' => (string) $amt['value'], 'currency_code' => (string) ($amt['currency_code'] ?? 'USD')];
+                }
                 return $json(['id' => $oid, 'status' => 'CREATED', 'links' => [['rel' => 'payer-action', 'href' => 'https://pp.test/approve']]]);
             }
             if (strpos($url, '/verify-webhook-signature') !== false) {
