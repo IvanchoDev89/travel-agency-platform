@@ -243,6 +243,92 @@ try {
     $pay_track('bookings', $pay_done);
     $no_order = TAP_PayPal::create_order($pay_done, 'https://example.local/return', 'https://example.local/cancel');
     tap_t_assert(is_wp_error($no_order) && 'already_paid' === $no_order->get_error_code(), 'create_order refuses a fully paid booking before fetching a token');
+
+    // ── webhook event dispatch (PayPal -> REST -> handler) ────────────────────
+    // handle_paypal_webhook() reads php://input and exit()s, so it cannot be
+    // driven in-process. These cover the dispatch it performs on a verified
+    // event: invoke the private handlers directly (reflection, no production
+    // change) and assert the booking/ledger side effects for each event type.
+    $wh_call = function (string $method, $event) {
+        $m = new ReflectionMethod('TAP_Payment', $method);
+        $m->setAccessible(true);
+        return $m->invoke(null, $event);
+    };
+
+    // PAYMENT.CAPTURE.COMPLETED -> booking paid for the full amount + commission earned
+    $whc = tap_t_seed_booking(['total_amount' => 150, 'commission_amount' => 15, 'payment_status' => 'pending', 'status' => 'pending', 'commission_status' => 'waiting']);
+    $pay_track('bookings', $whc);
+    $pay_track('meta', ['post_id' => $whc, 'key' => '_tap_paypal_capture_id']);
+    $pay_track('meta', ['post_id' => $whc, 'key' => '_tap_payment_details']);
+    $wh_ok_order = 'ORD-WH-OK-' . wp_generate_password(6, false);
+    $pay_track('orders', $wh_ok_order);
+    TAP_Payment::record_order($wh_ok_order, 'booking', $whc, 150, 'created');
+    $ev_ok = (object) [
+        'event_type' => 'PAYMENT.CAPTURE.COMPLETED',
+        'resource'   => (object) [
+            'id'     => 'CAP-WH-OK',
+            'amount' => (object) ['value' => '150.00', 'currency_code' => TAP_Currency::code()],
+            'supplementary_data' => (object) ['related_ids' => (object) ['order_id' => $wh_ok_order]],
+        ],
+    ];
+    $wh_call('handle_capture_completed', $ev_ok);
+    $wh_row = TAP_Booking::get_booking($whc);
+    tap_t_assert($wh_row && 'paid' === $wh_row->payment_status && round((float) $wh_row->amount_paid, 2) === 150.0, 'webhook CAPTURE.COMPLETED marks the booking paid for the full amount');
+    tap_t_assert($wh_row && 'owed' === $wh_row->commission_status, 'webhook CAPTURE.COMPLETED earns the commission (waiting -> owed)');
+    $wh_led = TAP_Payment::resolve_order($wh_ok_order);
+    tap_t_assert($wh_led && 'completed' === $wh_led->status && 'CAP-WH-OK' === $wh_led->capture_id, 'webhook CAPTURE.COMPLETED updates the payment ledger');
+    $wh_call('handle_capture_completed', $ev_ok);
+    $wh_row2 = TAP_Booking::get_booking($whc);
+    tap_t_assert($wh_row2 && 'owed' === $wh_row2->commission_status && round((float) $wh_row2->amount_paid, 2) === 150.0, 'webhook CAPTURE.COMPLETED replay does not double-credit');
+
+    // PAYMENT.CAPTURE.DENIED -> payment failed
+    $whd = tap_t_seed_booking(['total_amount' => 80, 'commission_amount' => 8, 'payment_status' => 'pending', 'status' => 'pending', 'commission_status' => 'waiting']);
+    $pay_track('bookings', $whd);
+    $wh_den_order = 'ORD-WH-DEN-' . wp_generate_password(6, false);
+    $pay_track('orders', $wh_den_order);
+    TAP_Payment::record_order($wh_den_order, 'booking', $whd, 80, 'created');
+    $ev_den = (object) [
+        'event_type' => 'PAYMENT.CAPTURE.DENIED',
+        'resource'   => (object) ['id' => 'CAP-WH-DEN', 'supplementary_data' => (object) ['related_ids' => (object) ['order_id' => $wh_den_order]]],
+    ];
+    $wh_call('handle_capture_denied', $ev_den);
+    $wh_den_row = TAP_Booking::get_booking($whd);
+    tap_t_assert($wh_den_row && 'failed' === $wh_den_row->payment_status, 'webhook CAPTURE.DENIED marks the booking payment failed');
+
+    // PAYMENT.CAPTURE.REFUNDED -> refunded + commission voided + refund id kept
+    $whr = tap_t_seed_booking(['total_amount' => 60, 'commission_amount' => 6, 'payment_status' => 'paid', 'status' => 'confirmed', 'commission_status' => 'owed']);
+    $pay_track('bookings', $whr);
+    $pay_track('meta', ['post_id' => $whr, 'key' => '_tap_paypal_refund_id']);
+    $wh_ref_order = 'ORD-WH-REF-' . wp_generate_password(6, false);
+    $pay_track('orders', $wh_ref_order);
+    TAP_Payment::record_order($wh_ref_order, 'booking', $whr, 60, 'completed');
+    $ev_ref = (object) [
+        'event_type' => 'PAYMENT.CAPTURE.REFUNDED',
+        'resource'   => (object) ['id' => 'CAP-WH-REF', 'supplementary_data' => (object) ['related_ids' => (object) ['order_id' => $wh_ref_order]]],
+    ];
+    $wh_call('handle_capture_refunded', $ev_ref);
+    $wh_ref_row = TAP_Booking::get_booking($whr);
+    tap_t_assert($wh_ref_row && 'refunded' === $wh_ref_row->payment_status, 'webhook CAPTURE.REFUNDED marks the booking refunded');
+    tap_t_assert($wh_ref_row && 'void' === $wh_ref_row->commission_status, 'webhook CAPTURE.REFUNDED voids the earned commission');
+    tap_t_assert('CAP-WH-REF' === get_post_meta($whr, '_tap_paypal_refund_id', true), 'webhook CAPTURE.REFUNDED records the refund id');
+    $wh_call('handle_capture_refunded', $ev_ref);
+    $wh_ref_row2 = TAP_Booking::get_booking($whr);
+    tap_t_assert($wh_ref_row2 && 'refunded' === $wh_ref_row2->payment_status && 'void' === $wh_ref_row2->commission_status, 'webhook CAPTURE.REFUNDED replay is idempotent');
+
+    // CHECKOUT.ORDER.APPROVED -> fires tap_payment_approved for the booking
+    $wha = tap_t_seed_booking(['total_amount' => 20, 'payment_status' => 'pending', 'status' => 'pending', 'commission_status' => 'waiting']);
+    $pay_track('bookings', $wha);
+    $wh_app_order = 'ORD-WH-APP-' . wp_generate_password(6, false);
+    $pay_track('orders', $wh_app_order);
+    TAP_Payment::record_order($wh_app_order, 'booking', $wha, 20, 'created');
+    $approved_hits = [];
+    $appr_cb = function ($bid, $method, $oid) use (&$approved_hits) {
+        $approved_hits[] = [(int) $bid, (string) $method, (string) $oid];
+    };
+    add_action('tap_payment_approved', $appr_cb, 10, 3);
+    $wh_call('handle_order_approved', (object) ['event_type' => 'CHECKOUT.ORDER.APPROVED', 'resource' => (object) ['id' => $wh_app_order]]);
+    remove_action('tap_payment_approved', $appr_cb, 10);
+    tap_t_assert($approved_hits && $approved_hits[0][0] === $wha && $approved_hits[0][1] === 'paypal' && $approved_hits[0][2] === $wh_app_order, 'webhook CHECKOUT.ORDER.APPROVED fires tap_payment_approved for the booking');
 } catch (Throwable $e) {
     tap_t_fail('exception during suite: ' . $e->getMessage());
 } finally {
