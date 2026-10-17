@@ -277,6 +277,18 @@ class TAP_Installer {
         // out-of-band decision.
         $wpdb->query("UPDATE {$wpdb->prefix}tap_bookings SET commission_status = 'void' WHERE status IN ('cancelled', 'refunded') AND commission_status IN ('waiting', 'owed', 'disputed')");
 
+        // A 'paid' commission means the platform already transferred that money
+        // to the agency, and TAP_Payouts only ever settles bookings that are
+        // both 'owed' AND payment_status = 'paid'. A 'paid' commission on a
+        // booking whose payment is neither 'paid' nor 'refunded' is therefore
+        // impossible (legacy / seed data): no money was ever collected, so the
+        // commission was never earned. Return it to 'waiting' — the state an
+        // unpaid booking's commission belongs in. Refunded payments are left
+        // untouched: that money was collected and given back, and a settled
+        // commission there is a deliberate no-clawback decision (see
+        // TAP_Booking::void_commission).
+        $wpdb->query("UPDATE {$wpdb->prefix}tap_bookings SET commission_status = 'waiting' WHERE commission_status = 'paid' AND payment_status NOT IN ('paid', 'refunded')");
+
         if ($wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}tap_commission_payments'") !== "{$wpdb->prefix}tap_commission_payments") {
             $wpdb->query("CREATE TABLE {$wpdb->prefix}tap_commission_payments (
                 id bigint(20) NOT NULL AUTO_INCREMENT,

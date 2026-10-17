@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.24] — 2026-10-16
+
+Commission integrity reconciliation.
+
+### Fixed
+
+- **A `commission_status = 'paid'` row could survive on a booking that was never paid.** `TAP_Payouts` only settles bookings that are both `owed` and `payment_status = 'paid'`, so a `paid` commission on an unpaid (nor refunded) booking is impossible — it can only come from legacy/seed data. The existing migration normalized `owed`+unpaid and cancelled/refunded commissions but deliberately skipped `paid` rows, leaving them stuck in the settled totals. `TAP_Installer::migrate()` now returns such commissions to `waiting` (the state an unpaid booking belongs in). Refunded payments are left untouched (money collected and returned; no-clawback is deliberate).
+
+### Tooling
+
+- `suite_commissions` gained a reconciliation guard: an impossible `paid`+unpaid row is normalized to `waiting` by `migrate()`, while a legitimately settled `paid`+`paid` row is left untouched.
+
+---
+
 ## [1.5.23] — 2026-10-16
 
 Production-readiness pass: uninstaller now removes plugin user meta, and the plugin declares its WordPress/PHP baseline.

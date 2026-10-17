@@ -123,5 +123,17 @@ tap_t_assert('paid' === $wpdb->get_var($wpdb->prepare("SELECT commission_status 
 // crafted ledger rows for this section
 $wpdb->query($wpdb->prepare("DELETE FROM {$p} WHERE id IN (%d, %d, %d)", $pid_recon, $pid_done, $pid_b));
 
+// 8) reconciliation: a 'paid' commission on a never-paid booking is impossible
+//    and must be returned to 'waiting'; a legitimately settled ('paid' + paid
+//    payment) row must be left untouched.
+$bad = tap_t_seed_booking(['booking_code' => 'E2E-RECON-BAD', 'commission_status' => 'paid', 'payment_status' => 'pending', 'status' => 'completed']);
+$good = tap_t_seed_booking(['booking_code' => 'E2E-RECON-GOOD', 'commission_status' => 'paid', 'payment_status' => 'paid', 'status' => 'completed']);
+$ids[] = $bad; $ids[] = $good;
+TAP_Installer::migrate();
+$bad_after  = $wpdb->get_var($wpdb->prepare("SELECT commission_status FROM {$b} WHERE id = %d", $bad));
+$good_after = $wpdb->get_var($wpdb->prepare("SELECT commission_status FROM {$b} WHERE id = %d", $good));
+tap_t_assert('waiting' === $bad_after, 'migrate() returns an impossible paid commission (unpaid booking) to waiting');
+tap_t_assert('paid' === $good_after, 'migrate() leaves a legitimately settled commission untouched');
+
 tap_t_cleanup_bookings($ids);
 tap_t_finish();
