@@ -6,6 +6,8 @@ class TAP_Dashboard {
         add_action('admin_menu', [__CLASS__, 'add_admin_menu'], 30);
         add_action('admin_init', [TAP_Dashboard_Settings::class, 'register_settings']);
         add_action('admin_init', [TAP_Dashboard_Bookings::class, 'maybe_export_bookings'], 5);
+        add_action('admin_post_tap_destinations_save', [TAP_Dashboard_Destinations::class, 'handle_save']);
+        add_action('admin_post_tap_destinations_add', [TAP_Dashboard_Destinations::class, 'handle_add']);
         add_filter('manage_tap_accommodation_posts_columns', [TAP_Dashboard_Content::class, 'add_agency_column']);
         add_action('manage_tap_accommodation_posts_custom_column', [TAP_Dashboard_Content::class, 'render_agency_column'], 10, 2);
         add_filter('manage_tap_tour_posts_columns', [TAP_Dashboard_Content::class, 'add_agency_column']);
@@ -139,6 +141,15 @@ class TAP_Dashboard {
             'tap_manage_settings',
             'tap-settings',
             [TAP_Dashboard_Settings::class, 'settings_page']
+        );
+
+        add_submenu_page(
+            'travel-platform',
+            __('Destinations', 'travel-agency-platform'),
+            __('Destinations', 'travel-agency-platform'),
+            TAP_Dashboard_Destinations::CAP,
+            'tap-destinations',
+            [TAP_Dashboard_Destinations::class, 'render_page']
         );
     }
 

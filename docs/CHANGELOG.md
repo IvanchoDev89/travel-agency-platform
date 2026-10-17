@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.27] — 2026-10-17
+
+Admin screen to manage the destination hierarchy.
+
+### Added
+
+- **Destinations management page** (Travel Platform → Destinations, `manage_options`): shows the full país → provincia → cantón → distrito → lugar tree in one place, with a parent select and an order field per term, plus an "add destination" form. Replaces hunting through each post type's separate term UI to correct the hierarchy. Saving re-derives `tap_dest_level` from the term's new depth so the tree stays coherent with the picker, and blocks a term from becoming its own ancestor (cycle). Both actions are protected by a nonce and a capability check (`admin-post.php`).
+
+---
+
 ## [1.5.26] — 2026-10-17
 
 The destination cascading picker actually cascades now.

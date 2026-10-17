@@ -118,4 +118,25 @@ TAP_Destinations::seed_cr();
 $after = wp_count_terms('tap_location');
 tap_t_assert($before === $after, 'seed_cr does not duplicate when re-run');
 
+// ---- admin management screen ----
+tap_t_assert(class_exists('TAP_Dashboard_Destinations'), 'TAP_Dashboard_Destinations loaded');
+$admin_login = 'tap_dest_admin_' . wp_generate_password(6, false);
+$admin_id    = wp_create_user($admin_login, wp_generate_password(20), 'tap-dest-admin-' . wp_generate_password(6, false) . '@example.test');
+if (is_wp_error($admin_id)) {
+    tap_t_fail('admin fixture: ' . $admin_id->get_error_message());
+} else {
+    (new WP_User($admin_id))->set_role('administrator');
+    wp_set_current_user($admin_id);
+    ob_start();
+    TAP_Dashboard_Destinations::render_page();
+    $screen = ob_get_clean();
+    tap_t_assert(strpos($screen, 'tap_destinations_save') !== false, 'admin screen renders the save form');
+    tap_t_assert(strpos($screen, 'tap_destinations_add') !== false, 'admin screen renders the add form');
+    tap_t_assert(strpos($screen, 'Costa Rica') !== false, 'admin screen lists the country root');
+    tap_t_assert(strpos($screen, 'name="parent[') !== false, 'admin screen exposes a parent select per term');
+    wp_set_current_user(0);
+    require_once ABSPATH . 'wp-admin/includes/user.php';
+    wp_delete_user($admin_id);
+}
+
 tap_t_finish();
