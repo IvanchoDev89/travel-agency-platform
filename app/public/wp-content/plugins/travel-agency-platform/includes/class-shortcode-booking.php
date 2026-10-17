@@ -612,7 +612,7 @@ class TAP_Shortcode_Booking {
             <div class="tap-voucher-tools">
                 <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(home_url('/my-bookings/')); ?>">&larr; <?php esc_html_e('Mis reservas', 'travel-agency-platform'); ?></a>
                 <button type="button" class="tap-btn tap-btn-sm" onclick="window.print()">🖨 <?php esc_html_e('Imprimir voucher', 'travel-agency-platform'); ?></button>
-                <?php if ((int) $booking->client_id === $uid && in_array($booking->status, ['pending', 'confirmed', 'request'], true) && (!$booking->check_in || $booking->check_in >= gmdate('Y-m-d'))): ?>
+                <?php if ((int) $booking->client_id === $uid && in_array($booking->status, ['pending', 'confirmed', 'request'], true) && (!$booking->check_in || $booking->check_in >= current_time('Y-m-d'))): ?>
                     <button type="button" class="tap-btn tap-btn-sm tap-btn-danger tap-cancel-booking-btn" data-booking-id="<?php echo (int) $booking->id; ?>" data-confirm="<?php echo esc_attr($booking->booking_code); ?>" data-guest-email="<?php echo !$uid ? esc_attr($booking->guest_email) : ''; ?>"><?php esc_html_e('Cancelar reserva', 'travel-agency-platform'); ?></button>
                 <?php endif; ?>
                 <?php if ($uid && (int) $booking->client_id === $uid && TAP_Booking::is_payable($booking) && $booking->total_amount > 0): ?>

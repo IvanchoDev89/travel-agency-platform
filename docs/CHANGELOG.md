@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.22] — 2026-10-16
+
+Date boundary consistency. Every check that compares a stored business date (booking `check_in`/`check_out`) or "today" against the clock now uses the site's local date instead of UTC, so the day boundary is correct in any site timezone.
+
+### Fixed
+
+- **Business-date comparisons used `gmdate()` (UTC)** in the booking lifecycle, front panels and refund policy while the rest of the plugin runs on WordPress time; they now use `current_time()`. Affected: past-date rejection on create, client/agency cancellation, the auto-complete cron (`class-booking.php`), `can_cancel_booking()`, the agency/client dashboards (`class-front-dash.php`, `class-shortcode-booking.php`), the room-delete future-bookings guard (`class-ajax-listing.php`) and the refund `days_before` policy calculation (`class-refunds.php`). The automations sent-log prune cutoff (`class-automations.php`) now matches the `current_time()` stamps it compares against.
+
+---
+
 ## [1.5.21] — 2026-10-16
 
 Reporting single-source and booking-clock consistency. The commission definition now lives in exactly one place, and booking timestamps no longer depend on the database server's timezone.

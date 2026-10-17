@@ -660,7 +660,7 @@ class TAP_Ajax_Listing {
         $future = $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->prefix}tap_bookings WHERE room_id = %d AND check_out > %s AND status NOT IN ('cancelled','refunded')",
             $room_id,
-            gmdate( 'Y-m-d' )
+            current_time( 'Y-m-d' )
         ) );
         if ( $future > 0 ) {
             wp_send_json_error( [ 'message' => __( 'This room has future bookings and cannot be deleted.', 'travel-agency-platform' ) ] );

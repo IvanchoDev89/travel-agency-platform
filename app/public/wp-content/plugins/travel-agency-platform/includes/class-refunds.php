@@ -75,7 +75,7 @@ class TAP_Refunds {
         $days_before = PHP_INT_MAX;
         if (!empty($booking->check_in)) {
             $check_in = strtotime((string) $booking->check_in);
-            $days_before = $check_in ? (int) floor(($check_in - strtotime(gmdate('Y-m-d'))) / DAY_IN_SECONDS) : PHP_INT_MAX;
+            $days_before = $check_in ? (int) floor(($check_in - strtotime(current_time('Y-m-d'))) / DAY_IN_SECONDS) : PHP_INT_MAX;
             $days_before = max(0, $days_before);
         }
 

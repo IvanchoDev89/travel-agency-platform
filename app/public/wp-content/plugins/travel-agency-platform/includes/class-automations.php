@@ -281,7 +281,7 @@ class TAP_Automations {
     }
 
     private static function mark($task, $id) {
-        $cutoff = gmdate('Y-m-d H:i:s', time() - self::LOG_DAYS * DAY_IN_SECONDS);
+        $cutoff = date('Y-m-d H:i:s', current_time('timestamp') - self::LOG_DAYS * DAY_IN_SECONDS);
         $log = (array) get_option(self::log_key($task), []);
         $log[(string) $id] = current_time('Y-m-d H:i:s');
         foreach ($log as $key => $when) {

@@ -299,7 +299,7 @@ class TAP_Front_Dash {
         }
         $unread_by_booking = TAP_Chat::unread_counts_for_bookings(array_map(static fn($b) => (int) $b->id, $bookings), 'agency');
 
-        $today = gmdate('Y-m-d');
+        $today = current_time('Y-m-d');
         $base  = home_url('/mi-cuenta/');
         ob_start();
         ?>

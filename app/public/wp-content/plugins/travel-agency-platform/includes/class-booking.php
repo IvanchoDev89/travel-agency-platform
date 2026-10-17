@@ -157,7 +157,7 @@ class TAP_Booking {
         $room_check_in = !empty($data['check_in']) ? sanitize_text_field($data['check_in']) : '';
         $room_check_out = !empty($data['check_out']) ? sanitize_text_field($data['check_out']) : '';
 
-        $today = gmdate('Y-m-d');
+        $today = current_time('Y-m-d');
         if ($room_check_in && $room_check_in < $today) {
             return new WP_Error('past_date', __('No puedes reservar para una fecha pasada. Revisa la fecha de inicio.', 'travel-agency-platform'));
         }
@@ -393,7 +393,7 @@ class TAP_Booking {
         if (!in_array($booking->status, ['pending', 'confirmed', 'request'], true)) {
             return new WP_Error('bad_status', __('Esta reserva ya no puede cancelarse.', 'travel-agency-platform'));
         }
-        if ($booking->check_in && $booking->check_in < gmdate('Y-m-d')) {
+        if ($booking->check_in && $booking->check_in < current_time('Y-m-d')) {
             return new WP_Error('started', __('La reserva ya comenzó.', 'travel-agency-platform'));
         }
 
@@ -552,7 +552,7 @@ class TAP_Booking {
                 if (!in_array($booking->status, ['pending', 'confirmed', 'request'], true)) {
                     return new WP_Error('bad_status', __('Esta reserva ya no puede cancelarse.', 'travel-agency-platform'));
                 }
-                if ($booking->check_in && $booking->check_in < gmdate('Y-m-d')) {
+                if ($booking->check_in && $booking->check_in < current_time('Y-m-d')) {
                     return new WP_Error('started', __('La reserva ya comenzó.', 'travel-agency-platform'));
                 }
                 return self::apply_cancellation($booking->id, $booking, 'agency', 'cancelled', $reason);
@@ -753,7 +753,7 @@ class TAP_Booking {
             "SELECT id FROM {$wpdb->prefix}tap_bookings
              WHERE status = 'confirmed' AND payment_status = 'paid'
                AND check_out IS NOT NULL AND check_out < %s",
-            gmdate('Y-m-d')
+            current_time('Y-m-d')
         ));
 
         foreach ($ids as $id) {
@@ -1035,7 +1035,7 @@ class TAP_Booking {
     /** True when the client is allowed to cancel this booking. */
     public static function can_cancel_booking($booking) {
         return in_array($booking->status, ['pending', 'confirmed', 'request'], true)
-            && (!$booking->check_in || $booking->check_in >= gmdate('Y-m-d'));
+            && (!$booking->check_in || $booking->check_in >= current_time('Y-m-d'));
     }
 
     /** True when the given user owns or manages the booking (client, admin or its agency). */
