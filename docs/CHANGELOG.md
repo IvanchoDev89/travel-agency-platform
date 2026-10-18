@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.35] — 2026-10-17
+
+Subscription plan fallback and renewal time accounting.
+
+### Fixed
+
+- **`default_plan()` never returns a paid plan.** When no free plan existed, it fell back to the cheapest plan in the table — so an agency without an active subscription inherited a paid plan's `commission_rate` and `listing_limit` for free. It now returns the built-in free tier instead.
+- **Renewals keep the remaining paid days.** A renewal is a fresh `pending` subscription row (see `subscribe()`), so its own `paid_until` is null. `mark_paid()` started the new period from today, discarding whatever remained on the agency's still-active subscription. It now extends from the latest remaining `paid_until` (this row or another active one).
+
+---
+
 ## [1.5.34] — 2026-10-17
 
 Promotion capture ownership.

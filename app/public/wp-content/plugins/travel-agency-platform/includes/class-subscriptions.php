@@ -49,8 +49,10 @@ class TAP_Subscriptions {
                 return $plan;
             }
         }
-        $plans = self::get_plans();
-        return $plans ? $plans[0] : (object) [
+        // No free plan is configured: fall back to the built-in free tier. Never
+        // return the cheapest paid plan here — an agency with no active plan
+        // would silently inherit its commission rate and listing limit for free.
+        return (object) [
             'id' => 0, 'name' => __('Gratis', 'travel-agency-platform'), 'slug' => 'free',
             'price_monthly' => 0, 'commission_rate' => null, 'listing_limit' => 3,
             'featured_slots' => 0, 'features' => '',
@@ -186,8 +188,25 @@ class TAP_Subscriptions {
 
         $months = max(1, (int) $months);
         $base = new DateTime('today');
-        if ('active' === $sub->status && $sub->paid_until) {
-            $existing = DateTime::createFromFormat('Y-m-d', $sub->paid_until);
+        // A renewal arrives as a fresh pending row (see subscribe()), so this
+        // row's own paid_until is null even though the agency still has an
+        // active subscription with days left. Start from the latest remaining
+        // paid_until — this row's own (re-confirmation) or another active one —
+        // so a renewal never discards already-paid days.
+        $candidates = [$sub->paid_until];
+        $other_until = $wpdb->get_col($wpdb->prepare(
+            'SELECT paid_until FROM ' . self::subs_table() . " WHERE agency_id = %d AND id != %d AND status = 'active' AND paid_until IS NOT NULL",
+            (int) $sub->agency_id,
+            (int) $sub_id
+        ));
+        foreach ($other_until as $cand) {
+            $candidates[] = $cand;
+        }
+        foreach ($candidates as $cand) {
+            if (!$cand) {
+                continue;
+            }
+            $existing = DateTime::createFromFormat('Y-m-d', (string) $cand);
             if ($existing && $existing >= $base) {
                 $base = $existing;
             }

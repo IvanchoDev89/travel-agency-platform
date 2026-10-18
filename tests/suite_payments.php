@@ -130,6 +130,31 @@ try {
         }
     }
 
+    // ── renewal keeps the remaining paid days (a fresh pending row extends) ──
+    if ($plan && isset($sub) && !is_wp_error($sub)) {
+        $sub_renew = TAP_Subscriptions::subscribe($agency, $plan_id);
+        if (is_wp_error($sub_renew)) {
+            tap_t_fail('renewal subscribe created pending sub: ' . $sub_renew->get_error_message());
+        } else {
+            $pay_track('subs', (int) $sub_renew);
+            $until_renew = TAP_Payment::confirm_subscription_payment((int) $sub_renew, 'paypal', 'CAP-RENEW');
+            tap_t_assert(
+                $until_renew && strtotime((string) $until_renew) > strtotime((string) $until),
+                'renewal extends the existing paid_until instead of restarting from today'
+            );
+        }
+    }
+
+    // ── default_plan() never falls back to a paid plan ───────────────────────
+    $plans_table = TAP_Subscriptions::plans_table();
+    $plan_active_backup = $wpdb->get_results("SELECT id, is_active FROM {$plans_table}");
+    $wpdb->query("UPDATE {$plans_table} SET is_active = 0 WHERE price_monthly <= 0");
+    $def_plan = TAP_Subscriptions::default_plan();
+    foreach ($plan_active_backup as $pb) {
+        $wpdb->update($plans_table, ['is_active' => (int) $pb->is_active], ['id' => (int) $pb->id]);
+    }
+    tap_t_assert((float) $def_plan->price_monthly <= 0, 'default_plan stays free when no free plan is active');
+
     if (class_exists('TAP_Promotions') && $tour && $agency) {
         $preq = TAP_Promotions::request($agency, $tour, 1);
         if (is_wp_error($preq) && $preq->get_error_code() === 'no_slots') {
