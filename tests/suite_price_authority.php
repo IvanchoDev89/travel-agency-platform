@@ -118,6 +118,31 @@ $noconsent = tap_t_rest('POST', '/tap/v1/booking', [
 wp_set_current_user(0);
 tap_t_assert(tap_t_rest_error_code($noconsent) === 'consent_required', 'REST booking without consent rejected');
 
+// ---- 6) guest counts are validated (no zero/negative party → no negative total)
+$bad_adults = TAP_Booking::create([
+    'service_type' => $ftype, 'service_id' => $fid,
+    'check_in' => $in, 'check_out' => $out,
+    'adults' => -2, 'children' => 0,
+    'guest_name' => 'Neg', 'guest_email' => 't8_neg_' . wp_generate_password(6, false) . '@example.test',
+]);
+tap_t_assert(is_wp_error($bad_adults) && 'invalid_guests' === $bad_adults->get_error_code(), 'negative adult count is rejected');
+
+$bad_children = TAP_Booking::create([
+    'service_type' => $ftype, 'service_id' => $fid,
+    'check_in' => $in, 'check_out' => $out,
+    'adults' => 1, 'children' => -1,
+    'guest_name' => 'NegC', 'guest_email' => 't8_negc_' . wp_generate_password(6, false) . '@example.test',
+]);
+tap_t_assert(is_wp_error($bad_children) && 'invalid_guests' === $bad_children->get_error_code(), 'negative child count is rejected');
+
+$zero_adults = TAP_Booking::create([
+    'service_type' => $ftype, 'service_id' => $fid,
+    'check_in' => $in, 'check_out' => $out,
+    'adults' => 0, 'children' => 0,
+    'guest_name' => 'Zero', 'guest_email' => 't8_zero_' . wp_generate_password(6, false) . '@example.test',
+]);
+tap_t_assert(is_wp_error($zero_adults) && 'invalid_guests' === $zero_adults->get_error_code(), 'zero-adult booking is rejected');
+
 // cleanup --------------------------------------------------------------------
 tap_t_cleanup_bookings($created);
 tap_t_cleanup_test_consents();

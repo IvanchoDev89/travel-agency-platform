@@ -130,14 +130,25 @@ class TAP_Booking {
             return new WP_Error('agency_pending', __('La agencia que ofrece este servicio aún está en revisión y no puede recibir reservas.', 'travel-agency-platform'));
         }
 
+        // Guest counts are client-supplied: a negative or zero party size would
+        // yield a negative price/commission and, for tours, offset the booked
+        // SUM to oversell. Require at least one adult and a non-negative child
+        // count; the per-service limits (room occupancy, tour capacity) are
+        // enforced further down.
+        $adults   = intval($data['adults'] ?? 1);
+        $children = intval($data['children'] ?? 0);
+        if ($adults < 1 || $children < 0) {
+            return new WP_Error('invalid_guests', __('El número de huéspedes no es válido.', 'travel-agency-platform'));
+        }
+
         $commission_percent = self::get_agency_commission($agency_id);
         $total = TAP_Booking_Pricing::calculate_price(
             sanitize_text_field($data['service_type']),
             intval($data['service_id']),
             $data['check_in'] ?? '',
             $data['check_out'] ?? '',
-            intval($data['adults'] ?? 1),
-            intval($data['children'] ?? 0),
+            $adults,
+            $children,
             !empty($data['room_id']) ? intval($data['room_id']) : 0
         );
 
@@ -245,8 +256,8 @@ class TAP_Booking {
                     'package_id'        => !empty($data['package_id']) ? intval($data['package_id']) : null,
                     'check_in'          => !empty($data['check_in']) ? sanitize_text_field($data['check_in']) : null,
                     'check_out'         => !empty($data['check_out']) ? sanitize_text_field($data['check_out']) : null,
-                    'adults'            => intval($data['adults'] ?? 1),
-                    'children'          => intval($data['children'] ?? 0),
+                    'adults'            => $adults,
+                    'children'          => $children,
                     'nights'            => $nights,
                     'total_amount'      => $total,
                     'booking_fee'       => $booking_fee,

@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.30] — 2026-10-17
+
+Booking input validation (reservation integrity).
+
+### Fixed
+
+- **Guest counts are validated in `TAP_Booking::create()`.** `adults` and `children` are client-supplied; a zero/negative party size produced a negative price and commission (a package tour with `adults=-2` earned negative money) and, for tours, offset the booked `SUM(adults + children)` to oversell. `create()` now rejects any booking with fewer than one adult or a negative child count (`invalid_guests`) before pricing. This is the single authoritative path for both the AJAX and REST booking endpoints.
+
+---
+
 ## [1.5.29] — 2026-10-17
 
 Money integrity fixes in the payouts / refunds flow (all three were confirmed by tests).
