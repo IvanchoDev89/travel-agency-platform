@@ -271,6 +271,94 @@ body.login.tap-login-branded .privacy-policy-page-link {
   font-size: 12px;
 }
 
+/* Language switcher (sits just outside #login in the core markup) */
+body.login.tap-login-branded .language-switcher {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: start;
+  justify-self: center;
+  width: 100%;
+  max-width: 420px;
+  padding: 0 clamp(24px, 4vw, 56px) 32px;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+body.login.tap-login-branded .language-switcher #language-switcher {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 10px 14px;
+  background: var(--tap-surface-muted, #f8fafc);
+  border: 1px solid var(--tap-border, #e2e8f0);
+  border-radius: 12px;
+}
+
+body.login.tap-login-branded .language-switcher #language-switcher label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tap-neutral-600, #475569);
+  white-space: nowrap;
+}
+
+body.login.tap-login-branded .language-switcher #language-switcher .dashicons {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--tap-primary, #0d9488);
+}
+
+body.login.tap-login-branded .language-switcher #language-switcher select {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 7px 30px 7px 10px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--tap-neutral-800, #1e293b);
+  background: #fff;
+  border: 1px solid var(--tap-border-strong, #cbd5e1);
+  border-radius: 8px;
+  box-shadow: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+body.login.tap-login-branded .language-switcher #language-switcher select:focus {
+  border-color: var(--tap-primary, #0d9488);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.16);
+  outline: none;
+}
+
+body.login.tap-login-branded .language-switcher #language-switcher .button,
+body.login.tap-login-branded .language-switcher #language-switcher input[type="submit"] {
+  width: auto;
+  margin: 0;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #fff;
+  background: var(--tap-primary, #0d9488);
+  border: 0;
+  border-radius: 8px;
+  box-shadow: none;
+  text-shadow: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+body.login.tap-login-branded .language-switcher #language-switcher .button:hover,
+body.login.tap-login-branded .language-switcher #language-switcher input[type="submit"]:hover {
+  background: var(--tap-primary-dark, #0f766e);
+}
+
 /* Notices */
 body.login.tap-login-branded #login_error,
 body.login.tap-login-branded .message,
