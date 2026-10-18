@@ -315,6 +315,24 @@ try {
     $wh_ref_row2 = TAP_Booking::get_booking($whr);
     tap_t_assert($wh_ref_row2 && 'refunded' === $wh_ref_row2->payment_status && 'void' === $wh_ref_row2->commission_status, 'webhook CAPTURE.REFUNDED replay is idempotent');
 
+    // PAYMENT.CAPTURE.REFUNDED (partial) -> money partly back, booking NOT fully
+    // refunded and the earned commission is NOT voided.
+    $whp = tap_t_seed_booking(['total_amount' => 100, 'amount_paid' => 100, 'commission_amount' => 10, 'payment_status' => 'paid', 'status' => 'confirmed', 'commission_status' => 'owed']);
+    $pay_track('bookings', $whp);
+    $pay_track('meta', ['post_id' => $whp, 'key' => '_tap_paypal_refund_id']);
+    $wh_part_order = 'ORD-WH-PART-' . wp_generate_password(6, false);
+    $pay_track('orders', $wh_part_order);
+    TAP_Payment::record_order($wh_part_order, 'booking', $whp, 100, 'completed');
+    $ev_part = (object) [
+        'event_type' => 'PAYMENT.CAPTURE.REFUNDED',
+        'resource'   => (object) ['id' => 'CAP-WH-PART', 'amount' => (object) ['value' => '30.00', 'currency_code' => TAP_Currency::code()], 'supplementary_data' => (object) ['related_ids' => (object) ['order_id' => $wh_part_order]]],
+    ];
+    $wh_call('handle_capture_refunded', $ev_part);
+    $wh_part_row = TAP_Booking::get_booking($whp);
+    tap_t_assert($wh_part_row && 'paid' === $wh_part_row->payment_status, 'partial webhook refund keeps the booking paid');
+    tap_t_assert($wh_part_row && 'owed' === $wh_part_row->commission_status, 'partial webhook refund does NOT void the commission');
+    tap_t_assert('CAP-WH-PART' === get_post_meta($whp, '_tap_paypal_refund_id', true), 'partial webhook refund records the refund id');
+
     // CHECKOUT.ORDER.APPROVED -> fires tap_payment_approved for the booking
     $wha = tap_t_seed_booking(['total_amount' => 20, 'payment_status' => 'pending', 'status' => 'pending', 'commission_status' => 'waiting']);
     $pay_track('bookings', $wha);

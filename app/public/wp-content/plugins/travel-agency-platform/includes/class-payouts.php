@@ -112,10 +112,14 @@ class TAP_Payouts {
             return false;
         }
         $row = $wpdb->get_row($wpdb->prepare(
-            "SELECT booking_ids FROM {$wpdb->prefix}tap_commission_payments WHERE id = %d",
+            "SELECT booking_ids, source FROM {$wpdb->prefix}tap_commission_payments WHERE id = %d",
             $payment_id
         ));
-        if ($row && $row->booking_ids) {
+        // Only agency-source requests keep their bookings 'owed' until the
+        // transfer happens, so only they need reconciliation. Admin-source
+        // payouts already flipped their bookings to 'paid' at creation: their
+        // amount and booking set are authoritative and must be left untouched.
+        if ($row && $row->booking_ids && 'agency' === $row->source) {
             $ids = array_filter(array_map('intval', explode(',', $row->booking_ids)));
             if ($ids) {
                 $in = implode(',', array_map('intval', $ids));

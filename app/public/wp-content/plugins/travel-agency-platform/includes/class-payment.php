@@ -258,12 +258,33 @@ class TAP_Payment {
         $booking_id = self::find_booking_by_order($paypal_order_id);
 
         if ($booking_id) {
-            // Idempotent: never double-fire when cancellation already refunded.
-            $current = $wpdb->get_var($wpdb->prepare(
-                "SELECT payment_status FROM {$wpdb->prefix}tap_bookings WHERE id = %d",
+            $row = $wpdb->get_row($wpdb->prepare(
+                "SELECT status, payment_status, amount_paid, total_amount, refunded_at
+                   FROM {$wpdb->prefix}tap_bookings WHERE id = %d",
                 $booking_id
             ));
-            if ('refunded' !== $current) {
+            if (!$row) {
+                return;
+            }
+
+            // A refund for less than the booking total is a PARTIAL refund:
+            // money only partly came back, so the booking is not fully refunded
+            // and the earned commission must not be voided.
+            $refund_value = isset($capture->amount->value) ? (float) $capture->amount->value : null;
+            $paid = (float) $row->amount_paid;
+            if ($paid <= 0) {
+                $paid = (float) $row->total_amount;
+            }
+            $partial = null !== $refund_value && $paid > 0 && $refund_value + 0.005 < $paid;
+            if ($partial) {
+                update_post_meta($booking_id, '_tap_paypal_refund_id', $capture->id ?? '');
+                update_post_meta($booking_id, '_tap_refund_amount', $refund_value);
+                do_action('tap_payment_partially_refunded', $booking_id, 'paypal', $capture->id ?? '');
+                return;
+            }
+
+            // Idempotent: never double-fire when cancellation already refunded.
+            if ('refunded' !== $row->payment_status) {
                 TAP_Booking::update_payment_status($booking_id, 'refunded');
                 update_post_meta($booking_id, '_tap_paypal_refund_id', $capture->id ?? '');
                 do_action('tap_payment_refunded', $booking_id, 'paypal', $capture->id ?? '');
@@ -272,11 +293,7 @@ class TAP_Payment {
             // Money is back with the client: keep the ledger consistent by
             // stamping refunded_at (for an already-cancelled row) and voiding
             // any commission this capture had earned.
-            $row = $wpdb->get_row($wpdb->prepare(
-                "SELECT status, refunded_at FROM {$wpdb->prefix}tap_bookings WHERE id = %d",
-                $booking_id
-            ));
-            if ($row && empty($row->refunded_at) && ('cancelled' === $row->status || 'refunded' === $row->status)) {
+            if (empty($row->refunded_at) && ('cancelled' === $row->status || 'refunded' === $row->status)) {
                 $wpdb->update($wpdb->prefix . 'tap_bookings', ['refunded_at' => current_time('mysql')], ['id' => $booking_id]);
             }
             TAP_Booking::void_commission($booking_id, true);

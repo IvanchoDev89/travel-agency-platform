@@ -971,7 +971,11 @@ class TAP_Booking {
             return;
         }
         update_post_meta((int) $booking_id, '_tap_paypal_refund_id', $result['refund_id']);
-        update_post_meta((int) $booking_id, '_tap_refund_error', $reason);
+        // Success must mirror TAP_Refunds::execute_refund(): clear the error so
+        // the nightly retry cron (retry_pending_refunds) never refunds this
+        // capture a second time.
+        delete_post_meta((int) $booking_id, '_tap_refund_pending');
+        update_post_meta((int) $booking_id, '_tap_refund_error', '');
     }
 
     public static function get_booking($booking_id) {

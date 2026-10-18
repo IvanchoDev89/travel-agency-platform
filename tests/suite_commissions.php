@@ -94,6 +94,27 @@ tap_t_assert($prow_recon && abs((float) $prow_recon->amount - 5) < 0.001, 'payou
 tap_t_assert('void' === $wpdb->get_var($wpdb->prepare("SELECT commission_status FROM {$b} WHERE id = %d", $x)), 'voided booking is not settled on completion');
 tap_t_assert('paid' === $wpdb->get_var($wpdb->prepare("SELECT commission_status FROM {$b} WHERE id = %d", $y)), 'eligible booking becomes paid on completion');
 
+// 6b) admin-source payout completion keeps the authoritative amount.
+//     The admin handler already flips its bookings to 'paid' at creation, so
+//    complete() must NOT re-derive the amount from the 'owed' set (would zero it).
+$ad = tap_t_seed_booking(['booking_code' => 'E2E-ADMIN-PAY', 'commission_amount' => 25, 'commission_status' => 'paid']);
+$ids[] = $ad;
+$wpdb->insert($p, [
+    'agency_id'   => tap_t_test_agency(),
+    'amount'      => 25,
+    'booking_ids' => (string) $ad,
+    'method'      => 'cash',
+    'note'        => 'suite admin payout',
+    'status'      => 'pending',
+    'source'      => 'admin',
+]);
+$pid_admin = (int) $wpdb->insert_id;
+tap_t_assert(true === TAP_Payouts::complete($pid_admin), 'admin-source payout completes');
+$prow_admin = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$p} WHERE id = %d", $pid_admin));
+tap_t_assert($prow_admin && abs((float) $prow_admin->amount - 25) < 0.001, 'admin-source payout keeps its amount on completion (not zeroed)');
+tap_t_assert('paid' === $wpdb->get_var($wpdb->prepare("SELECT commission_status FROM {$b} WHERE id = %d", $ad)), 'admin-source booking stays paid after completion');
+$wpdb->query($wpdb->prepare("DELETE FROM {$p} WHERE id = %d", $pid_admin));
+
 // 7) release_commissions never un-pays a booking settled by another completed payout
 $z = tap_t_seed_booking(['booking_code' => 'E2E-GUARD', 'commission_amount' => 7, 'commission_status' => 'paid']);
 $ids[] = $z;

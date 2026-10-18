@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.29] — 2026-10-17
+
+Money integrity fixes in the payouts / refunds flow (all three were confirmed by tests).
+
+### Fixed
+
+- **Admin payouts no longer settle to $0.** `TAP_Payouts::complete()` re-derived the amount from the `owed` bookings, but admin-source payouts already flip their bookings to `paid` at creation, so the eligible set was empty and the amount was overwritten to `0.00`. `complete()` now branches on `source`: only agency-source requests (bookings kept `owed` until transfer) reconcile their amount; admin-source payouts keep their authoritative amount and booking set.
+- **Partial PayPal refunds no longer void the whole commission.** `TAP_Payment::handle_capture_refunded()` treated any refund as a full refund. It now compares the refunded amount against the booking's paid total: a shortfall records the refund id (`_tap_refund_amount`) and fires `tap_payment_partially_refunded`, leaving `payment_status` and the earned commission untouched; only a full refund flips the booking to `refunded` and voids the commission.
+- **Auto-refunds are no longer refunded twice.** `TAP_Booking::auto_refund_capture()` wrote a non-empty `_tap_refund_error` on success, so the nightly `retry_pending_refunds()` cron picked the row up again and reversed the same capture a second time. Success now mirrors `TAP_Refunds::execute_refund()`: it clears `_tap_refund_error` and drops `_tap_refund_pending`.
+
+---
+
 ## [1.5.28] — 2026-10-17
 
 Seed the service categories so the itinerary wizard's first step is not empty.

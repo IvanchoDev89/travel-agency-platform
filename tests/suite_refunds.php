@@ -116,6 +116,27 @@ tap_t_assert('' === get_post_meta($b1, '_tap_refund_error', true), 'no refund er
 tap_t_assert((int) $GLOBALS['rf_refund_calls'] === 1, 'paypal refund endpoint hit exactly once');
 rf_remove_mock();
 
+// ── 1b) auto-refund on a cancelled booking must not be retried ────────
+// A capture arriving for an already-cancelled booking is refunded on the spot.
+// The success must NOT leave a refund-error flag, or the hourly retry cron
+// (retry_pending_refunds) would refund the same capture a second time.
+rf_install_mock(false);
+$b1b = tap_t_seed_booking([
+    'booking_code'      => 'REF-AUTO-' . wp_generate_password(6, false),
+    'check_in'          => gmdate('Y-m-d', strtotime('+15 days')),
+    'status'            => 'cancelled',
+    'payment_status'    => 'paid',
+    'commission_status' => 'void',
+]);
+$bookings[] = $b1b;
+$r = TAP_Booking::record_paid_capture($b1b, 'paypal', 'CAP-DUP-1', null);
+tap_t_assert(is_wp_error($r) && 'auto_refunded' === $r->get_error_code(), 'capture on a cancelled booking is auto-refunded');
+tap_t_assert((int) $GLOBALS['rf_refund_calls'] === 1, 'auto-refund hits the gateway exactly once');
+tap_t_assert('' === get_post_meta($b1b, '_tap_refund_error', true), 'auto-refund success leaves no refund error (retry would skip)');
+TAP_Booking::retry_pending_refunds();
+tap_t_assert((int) $GLOBALS['rf_refund_calls'] === 1, 'retry cron does not refund the auto-refunded capture again');
+rf_remove_mock();
+
 // ── 2) gateway failure → booking cancelled but NOT refunded ──────────
 rf_install_mock(true);
 $b2 = rf_seed_paid_booking($owner);
