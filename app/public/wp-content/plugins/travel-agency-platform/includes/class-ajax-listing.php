@@ -427,6 +427,18 @@ class TAP_Ajax_Listing {
             ];
         }
 
+        // The plan's listing limit is also enforced here, not only when the
+        // listing was created: an agency that downgraded (or parked drafts)
+        // must not be able to publish past its current plan's limit.
+        $already_active = '1' === (string) get_post_meta($listing_id, $active_meta, true);
+        $agency_id      = (int) get_post_meta($listing_id, TAP_Post_Types::agency_meta_key($type), true);
+        if ($agency_id > 0 && !$already_active && class_exists('TAP_Subscriptions')) {
+            $limit = TAP_Subscriptions::listing_limit($agency_id);
+            if ($limit >= 0 && TAP_Subscriptions::active_listing_count($agency_id) >= $limit) {
+                return new WP_Error('tap_listing_limit', __('Has alcanzado el límite de listados de tu plan. Mejora tu plan para publicar más.', 'travel-agency-platform'));
+            }
+        }
+
         update_post_meta($listing_id, $active_meta, '1');
 
         if ($can_publish) {

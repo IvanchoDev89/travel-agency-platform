@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-10-18T06:03:38+00:00\n"
+"POT-Creation-Date: 2026-10-18T17:08:41+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -1592,22 +1592,22 @@ msgid "El archivo no es una imagen válida."
 msgstr "The file is not a valid image."
 
 #: includes/class-ajax-commerce.php:11 includes/class-ajax-commerce.php:49
-#: includes/class-ajax-commerce.php:82 includes/class-ajax-commerce.php:130
-#: includes/class-ajax-commerce.php:169 includes/class-ajax-commerce.php:213
-#: includes/class-ajax-listing.php:20 includes/class-ajax-listing.php:484
+#: includes/class-ajax-commerce.php:88 includes/class-ajax-commerce.php:136
+#: includes/class-ajax-commerce.php:175 includes/class-ajax-commerce.php:219
+#: includes/class-ajax-listing.php:20 includes/class-ajax-listing.php:496
 msgid "Authentication required"
 msgstr "Authentication required"
 
-#: includes/class-ajax-commerce.php:16 includes/class-ajax-commerce.php:90
+#: includes/class-ajax-commerce.php:16 includes/class-ajax-commerce.php:96
 msgid "Only agencies can promote listings."
 msgstr "Only agencies can promote listings."
 
-#: includes/class-ajax-commerce.php:21 includes/class-ajax-commerce.php:95
+#: includes/class-ajax-commerce.php:21 includes/class-ajax-commerce.php:101
 msgid "Invalid listing."
 msgstr "Invalid listing."
 
-#: includes/class-ajax-commerce.php:24 includes/class-ajax-commerce.php:98
-#: includes/class-promotions.php:159
+#: includes/class-ajax-commerce.php:24 includes/class-ajax-commerce.php:104
+#: includes/class-promotions.php:168
 msgid "You can only promote your own listings."
 msgstr "You can only promote your own listings."
 
@@ -1619,60 +1619,60 @@ msgstr ""
 "Feature request submitted. An administrator will confirm the payment to "
 "activate it."
 
-#: includes/class-ajax-commerce.php:53 includes/class-ajax-commerce.php:134
+#: includes/class-ajax-commerce.php:53 includes/class-ajax-commerce.php:140
 msgid "Invalid order"
 msgstr "Invalid order"
 
-#: includes/class-ajax-commerce.php:58 includes/class-ajax-commerce.php:139
-#: includes/class-ajax-commerce.php:145
+#: includes/class-ajax-commerce.php:58 includes/class-ajax-commerce.php:64
+#: includes/class-ajax-commerce.php:145 includes/class-ajax-commerce.php:151
 msgid "Order not found"
 msgstr "Order not found"
 
-#: includes/class-ajax-commerce.php:70
+#: includes/class-ajax-commerce.php:76
 msgid "Pago recibido. Tu listing está destacado."
 msgstr "Payment received. Your listing is featured."
 
-#: includes/class-ajax-commerce.php:75 includes/class-ajax-commerce.php:162
+#: includes/class-ajax-commerce.php:81 includes/class-ajax-commerce.php:168
 msgid "The payment could not be completed."
 msgstr "The payment could not be completed."
 
-#: includes/class-ajax-commerce.php:85 includes/class-ajax-commerce.php:172
+#: includes/class-ajax-commerce.php:91 includes/class-ajax-commerce.php:178
 msgid "Online payment is not configured."
 msgstr "Online payment is not configured."
 
 #. translators: 1: número de meses de destacado, 2: ID del listado
-#: includes/class-ajax-commerce.php:110
+#: includes/class-ajax-commerce.php:116
 #, php-format
 msgid "Destacado %d mes(es) — listing #%d"
 msgstr "Featured %d month(s) — listing #%d"
 
-#: includes/class-ajax-commerce.php:122
+#: includes/class-ajax-commerce.php:128
 msgid "Completa el pago con PayPal para activar el destacado."
 msgstr "Complete the PayPal payment to activate the feature."
 
-#: includes/class-ajax-commerce.php:157
+#: includes/class-ajax-commerce.php:163
 msgid "Pago recibido. Tu plan está activo."
 msgstr "Payment received. Your plan is active."
 
-#: includes/class-ajax-commerce.php:177 includes/class-ajax-commerce.php:218
+#: includes/class-ajax-commerce.php:183 includes/class-ajax-commerce.php:224
 msgid "Only agencies can subscribe to a plan."
 msgstr "Only agencies can subscribe to a plan."
 
-#: includes/class-ajax-commerce.php:182 includes/class-ajax-commerce.php:222
+#: includes/class-ajax-commerce.php:188 includes/class-ajax-commerce.php:228
 msgid "Invalid plan."
 msgstr "Invalid plan."
 
 #. translators: %s: nombre del plan
-#: includes/class-ajax-commerce.php:193
+#: includes/class-ajax-commerce.php:199
 #, php-format
 msgid "%s — suscripción mensual (agencia)"
 msgstr "%s — monthly subscription (agency)"
 
-#: includes/class-ajax-commerce.php:205
+#: includes/class-ajax-commerce.php:211
 msgid "Completa el pago con PayPal para activar tu plan."
 msgstr "Complete the PayPal payment to activate your plan."
 
-#: includes/class-ajax-commerce.php:229
+#: includes/class-ajax-commerce.php:235
 msgid ""
 "Subscription requested. An administrator will confirm the payment to "
 "activate your plan."
@@ -1680,38 +1680,38 @@ msgstr ""
 "Subscription requested. An administrator will confirm the payment to "
 "activate your plan."
 
-#: includes/class-ajax-commerce.php:240
+#: includes/class-ajax-commerce.php:246
 msgid "Invalid PayPal order"
 msgstr "Invalid PayPal order"
 
-#: includes/class-ajax-commerce.php:254 includes/class-ajax-commerce.php:262
-#: includes/class-ajax-commerce.php:320 includes/class-ajax-commerce.php:327
+#: includes/class-ajax-commerce.php:260 includes/class-ajax-commerce.php:268
+#: includes/class-ajax-commerce.php:326 includes/class-ajax-commerce.php:333
 #: includes/class-api.php:346 includes/class-booking.php:656
 #: includes/class-payment.php:40 includes/class-paypal.php:66
 msgid "Booking not found"
 msgstr "Booking not found"
 
-#: includes/class-ajax-commerce.php:270
+#: includes/class-ajax-commerce.php:276
 msgid "La reserva ya no está vigente; el pago no será procesado."
 msgstr "The booking is no longer active; the payment will not be processed."
 
-#: includes/class-ajax-commerce.php:280 includes/class-ajax-commerce.php:305
+#: includes/class-ajax-commerce.php:286 includes/class-ajax-commerce.php:311
 msgid "Payment completed successfully!"
 msgstr "Payment completed successfully!"
 
-#: includes/class-ajax-commerce.php:286
+#: includes/class-ajax-commerce.php:292
 msgid "Payment status does not allow capture"
 msgstr "Payment status does not allow capture"
 
-#: includes/class-ajax-commerce.php:315
+#: includes/class-ajax-commerce.php:321
 msgid "Invalid booking"
 msgstr "Invalid booking"
 
-#: includes/class-ajax-commerce.php:331
+#: includes/class-ajax-commerce.php:337
 msgid "Booking already paid"
 msgstr "Booking already paid"
 
-#: includes/class-ajax-commerce.php:335
+#: includes/class-ajax-commerce.php:341
 msgid ""
 "Esta solicitud aún no ha sido aceptada por la agencia. Cuando sea confirmada "
 "podrás pagar."
@@ -1840,7 +1840,7 @@ msgid "Listing created"
 msgstr "Listing created"
 
 #: includes/class-ajax-listing.php:90 includes/class-ajax-listing.php:93
-#: includes/class-ajax-listing.php:489 includes/class-ajax-listing.php:656
+#: includes/class-ajax-listing.php:501 includes/class-ajax-listing.php:668
 #: includes/class-listing-editor.php:41
 msgid "You can only manage your own listings."
 msgstr "You can only manage your own listings."
@@ -1867,7 +1867,7 @@ msgstr "The price %s must be greater than 0."
 msgid "Could not save the listing"
 msgstr "Could not save the listing"
 
-#: includes/class-ajax-listing.php:412 includes/class-ajax-listing.php:465
+#: includes/class-ajax-listing.php:412 includes/class-ajax-listing.php:477
 msgid "Alojamiento no encontrado."
 msgstr "Accommodation not found."
 
@@ -1875,54 +1875,62 @@ msgstr "Accommodation not found."
 msgid "Alojamiento despublicado. Ya no aparece en el buscador."
 msgstr "Accommodation unpublished. It no longer appears in search."
 
-#: includes/class-ajax-listing.php:437
+#: includes/class-ajax-listing.php:438
+msgid ""
+"Has alcanzado el límite de listados de tu plan. Mejora tu plan para publicar "
+"más."
+msgstr ""
+"You have reached your plan's listing limit. Upgrade your plan to publish "
+"more."
+
+#: includes/class-ajax-listing.php:449
 msgid "¡Alojamiento publicado! Ya está visible para los viajeros."
 msgstr "Accommodation published! It is now visible to travelers."
 
-#: includes/class-ajax-listing.php:445
+#: includes/class-ajax-listing.php:457
 msgid "Enviado a revisión. Un administrador lo aprobará y quedará visible."
 msgstr ""
 "Submitted for review. An administrator will approve it and it will become "
 "visible."
 
-#: includes/class-ajax-listing.php:459 includes/class-booking.php:467
+#: includes/class-ajax-listing.php:471 includes/class-booking.php:467
 #: includes/class-booking.php:583
 msgid "Debes iniciar sesión."
 msgstr "You must log in."
 
-#: includes/class-ajax-listing.php:468
+#: includes/class-ajax-listing.php:480
 msgid "Solo puedes gestionar tus propios alojamientos."
 msgstr "You can only manage your own accommodations."
 
-#: includes/class-ajax-listing.php:499
+#: includes/class-ajax-listing.php:511
 msgid "Room updated"
 msgstr "Room updated"
 
-#: includes/class-ajax-listing.php:499
+#: includes/class-ajax-listing.php:511
 msgid "Room created"
 msgstr "Room created"
 
-#: includes/class-ajax-listing.php:521
+#: includes/class-ajax-listing.php:533
 msgid "Room name is required"
 msgstr "Room name is required"
 
-#: includes/class-ajax-listing.php:525 includes/class-ajax-listing.php:652
+#: includes/class-ajax-listing.php:537 includes/class-ajax-listing.php:664
 msgid "Invalid room"
 msgstr "Invalid room"
 
-#: includes/class-ajax-listing.php:530
+#: includes/class-ajax-listing.php:542
 msgid "Price per night must be greater than 0"
 msgstr "Price per night must be greater than 0"
 
-#: includes/class-ajax-listing.php:552
+#: includes/class-ajax-listing.php:564
 msgid "Could not save the room"
 msgstr "Could not save the room"
 
-#: includes/class-ajax-listing.php:666
+#: includes/class-ajax-listing.php:678
 msgid "This room has future bookings and cannot be deleted."
 msgstr "This room has future bookings and cannot be deleted."
 
-#: includes/class-ajax-listing.php:670
+#: includes/class-ajax-listing.php:682
 msgid "Room deleted"
 msgstr "Room deleted"
 
@@ -4671,7 +4679,7 @@ msgstr ""
 msgid "nuestros servicios"
 msgstr "our services"
 
-#: includes/class-emails.php:220 includes/class-promotions.php:165
+#: includes/class-emails.php:220 includes/class-promotions.php:174
 msgid "tu plan"
 msgstr "your plan"
 
@@ -7233,12 +7241,12 @@ msgstr "Contact email for personal data"
 msgid "Si se deja vacío se usa el correo del administrador del sitio."
 msgstr "If left empty, the site administrator's email is used."
 
-#: includes/class-promotions.php:156 includes/class-promotions.php:233
+#: includes/class-promotions.php:165 includes/class-promotions.php:242
 msgid "The listing is not available for promotion."
 msgstr "The listing is not available for promotion."
 
 #. translators: %s: nombre del plan actual
-#: includes/class-promotions.php:168
+#: includes/class-promotions.php:177
 #, php-format
 msgid ""
 "Tu plan actual (%s) no incluye destacados. Mejora tu plan para promocionar "
@@ -7247,7 +7255,7 @@ msgstr ""
 "Your current plan (%s) does not include featured listings. Upgrade your plan "
 "to promote your listings."
 
-#: includes/class-promotions.php:178
+#: includes/class-promotions.php:187
 msgid ""
 "Ya tienes una solicitud de destacado pendiente para este listado. El "
 "administrador confirmará el pago."
@@ -7256,7 +7264,7 @@ msgstr ""
 "administrator will confirm the payment."
 
 #. translators: %d: número de destacados activos
-#: includes/class-promotions.php:184
+#: includes/class-promotions.php:193
 #, php-format
 msgid ""
 "Ya tienes %d destacados activos (el máximo de tu plan). Espera a que expire "
@@ -7266,21 +7274,21 @@ msgstr ""
 "Wait for one to expire or upgrade your plan."
 
 #. translators: %d: número de meses solicitados
-#: includes/class-promotions.php:201
+#: includes/class-promotions.php:210
 #, php-format
 msgid "Promoción de %d mes(es) solicitada"
 msgstr "Promotion requested for %d month(s)"
 
-#: includes/class-promotions.php:205
+#: includes/class-promotions.php:214
 msgid "No se pudo procesar la solicitud. Inténtalo de nuevo."
 msgstr "The request could not be processed. Please try again."
 
-#: includes/class-promotions.php:219
+#: includes/class-promotions.php:228
 msgid "Promotion not found."
 msgstr "Promotion not found."
 
 #. translators: %s: fecha de confirmación
-#: includes/class-promotions.php:256
+#: includes/class-promotions.php:265
 #, php-format
 msgid "Confirmada el %s por el administrador"
 msgstr "Confirmed on %s by the administrator"
@@ -8460,21 +8468,21 @@ msgstr "No featured services yet"
 msgid "Check back soon for new featured listings."
 msgstr "Check back soon for new featured listings."
 
-#: includes/class-subscriptions.php:54
+#: includes/class-subscriptions.php:56
 msgid "Gratis"
 msgstr "Free"
 
-#: includes/class-subscriptions.php:141
+#: includes/class-subscriptions.php:174
 msgid ""
 "Tu agencia debe ser aprobada por un administrador antes de contratar un plan."
 msgstr ""
 "Your agency must be approved by an administrator before purchasing a plan."
 
-#: includes/class-subscriptions.php:145
+#: includes/class-subscriptions.php:178
 msgid "The selected plan is not available."
 msgstr "The selected plan is not available."
 
-#: includes/class-subscriptions.php:149
+#: includes/class-subscriptions.php:182
 msgid ""
 "You already have a pending subscription. An administrator will confirm the "
 "payment."
@@ -8482,20 +8490,20 @@ msgstr ""
 "You already have a pending subscription. An administrator will confirm the "
 "payment."
 
-#: includes/class-subscriptions.php:160
+#: includes/class-subscriptions.php:193
 msgid "Awaiting manual payment confirmation"
 msgstr "Awaiting manual payment confirmation"
 
-#: includes/class-subscriptions.php:164
+#: includes/class-subscriptions.php:197
 msgid "Could not start the subscription. Please try again."
 msgstr "Could not start the subscription. Please try again."
 
-#: includes/class-subscriptions.php:177
+#: includes/class-subscriptions.php:210
 msgid "Subscription not found."
 msgstr "Subscription not found."
 
 #. translators: 1: número de meses pagados, 2: fecha del pago
-#: includes/class-subscriptions.php:211
+#: includes/class-subscriptions.php:261
 #, php-format
 msgid "Paid %d month(s) on %s"
 msgstr "Paid %d month(s) on %s"

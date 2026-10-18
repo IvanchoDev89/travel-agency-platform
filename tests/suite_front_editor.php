@@ -278,6 +278,30 @@ $out = do_shortcode('[tap_front_dash]');
 unset($_GET['seccion']);
 tap_t_assert(false !== strpos($out, 'tap-bo-api') && false !== strpos($out, 'Confirmar'), 'agency admin still gets the full action buttons');
 
+/* ══ 5) el límite de listados se reevalúa al PUBLICAR, no solo al crear ══ */
+$fe_mk_draft = function ($title) use ($owner_aid) {
+    $id = wp_insert_post(['post_type' => 'tap_accommodation', 'post_status' => 'draft', 'post_title' => $title]);
+    update_post_meta($id, '_tap_acc_agency_id', (int) $owner_aid);
+    update_post_meta($id, '_tap_acc_is_active', '0');
+    return (int) $id;
+};
+$fe_base = TAP_Subscriptions::active_listing_count($owner_aid);
+$limit_allow_one = function () use ($fe_base) { return $fe_base + 1; };
+add_filter('tap_listing_limit', $limit_allow_one, 10, 2);
+
+wp_set_current_user($owner_uid);
+$fe_d1 = $fe_mk_draft('FE limit d1 ' . wp_generate_password(4, false));
+$fe_posts[] = $fe_d1;
+$fe_r1 = TAP_Ajax_Listing::set_listing_published($fe_d1, true);
+tap_t_assert(is_array($fe_r1) && !empty($fe_r1['status']), 'publishing within the plan limit succeeds');
+
+$fe_d2 = $fe_mk_draft('FE limit d2 ' . wp_generate_password(4, false));
+$fe_posts[] = $fe_d2;
+$fe_r2 = TAP_Ajax_Listing::set_listing_published($fe_d2, true);
+tap_t_assert(is_wp_error($fe_r2) && 'tap_listing_limit' === $fe_r2->get_error_code(), 'publishing beyond the plan limit is rejected');
+tap_t_assert('0' === (string) get_post_meta($fe_d2, '_tap_acc_is_active', true), 'the blocked listing is left inactive');
+remove_filter('tap_listing_limit', $limit_allow_one, 10);
+
 /* ── cleanup ─────────────────────────────────────────────────────── */
 wp_set_current_user(0);
 tap_t_cleanup_bookings($fe_bookings);

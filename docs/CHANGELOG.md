@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.36] — 2026-10-17
+
+Listing limit re-evaluated at publish time.
+
+### Fixed
+
+- **Publishing enforces the plan's listing limit.** The limit was only checked when a listing was *created* (`save_listing_data`), so an agency that downgraded its plan — or parked drafts while within the limit — could publish past its current plan's cap. `TAP_Ajax_Listing::set_listing_published()` now counts the agency's live listings (`TAP_Subscriptions::active_listing_count()`) and returns `tap_listing_limit` when activating one would exceed the limit (already-active listings and unlimited plans are exempt).
+
+---
+
 ## [1.5.35] — 2026-10-17
 
 Subscription plan fallback and renewal time accounting.

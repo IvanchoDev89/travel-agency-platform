@@ -135,6 +135,37 @@ class TAP_Subscriptions {
         return $total;
     }
 
+    /**
+     * Listings an agency currently has live (is_active = 1), across every
+     * service type. This is what a publish action consumes from the plan's
+     * listing_limit; drafts that were never published are not counted.
+     */
+    public static function active_listing_count($agency_id) {
+        $agency_id = (int) $agency_id;
+        if ($agency_id < 1) {
+            return 0;
+        }
+        $total = 0;
+        foreach (TAP_Post_Types::agency_meta_keys() as $post_type => $meta) {
+            $prefix = TAP_Post_Types::meta_prefix($post_type);
+            if ($prefix === '') {
+                continue;
+            }
+            $query = new WP_Query([
+                'post_type'      => $post_type,
+                'post_status'    => 'any',
+                'meta_query'     => [
+                    ['key' => $meta, 'value' => $agency_id],
+                    ['key' => '_tap_' . $prefix . '_is_active', 'value' => '1'],
+                ],
+                'fields'         => 'ids',
+                'posts_per_page' => 1,
+            ]);
+            $total += (int) $query->found_posts;
+        }
+        return $total;
+    }
+
     public static function subscribe($agency_id, $plan_id) {
         global $wpdb;
         // Tanda C (C14): only approved agencies may contract a plan; pending or
