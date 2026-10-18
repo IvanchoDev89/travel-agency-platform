@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.34] — 2026-10-17
+
+Promotion capture ownership.
+
+### Fixed
+
+- **`capture_promo_paypal` verifies the caller's agency.** The handler activated a promotion from any PayPal order id it was handed, without checking that the order belonged to the caller — unlike `capture_subscription_paypal`, which already enforced this. A foreign logged-in user holding another agency's promotion order id could activate that agency's feature. It now resolves the promo's owning agency (`TAP_Promotions::agency_for_promo()`) and rejects any caller that is not that agency.
+
+---
+
 ## [1.5.33] — 2026-10-17
 
 Booking creation idempotency and advisory-lock safety.

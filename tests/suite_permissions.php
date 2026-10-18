@@ -299,6 +299,52 @@ tap_t_assert(
 );
 TAP_Approval::pending($aid);
 
+/* --- C14b: promotion capture ownership -------------------------------------
+ * Mirrors the subscription capture: a foreign logged-in user must not be able
+ * to capture (and thereby activate) another agency's promotion order. PayPal
+ * is mocked so a successful capture is the only thing that could activate it. */
+$pc_promo_id    = 0;
+$pc_promo_order = 'ORD-PCP-' . $sfx;
+$orig_cid = get_option('tap_paypal_client_id', '');
+$orig_sec = get_option('tap_paypal_secret', '');
+update_option('tap_paypal_client_id', 'test-client');
+update_option('tap_paypal_secret', 'test-secret');
+tap_t_install_paypal_mock();
+
+$wpdb->insert($wpdb->prefix . 'tap_promos', [
+    'agency_id' => (int) $aid, 'listing_id' => (int) $draft, 'months' => 1, 'amount' => 5.00,
+    'status' => 'pending', 'payment_status' => 'pending', 'payment_method' => 'manual', 'notes' => 'pc',
+]);
+$pc_promo_id = (int) $wpdb->insert_id;
+$wpdb->insert($wpdb->prefix . 'tap_payment_orders', [
+    'paypal_order_id' => $pc_promo_order,
+    'object_type'     => 'promotion',
+    'object_id'       => $pc_promo_id,
+    'amount'          => 5.00,
+    'status'          => 'created',
+]);
+tap_t_assert($pc_promo_id > 0, 'fixture promotion + order created for the agency');
+
+wp_set_current_user($traveler_uid);
+$_POST = $_REQUEST = [
+    'nonce'           => wp_create_nonce('tap_front_dash_nonce'),
+    'paypal_order_id' => $pc_promo_order,
+];
+[$pc_died, $pc_json] = $pc_run_die(['TAP_Ajax_Commerce', 'capture_promo_paypal']);
+tap_t_assert(
+    is_array($pc_json) && empty($pc_json['success']) && isset($pc_json['data']['message']),
+    'foreign user cannot capture another agency\'s promotion order'
+);
+tap_t_assert(
+    'pending' === $wpdb->get_var($wpdb->prepare("SELECT status FROM {$wpdb->prefix}tap_promos WHERE id=%d", $pc_promo_id)),
+    'foreign promo capture leaves the promotion pending (no activation)'
+);
+
+tap_t_remove_paypal_mock();
+update_option('tap_paypal_client_id', $orig_cid);
+update_option('tap_paypal_secret', $orig_sec);
+wp_set_current_user(0);
+
 /* --- C15a: handle_agency_action capability check ---------------------------- */
 $pc_ref = new ReflectionMethod('TAP_Dashboard_Content', 'handle_agency_action');
 $pc_ref->setAccessible(true);
@@ -393,6 +439,8 @@ tap_t_assert(
 wp_set_current_user(0);
 tap_t_cleanup_bookings([$pc_booking_id]);
 $wpdb->delete($wpdb->prefix . 'tap_payment_orders', ['paypal_order_id' => $pc_order]);
+$wpdb->delete($wpdb->prefix . 'tap_payment_orders', ['paypal_order_id' => $pc_promo_order]);
+$wpdb->delete($wpdb->prefix . 'tap_promos', ['id' => (int) $pc_promo_id]);
 $wpdb->delete(TAP_Subscriptions::subs_table(), ['agency_id' => (int) $aid]);
 $wpdb->delete($wpdb->prefix . 'tap_agencies', ['user_id' => (int) $owner_uid]);
 $wpdb->query($wpdb->prepare(

@@ -47,6 +47,15 @@ class TAP_Promotions {
         return (int) get_post_meta($post_id, $keys['agency_key'], true);
     }
 
+    /** Agency (post id) that owns the given promotion row (0 when unknown). */
+    public static function agency_for_promo($promo_id) {
+        global $wpdb;
+        return (int) $wpdb->get_var($wpdb->prepare(
+            'SELECT agency_id FROM ' . self::promos_table() . ' WHERE id = %d',
+            (int) $promo_id
+        ));
+    }
+
     public static function is_featured($post_id) {
         $keys = self::listing_meta_keys($post_id);
         if (!$keys) {

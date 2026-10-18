@@ -57,6 +57,12 @@ class TAP_Ajax_Commerce {
         if (!$order || 'promotion' !== $order->object_type) {
             wp_send_json_error(['message' => __('Order not found', 'travel-agency-platform')]);
         }
+        // The capture must belong to the caller's agency — holding a foreign
+        // order id must not activate somebody else's promotion.
+        $promo_agency = class_exists('TAP_Promotions') ? TAP_Promotions::agency_for_promo((int) $order->object_id) : 0;
+        if (!$promo_agency || $promo_agency !== (int) self::current_agency_for(get_current_user_id())) {
+            wp_send_json_error(['message' => __('Order not found', 'travel-agency-platform')]);
+        }
 
         $result = TAP_PayPal::capture_order($paypal_order_id);
         if (is_wp_error($result)) {
