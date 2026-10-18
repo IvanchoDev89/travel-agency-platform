@@ -185,6 +185,43 @@ $short = TAP_Booking::create([
 tap_t_assert(is_wp_error($short) && 'min_stay' === $short->get_error_code(), 'booking shorter than the minimum stay is rejected');
 $wpdb->delete($dp_table, ['room_id' => $occ_room]);
 
+// 8) when the room advisory lock cannot be acquired, create() must not proceed
+//    unsynchronized (it would defeat the very race the lock guards).
+$lk_acc  = pr_make_post('tap_accommodation', ['_tap_acc_price_per_night' => 100]);
+$lk_room = pr_make_post('tap_room', ['_tap_room_price_per_night' => 100, '_tap_room_inventory' => 1, '_tap_room_is_active' => '1']);
+update_post_meta($lk_room, '_tap_room_accommodation_id', $lk_acc);
+$lin  = gmdate('Y-m-d', strtotime('+160 days'));
+$lout = gmdate('Y-m-d', strtotime('+161 days'));
+$lk_guest = 'pr_lock_' . wp_generate_password(6, false) . '@example.test';
+$lk_bookings = [];
+
+$sock = null; $host = DB_HOST;
+if (strpos(DB_HOST, ':') !== false) {
+    list($host, $rest) = explode(':', DB_HOST, 2);
+    if ($rest && $rest[0] === '/') { $sock = $rest; }
+}
+$conn = @new mysqli('localhost', DB_USER, DB_PASSWORD, DB_NAME, null, $sock);
+$held = false;
+if (!$conn->connect_errno) {
+    $res  = $conn->query("SELECT GET_LOCK('tap_room_" . (int) $lk_room . "', 0)");
+    $held = $res && ((int) $res->fetch_row()[0] === 1);
+}
+tap_t_assert($held, 'held the room advisory lock on a second DB connection');
+$lock_args = [
+    'service_type' => 'tap_accommodation', 'service_id' => $lk_acc, 'room_id' => $lk_room,
+    'check_in' => $lin, 'check_out' => $lout, 'adults' => 1, 'children' => 0,
+    'guest_name' => 'Lock', 'guest_email' => 'pr_lock_' . wp_generate_password(6, false) . '@example.test',
+];
+$blocked = TAP_Booking::create($lock_args);
+tap_t_assert(is_wp_error($blocked) && 'booking_busy' === $blocked->get_error_code(), 'booking fails cleanly when the room lock cannot be acquired');
+if ($held) { $conn->query("SELECT RELEASE_LOCK('tap_room_" . (int) $lk_room . "')"); }
+$conn->close();
+$after_lock = TAP_Booking::create($lock_args);
+tap_t_assert(!is_wp_error($after_lock) && !empty($after_lock['booking_id']), 'booking succeeds once the lock is released');
+if (!is_wp_error($after_lock)) { $lk_bookings[] = (int) $after_lock['booking_id']; }
+
+tap_t_cleanup_bookings($lk_bookings);
+
 foreach ($created_posts as $pid) {
     wp_delete_post($pid, true);
 }

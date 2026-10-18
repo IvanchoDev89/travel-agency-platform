@@ -70,6 +70,7 @@ class TAP_Ajax {
             'guest_name'   => sanitize_text_field(wp_unslash($_POST['guest_name'] ?? '')),
             'guest_email'  => sanitize_email(wp_unslash($_POST['guest_email'] ?? '')),
             'guest_phone'  => sanitize_text_field(wp_unslash($_POST['guest_phone'] ?? '')),
+            'idempotency_key' => sanitize_text_field(wp_unslash($_POST['idempotency_key'] ?? '')),
         ];
 
         $result = TAP_Booking::create($data);

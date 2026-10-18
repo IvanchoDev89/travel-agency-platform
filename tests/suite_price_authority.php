@@ -143,6 +143,26 @@ $zero_adults = TAP_Booking::create([
 ]);
 tap_t_assert(is_wp_error($zero_adults) && 'invalid_guests' === $zero_adults->get_error_code(), 'zero-adult booking is rejected');
 
+// ---- 7) a replayed submit (same idempotency key) returns the same booking ----
+$idem_key  = wp_generate_uuid4();
+$idem_mail = 't8_idem_' . wp_generate_password(6, false) . '@example.test';
+$idem_data = [
+    'service_type' => $ftype, 'service_id' => $fid,
+    'check_in' => $in, 'check_out' => $out,
+    'adults' => 1, 'children' => 0,
+    'guest_name' => 'Idem', 'guest_email' => $idem_mail,
+    'idempotency_key' => $idem_key,
+];
+$first  = TAP_Booking::create($idem_data);
+$replay = TAP_Booking::create($idem_data);
+tap_t_assert(!is_wp_error($first) && !is_wp_error($replay), 'idempotent booking created and replayed without error');
+tap_t_assert(is_array($first) && is_array($replay) && (int) $first['booking_id'] === (int) $replay['booking_id'], 'replayed submit returns the same booking id');
+if (is_array($first)) { $created[] = (int) $first['booking_id']; }
+
+$other = TAP_Booking::create(array_merge($idem_data, ['idempotency_key' => $idem_key . '-x']));
+tap_t_assert(!is_wp_error($other) && is_array($first) && (int) $other['booking_id'] !== (int) $first['booking_id'], 'a different idempotency key creates a new booking');
+if (!is_wp_error($other)) { $created[] = (int) $other['booking_id']; }
+
 // cleanup --------------------------------------------------------------------
 tap_t_cleanup_bookings($created);
 tap_t_cleanup_test_consents();

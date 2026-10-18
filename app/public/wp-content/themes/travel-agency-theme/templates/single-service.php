@@ -322,6 +322,7 @@ jQuery(document).ready(function($) {
     $.post(tap_ajax.ajax_url, {
       action: 'tap_booking_create',
       nonce: '<?php echo esc_js(wp_create_nonce('tap_booking_nonce')); ?>',
+      idempotency_key: '<?php echo esc_js(wp_generate_uuid4()); ?>',
       service_type: '<?php echo esc_js($pt); ?>',
       service_id: <?php echo (int) $id; ?>,
       check_in: $('#bw-check-in').val() || '',

@@ -120,6 +120,30 @@ class TAP_Booking {
     public static function create($data) {
         global $wpdb;
 
+        // Client-supplied idempotency key: a replayed submit (double click,
+        // network retry) returns the booking created the first time instead of
+        // creating a duplicate. The key is scoped to the caller (user id or
+        // guest email) so one client's key can never surface another's voucher.
+        $idem = isset($data['idempotency_key']) ? trim((string) $data['idempotency_key']) : '';
+        $idem_scope = get_current_user_id()
+            ? 'u:' . get_current_user_id()
+            : 'g:' . strtolower(sanitize_email((string) ($data['guest_email'] ?? '')));
+        $idem_transient = $idem !== '' ? 'tap_idem_' . md5($idem . '|' . $idem_scope) : '';
+        if ($idem_transient !== '') {
+            $replayed = get_transient($idem_transient);
+            if ($replayed) {
+                $existing = self::get_booking((int) $replayed);
+                if ($existing) {
+                    return [
+                        'booking_id'   => (int) $existing->id,
+                        'booking_code' => (string) $existing->booking_code,
+                        'status'       => (string) $existing->status,
+                        'message'      => __('Booking created successfully', 'travel-agency-platform'),
+                    ];
+                }
+            }
+        }
+
         // High-entropy booking code with a uniqueness retry loop (the column
         // is UNIQUE, so a birthday collision must never resolve to another
         // booking's voucher).
@@ -199,8 +223,20 @@ class TAP_Booking {
             $locks[] = 'tap_tour_' . intval($data['service_id']) . '_' . sanitize_text_field($data['check_in']);
         }
 
+        // GET_LOCK returns 1 on success, 0 on timeout and NULL on error. If we
+        // cannot take a lock we must NOT fall through unsynchronized (that is
+        // exactly the race the lock exists to prevent): release what we hold
+        // and ask the caller to retry.
+        $acquired = [];
         foreach ($locks as $lock_key) {
-            $wpdb->get_var($wpdb->prepare('SELECT GET_LOCK(%s, 5)', $lock_key));
+            if (1 === (int) $wpdb->get_var($wpdb->prepare('SELECT GET_LOCK(%s, 5)', $lock_key))) {
+                $acquired[] = $lock_key;
+                continue;
+            }
+            foreach (array_reverse($acquired) as $held) {
+                $wpdb->get_var($wpdb->prepare('SELECT RELEASE_LOCK(%s)', $held));
+            }
+            return new WP_Error('booking_busy', __('No pudimos procesar la reserva en este momento. Intenta nuevamente en unos segundos.', 'travel-agency-platform'));
         }
 
         $create_error = null;
@@ -328,6 +364,10 @@ class TAP_Booking {
         }
 
         do_action('tap_booking_created', $booking_id, $data);
+
+        if ($idem_transient !== '') {
+            set_transient($idem_transient, (int) $booking_id, 10 * MINUTE_IN_SECONDS);
+        }
 
         // Only auto-confirm when the listing accepts direct bookings. A
         // request-to-book listing must await the agency's approval; skipping

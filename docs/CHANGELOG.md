@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.33] — 2026-10-17
+
+Booking creation idempotency and advisory-lock safety.
+
+### Fixed
+
+- **`GET_LOCK` failure no longer proceeds unsynchronized.** `TAP_Booking::create()` ignored the result of `GET_LOCK`; on timeout/error it ran the availability check + insert without the lock — the exact race the lock guards. It now releases any held locks and returns a retryable `booking_busy` error instead.
+- **Double-submitted bookings are idempotent.** `create()` accepts an optional `idempotency_key` from the caller (both front-end booking forms now send a per-render UUID). The key is scoped to the caller (user id or guest email) and memoised for 10 minutes, so a replayed submit returns the booking created the first time instead of creating a duplicate.
+
+### Changed
+
+- The accommodation and single-service booking forms send `idempotency_key`.
+
+---
+
 ## [1.5.32] — 2026-10-17
 
 Room occupancy limits and minimum stay are enforced when booking.
