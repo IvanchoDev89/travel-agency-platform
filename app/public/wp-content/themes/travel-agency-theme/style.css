@@ -1027,3 +1027,101 @@ img { max-width: 100%; height: auto; }
 .tap-post-back a { color: var(--tap-primary-dark, #0f766e); font-weight: 600; text-decoration: none; }
 .tap-post-back a:hover { text-decoration: underline; }
 @media (min-width: 640px) { .tap-post-related-grid { grid-template-columns: repeat(3, 1fr); } }
+
+/* ── Registro (viajero + agencia) ─────────────────────────────── */
+
+.tap-reg-hero {
+  background:
+    radial-gradient(120% 140% at 82% -10%, rgba(20, 184, 166, 0.55) 0%, rgba(15, 23, 42, 0) 55%),
+    linear-gradient(120deg, #0d9488 0%, #0f766e 48%, #0f172a 100%);
+  padding: clamp(48px, 9vw, 96px) 0;
+  color: #fff;
+}
+.tap-reg-hero-inner { max-width: 760px; }
+.tap-reg-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0 0 12px;
+}
+.tap-reg-title {
+  font-size: clamp(2.1rem, 5vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+  margin: 0 0 14px;
+  color: #fff;
+  text-shadow: 0 2px 26px rgba(2, 6, 23, 0.4);
+}
+.tap-reg-subtitle {
+  font-size: clamp(1rem, 1.6vw, 1.2rem);
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.92);
+  margin: 0;
+  max-width: 54ch;
+}
+
+.tap-reg-wrap { padding: clamp(36px, 6vw, 72px) var(--tap-container-padding, 24px); }
+.tap-reg-grid { display: grid; gap: 28px; align-items: start; }
+@media (min-width: 900px) { .tap-reg-grid { grid-template-columns: repeat(2, 1fr); gap: 32px; } }
+
+.tap-reg-card {
+  background: #fff;
+  border: 1px solid var(--tap-border, #e2e8f0);
+  border-radius: 18px;
+  box-shadow: 0 8px 30px rgba(2, 6, 23, 0.06);
+  padding: clamp(24px, 4vw, 40px);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.tap-reg-card-head h2 {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--tap-neutral-900, #0f172a);
+  margin: 12px 0 6px;
+  letter-spacing: -0.01em;
+}
+.tap-reg-card-head p {
+  margin: 0;
+  font-size: 0.94rem;
+  line-height: 1.55;
+  color: var(--tap-neutral-500, #64748b);
+}
+
+.tap-reg-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--tap-primary-dark, #0f766e);
+  background: var(--tap-primary-bg, #f0fdfa);
+  border: 1px solid var(--tap-primary-border, #99f6e4);
+  border-radius: 999px;
+}
+.tap-reg-badge-secondary {
+  color: var(--tap-secondary-dark, #b45309);
+  background: var(--tap-warning-bg, #fffbeb);
+  border-color: var(--tap-warning-border, #f59e0b);
+}
+
+/* Formulario del shortcode agencia (tap-form tap-form-grid) */
+.tap-reg-card .tap-register { max-width: none; margin: 0; }
+.tap-reg-card .tap-register > h2 { display: none; }
+.tap-reg-card .tap-register-intro { margin: 0 0 18px; font-size: 0.9rem; line-height: 1.55; color: var(--tap-neutral-500, #64748b); }
+.tap-reg-card .tap-register-kyc h3 { font-size: 1.05rem; font-weight: 700; color: var(--tap-neutral-900, #0f172a); margin: 22px 0 8px; }
+
+/* Viajero: espaciado del formulario */
+.tap-reg-submit { margin: 8px 0 0; }
+.tap-reg-login-link { margin: 14px 0 0; text-align: center; font-size: 0.88rem; color: var(--tap-neutral-500, #64748b); }
+.tap-reg-login-link a { color: var(--tap-primary, #0d9488); font-weight: 600; text-decoration: none; }
+.tap-reg-login-link a:hover { text-decoration: underline; }
+
+@media (max-width: 480px) {
+  .tap-reg-card { padding: 22px 18px; }
+}
