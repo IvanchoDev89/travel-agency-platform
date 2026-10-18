@@ -12,6 +12,7 @@ $orig_client_id  = get_option('tap_paypal_client_id', '');
 $orig_secret     = get_option('tap_paypal_secret', '');
 $orig_sandbox    = get_option('tap_paypal_sandbox', '1');
 $orig_currency   = get_option('tap_currency', 'USD');
+tap_t_guard_paypal_credentials();
 update_option('tap_paypal_client_id', 'test-client');
 update_option('tap_paypal_secret', 'test-secret');
 update_option('tap_paypal_sandbox', '1');

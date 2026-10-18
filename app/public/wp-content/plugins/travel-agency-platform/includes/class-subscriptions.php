@@ -68,7 +68,7 @@ class TAP_Subscriptions {
              FROM ' . self::subs_table() . " s
              LEFT JOIN $tplans p ON p.id = s.plan_id
              WHERE s.agency_id = %d
-             ORDER BY s.created_at DESC LIMIT 1",
+             ORDER BY s.created_at DESC, s.id DESC LIMIT 1",
             (int) $agency_id
         ));
     }
@@ -166,6 +166,18 @@ class TAP_Subscriptions {
         return $total;
     }
 
+    /**
+     * Open (or reopen) the agency's pending subscription for a plan.
+     *
+     * The pending row is a draft the agency can still act on: it backs either
+     * a manual admin confirmation or a PayPal createOrder that has not been
+     * captured yet. Because subscribe_paypal() inserts this row before PayPal
+     * answers, a timeout or an abandoned checkout must leave it reusable —
+     * rejecting the retry as "already pending" locked the agency out of every
+     * payment path until an administrator cleared the row by hand.
+     *
+     * @return int|WP_Error New or reused pending subscription ID.
+     */
     public static function subscribe($agency_id, $plan_id) {
         global $wpdb;
         // Tanda C (C14): only approved agencies may contract a plan; pending or
@@ -177,10 +189,28 @@ class TAP_Subscriptions {
         if (!$plan || !(int) $plan->is_active) {
             return new WP_Error('plan_invalid', __('The selected plan is not available.', 'travel-agency-platform'));
         }
-        $current = self::current_subscription($agency_id);
-        if ($current && 'pending' === $current->status) {
-            return new WP_Error('already_pending', __('You already have a pending subscription. An administrator will confirm the payment.', 'travel-agency-platform'));
+
+        $draft = $wpdb->get_row($wpdb->prepare(
+            'SELECT * FROM ' . self::subs_table() . " WHERE agency_id = %d AND status = 'pending' AND payment_status = 'pending' ORDER BY id DESC LIMIT 1",
+            (int) $agency_id
+        ));
+        if ($draft) {
+            if ((int) $draft->plan_id === (int) $plan_id) {
+                return (int) $draft->id;
+            }
+            // A different plan was chosen: retire the abandoned draft so it stops
+            // blocking, and so a late capture of its PayPal order cannot activate
+            // a plan the agency no longer wants.
+            $wpdb->update(
+                self::subs_table(),
+                [
+                    'status' => 'cancelled',
+                    'notes'  => __('Superseded by a newer plan choice', 'travel-agency-platform'),
+                ],
+                ['id' => (int) $draft->id]
+            );
         }
+
         $result = $wpdb->insert(
             self::subs_table(),
             [

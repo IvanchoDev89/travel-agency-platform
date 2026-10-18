@@ -6,7 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
-## [1.5.38] — 2026-10-17
+## [1.5.39] — 2026-10-18
+
+Agency plan checkout no longer deadlocks or runs ahead of approval.
+
+### Fixed
+
+- **A pending plan request no longer blocks every later attempt.** `TAP_Subscriptions::subscribe()` used to reject any agency that already had a `pending` row, while `TAP_PayPal::create_order_generic()` inserted that row *before* calling PayPal — so a failed token request, a network error or a buyer who abandoned checkout locked the agency out of **both** the manual and the PayPal paths until an administrator deleted the row by hand. The draft is now reused when the plan is unchanged and superseded (`status = 'cancelled'`) when the buyer picks a different plan.
+- **`/planes/` only offers payment to approved agencies.** The backend already rejected unapproved agencies, but the cards still rendered a paying button and routed the buyer into a dead end; unapproved agencies now see "Tu agencia está en revisión" instead of `data-plan-id` buttons.
+- **`/mi-cuenta/` shows the approval banner.** The standalone `[tap_agency_panel]` shortcode had it, the agency dashboard did not — a brand new agency logged in with no indication of why nothing worked. Pending and rejected agencies now get the same notice on every dashboard section (administrators are exempt, matching the panel).
+- **Agency employees can no longer contract plans.** `tap_agency_employee` resolved to the parent agency through `current_agency_for()`, so anyone on the team could spend the agency's money; `agency_subscribe` and `subscribe_paypal` now require `TAP_Roles::can_manage_agency_panel()` before doing anything else.
+- **`current_subscription()` resolves ties deterministically.** `ORDER BY created_at DESC` left the superseded row and the replacement with identical timestamps and no defined winner; it now falls back to `id DESC`.
+- **PayPal connection failures show a buyer-facing message.** Token and order-creation errors surfaced raw cURL/HTTP internals to the agency admin; the details are logged server-side and the response now says what to do. Explicit PayPal responses (declines, already-captured orders) keep their own wording.
+
+### Tests
+
+- **E2E coverage for the whole plan flow:** approval banner on the dashboard, employee gate on both subscription endpoints, `/planes/` gating by approval state, PayPal retry after a failed create-order, and the pending-draft reuse/supersede rules (one pending row per agency, never two).
+- **The suite can no longer strand placeholder PayPal credentials.** `test-client` / `test-secret` were written inline and restored inline, so a suite that died mid-run left a working site permanently unable to reach PayPal — the current site was in exactly that state. Each swap is now backed up and restored from a shutdown function.
+
+---
 
 Idempotency key wired to every public booking entry point.
 

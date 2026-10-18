@@ -276,6 +276,38 @@ if (!function_exists('tap_t_find_service')) {
         $d = $resp->get_data();
         return is_object($d) ? (array) $d : $d;
     }
+
+    /**
+     * Remember the live PayPal credentials before a suite overwrites them.
+     *
+     * The suites swap in placeholder credentials so is_ready() lets the
+     * checkout code run. The inline restore never happens if the suite dies
+     * in between, which silently pointed a working site at `test-client` —
+     * every PayPal payment then failed at the token request. Backing up here
+     * and restoring from a shutdown function makes the swap unlosable.
+     */
+    function tap_t_guard_paypal_credentials() {
+        foreach (['tap_paypal_client_id', 'tap_paypal_secret'] as $name) {
+            if (!array_key_exists($name, (array) ($GLOBALS['tap_t_paypal_options'] ?? []))) {
+                $GLOBALS['tap_t_paypal_options'][$name] = get_option($name, '');
+            }
+        }
+    }
+
+    /** Put the remembered credentials back (idempotent; safe to call twice). */
+    function tap_t_restore_paypal_credentials() {
+        foreach ((array) ($GLOBALS['tap_t_paypal_options'] ?? []) as $name => $value) {
+            if ('' === $value || null === $value) {
+                delete_option($name);
+            } else {
+                update_option($name, $value);
+            }
+        }
+    }
+}
+
+if (function_exists('tap_t_restore_paypal_credentials')) {
+    register_shutdown_function('tap_t_restore_paypal_credentials');
 }
 
 // Tanda C/D: fresh public rate-limit buckets per suite run, so repeated

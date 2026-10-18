@@ -220,6 +220,22 @@ class TAP_Front_Dash {
             <?php self::render_sidebar($user, $sections, $section); ?>
             <main class="tap-dash-main">
                 <?php
+                // Approval status banner (C20): same notice the legacy panel
+                // shows, on every section. Without it a freshly registered
+                // agency has no idea /mi-cuenta/ is still waiting on review.
+                $tap_ap_agency = (int) TAP_Booking::get_agency_for_user($user->ID);
+                if ($tap_ap_agency && !current_user_can('manage_options')) {
+                    $tap_ap_status = TAP_Approval::status($tap_ap_agency);
+                    if ('pending' === $tap_ap_status) {
+                        ?>
+                        <div class="tap-notice"><span class="tap-notice-icon" aria-hidden="true">⚠</span><span><strong><?php esc_html_e('Tu agencia está en revisión', 'travel-agency-platform'); ?>.</strong> <?php esc_html_e('Puedes preparar tus listados, pero serán visibles para los viajeros solo cuando el administrador apruebe tu agencia.', 'travel-agency-platform'); ?></span></div>
+                        <?php
+                    } elseif ('rejected' === $tap_ap_status) {
+                        ?>
+                        <div class="tap-notice tap-notice-error"><span class="tap-notice-icon" aria-hidden="true">⚠</span><span><strong><?php esc_html_e('Tu agencia no fue aprobada', 'travel-agency-platform'); ?>.</strong> <?php esc_html_e('Contacta a soporte para corregir tus datos y volver a solicitar la revisión.', 'travel-agency-platform'); ?></span></div>
+                        <?php
+                    }
+                }
                 // Back-office section routing (Fase 16)
                 switch ($section) {
                     case 'bo-operations':

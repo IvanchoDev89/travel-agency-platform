@@ -43,6 +43,55 @@ class TAP_Ajax_Commerce {
     }
 
 
+    /**
+     * Agency the caller is allowed to contract a plan for, or WP_Error.
+     *
+     * Paying for a plan is an admin action, so team employees are turned away
+     * even though they do resolve an agency. The capability check runs before
+     * any payment-configuration or plan lookup so an unauthorised caller never
+     * learns whether PayPal is set up.
+     *
+     * @return int|WP_Error Agency post ID.
+     */
+    private static function plan_contractor() {
+        if ( ! class_exists( 'TAP_Roles' ) || ! TAP_Roles::can_manage_agency_panel( wp_get_current_user() ) ) {
+            return new WP_Error( 'not_plan_admin', __( 'Solo el administrador de la agencia puede contratar un plan.', 'travel-agency-platform' ) );
+        }
+        $agency = self::current_agency_for( get_current_user_id() );
+        if ( ! $agency ) {
+            return new WP_Error( 'no_agency', __( 'Only agencies can subscribe to a plan.', 'travel-agency-platform' ) );
+        }
+        return (int) $agency;
+    }
+
+
+    /**
+     * PayPal failure surfaced to the buyer.
+     *
+     * Token and transport errors carry cURL/HTTP internals that mean nothing
+     * to an agency admin; log those and hand back a message they can act on.
+     * Everything else (an explicit "order not found", a declined capture) keeps
+     * PayPal's own wording, because that is what the caller needs to see.
+     *
+     * @param WP_Error $error Original error.
+     * @return WP_Error Error with a buyer-facing message.
+     */
+    private static function payment_error(WP_Error $error) {
+        if (!in_array($error->get_error_code(), ['paypal_token_error', 'paypal_order_error'], true)) {
+            return $error;
+        }
+        $details = $error->get_error_message();
+        if (function_exists('error_log')) {
+            error_log('TAP PayPal subscription failure: ' . $details);
+        }
+        return new WP_Error(
+            $error->get_error_code(),
+            __( 'No pudimos conectar con PayPal. Inténtalo de nuevo en unos minutos; si persiste, contacta con soporte.', 'travel-agency-platform' ),
+            ['details' => $details]
+        );
+    }
+
+
     public static function capture_promo_paypal() {
         check_ajax_referer('tap_front_dash_nonce', 'nonce');
         if (!is_user_logged_in()) {
@@ -153,7 +202,7 @@ class TAP_Ajax_Commerce {
 
         $result = TAP_PayPal::capture_order($paypal_order_id);
         if (is_wp_error($result)) {
-            wp_send_json_error(['message' => $result->get_error_message()]);
+            wp_send_json_error(['message' => self::payment_error($result)->get_error_message()]);
         }
 
         if ($result['capture_status'] === 'COMPLETED') {
@@ -174,13 +223,12 @@ class TAP_Ajax_Commerce {
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => __('Authentication required', 'travel-agency-platform')]);
         }
+        $agency = self::plan_contractor();
+        if (is_wp_error($agency)) {
+            wp_send_json_error(['message' => $agency->get_error_message()]);
+        }
         if (!TAP_PayPal::is_ready()) {
             wp_send_json_error(['message' => __('Online payment is not configured.', 'travel-agency-platform')]);
-        }
-        $user   = wp_get_current_user();
-        $agency = self::current_agency_for($user->ID);
-        if (!$agency) {
-            wp_send_json_error(['message' => __('Only agencies can subscribe to a plan.', 'travel-agency-platform')]);
         }
         $plan_id = isset($_POST['plan_id']) ? intval($_POST['plan_id']) : 0;
         $plan    = class_exists('TAP_Subscriptions') ? TAP_Subscriptions::get_plan($plan_id) : null;
@@ -203,7 +251,7 @@ class TAP_Ajax_Commerce {
         );
 
         if (is_wp_error($result)) {
-            wp_send_json_error(['message' => $result->get_error_message()]);
+            wp_send_json_error(['message' => self::payment_error($result)->get_error_message()]);
         }
 
         wp_send_json_success([
@@ -218,10 +266,9 @@ class TAP_Ajax_Commerce {
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => __('Authentication required', 'travel-agency-platform')]);
         }
-        $user   = wp_get_current_user();
-        $agency = self::current_agency_for($user->ID);
-        if (!$agency) {
-            wp_send_json_error(['message' => __('Only agencies can subscribe to a plan.', 'travel-agency-platform')]);
+        $agency = self::plan_contractor();
+        if (is_wp_error($agency)) {
+            wp_send_json_error(['message' => $agency->get_error_message()]);
         }
         $plan_id = isset($_POST['plan_id']) ? intval($_POST['plan_id']) : 0;
         if (!$plan_id) {

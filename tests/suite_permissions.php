@@ -182,7 +182,33 @@ tap_t_assert(
 );
 TAP_Approval::pending($aid);
 
+/* --- C20b: /mi-cuenta/ (TAP_Front_Dash) carries the same banner -------------
+ * TAP_Front_Dash is the dashboard agencies actually land on after registering,
+ * so a missing banner there leaves a brand new agency with no idea it is still
+ * under review. */
+$html_fe_pend = $pc_front($owner);
+TAP_Approval::approve($aid);
+$html_fe_ok = $pc_front($owner);
+TAP_Approval::reject($aid);
+$html_fe_rej = $pc_front($owner);
+TAP_Approval::pending($aid);
+wp_set_current_user(0);
+tap_t_assert(
+    strpos($html_fe_pend, 'Tu agencia está en revisión') !== false,
+    'front-dash shows the review banner to a pending agency'
+);
+tap_t_assert(
+    strpos($html_fe_rej, 'Tu agencia no fue aprobada') !== false,
+    'front-dash shows the rejection banner to a rejected agency'
+);
+tap_t_assert(
+    false === strpos($html_fe_ok, 'Tu agencia está en revisión')
+        && false === strpos($html_fe_ok, 'Tu agencia no fue aprobada'),
+    'front-dash hides both approval banners for an approved agency'
+);
+
 /* --- C8: service_detail post_status gate ------------------------------------ */
+
 $draft = wp_insert_post([
     'post_type'    => 'tap_tour',
     'post_status'  => 'draft',
@@ -272,11 +298,63 @@ tap_t_assert(
 );
 
 TAP_Approval::approve($aid);
+
+/* --- C14d: only the agency admin may contract a plan ------------------------
+ * Runs while the agency has no subscription row yet, so a leaked employee
+ * request would show up as an extra row instead of a misleading
+ * already_pending rejection. */
+$pc_subs_before = (int) $wpdb->get_var($wpdb->prepare(
+    'SELECT COUNT(*) FROM ' . TAP_Subscriptions::subs_table() . ' WHERE agency_id = %d',
+    (int) $aid
+));
+wp_set_current_user($staff_uid);
+$_POST = $_REQUEST = ['nonce' => wp_create_nonce('tap_plan_nonce'), 'plan_id' => $pc_plan_id];
+[$pc_died, $pc_json] = $pc_run_die(['TAP_Ajax_Commerce', 'agency_subscribe']);
+tap_t_assert(
+    is_array($pc_json) && empty($pc_json['success'])
+        && isset($pc_json['data']['message'])
+        && 'Solo el administrador de la agencia puede contratar un plan.' === $pc_json['data']['message'],
+    'agency employee is refused by the subscription endpoint'
+);
+tap_t_assert(
+    (int) $wpdb->get_var($wpdb->prepare(
+        'SELECT COUNT(*) FROM ' . TAP_Subscriptions::subs_table() . ' WHERE agency_id = %d',
+        (int) $aid
+    )) === $pc_subs_before,
+    'employee subscription attempt leaves no subscription row behind'
+);
+[$pc_died, $pc_json] = $pc_run_die(['TAP_Ajax_Commerce', 'subscribe_paypal']);
+tap_t_assert(
+    is_array($pc_json) && empty($pc_json['success'])
+        && isset($pc_json['data']['message'])
+        && 'Solo el administrador de la agencia puede contratar un plan.' === $pc_json['data']['message'],
+    'agency employee is refused by the PayPal subscription endpoint'
+);
+wp_set_current_user($owner_uid);
+
 $pc_sub_id = TAP_Subscriptions::subscribe((int) $aid, $pc_plan_id);
 tap_t_assert(!is_wp_error($pc_sub_id) && (int) $pc_sub_id > 0, 'approved agency can request a subscription');
 tap_t_assert(
     (int) $aid === TAP_Subscriptions::agency_for_subscription((int) $pc_sub_id),
     'agency_for_subscription resolves the owning agency'
+);
+
+/* --- C14e: the plans page must not offer purchase actions while pending ----- */
+TAP_Approval::pending($aid);
+$pc_plans_pend = TAP_Shortcode_Account::plans([]);
+tap_t_assert(
+    strpos($pc_plans_pend, 'data-plan-id=') === false,
+    'unapproved agency sees no plan purchase button on /planes/'
+);
+tap_t_assert(
+    strpos($pc_plans_pend, 'Tu agencia está en revisión') !== false,
+    'unapproved agency sees the review notice on /planes/'
+);
+TAP_Approval::approve($aid);
+$pc_plans_ok = TAP_Shortcode_Account::plans([]);
+tap_t_assert(
+    strpos($pc_plans_ok, 'data-plan-id=') !== false,
+    'approved agency sees plan purchase buttons on /planes/'
 );
 
 $pc_order = 'ORD-PC-' . $sfx;
@@ -307,6 +385,7 @@ $pc_promo_id    = 0;
 $pc_promo_order = 'ORD-PCP-' . $sfx;
 $orig_cid = get_option('tap_paypal_client_id', '');
 $orig_sec = get_option('tap_paypal_secret', '');
+tap_t_guard_paypal_credentials();
 update_option('tap_paypal_client_id', 'test-client');
 update_option('tap_paypal_secret', 'test-secret');
 tap_t_install_paypal_mock();
@@ -344,6 +423,57 @@ tap_t_remove_paypal_mock();
 update_option('tap_paypal_client_id', $orig_cid);
 update_option('tap_paypal_secret', $orig_sec);
 wp_set_current_user(0);
+
+/* --- C14f: a retried PayPal createOrder must not deadlock the agency --------
+ * subscribe_paypal() opens the subscription row before it asks PayPal for an
+ * order. If that request never completes (or the buyer backs out), the row
+ * must stay reusable: the next click has to reach PayPal again instead of
+ * bouncing off a stale pending row the agency can no longer act on. */
+$pc_cid = get_option('tap_paypal_client_id', '');
+$pc_sec = get_option('tap_paypal_secret', '');
+tap_t_guard_paypal_credentials();
+update_option('tap_paypal_client_id', 'test-client');
+update_option('tap_paypal_secret', 'test-secret');
+tap_t_install_paypal_mock();
+
+$pc_paid_plan = 0;
+foreach ($pc_plans as $pc_p) {
+    if ((float) $pc_p->price_monthly > 0) {
+        $pc_paid_plan = (int) $pc_p->id;
+        break;
+    }
+}
+tap_t_assert($pc_paid_plan > 0, 'paid plan fixture available for the PayPal flow');
+$pc_pp_orders = [];
+
+TAP_Approval::approve($aid);
+wp_set_current_user($owner_uid);
+$_POST = $_REQUEST = ['nonce' => wp_create_nonce('tap_plan_nonce'), 'plan_id' => $pc_paid_plan];
+[$pc_died, $pc_json] = $pc_run_die(['TAP_Ajax_Commerce', 'subscribe_paypal']);
+tap_t_assert(
+    is_array($pc_json) && !empty($pc_json['success']) && !empty($pc_json['data']['order_id']),
+    'agency admin can open a PayPal subscription order'
+);
+$pc_pp_orders[] = (string) ($pc_json['data']['order_id'] ?? '');
+[$pc_died, $pc_json] = $pc_run_die(['TAP_Ajax_Commerce', 'subscribe_paypal']);
+tap_t_assert(
+    is_array($pc_json) && !empty($pc_json['success']) && !empty($pc_json['data']['order_id']),
+    'retried createOrder reaches PayPal again instead of returning already_pending'
+);
+$pc_pp_orders[] = (string) ($pc_json['data']['order_id'] ?? '');
+tap_t_assert(
+    1 === (int) $wpdb->get_var($wpdb->prepare(
+        "SELECT COUNT(*) FROM " . TAP_Subscriptions::subs_table() . " WHERE agency_id = %d AND status = 'pending'",
+        (int) $aid
+    )),
+    'retried createOrder reuses one pending row instead of stacking orphans'
+);
+
+tap_t_remove_paypal_mock();
+update_option('tap_paypal_client_id', $pc_cid);
+update_option('tap_paypal_secret', $pc_sec);
+wp_set_current_user(0);
+TAP_Approval::pending($aid);
 
 /* --- C15a: handle_agency_action capability check ---------------------------- */
 $pc_ref = new ReflectionMethod('TAP_Dashboard_Content', 'handle_agency_action');
@@ -440,6 +570,11 @@ wp_set_current_user(0);
 tap_t_cleanup_bookings([$pc_booking_id]);
 $wpdb->delete($wpdb->prefix . 'tap_payment_orders', ['paypal_order_id' => $pc_order]);
 $wpdb->delete($wpdb->prefix . 'tap_payment_orders', ['paypal_order_id' => $pc_promo_order]);
+foreach ($pc_pp_orders as $pc_oid) {
+    if ('' !== $pc_oid) {
+        $wpdb->delete($wpdb->prefix . 'tap_payment_orders', ['paypal_order_id' => $pc_oid]);
+    }
+}
 $wpdb->delete($wpdb->prefix . 'tap_promos', ['id' => (int) $pc_promo_id]);
 $wpdb->delete(TAP_Subscriptions::subs_table(), ['agency_id' => (int) $aid]);
 $wpdb->delete($wpdb->prefix . 'tap_agencies', ['user_id' => (int) $owner_uid]);

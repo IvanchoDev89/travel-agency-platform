@@ -145,6 +145,66 @@ try {
         }
     }
 
+    // ── a pending row is a reusable draft, never a lock ──────────────────────
+    // subscribe_paypal() inserts the row before PayPal answers, so a timeout or
+    // an abandoned checkout must leave the agency free to try again.
+    if ($plan) {
+        $sub_draft = TAP_Subscriptions::subscribe($agency, $plan_id);
+        if (is_wp_error($sub_draft)) {
+            tap_t_fail('draft subscription could not be opened: ' . $sub_draft->get_error_message());
+        } else {
+            $pay_track('subs', (int) $sub_draft);
+            $sub_retry = TAP_Subscriptions::subscribe($agency, $plan_id);
+            tap_t_assert(
+                !is_wp_error($sub_retry) && (int) $sub_retry === (int) $sub_draft,
+                'a repeated subscribe() for the same plan reuses the pending row instead of failing'
+            );
+
+            $wpdb->insert($wpdb->prefix . 'tap_plans', [
+                'name'            => 'Pay E2E Switch ' . wp_generate_password(6, false),
+                'slug'            => 'pay-e2e-switch-' . wp_generate_password(8, false),
+                'price_monthly'   => 19.95,
+                'commission_rate' => 6.00,
+                'listing_limit'   => 50,
+                'featured_slots'  => 2,
+                'is_active'       => 1,
+            ]);
+            $plan_switch = (int) $wpdb->insert_id;
+            if ($plan_switch > 0) {
+                $pay_track('plans', $plan_switch);
+            }
+
+            $sub_switch = TAP_Subscriptions::subscribe($agency, $plan_switch);
+            tap_t_assert(
+                !is_wp_error($sub_switch) && (int) $sub_switch > 0 && (int) $sub_switch !== (int) $sub_draft,
+                'picking another plan while a draft is open starts a new subscription'
+            );
+            if (!is_wp_error($sub_switch)) {
+                $pay_track('subs', (int) $sub_switch);
+            }
+            $old_status = $wpdb->get_var($wpdb->prepare(
+                'SELECT status FROM ' . TAP_Subscriptions::subs_table() . ' WHERE id = %d',
+                (int) $sub_draft
+            ));
+            tap_t_assert(
+                'pending' !== (string) $old_status,
+                'the superseded draft no longer sits in pending state'
+            );
+            $pay_cur = TAP_Subscriptions::current_subscription($agency);
+            tap_t_assert(
+                $pay_cur && (int) $pay_cur->plan_id === $plan_switch,
+                'current_subscription resolves the plan that replaced the draft'
+            );
+            tap_t_assert(
+                1 === (int) $wpdb->get_var($wpdb->prepare(
+                    "SELECT COUNT(*) FROM " . TAP_Subscriptions::subs_table() . " WHERE agency_id = %d AND status = 'pending'",
+                    (int) $agency
+                )),
+                'the agency is left with exactly one pending draft'
+            );
+        }
+    }
+
     // ── default_plan() never falls back to a paid plan ───────────────────────
     $plans_table = TAP_Subscriptions::plans_table();
     $plan_active_backup = $wpdb->get_results("SELECT id, is_active FROM {$plans_table}");
@@ -218,6 +278,7 @@ try {
     // genuine capture and that a replay cannot re-earn it.
     $orig_cid = get_option('tap_paypal_client_id', '');
     $orig_sec = get_option('tap_paypal_secret', '');
+    tap_t_guard_paypal_credentials();
     update_option('tap_paypal_client_id', 'test-client');
     update_option('tap_paypal_secret', 'test-secret');
     tap_t_install_paypal_mock();

@@ -48,6 +48,10 @@ class TAP_Shortcode_Account {
         if (is_user_logged_in()) {
             $agency_id = (int) TAP_Booking::get_agency_for_user($user->ID);
         }
+        // Contracting a plan is gated by the approval review, so the paying
+        // buttons must not be rendered for an agency that cannot subscribe
+        // yet: they only promise a dead end.
+        $agency_ok  = $agency_id && TAP_Approval::is_approved($agency_id);
         $current      = $agency_id ? TAP_Subscriptions::current_subscription($agency_id) : null;
         $active_plan  = $agency_id ? TAP_Subscriptions::active_plan($agency_id) : null;
         $nonce        = wp_create_nonce('tap_plan_nonce');
@@ -90,7 +94,7 @@ class TAP_Shortcode_Account {
                 $html .= '<p class="tap-plan-badge">' . esc_html__('Plan actual', 'travel-agency-platform') . '</p>';
             } elseif ($is_pending) {
                 $html .= '<p class="tap-plan-badge tap-plan-pending">' . esc_html__('Pago pendiente de confirmación', 'travel-agency-platform') . '</p>';
-            } elseif ($agency_id) {
+            } elseif ($agency_ok) {
                 $html .= $paypal_ready && (float) $plan->price_monthly > 0
                     ? '<button type="button" class="tap-btn tap-btn-primary tap-plan-paypal" data-plan-id="' . (int) $plan->id . '" data-plan-name="' . esc_attr($plan->name) . '" data-amount="' . esc_attr((float) $plan->price_monthly) . '">' . esc_html__('Pagar con PayPal', 'travel-agency-platform') . '</button>'
                     : '<button type="button" class="tap-btn tap-btn-primary tap-plan-subscribe" data-plan-id="' . (int) $plan->id . '" data-nonce="' . esc_attr($nonce) . '">' . esc_html__('Seleccionar plan', 'travel-agency-platform') . '</button>';
@@ -99,7 +103,9 @@ class TAP_Shortcode_Account {
         }
         $html .= '</div>';
 
-        if ($agency_id && !$current) {
+        if ($agency_id && !$agency_ok) {
+            $html .= '<p class="tap-plan-note tap-plan-review">' . esc_html__('Tu agencia está en revisión. Podrás contratar un plan cuando un administrador la apruebe.', 'travel-agency-platform') . '</p>';
+        } elseif ($agency_id && !$current) {
             $html .= '<p class="tap-plan-note">' . esc_html__('Tu agencia usa el plan Gratis. Elige un plan para desbloquear más listados y una comisión menor.', 'travel-agency-platform') . '</p>';
         } elseif (!$agency_id) {
             $html .= '<p class="tap-plan-note">' . esc_html__('Inicia sesión como agencia para seleccionar un plan.', 'travel-agency-platform') . '</p>';
