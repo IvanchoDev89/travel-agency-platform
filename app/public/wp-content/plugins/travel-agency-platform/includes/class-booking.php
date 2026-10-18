@@ -226,6 +226,14 @@ class TAP_Booking {
                     $avail = TAP_Booking_Pricing::get_room_availability(intval($data['room_id']), $room_check_in, $room_check_out);
                     if (!$avail['available']) {
                         $create_error = new WP_Error('dates_full', __('No hay disponibilidad para las fechas seleccionadas.', 'travel-agency-platform'));
+                    } elseif (class_exists('TAP_Pricing')) {
+                        // Blocked nights live in tap_daily_pricing (per-date
+                        // calendar), not in tap_availability: a range containing
+                        // a blocked date must never be booked.
+                        $range = TAP_Pricing::get_prices_for_range(intval($data['room_id']), $room_check_in, $room_check_out);
+                        if (empty($range['available'])) {
+                            $create_error = new WP_Error('dates_blocked', __('Alguna de las fechas seleccionadas no está disponible para reservar.', 'travel-agency-platform'));
+                        }
                     }
                 }
             }

@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.31] — 2026-10-17
+
+Blocked calendar dates are enforced at booking time.
+
+### Fixed
+
+- **A range containing a blocked night can no longer be booked.** Blocked nights live in `tap_daily_pricing.is_blocked` (the per-date room calendar), but `TAP_Booking::create()` only checked `tap_room` overlap against `tap_availability` (never written), so blocked dates were booked anyway. `create()` now consults `TAP_Pricing::get_prices_for_range()` and rejects the booking with `dates_blocked` when any night in the range is blocked (or unpriced).
+- **Blocked ranges are no longer quoted at the flat base rate.** `TAP_Booking_Pricing::calculate_price()` used to fall through to the plain per-night rate whenever `TAP_Pricing::calculate_total()` returned `false` (a blocked date), effectively pricing unavailable nights. It now returns `0` for an unpriceable accommodation range instead of masking the block.
+
+---
+
 ## [1.5.30] — 2026-10-17
 
 Booking input validation (reservation integrity).

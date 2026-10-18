@@ -127,6 +127,28 @@ tap_t_assert(TAP_Booking_Pricing::calculate_price('tap_package', $pkg2, $in2, $o
 // 5) room-based accommodation price -------------------------------------------
 tap_t_assert(TAP_Booking_Pricing::calculate_price('tap_accommodation', $room_id, $in2, $out2, 1, 0, $room_id) === 200.0, 'room-based accommodation price uses room base');
 
+// 6) blocked calendar dates cannot be booked and are not priced at the base rate
+$bacc  = pr_make_post('tap_accommodation', ['_tap_acc_price_per_night' => 100]);
+$broom = pr_make_post('tap_room', ['_tap_room_price_per_night' => 100, '_tap_room_inventory' => 1, '_tap_room_is_active' => '1']);
+update_post_meta($broom, '_tap_room_accommodation_id', $bacc);
+$bin  = gmdate('Y-m-d', strtotime('+80 days'));
+$bout = gmdate('Y-m-d', strtotime('+81 days'));
+$wpdb->insert($dp_table, ['room_id' => $broom, 'date' => $bin, 'price' => null, 'min_stay' => null, 'is_blocked' => 1, 'label' => '']);
+tap_t_assert(TAP_Booking_Pricing::calculate_price('tap_accommodation', $bacc, $bin, $bout, 1, 0, $broom) === 0, 'blocked room night is not priced at the base rate');
+$blocked_booking = TAP_Booking::create([
+    'service_type' => 'tap_accommodation',
+    'service_id'   => $bacc,
+    'room_id'      => $broom,
+    'check_in'     => $bin,
+    'check_out'    => $bout,
+    'adults'       => 1,
+    'children'     => 0,
+    'guest_name'   => 'Blocked',
+    'guest_email'  => 'pr_blocked_' . wp_generate_password(6, false) . '@example.test',
+]);
+tap_t_assert(is_wp_error($blocked_booking) && 'dates_blocked' === $blocked_booking->get_error_code(), 'booking over a blocked night is rejected');
+$wpdb->delete($dp_table, ['room_id' => $broom]);
+
 foreach ($created_posts as $pid) {
     wp_delete_post($pid, true);
 }

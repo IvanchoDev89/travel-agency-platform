@@ -28,6 +28,10 @@ class TAP_Booking_Pricing {
             if (class_exists('TAP_Pricing') && $check_in && $check_out) {
                 $total = TAP_Pricing::calculate_total($room_id, $check_in, $check_out);
                 if ($total !== false) return $total;
+                // The range is not priceable (a blocked date, or a night with
+                // no price). Never fall back to the flat per-night rate here:
+                // that would quote — and let create() book — blocked dates.
+                return 0;
             }
             $unit_price = floatval(get_post_meta($room_id, '_tap_room_price_per_night', true));
             if ($unit_price <= 0) return 0;
