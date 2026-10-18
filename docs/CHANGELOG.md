@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.32] — 2026-10-17
+
+Room occupancy limits and minimum stay are enforced when booking.
+
+### Fixed
+
+- **Over-occupancy room bookings are rejected.** `TAP_Booking::create()` never validated the room's occupancy limits, so a client could post more guests than `_tap_room_max_occupancy` / `_tap_room_max_adults` / `_tap_room_max_children` allowed (the limits were only used to filter the display list). `create()` now returns `max_occupancy` when adults, children or the combined party exceed the room's limits (0/empty meta stays unlimited, matching the display filter).
+- **Bookings shorter than the room's minimum stay are rejected.** The per-date minimum stay (`tap_daily_pricing.min_stay`, surfaced via `TAP_Pricing::get_max_min_stay_for_range()`) was advisory only; `create()` now returns `min_stay` when the requested nights are below the range minimum.
+
+---
+
 ## [1.5.31] — 2026-10-17
 
 Blocked calendar dates are enforced at booking time.

@@ -226,13 +226,35 @@ class TAP_Booking {
                     $avail = TAP_Booking_Pricing::get_room_availability(intval($data['room_id']), $room_check_in, $room_check_out);
                     if (!$avail['available']) {
                         $create_error = new WP_Error('dates_full', __('No hay disponibilidad para las fechas seleccionadas.', 'travel-agency-platform'));
-                    } elseif (class_exists('TAP_Pricing')) {
-                        // Blocked nights live in tap_daily_pricing (per-date
-                        // calendar), not in tap_availability: a range containing
-                        // a blocked date must never be booked.
-                        $range = TAP_Pricing::get_prices_for_range(intval($data['room_id']), $room_check_in, $room_check_out);
-                        if (empty($range['available'])) {
-                            $create_error = new WP_Error('dates_blocked', __('Alguna de las fechas seleccionadas no está disponible para reservar.', 'travel-agency-platform'));
+                    } else {
+                        $room_id = intval($data['room_id']);
+
+                        // Occupancy limits (0/empty meta = unlimited, mirroring
+                        // the display filter in get_rooms_with_availability).
+                        $max_occ = (int) get_post_meta($room_id, '_tap_room_max_occupancy', true);
+                        $max_ad  = (int) get_post_meta($room_id, '_tap_room_max_adults', true);
+                        $max_ch  = get_post_meta($room_id, '_tap_room_max_children', true);
+                        if (($max_occ > 0 && ($adults + $children) > $max_occ)
+                            || ($max_ad > 0 && $adults > $max_ad)
+                            || ('' !== $max_ch && $children > (int) $max_ch)) {
+                            $create_error = new WP_Error('max_occupancy', __('El número de huéspedes supera la capacidad de la habitación.', 'travel-agency-platform'));
+                        } elseif (class_exists('TAP_Pricing')) {
+                            // Blocked nights live in tap_daily_pricing (per-date
+                            // calendar), not in tap_availability: a range containing
+                            // a blocked date must never be booked.
+                            $range = TAP_Pricing::get_prices_for_range($room_id, $room_check_in, $room_check_out);
+                            if (empty($range['available'])) {
+                                $create_error = new WP_Error('dates_blocked', __('Alguna de las fechas seleccionadas no está disponible para reservar.', 'travel-agency-platform'));
+                            } else {
+                                $min_stay = TAP_Pricing::get_max_min_stay_for_range($room_id, $room_check_in, $room_check_out);
+                                if ($min_stay > 1 && $nights < $min_stay) {
+                                    $create_error = new WP_Error(
+                                        'min_stay',
+                                        /* translators: %d: número mínimo de noches */
+                                        sprintf(__('Esta habitación requiere una estadía mínima de %d noches.', 'travel-agency-platform'), $min_stay)
+                                    );
+                                }
+                            }
                         }
                     }
                 }
@@ -240,7 +262,7 @@ class TAP_Booking {
 
             if (!$create_error && sanitize_text_field($data['service_type']) === 'tap_tour') {
                 $check_date = !empty($data['check_in']) ? sanitize_text_field($data['check_in']) : '';
-                $guests = intval($data['adults'] ?? 1) + intval($data['children'] ?? 0);
+                $guests = $adults + $children;
                 $slots = self::tour_slots(intval($data['service_id']), $check_date);
                 if ($slots['booked'] + $guests > $slots['capacity']) {
                     $create_error = new WP_Error(

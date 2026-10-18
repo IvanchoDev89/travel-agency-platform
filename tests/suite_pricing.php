@@ -149,6 +149,42 @@ $blocked_booking = TAP_Booking::create([
 tap_t_assert(is_wp_error($blocked_booking) && 'dates_blocked' === $blocked_booking->get_error_code(), 'booking over a blocked night is rejected');
 $wpdb->delete($dp_table, ['room_id' => $broom]);
 
+// 7) room occupancy limits + minimum stay are enforced at booking time
+$occ_acc  = pr_make_post('tap_accommodation', ['_tap_acc_price_per_night' => 100]);
+$occ_room = pr_make_post('tap_room', [
+    '_tap_room_price_per_night' => 100, '_tap_room_inventory' => 1, '_tap_room_is_active' => '1',
+    '_tap_room_max_occupancy' => 2, '_tap_room_max_adults' => 2, '_tap_room_max_children' => 1,
+]);
+update_post_meta($occ_room, '_tap_room_accommodation_id', $occ_acc);
+$oin   = gmdate('Y-m-d', strtotime('+120 days'));
+$oout  = gmdate('Y-m-d', strtotime('+121 days'));
+$guest = 'pr_occ_' . wp_generate_password(6, false) . '@example.test';
+
+$over = TAP_Booking::create([
+    'service_type' => 'tap_accommodation', 'service_id' => $occ_acc, 'room_id' => $occ_room,
+    'check_in' => $oin, 'check_out' => $oout, 'adults' => 3, 'children' => 0,
+    'guest_name' => 'Over', 'guest_email' => $guest,
+]);
+tap_t_assert(is_wp_error($over) && 'max_occupancy' === $over->get_error_code(), 'booking above max adults is rejected');
+
+$over2 = TAP_Booking::create([
+    'service_type' => 'tap_accommodation', 'service_id' => $occ_acc, 'room_id' => $occ_room,
+    'check_in' => $oin, 'check_out' => $oout, 'adults' => 1, 'children' => 2,
+    'guest_name' => 'Over2', 'guest_email' => $guest,
+]);
+tap_t_assert(is_wp_error($over2) && 'max_occupancy' === $over2->get_error_code(), 'booking above max occupancy (adults+children) is rejected');
+
+$msin  = gmdate('Y-m-d', strtotime('+140 days'));
+$msout = gmdate('Y-m-d', strtotime('+141 days'));
+$wpdb->insert($dp_table, ['room_id' => $occ_room, 'date' => $msin, 'price' => null, 'min_stay' => 3, 'is_blocked' => 0, 'label' => '']);
+$short = TAP_Booking::create([
+    'service_type' => 'tap_accommodation', 'service_id' => $occ_acc, 'room_id' => $occ_room,
+    'check_in' => $msin, 'check_out' => $msout, 'adults' => 1, 'children' => 0,
+    'guest_name' => 'Short', 'guest_email' => $guest,
+]);
+tap_t_assert(is_wp_error($short) && 'min_stay' === $short->get_error_code(), 'booking shorter than the minimum stay is rejected');
+$wpdb->delete($dp_table, ['room_id' => $occ_room]);
+
 foreach ($created_posts as $pid) {
     wp_delete_post($pid, true);
 }
