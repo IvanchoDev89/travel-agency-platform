@@ -33,6 +33,7 @@ class TAP_Shortcode_Booking {
                 <input type="hidden" name="action" value="tap_booking_create">
                 <input type="hidden" name="service_type" value="<?php echo esc_attr($atts['service_type']); ?>">
                 <input type="hidden" name="service_id" value="<?php echo esc_attr($atts['service_id']); ?>">
+                <input type="hidden" name="idempotency_key" value="<?php echo esc_attr(wp_generate_uuid4()); ?>">
                 <?php wp_nonce_field('tap_booking_nonce', 'tap_booking_nonce'); ?>
 
                 <div class="tap-form-row">

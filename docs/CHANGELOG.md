@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.38] — 2026-10-17
+
+Idempotency key wired to every public booking entry point.
+
+### Fixed
+
+- **`[tap_booking_form]` shortcode now sends an idempotency key.** The form posts its whole serialized payload, so a double click or network retry created two bookings; it now renders a per-render `idempotency_key` field like the theme templates.
+- **REST `POST /tap/v1/booking` documents and sanitises `idempotency_key`.** Replays with the same key (scoped to the caller) return the original booking instead of a duplicate.
+
+---
+
 ## [1.5.37] — 2026-10-17
 
 Contact unlock requires actual payment.

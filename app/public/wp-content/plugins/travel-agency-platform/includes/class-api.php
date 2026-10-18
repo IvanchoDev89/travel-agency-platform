@@ -45,6 +45,10 @@ class TAP_API {
             'methods'             => 'POST',
             'callback'            => [__CLASS__, 'create_booking'],
             'permission_callback' => [__CLASS__, 'check_auth'],
+            'args'                => [
+                // Optional: replays with the same value return the original booking.
+                'idempotency_key' => ['type' => 'string', 'required' => false],
+            ],
         ]);
 
         register_rest_route($namespace, '/booking/(?P<id>\d+)', [
@@ -312,6 +316,10 @@ class TAP_API {
         // Never accept line-item prices from the client; the booking amount is
         // recomputed server-side by TAP_Booking::create().
         unset($params['items']);
+
+        // Optional client-supplied key so a retried request does not create a
+        // duplicate booking (see TAP_Booking::create()). Scoped to the caller.
+        $params['idempotency_key'] = isset($params['idempotency_key']) ? sanitize_text_field((string) $params['idempotency_key']) : '';
 
         if (empty($params['privacy_consent'])) {
             return new WP_Error('consent_required', __('Debes aceptar el Aviso de Privacidad.', 'travel-agency-platform'), ['status' => 400]);

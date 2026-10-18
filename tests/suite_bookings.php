@@ -66,4 +66,13 @@ $bogus = wp_generate_password(10, false);
 tap_t_assert(!(wp_verify_nonce($bogus, 'tap_nonce') || wp_verify_nonce($bogus, 'tap_booking_nonce')),
     '[regression] bogus nonce is rejected by create_booking');
 
+// 6) REGRESSION: the shortcode booking form must carry an idempotency key. Its JS
+// posts the whole serialized form, so without a stable per-render key a double
+// click / network retry creates duplicate bookings. The theme templates already
+// send one; the shortcode (a primary public form) must too.
+list($bf_id, $bf_type) = tap_t_find_service(true);
+$bf_html = do_shortcode('[tap_booking_form service_type="' . esc_attr($bf_type) . '" service_id="' . (int) $bf_id . '"]');
+tap_t_assert(strpos($bf_html, 'name="idempotency_key"') !== false,
+    '[regression] shortcode booking form renders an idempotency_key field');
+
 tap_t_finish();

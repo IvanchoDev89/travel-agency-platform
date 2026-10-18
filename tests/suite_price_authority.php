@@ -163,6 +163,28 @@ $other = TAP_Booking::create(array_merge($idem_data, ['idempotency_key' => $idem
 tap_t_assert(!is_wp_error($other) && is_array($first) && (int) $other['booking_id'] !== (int) $first['booking_id'], 'a different idempotency key creates a new booking');
 if (!is_wp_error($other)) { $created[] = (int) $other['booking_id']; }
 
+// ---- 8) REST /booking honours idempotency_key (replay returns same booking) ----
+wp_set_current_user($uid);
+$ikey = wp_generate_uuid4();
+$iparams = [
+    'service_type'    => $ftype,
+    'service_id'      => $fid,
+    'check_in'        => $in,
+    'check_out'       => $out,
+    'adults'          => 1,
+    'children'        => 0,
+    'guest_email'     => 't8_idem_rest_' . wp_generate_password(6, false) . '@example.test',
+    'privacy_consent' => 1,
+    'idempotency_key' => $ikey,
+];
+$ir1 = tap_t_rest('POST', '/tap/v1/booking', $iparams);
+$ir2 = tap_t_rest('POST', '/tap/v1/booking', $iparams);
+wp_set_current_user(0);
+$ir1_id = (int) (tap_t_rest_data($ir1)['booking_id'] ?? 0);
+$ir2_id = (int) (tap_t_rest_data($ir2)['booking_id'] ?? 0);
+tap_t_assert($ir1_id > 0 && $ir1_id === $ir2_id, 'REST replay with the same idempotency_key returns the same booking');
+if ($ir1_id) { $created[] = $ir1_id; }
+
 // cleanup --------------------------------------------------------------------
 tap_t_cleanup_bookings($created);
 tap_t_cleanup_test_consents();
