@@ -18,8 +18,11 @@ class TAP_Attribution {
 
     /**
      * Contact fields of a client matching any given email are unlocked for an
-     * agency once that agency has at least one confirmed (paid) booking whose
-     * guest email or account email matches.
+     * agency once that agency has at least one paid booking whose guest email
+     * or account email matches. A mere `confirmed` status is not enough: a
+     * booking can be confirmed without payment (auto-confirm, request-to-book),
+     * and the whole point of the anti-leak rule is to withhold contact until
+     * money has actually changed hands.
      *
      * @param int   $agency_id tap_agency post id (bookings.agency_id namespace).
      * @param array|string $emails One or more client emails.
@@ -39,7 +42,7 @@ class TAP_Attribution {
         $n  = (int) $wpdb->get_var($wpdb->prepare(
             "SELECT COUNT(*) FROM {$t} b
              LEFT JOIN {$wpdb->users} u ON u.ID = b.client_id
-             WHERE b.agency_id = %d AND b.status = 'confirmed'
+             WHERE b.agency_id = %d AND b.status = 'confirmed' AND b.payment_status = 'paid'
                AND (LOWER(COALESCE(b.guest_email, '')) IN ({$in})
                     OR LOWER(COALESCE(u.user_email, '')) IN ({$in}))",
             $agency_id
@@ -49,9 +52,13 @@ class TAP_Attribution {
 
     /**
      * True when the booking itself is paid (contact may be shown in full).
+     * `confirmed` alone is not sufficient — see contact_unlocked().
      */
     public static function booking_unlocked($booking) {
-        return is_object($booking) && isset($booking->status) && $booking->status === 'confirmed';
+        return is_object($booking)
+            && isset($booking->status, $booking->payment_status)
+            && $booking->status === 'confirmed'
+            && $booking->payment_status === 'paid';
     }
 
     /**

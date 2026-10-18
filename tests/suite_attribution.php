@@ -146,11 +146,15 @@ $b2_id = (int) $b2['booking_id'];
 $row2 = $wpdb->get_row($wpdb->prepare("SELECT lead_id FROM {$wpdb->prefix}tap_bookings WHERE id = %d", $b2_id));
 tap_t_assert($row2 && (int) $row2->lead_id === 0, 'booking NOT linked to a lead from another agency');
 
-/* --- Unlock rule: confirmed (paid) booking reveals contact. --- */
+/* --- Unlock rule: a confirmed booking only reveals contact once PAID. --- */
 tap_t_assert(true === TAP_Booking::update_status($b1_id, 'confirmed'), 'booking confirmed status accepted');
 tap_t_assert('confirmed' === TAP_Booking::get_booking($b1_id)->status, 'booking status is confirmed');
-tap_t_assert(true === TAP_Attribution::booking_unlocked(TAP_Booking::get_booking($b1_id)), 'confirmed booking unlocks contact');
-tap_t_assert(true === TAP_Attribution::contact_unlocked($post_a, $lead_email), 'contact unlocked after confirmed booking (post id)');
+tap_t_assert(false === TAP_Attribution::booking_unlocked(TAP_Booking::get_booking($b1_id)), 'confirmed-but-unpaid booking keeps contact locked');
+tap_t_assert(false === TAP_Attribution::contact_unlocked($post_a, $lead_email), 'confirmed-but-unpaid booking does not unlock contact');
+
+tap_t_assert(true === TAP_Booking::update_payment_status($b1_id, 'paid'), 'booking marked paid');
+tap_t_assert(true === TAP_Attribution::booking_unlocked(TAP_Booking::get_booking($b1_id)), 'paid booking unlocks contact');
+tap_t_assert(true === TAP_Attribution::contact_unlocked($post_a, $lead_email), 'contact unlocked after paid booking (post id)');
 tap_t_assert(true === TAP_Attribution::contact_unlocked($ag_a, $lead_email), 'contact unlocked via row-id agency too');
 
 /* --- CSV unmasked once unlocked. --- */
@@ -168,7 +172,8 @@ $b3 = at_booking($tour_a, '', $token . 'Client', 0, 46);
 wp_set_current_user(0);
 $b3_id = (int) $b3['booking_id'];
 TAP_Booking::update_status($b3_id, 'confirmed');
-tap_t_assert(true === TAP_Attribution::contact_unlocked($post_a, $token . 'wpu@example.test'), 'account-email contact unlocked after confirmed booking');
+TAP_Booking::update_payment_status($b3_id, 'paid');
+tap_t_assert(true === TAP_Attribution::contact_unlocked($post_a, $token . 'wpu@example.test'), 'account-email contact unlocked after paid booking');
 
 /* --- Pending booking does not unlock, regardless of email. --- */
 $b4 = at_booking($tour_a, $token . 'pend@example.test', 'Pending Client', 0, 48);

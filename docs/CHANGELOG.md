@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.37] — 2026-10-17
+
+Contact unlock requires actual payment.
+
+### Security
+
+- **Client contact is withheld until a booking is paid.** Both `TAP_Attribution::contact_unlocked()` and `booking_unlocked()` treated a `confirmed` status as proof of payment, but a booking can be confirmed without money (auto-confirm option, request-to-book approvals) — leaking the traveler's full name, email and phone to the agency for free. Both now require `payment_status = 'paid'` in addition to `status = 'confirmed'`.
+
+---
+
 ## [1.5.36] — 2026-10-17
 
 Listing limit re-evaluated at publish time.
