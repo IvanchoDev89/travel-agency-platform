@@ -357,6 +357,50 @@ tap_t_assert(
     'approved agency sees plan purchase buttons on /planes/'
 );
 
+/* --- C14g: the free tier is never offered as a purchase ---------------------
+ * Both subscription endpoints refuse a plan whose price is 0, so a
+ * "Seleccionar plan" button on the free card always ended in an error. The
+ * agency is put on a paid plan first, otherwise the free tier is simply its
+ * current plan and the card shows a badge — the assertion would pass for the
+ * wrong reason. */
+$pc_paid_plan = null;
+foreach ((array) TAP_Subscriptions::get_plans() as $pc_p) {
+    if ((float) $pc_p->price_monthly > 0) {
+        $pc_paid_plan = $pc_p;
+        break;
+    }
+}
+tap_t_assert(null !== $pc_paid_plan, 'a paid plan exists (C14g precondition)');
+$pc_free_plan = TAP_Subscriptions::default_plan();
+tap_t_assert(
+    null !== $pc_free_plan && 0.0 === (float) $pc_free_plan->price_monthly,
+    'the default plan is free (C14g precondition)'
+);
+if (null !== $pc_paid_plan && null !== $pc_free_plan) {
+    $pc_paid_sub = TAP_Subscriptions::subscribe((int) $aid, (int) $pc_paid_plan->id);
+    tap_t_assert(!is_wp_error($pc_paid_sub), 'agency requests the paid plan (C14g precondition)');
+    if (!is_wp_error($pc_paid_sub)) {
+        tap_t_assert(
+            !is_wp_error(TAP_Subscriptions::mark_paid((int) $pc_paid_sub, 0, 12)),
+            'paid plan activated (C14g precondition)'
+        );
+    }
+    $pc_plans_paid = TAP_Shortcode_Account::plans([]);
+    tap_t_assert(
+        strpos($pc_plans_paid, 'data-plan-id="' . (int) $pc_free_plan->id . '"') === false,
+        'the free plan never renders a purchase button'
+    );
+    foreach ((array) TAP_Subscriptions::get_plans() as $pc_p) {
+        if ((float) $pc_p->price_monthly <= 0 || (int) $pc_p->id === (int) $pc_paid_plan->id) {
+            continue;
+        }
+        tap_t_assert(
+            strpos($pc_plans_paid, 'data-plan-id="' . (int) $pc_p->id . '"') !== false,
+            'a paid plan the agency is not on still renders a purchase button'
+        );
+    }
+}
+
 $pc_order = 'ORD-PC-' . $sfx;
 $wpdb->insert($wpdb->prefix . 'tap_payment_orders', [
     'paypal_order_id' => $pc_order,

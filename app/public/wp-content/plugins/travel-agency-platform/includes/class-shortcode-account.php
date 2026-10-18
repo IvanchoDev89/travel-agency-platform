@@ -94,8 +94,10 @@ class TAP_Shortcode_Account {
                 $html .= '<p class="tap-plan-badge">' . esc_html__('Plan actual', 'travel-agency-platform') . '</p>';
             } elseif ($is_pending) {
                 $html .= '<p class="tap-plan-badge tap-plan-pending">' . esc_html__('Pago pendiente de confirmación', 'travel-agency-platform') . '</p>';
-            } elseif ($agency_ok) {
-                $html .= $paypal_ready && (float) $plan->price_monthly > 0
+            } elseif ($agency_ok && (float) $plan->price_monthly > 0) {
+                // Free plans are never sold: both subscription endpoints reject a
+                // price of 0, so a button on that card would only lead to an error.
+                $html .= $paypal_ready
                     ? '<button type="button" class="tap-btn tap-btn-primary tap-plan-paypal" data-plan-id="' . (int) $plan->id . '" data-plan-name="' . esc_attr($plan->name) . '" data-amount="' . esc_attr((float) $plan->price_monthly) . '">' . esc_html__('Pagar con PayPal', 'travel-agency-platform') . '</button>'
                     : '<button type="button" class="tap-btn tap-btn-primary tap-plan-subscribe" data-plan-id="' . (int) $plan->id . '" data-nonce="' . esc_attr($nonce) . '">' . esc_html__('Seleccionar plan', 'travel-agency-platform') . '</button>';
             }

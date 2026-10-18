@@ -6,7 +6,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
-## [1.5.39] — 2026-10-18
+## [1.5.40] — 2026-10-18
+
+The free tier is no longer offered for sale.
+
+### Fixed
+
+- **The Gratis card on `/planes/` no longer renders a "Seleccionar plan" button.** Both subscription endpoints reject a plan with `price_monthly <= 0`, so an agency already on a paid plan was shown a button that could only ever return "The selected plan is not available." The card now renders no purchase action; paid plans the agency is not on keep theirs.
+
+---
 
 Agency plan checkout no longer deadlocks or runs ahead of approval.
 
