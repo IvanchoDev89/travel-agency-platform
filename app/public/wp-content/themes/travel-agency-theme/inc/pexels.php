@@ -207,22 +207,20 @@ function tap_pexels_ajax_search() {
     wp_send_json_success(['results' => $results, 'type' => $type]);
 }
 
-function tap_pexels_ajax_use_video() {
-    tap_pexels_ajax_guard();
-    $id       = isset($_POST['video_id']) ? absint($_POST['video_id']) : 0;
-    $download = !empty($_POST['download']);
-    $mode     = isset($_POST['quality']) ? sanitize_key($_POST['quality']) : 'auto';
-    if (!in_array($mode, ['auto', '1080', 'max'], true)) { $mode = 'auto'; }
-    if (!$id) {
-        wp_send_json_error(['message' => __('Video inválido.', 'travel-agency-platform')]);
-    }
+/**
+ * Resolve a Pexels video id into a usable background (URL + poster), optionally
+ * downloading it into the Media Library. Shared by the hero and login actions.
+ *
+ * @return array{url:string,poster:string,note:string}|WP_Error
+ */
+function tap_pexels_resolve_media($id, $download, $mode) {
     $video = tap_pexels_get_video($id);
     if (is_wp_error($video)) {
-        wp_send_json_error(['message' => $video->get_error_message()]);
+        return $video;
     }
     $file = tap_pexels_best_file($video, $mode);
     if (!$file || empty($file['link'])) {
-        wp_send_json_error(['message' => __('No se encontró un archivo mp4.', 'travel-agency-platform')]);
+        return new WP_Error('tap_pexels_no_file', __('No se encontró un archivo mp4.', 'travel-agency-platform'));
     }
 
     $video_url = (string) $file['link'];
@@ -245,17 +243,64 @@ function tap_pexels_ajax_use_video() {
         }
     }
 
-    set_theme_mod('tap_hero_video_url', $video_url);
-    if ($poster) {
-        set_theme_mod('tap_hero_video_poster', $poster);
+    return ['url' => $video_url, 'poster' => $poster, 'note' => $note];
+}
+
+function tap_pexels_ajax_use_video() {
+    tap_pexels_ajax_guard();
+    $id       = isset($_POST['video_id']) ? absint($_POST['video_id']) : 0;
+    $download = !empty($_POST['download']);
+    $mode     = isset($_POST['quality']) ? sanitize_key($_POST['quality']) : 'auto';
+    if (!in_array($mode, ['auto', '1080', 'max'], true)) { $mode = 'auto'; }
+    if (!$id) {
+        wp_send_json_error(['message' => __('Video inválido.', 'travel-agency-platform')]);
+    }
+
+    $media = tap_pexels_resolve_media($id, $download, $mode);
+    if (is_wp_error($media)) {
+        wp_send_json_error(['message' => $media->get_error_message()]);
+    }
+
+    set_theme_mod('tap_hero_video_url', $media['url']);
+    if ('' !== $media['poster']) {
+        set_theme_mod('tap_hero_video_poster', $media['poster']);
     }
 
     wp_send_json_success([
         'message'   => __('Hero actualizado con el video de Pexels.', 'travel-agency-platform'),
-        'note'      => $note,
-        'video'     => $video_url,
-        'poster'    => $poster,
+        'note'      => $media['note'],
+        'video'     => $media['url'],
+        'poster'    => $media['poster'],
         'customizer'=> admin_url('customize.php?autofocus[section]=tap_landing_hero'),
+    ]);
+}
+
+function tap_pexels_ajax_use_login_video() {
+    tap_pexels_ajax_guard();
+    $id       = isset($_POST['video_id']) ? absint($_POST['video_id']) : 0;
+    $download = !empty($_POST['download']);
+    $mode     = isset($_POST['quality']) ? sanitize_key($_POST['quality']) : 'auto';
+    if (!in_array($mode, ['auto', '1080', 'max'], true)) { $mode = 'auto'; }
+    if (!$id) {
+        wp_send_json_error(['message' => __('Video inválido.', 'travel-agency-platform')]);
+    }
+
+    $media = tap_pexels_resolve_media($id, $download, $mode);
+    if (is_wp_error($media)) {
+        wp_send_json_error(['message' => $media->get_error_message()]);
+    }
+
+    set_theme_mod('tap_login_video_url', $media['url']);
+    if ('' !== $media['poster']) {
+        set_theme_mod('tap_login_video_poster', $media['poster']);
+    }
+
+    wp_send_json_success([
+        'message'   => __('Login actualizado con el video de Pexels.', 'travel-agency-platform'),
+        'note'      => $media['note'],
+        'video'     => $media['url'],
+        'poster'    => $media['poster'],
+        'customizer'=> admin_url('customize.php?autofocus[section]=tap_login'),
     ]);
 }
 
@@ -280,4 +325,5 @@ function tap_pexels_ajax_use_photo() {
 
 add_action('wp_ajax_tap_pexels_search', 'tap_pexels_ajax_search');
 add_action('wp_ajax_tap_pexels_use_video', 'tap_pexels_ajax_use_video');
+add_action('wp_ajax_tap_pexels_use_login_video', 'tap_pexels_ajax_use_login_video');
 add_action('wp_ajax_tap_pexels_use_photo', 'tap_pexels_ajax_use_photo');

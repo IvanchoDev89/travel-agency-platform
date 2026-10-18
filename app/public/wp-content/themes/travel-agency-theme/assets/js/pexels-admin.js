@@ -53,12 +53,14 @@
             '<img loading="lazy" alt="" src="' + v.image + '">' +
             '<figcaption>' +
                 '<span class="tap-pexels-meta">' + fmtDuration(v.duration) + ' · ' + v.width + '×' + v.height + '</span>' +
-                '<span class="tap-pexels-actions">' +
-                    '<button type="button" class="button button-primary tap-pexels-use">' + t('use', 'Usar como hero') + '</button>' +
-                    '<a class="button" target="_blank" rel="noopener" href="' + (v.files[0] ? v.files[0].link : v.url) + '">' + (v.files[0] ? 'MP4' : 'Ver') + '</a>' +
-                '</span>' +
+            '<span class="tap-pexels-actions">' +
+                '<button type="button" class="button button-primary tap-pexels-use">' + t('use', 'Usar como hero') + '</button>' +
+                '<button type="button" class="button tap-pexels-use-login">' + t('use_login', 'Usar como fondo del login') + '</button>' +
+                '<a class="button" target="_blank" rel="noopener" href="' + (v.files[0] ? v.files[0].link : v.url) + '">' + (v.files[0] ? 'MP4' : 'Ver') + '</a>' +
+            '</span>' +
             '</figcaption>';
-        var useBtn = qs('.tap-pexels-use', fig);
+        var useBtn  = qs('.tap-pexels-use', fig);
+        var useLBtn = qs('.tap-pexels-use-login', fig);
         if (useBtn) {
             useBtn.addEventListener('click', function () {
                 busy(useBtn, true);
@@ -85,6 +87,37 @@
                     }
                 }).catch(function () {
                     busy(useBtn, false);
+                    setMsg(t('error', 'Algo salió mal.'), true);
+                });
+            });
+        }
+        if (useLBtn) {
+            useLBtn.addEventListener('click', function () {
+                busy(useLBtn, true);
+                setMsg(t('saving', 'Guardando…'));
+                post('tap_pexels_use_login_video', {
+                    video_id: v.id,
+                    quality: qs('#tap-pexels-quality').value,
+                    download: qs('#tap-pexels-download').checked ? '1' : ''
+                }).then(function (json) {
+                    busy(useLBtn, false);
+                    if (!json || !json.success) {
+                        setMsg((json && json.data && json.data.message) || t('error', 'Algo salió mal.'), true);
+                        return;
+                    }
+                    var msgText = json.data.message + (json.data.note ? ' ' + json.data.note : '');
+                    setMsg(msgText);
+                    if (json.data.customizer) {
+                        var link = document.createElement('a');
+                        link.className = 'button button-secondary';
+                        link.href = json.data.customizer;
+                        link.textContent = 'Personalizar →';
+                        setMsg(msgText);
+                        msg.appendChild(document.createTextNode(' '));
+                        msg.appendChild(link);
+                    }
+                }).catch(function () {
+                    busy(useLBtn, false);
                     setMsg(t('error', 'Algo salió mal.'), true);
                 });
             });

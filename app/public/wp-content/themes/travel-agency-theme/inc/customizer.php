@@ -142,5 +142,125 @@ function tat_customize_register($wp_customize) {
         'section'     => 'tap_landing_content',
         'type'        => 'checkbox',
     ]);
+
+    /* ── Login (Acceso) ───────────────────────────────────────────── */
+
+    $wp_customize->add_section('tap_login', [
+        'title'       => __('Login (Acceso)', 'travel-agency-platform'),
+        'description' => __('Personalización de la pantalla de acceso de WordPress.', 'travel-agency-platform'),
+        'panel'       => 'tap_landing',
+        'priority'    => 30,
+    ]);
+
+    $wp_customize->add_setting('tap_login_enabled', [
+        'default'           => true,
+        'sanitize_callback' => 'rest_sanitize_boolean',
+        'transport'         => 'refresh',
+    ]);
+    $wp_customize->add_control('tap_login_enabled', [
+        'label'       => __('Usar el login con video y marca', 'travel-agency-platform'),
+        'description' => __('Si lo desactivás, se ve el login estándar de WordPress.', 'travel-agency-platform'),
+        'section'     => 'tap_login',
+        'type'        => 'checkbox',
+    ]);
+
+    $wp_customize->add_setting('tap_login_video_url', [
+        'default'           => '',
+        'sanitize_callback' => 'esc_url_raw',
+        'transport'         => 'refresh',
+    ]);
+    $wp_customize->add_control('tap_login_video_url', [
+        'label'       => __('URL del video de fondo (MP4)', 'travel-agency-platform'),
+        'description' => __('Vacío = usa el mismo video del hero de la landing.', 'travel-agency-platform'),
+        'section'     => 'tap_login',
+        'type'        => 'url',
+    ]);
+
+    $wp_customize->add_setting('tap_login_show_video', [
+        'default'           => true,
+        'sanitize_callback' => 'rest_sanitize_boolean',
+        'transport'         => 'refresh',
+    ]);
+    $wp_customize->add_control('tap_login_show_video', [
+        'label'       => __('Reproducir el video de fondo', 'travel-agency-platform'),
+        'description' => __('Desactivado: solo se muestra el poster como imagen fija.', 'travel-agency-platform'),
+        'section'     => 'tap_login',
+        'type'        => 'checkbox',
+    ]);
+
+    $wp_customize->add_setting('tap_login_video_poster', [
+        'default'           => '',
+        'sanitize_callback' => 'esc_url_raw',
+        'transport'         => 'refresh',
+    ]);
+    $wp_customize->add_control(new WP_Customize_Image_Control($wp_customize, 'tap_login_video_poster', [
+        'label'       => __('Imagen de poster del login', 'travel-agency-platform'),
+        'description' => __('Vacío: se reutiliza el poster del hero.', 'travel-agency-platform'),
+        'section'     => 'tap_login',
+    ]));
+
+    $wp_customize->add_setting('tap_login_overlay_opacity', [
+        'default'           => 0.45,
+        'sanitize_callback' => function ($input) {
+            $val = floatval($input);
+            if ($val < 0) { $val = 0; }
+            if ($val > 0.85) { $val = 0.85; }
+            return $val;
+        },
+        'transport'         => 'refresh',
+    ]);
+    $wp_customize->add_control('tap_login_overlay_opacity', [
+        'label'       => __('Opacidad del overlay', 'travel-agency-platform'),
+        'description' => __('0.0 = sin overlay, 0.85 = overlay fuerte.', 'travel-agency-platform'),
+        'section'     => 'tap_login',
+        'type'        => 'range',
+        'input_attrs' => ['min' => 0, 'max' => 0.85, 'step' => 0.05],
+    ]);
+
+    $wp_customize->add_setting('tap_login_brand_logo', [
+        'default'           => 0,
+        'sanitize_callback' => 'absint',
+        'transport'         => 'refresh',
+    ]);
+    $wp_customize->add_control(new WP_Customize_Media_Control($wp_customize, 'tap_login_brand_logo', [
+        'label'       => __('Logo del login', 'travel-agency-platform'),
+        'description' => __('Vacío: se usa el logo del sitio.', 'travel-agency-platform'),
+        'section'     => 'tap_login',
+        'mime_type'   => 'image',
+    ]));
+
+    $wp_customize->add_setting('tap_login_eyebrow', [
+        'default'           => __('Costa Rica, de verdad', 'travel-agency-platform'),
+        'sanitize_callback' => 'sanitize_text_field',
+        'transport'         => 'refresh',
+    ]);
+    $wp_customize->add_control('tap_login_eyebrow', [
+        'label'   => __('Eyebrow (texto superior)', 'travel-agency-platform'),
+        'section' => 'tap_login',
+        'type'    => 'text',
+    ]);
+
+    $wp_customize->add_setting('tap_login_title', [
+        'default'           => __('Bienvenido de vuelta', 'travel-agency-platform'),
+        'sanitize_callback' => 'sanitize_text_field',
+        'transport'         => 'refresh',
+    ]);
+    $wp_customize->add_control('tap_login_title', [
+        'label'   => __('Título del login', 'travel-agency-platform'),
+        'section' => 'tap_login',
+        'type'    => 'text',
+    ]);
+
+    $wp_customize->add_setting('tap_login_subtitle', [
+        'default'           => __('Ingresá para gestionar tus reservas, favoritos y tu próxima aventura.', 'travel-agency-platform'),
+        'sanitize_callback' => 'sanitize_text_field',
+        'transport'         => 'refresh',
+    ]);
+    $wp_customize->add_control('tap_login_subtitle', [
+        'label'   => __('Subtítulo del login', 'travel-agency-platform'),
+        'section' => 'tap_login',
+        'type'    => 'textarea',
+        'rows'    => 2,
+    ]);
 }
 add_action('customize_register', 'tat_customize_register');

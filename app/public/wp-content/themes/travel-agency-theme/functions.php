@@ -157,3 +157,5 @@ require get_template_directory() . '/inc/seo.php';
 
 require get_template_directory() . '/inc/pexels.php';
 require get_template_directory() . '/inc/pexels-admin.php';
+
+require get_template_directory() . '/inc/login.php';

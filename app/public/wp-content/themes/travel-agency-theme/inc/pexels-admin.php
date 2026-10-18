@@ -110,6 +110,7 @@ function tap_pexels_admin_assets($hook) {
             'saving'    => __('Guardando…', 'travel-agency-platform'),
             'copied'    => __('URL copiada.', 'travel-agency-platform'),
             'copy'      => __('Copiar URL', 'travel-agency-platform'),
+            'use_login' => __('Usar como fondo del login', 'travel-agency-platform'),
         ],
     ]);
 }
