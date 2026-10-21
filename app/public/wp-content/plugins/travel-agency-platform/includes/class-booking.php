@@ -165,6 +165,22 @@ class TAP_Booking {
             return new WP_Error('invalid_guests', __('El número de huéspedes no es válido.', 'travel-agency-platform'));
         }
 
+        // The room is client-supplied and the whole occupancy gate (lock,
+        // overlap COUNT, insert) keys on it. Without this check a booking can
+        // point at another agency's room to price itself from that room's
+        // tariff and, worse, to block its inventory for the chosen dates.
+        $room_id = !empty($data['room_id']) ? intval($data['room_id']) : 0;
+        if ($room_id) {
+            $room        = get_post($room_id);
+            $room_parent = $room ? (int) get_post_meta($room_id, '_tap_room_accommodation_id', true) : 0;
+            if (!$room || 'tap_room' !== $room->post_type
+                || 'tap_accommodation' !== sanitize_text_field($data['service_type'])
+                || !$room_parent
+                || $room_parent !== intval($data['service_id'])) {
+                return new WP_Error('room_mismatch', __('La habitación seleccionada no pertenece a este alojamiento.', 'travel-agency-platform'));
+            }
+        }
+
         $commission_percent = self::get_agency_commission($agency_id);
         $total = TAP_Booking_Pricing::calculate_price(
             sanitize_text_field($data['service_type']),
@@ -633,10 +649,17 @@ class TAP_Booking {
                 if (!in_array($booking->status, ['pending', 'confirmed', 'request'], true)) {
                     return new WP_Error('bad_status', __('Esta reserva ya no puede cancelarse.', 'travel-agency-platform'));
                 }
+                // A paid booking cannot be cancelled by agency staff: cancelling
+                // it triggers a real gateway refund, which only platform
+                // managers may authorise (same rule as the legacy endpoint in
+                // TAP_Ajax::update_booking_status).
+                if ('paid' === $booking->payment_status && !$is_admin) {
+                    return new WP_Error('paid_cancel', __('Solo los administradores pueden cancelar reservas pagadas.', 'travel-agency-platform'));
+                }
                 if ($booking->check_in && $booking->check_in < current_time('Y-m-d')) {
                     return new WP_Error('started', __('La reserva ya comenzó.', 'travel-agency-platform'));
                 }
-                return self::apply_cancellation($booking->id, $booking, 'agency', 'cancelled', $reason);
+                return self::apply_cancellation($booking->id, $booking, $is_admin ? 'admin' : 'agency', 'cancelled', $reason);
             default:
                 return new WP_Error('invalid_action', __('Operación inválida.', 'travel-agency-platform'));
         }
@@ -689,6 +712,31 @@ class TAP_Booking {
             return self::apply_cancellation($booking_id, $booking, 'system', $status, $reason);
         }
 
+        // A request-mode tour consumes no seats until the agency accepts it
+        // (tour_slots() excludes 'request'), so the capacity must be
+        // re-counted at the moment it becomes a counted booking — otherwise
+        // three accepted requests oversell a four-seat tour. The same
+        // per-tour lock as create() serialises concurrent accepts.
+        $tour_lock = null;
+        if ('request' === $prev && in_array($status, ['pending', 'confirmed'], true)
+            && 'tap_tour' === $booking->service_type && $booking->check_in) {
+            $guests  = (int) $booking->adults + (int) $booking->children;
+            $lock    = 'tap_tour_' . (int) $booking->service_id . '_' . $booking->check_in;
+            if (1 !== (int) $wpdb->get_var($wpdb->prepare('SELECT GET_LOCK(%s, 5)', $lock))) {
+                return new WP_Error('booking_busy', __('No pudimos procesar la reserva en este momento. Intenta nuevamente en unos segundos.', 'travel-agency-platform'));
+            }
+            $tour_lock = $lock;
+            $slots = self::tour_slots((int) $booking->service_id, (string) $booking->check_in);
+            if ($slots['booked'] + $guests > $slots['capacity']) {
+                $wpdb->get_var($wpdb->prepare('SELECT RELEASE_LOCK(%s)', $tour_lock));
+                return new WP_Error(
+                    'tour_full',
+                    /* translators: 1: cupos ocupados, 2: capacidad del tour */
+                    sprintf(__('El tour ya no tiene cupos disponibles para la fecha seleccionada (%1$d de %2$d ocupados).', 'travel-agency-platform'), $slots['booked'] + $guests, $slots['capacity'])
+                );
+            }
+        }
+
         $data = ['status' => $status];
         if (in_array($status, ['cancelled', 'refunded'], true) && $reason !== '') {
             $data['cancel_reason'] = $reason;
@@ -698,6 +746,9 @@ class TAP_Booking {
             $data,
             ['id' => $booking_id]
         );
+        if (null !== $tour_lock) {
+            $wpdb->get_var($wpdb->prepare('SELECT RELEASE_LOCK(%s)', $tour_lock));
+        }
 
         // Cancelling / refunding a booking voids any still-owed commission.
         if (in_array($status, ['cancelled', 'refunded'], true)) {

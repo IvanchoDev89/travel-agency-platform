@@ -66,6 +66,18 @@ class TAP_Archive_Query {
             if (!empty($excluded)) {
                 $query->set('post__not_in', $excluded);
             }
+            // The accommodation archive hides inactive listings; a keyword
+            // search must do the same or a listing the agency switched off
+            // still appears in /?s= results and stays bookable. Other post
+            // types carry no such meta, so they are matched by the NOT EXISTS
+            // arm.
+            $meta_query       = (array) $query->get('meta_query', []);
+            $meta_query[]     = [
+                'relation' => 'OR',
+                ['key' => '_tap_acc_is_active', 'compare' => 'NOT EXISTS'],
+                ['key' => '_tap_acc_is_active', 'value' => '1'],
+            ];
+            $query->set('meta_query', $meta_query);
             return;
         }
 

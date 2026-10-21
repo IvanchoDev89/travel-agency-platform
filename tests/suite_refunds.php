@@ -177,7 +177,7 @@ tap_t_assert('paid' === $row4->payment_status, 'non-refundable paid booking keep
 tap_t_assert(empty($row4->refunded_at) && (float) $row4->refund_amount === 0.0, 'no refund recorded when policy returns nothing');
 tap_t_assert('void' === $row4->commission_status, 'commission still voided on cancellation');
 
-// ── 5) agency cancellation routes through the same real-refund path ──
+// ── 5) paid cancellation is admin-only; the agency is refused ──
 rf_install_mock(false);
 list($agency_uid, $agency_post) = rf_make_agency_admin();
 tap_t_assert($agency_uid && $agency_post, 'created agency admin fixture');
@@ -185,11 +185,19 @@ $b5 = rf_seed_paid_booking($owner, 100, 15, $agency_post);
 $bookings[] = $b5;
 update_post_meta($b5, '_tap_paypal_capture_id', 'CAP-PP-1');
 $r = TAP_Booking::agency_booking_action($b5, 'cancel', $agency_uid);
+tap_t_assert(is_wp_error($r) && 'paid_cancel' === $r->get_error_code(), 'agency staff cannot cancel a paid booking');
+$row5 = TAP_Booking::get_booking($b5);
+tap_t_assert('confirmed' === $row5->status && 'paid' === $row5->payment_status, 'refused agency cancel leaves the paid booking untouched');
+tap_t_assert((int) $GLOBALS['rf_refund_calls'] === 0, 'refused agency cancel never calls the gateway');
+
+// A platform manager may cancel it, and the real refund still goes through.
+$admin_uid = tap_t_make_admin();
+$r2 = TAP_Booking::agency_booking_action($b5, 'cancel', $admin_uid);
 rf_remove_mock();
 $row5 = TAP_Booking::get_booking($b5);
-tap_t_assert(true === $r && 'agency' === $row5->cancelled_by, 'agency cancels a paid booking');
-tap_t_assert('refunded' === $row5->payment_status, 'agency cancel also refunds real money');
-tap_t_assert('REF-PP-1' === get_post_meta($b5, '_tap_paypal_refund_id', true), 'agency cancel stores the paypal refund id');
+tap_t_assert(true === $r2 && 'admin' === $row5->cancelled_by, 'an administrator can cancel a paid booking');
+tap_t_assert('refunded' === $row5->payment_status, 'admin cancel refunds real money');
+tap_t_assert('REF-PP-1' === get_post_meta($b5, '_tap_paypal_refund_id', true), 'admin cancel stores the paypal refund id');
 
 // ── 6) double-booking guard: locked overlap check rejects a second stay ──
 $acc  = wp_insert_post(['post_type' => 'tap_accommodation', 'post_status' => 'publish', 'post_title' => 'Refund Acc']);
@@ -269,6 +277,7 @@ if (!empty($room)) { wp_delete_post($room, true); }
 tap_t_cleanup_bookings($bookings);
 if (!empty($agency_post)) { wp_delete_post($agency_post, true); }
 if (!empty($agency_uid)) { wp_delete_user($agency_uid); }
+if (!empty($admin_uid)) { wp_delete_user($admin_uid); }
 wp_delete_user($owner);
 update_option('tap_paypal_client_id', $orig_client);
 update_option('tap_paypal_secret', $orig_secret);

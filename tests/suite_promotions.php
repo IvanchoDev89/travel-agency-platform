@@ -188,6 +188,34 @@ wp_set_current_user($po_owner2);
 $out = do_shortcode('[tap_front_dash]');
 tap_t_assert(strpos($out, 'no incluye listados destacados') !== false, 'bo-promos: plan without slots renders the upgrade note');
 
+// Activation re-checks the plan slots, records payment and features the listing.
+$act1 = TAP_Promotions::activate((int) $req);
+tap_t_assert(!is_wp_error($act1) && '' !== (string) $act1, 'activate() activates a pending promo when a slot is free');
+$row1 = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_promos WHERE id = %d", (int) $req));
+tap_t_assert($row1 && 'active' === $row1->status && 'paid' === $row1->payment_status, 'activated promo is active + paid');
+tap_t_assert('1' === (string) get_post_meta($po_listing, '_tap_tour_is_featured', true), 'activated promo features its listing');
+
+// The plan has two slots, so a second promo still activates.
+$req2 = TAP_Promotions::request((int) $po_agency, (int) $po_listing2, 1);
+tap_t_assert(!is_wp_error($req2), 'a second promo request fits the remaining slot');
+$act2 = is_wp_error($req2) ? $req2 : TAP_Promotions::activate((int) $req2);
+tap_t_assert(!is_wp_error($act2), 'second promo activates while a slot remains');
+
+// With the plan full, a queued payment must be recorded but NOT activated.
+$po_listing3 = wp_insert_post(['post_type' => 'tap_tour', 'post_status' => 'publish', 'post_title' => 'Promo Tour Overflow ' . $po_suffix]);
+$promo_posts[] = (int) $po_listing3;
+update_post_meta($po_listing3, TAP_Post_Types::agency_meta_key('tap_tour'), (int) $po_agency);
+$wpdb->insert($wpdb->prefix . 'tap_promos', [
+    'agency_id' => (int) $po_agency, 'listing_id' => (int) $po_listing3, 'months' => 1, 'amount' => 10.00,
+    'status' => 'pending', 'payment_status' => 'pending', 'payment_method' => 'paypal', 'notes' => 'overflow',
+]);
+$overflow = (int) $wpdb->insert_id;
+$bad_act = TAP_Promotions::activate($overflow);
+tap_t_assert(is_wp_error($bad_act) && 'slots_full' === $bad_act->get_error_code(), 'activating past the plan slots is refused with slots_full');
+$ov_row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_promos WHERE id = %d", $overflow));
+tap_t_assert($ov_row && 'pending' === $ov_row->status && 'paid' === $ov_row->payment_status, 'refused promo keeps the captured payment recorded (pending status)');
+tap_t_assert('' === (string) get_post_meta($po_listing3, '_tap_tour_is_featured', true), 'refused promo does not feature its listing');
+
 // Cleanup fixtures (promo rows, sub, plan, posts, users).
 wp_set_current_user(0);
 unset($_GET['seccion']);

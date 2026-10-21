@@ -97,6 +97,51 @@ $req2 = $mk_booking($tour_request, 'request2', 52);
 $slots_after = TAP_Booking::tour_slots($tour_request, gmdate('Y-m-d', strtotime('+50 days')));
 tap_t_assert((int) $slots_before['booked'] === (int) $slots_after['booked'], 'open requests do not consume tour capacity');
 
+/* --- Accepting requests must not oversell a tour. --------------------------
+ * Open requests consume no seats (asserted just above), so capacity has to be
+ * recounted at the moment each one becomes a counted booking. Three accepted
+ * 2-seat requests on a 4-seat tour would otherwise sell six seats on four. */
+$tour_small = $mk_tour('Tour Oversell E2E ' . wp_generate_password(6, false), $agency, 'request');
+update_post_meta($tour_small, '_tap_tour_capacity', '4');
+$oversell_date = gmdate('Y-m-d', strtotime('+70 days'));
+$oversell_codes = [];
+for ($i = 1; $i <= 3; $i++) {
+    $r = TAP_Booking::create([
+        'service_type' => 'tap_tour',
+        'service_id'   => $tour_small,
+        'check_in'     => $oversell_date,
+        'check_out'    => gmdate('Y-m-d', strtotime('+71 days')),
+        'adults'       => 2,
+        'children'     => 0,
+        'client_id'    => 0,
+        'guest_email'  => 'oversell-' . $i . '-' . wp_generate_password(6, false) . '@example.test',
+        'guest_name'   => 'Oversell Tester',
+    ]);
+    tap_t_assert(!is_wp_error($r) && !empty($r['booking_id']), "open request #$i is created while the tour still has seats");
+    $oversell_codes[] = is_wp_error($r) ? '' : (string) $r['booking_code'];
+}
+$accept_ok = 0;
+$last_err  = null;
+foreach ($oversell_codes as $code) {
+    if ('' === $code) {
+        continue;
+    }
+    $booking = TAP_Booking::get_booking_by_code($code);
+    $res     = TAP_Booking::update_status((int) $booking->id, 'pending');
+    if (true === $res) {
+        $accept_ok++;
+    } else {
+        $last_err = $res;
+    }
+}
+tap_t_assert(2 === $accept_ok, 'only the requests that fit the tour capacity are accepted');
+tap_t_assert(is_wp_error($last_err) && 'tour_full' === $last_err->get_error_code(), 'accepting past capacity is refused with tour_full');
+foreach ($oversell_codes as $code) {
+    if ('' !== $code) {
+        $booking_codes[] = $code;
+    }
+}
+
 /* --- Agency accept: request → pending → payable. --- */
 $fired = [];
 add_action('tap_booking_status_updated', function ($id, $status, $prev = '') use (&$fired) {

@@ -35,6 +35,11 @@ class TAP_Ajax {
             if (TAP_Guest_Checkout::guest_book_rate_blocked($guest_email)) {
                 wp_send_json_error(['message' => __('Demasiadas reservas en poco tiempo. Intenta nuevamente más tarde.', 'travel-agency-platform')]);
             }
+        } elseif (TAP_Rate_Limit::too_many('booking', 20, HOUR_IN_SECONDS, 'u' . get_current_user_id())) {
+            // The guest bucket above only guards logged-out visitors, so a
+            // single registered account could otherwise flood agencies with
+            // unlimited bookings. Same throttle, keyed by the account.
+            wp_send_json_error(['message' => __('Demasiadas reservas en poco tiempo. Intenta nuevamente más tarde.', 'travel-agency-platform')]);
         }
 
         $required = ['service_type', 'service_id'];
@@ -139,6 +144,14 @@ class TAP_Ajax {
         $guest_email = '';
         if (!$uid) {
             $guest_email = sanitize_email(wp_unslash($_POST['guest_email'] ?? ''));
+        }
+        // This endpoint writes 'client' messages. An agency member may pass the
+        // ownership check on their own bookings, which would let them post as
+        // the traveler: the guest UI would render it as the guest's own bubble,
+        // and mark_read() would clear the agency's unread badge. Agency staff
+        // have tap_dash_chat_send for the other side of the thread.
+        if ($uid && self::caller_is_agency_member($uid)) {
+            wp_send_json_error(['message' => __('Usa el panel de la agencia para responder en el chat.', 'travel-agency-platform')], 403);
         }
         list($can, $name) = TAP_Chat::can_client_chat($booking, $uid, $guest_email);
         if (!$can) {
@@ -480,5 +493,18 @@ class TAP_Ajax {
         TAP_Chatbot::log_event($answer['intent'], $lang);
 
         wp_send_json_success($answer);
+    }
+
+    /**
+     * Whether the given user belongs to an agency (admin or employee) or is a
+     * platform administrator. Used to keep the client-side chat endpoint from
+     * accepting the agency as the traveler.
+     */
+    private static function caller_is_agency_member($user_id) {
+        if (user_can((int) $user_id, 'manage_options')) {
+            return true;
+        }
+        $user = get_userdata((int) $user_id);
+        return $user && (in_array('tap_agency_admin', (array) $user->roles, true) || in_array('tap_agency_employee', (array) $user->roles, true));
     }
 }

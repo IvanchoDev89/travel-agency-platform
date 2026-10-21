@@ -240,14 +240,17 @@ try {
         tap_t_assert($promo > 0, 'owned pending promotion fixture created');
         if ($promo) {
             TAP_Payment::confirm_promotion_payment($promo, 'paypal', 'CAP-2');
-            $st = $wpdb->get_var($wpdb->prepare("SELECT status FROM {$wpdb->prefix}tap_promos WHERE id=%d", $promo));
+            $st   = $wpdb->get_var($wpdb->prepare("SELECT status FROM {$wpdb->prefix}tap_promos WHERE id=%d", $promo));
+            $pst  = $wpdb->get_var($wpdb->prepare("SELECT payment_status FROM {$wpdb->prefix}tap_promos WHERE id=%d", $promo));
             $flag = get_post_meta($tour, '_tap_tour_is_featured', true);
             $until = get_post_meta($tour, '_tap_tour_featured_until', true);
-            if ($st === 'active' && $flag === '1' && $until) {
-                tap_t_pass('confirm_promotion_payment activates promo + featured meta');
-            } else {
-                tap_t_fail("promo activation st=$st flag=$flag until=" . var_export($until, true));
-            }
+            // A payment captured for a plan with no featured slots must not
+            // silently activate the promo: the money is recorded and the promo
+            // stays queued for an administrator to refund or release a slot.
+            tap_t_assert(
+                'pending' === $st && 'paid' === $pst && '' === (string) $flag && '' === (string) $until,
+                "paid promo on a no-slot plan stays pending for review (st=$st pay=$pst flag=$flag until=" . var_export($until, true) . ')'
+            );
         }
     } else {
         tap_t_fail('promotion fixtures missing for promo activation test');

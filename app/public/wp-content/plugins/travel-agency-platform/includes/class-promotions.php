@@ -137,6 +137,23 @@ class TAP_Promotions {
         ));
     }
 
+    /**
+     * Slots the agency already occupies: active promos plus the ones it has
+     * paid for and are still waiting to be activated.
+     *
+     * Counting only the active ones let an agency with a single featured slot
+     * queue any number of pending promos across different listings — the
+     * per-listing guard only blocks a second promo on the SAME listing — and
+     * every one of them activated once its payment was captured.
+     */
+    public static function occupied_promos_count($agency_id) {
+        global $wpdb;
+        return (int) $wpdb->get_var($wpdb->prepare(
+            'SELECT COUNT(*) FROM ' . self::promos_table() . " WHERE agency_id = %d AND (status = %s OR status = %s)",
+            (int) $agency_id, 'active', 'pending'
+        ));
+    }
+
     public static function pending_promos($agency_id) {
         global $wpdb;
         return $wpdb->get_results($wpdb->prepare(
@@ -187,7 +204,7 @@ class TAP_Promotions {
             return new WP_Error('promo_pending', __('Ya tienes una solicitud de destacado pendiente para este listado. El administrador confirmará el pago.', 'travel-agency-platform'));
         }
 
-        if (self::active_promos_count($agency_id) >= $slots) {
+        if (self::occupied_promos_count($agency_id) >= $slots) {
             return new WP_Error('slots_full', sprintf(
                 /* translators: %d: número de destacados activos */
                 __('Ya tienes %d destacados activos (el máximo de tu plan). Espera a que expire uno o mejora de plan.', 'travel-agency-platform'),
@@ -233,6 +250,26 @@ class TAP_Promotions {
         // expiry come through a fresh request(), never by re-activating.
         if ('active' === $promo->status && 'paid' === $promo->payment_status) {
             return (string) ($promo->paid_until ?: current_time('Y-m-d'));
+        }
+
+        // Slots are checked again here because request() only saw the plan as
+        // it was back then: the agency may have queued several promos (each
+        // waiting on its own PayPal checkout) or been downgraded meanwhile.
+        // Money has already been captured, so it is recorded and the promo
+        // stays queued for an administrator to refund or release a slot.
+        $slots  = self::featured_slots((int) $promo->agency_id);
+        $active = self::active_promos_count((int) $promo->agency_id);
+        if ($slots <= 0 || $active >= $slots) {
+            $wpdb->update(
+                self::promos_table(),
+                [
+                    'payment_status' => 'paid',
+                    'payment_method' => $promo->payment_method ?: 'manual',
+                    'notes'          => __('Pagado, pero el plan no tiene destacados disponibles. Pendiente de resolución del administrador.', 'travel-agency-platform'),
+                ],
+                ['id' => (int) $promo_id]
+            );
+            return new WP_Error('slots_full', __('El plan de esta agencia no tiene destacados disponibles ahora mismo. El pago quedó registrado y el destacado pendiente de resolución.', 'travel-agency-platform'));
         }
 
         $months = min(24, max(1, (int) $months ?: (int) $promo->months));

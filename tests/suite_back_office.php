@@ -128,17 +128,21 @@ tap_t_assert(true === $mk && 'paid' === TAP_Booking::get_booking($completed_unpa
 $mk2 = TAP_Booking::agency_booking_action($completed_unpaid, 'mark_paid', $admin_uid);
 tap_t_assert(true === $mk2, 'repeated mark_paid on completed is idempotent');
 
-// ── 4) agency cancellation applies the policy penalty + voids commission ──
+// ── 4) paid cancellations are admin-only; an admin applies policy + voids ──
 $b3 = bo_booking($owner_aid, [
     'status' => 'confirmed', 'payment_status' => 'paid',
     'check_in' => gmdate('Y-m-d', strtotime('+10 days')),
     'check_out' => gmdate('Y-m-d', strtotime('+12 days')),
 ]);
-$r = TAP_Booking::agency_booking_action($b3, 'cancel');
+$denied_cancel = TAP_Booking::agency_booking_action($b3, 'cancel');
+tap_t_assert(is_wp_error($denied_cancel) && 'paid_cancel' === $denied_cancel->get_error_code(), 'agency staff cannot cancel a paid booking');
+tap_t_assert('confirmed' === TAP_Booking::get_booking($b3)->status, 'refused agency cancel leaves the booking confirmed');
+
+$r = TAP_Booking::agency_booking_action($b3, 'cancel', $admin_uid);
 $row3 = TAP_Booking::get_booking($b3);
-tap_t_assert(true === $r, 'agency cancels a confirmed booking');
-tap_t_assert('cancelled' === $row3->status && 'agency' === $row3->cancelled_by, 'status cancelled and cancelled_by=agency');
-tap_t_assert(!empty($row3->cancellation_policy), 'cancellation policy recorded on agency cancel');
+tap_t_assert(true === $r, 'an administrator cancels a paid confirmed booking');
+tap_t_assert('cancelled' === $row3->status && 'admin' === $row3->cancelled_by, 'status cancelled and cancelled_by=admin');
+tap_t_assert(!empty($row3->cancellation_policy), 'cancellation policy recorded on admin cancel');
 tap_t_assert('void' === $row3->commission_status, 'cancelled booking commission is voided');
 
 // ── 5) payout request lifecycle ──────────────────────────────────────

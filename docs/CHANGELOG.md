@@ -6,6 +6,33 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.41] — 2026-10-21
+
+Agency-logic audit: bookings, promotions, moderation, leads and payouts.
+
+### Security
+
+- **Agency staff can no longer cancel a paid booking.** Cancelling triggers a real gateway refund, which only platform managers may authorise; `TAP_Booking::agency_booking_action()` now refuses it with `paid_cancel`, matching the legacy AJAX endpoint.
+- **The client chat endpoint refuses agency members.** An agency member could pass the ownership check on their own bookings and post as the traveler — the guest UI rendered it as the guest's own bubble and `mark_read()` cleared the agency's unread badge. Agency staff must use `tap_dash_chat_send`.
+- **Authenticated booking creation is rate-limited per account** (20/hour). Only guests were throttled before, so a registered account could flood an agency with unlimited bookings.
+
+### Fixed
+
+- **A room from another property can no longer be booked.** `TAP_Booking::create()` validates that `room_id` is a room of the requested accommodation (`room_mismatch`), instead of taking that room's inventory lock cross-tenant.
+- **Accepting request-to-book requests can no longer oversell a tour.** `tour_slots()` excludes `request`, so capacity is re-counted under a per-tour `GET_LOCK` when a request becomes `pending`/`confirmed` (`tour_full`, `booking_busy`).
+- **Promotion slots are enforced at request and activation time.** `request()` now counts pending promos against the plan's featured slots, and `activate()` re-checks them (the agency may have queued several or been downgraded meanwhile); if no slot is free the captured payment is recorded and the promo stays pending for an administrator (`slots_full`).
+- **Blocking a review now unpublishes it.** The moderation `block` action cleared `mod_status` but left `is_approved = 1`, so every public query and the star average kept showing the "blocked" review.
+- **Service-page leads reach their own agency.** The listing stores the agency POST id while the form posts the `tap_agencies` row id; `service_belongs_to()` compared them raw and rejected every service-page lead. Both sides are now compared in the row namespace.
+- **Keyword search hides inactive accommodations.** `/?s=` now applies the same `_tap_acc_is_active` rule as the archive, via a `NOT EXISTS` arm so tours and other post types are unaffected.
+- **Admin commission settlements are recorded as completed.** A pending admin payout whose Cancel/Fail was clicked released commissions back to `owed` while the money was already gone, allowing a second payout. The row is now written `completed` with `paid_at`, the bulk settle skips zero-commission bookings, and it aborts if the per-agency lock cannot be taken.
+- **Payment reminders skip unpaid request-mode bookings**, which are not payable until the agency accepts them.
+
+### Tests
+
+- New regression coverage in `suite_bugs` and `suite_request_to_book`; 17 assertions fail without these fixes.
+
+---
+
 ## [1.5.40] — 2026-10-18
 
 The free tier is no longer offered for sale.
@@ -15,6 +42,8 @@ The free tier is no longer offered for sale.
 - **The Gratis card on `/planes/` no longer renders a "Seleccionar plan" button.** Both subscription endpoints reject a plan with `price_monthly <= 0`, so an agency already on a paid plan was shown a button that could only ever return "The selected plan is not available." The card now renders no purchase action; paid plans the agency is not on keep theirs.
 
 ---
+
+## [1.5.39] — 2026-10-18
 
 Agency plan checkout no longer deadlocks or runs ahead of approval.
 

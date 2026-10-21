@@ -149,7 +149,14 @@ class TAP_Moderation {
                 $wpdb->update($table, ['mod_status' => self::OK, 'mod_reason' => null], ['id' => $id]);
             }
         } elseif ('block' === $action) {
-            $wpdb->update($table, ['mod_status' => self::BLOCK, 'mod_reason' => 'manual'], ['id' => $id]);
+            $data = ['mod_status' => self::BLOCK, 'mod_reason' => 'manual'];
+            if ('review' === $kind) {
+                // approve() sets is_approved, so block() has to clear it: every
+                // public query and the star average filter on is_approved alone,
+                // so leaving it at 1 would keep a "blocked" review published.
+                $data['is_approved'] = 0;
+            }
+            $wpdb->update($table, $data, ['id' => $id]);
         } elseif ('delete' === $action) {
             $wpdb->delete($table, ['id' => $id]);
         }

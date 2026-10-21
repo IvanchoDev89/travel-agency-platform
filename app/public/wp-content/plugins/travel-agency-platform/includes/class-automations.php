@@ -55,7 +55,7 @@ class TAP_Automations {
         list($ids, $finished) = self::batch_run('pay', function ($wpdb, $after_id, $limit) use ($t, $now, $stale, $hours) {
             return $wpdb->get_col($wpdb->prepare(
                 "SELECT id FROM {$t}
-                 WHERE status IN ('pending','request')
+                 WHERE status IN ('pending')
                    AND created_at BETWEEN %s AND %s
                    AND id > %d
                  ORDER BY created_at ASC, id ASC

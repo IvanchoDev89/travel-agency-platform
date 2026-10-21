@@ -26,6 +26,7 @@ class TAP_Dashboard_Money {
                     "SELECT id, agency_id, commission_amount FROM {$b_table}
                      WHERE id IN ({$placeholders})
                        AND commission_status = 'owed'
+                       AND commission_amount > 0
                        AND payment_status = 'paid'
                        AND status NOT IN ('cancelled', 'refunded')
                        AND NOT EXISTS (
@@ -44,9 +45,20 @@ class TAP_Dashboard_Money {
                         $agency_ids = array_column(array_filter($rows, fn($r) => (int) $r->agency_id === (int) $agency_id), 'id');
                         // Same per-agency lock as the agency self-service path so
                         // an admin settle cannot interleave with a concurrent
-                        // agency payout request over the same bookings.
+                        // agency payout request over the same bookings. If the
+                        // lock cannot be taken we must not settle unprotected.
                         $lock   = 'tap_payout_request_' . (int) $agency_id;
                         $locked = 1 === (int) $wpdb->query($wpdb->prepare("SELECT GET_LOCK(%s, 5)", $lock));
+                        if (!$locked) {
+                            continue;
+                        }
+                        // The admin settle records a transfer that already
+                        // happened, and the bookings are flipped to 'paid' in
+                        // the same step. Leaving the row 'pending' would let a
+                        // later Cancel/Fail release those commissions back to
+                        // 'owed' while the money is already gone — the agency
+                        // could then request and be paid a second time. So the
+                        // row is written as completed straight away.
                         $wpdb->insert($p_table, [
                             'agency_id'  => $agency_id,
                             'amount'     => round($amount, 2),
@@ -54,6 +66,8 @@ class TAP_Dashboard_Money {
                             'method'     => $method,
                             'note'       => $note,
                             'source'     => 'admin',
+                            'status'     => 'completed',
+                            'paid_at'    => current_time('mysql'),
                             'created_by' => get_current_user_id(),
                         ]);
                         $payment_id = $wpdb->insert_id;
@@ -61,9 +75,7 @@ class TAP_Dashboard_Money {
                         // CAS: only bookings still 'owed' flip to 'paid', so a
                         // concurrent dispute/cancel can never be overwritten.
                         $wpdb->query("UPDATE {$b_table} SET commission_status = 'paid' WHERE id IN ({$id_list}) AND commission_status = 'owed'");
-                        if ($locked) {
-                            $wpdb->query($wpdb->prepare("SELECT RELEASE_LOCK(%s)", $lock));
-                        }
+                        $wpdb->query($wpdb->prepare("SELECT RELEASE_LOCK(%s)", $lock));
                         do_action('tap_commission_paid', $agency_id, $payment_id);
                     }
                     set_transient('tap_commission_notice', __('Liquidación registrada y comisiones marcadas como pagadas.', 'travel-agency-platform'), 60);
@@ -94,6 +106,10 @@ class TAP_Dashboard_Money {
                 $booking_id
             )) : null;
             if ($booking) {
+                // Same reasoning as the bulk path: the transfer is recorded as
+                // done and the commission is marked paid here, so the row must
+                // not stay cancellable (cancelling would release a commission
+                // whose money is already gone and let it be paid twice).
                 $wpdb->insert($p_table, [
                     'agency_id'   => (int) $booking->agency_id,
                     'amount'      => (float) $booking->commission_amount,
@@ -101,6 +117,8 @@ class TAP_Dashboard_Money {
                     'method'      => $method,
                     'note'        => $note ?: __('Liquidación individual', 'travel-agency-platform'),
                     'source'      => 'admin',
+                    'status'      => 'completed',
+                    'paid_at'     => current_time('mysql'),
                     'created_by'  => get_current_user_id(),
                 ]);
                 $payment_id = $wpdb->insert_id;

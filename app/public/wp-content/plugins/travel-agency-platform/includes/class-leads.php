@@ -339,7 +339,15 @@ class TAP_Leads {
             return false;
         }
         $owner = get_post_meta($service_id, '_tap_' . TAP_Post_Types::meta_prefix($service->post_type) . '_agency_id', true);
-        return $owner && (int) $owner === $agency_id;
+        if (!$owner) {
+            return false;
+        }
+        // The listing stores the agency POST id, while the lead form posts the
+        // tap_agencies ROW id (the two namespaces are independent
+        // auto-increments). Compare both sides in the row namespace or every
+        // service-page form is rejected as "not this agency's service".
+        $owner_row = self::agency_row_id((int) $owner);
+        return $owner_row > 0 && $owner_row === (int) self::agency_row_id($agency_id);
     }
 
     private static function hit_rate_limit($email, $ip) {
