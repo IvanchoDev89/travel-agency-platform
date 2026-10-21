@@ -375,4 +375,18 @@ tap_t_assert((int) preg_match("/status IN \('pending'\)/", $automations_src) ===
 // An agency member must answer through tap_dash_chat_send, not as the client.
 tap_t_assert(strpos($booking_src, 'caller_is_agency_member') !== false, 'client chat endpoint refuses agency members');
 
+// Settings must warn when the PayPal keys are still the installer samples,
+// otherwise checkout fails with a gateway error nobody can explain.
+$orig_pid = get_option('tap_paypal_client_id', '');
+$orig_sec = get_option('tap_paypal_secret', '');
+update_option('tap_paypal_client_id', 'test-client');
+update_option('tap_paypal_secret', 'test-secret');
+tap_t_assert(TAP_PayPal::has_placeholder_credentials(), 'placeholder PayPal credentials are detected');
+update_option('tap_paypal_client_id', 'live-client-id-123');
+update_option('tap_paypal_secret', 'live-secret-456');
+tap_t_assert(!TAP_PayPal::has_placeholder_credentials(), 'real-looking PayPal credentials do not raise the warning');
+update_option('tap_paypal_client_id', $orig_pid);
+update_option('tap_paypal_secret', $orig_sec);
+tap_t_assert(strpos(file_get_contents($plugin . 'includes/class-dashboard-settings.php'), 'has_placeholder_credentials') !== false, 'settings screen renders the PayPal configuration warning');
+
 tap_t_finish();

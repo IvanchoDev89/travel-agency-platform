@@ -22,6 +22,19 @@ class TAP_PayPal {
         return !empty(self::$client_id) && !empty(self::$client_secret);
     }
 
+    /**
+     * True when the stored keys are missing or still the installer's sample
+     * values. Payments look enabled but every call dies at the token step, so
+     * the settings screen must say so instead of letting an agency discover it
+     * at checkout.
+     */
+    public static function has_placeholder_credentials() {
+        self::init();
+        $placeholder = ['', 'test-client', 'test-secret', 'YOUR_CLIENT_ID', 'YOUR_SECRET'];
+        return in_array(trim((string) self::$client_id), $placeholder, true)
+            || in_array(trim((string) self::$client_secret), $placeholder, true);
+    }
+
     public static function is_sandbox() {
         self::init();
         return self::$sandbox;

@@ -163,6 +163,23 @@ tap_t_assert(true === $r, 'client cancels an offline-paid booking');
 tap_t_assert('refunded' === $row3->payment_status, 'offline paid booking marked refunded');
 tap_t_assert((int) $GLOBALS['rf_refund_calls'] === 0, 'no gateway call for a booking without a capture id');
 
+// ── 3b) partial payment → refund only what was actually captured ──────
+rf_install_mock(false);
+$b3b = rf_seed_paid_booking($owner);
+$bookings[] = $b3b;
+$wpdb->update($wpdb->prefix . 'tap_bookings', [
+    'payment_status' => 'partial',
+    'amount_paid'    => 40,
+], ['id' => $b3b]);
+$r = TAP_Booking::client_cancel_request($b3b, $owner);
+rf_remove_mock();
+$row3b = TAP_Booking::get_booking($b3b);
+tap_t_assert(true === $r, 'client cancels a partially paid booking');
+tap_t_assert('refunded' === $row3b->payment_status, 'partial payment is refunded instead of skipped');
+tap_t_assert(abs((float) $row3b->refund_amount - 40.0) < 0.001, 'refund is capped at the amount actually paid, not the policy total');
+tap_t_assert(abs((float) $row3b->amount_paid) < 0.001, 'amount_paid drops to zero after refunding the partial capture');
+tap_t_assert(50 === (int) $row3b->refund_percent, 'the policy percentage is still recorded for auditing');
+
 // ── 4) non-refundable policy → paid booking cancelled, nothing back ──
 rf_install_mock(true);
 update_option('tap_cancel_policy_tap_tour', 'non_refundable');

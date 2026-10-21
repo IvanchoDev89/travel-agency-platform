@@ -534,6 +534,19 @@ class TAP_Booking {
 
         $refund = TAP_Refunds::cancellation_refund($booking);
 
+        // Money that actually reached us. Legacy/manual paid bookings may not
+        // carry amount_paid, so fall back to the total. Anything else can only
+        // be refunded up to what was really captured: a partial payment must
+        // not promise the policy percentage of the full total (the gateway has
+        // no such funds to reverse), and it used to skip the refund entirely.
+        $paid_amount = (float) ($booking->amount_paid ?? 0);
+        if ('paid' === $booking->payment_status && $paid_amount <= 0) {
+            $paid_amount = (float) $booking->total_amount;
+        }
+        $refundable = in_array($booking->payment_status, ['paid', 'partial'], true)
+            ? round(min((float) $refund['refund_amount'], $paid_amount), 2)
+            : 0.0;
+
         // Refund the money for real before marking the ledger as refunded.
         // When the gateway refund fails the booking stays cancelled but the
         // payment_status remains 'paid' and _tap_refund_error/_tap_refund_pending
@@ -541,9 +554,9 @@ class TAP_Booking {
         // marker is written before the gateway call so a fatal mid-refund is
         // still reconcilable.
         $refund_success = true;
-        if ('paid' === $booking->payment_status && (float) $refund['refund_amount'] > 0) {
+        if ($refundable > 0) {
             update_post_meta($booking_id, '_tap_refund_pending', current_time('mysql'));
-            $refund_result = TAP_Refunds::execute_refund($booking_id, $booking, $refund['refund_amount']);
+            $refund_result = TAP_Refunds::execute_refund($booking_id, $booking, $refundable);
             if (is_wp_error($refund_result)) {
                 $refund_success = false;
             } else {
@@ -551,14 +564,14 @@ class TAP_Booking {
             }
         }
 
-        $money_returned = 'paid' === $booking->payment_status && (float) $refund['refund_amount'] > 0 && $refund_success;
+        $money_returned = $refundable > 0 && $refund_success;
         $final_status   = ('refunded' === $target_status)
             ? ($money_returned ? 'refunded' : 'cancelled')
             : 'cancelled';
 
         $new_amount_paid = $money_returned
-            ? round(max(0.0, (float) ($booking->amount_paid ?? 0) - (float) $refund['refund_amount']), 2)
-            : (float) ($booking->amount_paid ?? 0);
+            ? round(max(0.0, $paid_amount - $refundable), 2)
+            : $paid_amount;
 
         $wpdb->update(
             $wpdb->prefix . 'tap_bookings',
@@ -568,7 +581,7 @@ class TAP_Booking {
                 'cancelled_by'         => $cancelled_by,
                 'cancel_reason'        => $reason !== '' ? $reason : null,
                 'cancellation_policy'  => $refund['policy'],
-                'refund_amount'        => round($refund['refund_amount'], 2),
+                'refund_amount'        => $refundable,
                 'refund_percent'       => $refund['refund_percent'],
                 'refunded_at'          => $money_returned ? current_time('mysql') : null,
                 'amount_paid'          => $new_amount_paid,

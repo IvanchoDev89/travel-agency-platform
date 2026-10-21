@@ -435,6 +435,12 @@ class TAP_Dashboard_Settings {
                 </table>
 
                 <h2 style="margin-top: 30px;"><?php esc_html_e('PayPal Settings', 'travel-agency-platform'); ?></h2>
+                <?php if (TAP_PayPal::has_placeholder_credentials()): ?>
+                    <div class="notice notice-warning inline">
+                        <p><strong><?php esc_html_e('PayPal no está configurado.', 'travel-agency-platform'); ?></strong>
+                        <?php esc_html_e('Las credenciales guardadas son de ejemplo o están vacías, así que «Pagar con PayPal» fallará. Pega el Client ID y el Secret de tu aplicación de PayPal para activar los pagos.', 'travel-agency-platform'); ?></p>
+                    </div>
+                <?php endif; ?>
                 <table class="form-table">
                     <tr>
                         <th><label for="tap_paypal_enabled"><?php esc_html_e('Enable PayPal', 'travel-agency-platform'); ?></label></th>

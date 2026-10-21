@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.42] — 2026-10-21
+
+Follow-up review of the agency audit: money edge cases and checkout hygiene.
+
+### Fixed
+
+- **Abandoned PayPal checkouts no longer lock featured slots or listings.** A `pending` promo created before PayPal answered had no cleanup path, so it counted against the plan forever and blocked new requests for the same listing. `occupied_promos_count()` now counts only `active` promos still in date plus unpaid `pending` ones from a 2-hour checkout window, and `request()` drops stale unpaid pending rows for that listing instead of duplicating or blocking them. Paid rows are never touched.
+- **The bulk commission settle re-checks pending payouts under the per-agency lock.** The `NOT EXISTS` guard ran before `GET_LOCK`, so an agency payout request could insert its pending row in between and both sides would pay the same booking. Candidate ids are now re-selected inside the lock, and zero-commission bookings are skipped.
+- **A failed ledger insert never marks commissions paid.** Both the bulk and the single settle release the lock and leave the commission `owed` when `$wpdb->insert()` fails, with a clear notice instead of a silent double state.
+- **Partial payments are refunded, capped at what was captured.** Cancelling a `partial` booking used to skip the refund; it now refunds up to `amount_paid` (and a `paid` booking is capped the same way), so the gateway is never asked to reverse money it never took. The policy percentage is still stored for auditing.
+- **A stray `room_id` on a tour/package is ignored.** It no longer takes a room lock or runs the accommodation availability gate for a non-accommodation booking.
+- **The paid-cancellation path records the real actor.** Legacy AJAX cancellations now store `admin`/`agency`/`system` in `cancelled_by` instead of always `system`.
+- **Service-page leads are matched in the right namespace.** The form's row id is no longer re-resolved through the agency-post namespace, which could match an unrelated agency that happened to share the numeric id.
+- **Settings warns when PayPal still has sample credentials.** The PayPal section shows a notice when the keys are empty or the installer's `test-client`/`test-secret`, instead of letting checkout fail with an opaque gateway error.
+
+### Tests
+
+- `suite_promotions`: fresh pending blocks a slot, a 3-hour-old pending row frees it, and a stale pending request for the same listing is replaced without duplicating.
+- `suite_refunds`: a partial capture is refunded down to zero and capped at the amount paid.
+- `suite_bugs`: real `WP_Query` assertion for the inactive-accommodation search rule, a guard that the bulk settle re-checks pending payouts after locking, and the PayPal placeholder detector.
+
+---
+
 ## [1.5.41] — 2026-10-21
 
 Agency-logic audit: bookings, promotions, moderation, leads and payouts.
