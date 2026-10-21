@@ -17,6 +17,7 @@ class TAP_Metaboxes {
         self::register_booking_metabox();
         self::register_equipment_metabox();
         self::register_destination_metabox();
+        self::register_spot_metabox();
         self::$loaded = true;
     }
 
@@ -39,6 +40,16 @@ class TAP_Metaboxes {
         foreach (self::service_types() as $type) {
             self::maybe_add_meta_box('tap_destination', __('Destination', 'travel-agency-platform'), [__CLASS__, 'render_destination'], $type, 'side', 'default');
         }
+    }
+
+    /**
+     * Educational spot fields (parque nacional, reserva, volcán…). Reuses the
+     * generic render()/save() pipeline so the same field registry drives the
+     * metabox, the REST payload and the map.
+     */
+    private static function register_spot_metabox() {
+        self::maybe_add_meta_box('tap_spot_details', __('Ficha educativa', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_spot', 'normal', 'high');
+        self::$fields['tap_spot'] = TAP_Destination_Spots::fields();
     }
 
     public static function render_destination($post) {
@@ -335,6 +346,19 @@ class TAP_Metaboxes {
         }
     }
 
+    /** Keep only a signed decimal; empty/invalid input becomes an empty string. */
+    private static function sanitize_coord($raw) {
+        $raw = trim((string) $raw);
+        if ($raw === '') {
+            return '';
+        }
+        // Accept only an optionally signed decimal number; anything else is dropped.
+        if (!preg_match('/^-?\d+(\.\d+)?$/', $raw)) {
+            return '';
+        }
+        return (string) (float) $raw;
+    }
+
     public static function save($post_id, $post) {
         if (!isset($_POST['tap_metabox_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['tap_metabox_nonce'])), 'tap_metabox_save')) {
             return;
@@ -349,7 +373,16 @@ class TAP_Metaboxes {
                 if ($field['type'] === 'checkbox') {
                     $value = isset($_POST[$key]) ? '1' : '0';
                 } elseif (isset($_POST[$key])) {
-                    $value = sanitize_text_field(wp_unslash($_POST[$key]));
+                    $raw = wp_unslash($_POST[$key]);
+                    if ($field['type'] === 'textarea') {
+                        // Keep line breaks (e.g. "datos de interés" bullet lists).
+                        $value = sanitize_textarea_field($raw);
+                    } elseif (in_array($key, TAP_Destination_Spots::coord_fields(), true)) {
+                        // Coordinates stay raw strings; validated to a numeric range.
+                        $value = self::sanitize_coord($raw);
+                    } else {
+                        $value = sanitize_text_field($raw);
+                    }
                 } else {
                     continue;
                 }

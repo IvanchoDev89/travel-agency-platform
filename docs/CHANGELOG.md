@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.45] — 2026-10-21
+
+Interactive educational destinations map.
+
+### Added
+
+- **Editable destination spots (`tap_spot` CPT).** A new "Destinos" admin post type hosts each protected place — national park, biological reserve, wildlife refuge, volcano, protected beach, archaeological site… — with a rich description, featured image and its own canonical page at `/destino/{slug}/`.
+- **Destination types taxonomy (`tap_spot_type`).** Seeded with eight categories (parque nacional, reserva biológica, refugio de vida silvestre, volcán, playa protegida, sitio arqueológico, zona protectora, monumento natural), fully manageable from wp-admin.
+- **Educational fields.** Latitude, longitude, province, "datos de interés" (one bullet per line), schedule, fee, area, year established, accessibility and official website — each shown on the place's page and used by the map.
+- **`[tap_destinations_map]` shortcode.** A Leaflet + OpenStreetMap map (no API key) with marker clustering, type filter chips with live counts, a linked list of places and an educational detail panel that opens from both the markers and the list.
+- **`/destinos/` landing page.** Created once by the plugin and linked into the primary menu; its body holds the shortcode so the intro copy stays editable from the normal editor.
+- **Seed content.** Fifteen real Costa Rican places (Volcán Arenal, Tortuguero, Manuel Antonio, Corcovado, Rincón de la Vieja, Poás, Irazú, Chirripó, Cahuita, Marino Ballena, Guayabo, Tenorio, Palo Verde, Isla del Coco, Gandoca-Manzanillo) with approximate coordinates and factual notes. Idempotent, and never overwrites an admin's edits on re-runs.
+
+### Changed
+
+- Plugin version bumped to `1.5.45` (header + `TAP_VERSION`); the map assets load only on the destinations page and each spot's page.
+
+### Tests
+
+- `suite_spots`: CPT/taxonomy registration, idempotent seed, map-data payload (coordinate filtering + type filter), shortcode markup, the editable meta pipeline (multiline interest + coordinate validation) and the page/menu wiring.
+
+---
+
 ## [1.5.44] — 2026-10-21
 
 Agency directory polish.

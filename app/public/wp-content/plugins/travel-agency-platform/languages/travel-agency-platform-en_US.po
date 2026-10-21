@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-10-21T09:13:04+00:00\n"
+"POT-Creation-Date: 2026-10-21T09:54:44+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -206,13 +206,13 @@ msgid "Guardar unidad"
 msgstr "Save unit"
 
 #: includes/class-acc-wizard-room-form.php:198
-#: includes/class-booking-pricing.php:230 includes/class-metaboxes.php:591
+#: includes/class-booking-pricing.php:230 includes/class-metaboxes.php:624
 #: includes/class-post-types.php:369
 msgid "King"
 msgstr "King"
 
 #: includes/class-acc-wizard-room-form.php:199
-#: includes/class-booking-pricing.php:231 includes/class-metaboxes.php:592
+#: includes/class-booking-pricing.php:231 includes/class-metaboxes.php:625
 #: includes/class-post-types.php:370
 msgid "Queen"
 msgstr "Queen"
@@ -817,7 +817,7 @@ msgstr "Click any day to edit its price, label or block it."
 #: includes/class-shortcode-booking.php:815
 #: includes/class-shortcode-booking.php:817
 #: includes/class-shortcode-booking.php:840
-#: includes/class-shortcode-booking.php:843 travel-agency-platform.php:272
+#: includes/class-shortcode-booking.php:843 travel-agency-platform.php:276
 msgid "Error"
 msgstr "Error"
 
@@ -1197,6 +1197,7 @@ msgid "Hora de check-out"
 msgstr "Check-out time"
 
 #: includes/class-acc-wizard-steps.php:851
+#: includes/class-destination-spots.php:51
 msgid "Latitud"
 msgstr "Latitude"
 
@@ -1205,6 +1206,7 @@ msgid "Se rellena al elegir el destino."
 msgstr "Filled in when you choose the destination."
 
 #: includes/class-acc-wizard-steps.php:852
+#: includes/class-destination-spots.php:52
 msgid "Longitud"
 msgstr "Longitude"
 
@@ -2231,17 +2233,17 @@ msgstr "Double"
 msgid "Bunk"
 msgstr "Bunk"
 
-#: includes/class-booking-pricing.php:235 includes/class-metaboxes.php:596
+#: includes/class-booking-pricing.php:235 includes/class-metaboxes.php:629
 #: includes/class-post-types.php:374
 msgid "Sofa Bed"
 msgstr "Sofa Bed"
 
-#: includes/class-booking-pricing.php:236 includes/class-metaboxes.php:597
+#: includes/class-booking-pricing.php:236 includes/class-metaboxes.php:630
 #: includes/class-post-types.php:375
 msgid "Crib"
 msgstr "Crib"
 
-#: includes/class-booking-pricing.php:238 includes/class-metaboxes.php:599
+#: includes/class-booking-pricing.php:238 includes/class-metaboxes.php:632
 #: includes/class-post-types.php:377
 msgid "Futon"
 msgstr "Futon"
@@ -2702,7 +2704,7 @@ msgid "Pago"
 msgstr "Payment"
 
 #: includes/class-dashboard-bookings.php:176 includes/class-emails-send.php:547
-#: includes/class-front-dash.php:579 includes/class-metaboxes.php:73
+#: includes/class-front-dash.php:579 includes/class-metaboxes.php:84
 #: includes/class-shortcode-account.php:255
 msgid "Email"
 msgstr "Email"
@@ -2770,6 +2772,7 @@ msgid "Todos los estados"
 msgstr "All statuses"
 
 #: includes/class-dashboard-bookings.php:249
+#: includes/class-destination-spots.php:110
 msgid "Todos los tipos"
 msgstr "All types"
 
@@ -2794,12 +2797,12 @@ msgstr "Export CSV"
 msgid "Code"
 msgstr "Code"
 
-#: includes/class-dashboard-bookings.php:269 includes/class-metaboxes.php:694
+#: includes/class-dashboard-bookings.php:269 includes/class-metaboxes.php:727
 #: includes/class-roles.php:95
 msgid "Client"
 msgstr "Client"
 
-#: includes/class-dashboard-bookings.php:270 includes/class-metaboxes.php:697
+#: includes/class-dashboard-bookings.php:270 includes/class-metaboxes.php:730
 #: includes/class-shortcode-agency-panel.php:230
 #: includes/class-shortcode-booking.php:164
 msgid "Service"
@@ -2808,15 +2811,15 @@ msgstr "Service"
 #: includes/class-dashboard-bookings.php:271
 #: includes/class-dashboard-content.php:543
 #: includes/class-dashboard-money.php:298
-#: includes/class-dashboard-money.php:393 includes/class-metaboxes.php:95
-#: includes/class-metaboxes.php:117 includes/class-metaboxes.php:143
-#: includes/class-metaboxes.php:161 includes/class-metaboxes.php:182
-#: includes/class-metaboxes.php:205 includes/class-metaboxes.php:226
-#: includes/class-metaboxes.php:695 includes/class-post-types.php:20
+#: includes/class-dashboard-money.php:393 includes/class-metaboxes.php:106
+#: includes/class-metaboxes.php:128 includes/class-metaboxes.php:154
+#: includes/class-metaboxes.php:172 includes/class-metaboxes.php:193
+#: includes/class-metaboxes.php:216 includes/class-metaboxes.php:237
+#: includes/class-metaboxes.php:728 includes/class-post-types.php:20
 msgid "Agency"
 msgstr "Agency"
 
-#: includes/class-dashboard-bookings.php:273 includes/class-metaboxes.php:693
+#: includes/class-dashboard-bookings.php:273 includes/class-metaboxes.php:726
 #: includes/class-shortcode-agency-panel.php:238
 #: includes/class-shortcode-booking.php:167
 msgid "Status"
@@ -2824,7 +2827,7 @@ msgstr "Status"
 
 #: includes/class-dashboard-bookings.php:274
 #: includes/class-dashboard-insights.php:54
-#: includes/class-dashboard-money.php:301 includes/class-metaboxes.php:708
+#: includes/class-dashboard-money.php:301 includes/class-metaboxes.php:741
 #: includes/class-shortcode-agency-panel.php:137
 #: includes/class-shortcode-agency-panel.php:194
 #: includes/class-shortcode-agency-panel.php:235
@@ -3125,7 +3128,7 @@ msgstr ""
 "district, place) is derived from its position in the tree."
 
 #: includes/class-dashboard-destinations.php:106
-#: includes/class-metaboxes.php:40 includes/class-metaboxes.php:214
+#: includes/class-metaboxes.php:41 includes/class-metaboxes.php:225
 #: includes/class-shortcode-search.php:24 includes/class-taxonomies.php:19
 msgid "Destination"
 msgstr "Destination"
@@ -3408,7 +3411,7 @@ msgstr "Cancelled"
 msgid "Booking"
 msgstr "Booking"
 
-#: includes/class-dashboard-money.php:300 includes/class-metaboxes.php:80
+#: includes/class-dashboard-money.php:300 includes/class-metaboxes.php:91
 msgid "Commission %"
 msgstr "Commission %"
 
@@ -3738,7 +3741,7 @@ msgstr "Cancel pending after (hours)"
 msgid "Terms & Conditions Page"
 msgstr "Terms & Conditions Page"
 
-#: includes/class-dashboard-settings.php:324 includes/class-metaboxes.php:590
+#: includes/class-dashboard-settings.php:324 includes/class-metaboxes.php:623
 msgid "-- Select --"
 msgstr "-- Select --"
 
@@ -3972,13 +3975,841 @@ msgstr "Settings"
 msgid "%d items"
 msgstr "%d items"
 
+#: includes/class-destination-spots.php:27
+msgid "Parque Nacional"
+msgstr "National Park"
+
+#: includes/class-destination-spots.php:28
+msgid "Reserva Biológica"
+msgstr "Biological Reserve"
+
+#: includes/class-destination-spots.php:29
+msgid "Refugio de Vida Silvestre"
+msgstr "Wildlife Refuge"
+
+#: includes/class-destination-spots.php:30
+msgid "Volcán"
+msgstr "Volcano"
+
+#: includes/class-destination-spots.php:31
+msgid "Playa Protegida"
+msgstr "Protected Beach"
+
+#: includes/class-destination-spots.php:32
+msgid "Sitio Arqueológico"
+msgstr "Archaeological Site"
+
+#: includes/class-destination-spots.php:33
+msgid "Zona Protectora"
+msgstr "Protected Zone"
+
+#: includes/class-destination-spots.php:34
+msgid "Monumento Natural"
+msgstr "Natural Monument"
+
+#: includes/class-destination-spots.php:51
+msgid "Decimal, p. ej. 10.4631"
+msgstr "Decimal, e.g. 10.4631"
+
+#: includes/class-destination-spots.php:52
+msgid "Decimal, p. ej. -84.7033"
+msgstr "Decimal, e.g. -84.7033"
+
+#: includes/class-destination-spots.php:53 includes/class-destinations.php:26
+msgid "Provincia"
+msgstr "Province"
+
+#: includes/class-destination-spots.php:54
+#: includes/class-shortcode-search.php:1000
+msgid "Datos de interés"
+msgstr "Facts of interest"
+
+#: includes/class-destination-spots.php:54
+msgid "Uno por línea. Se muestran como viñetas."
+msgstr "One per line. Displayed as bullets."
+
+#: includes/class-destination-spots.php:55
+#: includes/class-shortcode-search.php:995
+msgid "Horario"
+msgstr "Schedule"
+
+#: includes/class-destination-spots.php:56
+#: includes/class-shortcode-search.php:996
+msgid "Tarifa"
+msgstr "Fee"
+
+#: includes/class-destination-spots.php:57
+#: includes/class-shortcode-search.php:997
+msgid "Extensión"
+msgstr "Area"
+
+#: includes/class-destination-spots.php:58
+#: includes/class-shortcode-search.php:998
+msgid "Año de creación"
+msgstr "Year established"
+
+#: includes/class-destination-spots.php:59
+#: includes/class-shortcode-search.php:999
+msgid "Accesibilidad"
+msgstr "Accessibility"
+
+#: includes/class-destination-spots.php:60
+msgid "Sitio oficial"
+msgstr "Official website"
+
+#: includes/class-destination-spots.php:80
+msgid "Destinos educativos"
+msgstr "Educational destinations"
+
+#: includes/class-destination-spots.php:81
+msgid "Destino educativo"
+msgstr "Educational destination"
+
+#: includes/class-destination-spots.php:82
+msgid "Añadir destino"
+msgstr "Add destination"
+
+#: includes/class-destination-spots.php:83
+msgid "Añadir nuevo destino"
+msgstr "Add new destination"
+
+#: includes/class-destination-spots.php:84
+msgid "Editar destino"
+msgstr "Edit destination"
+
+#: includes/class-destination-spots.php:85
+msgid "Ver destino"
+msgstr "View destination"
+
+#: includes/class-destination-spots.php:86
+msgid "Buscar destinos"
+msgstr "Search destinations"
+
+#: includes/class-destination-spots.php:87
+msgid "No se encontraron destinos"
+msgstr "No destinations found"
+
+#: includes/class-destination-spots.php:88
+msgid "Todos los destinos"
+msgstr "All destinations"
+
+#: includes/class-destination-spots.php:89
+#: includes/class-destination-spots.php:293
+#: includes/class-destination-spots.php:323
+msgid "Destinos"
+msgstr "Destinations"
+
+#: includes/class-destination-spots.php:107
+#: includes/class-destination-spots.php:115
+msgid "Tipos de destino"
+msgstr "Destination types"
+
+#: includes/class-destination-spots.php:108
+msgid "Tipo de destino"
+msgstr "Destination type"
+
+#: includes/class-destination-spots.php:109
+msgid "Buscar tipos"
+msgstr "Search types"
+
+#: includes/class-destination-spots.php:111
+msgid "Editar tipo"
+msgstr "Edit type"
+
+#: includes/class-destination-spots.php:112
+msgid "Actualizar tipo"
+msgstr "Update type"
+
+#: includes/class-destination-spots.php:113
+msgid "Añadir tipo"
+msgstr "Add type"
+
+#: includes/class-destination-spots.php:114
+msgid "Nombre del tipo"
+msgstr "Type name"
+
+#: includes/class-destination-spots.php:394
+msgid "Uno de los volcanes más activos del mundo y el ícono de La Fortuna."
+msgstr ""
+"One of the most active volcanoes in the world and the icon of La Fortuna."
+
+#: includes/class-destination-spots.php:397
+msgid ""
+"El Arenal es un estratovolcán de 1 670 msnm; su última gran erupción fue en "
+"1968."
+msgstr ""
+"Arenal is a 1,670 m stratovolcano; its last major eruption was in 1968."
+
+#: includes/class-destination-spots.php:398
+msgid ""
+"Entre 1968 y 2010 mantuvo actividad casi permanente, con flujos de lava "
+"visibles de noche."
+msgstr ""
+"Between 1968 and 2010 it was almost continuously active, with lava flows "
+"visible at night."
+
+#: includes/class-destination-spots.php:399
+msgid ""
+"Protege 12 124 hectáreas de bosque premontano y numerosa fauna: tucanes, "
+"perezosos y coatíes."
+msgstr ""
+"It protects 12,124 hectares of premontane forest and abundant wildlife: "
+"toucans, sloths and coatis."
+
+#: includes/class-destination-spots.php:400
+msgid ""
+"Hay senderos como El Silencio y la colada de lava de 1968; el mirador del "
+"lago es imperdible."
+msgstr ""
+"There are trails such as El Silencio and the 1968 lava flow; the lake "
+"viewpoint is unmissable."
+
+#: includes/class-destination-spots.php:402
+#: includes/class-destination-spots.php:510
+#: includes/class-destination-spots.php:546
+#: includes/class-destination-spots.php:654
+msgid "Todos los días, 8:00 a 16:00"
+msgstr "Every day, 8:00 to 16:00"
+
+#: includes/class-destination-spots.php:403
+#: includes/class-destination-spots.php:511
+msgid "Entrada: $15 extranjeros / ₡1 000 nacionales"
+msgstr "Admission: $15 foreigners / ₡1,000 nationals"
+
+#: includes/class-destination-spots.php:404
+msgid "12 124 ha"
+msgstr "12,124 ha"
+
+#: includes/class-destination-spots.php:412
+msgid ""
+"La \"Amazonia de Costa Rica\": canales, selva y la mayor playa de anidación "
+"de tortuga verde del Caribe."
+msgstr ""
+"The \"Amazon of Costa Rica\": canals, jungle and the Caribbean's largest "
+"green turtle nesting beach."
+
+#: includes/class-destination-spots.php:415
+msgid ""
+"Es el sitio de anidación más importante del hemisferio para la tortuga verde "
+"(Chelonia mydas)."
+msgstr ""
+"It is the hemisphere's most important nesting site for the green turtle "
+"(Chelonia mydas)."
+
+#: includes/class-destination-spots.php:416
+msgid ""
+"Solo se llega por agua o por aire: no hay carretera hasta el pueblo de "
+"Tortuguero."
+msgstr ""
+"It can only be reached by water or air: there is no road to the village of "
+"Tortuguero."
+
+#: includes/class-destination-spots.php:417
+msgid ""
+"Sus 31 187 ha protegen canales, lagunas y bosque húmedo tropical con 400 "
+"especies de árboles."
+msgstr ""
+"Its 31,187 ha protect canals, lagoons and tropical rainforest with 400 tree "
+"species."
+
+#: includes/class-destination-spots.php:418
+msgid ""
+"La temporada de desove va de julio a octubre; los tours nocturnos son "
+"guiados y regulados."
+msgstr ""
+"The nesting season runs from July to October; night tours are guided and "
+"regulated."
+
+#: includes/class-destination-spots.php:420
+msgid "Todos los días, 6:00 a 18:00 (tours nocturnos con guía)"
+msgstr "Every day, 6:00 to 18:00 (guided night tours)"
+
+#: includes/class-destination-spots.php:421
+#: includes/class-destination-spots.php:475
+#: includes/class-destination-spots.php:493
+msgid "Entrada: $17 extranjeros / ₡1 000 nacionales"
+msgstr "Admission: $17 foreigners / ₡1,000 nationals"
+
+#: includes/class-destination-spots.php:422
+msgid "31 187 ha"
+msgstr "31,187 ha"
+
+#: includes/class-destination-spots.php:430
+msgid ""
+"Playas de arena blanca, acantilados y monos que bajan de los árboles: el "
+"parque más visitado del país."
+msgstr ""
+"White-sand beaches, cliffs and monkeys coming down from the trees: the "
+"country's most visited park."
+
+#: includes/class-destination-spots.php:433
+msgid ""
+"Es el parque más visitado de Costa Rica y uno de los más pequeños con apenas "
+"1 983 ha."
+msgstr ""
+"It is Costa Rica's most visited park and one of the smallest at just 1,983 "
+"ha."
+
+#: includes/class-destination-spots.php:434
+msgid ""
+"Cuenta con tres playas accesibles: Espadilla Sur, Manuel Antonio y Puerto "
+"Escondido."
+msgstr ""
+"It has three accessible beaches: Espadilla Sur, Manuel Antonio and Puerto "
+"Escondido."
+
+#: includes/class-destination-spots.php:435
+msgid ""
+"Hogar de monos carablanca, tití y aulladores, además de perezosos de tres "
+"dedos."
+msgstr ""
+"Home to white-faced, squirrel and howler monkeys, plus three-toed sloths."
+
+#: includes/class-destination-spots.php:436
+msgid ""
+"La entrada tiene aforo limitado por franjas horarias; conviene reservar con "
+"antelación."
+msgstr ""
+"Entry has limited capacity by time slot; booking in advance is advisable."
+
+#: includes/class-destination-spots.php:438
+msgid "Martes a domingo, 7:00 a 16:00 (cerrado lunes)"
+msgstr "Tuesday to Sunday, 7:00 to 16:00 (closed Monday)"
+
+#: includes/class-destination-spots.php:439
+#: includes/class-destination-spots.php:529
+msgid "Entrada: $18 extranjeros / ₡1 000 nacionales"
+msgstr "Admission: $18 foreigners / ₡1,000 nationals"
+
+#: includes/class-destination-spots.php:440
+msgid "1 983 ha"
+msgstr "1,983 ha"
+
+#: includes/class-destination-spots.php:448
+msgid ""
+"La joya de la Península de Osa: el bosque primario más extenso del Pacífico "
+"centroamericano."
+msgstr ""
+"The jewel of the Osa Peninsula: the largest primary forest on the Central "
+"American Pacific."
+
+#: includes/class-destination-spots.php:451
+msgid ""
+"National Geographic lo llamó \"el lugar con mayor intensidad biológica del "
+"planeta\" en bosque húmedo."
+msgstr ""
+"National Geographic called it \"the place with the greatest biological "
+"intensity on the planet\" in rainforest."
+
+#: includes/class-destination-spots.php:452
+msgid ""
+"Es el único lugar de Costa Rica donde coexisten las cuatro especies de monos "
+"del país."
+msgstr ""
+"It is the only place in Costa Rica where all four of the country's monkey "
+"species coexist."
+
+#: includes/class-destination-spots.php:453
+msgid ""
+"Poblaciones importantes de tapir, puma, jaguar y la guacamaya roja se "
+"refugian aquí."
+msgstr ""
+"Important populations of tapir, puma, jaguar and the scarlet macaw take "
+"refuge here."
+
+#: includes/class-destination-spots.php:454
+msgid ""
+"Se accede a pie desde Los Patos, de noche desde Drake o en avioneta; "
+"requiere guía autorizado."
+msgstr ""
+"It is reached on foot from Los Patos, overnight from Drake or by light "
+"aircraft; a licensed guide is required."
+
+#: includes/class-destination-spots.php:456
+msgid "Todos los días, 6:00 a 17:00 (ingreso con guía)"
+msgstr "Every day, 6:00 to 17:00 (entry with a guide)"
+
+#: includes/class-destination-spots.php:457
+msgid "Entrada: $20 extranjeros / ₡1 000 nacionales"
+msgstr "Admission: $20 foreigners / ₡1,000 nationals"
+
+#: includes/class-destination-spots.php:458
+msgid "42 469 ha"
+msgstr "42,469 ha"
+
+#: includes/class-destination-spots.php:466
+msgid ""
+"Volcán, fumarolas, lodo hirviente y cataratas: geología viva en Guanacaste."
+msgstr ""
+"Volcano, fumaroles, boiling mud and waterfalls: living geology in Guanacaste."
+
+#: includes/class-destination-spots.php:469
+msgid ""
+"El complejo volcánico tiene nueve conos; el Von Seebach es el punto más alto "
+"con 1 895 msnm."
+msgstr ""
+"The volcanic complex has nine cones; Von Seebach is the highest point at "
+"1,895 m."
+
+#: includes/class-destination-spots.php:470
+msgid ""
+"Concentra 32 ríos y decenas de cataratas; la catarata La Cangreja es la más "
+"famosa."
+msgstr ""
+"It gathers 32 rivers and dozens of waterfalls; La Cangreja waterfall is the "
+"most famous."
+
+#: includes/class-destination-spots.php:471
+msgid ""
+"Sus fumarolas y ollas de lodo son un laboratorio natural de actividad "
+"geotérmica."
+msgstr ""
+"Its fumaroles and mud pots are a natural laboratory of geothermal activity."
+
+#: includes/class-destination-spots.php:472
+msgid ""
+"Forma parte del Área de Conservación Guanacaste, Patrimonio de la Humanidad "
+"(UNESCO)."
+msgstr ""
+"It is part of the Guanacaste Conservation Area, a UNESCO World Heritage Site."
+
+#: includes/class-destination-spots.php:474
+msgid "Todos los días, 7:00 a 15:00"
+msgstr "Every day, 7:00 to 15:00"
+
+#: includes/class-destination-spots.php:476
+msgid "14 083 ha"
+msgstr "14,083 ha"
+
+#: includes/class-destination-spots.php:484
+msgid ""
+"Uno de los cráteres activos más grandes del mundo, accesible casi hasta el "
+"borde."
+msgstr ""
+"One of the world's largest active craters, accessible almost to the rim."
+
+#: includes/class-destination-spots.php:487
+msgid ""
+"Su cráter principal mide 1,3 km de diámetro y es uno de los más anchos del "
+"planeta."
+msgstr "Its main crater is 1.3 km across and one of the widest on the planet."
+
+#: includes/class-destination-spots.php:488
+msgid ""
+"La laguna del cráter cambia de color y a veces desaparece por completo con "
+"la temperatura."
+msgstr ""
+"The crater lake changes color and sometimes disappears entirely with "
+"temperature."
+
+#: includes/class-destination-spots.php:489
+msgid ""
+"El mirador está a pocos minutos del estacionamiento, ideal para visita de "
+"medio día."
+msgstr ""
+"The viewpoint is a few minutes from the parking lot, ideal for a half-day "
+"visit."
+
+#: includes/class-destination-spots.php:490
+msgid ""
+"El acceso se controla por aforo y horario; la nubosidad puede ocultar el "
+"cráter temprano."
+msgstr ""
+"Access is controlled by capacity and time; cloud cover can hide the crater "
+"early on."
+
+#: includes/class-destination-spots.php:492
+msgid "Todos los días, 7:00 a 14:00 (reserva obligatoria)"
+msgstr "Every day, 7:00 to 14:00 (booking required)"
+
+#: includes/class-destination-spots.php:494
+msgid "6 506 ha"
+msgstr "6,506 ha"
+
+#: includes/class-destination-spots.php:502
+msgid "El volcán más alto del país: en un día claro se ven los dos océanos."
+msgstr "The country's highest volcano: on a clear day both oceans are visible."
+
+#: includes/class-destination-spots.php:505
+msgid "Con 3 432 msnm es el volcán más alto de Costa Rica."
+msgstr "At 3,432 m it is the highest volcano in Costa Rica."
+
+#: includes/class-destination-spots.php:506
+msgid "En días despejados se divisan el Pacífico y el Caribe desde la cima."
+msgstr ""
+"On clear days the Pacific and the Caribbean can be seen from the summit."
+
+#: includes/class-destination-spots.php:507
+msgid ""
+"Su laguna del cráter varía de verde a turquesa según los minerales disueltos."
+msgstr ""
+"Its crater lake ranges from green to turquoise depending on dissolved "
+"minerals."
+
+#: includes/class-destination-spots.php:508
+msgid ""
+"La carretera llega casi hasta el cráter, por lo que es accesible sin "
+"caminata larga."
+msgstr ""
+"The road reaches almost to the crater, so it is accessible without a long "
+"hike."
+
+#: includes/class-destination-spots.php:512
+msgid "2 309 ha"
+msgstr "2,309 ha"
+
+#: includes/class-destination-spots.php:520
+msgid ""
+"El techo de Costa Rica: páramos, lagos glaciares y el famoso amanecer sobre "
+"el Pacífico."
+msgstr ""
+"The roof of Costa Rica: paramo, glacial lakes and the famous sunrise over "
+"the Pacific."
+
+#: includes/class-destination-spots.php:523
+msgid "El Cerro Chirripó alcanza 3 820 msnm, el punto más alto del país."
+msgstr "Cerro Chirripó reaches 3,820 m, the country's highest point."
+
+#: includes/class-destination-spots.php:524
+msgid ""
+"En la cima, en días claros, se ven el Pacífico y el Caribe al mismo tiempo."
+msgstr ""
+"At the summit, on clear days, the Pacific and the Caribbean are visible at "
+"the same time."
+
+#: includes/class-destination-spots.php:525
+msgid ""
+"Sus lagos de origen glaciar, como el Lagos Ditkevi, son únicos en "
+"Centroamérica."
+msgstr ""
+"Its glacial lakes, such as Lagos Ditkevi, are unique in Central America."
+
+#: includes/class-destination-spots.php:526
+msgid ""
+"La subida requiere reserva de refugio y por lo general se hace en dos días."
+msgstr "The climb requires a refuge booking and is usually done over two days."
+
+#: includes/class-destination-spots.php:528
+msgid "Todos los días con reserva previa, 5:00 a 17:00"
+msgstr "Every day with prior booking, 5:00 to 17:00"
+
+#: includes/class-destination-spots.php:530
+msgid "50 150 ha"
+msgstr "50,150 ha"
+
+#: includes/class-destination-spots.php:538
+msgid ""
+"Arrecife de coral, playa de arena blanca y selva que llega al mar en el "
+"Caribe sur."
+msgstr ""
+"Coral reef, white-sand beach and jungle reaching the sea on the southern "
+"Caribbean."
+
+#: includes/class-destination-spots.php:541
+msgid ""
+"Protege uno de los arrecifes de coral mejor conservados del Caribe "
+"costarricense."
+msgstr ""
+"It protects one of the best-preserved coral reefs in the Costa Rican "
+"Caribbean."
+
+#: includes/class-destination-spots.php:542
+msgid "Se puede recorrer a pie un sendero de 8 km entre playa y bosque."
+msgstr "An 8 km trail can be walked between beach and forest."
+
+#: includes/class-destination-spots.php:543
+msgid "Sus aguas tranquilas son ideales para snorkel con peces tropicales."
+msgstr "Its calm waters are ideal for snorkeling with tropical fish."
+
+#: includes/class-destination-spots.php:544
+msgid ""
+"El terremoto de 1991 elevó la costa y creó la playa actual frente al pueblo."
+msgstr ""
+"The 1991 earthquake uplifted the coast and created today's beach in front of "
+"the village."
+
+#: includes/class-destination-spots.php:547
+#: includes/class-destination-spots.php:583
+#: includes/class-destination-spots.php:655
+msgid "Entrada: $5 extranjeros / ₡1 000 nacionales"
+msgstr "Admission: $5 foreigners / ₡1,000 nationals"
+
+#: includes/class-destination-spots.php:548
+msgid "2 245 ha (1 067 terrestres / 600 marinas)"
+msgstr "2,245 ha (1,067 land / 600 marine)"
+
+#: includes/class-destination-spots.php:556
+msgid ""
+"La cola de ballena más famosa del país y santuario de migración de ballenas "
+"jorobadas."
+msgstr ""
+"The country's most famous whale tail and a humpback whale migration "
+"sanctuary."
+
+#: includes/class-destination-spots.php:559
+msgid ""
+"Su tómbolo de arena dibuja una cola de ballena en marea baja, visible en "
+"fotos aéreas."
+msgstr ""
+"Its sand tombolo draws a whale tail at low tide, visible in aerial photos."
+
+#: includes/class-destination-spots.php:560
+msgid ""
+"Dos poblaciones de ballena jorobada migran aquí: del hemisferio norte y del "
+"sur."
+msgstr ""
+"Two humpback whale populations migrate here: from the northern and southern "
+"hemispheres."
+
+#: includes/class-destination-spots.php:561
+msgid ""
+"Es uno de los pocos lugares del mundo donde se ven ambas migraciones en un "
+"año."
+msgstr ""
+"It is one of the few places in the world where both migrations are seen in a "
+"single year."
+
+#: includes/class-destination-spots.php:562
+msgid ""
+"Uvita, su comunidad, organiza el Festival de la Ballena en temporada de "
+"avistamiento."
+msgstr ""
+"Uvita, its community, organizes the Whale Festival during sighting season."
+
+#: includes/class-destination-spots.php:564
+#: includes/class-destination-spots.php:618
+msgid "Todos los días, 7:00 a 16:00"
+msgstr "Every day, 7:00 to 16:00"
+
+#: includes/class-destination-spots.php:565
+msgid "Entrada: $6 extranjeros / ₡1 000 nacionales"
+msgstr "Admission: $6 foreigners / ₡1,000 nationals"
+
+#: includes/class-destination-spots.php:566
+msgid "5 375 ha (110 terrestres / 5 265 marinas)"
+msgstr "5,375 ha (110 land / 5,265 marine)"
+
+#: includes/class-destination-spots.php:574
+msgid ""
+"La ciudad precolombina más importante de Costa Rica: acueductos y calzadas "
+"de hace 3 000 años."
+msgstr ""
+"Costa Rica's most important pre-Columbian city: aqueducts and causeways "
+"3,000 years old."
+
+#: includes/class-destination-spots.php:577
+msgid ""
+"Fue una ciudad habitada entre el 1000 a.C. y el 1400 d.C., hoy con ruinas de "
+"piedra."
+msgstr ""
+"It was a city inhabited between 1000 BC and 1400 AD, today with stone ruins."
+
+#: includes/class-destination-spots.php:578
+msgid ""
+"Sus acueductos y tanques de agua siguen funcionando en parte tras siglos."
+msgstr "Its aqueducts and water tanks still partly work after centuries."
+
+#: includes/class-destination-spots.php:579
+msgid ""
+"Las calzadas empedradas conectaban la ciudad con otros asentamientos de la "
+"región."
+msgstr ""
+"The cobbled causeways connected the city with other settlements in the "
+"region."
+
+#: includes/class-destination-spots.php:580
+msgid ""
+"Fue declarado Monumento Nacional en 1973 y Patrimonio de Ingeniería (ASCE) "
+"en 2009."
+msgstr ""
+"It was declared a National Monument in 1973 and an Engineering Heritage "
+"(ASCE) site in 2009."
+
+#: includes/class-destination-spots.php:582
+msgid "Todos los días, 8:00 a 15:30"
+msgstr "Every day, 8:00 to 15:30"
+
+#: includes/class-destination-spots.php:584
+msgid "233 ha"
+msgstr "233 ha"
+
+#: includes/class-destination-spots.php:592
+msgid ""
+"El hogar del Río Celeste, donde el agua se vuelve turquesa por un fenómeno "
+"mineral único."
+msgstr ""
+"The home of the Río Celeste, where the water turns turquoise through a "
+"unique mineral phenomenon."
+
+#: includes/class-destination-spots.php:595
+msgid ""
+"El color turquesa del Río Celeste resulta de la mezcla de minerales de dos "
+"ríos."
+msgstr ""
+"The turquoise color of the Río Celeste comes from the mixing of minerals "
+"from two rivers."
+
+#: includes/class-destination-spots.php:596
+msgid ""
+"Tiene cuatro volcanes apagados y la catarata del río es uno de los sitios "
+"más fotografiados."
+msgstr ""
+"It has four dormant volcanoes and the river's waterfall is one of the most "
+"photographed spots."
+
+#: includes/class-destination-spots.php:597
+msgid ""
+"Protege bosque nuboso y lluvioso, hábitat del tapir y de aves como el "
+"quetzal."
+msgstr ""
+"It protects cloud and rain forest, habitat of the tapir and birds such as "
+"the quetzal."
+
+#: includes/class-destination-spots.php:598
+msgid ""
+"El sendero de 3 km lleva a la catarata, la laguna azul y los \"teñideros\"."
+msgstr ""
+"The 3 km trail leads to the waterfall, the blue lagoon and the \"teñideros\"."
+
+#: includes/class-destination-spots.php:600
+msgid "Todos los días, 8:00 a 14:00 (cupo limitado por hora)"
+msgstr "Every day, 8:00 to 14:00 (limited hourly capacity)"
+
+#: includes/class-destination-spots.php:601
+msgid "Entrada: $12 extranjeros / ₡800 nacionales"
+msgstr "Admission: $12 foreigners / ₡800 nationals"
+
+#: includes/class-destination-spots.php:602
+msgid "12 870 ha"
+msgstr "12,870 ha"
+
+#: includes/class-destination-spots.php:610
+msgid ""
+"Humedal y bosque tropical seco: el mejor lugar del país para observar aves "
+"acuáticas."
+msgstr ""
+"Wetland and tropical dry forest: the country's best place to watch water "
+"birds."
+
+#: includes/class-destination-spots.php:613
+msgid ""
+"Es el humedal más importante de Costa Rica y santuario de aves migratorias."
+msgstr ""
+"It is Costa Rica's most important wetland and a sanctuary for migratory "
+"birds."
+
+#: includes/class-destination-spots.php:614
+msgid ""
+"En sus lagunas invernan miles de aves acuáticas, incluidas garzas y playeros "
+"migrantes."
+msgstr ""
+"Thousands of water birds winter in its lagoons, including herons and migrant "
+"shorebirds."
+
+#: includes/class-destination-spots.php:615
+msgid ""
+"Protege bosque tropical seco, uno de los ecosistemas más amenazados del "
+"mundo."
+msgstr ""
+"It protects tropical dry forest, one of the world's most threatened "
+"ecosystems."
+
+#: includes/class-destination-spots.php:616
+msgid ""
+"Alberga la mayor población de jabirú (cigüeña) del Pacífico centroamericano."
+msgstr ""
+"It hosts the largest population of jabiru (stork) on the Central American "
+"Pacific."
+
+#: includes/class-destination-spots.php:619
+msgid "Entrada: $12 extranjeros / ₡1 000 nacionales"
+msgstr "Admission: $12 foreigners / ₡1,000 nationals"
+
+#: includes/class-destination-spots.php:620
+msgid "18 418 ha"
+msgstr "18,418 ha"
+
+#: includes/class-destination-spots.php:628
+msgid ""
+"La isla del tesoro: 550 km mar adentro, Patrimonio de la Humanidad y paraíso "
+"de tiburones."
+msgstr ""
+"The treasure island: 550 km offshore, a World Heritage Site and a shark "
+"paradise."
+
+#: includes/class-destination-spots.php:631
+msgid ""
+"Está a 550 km del continente y solo se llega en barco (36 h) o tras vuelo "
+"privado."
+msgstr ""
+"It lies 550 km from the mainland and is reached only by boat (36 h) or "
+"private flight."
+
+#: includes/class-destination-spots.php:632
+msgid "Fue declarada Patrimonio de la Humanidad por la UNESCO en 1997."
+msgstr "It was declared a UNESCO World Heritage Site in 1997."
+
+#: includes/class-destination-spots.php:633
+msgid ""
+"Sus aguas concentran tiburones martillo en cardúmenes, y se cree inspiración "
+"de \"Jurassic Park\"."
+msgstr ""
+"Its waters gather hammerhead sharks in schools, and it is thought to have "
+"inspired \"Jurassic Park\"."
+
+#: includes/class-destination-spots.php:634
+msgid "En la isla hay más de 400 especies de insectos y plantas endémicas."
+msgstr "The island has more than 400 species of endemic insects and plants."
+
+#: includes/class-destination-spots.php:636
+msgid "Acceso solo con permiso y guardaparques; cruceros de varios días"
+msgstr "Access only with a permit and park rangers; multi-day cruise ships"
+
+#: includes/class-destination-spots.php:637
+msgid "Entrada: $35 extranjeros / ₡2 000 nacionales"
+msgstr "Admission: $35 foreigners / ₡2,000 nationals"
+
+#: includes/class-destination-spots.php:638
+msgid "2 095 ha terrestres / 972 000 ha marinas"
+msgstr "2,095 ha land / 972,000 ha marine"
+
+#: includes/class-destination-spots.php:646
+msgid "Arrecife, manglar y playas de desove de tortuga baula en el Caribe sur."
+msgstr ""
+"Reef, mangrove and leatherback turtle nesting beaches on the southern "
+"Caribbean."
+
+#: includes/class-destination-spots.php:649
+msgid ""
+"Protege uno de los pocos bosques de cativo y un manglar de importancia "
+"regional."
+msgstr ""
+"It protects one of the few cativo forests and a mangrove of regional "
+"importance."
+
+#: includes/class-destination-spots.php:650
+msgid ""
+"Es sitio de anidación de tortuga baula (Dermochelys coriacea) y tortuga "
+"carey."
+msgstr ""
+"It is a nesting site for the leatherback turtle (Dermochelys coriacea) and "
+"the hawksbill turtle."
+
+#: includes/class-destination-spots.php:651
+msgid "Sus arrecifes de coral albergan gran biodiversidad marina."
+msgstr "Its coral reefs host great marine biodiversity."
+
+#: includes/class-destination-spots.php:652
+msgid "El sendero costero conecta Manzanillo con la laguna de Gandoca."
+msgstr "The coastal trail connects Manzanillo with the Gandoca lagoon."
+
+#: includes/class-destination-spots.php:656
+msgid "9 449 ha (4 436 terrestres / 5 013 marinas)"
+msgstr "9,449 ha (4,436 land / 5,013 marine)"
+
 #: includes/class-destinations.php:25
 msgid "País"
 msgstr "Country"
-
-#: includes/class-destinations.php:26
-msgid "Provincia"
-msgstr "Province"
 
 #: includes/class-destinations.php:27
 msgid "Cantón"
@@ -4531,13 +5362,13 @@ msgstr "Room"
 msgid "Alquiler de auto"
 msgstr "Car rental"
 
-#: includes/class-emails-send.php:538 includes/class-metaboxes.php:700
+#: includes/class-emails-send.php:538 includes/class-metaboxes.php:733
 #: includes/class-shortcode-booking.php:651
 #: includes/class-shortcode-search.php:31
 msgid "Check-in"
 msgstr "Check-in"
 
-#: includes/class-emails-send.php:539 includes/class-metaboxes.php:703
+#: includes/class-emails-send.php:539 includes/class-metaboxes.php:736
 #: includes/class-shortcode-booking.php:655
 #: includes/class-shortcode-search.php:35
 msgid "Check-out"
@@ -5326,7 +6157,7 @@ msgstr "There are no bookings in this status."
 msgid "Listado eliminado"
 msgstr "Listing deleted"
 
-#: includes/class-front-dash.php:371 includes/class-metaboxes.php:705
+#: includes/class-front-dash.php:371 includes/class-metaboxes.php:738
 #: includes/class-shortcode-booking.php:51
 msgid "Adults"
 msgstr "Adults"
@@ -5352,7 +6183,7 @@ msgid "Responder al huésped..."
 msgstr "Reply to the guest..."
 
 #: includes/class-front-dash.php:399 includes/class-shortcode-account.php:405
-#: includes/class-shortcode-booking.php:794 travel-agency-platform.php:281
+#: includes/class-shortcode-booking.php:794 travel-agency-platform.php:285
 msgid "Enviar"
 msgstr "Send"
 
@@ -6007,552 +6838,556 @@ msgstr "Save changes"
 msgid "Crear servicio"
 msgstr "Create service"
 
-#: includes/class-metaboxes.php:59
+#: includes/class-metaboxes.php:51
+msgid "Ficha educativa"
+msgstr "Educational sheet"
+
+#: includes/class-metaboxes.php:70
 msgid "Destination hierarchy: país → provincia → cantón → distrito → lugar."
 msgstr "Destination hierarchy: country → province → canton → district → place."
 
-#: includes/class-metaboxes.php:71
+#: includes/class-metaboxes.php:82
 msgid "Agency Details"
 msgstr "Agency Details"
 
-#: includes/class-metaboxes.php:74 includes/class-shortcode-account.php:267
+#: includes/class-metaboxes.php:85 includes/class-shortcode-account.php:267
 msgid "Phone"
 msgstr "Phone"
 
-#: includes/class-metaboxes.php:75 includes/class-shortcode-account.php:271
+#: includes/class-metaboxes.php:86 includes/class-shortcode-account.php:271
 msgid "WhatsApp"
 msgstr "WhatsApp"
 
-#: includes/class-metaboxes.php:76 includes/class-shortcode-account.php:275
+#: includes/class-metaboxes.php:87 includes/class-shortcode-account.php:275
 msgid "Website"
 msgstr "Website"
 
-#: includes/class-metaboxes.php:77 includes/class-shortcode-account.php:287
+#: includes/class-metaboxes.php:88 includes/class-shortcode-account.php:287
 msgid "Address"
 msgstr "Address"
 
-#: includes/class-metaboxes.php:78 includes/class-metaboxes.php:415
+#: includes/class-metaboxes.php:89 includes/class-metaboxes.php:448
 #: includes/class-shortcode-account.php:279
 msgid "City"
 msgstr "City"
 
-#: includes/class-metaboxes.php:79 includes/class-metaboxes.php:418
+#: includes/class-metaboxes.php:90 includes/class-metaboxes.php:451
 #: includes/class-shortcode-account.php:283
 msgid "Country"
 msgstr "Country"
 
-#: includes/class-metaboxes.php:81
+#: includes/class-metaboxes.php:92
 msgid "Verified Agency"
 msgstr "Verified Agency"
 
-#: includes/class-metaboxes.php:82
+#: includes/class-metaboxes.php:93
 msgid "WordPress User ID"
 msgstr "WordPress User ID"
 
-#: includes/class-metaboxes.php:83 includes/class-metaboxes.php:109
-#: includes/class-metaboxes.php:135 includes/class-metaboxes.php:153
-#: includes/class-metaboxes.php:174 includes/class-metaboxes.php:197
-#: includes/class-metaboxes.php:218 includes/class-metaboxes.php:233
+#: includes/class-metaboxes.php:94 includes/class-metaboxes.php:120
+#: includes/class-metaboxes.php:146 includes/class-metaboxes.php:164
+#: includes/class-metaboxes.php:185 includes/class-metaboxes.php:208
+#: includes/class-metaboxes.php:229 includes/class-metaboxes.php:244
 msgid "SEO Title"
 msgstr "SEO Title"
 
-#: includes/class-metaboxes.php:83 includes/class-metaboxes.php:109
-#: includes/class-metaboxes.php:135 includes/class-metaboxes.php:153
-#: includes/class-metaboxes.php:174 includes/class-metaboxes.php:197
-#: includes/class-metaboxes.php:218 includes/class-metaboxes.php:233
+#: includes/class-metaboxes.php:94 includes/class-metaboxes.php:120
+#: includes/class-metaboxes.php:146 includes/class-metaboxes.php:164
+#: includes/class-metaboxes.php:185 includes/class-metaboxes.php:208
+#: includes/class-metaboxes.php:229 includes/class-metaboxes.php:244
 msgid "Falls back to post title"
 msgstr "Falls back to post title"
 
-#: includes/class-metaboxes.php:84 includes/class-metaboxes.php:110
-#: includes/class-metaboxes.php:136 includes/class-metaboxes.php:154
-#: includes/class-metaboxes.php:175 includes/class-metaboxes.php:198
-#: includes/class-metaboxes.php:219 includes/class-metaboxes.php:234
+#: includes/class-metaboxes.php:95 includes/class-metaboxes.php:121
+#: includes/class-metaboxes.php:147 includes/class-metaboxes.php:165
+#: includes/class-metaboxes.php:186 includes/class-metaboxes.php:209
+#: includes/class-metaboxes.php:230 includes/class-metaboxes.php:245
 msgid "Meta Description (SEO)"
 msgstr "Meta Description (SEO)"
 
-#: includes/class-metaboxes.php:89
+#: includes/class-metaboxes.php:100
 msgid "Accommodation Details"
 msgstr "Accommodation Details"
 
-#: includes/class-metaboxes.php:90
+#: includes/class-metaboxes.php:101
 msgid "Location & Address"
 msgstr "Location & Address"
 
-#: includes/class-metaboxes.php:91
+#: includes/class-metaboxes.php:102
 msgid "Policies & Rules"
 msgstr "Policies & Rules"
 
-#: includes/class-metaboxes.php:92
+#: includes/class-metaboxes.php:103
 msgid "Photo Gallery"
 msgstr "Photo Gallery"
 
-#: includes/class-metaboxes.php:96
+#: includes/class-metaboxes.php:107
 msgid "Type"
 msgstr "Type"
 
-#: includes/class-metaboxes.php:97
+#: includes/class-metaboxes.php:108
 msgid "Stars"
 msgstr "Stars"
 
-#: includes/class-metaboxes.php:98
+#: includes/class-metaboxes.php:109
 msgid "Price per Night ($) — fallback if no room types"
 msgstr "Price per Night ($) — fallback if no room types"
 
-#: includes/class-metaboxes.php:99 includes/class-metaboxes.php:122
-#: includes/class-metaboxes.php:149 includes/class-metaboxes.php:167
-#: includes/class-metaboxes.php:191 includes/class-metaboxes.php:212
-#: includes/class-metaboxes.php:230 includes/class-metaboxes.php:516
+#: includes/class-metaboxes.php:110 includes/class-metaboxes.php:133
+#: includes/class-metaboxes.php:160 includes/class-metaboxes.php:178
+#: includes/class-metaboxes.php:202 includes/class-metaboxes.php:223
+#: includes/class-metaboxes.php:241 includes/class-metaboxes.php:549
 msgid "Currency"
 msgstr "Currency"
 
-#: includes/class-metaboxes.php:100
+#: includes/class-metaboxes.php:111
 msgid "Max Guests"
 msgstr "Max Guests"
 
-#: includes/class-metaboxes.php:101
+#: includes/class-metaboxes.php:112
 msgid "Number of Rooms"
 msgstr "Number of Rooms"
 
-#: includes/class-metaboxes.php:102
+#: includes/class-metaboxes.php:113
 msgid "Bathrooms"
 msgstr "Bathrooms"
 
-#: includes/class-metaboxes.php:103
+#: includes/class-metaboxes.php:114
 msgid "Bedrooms"
 msgstr "Bedrooms"
 
-#: includes/class-metaboxes.php:104
+#: includes/class-metaboxes.php:115
 msgid "Default Check-in Time"
 msgstr "Default Check-in Time"
 
-#: includes/class-metaboxes.php:105
+#: includes/class-metaboxes.php:116
 msgid "Default Check-out Time"
 msgstr "Default Check-out Time"
 
-#: includes/class-metaboxes.php:106 includes/class-metaboxes.php:131
+#: includes/class-metaboxes.php:117 includes/class-metaboxes.php:142
 msgid "Latitude"
 msgstr "Latitude"
 
-#: includes/class-metaboxes.php:107 includes/class-metaboxes.php:132
+#: includes/class-metaboxes.php:118 includes/class-metaboxes.php:143
 msgid "Longitude"
 msgstr "Longitude"
 
-#: includes/class-metaboxes.php:108 includes/class-metaboxes.php:133
-#: includes/class-metaboxes.php:152 includes/class-metaboxes.php:173
-#: includes/class-metaboxes.php:196 includes/class-metaboxes.php:217
-#: includes/class-metaboxes.php:232 includes/class-metaboxes.php:524
+#: includes/class-metaboxes.php:119 includes/class-metaboxes.php:144
+#: includes/class-metaboxes.php:163 includes/class-metaboxes.php:184
+#: includes/class-metaboxes.php:207 includes/class-metaboxes.php:228
+#: includes/class-metaboxes.php:243 includes/class-metaboxes.php:557
 msgid "Active"
 msgstr "Active"
 
-#: includes/class-metaboxes.php:115
+#: includes/class-metaboxes.php:126
 msgid "Tour Details"
 msgstr "Tour Details"
 
-#: includes/class-metaboxes.php:118 includes/class-metaboxes.php:227
+#: includes/class-metaboxes.php:129 includes/class-metaboxes.php:238
 msgid "Duration"
 msgstr "Duration"
 
-#: includes/class-metaboxes.php:119
+#: includes/class-metaboxes.php:130
 msgid "Difficulty"
 msgstr "Difficulty"
 
-#: includes/class-metaboxes.php:120
+#: includes/class-metaboxes.php:131
 msgid "Price per Adult ($)"
 msgstr "Price per Adult ($)"
 
-#: includes/class-metaboxes.php:121
+#: includes/class-metaboxes.php:132
 msgid "Price per Child ($)"
 msgstr "Price per Child ($)"
 
-#: includes/class-metaboxes.php:123
+#: includes/class-metaboxes.php:134
 msgid "Max People per Group"
 msgstr "Max People per Group"
 
-#: includes/class-metaboxes.php:124
+#: includes/class-metaboxes.php:135
 msgid "Minimum Age"
 msgstr "Minimum Age"
 
-#: includes/class-metaboxes.php:125
+#: includes/class-metaboxes.php:136
 msgid "Start Time"
 msgstr "Start Time"
 
-#: includes/class-metaboxes.php:126
+#: includes/class-metaboxes.php:137
 msgid "End Time"
 msgstr "End Time"
 
-#: includes/class-metaboxes.php:127
+#: includes/class-metaboxes.php:138
 msgid "Meeting Point"
 msgstr "Meeting Point"
 
-#: includes/class-metaboxes.php:128
+#: includes/class-metaboxes.php:139
 msgid "What's Included"
 msgstr "What's Included"
 
-#: includes/class-metaboxes.php:129
+#: includes/class-metaboxes.php:140
 msgid "What's Not Included"
 msgstr "What's Not Included"
 
-#: includes/class-metaboxes.php:130
+#: includes/class-metaboxes.php:141
 msgid "What to Bring"
 msgstr "What to Bring"
 
-#: includes/class-metaboxes.php:134
+#: includes/class-metaboxes.php:145
 msgid "Cupos por fecha (capacidad)"
 msgstr "Slots per date (capacity)"
 
-#: includes/class-metaboxes.php:141
+#: includes/class-metaboxes.php:152
 msgid "Equipment Details"
 msgstr "Equipment Details"
 
-#: includes/class-metaboxes.php:144
+#: includes/class-metaboxes.php:155
 msgid "Category"
 msgstr "Category"
 
-#: includes/class-metaboxes.php:145 includes/class-metaboxes.php:190
+#: includes/class-metaboxes.php:156 includes/class-metaboxes.php:201
 msgid "Price per Day ($)"
 msgstr "Price per Day ($)"
 
-#: includes/class-metaboxes.php:146
+#: includes/class-metaboxes.php:157
 msgid "Price per Hour ($)"
 msgstr "Price per Hour ($)"
 
-#: includes/class-metaboxes.php:147
+#: includes/class-metaboxes.php:158
 msgid "Security Deposit ($)"
 msgstr "Security Deposit ($)"
 
-#: includes/class-metaboxes.php:148
+#: includes/class-metaboxes.php:159
 msgid "Units Available"
 msgstr "Units Available"
 
-#: includes/class-metaboxes.php:150
+#: includes/class-metaboxes.php:161
 msgid "Pick-up / Delivery Location"
 msgstr "Pick-up / Delivery Location"
 
-#: includes/class-metaboxes.php:151
+#: includes/class-metaboxes.php:162
 msgid "Rental Conditions"
 msgstr "Rental Conditions"
 
-#: includes/class-metaboxes.php:159
+#: includes/class-metaboxes.php:170
 msgid "Transport Details"
 msgstr "Transport Details"
 
-#: includes/class-metaboxes.php:162
+#: includes/class-metaboxes.php:173
 msgid "Service Type"
 msgstr "Service Type"
 
-#: includes/class-metaboxes.php:163 includes/class-taxonomies.php:163
+#: includes/class-metaboxes.php:174 includes/class-taxonomies.php:163
 msgid "Vehicle Type"
 msgstr "Vehicle Type"
 
-#: includes/class-metaboxes.php:164
+#: includes/class-metaboxes.php:175
 msgid "Passenger Capacity"
 msgstr "Passenger Capacity"
 
-#: includes/class-metaboxes.php:165
+#: includes/class-metaboxes.php:176
 msgid "Price ($)"
 msgstr "Price ($)"
 
-#: includes/class-metaboxes.php:166
+#: includes/class-metaboxes.php:177
 msgid "Price Type"
 msgstr "Price Type"
 
-#: includes/class-metaboxes.php:168 includes/class-metaboxes.php:192
+#: includes/class-metaboxes.php:179 includes/class-metaboxes.php:203
 msgid "Pick-up Location"
 msgstr "Pick-up Location"
 
-#: includes/class-metaboxes.php:169
+#: includes/class-metaboxes.php:180
 msgid "Drop-off Location"
 msgstr "Drop-off Location"
 
-#: includes/class-metaboxes.php:170
+#: includes/class-metaboxes.php:181
 msgid "Trip Duration"
 msgstr "Trip Duration"
 
-#: includes/class-metaboxes.php:171
+#: includes/class-metaboxes.php:182
 msgid "WiFi on Board"
 msgstr "WiFi on Board"
 
-#: includes/class-metaboxes.php:172 includes/class-metaboxes.php:195
+#: includes/class-metaboxes.php:183 includes/class-metaboxes.php:206
 msgid "Air Conditioning"
 msgstr "Air Conditioning"
 
-#: includes/class-metaboxes.php:180
+#: includes/class-metaboxes.php:191
 msgid "Car Rental Details"
 msgstr "Car Rental Details"
 
-#: includes/class-metaboxes.php:183
+#: includes/class-metaboxes.php:194
 msgid "Brand"
 msgstr "Brand"
 
-#: includes/class-metaboxes.php:184
+#: includes/class-metaboxes.php:195
 msgid "Model"
 msgstr "Model"
 
-#: includes/class-metaboxes.php:185
+#: includes/class-metaboxes.php:196
 msgid "Year"
 msgstr "Year"
 
-#: includes/class-metaboxes.php:186
+#: includes/class-metaboxes.php:197
 msgid "Car Type"
 msgstr "Car Type"
 
-#: includes/class-metaboxes.php:187
+#: includes/class-metaboxes.php:198
 msgid "Transmission"
 msgstr "Transmission"
 
-#: includes/class-metaboxes.php:188
+#: includes/class-metaboxes.php:199
 msgid "Seats"
 msgstr "Seats"
 
-#: includes/class-metaboxes.php:189
+#: includes/class-metaboxes.php:200
 msgid "Doors"
 msgstr "Doors"
 
-#: includes/class-metaboxes.php:193
+#: includes/class-metaboxes.php:204
 msgid "GPS Included"
 msgstr "GPS Included"
 
-#: includes/class-metaboxes.php:194
+#: includes/class-metaboxes.php:205
 msgid "Insurance Included"
 msgstr "Insurance Included"
 
-#: includes/class-metaboxes.php:203
+#: includes/class-metaboxes.php:214
 msgid "Boat Details"
 msgstr "Boat Details"
 
-#: includes/class-metaboxes.php:206 includes/class-taxonomies.php:185
+#: includes/class-metaboxes.php:217 includes/class-taxonomies.php:185
 msgid "Boat Type"
 msgstr "Boat Type"
 
-#: includes/class-metaboxes.php:207
+#: includes/class-metaboxes.php:218
 msgid "Max Passengers"
 msgstr "Max Passengers"
 
-#: includes/class-metaboxes.php:208
+#: includes/class-metaboxes.php:219
 msgid "Length"
 msgstr "Length"
 
-#: includes/class-metaboxes.php:209
+#: includes/class-metaboxes.php:220
 msgid "Half Day Price ($)"
 msgstr "Half Day Price ($)"
 
-#: includes/class-metaboxes.php:210
+#: includes/class-metaboxes.php:221
 msgid "Full Day Price ($)"
 msgstr "Full Day Price ($)"
 
-#: includes/class-metaboxes.php:211
+#: includes/class-metaboxes.php:222
 msgid "Hourly Price ($)"
 msgstr "Hourly Price ($)"
 
-#: includes/class-metaboxes.php:213
+#: includes/class-metaboxes.php:224
 msgid "Departure Point"
 msgstr "Departure Point"
 
-#: includes/class-metaboxes.php:215
+#: includes/class-metaboxes.php:226
 msgid "Captain Included"
 msgstr "Captain Included"
 
-#: includes/class-metaboxes.php:216
+#: includes/class-metaboxes.php:227
 msgid "Crew Included"
 msgstr "Crew Included"
 
-#: includes/class-metaboxes.php:224
+#: includes/class-metaboxes.php:235
 msgid "Package Details"
 msgstr "Package Details"
 
-#: includes/class-metaboxes.php:228
+#: includes/class-metaboxes.php:239
 msgid "Total Price ($)"
 msgstr "Total Price ($)"
 
-#: includes/class-metaboxes.php:229
+#: includes/class-metaboxes.php:240
 msgid "Price per Person ($)"
 msgstr "Price per Person ($)"
 
-#: includes/class-metaboxes.php:231
+#: includes/class-metaboxes.php:242
 msgid "Max People"
 msgstr "Max People"
 
-#: includes/class-metaboxes.php:239
+#: includes/class-metaboxes.php:250
 msgid "Booking Details"
 msgstr "Booking Details"
 
-#: includes/class-metaboxes.php:243
+#: includes/class-metaboxes.php:254
 msgid "Room Details"
 msgstr "Room Details"
 
-#: includes/class-metaboxes.php:244
+#: includes/class-metaboxes.php:255
 msgid "Bed Configuration"
 msgstr "Bed Configuration"
 
-#: includes/class-metaboxes.php:245
+#: includes/class-metaboxes.php:256
 msgid "Room Photos"
 msgstr "Room Photos"
 
-#: includes/class-metaboxes.php:253
+#: includes/class-metaboxes.php:264
 msgid "No configuration fields found."
 msgstr "No configuration fields found."
 
-#: includes/class-metaboxes.php:414
+#: includes/class-metaboxes.php:447
 msgid "Street Address"
 msgstr "Street Address"
 
-#: includes/class-metaboxes.php:416
+#: includes/class-metaboxes.php:449
 msgid "State / Province"
 msgstr "State / Province"
 
-#: includes/class-metaboxes.php:417
+#: includes/class-metaboxes.php:450
 msgid "ZIP / Postal Code"
 msgstr "ZIP / Postal Code"
 
-#: includes/class-metaboxes.php:436
+#: includes/class-metaboxes.php:469
 msgid "Cancellation Policy"
 msgstr "Cancellation Policy"
 
-#: includes/class-metaboxes.php:439
+#: includes/class-metaboxes.php:472
 msgid "Flexible — Free cancellation 24h before"
 msgstr "Flexible — Free cancellation 24h before"
 
-#: includes/class-metaboxes.php:440
+#: includes/class-metaboxes.php:473
 msgid "Moderate — Free cancellation 5 days before"
 msgstr "Moderate — Free cancellation 5 days before"
 
-#: includes/class-metaboxes.php:441
+#: includes/class-metaboxes.php:474
 msgid "Strict — 50% refund up to 7 days before"
 msgstr "Strict — 50% refund up to 7 days before"
 
-#: includes/class-metaboxes.php:442
+#: includes/class-metaboxes.php:475
 msgid "Non-Refundable"
 msgstr "Non-Refundable"
 
-#: includes/class-metaboxes.php:447
+#: includes/class-metaboxes.php:480
 msgid "House Rules"
 msgstr "House Rules"
 
-#: includes/class-metaboxes.php:471
+#: includes/class-metaboxes.php:504
 msgid "Add Images"
 msgstr "Add Images"
 
-#: includes/class-metaboxes.php:472
+#: includes/class-metaboxes.php:505
 msgid "Upload or select images for the property gallery."
 msgstr "Upload or select images for the property gallery."
 
-#: includes/class-metaboxes.php:481
+#: includes/class-metaboxes.php:514
 msgid "Select Images"
 msgstr "Select Images"
 
-#: includes/class-metaboxes.php:482 includes/class-metaboxes.php:637
+#: includes/class-metaboxes.php:515 includes/class-metaboxes.php:670
 msgid "Add to Gallery"
 msgstr "Add to Gallery"
 
-#: includes/class-metaboxes.php:513
+#: includes/class-metaboxes.php:546
 msgid "Parent Accommodation"
 msgstr "Parent Accommodation"
 
-#: includes/class-metaboxes.php:514
+#: includes/class-metaboxes.php:547
 msgid "Precio base por noche ($)"
 msgstr "Base price per night ($)"
 
-#: includes/class-metaboxes.php:515
+#: includes/class-metaboxes.php:548
 msgid "Estadía mínima base (noches)"
 msgstr "Minimum base stay (nights)"
 
-#: includes/class-metaboxes.php:517
+#: includes/class-metaboxes.php:550
 msgid "Max Adults"
 msgstr "Max Adults"
 
-#: includes/class-metaboxes.php:518
+#: includes/class-metaboxes.php:551
 msgid "Max Children"
 msgstr "Max Children"
 
-#: includes/class-metaboxes.php:519
+#: includes/class-metaboxes.php:552
 msgid "Max Total Occupancy"
 msgstr "Max Total Occupancy"
 
-#: includes/class-metaboxes.php:520
+#: includes/class-metaboxes.php:553
 msgid "Number of Rooms of This Type"
 msgstr "Number of Rooms of This Type"
 
-#: includes/class-metaboxes.php:521
+#: includes/class-metaboxes.php:554
 msgid "Room Size (e.g. 35 m²)"
 msgstr "Room Size (e.g. 35 m²)"
 
-#: includes/class-metaboxes.php:522
+#: includes/class-metaboxes.php:555
 msgid "View (e.g. Ocean View, City View)"
 msgstr "View (e.g. Ocean View, City View)"
 
-#: includes/class-metaboxes.php:523
+#: includes/class-metaboxes.php:556
 msgid "Floor"
 msgstr "Floor"
 
-#: includes/class-metaboxes.php:542
+#: includes/class-metaboxes.php:575
 msgid "Add bed types available in this room:"
 msgstr "Add bed types available in this room:"
 
-#: includes/class-metaboxes.php:544
+#: includes/class-metaboxes.php:577
 msgid "Bed Type"
 msgstr "Bed Type"
 
-#: includes/class-metaboxes.php:544
+#: includes/class-metaboxes.php:577
 msgid "Count"
 msgstr "Count"
 
-#: includes/class-metaboxes.php:563
+#: includes/class-metaboxes.php:596
 msgid "+ Add Bed Type"
 msgstr "+ Add Bed Type"
 
-#: includes/class-metaboxes.php:593
+#: includes/class-metaboxes.php:626
 msgid "Double / Full"
 msgstr "Double / Full"
 
-#: includes/class-metaboxes.php:594
+#: includes/class-metaboxes.php:627
 msgid "Twin / Single"
 msgstr "Twin / Single"
 
-#: includes/class-metaboxes.php:595
+#: includes/class-metaboxes.php:628
 msgid "Bunk Bed"
 msgstr "Bunk Bed"
 
-#: includes/class-metaboxes.php:598
+#: includes/class-metaboxes.php:631
 msgid "Murphy Bed"
 msgstr "Murphy Bed"
 
-#: includes/class-metaboxes.php:629
+#: includes/class-metaboxes.php:662
 msgid "Add Photos"
 msgstr "Add Photos"
 
-#: includes/class-metaboxes.php:637
+#: includes/class-metaboxes.php:670
 msgid "Select Photos"
 msgstr "Select Photos"
 
-#: includes/class-metaboxes.php:671
+#: includes/class-metaboxes.php:704
 msgid "Booking details not found."
 msgstr "Booking details not found."
 
-#: includes/class-metaboxes.php:692
+#: includes/class-metaboxes.php:725
 msgid "Booking Code"
 msgstr "Booking Code"
 
-#: includes/class-metaboxes.php:706 includes/class-shortcode-booking.php:55
+#: includes/class-metaboxes.php:739 includes/class-shortcode-booking.php:55
 msgid "Children"
 msgstr "Children"
 
-#: includes/class-metaboxes.php:707
+#: includes/class-metaboxes.php:740
 msgid "Total Amount"
 msgstr "Total Amount"
 
-#: includes/class-metaboxes.php:709
+#: includes/class-metaboxes.php:742
 msgid "Payment Status"
 msgstr "Payment Status"
 
-#: includes/class-metaboxes.php:710
+#: includes/class-metaboxes.php:743
 msgid "Payment Method"
 msgstr "Payment Method"
 
-#: includes/class-metaboxes.php:712
+#: includes/class-metaboxes.php:745
 msgid "Notes"
 msgstr "Notes"
 
-#: includes/class-metaboxes.php:714
+#: includes/class-metaboxes.php:747
 msgid "Created"
 msgstr "Created"
 
@@ -7729,11 +8564,11 @@ msgid "Network error. Please try again."
 msgstr "Network error. Please try again."
 
 #: includes/class-shortcode-account.php:389
-#: includes/class-shortcode-account.php:391 travel-agency-platform.php:277
+#: includes/class-shortcode-account.php:391 travel-agency-platform.php:281
 msgid "Asistente de viajes"
 msgstr "Travel assistant"
 
-#: includes/class-shortcode-account.php:395 travel-agency-platform.php:282
+#: includes/class-shortcode-account.php:395 travel-agency-platform.php:286
 msgid ""
 "¡Hola! Soy el asistente de viajes. Pregunta por alojamientos, tours, bonos o "
 "agencias, o toca una sugerencia."
@@ -7742,7 +8577,7 @@ msgstr ""
 "or tap a suggestion."
 
 #: includes/class-shortcode-account.php:403
-#: includes/class-shortcode-account.php:404 travel-agency-platform.php:280
+#: includes/class-shortcode-account.php:404 travel-agency-platform.php:284
 msgid "Escribe tu pregunta…"
 msgstr "Type your question…"
 
@@ -7765,7 +8600,7 @@ msgid "Verified agency"
 msgstr "Verified agency"
 
 #: includes/class-shortcode-agency-panel.php:134
-#: includes/class-shortcode-search.php:984
+#: includes/class-shortcode-search.php:1139
 msgid "Verified"
 msgstr "Verified"
 
@@ -7914,7 +8749,7 @@ msgid "Solicitar reserva"
 msgstr "Request to Book"
 
 #: includes/class-shortcode-booking.php:31
-#: includes/class-shortcode-booking.php:70 travel-agency-platform.php:271
+#: includes/class-shortcode-booking.php:70 travel-agency-platform.php:275
 msgid "Book Now"
 msgstr "Book Now"
 
@@ -8445,7 +9280,7 @@ msgid "No services found."
 msgstr "No services found."
 
 #: includes/class-shortcode-search.php:382
-#: includes/class-shortcode-search.php:1073
+#: includes/class-shortcode-search.php:1228
 msgid "View Details"
 msgstr "View Details"
 
@@ -8603,55 +9438,117 @@ msgstr ""
 msgid "Crear mi perfil de agencia"
 msgstr "Create my agency profile"
 
-#: includes/class-shortcode-search.php:951
+#: includes/class-shortcode-search.php:991
+#: includes/class-shortcode-search.php:1017
+msgid "Todos"
+msgstr "All"
+
+#. translators: %d: number of destinations
+#: includes/class-shortcode-search.php:992
+#: includes/class-shortcode-search.php:1043
+#, php-format
+msgid "%d lugar"
+msgid_plural "%d lugares"
+msgstr[0] "%d place"
+msgstr[1] "%d places"
+
+#: includes/class-shortcode-search.php:993
+#, php-format
+msgid "%d lugares"
+msgstr "%d places"
+
+#: includes/class-shortcode-search.php:994
+msgid "No hay lugares para este filtro."
+msgstr "No places for this filter."
+
+#: includes/class-shortcode-search.php:1001
+msgid "Ver ficha completa"
+msgstr "View full sheet"
+
+#: includes/class-shortcode-search.php:1010
+msgid "Mapa educativo"
+msgstr "Educational map"
+
+#: includes/class-shortcode-search.php:1011
+msgid "Parques, reservas y sitios protegidos"
+msgstr "Parks, reserves and protected sites"
+
+#: includes/class-shortcode-search.php:1012
+msgid ""
+"Explora el mapa para conocer parques nacionales, reservas biológicas, "
+"volcanes y sitios arqueológicos de Costa Rica. Toca un punto para leer su "
+"ficha."
+msgstr ""
+"Explore the map to learn about Costa Rica's national parks, biological "
+"reserves, volcanoes and archaeological sites. Tap a point to read its sheet."
+
+#: includes/class-shortcode-search.php:1016
+msgid "Filtrar por tipo de destino"
+msgstr "Filter by destination type"
+
+#: includes/class-shortcode-search.php:1033
+msgid "Mapa de destinos"
+msgstr "Destinations map"
+
+#: includes/class-shortcode-search.php:1039
+msgid "Lugares en el mapa"
+msgstr "Places on the map"
+
+#: includes/class-shortcode-search.php:1075
+msgid ""
+"Todavía no hay destinos publicados. Agrega lugares desde el panel de "
+"administración."
+msgstr "No destinations published yet. Add places from the admin panel."
+
+#: includes/class-shortcode-search.php:1106
 msgid "Agency not found."
 msgstr "Agency not found."
 
-#: includes/class-shortcode-search.php:961
+#: includes/class-shortcode-search.php:1116
 msgid "Esta agencia está en revisión y aún no es visible públicamente."
 msgstr "This agency is under review and is not yet publicly visible."
 
-#: includes/class-shortcode-search.php:993
+#: includes/class-shortcode-search.php:1148
 msgid "Contact Information"
 msgstr "Contact Information"
 
-#: includes/class-shortcode-search.php:994
+#: includes/class-shortcode-search.php:1149
 msgid "Email:"
 msgstr "Email:"
 
-#: includes/class-shortcode-search.php:995
+#: includes/class-shortcode-search.php:1150
 msgid "Phone:"
 msgstr "Phone:"
 
-#: includes/class-shortcode-search.php:996
+#: includes/class-shortcode-search.php:1151
 msgid "WhatsApp:"
 msgstr "WhatsApp:"
 
-#: includes/class-shortcode-search.php:997
+#: includes/class-shortcode-search.php:1152
 msgid "Website:"
 msgstr "Website:"
 
-#: includes/class-shortcode-search.php:998
+#: includes/class-shortcode-search.php:1153
 msgid "Address:"
 msgstr "Address:"
 
-#: includes/class-shortcode-search.php:1002
+#: includes/class-shortcode-search.php:1157
 msgid "Our Services"
 msgstr "Our Services"
 
-#: includes/class-shortcode-search.php:1062
+#: includes/class-shortcode-search.php:1217
 msgid "Featured"
 msgstr "Featured"
 
-#: includes/class-shortcode-search.php:1064
+#: includes/class-shortcode-search.php:1219
 msgid "starting"
 msgstr "starting"
 
-#: includes/class-shortcode-search.php:1087
+#: includes/class-shortcode-search.php:1242
 msgid "No featured services yet"
 msgstr "No featured services yet"
 
-#: includes/class-shortcode-search.php:1087
+#: includes/class-shortcode-search.php:1242
 msgid "Check back soon for new featured listings."
 msgstr "Check back soon for new featured listings."
 
@@ -9007,117 +9904,117 @@ msgstr "Gastronomy"
 msgid "Traslados aeropuerto"
 msgstr "Airport transfers"
 
-#: travel-agency-platform.php:249
+#: travel-agency-platform.php:253
 msgid "results found"
 msgstr "results found"
 
-#: travel-agency-platform.php:250
+#: travel-agency-platform.php:254
 msgid "No results found"
 msgstr "No results found"
 
-#: travel-agency-platform.php:251
+#: travel-agency-platform.php:255
 msgid "Guardado en favoritos"
 msgstr "Saved to favorites"
 
-#: travel-agency-platform.php:252
+#: travel-agency-platform.php:256
 msgid "Quitado de favoritos"
 msgstr "Removed from favorites"
 
-#: travel-agency-platform.php:253
+#: travel-agency-platform.php:257
 msgid "Aún no hay reseñas."
 msgstr "No reviews yet."
 
-#: travel-agency-platform.php:254
+#: travel-agency-platform.php:258
 msgid "Aún no hay reseñas. Sé el primero en compartir tu experiencia."
 msgstr "No reviews yet. Be the first to share your experience."
 
-#: travel-agency-platform.php:255
+#: travel-agency-platform.php:259
 msgid "reseña"
 msgstr "review"
 
-#: travel-agency-platform.php:256
+#: travel-agency-platform.php:260
 msgid "reseñas"
 msgstr "reviews"
 
-#: travel-agency-platform.php:257
+#: travel-agency-platform.php:261
 msgid "Anónimo"
 msgstr "Anonymous"
 
-#: travel-agency-platform.php:258
+#: travel-agency-platform.php:262
 msgid "Enviando..."
 msgstr "Sending..."
 
-#: travel-agency-platform.php:259
+#: travel-agency-platform.php:263
 msgid "¡Reseña enviada! Pendiente de aprobación."
 msgstr "Review submitted! Pending approval."
 
-#: travel-agency-platform.php:260
+#: travel-agency-platform.php:264
 msgid "Error al enviar"
 msgstr "Error sending"
 
-#: travel-agency-platform.php:261
+#: travel-agency-platform.php:265
 msgid "Review submitted"
 msgstr "Review submitted"
 
-#: travel-agency-platform.php:262
+#: travel-agency-platform.php:266
 msgid "Error al enviar la reseña"
 msgstr "Error submitting the review"
 
 #. translators: %s: nombre del servicio
-#: travel-agency-platform.php:264
+#: travel-agency-platform.php:268
 #, php-format
 msgid "Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!"
 msgstr "Thank you for your stay (%s). Tell us how it went!"
 
-#: travel-agency-platform.php:265
+#: travel-agency-platform.php:269
 msgid "Reseña verificada"
 msgstr "Verified review"
 
 #. translators: 1: cupos disponibles, 2: cupos totales
-#: travel-agency-platform.php:267
+#: travel-agency-platform.php:271
 #, php-format
 msgid "Cupos disponibles: %s de %s"
 msgstr "Available spots: %s of %s"
 
 #. translators: 1: cupos ocupados, 2: cupos totales
-#: travel-agency-platform.php:269
+#: travel-agency-platform.php:273
 #, php-format
 msgid "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
 msgstr "Full for this date (%s/%s). Please choose another date."
 
-#: travel-agency-platform.php:270
+#: travel-agency-platform.php:274
 msgid "El tour está completo para esta fecha."
 msgstr "This tour is full for this date."
 
-#: travel-agency-platform.php:273
+#: travel-agency-platform.php:277
 msgid "Image gallery"
 msgstr "Image gallery"
 
-#: travel-agency-platform.php:274
+#: travel-agency-platform.php:278
 msgid "Close image gallery"
 msgstr "Close image gallery"
 
-#: travel-agency-platform.php:275
+#: travel-agency-platform.php:279
 msgid "Previous image"
 msgstr "Previous image"
 
-#: travel-agency-platform.php:276
+#: travel-agency-platform.php:280
 msgid "Next image"
 msgstr "Next image"
 
-#: travel-agency-platform.php:278
+#: travel-agency-platform.php:282
 msgid "Abrir asistente"
 msgstr "Open assistant"
 
-#: travel-agency-platform.php:279
+#: travel-agency-platform.php:283
 msgid "Cerrar asistente"
 msgstr "Close assistant"
 
-#: travel-agency-platform.php:283
+#: travel-agency-platform.php:287
 msgid "Pensando…"
 msgstr "Thinking…"
 
-#: travel-agency-platform.php:284
+#: travel-agency-platform.php:288
 msgid "Hubo un problema. Inténtalo de nuevo."
 msgstr "Something went wrong. Please try again."
 
@@ -9371,9 +10268,6 @@ msgstr "Selected"
 
 msgid "Servicios"
 msgstr "Services"
-
-msgid "Todos"
-msgstr "All"
 
 msgid "total"
 msgstr "total"
@@ -9725,9 +10619,6 @@ msgstr "Quote"
 
 msgid "Descubrí lo que tu viaje puede ser"
 msgstr "Discover what your trip could be"
-
-msgid "Destinos"
-msgstr "Destinations"
 
 msgid "Destinos que inspiran"
 msgstr "Destinations that inspire"

@@ -943,6 +943,161 @@ class TAP_Shortcode_Search {
         return $out;
     }
 
+    /**
+     * Interactive educational map of protected destinations.
+     *
+     * Renders a Leaflet map (OpenStreetMap tiles, no API key) plus a filter bar
+     * by destination type and a linked list of cards. Clicking a card or marker
+     * opens the same educational detail panel (intro, data of interest, schedule,
+     * fee, area, accessibility). All content comes from the editable `tap_spot`
+     * CPT, so an admin manages it from wp-admin without touching code.
+     */
+    public static function destinations_map($atts) {
+        $atts = shortcode_atts([
+            'type'  => '',
+            'limit' => 0,
+            'height' => 560,
+        ], $atts);
+
+        $active_type = isset($_GET['spot_type']) ? sanitize_title(wp_unslash($_GET['spot_type'])) : '';
+        if ('' === $active_type && '' !== $atts['type']) {
+            $active_type = sanitize_title($atts['type']);
+        }
+
+        $query_args = [];
+        if ('' !== $active_type) {
+            $query_args['type'] = $active_type;
+        }
+        if ((int) $atts['limit'] > 0) {
+            $query_args['posts_per_page'] = (int) $atts['limit'];
+        }
+        $spots = TAP_Destination_Spots::map_data($query_args);
+        $types = TAP_Destination_Spots::used_types();
+
+        $center = TAP_Destination_Spots::default_center();
+        $height = max(320, (int) $atts['height']);
+        $base   = get_permalink() ?: home_url('/destinos/');
+        $total  = count($spots);
+
+        wp_enqueue_style('tap-leaflet', TAP_PLUGIN_URL . 'assets/leaflet/leaflet.css', [], '1.9.4');
+        wp_enqueue_style('tap-leaflet-cluster', TAP_PLUGIN_URL . 'assets/leaflet/leaflet.markercluster.css', [], '1.5.3');
+        wp_enqueue_style('tap-leaflet-cluster-default', TAP_PLUGIN_URL . 'assets/leaflet/leaflet.markercluster.default.css', [], '1.5.3');
+        wp_enqueue_script('tap-leaflet', TAP_PLUGIN_URL . 'assets/leaflet/leaflet.js', [], '1.9.4', true);
+        wp_enqueue_script('tap-leaflet-cluster', TAP_PLUGIN_URL . 'assets/leaflet/leaflet.markercluster.js', ['tap-leaflet'], '1.5.3', true);
+        wp_enqueue_script('tap-destinations-map', TAP_PLUGIN_URL . 'assets/js/destinations-map.js', ['jquery', 'tap-leaflet', 'tap-leaflet-cluster'], TAP_VERSION, true);
+        wp_localize_script('tap-destinations-map', 'tapDestsMap', [
+            'pluginUrl' => TAP_PLUGIN_URL,
+            'i18n'      => [
+                'all'      => __('Todos', 'travel-agency-platform'),
+                'result'   => __('%d lugar', 'travel-agency-platform'),
+                'results'  => __('%d lugares', 'travel-agency-platform'),
+                'noResults' => __('No hay lugares para este filtro.', 'travel-agency-platform'),
+                'schedule' => __('Horario', 'travel-agency-platform'),
+                'fee'      => __('Tarifa', 'travel-agency-platform'),
+                'area'     => __('Extensión', 'travel-agency-platform'),
+                'created'  => __('Año de creación', 'travel-agency-platform'),
+                'accessibility' => __('Accesibilidad', 'travel-agency-platform'),
+                'interest' => __('Datos de interés', 'travel-agency-platform'),
+                'visit'    => __('Ver ficha completa', 'travel-agency-platform'),
+            ],
+        ]);
+
+        ob_start();
+        ?>
+        <div class="tap-container">
+            <section class="tap-destmap" data-center="<?php echo esc_attr($center['lat'] . ',' . $center['lng']); ?>" data-zoom="<?php echo esc_attr($center['zoom']); ?>">
+                <header class="tap-destmap-intro">
+                    <p class="tap-destmap-eyebrow"><?php esc_html_e('Mapa educativo', 'travel-agency-platform'); ?></p>
+                    <h2><?php esc_html_e('Parques, reservas y sitios protegidos', 'travel-agency-platform'); ?></h2>
+                    <p class="tap-destmap-lead"><?php esc_html_e('Explora el mapa para conocer parques nacionales, reservas biológicas, volcanes y sitios arqueológicos de Costa Rica. Toca un punto para leer su ficha.', 'travel-agency-platform'); ?></p>
+                </header>
+
+                <?php if (!empty($types)): ?>
+                    <nav class="tap-destmap-filters" aria-label="<?php esc_attr_e('Filtrar por tipo de destino', 'travel-agency-platform'); ?>">
+                        <a class="tap-destmap-chip <?php echo '' === $active_type ? 'is-active' : ''; ?>" href="<?php echo esc_url($base); ?>" <?php echo '' === $active_type ? 'aria-current="true"' : ''; ?>><?php esc_html_e('Todos', 'travel-agency-platform'); ?></a>
+                        <?php foreach ($types as $type): ?>
+                            <?php
+                            $is_active = ($type['slug'] === $active_type);
+                            $url       = add_query_arg('spot_type', $type['slug'], $base);
+                            ?>
+                            <a class="tap-destmap-chip <?php echo $is_active ? 'is-active' : ''; ?>" href="<?php echo esc_url($url); ?>" <?php echo $is_active ? 'aria-current="true"' : ''; ?>>
+                                <?php echo esc_html($type['name']); ?>
+                                <span class="tap-destmap-chip-count"><?php echo (int) $type['count']; ?></span>
+                            </a>
+                        <?php endforeach; ?>
+                    </nav>
+                <?php endif; ?>
+
+                <div class="tap-destmap-layout">
+                    <div class="tap-destmap-canvas">
+                        <div id="tap-destmap" class="tap-destmap-map" style="height:<?php echo esc_attr($height); ?>px" role="application" aria-label="<?php esc_attr_e('Mapa de destinos', 'travel-agency-platform'); ?>"></div>
+                        <input type="hidden" id="tap-destmap-data" value="<?php echo esc_attr(wp_json_encode($spots)); ?>">
+                    </div>
+
+                    <aside class="tap-destmap-panel" aria-live="polite">
+                        <div class="tap-destmap-panel-head">
+                            <h3 class="tap-destmap-panel-title"><?php esc_html_e('Lugares en el mapa', 'travel-agency-platform'); ?></h3>
+                            <span class="tap-destmap-count" id="tap-destmap-count"><?php
+                                printf(
+                                    /* translators: %d: number of destinations */
+                                    esc_html(_n('%d lugar', '%d lugares', $total, 'travel-agency-platform')),
+                                    (int) $total
+                                );
+                            ?></span>
+                        </div>
+
+                        <ul class="tap-destmap-list" id="tap-destmap-list">
+                            <?php foreach ($spots as $spot): ?>
+                                <li class="tap-destmap-item" data-spot-id="<?php echo (int) $spot['id']; ?>">
+                                    <button type="button" class="tap-destmap-item-btn" aria-expanded="false" aria-controls="tap-destmap-detail">
+                                        <span class="tap-destmap-item-thumb">
+                                            <?php if ($spot['img']): ?>
+                                                <img src="<?php echo esc_url($spot['img']); ?>" alt="" loading="lazy" decoding="async">
+                                            <?php else: ?>
+                                                <span class="tap-destmap-item-thumb-icon" aria-hidden="true"><?php echo self::spot_type_icon($spot['type']); // phpcs:ignore WordPress.Security.EscapeOutput -- fixed inline SVG. ?></span>
+                                            <?php endif; ?>
+                                        </span>
+                                        <span class="tap-destmap-item-text">
+                                            <span class="tap-destmap-item-title"><?php echo esc_html($spot['title']); ?></span>
+                                            <span class="tap-destmap-item-meta">
+                                                <?php if ($spot['typeName']): ?><span class="tap-destmap-item-type"><?php echo esc_html($spot['typeName']); ?></span><?php endif; ?>
+                                                <?php if ($spot['province']): ?><span class="tap-destmap-item-province"><?php echo esc_html($spot['province']); ?></span><?php endif; ?>
+                                            </span>
+                                        </span>
+                                    </button>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+
+                        <div class="tap-destmap-detail" id="tap-destmap-detail" hidden></div>
+
+                        <?php if (!$spots): ?>
+                            <p class="tap-destmap-empty"><?php esc_html_e('Todavía no hay destinos publicados. Agrega lugares desde el panel de administración.', 'travel-agency-platform'); ?></p>
+                        <?php endif; ?>
+                    </aside>
+                </div>
+            </section>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /** Inline SVG glyph per destination type (map items without a photo). */
+    public static function spot_type_icon($type) {
+        $icons = [
+            'parque-nacional'        => '<path d="M12 2 4 14h5l-3 8 6-7v5h4v-5l4 5-3-8h5z"/>',
+            'reserva-biologica'      => '<path d="M12 22V8"/><path d="M12 8c0-4 3-6 8-6 0 4-3 6-8 6z"/><path d="M12 12c0-4-3-6-8-6 0 4 3 6 8 6z"/>',
+            'refugio-vida-silvestre' => '<path d="M4 20c2-6 6-9 12-9"/><circle cx="18" cy="8" r="3"/><path d="M9 20h11"/>',
+            'volcan'                 => '<path d="M3 20h18L15 8l-2 4-2-6-8 14z"/><path d="M10 6l1 2"/>',
+            'playa-protegida'        => '<path d="M2 18c3 0 4-2 7-2s4 2 7 2 4-2 6-2"/><circle cx="8" cy="8" r="3"/><path d="M2 14c3 0 4-2 7-2"/>',
+            'sitio-arqueologico'     => '<path d="M4 21h16"/><path d="M6 21V10l6-4 6 4v11"/><path d="M10 21v-6h4v6"/>',
+            'zona-protegida'         => '<path d="M12 21s-7-6.5-7-11a7 7 0 0 1 14 0c0 4.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+            'monumento-natural'      => '<path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M12 22V12"/><path d="M3 7l9 5 9-5"/>',
+        ];
+        $svg = $icons[$type] ?? '<path d="M12 21s-7-6.5-7-11a7 7 0 0 1 14 0c0 4.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>';
+        return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' . $svg . '</svg>';
+    }
+
     public static function agency_detail($atts) {
         $atts = shortcode_atts(['id' => 0], $atts);
         $post = get_post(intval($atts['id']));
