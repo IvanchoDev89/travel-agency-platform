@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-10-21T09:54:44+00:00\n"
+"POT-Creation-Date: 2026-10-21T23:27:11+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -822,7 +822,7 @@ msgstr ""
 #: includes/class-shortcode-booking.php:815
 #: includes/class-shortcode-booking.php:817
 #: includes/class-shortcode-booking.php:840
-#: includes/class-shortcode-booking.php:843 travel-agency-platform.php:276
+#: includes/class-shortcode-booking.php:843 travel-agency-platform.php:277
 msgid "Error"
 msgstr "Error"
 
@@ -1202,7 +1202,7 @@ msgid "Hora de check-out"
 msgstr "Hora de check-out"
 
 #: includes/class-acc-wizard-steps.php:851
-#: includes/class-destination-spots.php:51
+#: includes/class-destination-spots.php:52
 msgid "Latitud"
 msgstr "Latitud"
 
@@ -1211,7 +1211,7 @@ msgid "Se rellena al elegir el destino."
 msgstr "Se rellena al elegir el destino."
 
 #: includes/class-acc-wizard-steps.php:852
-#: includes/class-destination-spots.php:52
+#: includes/class-destination-spots.php:53
 msgid "Longitud"
 msgstr "Longitud"
 
@@ -2780,7 +2780,7 @@ msgid "Todos los estados"
 msgstr "Todos los estados"
 
 #: includes/class-dashboard-bookings.php:249
-#: includes/class-destination-spots.php:110
+#: includes/class-destination-spots.php:124
 msgid "Todos los tipos"
 msgstr "Todos los tipos"
 
@@ -3988,164 +3988,236 @@ msgstr "Configuración"
 msgid "%d items"
 msgstr "%d elementos"
 
-#: includes/class-destination-spots.php:27
+#: includes/class-destination-spots.php:28
 msgid "Parque Nacional"
 msgstr "Parque Nacional"
 
-#: includes/class-destination-spots.php:28
+#: includes/class-destination-spots.php:29
 msgid "Reserva Biológica"
 msgstr "Reserva Biológica"
 
-#: includes/class-destination-spots.php:29
+#: includes/class-destination-spots.php:30
 msgid "Refugio de Vida Silvestre"
 msgstr "Refugio de Vida Silvestre"
 
-#: includes/class-destination-spots.php:30
+#: includes/class-destination-spots.php:31
 msgid "Volcán"
 msgstr "Volcán"
 
-#: includes/class-destination-spots.php:31
+#: includes/class-destination-spots.php:32
 msgid "Playa Protegida"
 msgstr "Playa Protegida"
 
-#: includes/class-destination-spots.php:32
+#: includes/class-destination-spots.php:33
 msgid "Sitio Arqueológico"
 msgstr "Sitio Arqueológico"
 
-#: includes/class-destination-spots.php:33
+#: includes/class-destination-spots.php:34
 msgid "Zona Protectora"
 msgstr "Zona Protectora"
 
-#: includes/class-destination-spots.php:34
+#: includes/class-destination-spots.php:35
 msgid "Monumento Natural"
 msgstr "Monumento Natural"
 
-#: includes/class-destination-spots.php:51
+#: includes/class-destination-spots.php:52
 msgid "Decimal, p. ej. 10.4631"
 msgstr "Decimal, p. ej. 10.4631"
 
-#: includes/class-destination-spots.php:52
+#: includes/class-destination-spots.php:53
 msgid "Decimal, p. ej. -84.7033"
 msgstr "Decimal, p. ej. -84.7033"
 
-#: includes/class-destination-spots.php:53 includes/class-destinations.php:26
+#: includes/class-destination-spots.php:54 includes/class-destinations.php:26
 msgid "Provincia"
 msgstr "Provincia"
 
-#: includes/class-destination-spots.php:54
-#: includes/class-shortcode-search.php:1000
+#: includes/class-destination-spots.php:55
+msgid "Región"
+msgstr "Región"
+
+#: includes/class-destination-spots.php:55
+msgid "p. ej. Guanacaste, Caribe Sur"
+msgstr "p. ej. Guanacaste, Caribe Sur"
+
+#: includes/class-destination-spots.php:56
+#: includes/class-shortcode-search.php:1008
+msgid "Ecosistema"
+msgstr "Ecosistema"
+
+#: includes/class-destination-spots.php:56
+msgid "p. ej. Bosque nuboso, Humedal"
+msgstr "p. ej. Bosque nuboso, Humedal"
+
+#: includes/class-destination-spots.php:57
+msgid "Altitud"
+msgstr "Altitud"
+
+#: includes/class-destination-spots.php:57
+msgid "p. ej. 1 670 msnm"
+msgstr "p. ej. 1 670 msnm"
+
+#: includes/class-destination-spots.php:58
+#: includes/class-shortcode-search.php:1006
 msgid "Datos de interés"
 msgstr "Datos de interés"
 
-#: includes/class-destination-spots.php:54
+#: includes/class-destination-spots.php:58
 msgid "Uno por línea. Se muestran como viñetas."
 msgstr "Uno por línea. Se muestran como viñetas."
 
-#: includes/class-destination-spots.php:55
-#: includes/class-shortcode-search.php:995
+#: includes/class-destination-spots.php:59
+#: includes/class-shortcode-search.php:1010
+msgid "Biodiversidad"
+msgstr "Biodiversidad"
+
+#: includes/class-destination-spots.php:59
+msgid "Una especie o grupo por línea."
+msgstr "Una especie o grupo por línea."
+
+#: includes/class-destination-spots.php:60
+#: includes/class-shortcode-search.php:1011
+msgid "Actividades recomendadas"
+msgstr "Actividades recomendadas"
+
+#: includes/class-destination-spots.php:60
+msgid "Una por línea."
+msgstr "Una por línea."
+
+#: includes/class-destination-spots.php:61
+#: includes/class-shortcode-search.php:1012
+msgid "Consejos para el visitante"
+msgstr "Consejos para el visitante"
+
+#: includes/class-destination-spots.php:61
+msgid "Uno por línea."
+msgstr "Uno por línea."
+
+#: includes/class-destination-spots.php:62
+#: includes/class-shortcode-search.php:1013
+msgid "Conservación"
+msgstr "Conservación"
+
+#: includes/class-destination-spots.php:62
+msgid "Estado, amenazas y esfuerzos de conservación."
+msgstr "Estado, amenazas y esfuerzos de conservación."
+
+#: includes/class-destination-spots.php:63
+#: includes/class-shortcode-search.php:1009
+msgid "Mejor época"
+msgstr "Mejor época"
+
+#: includes/class-destination-spots.php:63
+msgid "p. ej. Diciembre a abril"
+msgstr "p. ej. Diciembre a abril"
+
+#: includes/class-destination-spots.php:64
+#: includes/class-shortcode-search.php:1001
 msgid "Horario"
 msgstr "Horario"
 
-#: includes/class-destination-spots.php:56
-#: includes/class-shortcode-search.php:996
+#: includes/class-destination-spots.php:65
+#: includes/class-shortcode-search.php:1002
 msgid "Tarifa"
 msgstr "Tarifa"
 
-#: includes/class-destination-spots.php:57
-#: includes/class-shortcode-search.php:997
+#: includes/class-destination-spots.php:66
+#: includes/class-shortcode-search.php:1003
 msgid "Extensión"
 msgstr "Extensión"
 
-#: includes/class-destination-spots.php:58
-#: includes/class-shortcode-search.php:998
+#: includes/class-destination-spots.php:67
+#: includes/class-shortcode-search.php:1004
 msgid "Año de creación"
 msgstr "Año de creación"
 
-#: includes/class-destination-spots.php:59
-#: includes/class-shortcode-search.php:999
+#: includes/class-destination-spots.php:68
+#: includes/class-shortcode-search.php:1005
 msgid "Accesibilidad"
 msgstr "Accesibilidad"
 
-#: includes/class-destination-spots.php:60
+#: includes/class-destination-spots.php:69
 msgid "Sitio oficial"
 msgstr "Sitio oficial"
 
-#: includes/class-destination-spots.php:80
+#: includes/class-destination-spots.php:94
 msgid "Destinos educativos"
 msgstr "Destinos educativos"
 
-#: includes/class-destination-spots.php:81
+#: includes/class-destination-spots.php:95
 msgid "Destino educativo"
 msgstr "Destino educativo"
 
-#: includes/class-destination-spots.php:82
+#: includes/class-destination-spots.php:96
 msgid "Añadir destino"
 msgstr "Añadir destino"
 
-#: includes/class-destination-spots.php:83
+#: includes/class-destination-spots.php:97
 msgid "Añadir nuevo destino"
 msgstr "Añadir nuevo destino"
 
-#: includes/class-destination-spots.php:84
+#: includes/class-destination-spots.php:98
 msgid "Editar destino"
 msgstr "Editar destino"
 
-#: includes/class-destination-spots.php:85
+#: includes/class-destination-spots.php:99
 msgid "Ver destino"
 msgstr "Ver destino"
 
-#: includes/class-destination-spots.php:86
+#: includes/class-destination-spots.php:100
 msgid "Buscar destinos"
 msgstr "Buscar destinos"
 
-#: includes/class-destination-spots.php:87
+#: includes/class-destination-spots.php:101
 msgid "No se encontraron destinos"
 msgstr "No se encontraron destinos"
 
-#: includes/class-destination-spots.php:88
+#: includes/class-destination-spots.php:102
 msgid "Todos los destinos"
 msgstr "Todos los destinos"
 
-#: includes/class-destination-spots.php:89
-#: includes/class-destination-spots.php:293
-#: includes/class-destination-spots.php:323
+#: includes/class-destination-spots.php:103
+#: includes/class-destination-spots.php:683
+#: includes/class-destination-spots.php:713
+#: includes/class-shortcode-search.php:1036
+#: includes/class-shortcode-search.php:1091
 msgid "Destinos"
 msgstr "Destinos"
 
-#: includes/class-destination-spots.php:107
-#: includes/class-destination-spots.php:115
+#: includes/class-destination-spots.php:121
+#: includes/class-destination-spots.php:129
 msgid "Tipos de destino"
 msgstr "Tipos de destino"
 
-#: includes/class-destination-spots.php:108
+#: includes/class-destination-spots.php:122
 msgid "Tipo de destino"
 msgstr "Tipo de destino"
 
-#: includes/class-destination-spots.php:109
+#: includes/class-destination-spots.php:123
 msgid "Buscar tipos"
 msgstr "Buscar tipos"
 
-#: includes/class-destination-spots.php:111
+#: includes/class-destination-spots.php:125
 msgid "Editar tipo"
 msgstr "Editar tipo"
 
-#: includes/class-destination-spots.php:112
+#: includes/class-destination-spots.php:126
 msgid "Actualizar tipo"
 msgstr "Actualizar tipo"
 
-#: includes/class-destination-spots.php:113
+#: includes/class-destination-spots.php:127
 msgid "Añadir tipo"
 msgstr "Añadir tipo"
 
-#: includes/class-destination-spots.php:114
+#: includes/class-destination-spots.php:128
 msgid "Nombre del tipo"
 msgstr "Nombre del tipo"
 
-#: includes/class-destination-spots.php:394
+#: includes/class-destination-spots.php:832
 msgid "Uno de los volcanes más activos del mundo y el ícono de La Fortuna."
 msgstr "Uno de los volcanes más activos del mundo y el ícono de La Fortuna."
 
-#: includes/class-destination-spots.php:397
+#: includes/class-destination-spots.php:835
 msgid ""
 "El Arenal es un estratovolcán de 1 670 msnm; su última gran erupción fue en "
 "1968."
@@ -4153,7 +4225,7 @@ msgstr ""
 "El Arenal es un estratovolcán de 1 670 msnm; su última gran erupción fue en "
 "1968."
 
-#: includes/class-destination-spots.php:398
+#: includes/class-destination-spots.php:836
 msgid ""
 "Entre 1968 y 2010 mantuvo actividad casi permanente, con flujos de lava "
 "visibles de noche."
@@ -4161,7 +4233,7 @@ msgstr ""
 "Entre 1968 y 2010 mantuvo actividad casi permanente, con flujos de lava "
 "visibles de noche."
 
-#: includes/class-destination-spots.php:399
+#: includes/class-destination-spots.php:837
 msgid ""
 "Protege 12 124 hectáreas de bosque premontano y numerosa fauna: tucanes, "
 "perezosos y coatíes."
@@ -4169,7 +4241,7 @@ msgstr ""
 "Protege 12 124 hectáreas de bosque premontano y numerosa fauna: tucanes, "
 "perezosos y coatíes."
 
-#: includes/class-destination-spots.php:400
+#: includes/class-destination-spots.php:838
 msgid ""
 "Hay senderos como El Silencio y la colada de lava de 1968; el mirador del "
 "lago es imperdible."
@@ -4177,23 +4249,91 @@ msgstr ""
 "Hay senderos como El Silencio y la colada de lava de 1968; el mirador del "
 "lago es imperdible."
 
-#: includes/class-destination-spots.php:402
-#: includes/class-destination-spots.php:510
-#: includes/class-destination-spots.php:546
-#: includes/class-destination-spots.php:654
+#: includes/class-destination-spots.php:840
+#: includes/class-destination-spots.php:1080
+#: includes/class-destination-spots.php:1160
+#: includes/class-destination-spots.php:1398
 msgid "Todos los días, 8:00 a 16:00"
 msgstr "Todos los días, 8:00 a 16:00"
 
-#: includes/class-destination-spots.php:403
-#: includes/class-destination-spots.php:511
+#: includes/class-destination-spots.php:841
+#: includes/class-destination-spots.php:1081
 msgid "Entrada: $15 extranjeros / ₡1 000 nacionales"
 msgstr "Entrada: $15 extranjeros / ₡1 000 nacionales"
 
-#: includes/class-destination-spots.php:404
+#: includes/class-destination-spots.php:842
 msgid "12 124 ha"
 msgstr "12 124 ha"
 
-#: includes/class-destination-spots.php:412
+#: includes/class-destination-spots.php:844
+msgid "Zona Norte"
+msgstr "Zona Norte"
+
+#: includes/class-destination-spots.php:845
+msgid "Bosque premontano húmedo y coladas de lava"
+msgstr "Bosque premontano húmedo y coladas de lava"
+
+#: includes/class-destination-spots.php:846
+msgid "1 670 msnm"
+msgstr "1 670 msnm"
+
+#: includes/class-destination-spots.php:847
+msgid "Diciembre a abril (estación seca)"
+msgstr "Diciembre a abril (estación seca)"
+
+#: includes/class-destination-spots.php:849
+msgid "Tucán pico iris y otras 400+ especies de aves"
+msgstr "Tucán pico iris y otras 400+ especies de aves"
+
+#: includes/class-destination-spots.php:850
+msgid "Perezoso de tres dedos y mono aullador"
+msgstr "Perezoso de tres dedos y mono aullador"
+
+#: includes/class-destination-spots.php:851
+msgid "Coa/coatí, pizote y venado cola blanca"
+msgstr "Coa/coatí, pizote y venado cola blanca"
+
+#: includes/class-destination-spots.php:852
+msgid "Rana de ojos rojos y numerosos reptiles"
+msgstr "Rana de ojos rojos y numerosos reptiles"
+
+#: includes/class-destination-spots.php:855
+msgid "Caminatas guiadas por El Silencio y el mirador del lago"
+msgstr "Caminatas guiadas por El Silencio y el mirador del lago"
+
+#: includes/class-destination-spots.php:856
+msgid "Avistamiento de aves al amanecer"
+msgstr "Avistamiento de aves al amanecer"
+
+#: includes/class-destination-spots.php:857
+msgid "Baño en termales naturales al pie del volcán"
+msgstr "Baño en termales naturales al pie del volcán"
+
+#: includes/class-destination-spots.php:858
+msgid "Canopy y puentes colgantes en la zona"
+msgstr "Canopy y puentes colgantes en la zona"
+
+#: includes/class-destination-spots.php:861
+msgid "Lleva capa de lluvia: el clima es húmedo casi todo el año."
+msgstr "Lleva capa de lluvia: el clima es húmedo casi todo el año."
+
+#: includes/class-destination-spots.php:862
+msgid "Mejor visibilidad del cono por la mañana temprano."
+msgstr "Mejor visibilidad del cono por la mañana temprano."
+
+#: includes/class-destination-spots.php:863
+msgid "Usa calzado cerrado con buen agarre para los senderos."
+msgstr "Usa calzado cerrado con buen agarre para los senderos."
+
+#: includes/class-destination-spots.php:865
+msgid ""
+"Desde 2010 el volcán entró en reposo; el parque protege el bosque que se "
+"regeneró sobre las coladas históricas."
+msgstr ""
+"Desde 2010 el volcán entró en reposo; el parque protege el bosque que se "
+"regeneró sobre las coladas históricas."
+
+#: includes/class-destination-spots.php:872
 msgid ""
 "La \"Amazonia de Costa Rica\": canales, selva y la mayor playa de anidación "
 "de tortuga verde del Caribe."
@@ -4201,7 +4341,7 @@ msgstr ""
 "La \"Amazonia de Costa Rica\": canales, selva y la mayor playa de anidación "
 "de tortuga verde del Caribe."
 
-#: includes/class-destination-spots.php:415
+#: includes/class-destination-spots.php:875
 msgid ""
 "Es el sitio de anidación más importante del hemisferio para la tortuga verde "
 "(Chelonia mydas)."
@@ -4209,7 +4349,7 @@ msgstr ""
 "Es el sitio de anidación más importante del hemisferio para la tortuga verde "
 "(Chelonia mydas)."
 
-#: includes/class-destination-spots.php:416
+#: includes/class-destination-spots.php:876
 msgid ""
 "Solo se llega por agua o por aire: no hay carretera hasta el pueblo de "
 "Tortuguero."
@@ -4217,7 +4357,7 @@ msgstr ""
 "Solo se llega por agua o por aire: no hay carretera hasta el pueblo de "
 "Tortuguero."
 
-#: includes/class-destination-spots.php:417
+#: includes/class-destination-spots.php:877
 msgid ""
 "Sus 31 187 ha protegen canales, lagunas y bosque húmedo tropical con 400 "
 "especies de árboles."
@@ -4225,7 +4365,7 @@ msgstr ""
 "Sus 31 187 ha protegen canales, lagunas y bosque húmedo tropical con 400 "
 "especies de árboles."
 
-#: includes/class-destination-spots.php:418
+#: includes/class-destination-spots.php:878
 msgid ""
 "La temporada de desove va de julio a octubre; los tours nocturnos son "
 "guiados y regulados."
@@ -4233,21 +4373,92 @@ msgstr ""
 "La temporada de desove va de julio a octubre; los tours nocturnos son "
 "guiados y regulados."
 
-#: includes/class-destination-spots.php:420
+#: includes/class-destination-spots.php:880
 msgid "Todos los días, 6:00 a 18:00 (tours nocturnos con guía)"
 msgstr "Todos los días, 6:00 a 18:00 (tours nocturnos con guía)"
 
-#: includes/class-destination-spots.php:421
-#: includes/class-destination-spots.php:475
-#: includes/class-destination-spots.php:493
+#: includes/class-destination-spots.php:881
+#: includes/class-destination-spots.php:1001
+#: includes/class-destination-spots.php:1041
 msgid "Entrada: $17 extranjeros / ₡1 000 nacionales"
 msgstr "Entrada: $17 extranjeros / ₡1 000 nacionales"
 
-#: includes/class-destination-spots.php:422
+#: includes/class-destination-spots.php:882
 msgid "31 187 ha"
 msgstr "31 187 ha"
 
-#: includes/class-destination-spots.php:430
+#: includes/class-destination-spots.php:884
+msgid "Caribe Norte"
+msgstr "Caribe Norte"
+
+#: includes/class-destination-spots.php:885
+msgid "Bosque húmedo tropical, canales y lagunas costeras"
+msgstr "Bosque húmedo tropical, canales y lagunas costeras"
+
+#: includes/class-destination-spots.php:886
+#: includes/class-destination-spots.php:1206
+msgid "0 msnm (nivel del mar)"
+msgstr "0 msnm (nivel del mar)"
+
+#: includes/class-destination-spots.php:887
+msgid "Julio a octubre (desove de tortugas)"
+msgstr "Julio a octubre (desove de tortugas)"
+
+#: includes/class-destination-spots.php:889
+msgid "Tortuga verde, la mayor población de anidación del hemisferio"
+msgstr "Tortuga verde, la mayor población de anidación del hemisferio"
+
+#: includes/class-destination-spots.php:890
+msgid "Tortuga laúd, carey y culibrán"
+msgstr "Tortuga laúd, carey y culibrán"
+
+#: includes/class-destination-spots.php:891
+msgid "Marañón y delfín mular en los canales"
+msgstr "Marañón y delfín mular en los canales"
+
+#: includes/class-destination-spots.php:892
+msgid "Aves de humedal, ranas arbóreas y peces tropicales"
+msgstr "Aves de humedal, ranas arbóreas y peces tropicales"
+
+#: includes/class-destination-spots.php:895
+msgid "Recorrido en bote por los canales con guía"
+msgstr "Recorrido en bote por los canales con guía"
+
+#: includes/class-destination-spots.php:896
+msgid "Caminatas nocturnas para observar el desove"
+msgstr "Caminatas nocturnas para observar el desove"
+
+#: includes/class-destination-spots.php:897
+msgid "Kayak y remar en la laguna"
+msgstr "Kayak y remar en la laguna"
+
+#: includes/class-destination-spots.php:898
+msgid "Avistamiento de aves en la selva"
+msgstr "Avistamiento de aves en la selva"
+
+#: includes/class-destination-spots.php:901
+msgid ""
+"Se necesita permiso de acceso: reserve con antelación en temporada alta."
+msgstr ""
+"Se necesita permiso de acceso: reserve con antelación en temporada alta."
+
+#: includes/class-destination-spots.php:902
+msgid "El parque no permite entrar con ganado: use repelente y ropa larga."
+msgstr "El parque no permite entrar con ganado: use repelente y ropa larga."
+
+#: includes/class-destination-spots.php:903
+msgid "Pague a guías autorizados dentro del parque."
+msgstr "Pague a guías autorizados dentro del parque."
+
+#: includes/class-destination-spots.php:905
+msgid ""
+"Está conectado al Corredor Biológico Talamanca-Caribe y al Parque Nacional "
+"Corcovado, formando uno de los mayores bloques de selva húmeda del mundo."
+msgstr ""
+"Está conectado al Corredor Biológico Talamanca-Caribe y al Parque Nacional "
+"Corcovado, formando uno de los mayores bloques de selva húmeda del mundo."
+
+#: includes/class-destination-spots.php:912
 msgid ""
 "Playas de arena blanca, acantilados y monos que bajan de los árboles: el "
 "parque más visitado del país."
@@ -4255,7 +4466,7 @@ msgstr ""
 "Playas de arena blanca, acantilados y monos que bajan de los árboles: el "
 "parque más visitado del país."
 
-#: includes/class-destination-spots.php:433
+#: includes/class-destination-spots.php:915
 msgid ""
 "Es el parque más visitado de Costa Rica y uno de los más pequeños con apenas "
 "1 983 ha."
@@ -4263,7 +4474,7 @@ msgstr ""
 "Es el parque más visitado de Costa Rica y uno de los más pequeños con apenas "
 "1 983 ha."
 
-#: includes/class-destination-spots.php:434
+#: includes/class-destination-spots.php:916
 msgid ""
 "Cuenta con tres playas accesibles: Espadilla Sur, Manuel Antonio y Puerto "
 "Escondido."
@@ -4271,7 +4482,7 @@ msgstr ""
 "Cuenta con tres playas accesibles: Espadilla Sur, Manuel Antonio y Puerto "
 "Escondido."
 
-#: includes/class-destination-spots.php:435
+#: includes/class-destination-spots.php:917
 msgid ""
 "Hogar de monos carablanca, tití y aulladores, además de perezosos de tres "
 "dedos."
@@ -4279,7 +4490,7 @@ msgstr ""
 "Hogar de monos carablanca, tití y aulladores, además de perezosos de tres "
 "dedos."
 
-#: includes/class-destination-spots.php:436
+#: includes/class-destination-spots.php:918
 msgid ""
 "La entrada tiene aforo limitado por franjas horarias; conviene reservar con "
 "antelación."
@@ -4287,20 +4498,92 @@ msgstr ""
 "La entrada tiene aforo limitado por franjas horarias; conviene reservar con "
 "antelación."
 
-#: includes/class-destination-spots.php:438
+#: includes/class-destination-spots.php:920
 msgid "Martes a domingo, 7:00 a 16:00 (cerrado lunes)"
 msgstr "Martes a domingo, 7:00 a 16:00 (cerrado lunes)"
 
-#: includes/class-destination-spots.php:439
-#: includes/class-destination-spots.php:529
+#: includes/class-destination-spots.php:921
+#: includes/class-destination-spots.php:1121
 msgid "Entrada: $18 extranjeros / ₡1 000 nacionales"
 msgstr "Entrada: $18 extranjeros / ₡1 000 nacionales"
 
-#: includes/class-destination-spots.php:440
+#: includes/class-destination-spots.php:922
 msgid "1 983 ha"
 msgstr "1 983 ha"
 
-#: includes/class-destination-spots.php:448
+#: includes/class-destination-spots.php:924
+msgid "Pacífico Central"
+msgstr "Pacífico Central"
+
+#: includes/class-destination-spots.php:925
+msgid "Selva húmeda tropical y playas de arena blanca"
+msgstr "Selva húmeda tropical y playas de arena blanca"
+
+#: includes/class-destination-spots.php:926
+msgid "0-160 msnm"
+msgstr "0-160 msnm"
+
+#: includes/class-destination-spots.php:927
+msgid "Diciembre a abril y julio a agosto (fauna del Pacífico)"
+msgstr "Diciembre a abril y julio a agosto (fauna del Pacífico)"
+
+#: includes/class-destination-spots.php:929
+msgid "Mono carablanca y mono tití"
+msgstr "Mono carablanca y mono tití"
+
+#: includes/class-destination-spots.php:930
+msgid "Perezoso de tres dedos y coatí"
+msgstr "Perezoso de tres dedos y coatí"
+
+#: includes/class-destination-spots.php:931
+msgid "Aguacate, tucán y guacamaya"
+msgstr "Aguacate, tucán y guacamaya"
+
+#: includes/class-destination-spots.php:932
+msgid "Tortugas verdes que anidan en la bahía"
+msgstr "Tortugas verdes que anidan en la bahía"
+
+#: includes/class-destination-spots.php:935
+msgid "Senderismo por el Parque del Manglar"
+msgstr "Senderismo por el Parque del Manglar"
+
+#: includes/class-destination-spots.php:936
+msgid "Kayak y paddle board en Playa Espadilla"
+msgstr "Kayak y paddle board en Playa Espadilla"
+
+#: includes/class-destination-spots.php:937
+msgid "Paseos en barco y avistamiento de ballenas"
+msgstr "Paseos en barco y avistamiento de ballenas"
+
+#: includes/class-destination-spots.php:938
+msgid "Caminatas nocturnas para observar fauna"
+msgstr "Caminatas nocturnas para observar fauna"
+
+#: includes/class-destination-spots.php:941
+msgid ""
+"La entrada es por cupos y franjas: compre la de las 7:00 para ver más fauna."
+msgstr ""
+"La entrada es por cupos y franjas: compre la de las 7:00 para ver más fauna."
+
+#: includes/class-destination-spots.php:942
+msgid "No se permite estacionar fuera del estacionamiento con cupo."
+msgstr "No se permite estacionar fuera del estacionamiento con cupo."
+
+#: includes/class-destination-spots.php:943
+msgid "El mar es fuerte: lo seguro son largas caminatas, no el baño."
+msgstr "El mar es fuerte: lo seguro son largas caminatas, no el baño."
+
+#: includes/class-destination-spots.php:945
+msgid ""
+"A pesar de su tamaño reducido, concentra una densidad de especies "
+"excepcional; su manejo busca compatibilizar el uso turístico con la "
+"conservación."
+msgstr ""
+"A pesar de su tamaño reducido, concentra una densidad de especies "
+"excepcional; su manejo busca compatibilizar el uso turístico con la "
+"conservación."
+
+#: includes/class-destination-spots.php:952
 msgid ""
 "La joya de la Península de Osa: el bosque primario más extenso del Pacífico "
 "centroamericano."
@@ -4308,7 +4591,7 @@ msgstr ""
 "La joya de la Península de Osa: el bosque primario más extenso del Pacífico "
 "centroamericano."
 
-#: includes/class-destination-spots.php:451
+#: includes/class-destination-spots.php:955
 msgid ""
 "National Geographic lo llamó \"el lugar con mayor intensidad biológica del "
 "planeta\" en bosque húmedo."
@@ -4316,7 +4599,7 @@ msgstr ""
 "National Geographic lo llamó \"el lugar con mayor intensidad biológica del "
 "planeta\" en bosque húmedo."
 
-#: includes/class-destination-spots.php:452
+#: includes/class-destination-spots.php:956
 msgid ""
 "Es el único lugar de Costa Rica donde coexisten las cuatro especies de monos "
 "del país."
@@ -4324,7 +4607,7 @@ msgstr ""
 "Es el único lugar de Costa Rica donde coexisten las cuatro especies de monos "
 "del país."
 
-#: includes/class-destination-spots.php:453
+#: includes/class-destination-spots.php:957
 msgid ""
 "Poblaciones importantes de tapir, puma, jaguar y la guacamaya roja se "
 "refugian aquí."
@@ -4332,7 +4615,7 @@ msgstr ""
 "Poblaciones importantes de tapir, puma, jaguar y la guacamaya roja se "
 "refugian aquí."
 
-#: includes/class-destination-spots.php:454
+#: includes/class-destination-spots.php:958
 msgid ""
 "Se accede a pie desde Los Patos, de noche desde Drake o en avioneta; "
 "requiere guía autorizado."
@@ -4340,25 +4623,96 @@ msgstr ""
 "Se accede a pie desde Los Patos, de noche desde Drake o en avioneta; "
 "requiere guía autorizado."
 
-#: includes/class-destination-spots.php:456
+#: includes/class-destination-spots.php:960
 msgid "Todos los días, 6:00 a 17:00 (ingreso con guía)"
 msgstr "Todos los días, 6:00 a 17:00 (ingreso con guía)"
 
-#: includes/class-destination-spots.php:457
+#: includes/class-destination-spots.php:961
 msgid "Entrada: $20 extranjeros / ₡1 000 nacionales"
 msgstr "Entrada: $20 extranjeros / ₡1 000 nacionales"
 
-#: includes/class-destination-spots.php:458
+#: includes/class-destination-spots.php:962
 msgid "42 469 ha"
 msgstr "42 469 ha"
 
-#: includes/class-destination-spots.php:466
+#: includes/class-destination-spots.php:964
+msgid "Península de Osa"
+msgstr "Península de Osa"
+
+#: includes/class-destination-spots.php:965
+msgid "Bosque húmedo tropical primario"
+msgstr "Bosque húmedo tropical primario"
+
+#: includes/class-destination-spots.php:966
+msgid "0-1 600 msnm"
+msgstr "0-1 600 msnm"
+
+#: includes/class-destination-spots.php:967
+#: includes/class-destination-spots.php:1167
+msgid "Diciembre a abril y julio a octubre"
+msgstr "Diciembre a abril y julio a octubre"
+
+#: includes/class-destination-spots.php:969
+msgid "Las cuatro especies de monos del país juntas"
+msgstr "Las cuatro especies de monos del país juntas"
+
+#: includes/class-destination-spots.php:970
+msgid "Tapir, jaguar, puma y coatí"
+msgstr "Tapir, jaguar, puma y coatí"
+
+#: includes/class-destination-spots.php:971
+msgid "Guacamaya roja y monos aulladores"
+msgstr "Guacamaya roja y monos aulladores"
+
+#: includes/class-destination-spots.php:972
+msgid "Más de 500 especies de aves"
+msgstr "Más de 500 especies de aves"
+
+#: includes/class-destination-spots.php:975
+msgid "Caminatas guiadas de varios días en la selva"
+msgstr "Caminatas guiadas de varios días en la selva"
+
+#: includes/class-destination-spots.php:976
+msgid "Avistamiento de aves desde el dosel"
+msgstr "Avistamiento de aves desde el dosel"
+
+#: includes/class-destination-spots.php:977
+msgid "Caminata nocturna en busca de fauna"
+msgstr "Caminata nocturna en busca de fauna"
+
+#: includes/class-destination-spots.php:978
+msgid "Cruceros nocturnos desde Drake Bay"
+msgstr "Cruceros nocturnos desde Drake Bay"
+
+#: includes/class-destination-spots.php:981
+msgid "El ingreso es obligatorio con guía: reserve con el parque."
+msgstr "El ingreso es obligatorio con guía: reserve con el parque."
+
+#: includes/class-destination-spots.php:982
+msgid "No hay señal celular ni cobertura: avise su plan."
+msgstr "No hay señal celular ni cobertura: avise su plan."
+
+#: includes/class-destination-spots.php:983
+msgid "Prepare equipo para lluvia intensa y calor."
+msgstr "Prepare equipo para lluvia intensa y calor."
+
+#: includes/class-destination-spots.php:985
+msgid ""
+"Junto con Tortuguero forma el bloque de bosque tropical húmedo continuo más "
+"grande de Mesoamérica; su creación protegió la integridad de la Península de "
+"Osa."
+msgstr ""
+"Junto con Tortuguero forma el bloque de bosque tropical húmedo continuo más "
+"grande de Mesoamérica; su creación protegió la integridad de la Península de "
+"Osa."
+
+#: includes/class-destination-spots.php:992
 msgid ""
 "Volcán, fumarolas, lodo hirviente y cataratas: geología viva en Guanacaste."
 msgstr ""
 "Volcán, fumarolas, lodo hirviente y cataratas: geología viva en Guanacaste."
 
-#: includes/class-destination-spots.php:469
+#: includes/class-destination-spots.php:995
 msgid ""
 "El complejo volcánico tiene nueve conos; el Von Seebach es el punto más alto "
 "con 1 895 msnm."
@@ -4366,7 +4720,7 @@ msgstr ""
 "El complejo volcánico tiene nueve conos; el Von Seebach es el punto más alto "
 "con 1 895 msnm."
 
-#: includes/class-destination-spots.php:470
+#: includes/class-destination-spots.php:996
 msgid ""
 "Concentra 32 ríos y decenas de cataratas; la catarata La Cangreja es la más "
 "famosa."
@@ -4374,7 +4728,7 @@ msgstr ""
 "Concentra 32 ríos y decenas de cataratas; la catarata La Cangreja es la más "
 "famosa."
 
-#: includes/class-destination-spots.php:471
+#: includes/class-destination-spots.php:997
 msgid ""
 "Sus fumarolas y ollas de lodo son un laboratorio natural de actividad "
 "geotérmica."
@@ -4382,7 +4736,7 @@ msgstr ""
 "Sus fumarolas y ollas de lodo son un laboratorio natural de actividad "
 "geotérmica."
 
-#: includes/class-destination-spots.php:472
+#: includes/class-destination-spots.php:998
 msgid ""
 "Forma parte del Área de Conservación Guanacaste, Patrimonio de la Humanidad "
 "(UNESCO)."
@@ -4390,15 +4744,86 @@ msgstr ""
 "Forma parte del Área de Conservación Guanacaste, Patrimonio de la Humanidad "
 "(UNESCO)."
 
-#: includes/class-destination-spots.php:474
+#: includes/class-destination-spots.php:1000
 msgid "Todos los días, 7:00 a 15:00"
 msgstr "Todos los días, 7:00 a 15:00"
 
-#: includes/class-destination-spots.php:476
+#: includes/class-destination-spots.php:1002
 msgid "14 083 ha"
 msgstr "14 083 ha"
 
-#: includes/class-destination-spots.php:484
+#: includes/class-destination-spots.php:1004
+#: includes/class-destination-spots.php:1284
+#: includes/class-destination-spots.php:1322
+msgid "Guanacaste"
+msgstr "Guanacaste"
+
+#: includes/class-destination-spots.php:1005
+msgid "Bosque tropical seco y geotermia activa"
+msgstr "Bosque tropical seco y geotermia activa"
+
+#: includes/class-destination-spots.php:1006
+msgid "0-1 895 msnm"
+msgstr "0-1 895 msnm"
+
+#: includes/class-destination-spots.php:1007
+#: includes/class-destination-spots.php:1247
+msgid "Diciembre a abril (temporada seca)"
+msgstr "Diciembre a abril (temporada seca)"
+
+#: includes/class-destination-spots.php:1009
+msgid "Venado cola blanca y puma"
+msgstr "Venado cola blanca y puma"
+
+#: includes/class-destination-spots.php:1010
+msgid "Zorro gris, coatí y armadillo"
+msgstr "Zorro gris, coatí y armadillo"
+
+#: includes/class-destination-spots.php:1011
+msgid "Aves de bosque seco como el chocoano"
+msgstr "Aves de bosque seco como el chocoano"
+
+#: includes/class-destination-spots.php:1012
+msgid "Aves atraídas por los manantiales termales"
+msgstr "Aves atraídas por los manantiales termales"
+
+#: includes/class-destination-spots.php:1015
+msgid "Visita a las fumarolas y las ollas de barro"
+msgstr "Visita a las fumarolas y las ollas de barro"
+
+#: includes/class-destination-spots.php:1016
+msgid "Caminata hasta la catarata La Cangreja"
+msgstr "Caminata hasta la catarata La Cangreja"
+
+#: includes/class-destination-spots.php:1017
+msgid "Baños termales en el río activo"
+msgstr "Baños termales en el río activo"
+
+#: includes/class-destination-spots.php:1018
+msgid "Cabalgata por la sabana del parque"
+msgstr "Cabalgata por la sabana del parque"
+
+#: includes/class-destination-spots.php:1021
+msgid "El barro burbujeante es sulfúrico: no lo toque."
+msgstr "El barro burbujeante es sulfúrico: no lo toque."
+
+#: includes/class-destination-spots.php:1022
+msgid "Lleve traje de baño, toalla y calzado de agua."
+msgstr "Lleve traje de baño, toalla y calzado de agua."
+
+#: includes/class-destination-spots.php:1023
+msgid "El camino a la catarata es de tierra: no apto para autos."
+msgstr "El camino a la catarata es de tierra: no apto para autos."
+
+#: includes/class-destination-spots.php:1025
+msgid ""
+"Forma parte del Área de Conservación Guanacaste, reconocida por la UNESCO "
+"como Patrimonio de la Humanidad por su biodiversidad."
+msgstr ""
+"Forma parte del Área de Conservación Guanacaste, reconocida por la UNESCO "
+"como Patrimonio de la Humanidad por su biodiversidad."
+
+#: includes/class-destination-spots.php:1032
 msgid ""
 "Uno de los cráteres activos más grandes del mundo, accesible casi hasta el "
 "borde."
@@ -4406,7 +4831,7 @@ msgstr ""
 "Uno de los cráteres activos más grandes del mundo, accesible casi hasta el "
 "borde."
 
-#: includes/class-destination-spots.php:487
+#: includes/class-destination-spots.php:1035
 msgid ""
 "Su cráter principal mide 1,3 km de diámetro y es uno de los más anchos del "
 "planeta."
@@ -4414,7 +4839,7 @@ msgstr ""
 "Su cráter principal mide 1,3 km de diámetro y es uno de los más anchos del "
 "planeta."
 
-#: includes/class-destination-spots.php:488
+#: includes/class-destination-spots.php:1036
 msgid ""
 "La laguna del cráter cambia de color y a veces desaparece por completo con "
 "la temperatura."
@@ -4422,7 +4847,7 @@ msgstr ""
 "La laguna del cráter cambia de color y a veces desaparece por completo con "
 "la temperatura."
 
-#: includes/class-destination-spots.php:489
+#: includes/class-destination-spots.php:1037
 msgid ""
 "El mirador está a pocos minutos del estacionamiento, ideal para visita de "
 "medio día."
@@ -4430,7 +4855,7 @@ msgstr ""
 "El mirador está a pocos minutos del estacionamiento, ideal para visita de "
 "medio día."
 
-#: includes/class-destination-spots.php:490
+#: includes/class-destination-spots.php:1038
 msgid ""
 "El acceso se controla por aforo y horario; la nubosidad puede ocultar el "
 "cráter temprano."
@@ -4438,33 +4863,104 @@ msgstr ""
 "El acceso se controla por aforo y horario; la nubosidad puede ocultar el "
 "cráter temprano."
 
-#: includes/class-destination-spots.php:492
+#: includes/class-destination-spots.php:1040
 msgid "Todos los días, 7:00 a 14:00 (reserva obligatoria)"
 msgstr "Todos los días, 7:00 a 14:00 (reserva obligatoria)"
 
-#: includes/class-destination-spots.php:494
+#: includes/class-destination-spots.php:1042
 msgid "6 506 ha"
 msgstr "6 506 ha"
 
-#: includes/class-destination-spots.php:502
+#: includes/class-destination-spots.php:1044
+#: includes/class-destination-spots.php:1084
+#: includes/class-destination-spots.php:1124
+#: includes/class-destination-spots.php:1244
+msgid "Valle Central"
+msgstr "Valle Central"
+
+#: includes/class-destination-spots.php:1045
+msgid "Bosque montano y cráter volcánico"
+msgstr "Bosque montano y cráter volcánico"
+
+#: includes/class-destination-spots.php:1046
+msgid "1 350-2 540 msnm"
+msgstr "1 350-2 540 msnm"
+
+#: includes/class-destination-spots.php:1047
+msgid "Diciembre a abril, en días despejados"
+msgstr "Diciembre a abril, en días despejados"
+
+#: includes/class-destination-spots.php:1049
+msgid "Quetzal, ave nacional y símbolo del parque"
+msgstr "Quetzal, ave nacional y símbolo del parque"
+
+#: includes/class-destination-spots.php:1050
+msgid "Conejo de monte y cusuco"
+msgstr "Conejo de monte y cusuco"
+
+#: includes/class-destination-spots.php:1051
+msgid "Bromélias y orquídeas epífitas del bosque alto"
+msgstr "Bromélias y orquídeas epífitas del bosque alto"
+
+#: includes/class-destination-spots.php:1052
+msgid "Aves carroñeras atraídas al cráter"
+msgstr "Aves carroñeras atraídas al cráter"
+
+#: includes/class-destination-spots.php:1055
+msgid "Mirador del cráter a pie"
+msgstr "Mirador del cráter a pie"
+
+#: includes/class-destination-spots.php:1056
+msgid "Sendero al bosque alto y la laguna del cráter"
+msgstr "Sendero al bosque alto y la laguna del cráter"
+
+#: includes/class-destination-spots.php:1057
+msgid "Avistamiento del quetzal en el bosque alto"
+msgstr "Avistamiento del quetzal en el bosque alto"
+
+#: includes/class-destination-spots.php:1058
+msgid "Visita al mirador de la cima con binoculares"
+msgstr "Visita al mirador de la cima con binoculares"
+
+#: includes/class-destination-spots.php:1061
+msgid "La reserva incluye un cupo por turno: reserve online."
+msgstr "La reserva incluye un cupo por turno: reserve online."
+
+#: includes/class-destination-spots.php:1062
+msgid "Lleve ropa de abrigo: el cráter está a 8-10 °C."
+msgstr "Lleve ropa de abrigo: el cráter está a 8-10 °C."
+
+#: includes/class-destination-spots.php:1063
+msgid "El cráter puede soltar gases: respete las barreras de seguridad"
+msgstr "El cráter puede soltar gases: respete las barreras de seguridad"
+
+#: includes/class-destination-spots.php:1065
+msgid ""
+"Protege el bosque montano del norte del Valle Central, uno de los últimos "
+"remanentes de bosque nuboso del país."
+msgstr ""
+"Protege el bosque montano del norte del Valle Central, uno de los últimos "
+"remanentes de bosque nuboso del país."
+
+#: includes/class-destination-spots.php:1072
 msgid "El volcán más alto del país: en un día claro se ven los dos océanos."
 msgstr "El volcán más alto del país: en un día claro se ven los dos océanos."
 
-#: includes/class-destination-spots.php:505
+#: includes/class-destination-spots.php:1075
 msgid "Con 3 432 msnm es el volcán más alto de Costa Rica."
 msgstr "Con 3 432 msnm es el volcán más alto de Costa Rica."
 
-#: includes/class-destination-spots.php:506
+#: includes/class-destination-spots.php:1076
 msgid "En días despejados se divisan el Pacífico y el Caribe desde la cima."
 msgstr "En días despejados se divisan el Pacífico y el Caribe desde la cima."
 
-#: includes/class-destination-spots.php:507
+#: includes/class-destination-spots.php:1077
 msgid ""
 "Su laguna del cráter varía de verde a turquesa según los minerales disueltos."
 msgstr ""
 "Su laguna del cráter varía de verde a turquesa según los minerales disueltos."
 
-#: includes/class-destination-spots.php:508
+#: includes/class-destination-spots.php:1078
 msgid ""
 "La carretera llega casi hasta el cráter, por lo que es accesible sin "
 "caminata larga."
@@ -4472,11 +4968,76 @@ msgstr ""
 "La carretera llega casi hasta el cráter, por lo que es accesible sin "
 "caminata larga."
 
-#: includes/class-destination-spots.php:512
+#: includes/class-destination-spots.php:1082
 msgid "2 309 ha"
 msgstr "2 309 ha"
 
-#: includes/class-destination-spots.php:520
+#: includes/class-destination-spots.php:1085
+msgid "Bosque montano y páramo de altura"
+msgstr "Bosque montano y páramo de altura"
+
+#: includes/class-destination-spots.php:1086
+msgid "1 875-3 432 msnm"
+msgstr "1 875-3 432 msnm"
+
+#: includes/class-destination-spots.php:1087
+msgid "Diciembre a abril (los días más despejados)"
+msgstr "Diciembre a abril (los días más despejados)"
+
+#: includes/class-destination-spots.php:1089
+#: includes/class-destination-spots.php:1289
+msgid "Quetzal y colibríes de montaña"
+msgstr "Quetzal y colibríes de montaña"
+
+#: includes/class-destination-spots.php:1090
+msgid "Venado de cola blanca y puma"
+msgstr "Venado de cola blanca y puma"
+
+#: includes/class-destination-spots.php:1091
+msgid "Bromélias, musgos y frailejones de páramo"
+msgstr "Bromélias, musgos y frailejones de páramo"
+
+#: includes/class-destination-spots.php:1092
+msgid "Aves de páramo y colibríes de montaña"
+msgstr "Aves de páramo y colibríes de montaña"
+
+#: includes/class-destination-spots.php:1095
+msgid "Subir en vehículo hasta el mirador"
+msgstr "Subir en vehículo hasta el mirador"
+
+#: includes/class-destination-spots.php:1096
+msgid "Caminata corta hasta la cima del cráter"
+msgstr "Caminata corta hasta la cima del cráter"
+
+#: includes/class-destination-spots.php:1097
+msgid "Fotografiar la laguna del cráter"
+msgstr "Fotografiar la laguna del cráter"
+
+#: includes/class-destination-spots.php:1098
+msgid "Avistamiento de aves en el camino de acceso"
+msgstr "Avistamiento de aves en el camino de acceso"
+
+#: includes/class-destination-spots.php:1101
+msgid "Faltan unos 40 km de camino hasta el cráter: maneje con cuidado."
+msgstr "Faltan unos 40 km de camino hasta el cráter: maneje con cuidado."
+
+#: includes/class-destination-spots.php:1102
+msgid "El frío en la cima es intenso, incluso en verano."
+msgstr "El frío en la cima es intenso, incluso en verano."
+
+#: includes/class-destination-spots.php:1103
+msgid "Revise el estado del cráter: se cierra por actividad volcánica."
+msgstr "Revise el estado del cráter: se cierra por actividad volcánica."
+
+#: includes/class-destination-spots.php:1105
+msgid ""
+"Su cráter es inestable y con frecuencia se cierra al público; el parque "
+"protege un bosque montano y una franja de páramo de gran valor."
+msgstr ""
+"Su cráter es inestable y con frecuencia se cierra al público; el parque "
+"protege un bosque montano y una franja de páramo de gran valor."
+
+#: includes/class-destination-spots.php:1112
 msgid ""
 "El techo de Costa Rica: páramos, lagos glaciares y el famoso amanecer sobre "
 "el Pacífico."
@@ -4484,17 +5045,17 @@ msgstr ""
 "El techo de Costa Rica: páramos, lagos glaciares y el famoso amanecer sobre "
 "el Pacífico."
 
-#: includes/class-destination-spots.php:523
+#: includes/class-destination-spots.php:1115
 msgid "El Cerro Chirripó alcanza 3 820 msnm, el punto más alto del país."
 msgstr "El Cerro Chirripó alcanza 3 820 msnm, el punto más alto del país."
 
-#: includes/class-destination-spots.php:524
+#: includes/class-destination-spots.php:1116
 msgid ""
 "En la cima, en días claros, se ven el Pacífico y el Caribe al mismo tiempo."
 msgstr ""
 "En la cima, en días claros, se ven el Pacífico y el Caribe al mismo tiempo."
 
-#: includes/class-destination-spots.php:525
+#: includes/class-destination-spots.php:1117
 msgid ""
 "Sus lagos de origen glaciar, como el Lagos Ditkevi, son únicos en "
 "Centroamérica."
@@ -4502,21 +5063,85 @@ msgstr ""
 "Sus lagos de origen glaciar, como el Lagos Ditkevi, son únicos en "
 "Centroamérica."
 
-#: includes/class-destination-spots.php:526
+#: includes/class-destination-spots.php:1118
 msgid ""
 "La subida requiere reserva de refugio y por lo general se hace en dos días."
 msgstr ""
 "La subida requiere reserva de refugio y por lo general se hace en dos días."
 
-#: includes/class-destination-spots.php:528
+#: includes/class-destination-spots.php:1120
 msgid "Todos los días con reserva previa, 5:00 a 17:00"
 msgstr "Todos los días con reserva previa, 5:00 a 17:00"
 
-#: includes/class-destination-spots.php:530
+#: includes/class-destination-spots.php:1122
 msgid "50 150 ha"
 msgstr "50 150 ha"
 
-#: includes/class-destination-spots.php:538
+#: includes/class-destination-spots.php:1125
+msgid "Páramo, bosque nuboso y lagunas glaciares"
+msgstr "Páramo, bosque nuboso y lagunas glaciares"
+
+#: includes/class-destination-spots.php:1126
+msgid "1 100-3 820 msnm"
+msgstr "1 100-3 820 msnm"
+
+#: includes/class-destination-spots.php:1127
+msgid "Diciembre a abril y julio (clima estable)"
+msgstr "Diciembre a abril y julio (clima estable)"
+
+#: includes/class-destination-spots.php:1129
+msgid "Quetzal y grallaria"
+msgstr "Quetzal y grallaria"
+
+#: includes/class-destination-spots.php:1130
+msgid "Páramo con frailejones y musgos"
+msgstr "Páramo con frailejones y musgos"
+
+#: includes/class-destination-spots.php:1131
+msgid "Aves migratorias como la golondrina"
+msgstr "Aves migratorias como la golondrina"
+
+#: includes/class-destination-spots.php:1132
+msgid "Zorro andino y venado de monte"
+msgstr "Zorro andino y venado de monte"
+
+#: includes/class-destination-spots.php:1135
+msgid "Ascenso de dos días hasta la cima"
+msgstr "Ascenso de dos días hasta la cima"
+
+#: includes/class-destination-spots.php:1136
+msgid "Visita a los lagos Ditkevi y Chadolín"
+msgstr "Visita a los lagos Ditkevi y Chadolín"
+
+#: includes/class-destination-spots.php:1137
+msgid "Observación del amanecer sobre el Pacífico"
+msgstr "Observación del amanecer sobre el Pacífico"
+
+#: includes/class-destination-spots.php:1138
+msgid "Caminata por el valle de Cerros"
+msgstr "Caminata por el valle de Cerros"
+
+#: includes/class-destination-spots.php:1141
+msgid "La reserva del refugio es obligatoria y se agota rápido."
+msgstr "La reserva del refugio es obligatoria y se agota rápido."
+
+#: includes/class-destination-spots.php:1142
+msgid "Se necesita un guía para la zona de páramo."
+msgstr "Se necesita un guía para la zona de páramo."
+
+#: includes/class-destination-spots.php:1143
+msgid "El clima cambia rápido: el frío en la cima es extremo."
+msgstr "El clima cambia rápido: el frío en la cima es extremo."
+
+#: includes/class-destination-spots.php:1145
+msgid ""
+"Sus páramos son fuentes de agua para el Valle Central; la presión turística "
+"se gestiona con cupos, senderos señalizados y cierres temporales."
+msgstr ""
+"Sus páramos son fuentes de agua para el Valle Central; la presión turística "
+"se gestiona con cupos, senderos señalizados y cierres temporales."
+
+#: includes/class-destination-spots.php:1152
 msgid ""
 "Arrecife de coral, playa de arena blanca y selva que llega al mar en el "
 "Caribe sur."
@@ -4524,7 +5149,7 @@ msgstr ""
 "Arrecife de coral, playa de arena blanca y selva que llega al mar en el "
 "Caribe sur."
 
-#: includes/class-destination-spots.php:541
+#: includes/class-destination-spots.php:1155
 msgid ""
 "Protege uno de los arrecifes de coral mejor conservados del Caribe "
 "costarricense."
@@ -4532,31 +5157,98 @@ msgstr ""
 "Protege uno de los arrecifes de coral mejor conservados del Caribe "
 "costarricense."
 
-#: includes/class-destination-spots.php:542
+#: includes/class-destination-spots.php:1156
 msgid "Se puede recorrer a pie un sendero de 8 km entre playa y bosque."
 msgstr "Se puede recorrer a pie un sendero de 8 km entre playa y bosque."
 
-#: includes/class-destination-spots.php:543
+#: includes/class-destination-spots.php:1157
 msgid "Sus aguas tranquilas son ideales para snorkel con peces tropicales."
 msgstr "Sus aguas tranquilas son ideales para snorkel con peces tropicales."
 
-#: includes/class-destination-spots.php:544
+#: includes/class-destination-spots.php:1158
 msgid ""
 "El terremoto de 1991 elevó la costa y creó la playa actual frente al pueblo."
 msgstr ""
 "El terremoto de 1991 elevó la costa y creó la playa actual frente al pueblo."
 
-#: includes/class-destination-spots.php:547
-#: includes/class-destination-spots.php:583
-#: includes/class-destination-spots.php:655
+#: includes/class-destination-spots.php:1161
+#: includes/class-destination-spots.php:1241
+#: includes/class-destination-spots.php:1399
 msgid "Entrada: $5 extranjeros / ₡1 000 nacionales"
 msgstr "Entrada: $5 extranjeros / ₡1 000 nacionales"
 
-#: includes/class-destination-spots.php:548
+#: includes/class-destination-spots.php:1162
 msgid "2 245 ha (1 067 terrestres / 600 marinas)"
 msgstr "2 245 ha (1 067 terrestres / 600 marinas)"
 
-#: includes/class-destination-spots.php:556
+#: includes/class-destination-spots.php:1164
+#: includes/class-destination-spots.php:1402
+msgid "Caribe Sur"
+msgstr "Caribe Sur"
+
+#: includes/class-destination-spots.php:1165
+msgid "Arrecife de coral, manglar y selva costera"
+msgstr "Arrecife de coral, manglar y selva costera"
+
+#: includes/class-destination-spots.php:1166
+#: includes/class-destination-spots.php:1324
+#: includes/class-destination-spots.php:1364
+msgid "0-300 msnm"
+msgstr "0-300 msnm"
+
+#: includes/class-destination-spots.php:1169
+msgid "Peces de arrecife, rayas y tiburones"
+msgstr "Peces de arrecife, rayas y tiburones"
+
+#: includes/class-destination-spots.php:1170
+msgid "Tortuga verde y tortuga laúd"
+msgstr "Tortuga verde y tortuga laúd"
+
+#: includes/class-destination-spots.php:1171
+msgid "Manglar con cangrejos, peces y tortugas"
+msgstr "Manglar con cangrejos, peces y tortugas"
+
+#: includes/class-destination-spots.php:1172
+msgid "Aves costeras como la fragata y el pelicano"
+msgstr "Aves costeras como la fragata y el pelicano"
+
+#: includes/class-destination-spots.php:1175
+msgid "Snorkel en el arrecife de la punta"
+msgstr "Snorkel en el arrecife de la punta"
+
+#: includes/class-destination-spots.php:1176
+msgid "Caminata del sendero costero de 8 km"
+msgstr "Caminata del sendero costero de 8 km"
+
+#: includes/class-destination-spots.php:1177
+msgid "Kayak por la laguna de Cahuita"
+msgstr "Kayak por la laguna de Cahuita"
+
+#: includes/class-destination-spots.php:1178
+msgid "Avistamiento de tortugas y aves"
+msgstr "Avistamiento de tortugas y aves"
+
+#: includes/class-destination-spots.php:1181
+msgid "Use protector solar sin oxibenzona: protege el coral."
+msgstr "Use protector solar sin oxibenzona: protege el coral."
+
+#: includes/class-destination-spots.php:1182
+msgid "El mar puede ser fuerte en temporada de lluvias: respete la bandera."
+msgstr "El mar puede ser fuerte en temporada de lluvias: respete la bandera."
+
+#: includes/class-destination-spots.php:1183
+msgid "No hay servicios en el parque: solo acceso por sendero."
+msgstr "No hay servicios en el parque: solo acceso por sendero."
+
+#: includes/class-destination-spots.php:1185
+msgid ""
+"Su arrecife forma parte del Área de Conservación de Guanacaste y se recupera "
+"de los daños térmicos del terremoto de 1991."
+msgstr ""
+"Su arrecife forma parte del Área de Conservación de Guanacaste y se recupera "
+"de los daños térmicos del terremoto de 1991."
+
+#: includes/class-destination-spots.php:1192
 msgid ""
 "La cola de ballena más famosa del país y santuario de migración de ballenas "
 "jorobadas."
@@ -4564,7 +5256,7 @@ msgstr ""
 "La cola de ballena más famosa del país y santuario de migración de ballenas "
 "jorobadas."
 
-#: includes/class-destination-spots.php:559
+#: includes/class-destination-spots.php:1195
 msgid ""
 "Su tómbolo de arena dibuja una cola de ballena en marea baja, visible en "
 "fotos aéreas."
@@ -4572,7 +5264,7 @@ msgstr ""
 "Su tómbolo de arena dibuja una cola de ballena en marea baja, visible en "
 "fotos aéreas."
 
-#: includes/class-destination-spots.php:560
+#: includes/class-destination-spots.php:1196
 msgid ""
 "Dos poblaciones de ballena jorobada migran aquí: del hemisferio norte y del "
 "sur."
@@ -4580,7 +5272,7 @@ msgstr ""
 "Dos poblaciones de ballena jorobada migran aquí: del hemisferio norte y del "
 "sur."
 
-#: includes/class-destination-spots.php:561
+#: includes/class-destination-spots.php:1197
 msgid ""
 "Es uno de los pocos lugares del mundo donde se ven ambas migraciones en un "
 "año."
@@ -4588,7 +5280,7 @@ msgstr ""
 "Es uno de los pocos lugares del mundo donde se ven ambas migraciones en un "
 "año."
 
-#: includes/class-destination-spots.php:562
+#: includes/class-destination-spots.php:1198
 msgid ""
 "Uvita, su comunidad, organiza el Festival de la Ballena en temporada de "
 "avistamiento."
@@ -4596,20 +5288,85 @@ msgstr ""
 "Uvita, su comunidad, organiza el Festival de la Ballena en temporada de "
 "avistamiento."
 
-#: includes/class-destination-spots.php:564
-#: includes/class-destination-spots.php:618
+#: includes/class-destination-spots.php:1200
+#: includes/class-destination-spots.php:1318
 msgid "Todos los días, 7:00 a 16:00"
 msgstr "Todos los días, 7:00 a 16:00"
 
-#: includes/class-destination-spots.php:565
+#: includes/class-destination-spots.php:1201
 msgid "Entrada: $6 extranjeros / ₡1 000 nacionales"
 msgstr "Entrada: $6 extranjeros / ₡1 000 nacionales"
 
-#: includes/class-destination-spots.php:566
+#: includes/class-destination-spots.php:1202
 msgid "5 375 ha (110 terrestres / 5 265 marinas)"
 msgstr "5 375 ha (110 terrestres / 5 265 marinas)"
 
-#: includes/class-destination-spots.php:574
+#: includes/class-destination-spots.php:1204
+#: includes/class-destination-spots.php:1362
+msgid "Pacífico Sur"
+msgstr "Pacífico Sur"
+
+#: includes/class-destination-spots.php:1205
+msgid "Humedal costero, playa y zona marina"
+msgstr "Humedal costero, playa y zona marina"
+
+#: includes/class-destination-spots.php:1207
+msgid "Diciembre a abril y julio a octubre (migraciones)"
+msgstr "Diciembre a abril y julio a octubre (migraciones)"
+
+#: includes/class-destination-spots.php:1209
+msgid "Ballena jorobada del norte y del sur"
+msgstr "Ballena jorobada del norte y del sur"
+
+#: includes/class-destination-spots.php:1210
+msgid "Delfines, tortugas y rayas"
+msgstr "Delfines, tortugas y rayas"
+
+#: includes/class-destination-spots.php:1211
+msgid "Peces de arrecife en la zona marina"
+msgstr "Peces de arrecife en la zona marina"
+
+#: includes/class-destination-spots.php:1212
+msgid "Aves playeras y garzas en el tómbolo"
+msgstr "Aves playeras y garzas en el tómbolo"
+
+#: includes/class-destination-spots.php:1215
+msgid "Avistamiento de ballenas en lancha"
+msgstr "Avistamiento de ballenas en lancha"
+
+#: includes/class-destination-spots.php:1216
+msgid "Caminata guiada por el tómbolo de arena"
+msgstr "Caminata guiada por el tómbolo de arena"
+
+#: includes/class-destination-spots.php:1217
+msgid "Kayak entre arenas y manglares"
+msgstr "Kayak entre arenas y manglares"
+
+#: includes/class-destination-spots.php:1218
+msgid "Tour de manglar en la laguna"
+msgstr "Tour de manglar en la laguna"
+
+#: includes/class-destination-spots.php:1221
+msgid "El avistamiento se hace desde 300 metros o más lejos."
+msgstr "El avistamiento se hace desde 300 metros o más lejos."
+
+#: includes/class-destination-spots.php:1222
+msgid "No se puede entrar al agua con las ballenas."
+msgstr "No se puede entrar al agua con las ballenas."
+
+#: includes/class-destination-spots.php:1223
+msgid "Reserve con operadores autorizados por el parque."
+msgstr "Reserve con operadores autorizados por el parque."
+
+#: includes/class-destination-spots.php:1225
+msgid ""
+"La prohibición de cazar ballenas en aguas costeras, convertida en ley en "
+"1992, ha protegido a las poblaciones de jorobadas de la zona."
+msgstr ""
+"La prohibición de cazar ballenas en aguas costeras, convertida en ley en "
+"1992, ha protegido a las poblaciones de jorobadas de la zona."
+
+#: includes/class-destination-spots.php:1232
 msgid ""
 "La ciudad precolombina más importante de Costa Rica: acueductos y calzadas "
 "de hace 3 000 años."
@@ -4617,7 +5374,7 @@ msgstr ""
 "La ciudad precolombina más importante de Costa Rica: acueductos y calzadas "
 "de hace 3 000 años."
 
-#: includes/class-destination-spots.php:577
+#: includes/class-destination-spots.php:1235
 msgid ""
 "Fue una ciudad habitada entre el 1000 a.C. y el 1400 d.C., hoy con ruinas de "
 "piedra."
@@ -4625,13 +5382,13 @@ msgstr ""
 "Fue una ciudad habitada entre el 1000 a.C. y el 1400 d.C., hoy con ruinas de "
 "piedra."
 
-#: includes/class-destination-spots.php:578
+#: includes/class-destination-spots.php:1236
 msgid ""
 "Sus acueductos y tanques de agua siguen funcionando en parte tras siglos."
 msgstr ""
 "Sus acueductos y tanques de agua siguen funcionando en parte tras siglos."
 
-#: includes/class-destination-spots.php:579
+#: includes/class-destination-spots.php:1237
 msgid ""
 "Las calzadas empedradas conectaban la ciudad con otros asentamientos de la "
 "región."
@@ -4639,7 +5396,7 @@ msgstr ""
 "Las calzadas empedradas conectaban la ciudad con otros asentamientos de la "
 "región."
 
-#: includes/class-destination-spots.php:580
+#: includes/class-destination-spots.php:1238
 msgid ""
 "Fue declarado Monumento Nacional en 1973 y Patrimonio de Ingeniería (ASCE) "
 "en 2009."
@@ -4647,15 +5404,75 @@ msgstr ""
 "Fue declarado Monumento Nacional en 1973 y Patrimonio de Ingeniería (ASCE) "
 "en 2009."
 
-#: includes/class-destination-spots.php:582
+#: includes/class-destination-spots.php:1240
 msgid "Todos los días, 8:00 a 15:30"
 msgstr "Todos los días, 8:00 a 15:30"
 
-#: includes/class-destination-spots.php:584
+#: includes/class-destination-spots.php:1242
 msgid "233 ha"
 msgstr "233 ha"
 
-#: includes/class-destination-spots.php:592
+#: includes/class-destination-spots.php:1245
+msgid "Bosque premontano y sitio arqueológico"
+msgstr "Bosque premontano y sitio arqueológico"
+
+#: includes/class-destination-spots.php:1246
+msgid "1 200-1 400 msnm"
+msgstr "1 200-1 400 msnm"
+
+#: includes/class-destination-spots.php:1249
+msgid "Bosque secundario en regeneración"
+msgstr "Bosque secundario en regeneración"
+
+#: includes/class-destination-spots.php:1250
+msgid "Aves como el chocoano y el tucán"
+msgstr "Aves como el chocoano y el tucán"
+
+#: includes/class-destination-spots.php:1251
+msgid "Mamíferos como el coatí y el zorro"
+msgstr "Mamíferos como el coatí y el zorro"
+
+#: includes/class-destination-spots.php:1252
+msgid "Mariposas y polinizadores de los campos abiertos"
+msgstr "Mariposas y polinizadores de los campos abiertos"
+
+#: includes/class-destination-spots.php:1255
+msgid "Recorrer el sitio con guía"
+msgstr "Recorrer el sitio con guía"
+
+#: includes/class-destination-spots.php:1256
+msgid "Ver los acueductos y los tanques de piedra"
+msgstr "Ver los acueductos y los tanques de piedra"
+
+#: includes/class-destination-spots.php:1257
+msgid "Senderismo por la calzada empedrada"
+msgstr "Senderismo por la calzada empedrada"
+
+#: includes/class-destination-spots.php:1258
+msgid "Observación de aves en el bosque"
+msgstr "Observación de aves en el bosque"
+
+#: includes/class-destination-spots.php:1261
+msgid "El sendero principal es accesible en silla de ruedas."
+msgstr "El sendero principal es accesible en silla de ruedas."
+
+#: includes/class-destination-spots.php:1262
+msgid "El museo cierra al mediodía: planifique la visita temprano."
+msgstr "El museo cierra al mediodía: planifique la visita temprano."
+
+#: includes/class-destination-spots.php:1263
+msgid "Use repelente: el bosque es húmedo."
+msgstr "Use repelente: el bosque es húmedo."
+
+#: includes/class-destination-spots.php:1265
+msgid ""
+"Declarado Patrimonio de la Ingeniería por la ASCE en 2009; su conservación "
+"revela cómo las sociedades precolombinas gestionaron el agua."
+msgstr ""
+"Declarado Patrimonio de la Ingeniería por la ASCE en 2009; su conservación "
+"revela cómo las sociedades precolombinas gestionaron el agua."
+
+#: includes/class-destination-spots.php:1272
 msgid ""
 "El hogar del Río Celeste, donde el agua se vuelve turquesa por un fenómeno "
 "mineral único."
@@ -4663,7 +5480,7 @@ msgstr ""
 "El hogar del Río Celeste, donde el agua se vuelve turquesa por un fenómeno "
 "mineral único."
 
-#: includes/class-destination-spots.php:595
+#: includes/class-destination-spots.php:1275
 msgid ""
 "El color turquesa del Río Celeste resulta de la mezcla de minerales de dos "
 "ríos."
@@ -4671,7 +5488,7 @@ msgstr ""
 "El color turquesa del Río Celeste resulta de la mezcla de minerales de dos "
 "ríos."
 
-#: includes/class-destination-spots.php:596
+#: includes/class-destination-spots.php:1276
 msgid ""
 "Tiene cuatro volcanes apagados y la catarata del río es uno de los sitios "
 "más fotografiados."
@@ -4679,7 +5496,7 @@ msgstr ""
 "Tiene cuatro volcanes apagados y la catarata del río es uno de los sitios "
 "más fotografiados."
 
-#: includes/class-destination-spots.php:597
+#: includes/class-destination-spots.php:1277
 msgid ""
 "Protege bosque nuboso y lluvioso, hábitat del tapir y de aves como el "
 "quetzal."
@@ -4687,25 +5504,77 @@ msgstr ""
 "Protege bosque nuboso y lluvioso, hábitat del tapir y de aves como el "
 "quetzal."
 
-#: includes/class-destination-spots.php:598
+#: includes/class-destination-spots.php:1278
 msgid ""
 "El sendero de 3 km lleva a la catarata, la laguna azul y los \"teñideros\"."
 msgstr ""
 "El sendero de 3 km lleva a la catarata, la laguna azul y los \"teñideros\"."
 
-#: includes/class-destination-spots.php:600
+#: includes/class-destination-spots.php:1280
 msgid "Todos los días, 8:00 a 14:00 (cupo limitado por hora)"
 msgstr "Todos los días, 8:00 a 14:00 (cupo limitado por hora)"
 
-#: includes/class-destination-spots.php:601
+#: includes/class-destination-spots.php:1281
 msgid "Entrada: $12 extranjeros / ₡800 nacionales"
 msgstr "Entrada: $12 extranjeros / ₡800 nacionales"
 
-#: includes/class-destination-spots.php:602
+#: includes/class-destination-spots.php:1282
 msgid "12 870 ha"
 msgstr "12 870 ha"
 
-#: includes/class-destination-spots.php:610
+#: includes/class-destination-spots.php:1285
+msgid "Bosque nuboso y lluvioso de montaña"
+msgstr "Bosque nuboso y lluvioso de montaña"
+
+#: includes/class-destination-spots.php:1286
+msgid "0-2 000 msnm"
+msgstr "0-2 000 msnm"
+
+#: includes/class-destination-spots.php:1287
+msgid "Diciembre a abril (nubosidad baja en la cima)"
+msgstr "Diciembre a abril (nubosidad baja en la cima)"
+
+#: includes/class-destination-spots.php:1290
+msgid "Tapir, venado y coatí"
+msgstr "Tapir, venado y coatí"
+
+#: includes/class-destination-spots.php:1291
+msgid "Aves de bosque nuboso como el chocoano"
+msgstr "Aves de bosque nuboso como el chocoano"
+
+#: includes/class-destination-spots.php:1294
+msgid "Caminata al Río Celeste (3 km)"
+msgstr "Caminata al Río Celeste (3 km)"
+
+#: includes/class-destination-spots.php:1295
+msgid "Visita a la laguna Azul y la catarata"
+msgstr "Visita a la laguna Azul y la catarata"
+
+#: includes/class-destination-spots.php:1296
+msgid "Paseo a caballo por el parque"
+msgstr "Paseo a caballo por el parque"
+
+#: includes/class-destination-spots.php:1299
+msgid "El acceso tiene cupo por hora: llegue temprano."
+msgstr "El acceso tiene cupo por hora: llegue temprano."
+
+#: includes/class-destination-spots.php:1300
+msgid "El río Celeste tiene corrientes fuertes: no se puede nadar."
+msgstr "El río Celeste tiene corrientes fuertes: no se puede nadar."
+
+#: includes/class-destination-spots.php:1301
+msgid "Lleve ropa de lluvia y calzado impermeable."
+msgstr "Lleve ropa de lluvia y calzado impermeable."
+
+#: includes/class-destination-spots.php:1303
+msgid ""
+"Parte del Área de Conservación Guanacaste; su bosque nuboso protege el "
+"corredor biológico entre el Pacífico y el Valle Central."
+msgstr ""
+"Parte del Área de Conservación Guanacaste; su bosque nuboso protege el "
+"corredor biológico entre el Pacífico y el Valle Central."
+
+#: includes/class-destination-spots.php:1310
 msgid ""
 "Humedal y bosque tropical seco: el mejor lugar del país para observar aves "
 "acuáticas."
@@ -4713,13 +5582,13 @@ msgstr ""
 "Humedal y bosque tropical seco: el mejor lugar del país para observar aves "
 "acuáticas."
 
-#: includes/class-destination-spots.php:613
+#: includes/class-destination-spots.php:1313
 msgid ""
 "Es el humedal más importante de Costa Rica y santuario de aves migratorias."
 msgstr ""
 "Es el humedal más importante de Costa Rica y santuario de aves migratorias."
 
-#: includes/class-destination-spots.php:614
+#: includes/class-destination-spots.php:1314
 msgid ""
 "En sus lagunas invernan miles de aves acuáticas, incluidas garzas y playeros "
 "migrantes."
@@ -4727,7 +5596,7 @@ msgstr ""
 "En sus lagunas invernan miles de aves acuáticas, incluidas garzas y playeros "
 "migrantes."
 
-#: includes/class-destination-spots.php:615
+#: includes/class-destination-spots.php:1315
 msgid ""
 "Protege bosque tropical seco, uno de los ecosistemas más amenazados del "
 "mundo."
@@ -4735,21 +5604,81 @@ msgstr ""
 "Protege bosque tropical seco, uno de los ecosistemas más amenazados del "
 "mundo."
 
-#: includes/class-destination-spots.php:616
+#: includes/class-destination-spots.php:1316
 msgid ""
 "Alberga la mayor población de jabirú (cigüeña) del Pacífico centroamericano."
 msgstr ""
 "Alberga la mayor población de jabirú (cigüeña) del Pacífico centroamericano."
 
-#: includes/class-destination-spots.php:619
+#: includes/class-destination-spots.php:1319
 msgid "Entrada: $12 extranjeros / ₡1 000 nacionales"
 msgstr "Entrada: $12 extranjeros / ₡1 000 nacionales"
 
-#: includes/class-destination-spots.php:620
+#: includes/class-destination-spots.php:1320
 msgid "18 418 ha"
 msgstr "18 418 ha"
 
-#: includes/class-destination-spots.php:628
+#: includes/class-destination-spots.php:1323
+msgid "Humedal, manglar y bosque tropical seco"
+msgstr "Humedal, manglar y bosque tropical seco"
+
+#: includes/class-destination-spots.php:1325
+msgid "Noviembre a marzo (aves migratorias)"
+msgstr "Noviembre a marzo (aves migratorias)"
+
+#: includes/class-destination-spots.php:1327
+msgid "Jabirú, la cigüeña emblemática del Pacífico"
+msgstr "Jabirú, la cigüeña emblemática del Pacífico"
+
+#: includes/class-destination-spots.php:1328
+msgid "Más de 200 especies de aves acuáticas"
+msgstr "Más de 200 especies de aves acuáticas"
+
+#: includes/class-destination-spots.php:1329
+msgid "Crocodilos americanos en las lagunas"
+msgstr "Crocodilos americanos en las lagunas"
+
+#: includes/class-destination-spots.php:1330
+msgid "Venado y coatí en el bosque seco"
+msgstr "Venado y coatí en el bosque seco"
+
+#: includes/class-destination-spots.php:1333
+msgid "Recorrido en lancha por las lagunas"
+msgstr "Recorrido en lancha por las lagunas"
+
+#: includes/class-destination-spots.php:1334
+msgid "Observación de aves con guía especializada"
+msgstr "Observación de aves con guía especializada"
+
+#: includes/class-destination-spots.php:1335
+msgid "Caminata por el bosque seco"
+msgstr "Caminata por el bosque seco"
+
+#: includes/class-destination-spots.php:1336
+msgid "Visita a las lagunas de la zona"
+msgstr "Visita a las lagunas de la zona"
+
+#: includes/class-destination-spots.php:1339
+msgid "Hay cocodrilos activos: no se acerque al agua."
+msgstr "Hay cocodrilos activos: no se acerque al agua."
+
+#: includes/class-destination-spots.php:1340
+msgid "El centro del parque cierra al mediodía."
+msgstr "El centro del parque cierra al mediodía."
+
+#: includes/class-destination-spots.php:1341
+msgid "Use repelente y protección solar."
+msgstr "Use repelente y protección solar."
+
+#: includes/class-destination-spots.php:1343
+msgid ""
+"El humedal más importante de Costa Rica y sede del Santuario de Aves "
+"Migratorias de Palmar Chico."
+msgstr ""
+"El humedal más importante de Costa Rica y sede del Santuario de Aves "
+"Migratorias de Palmar Chico."
+
+#: includes/class-destination-spots.php:1350
 msgid ""
 "La isla del tesoro: 550 km mar adentro, Patrimonio de la Humanidad y paraíso "
 "de tiburones."
@@ -4757,7 +5686,7 @@ msgstr ""
 "La isla del tesoro: 550 km mar adentro, Patrimonio de la Humanidad y paraíso "
 "de tiburones."
 
-#: includes/class-destination-spots.php:631
+#: includes/class-destination-spots.php:1353
 msgid ""
 "Está a 550 km del continente y solo se llega en barco (36 h) o tras vuelo "
 "privado."
@@ -4765,11 +5694,11 @@ msgstr ""
 "Está a 550 km del continente y solo se llega en barco (36 h) o tras vuelo "
 "privado."
 
-#: includes/class-destination-spots.php:632
+#: includes/class-destination-spots.php:1354
 msgid "Fue declarada Patrimonio de la Humanidad por la UNESCO en 1997."
 msgstr "Fue declarada Patrimonio de la Humanidad por la UNESCO en 1997."
 
-#: includes/class-destination-spots.php:633
+#: includes/class-destination-spots.php:1355
 msgid ""
 "Sus aguas concentran tiburones martillo en cardúmenes, y se cree inspiración "
 "de \"Jurassic Park\"."
@@ -4777,28 +5706,88 @@ msgstr ""
 "Sus aguas concentran tiburones martillo en cardúmenes, y se cree inspiración "
 "de \"Jurassic Park\"."
 
-#: includes/class-destination-spots.php:634
+#: includes/class-destination-spots.php:1356
 msgid "En la isla hay más de 400 especies de insectos y plantas endémicas."
 msgstr "En la isla hay más de 400 especies de insectos y plantas endémicas."
 
-#: includes/class-destination-spots.php:636
+#: includes/class-destination-spots.php:1358
 msgid "Acceso solo con permiso y guardaparques; cruceros de varios días"
 msgstr "Acceso solo con permiso y guardaparques; cruceros de varios días"
 
-#: includes/class-destination-spots.php:637
+#: includes/class-destination-spots.php:1359
 msgid "Entrada: $35 extranjeros / ₡2 000 nacionales"
 msgstr "Entrada: $35 extranjeros / ₡2 000 nacionales"
 
-#: includes/class-destination-spots.php:638
+#: includes/class-destination-spots.php:1360
 msgid "2 095 ha terrestres / 972 000 ha marinas"
 msgstr "2 095 ha terrestres / 972 000 ha marinas"
 
-#: includes/class-destination-spots.php:646
+#: includes/class-destination-spots.php:1363
+msgid "Isla oceánica y arrecifes de coral"
+msgstr "Isla oceánica y arrecifes de coral"
+
+#: includes/class-destination-spots.php:1365
+msgid "Mayo a octubre (aguas tranquilas)"
+msgstr "Mayo a octubre (aguas tranquilas)"
+
+#: includes/class-destination-spots.php:1367
+msgid "Tiburones martillo y tiburones bordeados"
+msgstr "Tiburones martillo y tiburones bordeados"
+
+#: includes/class-destination-spots.php:1368
+msgid "Más de 400 especies de insectos y plantas endémicas"
+msgstr "Más de 400 especies de insectos y plantas endémicas"
+
+#: includes/class-destination-spots.php:1369
+msgid "Peces de arrecife y rayas"
+msgstr "Peces de arrecife y rayas"
+
+#: includes/class-destination-spots.php:1370
+msgid "Aves marinas y tortugas verdes"
+msgstr "Aves marinas y tortugas verdes"
+
+#: includes/class-destination-spots.php:1373
+msgid "Buceo con guía en los arrecifes"
+msgstr "Buceo con guía en los arrecifes"
+
+#: includes/class-destination-spots.php:1374
+msgid "Snorkel con tiburones martillo"
+msgstr "Snorkel con tiburones martillo"
+
+#: includes/class-destination-spots.php:1375
+msgid "Caminatas guiadas por la selva de la isla"
+msgstr "Caminatas guiadas por la selva de la isla"
+
+#: includes/class-destination-spots.php:1376
+msgid "Observación de aves marinas y pingüinos"
+msgstr "Observación de aves marinas y pingüinos"
+
+#: includes/class-destination-spots.php:1379
+msgid "El permiso de acceso lo emite el parque: es obligatorio."
+msgstr "El permiso de acceso lo emite el parque: es obligatorio."
+
+#: includes/class-destination-spots.php:1380
+msgid "El viaje en barco dura 36 horas: planee la logística."
+msgstr "El viaje en barco dura 36 horas: planee la logística."
+
+#: includes/class-destination-spots.php:1381
+msgid "Lleva provisiones y equipo de buceo propio"
+msgstr "Lleva provisiones y equipo de buceo propio"
+
+#: includes/class-destination-spots.php:1383
+msgid ""
+"Su protección como Reserva Biológica y Patrimonio de la Humanidad es uno de "
+"los mayores logros de conservación marina del país."
+msgstr ""
+"Su protección como Reserva Biológica y Patrimonio de la Humanidad es uno de "
+"los mayores logros de conservación marina del país."
+
+#: includes/class-destination-spots.php:1390
 msgid "Arrecife, manglar y playas de desove de tortuga baula en el Caribe sur."
 msgstr ""
 "Arrecife, manglar y playas de desove de tortuga baula en el Caribe sur."
 
-#: includes/class-destination-spots.php:649
+#: includes/class-destination-spots.php:1393
 msgid ""
 "Protege uno de los pocos bosques de cativo y un manglar de importancia "
 "regional."
@@ -4806,7 +5795,7 @@ msgstr ""
 "Protege uno de los pocos bosques de cativo y un manglar de importancia "
 "regional."
 
-#: includes/class-destination-spots.php:650
+#: includes/class-destination-spots.php:1394
 msgid ""
 "Es sitio de anidación de tortuga baula (Dermochelys coriacea) y tortuga "
 "carey."
@@ -4814,17 +5803,81 @@ msgstr ""
 "Es sitio de anidación de tortuga baula (Dermochelys coriacea) y tortuga "
 "carey."
 
-#: includes/class-destination-spots.php:651
+#: includes/class-destination-spots.php:1395
 msgid "Sus arrecifes de coral albergan gran biodiversidad marina."
 msgstr "Sus arrecifes de coral albergan gran biodiversidad marina."
 
-#: includes/class-destination-spots.php:652
+#: includes/class-destination-spots.php:1396
 msgid "El sendero costero conecta Manzanillo con la laguna de Gandoca."
 msgstr "El sendero costero conecta Manzanillo con la laguna de Gandoca."
 
-#: includes/class-destination-spots.php:656
+#: includes/class-destination-spots.php:1400
 msgid "9 449 ha (4 436 terrestres / 5 013 marinas)"
 msgstr "9 449 ha (4 436 terrestres / 5 013 marinas)"
+
+#: includes/class-destination-spots.php:1403
+msgid "Manglar, arrecife de coral y playa de desove"
+msgstr "Manglar, arrecife de coral y playa de desove"
+
+#: includes/class-destination-spots.php:1404
+msgid "0-200 msnm"
+msgstr "0-200 msnm"
+
+#: includes/class-destination-spots.php:1405
+msgid "Junio a noviembre (anidación de tortugas)"
+msgstr "Junio a noviembre (anidación de tortugas)"
+
+#: includes/class-destination-spots.php:1407
+msgid "Tortuga baula y tortuga carey"
+msgstr "Tortuga baula y tortuga carey"
+
+#: includes/class-destination-spots.php:1408
+msgid "Bosque de cativo y mangle rojo"
+msgstr "Bosque de cativo y mangle rojo"
+
+#: includes/class-destination-spots.php:1409
+msgid "Peces de arrecife y langostas"
+msgstr "Peces de arrecife y langostas"
+
+#: includes/class-destination-spots.php:1410
+msgid "Aves costeras y tortugas verdes"
+msgstr "Aves costeras y tortugas verdes"
+
+#: includes/class-destination-spots.php:1413
+msgid "Caminata del sendero costero"
+msgstr "Caminata del sendero costero"
+
+#: includes/class-destination-spots.php:1414
+msgid "Kayak por la laguna de Gandoca"
+msgstr "Kayak por la laguna de Gandoca"
+
+#: includes/class-destination-spots.php:1415
+msgid "Snorkel en el arrecife de Manzanillo"
+msgstr "Snorkel en el arrecife de Manzanillo"
+
+#: includes/class-destination-spots.php:1416
+msgid "Tour nocturno de tortugas con guía"
+msgstr "Tour nocturno de tortugas con guía"
+
+#: includes/class-destination-spots.php:1419
+msgid "El tortuguero se observa con guía: no se puede alterar la anidación."
+msgstr "El tortuguero se observa con guía: no se puede alterar la anidación."
+
+#: includes/class-destination-spots.php:1420
+msgid "Hay corrientes fuertes en la playa: nade con cuidado"
+msgstr "Hay corrientes fuertes en la playa: nade con cuidado"
+
+#: includes/class-destination-spots.php:1421
+msgid "Use repelente en la zona de manglar"
+msgstr "Use repelente en la zona de manglar"
+
+#: includes/class-destination-spots.php:1423
+msgid ""
+"Protege una de las últimas poblaciones de tortuga baula del Caribe, junto "
+"con el manglar más extenso de la zona."
+msgstr ""
+"Protege una de las últimas poblaciones de tortuga baula del Caribe, junto "
+"con el manglar más extenso de la zona."
 
 #: includes/class-destinations.php:25
 msgid "País"
@@ -6006,6 +7059,7 @@ msgstr "Explorar tours"
 #: includes/class-front-dash-client.php:279 includes/class-itinerary.php:375
 #: includes/class-shortcode-booking.php:949
 #: includes/class-shortcode-search.php:310
+#: includes/class-shortcode-search.php:1017
 msgid "Ver detalles"
 msgstr "Ver detalles"
 
@@ -6207,7 +7261,7 @@ msgid "Responder al huésped..."
 msgstr "Responder al huésped..."
 
 #: includes/class-front-dash.php:399 includes/class-shortcode-account.php:405
-#: includes/class-shortcode-booking.php:794 travel-agency-platform.php:285
+#: includes/class-shortcode-booking.php:794 travel-agency-platform.php:286
 msgid "Enviar"
 msgstr "Enviar"
 
@@ -8598,11 +9652,11 @@ msgid "Network error. Please try again."
 msgstr "Error de red. Inténtalo de nuevo."
 
 #: includes/class-shortcode-account.php:389
-#: includes/class-shortcode-account.php:391 travel-agency-platform.php:281
+#: includes/class-shortcode-account.php:391 travel-agency-platform.php:282
 msgid "Asistente de viajes"
 msgstr "Asistente de viajes"
 
-#: includes/class-shortcode-account.php:395 travel-agency-platform.php:286
+#: includes/class-shortcode-account.php:395 travel-agency-platform.php:287
 msgid ""
 "¡Hola! Soy el asistente de viajes. Pregunta por alojamientos, tours, bonos o "
 "agencias, o toca una sugerencia."
@@ -8611,7 +9665,7 @@ msgstr ""
 "agencias, o toca una sugerencia."
 
 #: includes/class-shortcode-account.php:403
-#: includes/class-shortcode-account.php:404 travel-agency-platform.php:284
+#: includes/class-shortcode-account.php:404 travel-agency-platform.php:285
 msgid "Escribe tu pregunta…"
 msgstr "Escribe tu pregunta…"
 
@@ -8634,7 +9688,7 @@ msgid "Verified agency"
 msgstr "Agencia verificada"
 
 #: includes/class-shortcode-agency-panel.php:134
-#: includes/class-shortcode-search.php:1139
+#: includes/class-shortcode-search.php:1247
 msgid "Verified"
 msgstr "Verificada"
 
@@ -8784,7 +9838,7 @@ msgid "Solicitar reserva"
 msgstr "Solicitar reserva"
 
 #: includes/class-shortcode-booking.php:31
-#: includes/class-shortcode-booking.php:70 travel-agency-platform.php:275
+#: includes/class-shortcode-booking.php:70 travel-agency-platform.php:276
 msgid "Book Now"
 msgstr "Reservar ahora"
 
@@ -9320,7 +10374,7 @@ msgid "No services found."
 msgstr "No se encontraron servicios."
 
 #: includes/class-shortcode-search.php:382
-#: includes/class-shortcode-search.php:1228
+#: includes/class-shortcode-search.php:1336
 msgid "View Details"
 msgstr "Ver detalles"
 
@@ -9413,8 +10467,8 @@ msgstr "Filtrar por ubicación"
 #, php-format
 msgid "%d agencia"
 msgid_plural "%d agencias"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d agencia"
+msgstr[1] "%d agencias"
 
 #. translators: 1: average rating, 2: number of reviews
 #: includes/class-shortcode-search.php:670
@@ -9431,8 +10485,8 @@ msgstr "Tipos de servicio"
 #, php-format
 msgid "%d servicio publicado"
 msgid_plural "%d servicios publicados"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d servicio publicado"
+msgstr[1] "%d servicios publicados"
 
 #: includes/class-shortcode-search.php:711
 msgid "Ver perfil"
@@ -9478,120 +10532,157 @@ msgstr ""
 msgid "Crear mi perfil de agencia"
 msgstr "Crear mi perfil de agencia"
 
-#: includes/class-shortcode-search.php:991
-#: includes/class-shortcode-search.php:1017
+#: includes/class-shortcode-search.php:997
+#: includes/class-shortcode-search.php:1063
 msgid "Todos"
 msgstr "Todos"
 
-#. translators: %d: number of destinations
-#: includes/class-shortcode-search.php:992
-#: includes/class-shortcode-search.php:1043
+#. translators: %d: number of places
+#: includes/class-shortcode-search.php:998
+#: includes/class-shortcode-search.php:1102
 #, php-format
 msgid "%d lugar"
 msgid_plural "%d lugares"
 msgstr[0] "%d lugar"
 msgstr[1] "%d lugares"
 
-#: includes/class-shortcode-search.php:993
+#: includes/class-shortcode-search.php:999
 #, php-format
 msgid "%d lugares"
 msgstr "%d lugares"
 
-#: includes/class-shortcode-search.php:994
+#: includes/class-shortcode-search.php:1000
 msgid "No hay lugares para este filtro."
 msgstr "No hay lugares para este filtro."
 
-#: includes/class-shortcode-search.php:1001
+#: includes/class-shortcode-search.php:1007
 msgid "Ver ficha completa"
 msgstr "Ver ficha completa"
 
-#: includes/class-shortcode-search.php:1010
-msgid "Mapa educativo"
-msgstr "Mapa educativo"
+#: includes/class-shortcode-search.php:1014
+msgid "Ficha práctica"
+msgstr "Ficha práctica"
 
-#: includes/class-shortcode-search.php:1011
-msgid "Parques, reservas y sitios protegidos"
-msgstr "Parques, reservas y sitios protegidos"
-
-#: includes/class-shortcode-search.php:1012
-msgid ""
-"Explora el mapa para conocer parques nacionales, reservas biológicas, "
-"volcanes y sitios arqueológicos de Costa Rica. Toca un punto para leer su "
-"ficha."
-msgstr ""
-"Explora el mapa para conocer parques nacionales, reservas biológicas, "
-"volcanes y sitios arqueológicos de Costa Rica. Toca un punto para leer su "
-"ficha."
+#: includes/class-shortcode-search.php:1015
+msgid "Ubicación aproximada según su destino."
+msgstr "Ubicación aproximada según su destino."
 
 #: includes/class-shortcode-search.php:1016
+msgid "Ver servicio"
+msgstr "Ver servicio"
+
+#: includes/class-shortcode-search.php:1018
+msgid "Selecciona un punto en el mapa para ver su ficha."
+msgstr "Selecciona un punto en el mapa para ver su ficha."
+
+#: includes/class-shortcode-search.php:1027
+msgid "Mapa interactivo"
+msgstr "Mapa interactivo"
+
+#: includes/class-shortcode-search.php:1028
+msgid "Destinos y servicios en un solo mapa"
+msgstr "Destinos y servicios en un solo mapa"
+
+#: includes/class-shortcode-search.php:1029
+msgid ""
+"Explora parques, reservas y sitios protegidos de Costa Rica junto con los "
+"alojamientos, tours y paquetes que puedes reservar. Cambia de capa para ver "
+"solo destinos, solo servicios o todo."
+msgstr ""
+"Explora parques, reservas y sitios protegidos de Costa Rica junto con los "
+"alojamientos, tours y paquetes que puedes reservar. Cambia de capa para ver "
+"solo destinos, solo servicios o todo."
+
+#: includes/class-shortcode-search.php:1033
+msgid "Capas del mapa"
+msgstr "Capas del mapa"
+
+#: includes/class-shortcode-search.php:1034
+msgid "Todo"
+msgstr "Todo"
+
+#: includes/class-shortcode-search.php:1040
+#: includes/class-shortcode-search.php:1095
+msgid "Servicios"
+msgstr "Servicios"
+
+#: includes/class-shortcode-search.php:1046
 msgid "Filtrar por tipo de destino"
 msgstr "Filtrar por tipo de destino"
 
-#: includes/class-shortcode-search.php:1033
-msgid "Mapa de destinos"
-msgstr "Mapa de destinos"
+#: includes/class-shortcode-search.php:1061
+msgid "Filtrar por tipo de servicio"
+msgstr "Filtrar por tipo de servicio"
 
-#: includes/class-shortcode-search.php:1039
-msgid "Lugares en el mapa"
-msgstr "Lugares en el mapa"
+#: includes/class-shortcode-search.php:1078
+msgid "Mapa de destinos y servicios"
+msgstr "Mapa de destinos y servicios"
 
-#: includes/class-shortcode-search.php:1075
+#: includes/class-shortcode-search.php:1082
+msgid "Destino protegido"
+msgstr "Destino protegido"
+
+#: includes/class-shortcode-search.php:1083
+msgid "Servicio reservable"
+msgstr "Servicio reservable"
+
+#: includes/class-shortcode-search.php:1158
 msgid ""
-"Todavía no hay destinos publicados. Agrega lugares desde el panel de "
+"Todavía no hay destinos ni servicios publicados. Agrégalos desde el panel de "
 "administración."
 msgstr ""
-"Todavía no hay destinos publicados. Agrega lugares desde el panel de "
+"Todavía no hay destinos ni servicios publicados. Agrégalos desde el panel de "
 "administración."
 
-#: includes/class-shortcode-search.php:1106
+#: includes/class-shortcode-search.php:1214
 msgid "Agency not found."
 msgstr "Agencia no encontrada."
 
-#: includes/class-shortcode-search.php:1116
+#: includes/class-shortcode-search.php:1224
 msgid "Esta agencia está en revisión y aún no es visible públicamente."
 msgstr "Esta agencia está en revisión y aún no es visible públicamente."
 
-#: includes/class-shortcode-search.php:1148
+#: includes/class-shortcode-search.php:1256
 msgid "Contact Information"
 msgstr "Información de contacto"
 
-#: includes/class-shortcode-search.php:1149
+#: includes/class-shortcode-search.php:1257
 msgid "Email:"
 msgstr "Correo:"
 
-#: includes/class-shortcode-search.php:1150
+#: includes/class-shortcode-search.php:1258
 msgid "Phone:"
 msgstr "Teléfono:"
 
-#: includes/class-shortcode-search.php:1151
+#: includes/class-shortcode-search.php:1259
 msgid "WhatsApp:"
 msgstr "WhatsApp:"
 
-#: includes/class-shortcode-search.php:1152
+#: includes/class-shortcode-search.php:1260
 msgid "Website:"
 msgstr "Sitio web:"
 
-#: includes/class-shortcode-search.php:1153
+#: includes/class-shortcode-search.php:1261
 msgid "Address:"
 msgstr "Dirección:"
 
-#: includes/class-shortcode-search.php:1157
+#: includes/class-shortcode-search.php:1265
 msgid "Our Services"
 msgstr "Nuestros servicios"
 
-#: includes/class-shortcode-search.php:1217
+#: includes/class-shortcode-search.php:1325
 msgid "Featured"
 msgstr "Destacado"
 
-#: includes/class-shortcode-search.php:1219
+#: includes/class-shortcode-search.php:1327
 msgid "starting"
 msgstr "desde"
 
-#: includes/class-shortcode-search.php:1242
+#: includes/class-shortcode-search.php:1350
 msgid "No featured services yet"
 msgstr "Aún no hay servicios destacados"
 
-#: includes/class-shortcode-search.php:1242
+#: includes/class-shortcode-search.php:1350
 msgid "Check back soon for new featured listings."
 msgstr "Vuelve pronto para ver nuevos listados destacados."
 
@@ -9947,119 +11038,153 @@ msgstr "Gastronomía"
 msgid "Traslados aeropuerto"
 msgstr "Traslados aeropuerto"
 
-#: travel-agency-platform.php:253
+#: travel-agency-platform.php:254
 msgid "results found"
 msgstr "resultados encontrados"
 
-#: travel-agency-platform.php:254
+#: travel-agency-platform.php:255
 msgid "No results found"
 msgstr "No se encontraron resultados"
 
-#: travel-agency-platform.php:255
+#: travel-agency-platform.php:256
 msgid "Guardado en favoritos"
 msgstr "Guardado en favoritos"
 
-#: travel-agency-platform.php:256
+#: travel-agency-platform.php:257
 msgid "Quitado de favoritos"
 msgstr "Quitado de favoritos"
 
-#: travel-agency-platform.php:257
+#: travel-agency-platform.php:258
 msgid "Aún no hay reseñas."
 msgstr "Aún no hay reseñas."
 
-#: travel-agency-platform.php:258
+#: travel-agency-platform.php:259
 msgid "Aún no hay reseñas. Sé el primero en compartir tu experiencia."
 msgstr "Aún no hay reseñas. Sé el primero en compartir tu experiencia."
 
-#: travel-agency-platform.php:259
+#: travel-agency-platform.php:260
 msgid "reseña"
 msgstr "reseña"
 
-#: travel-agency-platform.php:260
+#: travel-agency-platform.php:261
 msgid "reseñas"
 msgstr "reseñas"
 
-#: travel-agency-platform.php:261
+#: travel-agency-platform.php:262
 msgid "Anónimo"
 msgstr "Anónimo"
 
-#: travel-agency-platform.php:262
+#: travel-agency-platform.php:263
 msgid "Enviando..."
 msgstr "Enviando..."
 
-#: travel-agency-platform.php:263
+#: travel-agency-platform.php:264
 msgid "¡Reseña enviada! Pendiente de aprobación."
 msgstr "¡Reseña enviada! Pendiente de aprobación."
 
-#: travel-agency-platform.php:264
+#: travel-agency-platform.php:265
 msgid "Error al enviar"
 msgstr "Error al enviar"
 
-#: travel-agency-platform.php:265
+#: travel-agency-platform.php:266
 msgid "Review submitted"
 msgstr "Reseña enviada"
 
-#: travel-agency-platform.php:266
+#: travel-agency-platform.php:267
 msgid "Error al enviar la reseña"
 msgstr "Error al enviar la reseña"
 
 #. translators: %s: nombre del servicio
-#: travel-agency-platform.php:268
+#: travel-agency-platform.php:269
 #, php-format
 msgid "Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!"
 msgstr "Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!"
 
-#: travel-agency-platform.php:269
+#: travel-agency-platform.php:270
 msgid "Reseña verificada"
 msgstr "Reseña verificada"
 
 #. translators: 1: cupos disponibles, 2: cupos totales
-#: travel-agency-platform.php:271
+#: travel-agency-platform.php:272
 #, php-format
 msgid "Cupos disponibles: %s de %s"
 msgstr "Cupos disponibles: %s de %s"
 
 #. translators: 1: cupos ocupados, 2: cupos totales
-#: travel-agency-platform.php:273
+#: travel-agency-platform.php:274
 #, php-format
 msgid "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
 msgstr "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
 
-#: travel-agency-platform.php:274
+#: travel-agency-platform.php:275
 msgid "El tour está completo para esta fecha."
 msgstr "El tour está completo para esta fecha."
 
-#: travel-agency-platform.php:277
+#: travel-agency-platform.php:278
 msgid "Image gallery"
 msgstr "Galería de imágenes"
 
-#: travel-agency-platform.php:278
+#: travel-agency-platform.php:279
 msgid "Close image gallery"
 msgstr "Cerrar galería de imágenes"
 
-#: travel-agency-platform.php:279
+#: travel-agency-platform.php:280
 msgid "Previous image"
 msgstr "Imagen anterior"
 
-#: travel-agency-platform.php:280
+#: travel-agency-platform.php:281
 msgid "Next image"
 msgstr "Imagen siguiente"
 
-#: travel-agency-platform.php:282
+#: travel-agency-platform.php:283
 msgid "Abrir asistente"
 msgstr "Abrir asistente"
 
-#: travel-agency-platform.php:283
+#: travel-agency-platform.php:284
 msgid "Cerrar asistente"
 msgstr "Cerrar asistente"
 
-#: travel-agency-platform.php:287
+#: travel-agency-platform.php:288
 msgid "Pensando…"
 msgstr "Pensando…"
 
-#: travel-agency-platform.php:288
+#: travel-agency-platform.php:289
 msgid "Hubo un problema. Inténtalo de nuevo."
 msgstr "Hubo un problema. Inténtalo de nuevo."
+
+msgid "Guacamaya roja y lémures"
+msgstr "Guacamaya roja y lémures"
+
+msgid "Ciervo de cola blanca y venado cola blanca"
+msgstr "Ciervo de cola blanca y venado cola blanca"
+
+msgid "Mapa educativo"
+msgstr "Mapa educativo"
+
+msgid "Parques, reservas y sitios protegidos"
+msgstr "Parques, reservas y sitios protegidos"
+
+msgid ""
+"Explora el mapa para conocer parques nacionales, reservas biológicas, "
+"volcanes y sitios arqueológicos de Costa Rica. Toca un punto para leer su "
+"ficha."
+msgstr ""
+"Explora el mapa para conocer parques nacionales, reservas biológicas, "
+"volcanes y sitios arqueológicos de Costa Rica. Toca un punto para leer su "
+"ficha."
+
+msgid "Mapa de destinos"
+msgstr "Mapa de destinos"
+
+msgid "Lugares en el mapa"
+msgstr "Lugares en el mapa"
+
+msgid ""
+"Todavía no hay destinos publicados. Agrega lugares desde el panel de "
+"administración."
+msgstr ""
+"Todavía no hay destinos publicados. Agrega lugares desde el panel de "
+"administración."
 
 msgid "Todas las ubicaciones"
 msgstr "Todas las ubicaciones"
@@ -10829,9 +11954,6 @@ msgstr "Ruta"
 
 msgid "Seleccionado"
 msgstr "Seleccionado"
-
-msgid "Servicios"
-msgstr "Servicios"
 
 msgid "Transmisión"
 msgstr "Transmisión"

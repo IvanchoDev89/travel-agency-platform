@@ -6,6 +6,37 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.46] — 2026-10-21
+
+Dual-layer map: educational destinations and bookable services in one view, with a richer destination profile.
+
+### Added
+
+- **Services layer on the Destinations map.** Published accommodations, tours, transports, car rentals, boats, packages and equipment are now placed on the same Leaflet map as the protected destinations. A layer switch (`Todo` / `Destinos` / `Servicios`) toggles the two marker groups, and the side panel switches between the two lists with live counts.
+- **Service type filters.** The service layer has its own filter chips (one per service type, with counts) that filter both the list and the markers.
+- **Service markers and cards.** Every service shows its type, location and price on the map popup and in the panel list; the detail panel adds the average rating and a link to the service page.
+- **Destination centroid resolution.** Services that carry no coordinates are placed on the centroid of their destination term. The centroids are computed from the listings that do have valid coordinates and fall back to a curated map of Costa Rican destinations, walking up the location hierarchy (`Río Celeste` → `Guatuso` → `Alajuela` → `Costa Rica`) when needed.
+- **Coordinate validation.** A position outside Costa Rica's bounding box is treated as corrupt: the listing is relocated to its destination centroid and flagged `approx` in the detail panel instead of landing in the ocean.
+- **Extended educational profile.** Eight new destination fields — region, ecosystem, elevation, best season, biodiversity, recommended activities, visitor tips and conservation status — with their own metabox inputs, shown on the map detail panel and on each destination's page.
+- **Enriched seed content.** The fifteen seeded destinations now carry their region, ecosystem, elevation, best season, biodiversity, activities, tips and conservation notes.
+
+### Changed
+
+- The map intro and the panel copy now describe the two layers instead of a single educational map.
+- The destination page gained a "Perfil del destino" card, a biodiversity grid, an activities list, a visitor-tips list and a highlighted conservation note.
+- Plugin version bumped to `1.5.46` (header + `TAP_VERSION`).
+
+### Fixed
+
+- The service price is rendered with a plain currency symbol, so it no longer leaks a HTML entity (`&cent;`) into the map's JSON payload.
+- The back-fill of the extended profile never overwrites a field an editor has already filled in.
+
+### Tests
+
+- `suite_map_services`: the services data provider (payload shape, Costa Rica bounds, draft exclusion), the coordinate fallback for out-of-bounds listings, the dual-layer shortcode markup, the extended destination fields and the idempotent back-fill.
+
+---
+
 ## [1.5.45] — 2026-10-21
 
 Interactive educational destinations map.

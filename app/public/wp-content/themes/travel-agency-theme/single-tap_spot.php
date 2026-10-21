@@ -3,8 +3,9 @@
  * Educational page for a destination spot (tap_spot).
  *
  * Renders the title, an optional featured image, the editorial description,
- * the "datos de interés" list and the quick facts (schedule, fee, area, year,
- * accessibility), plus a small locator map centred on the spot.
+ * the educational profile (region, ecosystem, biodiversity, activities, tips,
+ * conservation), the quick facts (schedule, fee, area, year, accessibility) and
+ * a small locator map centred on the spot.
  */
 defined('ABSPATH') || exit;
 get_header();
@@ -14,7 +15,12 @@ while (have_posts()): the_post();
     $lat      = get_post_meta($id, '_tap_spot_lat', true);
     $lng      = get_post_meta($id, '_tap_spot_lng', true);
     $province = get_post_meta($id, '_tap_spot_province', true);
+    $region   = get_post_meta($id, '_tap_spot_region', true);
     $interest = TAP_Destination_Spots::interest_list($id);
+    $biodiversity = TAP_Destination_Spots::list_value($id, '_tap_spot_biodiversity');
+    $activities   = TAP_Destination_Spots::list_value($id, '_tap_spot_activities');
+    $tips         = TAP_Destination_Spots::list_value($id, '_tap_spot_tips');
+    $conservation = get_post_meta($id, '_tap_spot_conservation', true);
     $types    = TAP_Destination_Spots::types_of($id);
     $type     = $types ? $types[0] : null;
     $has_map  = ($lat !== '' && $lng !== '');
@@ -26,6 +32,13 @@ while (have_posts()): the_post();
         __('Año de creación', 'travel-agency-platform') => get_post_meta($id, '_tap_spot_created', true),
         __('Accesibilidad', 'travel-agency-platform') => get_post_meta($id, '_tap_spot_accessibility', true),
         __('Sitio oficial', 'travel-agency-platform') => get_post_meta($id, '_tap_spot_website', true),
+    ], function ($v) { return $v !== '' && $v !== null; });
+
+    $profile = array_filter([
+        __('Región', 'travel-agency-platform')       => $region,
+        __('Ecosistema', 'travel-agency-platform')   => get_post_meta($id, '_tap_spot_ecosystem', true),
+        __('Altitud', 'travel-agency-platform')      => get_post_meta($id, '_tap_spot_altitude', true),
+        __('Mejor época', 'travel-agency-platform')  => get_post_meta($id, '_tap_spot_best_season', true),
     ], function ($v) { return $v !== '' && $v !== null; });
 
     if ($has_map) {
@@ -61,10 +74,10 @@ while (have_posts()): the_post();
                     <span class="tap-spot-badge"><?php echo esc_html($type->name); ?></span>
                 <?php endif; ?>
                 <h1><?php the_title(); ?></h1>
-                <?php if ($province): ?>
+                <?php if ($province || $region): ?>
                     <p class="tap-spot-province">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                        <?php echo esc_html($province); ?>
+                        <?php echo esc_html(implode(' · ', array_filter([$province, $region]))); ?>
                     </p>
                 <?php endif; ?>
                 <?php if (has_excerpt()): ?>
@@ -92,9 +105,61 @@ while (have_posts()): the_post();
                             </ul>
                         </section>
                     <?php endif; ?>
+
+                    <?php if ($biodiversity): ?>
+                        <section class="tap-spot-block">
+                            <h2><?php esc_html_e('Biodiversidad', 'travel-agency-platform'); ?></h2>
+                            <ul class="tap-spot-interest tap-spot-interest--grid">
+                                <?php foreach ($biodiversity as $line): ?>
+                                    <li><?php echo esc_html($line); ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </section>
+                    <?php endif; ?>
+
+                    <?php if ($activities): ?>
+                        <section class="tap-spot-block">
+                            <h2><?php esc_html_e('Actividades recomendadas', 'travel-agency-platform'); ?></h2>
+                            <ul class="tap-spot-interest">
+                                <?php foreach ($activities as $line): ?>
+                                    <li><?php echo esc_html($line); ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </section>
+                    <?php endif; ?>
+
+                    <?php if ($tips): ?>
+                        <section class="tap-spot-block">
+                            <h2><?php esc_html_e('Consejos para el visitante', 'travel-agency-platform'); ?></h2>
+                            <ul class="tap-spot-interest tap-spot-interest--tips">
+                                <?php foreach ($tips as $line): ?>
+                                    <li><?php echo esc_html($line); ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </section>
+                    <?php endif; ?>
+
+                    <?php if ($conservation): ?>
+                        <section class="tap-spot-block tap-spot-block--conservation">
+                            <h2><?php esc_html_e('Conservación', 'travel-agency-platform'); ?></h2>
+                            <p><?php echo esc_html($conservation); ?></p>
+                        </section>
+                    <?php endif; ?>
                 </div>
 
                 <aside class="tap-spot-side">
+                    <?php if ($profile): ?>
+                        <div class="tap-spot-facts tap-spot-profile">
+                            <h2><?php esc_html_e('Perfil del destino', 'travel-agency-platform'); ?></h2>
+                            <dl>
+                                <?php foreach ($profile as $label => $value): ?>
+                                    <dt><?php echo esc_html($label); ?></dt>
+                                    <dd><?php echo esc_html($value); ?></dd>
+                                <?php endforeach; ?>
+                            </dl>
+                        </div>
+                    <?php endif; ?>
+
                     <?php if ($facts): ?>
                         <div class="tap-spot-facts">
                             <h2><?php esc_html_e('Información práctica', 'travel-agency-platform'); ?></h2>

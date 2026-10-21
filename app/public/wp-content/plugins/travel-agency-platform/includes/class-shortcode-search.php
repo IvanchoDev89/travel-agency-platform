@@ -778,7 +778,8 @@ class TAP_Shortcode_Search {
     /**
      * Inline icon for each service family, used on the directory cards.
      */
-    private static function service_type_icon($type) {
+    /** Inline SVG glyph per service type (map items without a photo). */
+    public static function service_type_icon($type) {
         $icons = [
             'tap_accommodation' => '<path d="M3 21v-9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v9"/><path d="M6 10V7a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3"/><path d="M3 17h18"/>',
             'tap_tour'          => '<circle cx="12" cy="12" r="9"/><polygon points="15.5 8.5 13.5 13.5 8.5 15.5 10.5 10.5"/>',
@@ -944,13 +945,14 @@ class TAP_Shortcode_Search {
     }
 
     /**
-     * Interactive educational map of protected destinations.
+     * Interactive map of protected destinations and bookable services.
      *
-     * Renders a Leaflet map (OpenStreetMap tiles, no API key) plus a filter bar
-     * by destination type and a linked list of cards. Clicking a card or marker
-     * opens the same educational detail panel (intro, data of interest, schedule,
-     * fee, area, accessibility). All content comes from the editable `tap_spot`
-     * CPT, so an admin manages it from wp-admin without touching code.
+     * Renders a Leaflet map (OpenStreetMap tiles, no API key) with two layers:
+     * educational spots (`tap_spot`) and bookable services (accommodations,
+     * tours, packages...). A layer switch toggles between "Todo", "Destinos" and
+     * "Servicios"; the side panel lists the matching cards and opens a detail
+     * panel on click. Every destination is editable from wp-admin through the
+     * `tap_spot` CPT; services come from the regular service post types.
      */
     public static function destinations_map($atts) {
         $atts = shortcode_atts([
@@ -974,10 +976,14 @@ class TAP_Shortcode_Search {
         $spots = TAP_Destination_Spots::map_data($query_args);
         $types = TAP_Destination_Spots::used_types();
 
+        $services      = TAP_Destination_Spots::services_map_data();
+        $service_types = self::service_types_summary($services);
+
         $center = TAP_Destination_Spots::default_center();
         $height = max(320, (int) $atts['height']);
         $base   = get_permalink() ?: home_url('/destinos/');
         $total  = count($spots);
+        $total_services = count($services);
 
         wp_enqueue_style('tap-leaflet', TAP_PLUGIN_URL . 'assets/leaflet/leaflet.css', [], '1.9.4');
         wp_enqueue_style('tap-leaflet-cluster', TAP_PLUGIN_URL . 'assets/leaflet/leaflet.markercluster.css', [], '1.5.3');
@@ -999,6 +1005,17 @@ class TAP_Shortcode_Search {
                 'accessibility' => __('Accesibilidad', 'travel-agency-platform'),
                 'interest' => __('Datos de interés', 'travel-agency-platform'),
                 'visit'    => __('Ver ficha completa', 'travel-agency-platform'),
+                'ecosystem' => __('Ecosistema', 'travel-agency-platform'),
+                'bestSeason' => __('Mejor época', 'travel-agency-platform'),
+                'biodiversity' => __('Biodiversidad', 'travel-agency-platform'),
+                'activities' => __('Actividades recomendadas', 'travel-agency-platform'),
+                'tips'     => __('Consejos para el visitante', 'travel-agency-platform'),
+                'conservation' => __('Conservación', 'travel-agency-platform'),
+                'practical' => __('Ficha práctica', 'travel-agency-platform'),
+                'approx'   => __('Ubicación aproximada según su destino.', 'travel-agency-platform'),
+                'viewService' => __('Ver servicio', 'travel-agency-platform'),
+                'details'  => __('Ver detalles', 'travel-agency-platform'),
+                'selectPrompt' => __('Selecciona un punto en el mapa para ver su ficha.', 'travel-agency-platform'),
             ],
         ]);
 
@@ -1007,48 +1024,90 @@ class TAP_Shortcode_Search {
         <div class="tap-container">
             <section class="tap-destmap" data-center="<?php echo esc_attr($center['lat'] . ',' . $center['lng']); ?>" data-zoom="<?php echo esc_attr($center['zoom']); ?>">
                 <header class="tap-destmap-intro">
-                    <p class="tap-destmap-eyebrow"><?php esc_html_e('Mapa educativo', 'travel-agency-platform'); ?></p>
-                    <h2><?php esc_html_e('Parques, reservas y sitios protegidos', 'travel-agency-platform'); ?></h2>
-                    <p class="tap-destmap-lead"><?php esc_html_e('Explora el mapa para conocer parques nacionales, reservas biológicas, volcanes y sitios arqueológicos de Costa Rica. Toca un punto para leer su ficha.', 'travel-agency-platform'); ?></p>
+                    <p class="tap-destmap-eyebrow"><?php esc_html_e('Mapa interactivo', 'travel-agency-platform'); ?></p>
+                    <h2><?php esc_html_e('Destinos y servicios en un solo mapa', 'travel-agency-platform'); ?></h2>
+                    <p class="tap-destmap-lead"><?php esc_html_e('Explora parques, reservas y sitios protegidos de Costa Rica junto con los alojamientos, tours y paquetes que puedes reservar. Cambia de capa para ver solo destinos, solo servicios o todo.', 'travel-agency-platform'); ?></p>
                 </header>
 
-                <?php if (!empty($types)): ?>
-                    <nav class="tap-destmap-filters" aria-label="<?php esc_attr_e('Filtrar por tipo de destino', 'travel-agency-platform'); ?>">
-                        <a class="tap-destmap-chip <?php echo '' === $active_type ? 'is-active' : ''; ?>" href="<?php echo esc_url($base); ?>" <?php echo '' === $active_type ? 'aria-current="true"' : ''; ?>><?php esc_html_e('Todos', 'travel-agency-platform'); ?></a>
-                        <?php foreach ($types as $type): ?>
-                            <?php
-                            $is_active = ($type['slug'] === $active_type);
-                            $url       = add_query_arg('spot_type', $type['slug'], $base);
-                            ?>
-                            <a class="tap-destmap-chip <?php echo $is_active ? 'is-active' : ''; ?>" href="<?php echo esc_url($url); ?>" <?php echo $is_active ? 'aria-current="true"' : ''; ?>>
-                                <?php echo esc_html($type['name']); ?>
-                                <span class="tap-destmap-chip-count"><?php echo (int) $type['count']; ?></span>
-                            </a>
-                        <?php endforeach; ?>
-                    </nav>
-                <?php endif; ?>
+                <div class="tap-destmap-toolbar">
+                    <div class="tap-destmap-layers" role="group" aria-label="<?php esc_attr_e('Capas del mapa', 'travel-agency-platform'); ?>">
+                        <button type="button" class="tap-destmap-layer is-active" data-layer="all" aria-pressed="true"><?php esc_html_e('Todo', 'travel-agency-platform'); ?></button>
+                        <button type="button" class="tap-destmap-layer" data-layer="spots" aria-pressed="false">
+                            <?php esc_html_e('Destinos', 'travel-agency-platform'); ?>
+                            <span class="tap-destmap-layer-count"><?php echo (int) $total; ?></span>
+                        </button>
+                        <button type="button" class="tap-destmap-layer" data-layer="services" aria-pressed="false">
+                            <?php esc_html_e('Servicios', 'travel-agency-platform'); ?>
+                            <span class="tap-destmap-layer-count"><?php echo (int) $total_services; ?></span>
+                        </button>
+                    </div>
+
+                    <?php if (!empty($types)): ?>
+                        <nav class="tap-destmap-filters tap-destmap-filters--spots" aria-label="<?php esc_attr_e('Filtrar por tipo de destino', 'travel-agency-platform'); ?>">
+                            <?php foreach ($types as $type): ?>
+                                <?php
+                                $is_active = ($type['slug'] === $active_type);
+                                $url       = $is_active ? $base : add_query_arg('spot_type', $type['slug'], $base);
+                                ?>
+                                <a class="tap-destmap-chip <?php echo $is_active ? 'is-active' : ''; ?>" href="<?php echo esc_url($url); ?>" <?php echo $is_active ? 'aria-current="true"' : ''; ?>>
+                                    <?php echo esc_html($type['name']); ?>
+                                    <span class="tap-destmap-chip-count"><?php echo (int) $type['count']; ?></span>
+                                </a>
+                            <?php endforeach; ?>
+                        </nav>
+                    <?php endif; ?>
+
+                    <?php if (!empty($service_types)): ?>
+                        <nav class="tap-destmap-filters tap-destmap-filters--services" hidden aria-label="<?php esc_attr_e('Filtrar por tipo de servicio', 'travel-agency-platform'); ?>">
+                            <button type="button" class="tap-destmap-chip tap-destmap-chip--service is-active" data-service-type="" aria-current="true">
+                                <?php esc_html_e('Todos', 'travel-agency-platform'); ?>
+                                <span class="tap-destmap-chip-count"><?php echo (int) $total_services; ?></span>
+                            </button>
+                            <?php foreach ($service_types as $stype): ?>
+                                <button type="button" class="tap-destmap-chip tap-destmap-chip--service" data-service-type="<?php echo esc_attr($stype['slug']); ?>" aria-current="false">
+                                    <?php echo esc_html($stype['name']); ?>
+                                    <span class="tap-destmap-chip-count"><?php echo (int) $stype['count']; ?></span>
+                                </button>
+                            <?php endforeach; ?>
+                        </nav>
+                    <?php endif; ?>
+                </div>
 
                 <div class="tap-destmap-layout">
                     <div class="tap-destmap-canvas">
-                        <div id="tap-destmap" class="tap-destmap-map" style="height:<?php echo esc_attr($height); ?>px" role="application" aria-label="<?php esc_attr_e('Mapa de destinos', 'travel-agency-platform'); ?>"></div>
+                        <div id="tap-destmap" class="tap-destmap-map" style="height:<?php echo esc_attr($height); ?>px" role="application" aria-label="<?php esc_attr_e('Mapa de destinos y servicios', 'travel-agency-platform'); ?>"></div>
                         <input type="hidden" id="tap-destmap-data" value="<?php echo esc_attr(wp_json_encode($spots)); ?>">
+                        <input type="hidden" id="tap-destmap-services" value="<?php echo esc_attr(wp_json_encode($services)); ?>">
+                        <div class="tap-destmap-legend">
+                            <span class="tap-destmap-legend-item"><span class="tap-destmap-pin tap-destmap-pin--spot" aria-hidden="true"></span><?php esc_html_e('Destino protegido', 'travel-agency-platform'); ?></span>
+                            <span class="tap-destmap-legend-item"><span class="tap-destmap-pin tap-destmap-pin--service" aria-hidden="true"></span><?php esc_html_e('Servicio reservable', 'travel-agency-platform'); ?></span>
+                        </div>
                     </div>
 
                     <aside class="tap-destmap-panel" aria-live="polite">
                         <div class="tap-destmap-panel-head">
-                            <h3 class="tap-destmap-panel-title"><?php esc_html_e('Lugares en el mapa', 'travel-agency-platform'); ?></h3>
+                            <div class="tap-destmap-tabs" role="tablist">
+                                <button type="button" class="tap-destmap-tab is-active" role="tab" data-tab="spots" aria-selected="true">
+                                    <?php esc_html_e('Destinos', 'travel-agency-platform'); ?>
+                                    <span class="tap-destmap-tab-count"><?php echo (int) $total; ?></span>
+                                </button>
+                                <button type="button" class="tap-destmap-tab" role="tab" data-tab="services" aria-selected="false">
+                                    <?php esc_html_e('Servicios', 'travel-agency-platform'); ?>
+                                    <span class="tap-destmap-tab-count"><?php echo (int) $total_services; ?></span>
+                                </button>
+                            </div>
                             <span class="tap-destmap-count" id="tap-destmap-count"><?php
                                 printf(
-                                    /* translators: %d: number of destinations */
-                                    esc_html(_n('%d lugar', '%d lugares', $total, 'travel-agency-platform')),
-                                    (int) $total
+                                    /* translators: %d: number of places */
+                                    esc_html(_n('%d lugar', '%d lugares', $total + $total_services, 'travel-agency-platform')),
+                                    (int) ($total + $total_services)
                                 );
                             ?></span>
                         </div>
 
                         <ul class="tap-destmap-list" id="tap-destmap-list">
                             <?php foreach ($spots as $spot): ?>
-                                <li class="tap-destmap-item" data-spot-id="<?php echo (int) $spot['id']; ?>">
+                                <li class="tap-destmap-item" data-spot-id="<?php echo (int) $spot['id']; ?>" data-item-id="<?php echo (int) $spot['id']; ?>" data-item-kind="spot">
                                     <button type="button" class="tap-destmap-item-btn" aria-expanded="false" aria-controls="tap-destmap-detail">
                                         <span class="tap-destmap-item-thumb">
                                             <?php if ($spot['img']): ?>
@@ -1069,10 +1128,34 @@ class TAP_Shortcode_Search {
                             <?php endforeach; ?>
                         </ul>
 
+                        <ul class="tap-destmap-list tap-destmap-list--services" id="tap-destmap-service-list" hidden>
+                            <?php foreach ($services as $service): ?>
+                                <li class="tap-destmap-item tap-destmap-item--service" data-item-id="<?php echo (int) $service['id']; ?>" data-item-kind="service" data-service-type="<?php echo esc_attr($service['type']); ?>">
+                                    <button type="button" class="tap-destmap-item-btn" aria-expanded="false" aria-controls="tap-destmap-detail">
+                                        <span class="tap-destmap-item-thumb">
+                                            <?php if ($service['img']): ?>
+                                                <img src="<?php echo esc_url($service['img']); ?>" alt="" loading="lazy" decoding="async">
+                                            <?php else: ?>
+                                                <span class="tap-destmap-item-thumb-icon tap-destmap-item-thumb-icon--service" aria-hidden="true"><?php echo self::service_type_icon($service['type']); // phpcs:ignore WordPress.Security.EscapeOutput -- fixed inline SVG. ?></span>
+                                            <?php endif; ?>
+                                        </span>
+                                        <span class="tap-destmap-item-text">
+                                            <span class="tap-destmap-item-title"><?php echo esc_html($service['title']); ?></span>
+                                            <span class="tap-destmap-item-meta">
+                                                <span class="tap-destmap-item-type"><?php echo esc_html($service['typeName']); ?></span>
+                                                <?php if ($service['city']): ?><span class="tap-destmap-item-province"><?php echo esc_html($service['city']); ?></span><?php endif; ?>
+                                                <?php if ($service['price']): ?><span class="tap-destmap-item-price"><?php echo esc_html($service['price']); ?></span><?php endif; ?>
+                                            </span>
+                                        </span>
+                                    </button>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+
                         <div class="tap-destmap-detail" id="tap-destmap-detail" hidden></div>
 
-                        <?php if (!$spots): ?>
-                            <p class="tap-destmap-empty"><?php esc_html_e('Todavía no hay destinos publicados. Agrega lugares desde el panel de administración.', 'travel-agency-platform'); ?></p>
+                        <?php if (!$spots && !$services): ?>
+                            <p class="tap-destmap-empty"><?php esc_html_e('Todavía no hay destinos ni servicios publicados. Agrégalos desde el panel de administración.', 'travel-agency-platform'); ?></p>
                         <?php endif; ?>
                     </aside>
                 </div>
@@ -1082,6 +1165,31 @@ class TAP_Shortcode_Search {
         return ob_get_clean();
     }
 
+    /**
+     * Group mapped services by type with a live count, for the filter chips.
+     *
+     * @param array $services Services from TAP_Destination_Spots::services_map_data().
+     * @return array<int,array{slug:string,name:string,count:int}>
+     */
+    private static function service_types_summary($services) {
+        $counts = [];
+        foreach ((array) $services as $service) {
+            $slug = (string) ($service['type'] ?? '');
+            if ('' === $slug) {
+                continue;
+            }
+            if (!isset($counts[$slug])) {
+                $counts[$slug] = [
+                    'slug' => $slug,
+                    'name' => (string) ($service['typeName'] ?? $slug),
+                    'count' => 0,
+                ];
+            }
+            $counts[$slug]['count']++;
+        }
+        ksort($counts);
+        return array_values($counts);
+    }
     /** Inline SVG glyph per destination type (map items without a photo). */
     public static function spot_type_icon($type) {
         $icons = [
