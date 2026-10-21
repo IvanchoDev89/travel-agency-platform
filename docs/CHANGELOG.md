@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.44] — 2026-10-21
+
+Agency directory polish.
+
+### Changed
+
+- **Cards get a real cover.** The newest published service photo is used as the card cover (lazy-loaded, subtle zoom on hover) with the agency logo overlapping it; agencies without photos get one of five deterministic gradients, so no card looks empty.
+- **Location chips and sorting.** Cities are now one-tap chips instead of a dropdown, and the toolbar adds a sort selector: name (A-Z) or most published services first.
+- **Richer cards.** The approved-review average is shown with a star and review count, and the service families offered appear as icon pills with their counts.
+- **Typography and spacing pass** on the hero, toolbar and cards (tighter heading scale, aligned meta lines, calmer borders).
+- **Compact pagination and smarter empty state.** Previous/next arrows with fewer page numbers, and when a filter returns nothing the empty panel suggests the available locations.
+
+### Tests
+
+- `suite_bugs`: location chips, covers, service-type pills, review average and "most services first" ordering (5 assertions fail without the changes).
+
+---
+
 ## [1.5.43] — 2026-10-21
 
 Agency directory redesign (`/agency/`).

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-10-21T08:59:48+00:00\n"
+"POT-Creation-Date: 2026-10-21T09:13:04+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -990,7 +990,6 @@ msgstr "Lo primero que verá el viajero."
 
 #: includes/class-acc-wizard-steps.php:595
 #: includes/class-shortcode-search.php:235
-#: includes/class-shortcode-search.php:549
 msgid "Ubicación"
 msgstr "Ubicación"
 
@@ -2788,7 +2787,7 @@ msgstr "Todas las agencias"
 
 #: includes/class-dashboard-bookings.php:260
 #: includes/class-dashboard-insights.php:246
-#: includes/class-shortcode-search.php:557
+#: includes/class-shortcode-search.php:579
 msgid "Filtrar"
 msgstr "Filtrar"
 
@@ -2878,6 +2877,7 @@ msgstr "Solo las aprobadas se muestran en el sitio público."
 #: includes/class-dashboard-money.php:283
 #: includes/class-dashboard-money.php:370
 #: includes/class-dashboard-money.php:577 includes/class-front-dash.php:332
+#: includes/class-shortcode-search.php:590
 msgid "Todas"
 msgstr "Todas"
 
@@ -2923,7 +2923,7 @@ msgstr "Basada en una reserva confirmada"
 #: includes/class-dashboard-content.php:98
 #: includes/class-dashboard-content.php:309
 #: includes/class-dashboard-content.php:358 includes/class-front-dash.php:813
-#: includes/class-shortcode-search.php:601
+#: includes/class-shortcode-search.php:656
 msgid "Verificada"
 msgstr "Verificada"
 
@@ -5843,7 +5843,7 @@ msgid ""
 msgstr ""
 "La búsqueda se hace en servicios activos publicados por agencias verificadas."
 
-#: includes/class-itinerary.php:466 includes/class-shortcode-search.php:644
+#: includes/class-itinerary.php:466
 msgid "Anterior"
 msgstr "Anterior"
 
@@ -7793,7 +7793,7 @@ msgid "Verified agency"
 msgstr "Agencia verificada"
 
 #: includes/class-shortcode-agency-panel.php:134
-#: includes/class-shortcode-search.php:778
+#: includes/class-shortcode-search.php:984
 msgid "Verified"
 msgstr "Verificada"
 
@@ -8479,7 +8479,7 @@ msgid "No services found."
 msgstr "No se encontraron servicios."
 
 #: includes/class-shortcode-search.php:382
-#: includes/class-shortcode-search.php:867
+#: includes/class-shortcode-search.php:1073
 msgid "View Details"
 msgstr "Ver detalles"
 
@@ -8519,15 +8519,15 @@ msgstr "Sí"
 msgid "No"
 msgstr "No"
 
-#: includes/class-shortcode-search.php:536
+#: includes/class-shortcode-search.php:557
 msgid "Directorio verificado"
 msgstr "Directorio verificado"
 
-#: includes/class-shortcode-search.php:537
+#: includes/class-shortcode-search.php:558
 msgid "Encuentra tu agencia local"
 msgstr "Encuentra tu agencia local"
 
-#: includes/class-shortcode-search.php:538
+#: includes/class-shortcode-search.php:559
 msgid ""
 "Agencias y operadores aprobados por la plataforma. Compara sus servicios y "
 "contacta directamente."
@@ -8535,71 +8535,97 @@ msgstr ""
 "Agencias y operadores aprobados por la plataforma. Compara sus servicios y "
 "contacta directamente."
 
-#: includes/class-shortcode-search.php:540
+#: includes/class-shortcode-search.php:561
 msgid "Publica tu agencia"
 msgstr "Publica tu agencia"
 
-#: includes/class-shortcode-search.php:545
+#: includes/class-shortcode-search.php:569
 msgid "Buscar agencias"
 msgstr "Buscar agencias"
 
-#: includes/class-shortcode-search.php:546
+#: includes/class-shortcode-search.php:570
 msgid "Buscar por nombre…"
 msgstr "Buscar por nombre…"
 
-#: includes/class-shortcode-search.php:551
-msgid "Todas las ubicaciones"
-msgstr "Todas las ubicaciones"
+#: includes/class-shortcode-search.php:573
+msgid "Ordenar por"
+msgstr "Ordenar por"
 
-#: includes/class-shortcode-search.php:559
+#: includes/class-shortcode-search.php:575
+msgid "Nombre (A-Z)"
+msgstr "Nombre (A-Z)"
+
+#: includes/class-shortcode-search.php:576
+msgid "Más servicios"
+msgstr "Más servicios"
+
+#: includes/class-shortcode-search.php:581
 msgid "Limpiar filtros"
 msgstr "Limpiar filtros"
 
+#: includes/class-shortcode-search.php:586
+msgid "Filtrar por ubicación"
+msgstr "Filtrar por ubicación"
+
 #. translators: %d: number of agencies matching the filters
-#: includes/class-shortcode-search.php:567
+#: includes/class-shortcode-search.php:609
 #, php-format
 msgid "%d agencia"
 msgid_plural "%d agencias"
 msgstr[0] ""
 msgstr[1] ""
 
+#. translators: 1: average rating, 2: number of reviews
+#: includes/class-shortcode-search.php:670
+#, php-format
+msgid "Valoración media %1$s de 5 (%2$d reseñas)"
+msgstr "Valoración media %1$s de 5 (%2$d reseñas)"
+
+#: includes/class-shortcode-search.php:685
+msgid "Tipos de servicio"
+msgstr "Tipos de servicio"
+
 #. translators: %d: number of published services
-#: includes/class-shortcode-search.php:617
+#: includes/class-shortcode-search.php:703
 #, php-format
 msgid "%d servicio publicado"
 msgid_plural "%d servicios publicados"
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-shortcode-search.php:624
+#: includes/class-shortcode-search.php:711
 msgid "Ver perfil"
 msgstr "Ver perfil"
 
-#: includes/class-shortcode-search.php:632
+#: includes/class-shortcode-search.php:719
 msgid "Paginación de agencias"
 msgstr "Paginación de agencias"
 
-#: includes/class-shortcode-search.php:645
-msgid "Siguiente"
-msgstr "Siguiente"
+#: includes/class-shortcode-search.php:734
+msgid "‹ Anterior"
+msgstr "‹ Anterior"
 
-#: includes/class-shortcode-search.php:660
+#: includes/class-shortcode-search.php:735
+msgid "Siguiente ›"
+msgstr "Siguiente ›"
+
+#: includes/class-shortcode-search.php:750
 msgid "No encontramos agencias"
 msgstr "No encontramos agencias"
 
-#: includes/class-shortcode-search.php:661
+#: includes/class-shortcode-search.php:751
 msgid "Prueba con otra búsqueda o ubicación."
 msgstr "Prueba con otra búsqueda o ubicación."
 
-#: includes/class-shortcode-search.php:663
+#: includes/class-shortcode-search.php:760
 msgid "Ver todas las agencias"
 msgstr "Ver todas las agencias"
 
-#: includes/class-shortcode-search.php:670
+#: includes/class-shortcode-search.php:767
 msgid "¿Tienes una agencia?"
 msgstr "¿Tienes una agencia?"
 
-#: includes/class-shortcode-search.php:671
+#: includes/class-shortcode-search.php:768
 msgid ""
 "Crea tu perfil, publica tus servicios y recibe reservas de viajeros de todo "
 "el mundo."
@@ -8607,59 +8633,59 @@ msgstr ""
 "Crea tu perfil, publica tus servicios y recibe reservas de viajeros de todo "
 "el mundo."
 
-#: includes/class-shortcode-search.php:673
+#: includes/class-shortcode-search.php:770
 msgid "Crear mi perfil de agencia"
 msgstr "Crear mi perfil de agencia"
 
-#: includes/class-shortcode-search.php:745
+#: includes/class-shortcode-search.php:951
 msgid "Agency not found."
 msgstr "Agencia no encontrada."
 
-#: includes/class-shortcode-search.php:755
+#: includes/class-shortcode-search.php:961
 msgid "Esta agencia está en revisión y aún no es visible públicamente."
 msgstr "Esta agencia está en revisión y aún no es visible públicamente."
 
-#: includes/class-shortcode-search.php:787
+#: includes/class-shortcode-search.php:993
 msgid "Contact Information"
 msgstr "Información de contacto"
 
-#: includes/class-shortcode-search.php:788
+#: includes/class-shortcode-search.php:994
 msgid "Email:"
 msgstr "Correo:"
 
-#: includes/class-shortcode-search.php:789
+#: includes/class-shortcode-search.php:995
 msgid "Phone:"
 msgstr "Teléfono:"
 
-#: includes/class-shortcode-search.php:790
+#: includes/class-shortcode-search.php:996
 msgid "WhatsApp:"
 msgstr "WhatsApp:"
 
-#: includes/class-shortcode-search.php:791
+#: includes/class-shortcode-search.php:997
 msgid "Website:"
 msgstr "Sitio web:"
 
-#: includes/class-shortcode-search.php:792
+#: includes/class-shortcode-search.php:998
 msgid "Address:"
 msgstr "Dirección:"
 
-#: includes/class-shortcode-search.php:796
+#: includes/class-shortcode-search.php:1002
 msgid "Our Services"
 msgstr "Nuestros servicios"
 
-#: includes/class-shortcode-search.php:856
+#: includes/class-shortcode-search.php:1062
 msgid "Featured"
 msgstr "Destacado"
 
-#: includes/class-shortcode-search.php:858
+#: includes/class-shortcode-search.php:1064
 msgid "starting"
 msgstr "desde"
 
-#: includes/class-shortcode-search.php:881
+#: includes/class-shortcode-search.php:1087
 msgid "No featured services yet"
 msgstr "Aún no hay servicios destacados"
 
-#: includes/class-shortcode-search.php:881
+#: includes/class-shortcode-search.php:1087
 msgid "Check back soon for new featured listings."
 msgstr "Vuelve pronto para ver nuevos listados destacados."
 
@@ -9128,6 +9154,12 @@ msgstr "Pensando…"
 #: travel-agency-platform.php:284
 msgid "Hubo un problema. Inténtalo de nuevo."
 msgstr "Hubo un problema. Inténtalo de nuevo."
+
+msgid "Todas las ubicaciones"
+msgstr "Todas las ubicaciones"
+
+msgid "Siguiente"
+msgstr "Siguiente"
 
 msgid "No agencies found."
 msgstr "No se encontraron agencias."

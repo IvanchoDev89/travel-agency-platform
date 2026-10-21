@@ -391,13 +391,16 @@ tap_t_assert(strpos(file_get_contents($plugin . 'includes/class-dashboard-settin
 
 // Agency directory: a legacy approved agency without _tap_agency_is_active
 // must still be listed (the old `!= 0` meta join silently hid it), and the
-// search / location filters must narrow the grid server-side.
-$ui_token = 'UIAG-' . wp_generate_password(6, false);
+// search / location / sort controls must narrow the grid server-side.
+$ui_token  = 'UIAG-' . wp_generate_password(6, false);
 $ui_agency = wp_insert_post([
     'post_type'   => 'tap_agency',
     'post_status' => 'publish',
-    'post_title'  => 'Agencia ' . $ui_token,
+    'post_title'  => 'Agencia ' . $ui_token . ' A',
 ]);
+$ui_agency_b = 0;
+$ui_tour     = 0;
+$ui_review   = 0;
 if ($ui_agency && !is_wp_error($ui_agency)) {
     update_post_meta($ui_agency, '_tap_agency_verified', '1');
     update_post_meta($ui_agency, TAP_Approval::STATUS_META, TAP_Approval::APPROVED);
@@ -407,7 +410,9 @@ if ($ui_agency && !is_wp_error($ui_agency)) {
     $dir_html = do_shortcode('[tap_agencies limit="100"]');
     tap_t_assert(strpos($dir_html, $ui_token) !== false, 'legacy agency without is_active meta appears in the directory');
     tap_t_assert(strpos($dir_html, 'tap-agencies-toolbar') !== false && strpos($dir_html, 'tap-agencies-join') !== false, 'directory renders the filter toolbar and join CTA');
+    tap_t_assert(strpos($dir_html, 'tap-agencies-chips') !== false, 'directory renders the location chips');
     tap_t_assert(strpos($dir_html, 'tap-agency-card-logo') !== false && strpos($dir_html, 'Verificada') !== false, 'directory cards show logo fallback and verified badge');
+    tap_t_assert(strpos($dir_html, 'tap-agency-card-cover') !== false, 'directory cards render a cover');
 
     $_GET['agency_q'] = $ui_token;
     $search_html = str_replace(["\n", "\r", "\t"], '', do_shortcode('[tap_agencies limit="100"]'));
@@ -424,9 +429,62 @@ if ($ui_agency && !is_wp_error($ui_agency)) {
     unset($_GET['agency_q']);
     tap_t_assert(strpos($empty_html, 'tap-agencies-empty') !== false, 'directory shows an empty state when nothing matches');
 
-    wp_delete_post($ui_agency, true);
+    // Second agency with one published service and one approved review, for
+    // the "most services first" order and the rating badge.
+    $ui_agency_b = wp_insert_post([
+        'post_type'   => 'tap_agency',
+        'post_status' => 'publish',
+        'post_title'  => 'Agencia ' . $ui_token . ' B',
+    ]);
+    if ($ui_agency_b && !is_wp_error($ui_agency_b)) {
+        update_post_meta($ui_agency_b, '_tap_agency_verified', '1');
+        update_post_meta($ui_agency_b, TAP_Approval::STATUS_META, TAP_Approval::APPROVED);
+
+        $ui_tour = wp_insert_post([
+            'post_type'   => 'tap_tour',
+            'post_status' => 'publish',
+            'post_title'  => 'Tour ' . $ui_token,
+        ]);
+        if ($ui_tour && !is_wp_error($ui_tour)) {
+            update_post_meta($ui_tour, '_tap_tour_agency_id', (int) $ui_agency_b);
+            $wpdb->insert($wpdb->prefix . 'tap_reviews', [
+                'service_type' => 'tap_tour',
+                'service_id'   => (int) $ui_tour,
+                'user_id'      => 0,
+                'rating'       => 4.8,
+                'is_approved'  => 1,
+                'mod_status'   => 'ok',
+            ]);
+            $ui_review = (int) $wpdb->insert_id;
+        }
+
+        $_GET['agency_q']    = $ui_token;
+        $_GET['agency_sort'] = 'services';
+        $sort_html = str_replace(["\n", "\r", "\t"], '', do_shortcode('[tap_agencies limit="100"]'));
+        unset($_GET['agency_q'], $_GET['agency_sort']);
+        $pos_a = strpos($sort_html, $ui_token . ' A');
+        $pos_b = strpos($sort_html, $ui_token . ' B');
+        tap_t_assert(false !== $pos_a && false !== $pos_b && $pos_b < $pos_a, 'sorting by most services puts the busier agency first');
+        tap_t_assert(strpos($sort_html, 'tap-agency-card-types') !== false, 'cards list the service types offered');
+        tap_t_assert(strpos($sort_html, number_format_i18n(4.8, 1)) !== false, 'cards show the approved review average');
+    } else {
+        tap_t_assert(false, 'could not create the second agency fixture');
+    }
 } else {
     tap_t_assert(false, 'could not create the agency directory fixture');
+}
+
+if ($ui_review) {
+    $wpdb->delete($wpdb->prefix . 'tap_reviews', ['id' => (int) $ui_review], ['%d']);
+}
+if ($ui_tour && !is_wp_error($ui_tour)) {
+    wp_delete_post((int) $ui_tour, true);
+}
+if ($ui_agency_b && !is_wp_error($ui_agency_b)) {
+    wp_delete_post((int) $ui_agency_b, true);
+}
+if ($ui_agency && !is_wp_error($ui_agency)) {
+    wp_delete_post((int) $ui_agency, true);
 }
 
 tap_t_finish();
