@@ -138,19 +138,30 @@ class TAP_Promotions {
     }
 
     /**
-     * Slots the agency already occupies: active promos plus the ones it has
-     * paid for and are still waiting to be activated.
+     * Slots the agency already occupies: active promos plus the ones it is
+     * currently trying to pay for.
      *
      * Counting only the active ones let an agency with a single featured slot
      * queue any number of pending promos across different listings — the
      * per-listing guard only blocks a second promo on the SAME listing — and
      * every one of them activated once its payment was captured.
+     *
+     * Pending rows only count while the checkout is fresh: a PayPal prompt the
+     * user simply closed leaves a pending row behind with no cleanup path, and
+     * counting it forever would lock a slot permanently. Rows already marked
+     * paid are excluded too — those were captured past the plan limit and are
+     * awaiting an administrator, not consuming a live slot.
      */
     public static function occupied_promos_count($agency_id) {
         global $wpdb;
         return (int) $wpdb->get_var($wpdb->prepare(
-            'SELECT COUNT(*) FROM ' . self::promos_table() . " WHERE agency_id = %d AND (status = %s OR status = %s)",
-            (int) $agency_id, 'active', 'pending'
+            'SELECT COUNT(*) FROM ' . self::promos_table() . "
+              WHERE agency_id = %d
+                AND (
+                    (status = 'active' AND paid_until >= CURDATE())
+                    OR (status = 'pending' AND COALESCE(payment_status, '') <> 'paid' AND created_at >= DATE_SUB(NOW(), INTERVAL 2 HOUR))
+                )",
+            (int) $agency_id
         ));
     }
 
@@ -195,6 +206,19 @@ class TAP_Promotions {
                 $plan_name
             ));
         }
+
+        // A closed PayPal prompt leaves an unpaid pending row behind and
+        // there is no admin cleanup UI, so a stale one would block this
+        // listing forever. Drop unpaid pending rows once the checkout window
+        // has passed; paid rows are never touched (they await resolution).
+        $wpdb->query($wpdb->prepare(
+            'DELETE FROM ' . self::promos_table() . "
+              WHERE listing_id = %d
+                AND status = 'pending'
+                AND COALESCE(payment_status, '') <> 'paid'
+                AND created_at < DATE_SUB(NOW(), INTERVAL 2 HOUR)",
+            $listing_id
+        ));
 
         $pending = $wpdb->get_var($wpdb->prepare(
             'SELECT COUNT(*) FROM ' . self::promos_table() . " WHERE listing_id = %d AND status = 'pending'",

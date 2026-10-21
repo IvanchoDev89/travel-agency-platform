@@ -216,6 +216,75 @@ $ov_row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_promos
 tap_t_assert($ov_row && 'pending' === $ov_row->status && 'paid' === $ov_row->payment_status, 'refused promo keeps the captured payment recorded (pending status)');
 tap_t_assert('' === (string) get_post_meta($po_listing3, '_tap_tour_is_featured', true), 'refused promo does not feature its listing');
 
+// Pending rows occupy a slot only while the checkout is fresh: an abandoned
+// PayPal prompt must not lock the agency's only slot forever.
+$po_owner3  = promo_make_user('tap_agency_admin');
+$po_agency3 = wp_insert_post([
+    'post_type'   => 'tap_agency',
+    'post_status' => 'publish',
+    'post_title'  => 'Promo Agency Stale ' . wp_generate_password(4, false),
+]);
+$promo_posts[] = (int) $po_agency3;
+update_post_meta($po_agency3, '_tap_agency_user_id', $po_owner3);
+
+$wpdb->insert($wpdb->prefix . 'tap_plans', [
+    'name'           => 'Promo Stale Plan ' . $po_suffix,
+    'slug'           => 'promo-stale-plan-' . $po_suffix,
+    'price_monthly'  => 10,
+    'commission_rate'=> 10,
+    'listing_limit'  => -1,
+    'featured_slots' => 1,
+    'is_active'      => 1,
+]);
+$promo_plan3 = (int) $wpdb->insert_id;
+$wpdb->insert($wpdb->prefix . 'tap_agency_subscriptions', [
+    'agency_id'      => (int) $po_agency3,
+    'plan_id'        => $promo_plan3,
+    'status'         => 'active',
+    'payment_status' => 'paid',
+    'paid_until'     => gmdate('Y-m-d', strtotime('+30 days')),
+]);
+$po_listing4 = wp_insert_post(['post_type' => 'tap_tour', 'post_status' => 'publish', 'post_title' => 'Promo Stale A ' . $po_suffix]);
+$po_listing5 = wp_insert_post(['post_type' => 'tap_tour', 'post_status' => 'publish', 'post_title' => 'Promo Stale B ' . $po_suffix]);
+$promo_posts[] = (int) $po_listing4;
+$promo_posts[] = (int) $po_listing5;
+update_post_meta($po_listing4, TAP_Post_Types::agency_meta_key('tap_tour'), (int) $po_agency3);
+update_post_meta($po_listing5, TAP_Post_Types::agency_meta_key('tap_tour'), (int) $po_agency3);
+
+$wpdb->insert($wpdb->prefix . 'tap_promos', [
+    'agency_id' => (int) $po_agency3, 'listing_id' => (int) $po_listing4, 'months' => 1, 'amount' => 10.00,
+    'status' => 'pending', 'payment_status' => 'pending', 'payment_method' => 'paypal', 'notes' => 'abandoned checkout',
+]);
+$stale_promo = (int) $wpdb->insert_id;
+$blocked3 = TAP_Promotions::request((int) $po_agency3, (int) $po_listing5, 1);
+tap_t_assert(is_wp_error($blocked3) && 'slots_full' === $blocked3->get_error_code(), 'a fresh pending promo occupies the only plan slot');
+
+// Age the abandoned checkout past the 2h window.
+$wpdb->query($wpdb->prepare(
+    "UPDATE {$wpdb->prefix}tap_promos SET created_at = DATE_SUB(NOW(), INTERVAL 3 HOUR) WHERE id = %d",
+    $stale_promo
+));
+$retry3 = TAP_Promotions::request((int) $po_agency3, (int) $po_listing5, 1);
+tap_t_assert(!is_wp_error($retry3), 'an abandoned pending promo stops occupying the slot after the checkout window');
+
+// The same-listing guard must also self-heal: an unpaid pending row older than
+// the checkout window is replaced instead of blocking a fresh request forever.
+$wpdb->query($wpdb->prepare(
+    "UPDATE {$wpdb->prefix}tap_promos SET created_at = DATE_SUB(NOW(), INTERVAL 3 HOUR) WHERE id = %d",
+    (int) $retry3
+));
+$replace3 = TAP_Promotions::request((int) $po_agency3, (int) $po_listing5, 1);
+tap_t_assert(!is_wp_error($replace3), 'a stale unpaid pending request for the same listing is replaceable');
+$left3 = (int) $wpdb->get_var($wpdb->prepare(
+    "SELECT COUNT(*) FROM {$wpdb->prefix}tap_promos WHERE listing_id = %d AND status = 'pending'",
+    (int) $po_listing5
+));
+tap_t_assert(1 === $left3, 'the stale pending row is replaced, not duplicated');
+
+$wpdb->delete($wpdb->prefix . 'tap_promos', ['agency_id' => (int) $po_agency3]);
+$wpdb->delete($wpdb->prefix . 'tap_agency_subscriptions', ['agency_id' => (int) $po_agency3]);
+$wpdb->delete($wpdb->prefix . 'tap_plans', ['id' => $promo_plan3]);
+
 // Cleanup fixtures (promo rows, sub, plan, posts, users).
 wp_set_current_user(0);
 unset($_GET['seccion']);

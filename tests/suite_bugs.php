@@ -217,6 +217,28 @@ if (!$acc_all) {
     TAP_Archive_Query::filter_archive_query($sq2);
     tap_t_assert((array) $sq2->get('meta_query', []) === $mq1, 'the active-or-missing group is identical whether the listing is on or off');
 
+    // Behavioural check with a throwaway listing: run the real main-query path
+    // so the SQL is built by WP_Meta_Query, not just the clause shape.
+    $d4_token = 'inactivesearch' . wp_generate_password(6, false);
+    $d4_post  = wp_insert_post(['post_type' => 'tap_accommodation', 'post_status' => 'publish', 'post_title' => 'D4 ' . $d4_token]);
+    if ($d4_post && !is_wp_error($d4_post)) {
+        $run_search = function ($token) {
+            global $wp_the_query, $wp_query;
+            $q = new WP_Query();
+            $wp_the_query = $q;
+            $wp_query     = $q;
+            $q->query(['s' => $token, 'post_type' => 'tap_accommodation', 'post_status' => 'publish', 'posts_per_page' => 10]);
+            return array_map(static fn($p) => (int) $p->ID, (array) $q->posts);
+        };
+        update_post_meta((int) $d4_post, '_tap_acc_is_active', '0');
+        tap_t_assert(!in_array((int) $d4_post, $run_search($d4_token), true), 'search excludes an accommodation with is_active=0');
+        update_post_meta((int) $d4_post, '_tap_acc_is_active', '1');
+        tap_t_assert(in_array((int) $d4_post, $run_search($d4_token), true), 'search includes the same accommodation once is_active=1');
+        wp_delete_post((int) $d4_post, true);
+    } else {
+        tap_t_pass('search is_active behavioural check skipped (could not create fixture)');
+    }
+
     $wp_the_query = $save_tq;
     $wp_query     = $save_pq;
     wp_reset_postdata();
@@ -315,10 +337,20 @@ tap_t_assert((int) preg_match_all("/['\"]status['\"]\s*=>\s*['\"]completed['\"]/
 tap_t_assert((int) preg_match_all("/['\"]paid_at['\"]\s*=>/", $admin_block) >= 1, 'admin settle payout rows carry a paid_at timestamp');
 // The single-booking settle already filtered zero commissions; the bulk one
 // (the `id IN (...)` query) did not, so target that segment specifically.
-$dm_bulk_start = strpos($admin_block, 'SELECT id, agency_id, commission_amount');
-$dm_bulk_seg   = false !== $dm_bulk_start ? substr($admin_block, $dm_bulk_start, 900) : '';
+$dm_bulk_start = strpos($admin_block, 'SELECT id, agency_id FROM');
+$dm_bulk_seg   = false !== $dm_bulk_start ? substr($admin_block, $dm_bulk_start, 2500) : '';
 tap_t_assert('' !== $dm_bulk_seg, 'bulk admin settle query located for inspection');
 tap_t_assert(strpos($dm_bulk_seg, 'commission_amount > 0') !== false, 'bulk admin settle skips zero-commission bookings');
+tap_t_assert(strpos($dm_bulk_seg, 'NOT EXISTS') !== false, 'bulk settle re-checks pending payouts after taking the lock');
+// The single-book settle must share the per-agency lock, or an agency payout
+// request can interleave between its SELECT and INSERT and pay twice.
+$dm_single_start = strpos($admin_block, "post_verified('tap_settle_booking'");
+$dm_single_end   = strpos($admin_block, 'isset($_POST[\'tap_payout_action\']');
+$dm_single_seg   = ($dm_single_start !== false && $dm_single_end !== false && $dm_single_end > $dm_single_start)
+    ? substr($admin_block, $dm_single_start, $dm_single_end - $dm_single_start)
+    : '';
+tap_t_assert('' !== $dm_single_seg, 'single admin settle handler located for inspection');
+tap_t_assert(strpos($dm_single_seg, 'GET_LOCK') !== false, 'single admin settle serializes with the per-agency payout lock');
 
 // Source-level guard for the logged-in booking throttle (the guest branch
 // only throttles logged-out visitors; a registered account could flood an

@@ -165,6 +165,13 @@ class TAP_Booking {
             return new WP_Error('invalid_guests', __('El número de huéspedes no es válido.', 'travel-agency-platform'));
         }
 
+        // Rooms only exist inside accommodations. Ignore a stray room_id on
+        // any other service type: otherwise it would take a room lock and run
+        // the whole room-availability gate for a tour/package booking.
+        if ('tap_accommodation' !== sanitize_text_field($data['service_type'])) {
+            $data['room_id'] = 0;
+        }
+
         // The room is client-supplied and the whole occupancy gate (lock,
         // overlap COUNT, insert) keys on it. Without this check a booking can
         // point at another agency's room to price itself from that room's
@@ -174,7 +181,6 @@ class TAP_Booking {
             $room        = get_post($room_id);
             $room_parent = $room ? (int) get_post_meta($room_id, '_tap_room_accommodation_id', true) : 0;
             if (!$room || 'tap_room' !== $room->post_type
-                || 'tap_accommodation' !== sanitize_text_field($data['service_type'])
                 || !$room_parent
                 || $room_parent !== intval($data['service_id'])) {
                 return new WP_Error('room_mismatch', __('La habitación seleccionada no pertenece a este alojamiento.', 'travel-agency-platform'));
@@ -709,7 +715,13 @@ class TAP_Booking {
         // whole cancellation (policy refund + ledger + commission voiding)
         // through apply_cancellation() so no caller can skip the refund.
         if (in_array($status, ['cancelled', 'refunded'], true) && 'paid' === $booking->payment_status) {
-            return self::apply_cancellation($booking_id, $booking, 'system', $status, $reason);
+            // Record who actually triggered it: the legacy AJAX endpoint routes
+            // here too, and a cron (no current user) stays 'system'.
+            $actor = 'system';
+            if (is_user_logged_in()) {
+                $actor = (user_can(get_current_user_id(), 'manage_options') || user_can(get_current_user_id(), 'tap_manage_bookings')) ? 'admin' : 'agency';
+            }
+            return self::apply_cancellation($booking_id, $booking, $actor, $status, $reason);
         }
 
         // A request-mode tour consumes no seats until the agency accepts it

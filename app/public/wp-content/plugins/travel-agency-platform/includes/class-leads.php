@@ -344,10 +344,12 @@ class TAP_Leads {
         }
         // The listing stores the agency POST id, while the lead form posts the
         // tap_agencies ROW id (the two namespaces are independent
-        // auto-increments). Compare both sides in the row namespace or every
-        // service-page form is rejected as "not this agency's service".
+        // auto-increments). Convert only the listing's owner: $agency_id is
+        // already a row id here (agency_is_active() looked it up in the table),
+        // and re-running it through agency_row_id() could match an unrelated
+        // tap_agency post that happens to share the numeric id.
         $owner_row = self::agency_row_id((int) $owner);
-        return $owner_row > 0 && $owner_row === (int) self::agency_row_id($agency_id);
+        return $owner_row > 0 && $owner_row === (int) $agency_id;
     }
 
     private static function hit_rate_limit($email, $ip) {
