@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.43] — 2026-10-21
+
+Agency directory redesign (`/agency/`).
+
+### Changed
+
+- **The public agency directory is now a real landing page.** The `[tap_agencies]` shortcode renders inside `.tap-container` (the grid used to run edge-to-edge) with an intro, a "list your agency" call to action, a server-side search box and location filter, a matching-count line, pagination and a closing sign-up block.
+- **Cards carry the data travelers need**: logo (or the agency initial), verified badge, city/country, a three-line excerpt and the number of published services, with the whole card linking to the profile.
+- **Accessibility and responsive behaviour**: labelled search controls (visually hidden labels), 44px targets, visible focus rings, `aria` labels on pagination, single-column layout on small screens, lazy thumbnails.
+- **Empty state**: a clear "no agencies found" panel with a way back to the full directory.
+
+### Fixed
+
+- **Legacy agencies no longer disappear from the directory.** The listing required `_tap_agency_is_active != 0`; agencies approved before that meta existed (treated as active everywhere else) were silently excluded. The check now accepts a missing meta as active.
+
+### Tests
+
+- `suite_bugs`: a legacy agency without the active meta is listed, the toolbar/cards/join CTA render, name and location filters return exactly one match, and the empty state appears.
+
+---
+
 ## [1.5.42] — 2026-10-21
 
 Follow-up review of the agency audit: money edge cases and checkout hygiene.

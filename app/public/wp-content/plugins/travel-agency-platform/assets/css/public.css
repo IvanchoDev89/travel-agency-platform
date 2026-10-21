@@ -1353,31 +1353,298 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 }
 
 /* ===== Theme UI surfaces (Lote 2): agencies, dashboard & tables ===== */
+.tap-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Agency directory */
+.tap-agencies { padding: var(--tap-space-10) 0 var(--tap-space-16); }
+.tap-agencies-intro {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--tap-space-6);
+  flex-wrap: wrap;
+  margin-bottom: var(--tap-space-8);
+}
+.tap-agencies-eyebrow {
+  display: inline-block;
+  margin: 0 0 var(--tap-space-3);
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--tap-primary-bg);
+  border: 1px solid var(--tap-primary-border);
+  color: var(--tap-primary-dark);
+  font-size: var(--tap-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.tap-agencies-intro h2 {
+  margin: 0 0 var(--tap-space-2);
+  font-size: var(--tap-text-3xl);
+  line-height: 1.2;
+  color: var(--tap-neutral-900);
+}
+.tap-agencies-lead {
+  margin: 0;
+  max-width: 60ch;
+  color: var(--tap-neutral-500);
+  font-size: var(--tap-text-base);
+}
+
+.tap-agencies-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--tap-space-3);
+  flex-wrap: wrap;
+  padding: var(--tap-space-3);
+  margin-bottom: var(--tap-space-4);
+  background: var(--tap-surface);
+  border: 1px solid var(--tap-border);
+  border-radius: var(--tap-radius-xl);
+  box-shadow: var(--tap-shadow-sm);
+}
+.tap-agencies-field { flex: 1 1 220px; min-width: 0; }
+.tap-agencies-field input,
+.tap-agencies-field select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 var(--tap-space-3);
+  border: 1px solid var(--tap-border-strong);
+  border-radius: var(--tap-radius-lg);
+  background: var(--tap-surface);
+  color: var(--tap-neutral-800);
+  font: inherit;
+  font-size: var(--tap-text-sm);
+}
+.tap-agencies-field input:focus,
+.tap-agencies-field select:focus {
+  outline: 2px solid var(--tap-primary);
+  outline-offset: 1px;
+  border-color: var(--tap-primary);
+}
+.tap-agencies-toolbar .tap-btn { min-height: 44px; }
+.tap-agencies-clear {
+  font-size: var(--tap-text-sm);
+  color: var(--tap-neutral-500);
+  text-decoration: underline;
+  padding: var(--tap-space-2);
+}
+.tap-agencies-clear:hover { color: var(--tap-primary-dark); }
+
+.tap-agencies-count {
+  margin: 0 0 var(--tap-space-5);
+  color: var(--tap-neutral-500);
+  font-size: var(--tap-text-sm);
+}
+
 .tap-agencies-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: var(--tap-space-6);
 }
 .tap-agencies-grid .tap-agency-card {
-  background: #fff;
-  border: 1px solid var(--tap-neutral-200);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  text-align: left;
+  overflow: hidden;
+  background: var(--tap-surface);
+  border: 1px solid var(--tap-border);
   border-radius: var(--tap-radius-xl);
-  transition: all var(--tap-transition-slow);
+  transition: transform var(--tap-transition-slow), box-shadow var(--tap-transition-slow), border-color var(--tap-transition-slow);
 }
-.tap-agencies-grid .tap-agency-card:hover {
-  transform: translateY(-3px);
+.tap-agencies-grid .tap-agency-card:hover,
+.tap-agencies-grid .tap-agency-card:focus-within {
+  transform: translateY(-4px);
   box-shadow: var(--tap-shadow-md);
   border-color: var(--tap-primary);
 }
-.tap-agencies-grid .tap-agency-card > img {
-  width: 80px;
-  height: 80px;
+.tap-agency-card-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 116px;
+  background: linear-gradient(135deg, var(--tap-primary-bg), var(--tap-neutral-100));
+  flex-shrink: 0;
+}
+.tap-agency-card-logo img {
+  width: 84px;
+  height: 84px;
   border-radius: 50%;
   object-fit: cover;
-  margin: 0 auto var(--tap-space-4);
+  border: 3px solid #fff;
+  box-shadow: var(--tap-shadow-sm);
 }
-.tap-agencies-grid .tap-agency-card h3 { font-size: var(--tap-text-base); margin: 0 0 var(--tap-space-2); }
-.tap-agencies-grid .tap-agency-card p { font-size: var(--tap-text-sm); color: var(--tap-neutral-500); margin: 0 0 var(--tap-space-4); }
+.tap-agency-card-initial {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: var(--tap-primary);
+  color: #fff;
+  font-size: var(--tap-text-2xl);
+  font-weight: 700;
+  border: 3px solid #fff;
+  box-shadow: var(--tap-shadow-sm);
+}
+.tap-agency-card-body {
+  flex: 1;
+  padding: var(--tap-space-5);
+}
+.tap-agency-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--tap-space-2);
+}
+.tap-agencies-grid .tap-agency-card h3 {
+  margin: 0;
+  font-size: var(--tap-text-lg);
+  line-height: 1.3;
+}
+.tap-agencies-grid .tap-agency-card h3 a { color: var(--tap-neutral-900); }
+.tap-agencies-grid .tap-agency-card h3 a:hover { color: var(--tap-primary-dark); }
+.tap-agency-card-badge {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--tap-success-bg);
+  border: 1px solid #a7f3d0;
+  color: var(--tap-success-dark);
+  font-size: var(--tap-text-xs);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.tap-agency-card-location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: var(--tap-space-2) 0 0;
+  color: var(--tap-neutral-500);
+  font-size: var(--tap-text-xs);
+}
+.tap-agency-card-excerpt {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: var(--tap-space-3) 0 0;
+  color: var(--tap-neutral-600);
+  font-size: var(--tap-text-sm);
+  line-height: 1.6;
+}
+.tap-agency-card-meta {
+  margin: var(--tap-space-3) 0 0;
+  padding-top: var(--tap-space-3);
+  border-top: 1px dashed var(--tap-border);
+  color: var(--tap-neutral-400);
+  font-size: var(--tap-text-xs);
+}
+.tap-agency-card-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tap-space-2);
+  padding: var(--tap-space-3) var(--tap-space-5);
+  border-top: 1px solid var(--tap-border);
+  color: var(--tap-primary-dark);
+  font-size: var(--tap-text-sm);
+  font-weight: 600;
+  transition: background var(--tap-transition-slow);
+}
+.tap-agency-card-cta:hover { background: var(--tap-primary-bg); color: var(--tap-primary-dark); }
+.tap-agency-card-cta svg { transition: transform var(--tap-transition-slow); }
+.tap-agency-card:hover .tap-agency-card-cta svg { transform: translateX(3px); }
+
+.tap-agencies-empty {
+  padding: var(--tap-space-12) var(--tap-space-6);
+  text-align: center;
+  background: var(--tap-surface);
+  border: 1px dashed var(--tap-border-strong);
+  border-radius: var(--tap-radius-xl);
+}
+.tap-agencies-empty h3 { margin: 0 0 var(--tap-space-2); color: var(--tap-neutral-800); }
+.tap-agencies-empty p { margin: 0 0 var(--tap-space-5); color: var(--tap-neutral-500); }
+
+.tap-agencies-pagination { margin-top: var(--tap-space-10); }
+.tap-agencies-pagination ul {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--tap-space-2);
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tap-agencies-pagination .page-numbers {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 var(--tap-space-3);
+  border: 1px solid var(--tap-border);
+  border-radius: var(--tap-radius-lg);
+  background: var(--tap-surface);
+  color: var(--tap-neutral-700);
+  font-size: var(--tap-text-sm);
+  font-weight: 600;
+}
+.tap-agencies-pagination .page-numbers:hover { border-color: var(--tap-primary); color: var(--tap-primary-dark); }
+.tap-agencies-pagination .page-numbers.current {
+  background: var(--tap-primary);
+  border-color: var(--tap-primary);
+  color: #fff;
+}
+
+.tap-agencies-join {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--tap-space-6);
+  flex-wrap: wrap;
+  margin-top: var(--tap-space-12);
+  padding: var(--tap-space-8);
+  border-radius: var(--tap-radius-xl);
+  background: linear-gradient(135deg, var(--tap-neutral-900), #115e59);
+  color: #fff;
+}
+.tap-agencies-join h2 {
+  margin: 0 0 var(--tap-space-2);
+  font-size: var(--tap-text-2xl);
+  color: #fff;
+}
+.tap-agencies-join p { margin: 0; color: rgba(255, 255, 255, 0.82); max-width: 60ch; }
+.tap-agencies-join .tap-btn {
+  background: #fff;
+  border-color: #fff;
+  color: var(--tap-primary-dark);
+  white-space: nowrap;
+}
+.tap-agencies-join .tap-btn:hover { background: var(--tap-primary-bg); border-color: var(--tap-primary-bg); color: var(--tap-primary-dark); }
+
+@media (max-width: 720px) {
+  .tap-agencies { padding-top: var(--tap-space-6); }
+  .tap-agencies-intro { align-items: flex-start; flex-direction: column; }
+  .tap-agencies-intro h2 { font-size: var(--tap-text-2xl); }
+  .tap-agencies-toolbar { flex-direction: column; align-items: stretch; }
+  .tap-agencies-clear { text-align: center; }
+  .tap-agencies-join { flex-direction: column; align-items: flex-start; padding: var(--tap-space-6); }
+  .tap-agencies-join .tap-btn { width: 100%; text-align: center; }
+}
 
 .tap-agency-detail { max-width: var(--tap-container-max); margin: 0 auto; }
 .tap-agency-detail .tap-agency-header {

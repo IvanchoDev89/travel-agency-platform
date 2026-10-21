@@ -389,4 +389,44 @@ update_option('tap_paypal_client_id', $orig_pid);
 update_option('tap_paypal_secret', $orig_sec);
 tap_t_assert(strpos(file_get_contents($plugin . 'includes/class-dashboard-settings.php'), 'has_placeholder_credentials') !== false, 'settings screen renders the PayPal configuration warning');
 
+// Agency directory: a legacy approved agency without _tap_agency_is_active
+// must still be listed (the old `!= 0` meta join silently hid it), and the
+// search / location filters must narrow the grid server-side.
+$ui_token = 'UIAG-' . wp_generate_password(6, false);
+$ui_agency = wp_insert_post([
+    'post_type'   => 'tap_agency',
+    'post_status' => 'publish',
+    'post_title'  => 'Agencia ' . $ui_token,
+]);
+if ($ui_agency && !is_wp_error($ui_agency)) {
+    update_post_meta($ui_agency, '_tap_agency_verified', '1');
+    update_post_meta($ui_agency, TAP_Approval::STATUS_META, TAP_Approval::APPROVED);
+    update_post_meta($ui_agency, '_tap_agency_city', 'Testville ' . $ui_token);
+    update_post_meta($ui_agency, '_tap_agency_country', 'CR');
+
+    $dir_html = do_shortcode('[tap_agencies limit="100"]');
+    tap_t_assert(strpos($dir_html, $ui_token) !== false, 'legacy agency without is_active meta appears in the directory');
+    tap_t_assert(strpos($dir_html, 'tap-agencies-toolbar') !== false && strpos($dir_html, 'tap-agencies-join') !== false, 'directory renders the filter toolbar and join CTA');
+    tap_t_assert(strpos($dir_html, 'tap-agency-card-logo') !== false && strpos($dir_html, 'Verificada') !== false, 'directory cards show logo fallback and verified badge');
+
+    $_GET['agency_q'] = $ui_token;
+    $search_html = str_replace(["\n", "\r", "\t"], '', do_shortcode('[tap_agencies limit="100"]'));
+    unset($_GET['agency_q']);
+    tap_t_assert(substr_count($search_html, 'class="tap-agency-card"') === 1, 'agency search by name returns exactly the matching agency');
+
+    $_GET['agency_city'] = 'Testville ' . $ui_token;
+    $city_html = str_replace(["\n", "\r", "\t"], '', do_shortcode('[tap_agencies limit="100"]'));
+    unset($_GET['agency_city']);
+    tap_t_assert(substr_count($city_html, 'class="tap-agency-card"') === 1, 'agency location filter returns exactly the matching agency');
+
+    $_GET['agency_q'] = 'zzz-no-such-agency-' . $ui_token;
+    $empty_html = do_shortcode('[tap_agencies limit="100"]');
+    unset($_GET['agency_q']);
+    tap_t_assert(strpos($empty_html, 'tap-agencies-empty') !== false, 'directory shows an empty state when nothing matches');
+
+    wp_delete_post($ui_agency, true);
+} else {
+    tap_t_assert(false, 'could not create the agency directory fixture');
+}
+
 tap_t_finish();

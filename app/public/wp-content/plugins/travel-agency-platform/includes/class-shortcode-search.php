@@ -486,41 +486,255 @@ class TAP_Shortcode_Search {
     }
 
     public static function agencies_list($atts) {
-        $atts = shortcode_atts(['limit' => 20], $atts);
+        $atts = shortcode_atts(['limit' => 24], $atts);
 
-        $agencies = get_posts([
+        $q        = isset($_GET['agency_q']) ? sanitize_text_field(wp_unslash($_GET['agency_q'])) : '';
+        $city     = isset($_GET['agency_city']) ? sanitize_text_field(wp_unslash($_GET['agency_city'])) : '';
+        $paged    = max(1, isset($_GET['agency_page']) ? (int) $_GET['agency_page'] : 1);
+        $per_page = max(1, (int) $atts['limit']);
+
+        $meta_query = [
+            ['key' => '_tap_agency_verified', 'value' => '1'],
+            ['key' => TAP_Approval::STATUS_META, 'value' => TAP_Approval::APPROVED],
+            // Legacy agencies have no ACTIVE_META and are approved by default;
+            // a strict `!= 0` join silently hid them from the directory.
+            [
+                'relation' => 'OR',
+                ['key' => TAP_Approval::ACTIVE_META, 'compare' => 'NOT EXISTS'],
+                ['key' => TAP_Approval::ACTIVE_META, 'value' => '0', 'compare' => '!='],
+            ],
+        ];
+        if ('' !== $city) {
+            $meta_query[] = ['key' => '_tap_agency_city', 'value' => $city];
+        }
+
+        $args = [
             'post_type'      => 'tap_agency',
-            'posts_per_page' => intval($atts['limit']),
             'post_status'    => 'publish',
             'orderby'        => 'title',
             'order'          => 'ASC',
-            'meta_query'     => [
-                ['key' => '_tap_agency_verified', 'value' => '1'],
-                ['key' => TAP_Approval::STATUS_META, 'value' => TAP_Approval::APPROVED],
-                ['key' => TAP_Approval::ACTIVE_META, 'compare' => '!=', 'value' => '0'],
-            ],
-        ]);
-
-        if (empty($agencies)) {
-            return '<p>' . __('No agencies found.', 'travel-agency-platform') . '</p>';
+            'posts_per_page' => $per_page,
+            'paged'          => $paged,
+            'meta_query'     => $meta_query,
+        ];
+        if ('' !== $q) {
+            $args['s'] = $q;
         }
+
+        $query  = new WP_Query($args);
+        $cities = self::agency_cities();
+        $counts = self::agency_service_counts(wp_list_pluck($query->posts, 'ID'));
+        $base   = get_post_type_archive_link('tap_agency') ?: home_url('/agency/');
+        $active = ('' !== $q || '' !== $city);
 
         ob_start();
         ?>
-        <div class="tap-agencies-grid">
-            <?php foreach ($agencies as $agency): ?>
-                <div class="tap-agency-card">
-                    <?php if (has_post_thumbnail($agency->ID)): ?>
-                        <?php echo get_the_post_thumbnail($agency->ID, 'medium', ['loading' => 'lazy', 'decoding' => 'async']); ?>
-                    <?php endif; ?>
-                    <h3><a href="<?php echo esc_url(get_permalink($agency->ID)); ?>"><?php echo esc_html($agency->post_title); ?></a></h3>
-                    <p><?php echo esc_html(wp_trim_words($agency->post_excerpt ?: wp_trim_words($agency->post_content, 30), 20)); ?></p>
-                    <a href="<?php echo esc_url(get_permalink($agency->ID)); ?>" class="tap-btn tap-btn-outline"><?php esc_html_e('View Profile', 'travel-agency-platform'); ?></a>
+        <div class="tap-container">
+            <section class="tap-agencies">
+                <div class="tap-agencies-intro">
+                    <div>
+                        <p class="tap-agencies-eyebrow"><?php esc_html_e('Directorio verificado', 'travel-agency-platform'); ?></p>
+                        <h2><?php esc_html_e('Encuentra tu agencia local', 'travel-agency-platform'); ?></h2>
+                        <p class="tap-agencies-lead"><?php esc_html_e('Agencias y operadores aprobados por la plataforma. Compara sus servicios y contacta directamente.', 'travel-agency-platform'); ?></p>
+                    </div>
+                    <a class="tap-btn tap-btn-primary" href="<?php echo esc_url(home_url('/register/')); ?>"><?php esc_html_e('Publica tu agencia', 'travel-agency-platform'); ?></a>
                 </div>
-            <?php endforeach; ?>
+
+                <form class="tap-agencies-toolbar" method="get" action="<?php echo esc_url($base); ?>" role="search">
+                    <div class="tap-agencies-field">
+                        <label class="tap-sr-only" for="tap-agency-q"><?php esc_html_e('Buscar agencias', 'travel-agency-platform'); ?></label>
+                        <input type="search" id="tap-agency-q" name="agency_q" value="<?php echo esc_attr($q); ?>" placeholder="<?php esc_attr_e('Buscar por nombre…', 'travel-agency-platform'); ?>">
+                    </div>
+                    <div class="tap-agencies-field">
+                        <label class="tap-sr-only" for="tap-agency-city"><?php esc_html_e('Ubicación', 'travel-agency-platform'); ?></label>
+                        <select id="tap-agency-city" name="agency_city">
+                            <option value=""><?php esc_html_e('Todas las ubicaciones', 'travel-agency-platform'); ?></option>
+                            <?php foreach ($cities as $c): ?>
+                                <option value="<?php echo esc_attr($c); ?>" <?php selected($city, $c); ?>><?php echo esc_html($c); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <button type="submit" class="tap-btn tap-btn-primary"><?php esc_html_e('Filtrar', 'travel-agency-platform'); ?></button>
+                    <?php if ($active): ?>
+                        <a class="tap-agencies-clear" href="<?php echo esc_url($base); ?>"><?php esc_html_e('Limpiar filtros', 'travel-agency-platform'); ?></a>
+                    <?php endif; ?>
+                </form>
+
+                <p class="tap-agencies-count">
+                    <?php
+                    printf(
+                        /* translators: %d: number of agencies matching the filters */
+                        esc_html(_n('%d agencia', '%d agencias', (int) $query->found_posts, 'travel-agency-platform')),
+                        (int) $query->found_posts
+                    );
+                    ?>
+                </p>
+
+                <?php if ($query->have_posts()): ?>
+                    <div class="tap-agencies-grid">
+                        <?php foreach ($query->posts as $agency): ?>
+                            <?php
+                            $agency_id = (int) $agency->ID;
+                            $link      = get_permalink($agency_id);
+                            $verified  = '1' === (string) get_post_meta($agency_id, '_tap_agency_verified', true);
+                            $city_name = (string) get_post_meta($agency_id, '_tap_agency_city', true);
+                            $country   = (string) get_post_meta($agency_id, '_tap_agency_country', true);
+                            $location  = trim($city_name . ($city_name && $country ? ', ' : '') . $country);
+                            $excerpt   = $agency->post_excerpt ?: wp_trim_words(wp_strip_all_tags($agency->post_content), 24);
+                            $services  = (int) ($counts[$agency_id] ?? 0);
+                            $title     = wp_strip_all_tags($agency->post_title);
+                            $initial   = function_exists('mb_substr') ? mb_substr($title, 0, 1) : substr($title, 0, 1);
+                            $initial   = function_exists('mb_strtoupper') ? mb_strtoupper($initial) : strtoupper($initial);
+                            ?>
+                            <article class="tap-agency-card">
+                                <a class="tap-agency-card-logo" href="<?php echo esc_url($link); ?>" tabindex="-1" aria-hidden="true">
+                                    <?php if (has_post_thumbnail($agency_id)): ?>
+                                        <?php echo get_the_post_thumbnail($agency_id, 'medium', ['loading' => 'lazy', 'decoding' => 'async']); ?>
+                                    <?php else: ?>
+                                        <span class="tap-agency-card-initial"><?php echo esc_html($initial); ?></span>
+                                    <?php endif; ?>
+                                </a>
+                                <div class="tap-agency-card-body">
+                                    <div class="tap-agency-card-head">
+                                        <h3><a href="<?php echo esc_url($link); ?>"><?php echo esc_html($agency->post_title); ?></a></h3>
+                                        <?php if ($verified): ?>
+                                            <span class="tap-agency-card-badge"><?php esc_html_e('Verificada', 'travel-agency-platform'); ?></span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <?php if ('' !== $location): ?>
+                                        <p class="tap-agency-card-location">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                            <?php echo esc_html($location); ?>
+                                        </p>
+                                    <?php endif; ?>
+                                    <?php if ($excerpt): ?>
+                                        <p class="tap-agency-card-excerpt"><?php echo esc_html($excerpt); ?></p>
+                                    <?php endif; ?>
+                                    <p class="tap-agency-card-meta">
+                                        <?php
+                                        printf(
+                                            /* translators: %d: number of published services */
+                                            esc_html(_n('%d servicio publicado', '%d servicios publicados', $services, 'travel-agency-platform')),
+                                            $services
+                                        );
+                                        ?>
+                                    </p>
+                                </div>
+                                <a class="tap-agency-card-cta" href="<?php echo esc_url($link); ?>">
+                                    <?php esc_html_e('Ver perfil', 'travel-agency-platform'); ?>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                                </a>
+                            </article>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <?php if ($query->max_num_pages > 1): ?>
+                        <nav class="tap-agencies-pagination" aria-label="<?php esc_attr_e('Paginación de agencias', 'travel-agency-platform'); ?>">
+                            <?php
+                            $base_url = add_query_arg(array_filter([
+                                'agency_q'    => $q,
+                                'agency_city' => $city,
+                            ], static fn($v) => '' !== $v), $base);
+                            $base_url .= (false === strpos($base_url, '?') ? '?' : '&') . 'agency_page=%#%';
+                            $links = paginate_links([
+                                'base'      => $base_url,
+                                'format'    => '',
+                                'current'   => $paged,
+                                'total'     => (int) $query->max_num_pages,
+                                'prev_text' => __('Anterior', 'travel-agency-platform'),
+                                'next_text' => __('Siguiente', 'travel-agency-platform'),
+                                'type'      => 'array',
+                            ]);
+                            if ($links) {
+                                echo '<ul>';
+                                foreach ($links as $link_html) {
+                                    echo '<li>' . $link_html . '</li>'; // phpcs:ignore WordPress.Security.EscapeOutput -- paginate_links markup.
+                                }
+                                echo '</ul>';
+                            }
+                            ?>
+                        </nav>
+                    <?php endif; ?>
+                <?php else: ?>
+                    <div class="tap-agencies-empty">
+                        <h3><?php esc_html_e('No encontramos agencias', 'travel-agency-platform'); ?></h3>
+                        <p><?php esc_html_e('Prueba con otra búsqueda o ubicación.', 'travel-agency-platform'); ?></p>
+                        <?php if ($active): ?>
+                            <a class="tap-btn tap-btn-outline" href="<?php echo esc_url($base); ?>"><?php esc_html_e('Ver todas las agencias', 'travel-agency-platform'); ?></a>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+
+                <aside class="tap-agencies-join">
+                    <div>
+                        <h2><?php esc_html_e('¿Tienes una agencia?', 'travel-agency-platform'); ?></h2>
+                        <p><?php esc_html_e('Crea tu perfil, publica tus servicios y recibe reservas de viajeros de todo el mundo.', 'travel-agency-platform'); ?></p>
+                    </div>
+                    <a class="tap-btn tap-btn-primary" href="<?php echo esc_url(home_url('/register/')); ?>"><?php esc_html_e('Crear mi perfil de agencia', 'travel-agency-platform'); ?></a>
+                </aside>
+            </section>
         </div>
         <?php
         return ob_get_clean();
+    }
+
+    /**
+     * Distinct, non-empty cities of visible agencies for the location filter.
+     */
+    private static function agency_cities() {
+        global $wpdb;
+        return (array) $wpdb->get_col($wpdb->prepare(
+            "SELECT DISTINCT pm.meta_value
+               FROM {$wpdb->postmeta} pm
+               JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+              WHERE pm.meta_key = '_tap_agency_city'
+                AND pm.meta_value <> ''
+                AND p.post_type = 'tap_agency'
+                AND p.post_status = 'publish'
+                AND EXISTS (SELECT 1 FROM {$wpdb->postmeta} v WHERE v.post_id = p.ID AND v.meta_key = '_tap_agency_verified' AND v.meta_value = '1')
+                AND EXISTS (SELECT 1 FROM {$wpdb->postmeta} s WHERE s.post_id = p.ID AND s.meta_key = %s AND s.meta_value = %s)
+                AND NOT EXISTS (SELECT 1 FROM {$wpdb->postmeta} a WHERE a.post_id = p.ID AND a.meta_key = %s AND a.meta_value = '0')
+              ORDER BY pm.meta_value ASC",
+            TAP_Approval::STATUS_META,
+            TAP_Approval::APPROVED,
+            TAP_Approval::ACTIVE_META
+        ));
+    }
+
+    /**
+     * Published service count per agency POST id, in one indexed query.
+     */
+    private static function agency_service_counts($agency_ids) {
+        global $wpdb;
+        $agency_ids = array_values(array_filter(array_map('intval', (array) $agency_ids)));
+        if (empty($agency_ids)) {
+            return [];
+        }
+        $meta_keys = [];
+        foreach (TAP_Post_Types::agency_meta_keys() as $type => $key) {
+            if (in_array($type, ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'], true)) {
+                $meta_keys[] = $key;
+            }
+        }
+        if (empty($meta_keys)) {
+            return [];
+        }
+        $in_ids  = implode(',', $agency_ids);
+        $in_keys = "'" . implode("','", array_map('esc_sql', $meta_keys)) . "'";
+        $rows    = $wpdb->get_results(
+            "SELECT pm.meta_value AS agency_id, COUNT(*) AS total
+               FROM {$wpdb->postmeta} pm
+               JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+              WHERE pm.meta_key IN ({$in_keys})
+                AND pm.meta_value IN ({$in_ids})
+                AND p.post_status = 'publish'
+              GROUP BY pm.meta_value"
+        );
+        $out = [];
+        foreach ((array) $rows as $row) {
+            $out[(int) $row->agency_id] = (int) $row->total;
+        }
+        return $out;
     }
 
     public static function agency_detail($atts) {
