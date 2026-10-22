@@ -3,9 +3,9 @@
  * Plugin Name: Travel Agency Platform
  * Plugin URI: https://ivanchodev.com
  * Description: Multi-agency travel platform B2B & B2C. Manage accommodations, tours, transports, car rentals, boats and packages.
- * Version:           1.5.47
+ * Version:           1.5.48
  * Requires at least: 6.4
- * Requires PHP:      8.1
+ * Requires PHP:      8.2.35
  * Author: IvanchoDev
  * Text Domain: travel-agency-platform
  * Domain Path: /languages
@@ -13,7 +13,7 @@
 
 defined('ABSPATH') || exit;
 
-define('TAP_VERSION', '1.5.47');
+define('TAP_VERSION', '1.5.48');
 define('TAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -34,6 +34,7 @@ final class TravelAgencyPlatform {
 
     private function includes() {
         require_once TAP_PLUGIN_DIR . 'includes/class-installer.php';
+        require_once TAP_PLUGIN_DIR . 'includes/class-requirements.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-localization.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-currency.php';
         require_once TAP_PLUGIN_DIR . 'includes/class-post-types.php';
@@ -102,7 +103,10 @@ final class TravelAgencyPlatform {
 
     private function init_hooks() {
         register_activation_hook(__FILE__, ['TAP_Installer', 'activate']);
+        register_activation_hook(__FILE__, ['TAP_Requirements', 'block_activation']);
         register_deactivation_hook(__FILE__, ['TAP_Installer', 'deactivate']);
+
+        add_action('admin_notices', ['TAP_Requirements', 'admin_notice']);
 
         add_action('plugins_loaded', [$this, 'load_textdomain']);
         add_action('init', ['TAP_Localization', 'init'], 1);

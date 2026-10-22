@@ -28,8 +28,8 @@ Built as a custom WordPress plugin (`travel-agency-platform`) paired with a dedi
 | **Product** | Travel Agency Platform |
 | **Type** | WordPress plugin + companion theme |
 | **Model** | B2B & B2C multi-agency marketplace |
-| **Current version** | `1.5.47` |
-| **Schema version** | `1.5.47` |
+| **Current version** | `1.5.48` |
+| **Schema version** | `1.5.48` |
 | **Text domain** | `travel-agency-platform` |
 | **Companion theme** | `travel-agency-theme` |
 | **License** | Proprietary (IvanchoDev) |
@@ -115,7 +115,7 @@ The platform orchestrates three core actors:
 | Layer | Technology |
 | --- | --- |
 | Platform | WordPress |
-| Language | PHP (server-side) |
+| Language | PHP (server-side) — 8.2.35 / 8.3.36 / 8.4.27 / 8.5.12 (security patches) |
 | Front-end | jQuery, vanilla JS, CSS custom-properties design tokens |
 | Mapping | Leaflet + Leaflet.markercluster |
 | Data | MySQL via `$wpdb` (custom tables) |
@@ -169,7 +169,23 @@ travel-agency/
 
 ## Development & QA
 
-Requires PHP >= 8.1 and [Composer](https://getcomposer.org/).
+Requires PHP >= 8.2.35 and [Composer](https://getcomposer.org/).
+
+> **PHP security requirement.** The PHP core has two critical remote code
+> execution advisories published on 2026-10-21: `CVE-2026-109618` (RCE via
+> OOM corruption) and `CVE-2026-109619` (RCE via stale global state). An
+> unauthenticated exploit has been demonstrated against PHP-FPM. The plugin
+> checks the running interpreter at activation and warns in the admin when
+> it is affected, so the requirement is per branch and not a single minimum:
+>
+> | Branch | Patched release |
+> | --- | --- |
+> | 8.2 | 8.2.35 |
+> | 8.3 | 8.3.36 |
+> | 8.4 | 8.4.27 |
+> | 8.5 | 8.5.12 |
+>
+> A release on a branch newer than 8.5 already carries the fix.
 
 ```bash
 make install      # composer install (PHPCS + PHPStan dev tooling)

@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.48] — 2026-10-21
+
+PHP security requirement: the plugin refuses to run on a vulnerable PHP core.
+
+### Added
+
+- **`TAP_Requirements`.** The plugin now checks the running interpreter against the critical remote code execution advisories published on 2026-10-21 for the PHP core: `CVE-2026-109618` (RCE via OOM corruption) and `CVE-2026-109619` (RCE via stale global state), both with a demonstrated unauthenticated exploit against PHP-FPM.
+- **A per-branch check instead of a single minimum.** The requirement is resolved against the patched release of the branch in use — 8.2.35, 8.3.36, 8.4.27 and 8.5.12 — because 8.3.30 satisfies "≥ 8.2.35" yet is still vulnerable. A release on a branch newer than 8.5 already carries the fix.
+- **Admin notice on a vulnerable host.** The platform keeps working (the flaw is in the core, not in the plugin) but the administration screens show which patched release the hosting must install.
+- **Activation is blocked** on an affected interpreter, the point where the hosting can still be changed without touching production.
+
+### Changed
+
+- The plugin header now requires `PHP 8.2.35`, and the README documents the advisory, the table of patched releases and the reason the requirement is per branch.
+- Plugin version bumped to `1.5.48` (header + `TAP_VERSION`).
+
+### Tests
+
+- `suite_requirements`: the patched and vulnerable releases of every branch, the branches without a published fix, the requirement reported per branch and the plugin header.
+
+---
+
 ## [1.5.47] — 2026-10-21
 
 Sixteen new destinations, three new place types, and a complete editorial profile for every destination on the map.

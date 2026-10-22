@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-10-22T01:02:22+00:00\n"
+"POT-Creation-Date: 2026-10-22T07:27:22+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -817,7 +817,7 @@ msgstr "Click any day to edit its price, label or block it."
 #: includes/class-shortcode-booking.php:815
 #: includes/class-shortcode-booking.php:817
 #: includes/class-shortcode-booking.php:840
-#: includes/class-shortcode-booking.php:843 travel-agency-platform.php:279
+#: includes/class-shortcode-booking.php:843 travel-agency-platform.php:283
 msgid "Error"
 msgstr "Error"
 
@@ -9571,7 +9571,7 @@ msgid "Responder al huésped..."
 msgstr "Reply to the guest..."
 
 #: includes/class-front-dash.php:399 includes/class-shortcode-account.php:405
-#: includes/class-shortcode-booking.php:794 travel-agency-platform.php:288
+#: includes/class-shortcode-booking.php:794 travel-agency-platform.php:292
 msgid "Enviar"
 msgstr "Send"
 
@@ -11622,6 +11622,40 @@ msgstr "Strict — 50% refund up to 7 days before"
 msgid "No reembolsable"
 msgstr "Non-refundable"
 
+#: includes/class-requirements.php:145
+msgid "Este sitio usa una versión de PHP con vulnerabilidades críticas."
+msgstr "This site runs a PHP version with critical vulnerabilities."
+
+#. translators: 1: PHP version, 2: advisory identifiers
+#: includes/class-requirements.php:148
+#, php-format
+msgid ""
+"La versión %1$s está afectada por %2$s, que permiten ejecución remota de "
+"código sin autenticación en PHP-FPM. Actualiza PHP antes de publicar el "
+"sitio."
+msgstr ""
+"Version %1$s is affected by %2$s, which allow unauthenticated remote code "
+"execution under PHP-FPM. Update PHP before publishing the site."
+
+#: includes/class-requirements.php:152
+msgid "Versiones corregidas: "
+msgstr "Fixed versions: "
+
+#. translators: 1: PHP version, 2: patched version
+#: includes/class-requirements.php:174
+#, php-format
+msgid ""
+"Travel Agency Platform necesita una versión de PHP con las correcciones de "
+"seguridad. La versión %1$s es vulnerable; actualiza a %2$s o posterior en tu "
+"hosting."
+msgstr ""
+"Travel Agency Platform needs a PHP version with the security fixes. Version "
+"%1$s is vulnerable; update to %2$s or later on your host."
+
+#: includes/class-requirements.php:178
+msgid "Versión de PHP no compatible"
+msgstr "Unsupported PHP version"
+
 #: includes/class-reviews.php:83
 msgid ""
 "Solo puedes dejar reseñas después de una reserva confirmada o completada y "
@@ -11952,11 +11986,11 @@ msgid "Network error. Please try again."
 msgstr "Network error. Please try again."
 
 #: includes/class-shortcode-account.php:389
-#: includes/class-shortcode-account.php:391 travel-agency-platform.php:284
+#: includes/class-shortcode-account.php:391 travel-agency-platform.php:288
 msgid "Asistente de viajes"
 msgstr "Travel assistant"
 
-#: includes/class-shortcode-account.php:395 travel-agency-platform.php:289
+#: includes/class-shortcode-account.php:395 travel-agency-platform.php:293
 msgid ""
 "¡Hola! Soy el asistente de viajes. Pregunta por alojamientos, tours, bonos o "
 "agencias, o toca una sugerencia."
@@ -11965,7 +11999,7 @@ msgstr ""
 "or tap a suggestion."
 
 #: includes/class-shortcode-account.php:403
-#: includes/class-shortcode-account.php:404 travel-agency-platform.php:287
+#: includes/class-shortcode-account.php:404 travel-agency-platform.php:291
 msgid "Escribe tu pregunta…"
 msgstr "Type your question…"
 
@@ -12137,7 +12171,7 @@ msgid "Solicitar reserva"
 msgstr "Request to Book"
 
 #: includes/class-shortcode-booking.php:31
-#: includes/class-shortcode-booking.php:70 travel-agency-platform.php:278
+#: includes/class-shortcode-booking.php:70 travel-agency-platform.php:282
 msgid "Book Now"
 msgstr "Book Now"
 
@@ -13332,117 +13366,117 @@ msgstr "Gastronomy"
 msgid "Traslados aeropuerto"
 msgstr "Airport transfers"
 
-#: travel-agency-platform.php:256
+#: travel-agency-platform.php:260
 msgid "results found"
 msgstr "results found"
 
-#: travel-agency-platform.php:257
+#: travel-agency-platform.php:261
 msgid "No results found"
 msgstr "No results found"
 
-#: travel-agency-platform.php:258
+#: travel-agency-platform.php:262
 msgid "Guardado en favoritos"
 msgstr "Saved to favorites"
 
-#: travel-agency-platform.php:259
+#: travel-agency-platform.php:263
 msgid "Quitado de favoritos"
 msgstr "Removed from favorites"
 
-#: travel-agency-platform.php:260
+#: travel-agency-platform.php:264
 msgid "Aún no hay reseñas."
 msgstr "No reviews yet."
 
-#: travel-agency-platform.php:261
+#: travel-agency-platform.php:265
 msgid "Aún no hay reseñas. Sé el primero en compartir tu experiencia."
 msgstr "No reviews yet. Be the first to share your experience."
 
-#: travel-agency-platform.php:262
+#: travel-agency-platform.php:266
 msgid "reseña"
 msgstr "review"
 
-#: travel-agency-platform.php:263
+#: travel-agency-platform.php:267
 msgid "reseñas"
 msgstr "reviews"
 
-#: travel-agency-platform.php:264
+#: travel-agency-platform.php:268
 msgid "Anónimo"
 msgstr "Anonymous"
 
-#: travel-agency-platform.php:265
+#: travel-agency-platform.php:269
 msgid "Enviando..."
 msgstr "Sending..."
 
-#: travel-agency-platform.php:266
+#: travel-agency-platform.php:270
 msgid "¡Reseña enviada! Pendiente de aprobación."
 msgstr "Review submitted! Pending approval."
 
-#: travel-agency-platform.php:267
+#: travel-agency-platform.php:271
 msgid "Error al enviar"
 msgstr "Error sending"
 
-#: travel-agency-platform.php:268
+#: travel-agency-platform.php:272
 msgid "Review submitted"
 msgstr "Review submitted"
 
-#: travel-agency-platform.php:269
+#: travel-agency-platform.php:273
 msgid "Error al enviar la reseña"
 msgstr "Error submitting the review"
 
 #. translators: %s: nombre del servicio
-#: travel-agency-platform.php:271
+#: travel-agency-platform.php:275
 #, php-format
 msgid "Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!"
 msgstr "Thank you for your stay (%s). Tell us how it went!"
 
-#: travel-agency-platform.php:272
+#: travel-agency-platform.php:276
 msgid "Reseña verificada"
 msgstr "Verified review"
 
 #. translators: 1: cupos disponibles, 2: cupos totales
-#: travel-agency-platform.php:274
+#: travel-agency-platform.php:278
 #, php-format
 msgid "Cupos disponibles: %s de %s"
 msgstr "Available spots: %s of %s"
 
 #. translators: 1: cupos ocupados, 2: cupos totales
-#: travel-agency-platform.php:276
+#: travel-agency-platform.php:280
 #, php-format
 msgid "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
 msgstr "Full for this date (%s/%s). Please choose another date."
 
-#: travel-agency-platform.php:277
+#: travel-agency-platform.php:281
 msgid "El tour está completo para esta fecha."
 msgstr "This tour is full for this date."
 
-#: travel-agency-platform.php:280
+#: travel-agency-platform.php:284
 msgid "Image gallery"
 msgstr "Image gallery"
 
-#: travel-agency-platform.php:281
+#: travel-agency-platform.php:285
 msgid "Close image gallery"
 msgstr "Close image gallery"
 
-#: travel-agency-platform.php:282
+#: travel-agency-platform.php:286
 msgid "Previous image"
 msgstr "Previous image"
 
-#: travel-agency-platform.php:283
+#: travel-agency-platform.php:287
 msgid "Next image"
 msgstr "Next image"
 
-#: travel-agency-platform.php:285
+#: travel-agency-platform.php:289
 msgid "Abrir asistente"
 msgstr "Open assistant"
 
-#: travel-agency-platform.php:286
+#: travel-agency-platform.php:290
 msgid "Cerrar asistente"
 msgstr "Close assistant"
 
-#: travel-agency-platform.php:290
+#: travel-agency-platform.php:294
 msgid "Pensando…"
 msgstr "Thinking…"
 
-#: travel-agency-platform.php:291
+#: travel-agency-platform.php:295
 msgid "Hubo un problema. Inténtalo de nuevo."
 msgstr "Something went wrong. Please try again."
 
