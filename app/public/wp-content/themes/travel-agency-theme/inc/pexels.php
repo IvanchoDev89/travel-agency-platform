@@ -254,14 +254,15 @@ function tap_pexels_resolve_media($id, $download, $mode) {
         if (function_exists('set_time_limit')) { @set_time_limit(300); }
         $att = tap_pexels_sideload($file['link'], 'pexels-video-' . $id . '.mp4');
         if (!is_wp_error($att)) {
-            $video_url = (string) wp_get_attachment_url($att);
+            // Root-relative: survives the site host/port changing (Local).
+            $video_url = (string) tap_media_url(wp_get_attachment_url($att));
         } else {
             $note = __('No se pudo descargar el video; se usará el enlace de Pexels.', 'travel-agency-platform');
         }
         if ($poster) {
             $pAtt = tap_pexels_sideload($poster, 'pexels-poster-' . $id . '.jpg');
             if (!is_wp_error($pAtt)) {
-                $poster = (string) wp_get_attachment_url($pAtt);
+                $poster = (string) tap_media_url(wp_get_attachment_url($pAtt));
             }
         }
     }

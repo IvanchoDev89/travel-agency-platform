@@ -29,13 +29,13 @@ function tap_login_is_branded() {
  * @return array{url:string,poster:string}
  */
 function tap_login_media() {
-    $url = (string) get_theme_mod('tap_login_video_url', '');
+    $url = tap_media_url((string) get_theme_mod('tap_login_video_url', ''));
     if ('' === $url) {
-        $url = (string) get_theme_mod('tap_hero_video_url', '');
+        $url = tap_media_url((string) get_theme_mod('tap_hero_video_url', ''));
     }
-    $poster = (string) get_theme_mod('tap_login_video_poster', '');
+    $poster = tap_media_url((string) get_theme_mod('tap_login_video_poster', ''));
     if ('' === $poster) {
-        $poster = (string) get_theme_mod('tap_hero_video_poster', '');
+        $poster = tap_media_url((string) get_theme_mod('tap_hero_video_poster', ''));
     }
     $show_video = !empty(get_theme_mod('tap_login_show_video', true)) && '' !== $url;
 
@@ -51,7 +51,7 @@ function tap_login_logo_url() {
     if (!$id) {
         $id = (int) get_theme_mod('custom_logo', 0);
     }
-    return $id ? (string) wp_get_attachment_image_url($id, 'medium') : '';
+    return $id ? tap_media_url(wp_get_attachment_image_url($id, 'medium')) : '';
 }
 
 /** Enqueue the login stylesheet/script (after core's `login` styles). */

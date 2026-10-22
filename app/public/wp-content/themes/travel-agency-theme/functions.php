@@ -1,7 +1,7 @@
 <?php
 defined('ABSPATH') || exit;
 
-define('TAT_VERSION', '2.0.2');
+define('TAT_VERSION', '2.0.3');
 
 function travel_agency_theme_setup() {
     add_theme_support('title-tag');
@@ -36,6 +36,34 @@ function travel_agency_theme_assets() {
     ]);
 }
 add_action('wp_enqueue_scripts', 'travel_agency_theme_assets');
+
+/**
+ * Render-safe media URL.
+ *
+ * Local media saved into theme mods (Pexels videos, posters, customizer images)
+ * captures the absolute URL of the moment it was created. Under Local-by-
+ * Flywheel the host port changes between sessions, which silently breaks every
+ * saved absolute URL. Same-host URLs (ignoring the port) are therefore rendered
+ * as root-relative paths; external URLs (e.g. a Pexels hotlink) pass through.
+ *
+ * Assumes a root WordPress install (a Local site standard).
+ */
+function tap_media_url($url) {
+    $url = trim((string) $url);
+    if ('' === $url) {
+        return '';
+    }
+    $parsed  = wp_parse_url($url);
+    if (empty($parsed['host'])) {
+        return $url; // already relative
+    }
+    $current = wp_parse_url(home_url('/'));
+    if (($parsed['host'] ?? '') !== ($current['host'] ?? '')) {
+        return $url; // external
+    }
+    $path = '/' . ltrim((string) ($parsed['path'] ?? ''), '/');
+    return $path === '/' ? '' : $path;
+}
 
 class TAT_Nav_Walker extends Walker_Nav_Menu {
     public function start_lvl(&$output, $depth = 0, $args = null) {

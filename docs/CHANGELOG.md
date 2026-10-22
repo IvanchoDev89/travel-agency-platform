@@ -16,7 +16,8 @@ Landing page: an editorial destinations section and friendlier interactions.
   - The admin search UI escapes every API-provided value (`alt`, image and page URLs, MP4 links) before interpolating them into `innerHTML` — third-party markup can no longer break out of an attribute in an administrator session.
   - The photo sideload endpoint only accepts `*.pexels.com` URLs: it took a client-supplied URL and would otherwise double as a server-side download proxy.
   - Search responses (`videos/search`, `v1/search`) are cached for 15 minutes, so repeated admin searches stop burning Pexels quota (200 requests/hour). Errors are never cached.
-  - Theme version bumped to `2.0.1` → `2.0.2` for asset cache-busting.
+- **Media URLs render host-agnostic (theme 2.0.3).** Theme mods captured the absolute URL of the moment the media was saved, so a Local session restart (new host port, e.g. `localhost:10015` → `10012`) silently broke the hero and login videos while the files sat untouched in `uploads/`. A `tap_media_url()` helper now renders same-host URLs (port ignored) as root-relative paths — hero video/poster, login video/poster and the login logo all go through it, and the Pexels sideload stores root-relative URLs from now on. The four saved theme mods were migrated to relative paths.
+- Theme version bumped to `2.0.1` → `2.0.2` → `2.0.3` for asset cache-busting.
 
 - **Destinations section on the front page.** A new teaser between the Costa Rica facts strip and the interests chips shows up to six published destinations (`tap_spot`, fixtures filtered out, those with a featured image first): photo, destination type badge, title and region, each linking to its educational page. The section degrades gracefully when there are no spots or no images (gradient placeholder with the destination's initial).
 - **"Explorar el mapa de destinos"** call to action linking to `/destinos/`, surfacing the interactive map on the landing.
