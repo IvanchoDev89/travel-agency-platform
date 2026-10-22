@@ -263,14 +263,63 @@
         }
     }
 
-    var hero = $('.tap-hero');
+    var hero = $('.tap-hero').not('.tap-landing-hero');
     if (hero.length) {
-        $(window).on('scroll', function() {
-            var scroll = $(this).scrollTop();
-            if (!REDUCED) {
-                hero.find('.tap-hero-bg').css('transform', 'translateY(' + (scroll * 0.3) + 'px)');
-            }
-        });
+        var heroBg = hero.find('.tap-hero-bg');
+        var heroTicking = false;
+        if (heroBg.length && !REDUCED) {
+            $(window).on('scroll', function() {
+                if (heroTicking) return;
+                heroTicking = true;
+                window.requestAnimationFrame(function() {
+                    var scroll = window.scrollY || $(window).scrollTop();
+                    heroBg.css('transform', 'translateY(' + (scroll * 0.3) + 'px)');
+                    heroTicking = false;
+                });
+            });
+        }
+    }
+
+    /* ===== Landing stat counters ===== */
+    var statNums = $('.tap-landing-stat-num[data-count]');
+    if (statNums.length && !REDUCED) {
+        var runCount = function(el) {
+            var $el = $(el);
+            var target = parseInt($el.attr('data-count'), 10);
+            if (isNaN(target) || target < 0) return;
+            var start = null;
+            var DURATION = 1200;
+            var step = function(ts) {
+                if (start === null) start = ts;
+                var p = Math.min((ts - start) / DURATION, 1);
+                var eased = 1 - Math.pow(1 - p, 3);
+                $el.text(Math.round(target * eased).toLocaleString());
+                if (p < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    $el.removeAttr('data-count');
+                }
+            };
+            $el.text('0');
+            window.requestAnimationFrame(step);
+        };
+        if (window.IntersectionObserver) {
+            var countObserver = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        runCount(entry.target);
+                        countObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.6 });
+            statNums.each(function() {
+                countObserver.observe(this);
+            });
+        } else {
+            statNums.each(function() {
+                runCount(this);
+            });
+        }
     }
 
     /* ===== Hash scroll ===== */

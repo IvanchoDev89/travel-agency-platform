@@ -168,6 +168,42 @@ $articles = $postsQuery->have_posts() ? array_map(function ($p) {
 }, $postsQuery->posts) : [];
 wp_reset_postdata();
 
+// ---------- Destinations (tap_spot teaser) ----------
+$destPage = get_page_by_path('destinos');
+$destUrl  = $destPage ? get_permalink($destPage) : home_url('/destinos/');
+$destWanted = 6;
+$spots = [];
+$spotsQuery = new WP_Query([
+    'post_type'        => 'tap_spot',
+    'post_status'      => 'publish',
+    'posts_per_page'   => 80,
+    'orderby'          => ['menu_order' => 'ASC', 'title' => 'ASC'],
+    'suppress_filters' => true,
+]);
+if ($spotsQuery->have_posts()) {
+    $withImage = [];
+    $phOnly    = [];
+    foreach ($spotsQuery->posts as $spot) {
+        if (preg_match($fixtureRx, $spot->post_title)) continue;
+        $thumbId = (int) get_post_thumbnail_id($spot->ID);
+        $img     = $thumbId ? wp_get_attachment_image_url($thumbId, 'medium_large') : '';
+        $types   = class_exists('TAP_Destination_Spots') && taxonomy_exists(TAP_Destination_Spots::TAX)
+            ? TAP_Destination_Spots::types_of($spot->ID)
+            : [];
+        $row = [
+            'title'  => get_the_title($spot->ID),
+            'link'   => get_permalink($spot->ID),
+            'img'    => $img,
+            'region' => (string) get_post_meta($spot->ID, '_tap_spot_region', true),
+            'type'   => (is_array($types) && $types) ? $types[0]->name : '',
+        ];
+        if ($row['img']) { $withImage[] = $row; } else { $phOnly[] = $row; }
+        if (count($withImage) >= $destWanted) break;
+    }
+    $spots = array_slice(array_merge($withImage, $phOnly), 0, $destWanted);
+}
+wp_reset_postdata();
+
 $searchUrl  = home_url('/search-results/');
 $builderPage = get_page_by_path('armar-mi-viaje');
 $itinUrl    = $builderPage ? get_permalink($builderPage) : $searchUrl;
@@ -322,6 +358,41 @@ foreach ($pillarDefs as $pDef) {
   </div>
 </section>
 
+<?php if (!empty($spots)): ?>
+<section class="tap-section tap-landing-destinations" id="destinos">
+  <div class="tap-container">
+    <div class="tap-landing-head">
+      <p class="tap-landing-eyebrow tap-landing-eyebrow-dark"><?php esc_html_e('Parques, reservas y pueblos', 'travel-agency-platform'); ?></p>
+      <h2><?php esc_html_e('Explorá los destinos', 'travel-agency-platform'); ?></h2>
+      <p class="tap-landing-sub"><?php esc_html_e('De los volcanes del norte a la península de Osa: guías editoriales con datos prácticos, biodiversidad y su ubicación exacta en el mapa.', 'travel-agency-platform'); ?></p>
+      <a class="tap-btn tap-btn-outline" href="<?php echo esc_url($destUrl); ?>"><?php esc_html_e('Explorar el mapa de destinos', 'travel-agency-platform'); ?></a>
+    </div>
+    <div class="tap-landing-dest-grid">
+      <?php foreach ($spots as $spot): ?>
+        <a class="tap-landing-dest-card" href="<?php echo esc_url($spot['link']); ?>">
+          <div class="tap-landing-dest-media">
+            <?php if ($spot['img']): ?>
+              <img src="<?php echo esc_url($spot['img']); ?>" alt="<?php echo esc_attr($spot['title']); ?>" loading="lazy" decoding="async">
+            <?php else: ?>
+              <div class="tap-landing-dest-ph" aria-hidden="true"><?php echo esc_html(mb_substr($spot['title'], 0, 1)); ?></div>
+            <?php endif; ?>
+            <?php if ($spot['type']): ?>
+              <span class="tap-landing-dest-type"><?php echo esc_html($spot['type']); ?></span>
+            <?php endif; ?>
+          </div>
+          <div class="tap-landing-dest-body">
+            <h3 class="tap-landing-dest-title"><?php echo esc_html($spot['title']); ?></h3>
+            <?php if ($spot['region']): ?>
+              <p class="tap-landing-dest-region"><?php echo esc_html($spot['region']); ?></p>
+            <?php endif; ?>
+          </div>
+        </a>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</section>
+<?php endif; ?>
+
 <?php if (!empty($interests)): ?>
 <section class="tap-section tap-landing-interests">
   <div class="tap-container">
@@ -357,7 +428,7 @@ foreach ($pillarDefs as $pDef) {
         <a class="tap-landing-card" href="<?php echo esc_url($xp['link']); ?>">
           <div class="tap-landing-card-media">
             <?php if ($xp['img']): ?>
-              <img src="<?php echo esc_url($xp['img']); ?>" alt="<?php echo esc_attr($xp['title']); ?>" loading="lazy">
+              <img src="<?php echo esc_url($xp['img']); ?>" alt="<?php echo esc_attr($xp['title']); ?>" loading="lazy" decoding="async">
             <?php else: ?>
               <div class="tap-landing-card-ph"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
             <?php endif; ?>
@@ -450,7 +521,7 @@ foreach ($pillarDefs as $pDef) {
         <a class="tap-landing-agency-card" href="<?php echo esc_url($ag['link']); ?>">
           <div class="tap-landing-agency-avatar">
             <?php if ($ag['logo']): ?>
-              <img src="<?php echo esc_url($ag['logo']); ?>" alt="<?php echo esc_attr($ag['name']); ?>" loading="lazy">
+              <img src="<?php echo esc_url($ag['logo']); ?>" alt="<?php echo esc_attr($ag['name']); ?>" loading="lazy" decoding="async">
             <?php else: ?>
               <span><?php echo esc_html($initials); ?></span>
             <?php endif; ?>
@@ -503,7 +574,7 @@ foreach ($pillarDefs as $pDef) {
         <a class="tap-landing-article-card" href="<?php echo esc_url($art['link']); ?>">
           <div class="tap-landing-article-media">
             <?php if ($art['img']): ?>
-              <img src="<?php echo esc_url($art['img']); ?>" alt="<?php echo esc_attr($art['title']); ?>" loading="lazy">
+              <img src="<?php echo esc_url($art['img']); ?>" alt="<?php echo esc_attr($art['title']); ?>" loading="lazy" decoding="async">
             <?php else: ?>
               <div class="tap-landing-article-ph"><?php echo esc_html(mb_substr($art['title'], 0, 1)); ?></div>
             <?php endif; ?>

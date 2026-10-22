@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-10-22T07:27:22+00:00\n"
+"POT-Creation-Date: 2026-10-22T21:19:29+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -14261,3 +14261,20 @@ msgstr "Username or email address"
 
 msgid "Crear cuenta"
 msgstr "Create account"
+
+# Theme: front page destinations section
+msgid "Parques, reservas y pueblos"
+msgstr "Parks, reserves and towns"
+
+msgid "Explorá los destinos"
+msgstr "Explore the destinations"
+
+msgid ""
+"De los volcanes del norte a la península de Osa: guías editoriales con datos "
+"prácticos, biodiversidad y su ubicación exacta en el mapa."
+msgstr ""
+"From the northern volcanoes to the Osa peninsula: editorial guides with "
+"practical facts, biodiversity and their exact spot on the map."
+
+msgid "Explorar el mapa de destinos"
+msgstr "Explore the destinations map"

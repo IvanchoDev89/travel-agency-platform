@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.49] — 2026-10-22
+
+Landing page: an editorial destinations section and friendlier interactions.
+
+### Added
+
+- **Destinations section on the front page.** A new teaser between the Costa Rica facts strip and the interests chips shows up to six published destinations (`tap_spot`, fixtures filtered out, those with a featured image first): photo, destination type badge, title and region, each linking to its educational page. The section degrades gracefully when there are no spots or no images (gradient placeholder with the destination's initial).
+- **"Explorar el mapa de destinos"** call to action linking to `/destinos/`, surfacing the interactive map on the landing.
+- **Animated stat counters.** The landing stats strip now counts up from zero to its server-rendered value with an ease-out ramp when the section becomes visible. Reduced-motion users and environments without IntersectionObserver keep the static number.
+- **English catalog entries** (curated, survived by the rescue pass in `tools/i18n.sh`) for the four new section strings.
+
+### Changed
+
+- **The hero parallax no longer runs on the landing page** (its decorative grid would slide out from under the fixed SVG wave, and it scrolled on every event); it is now throttled through `requestAnimationFrame` and only for heroes with a background layer.
+- Landing images get `decoding="async"` alongside `loading="lazy"`.
+- Theme version bumped to `2.0.1` (asset cache-busting). Plugin version bumped to `1.5.49` (header + `TAP_VERSION`).
+
+---
+
 ## [1.5.48] — 2026-10-21
 
 PHP security requirement: the plugin refuses to run on a vulnerable PHP core.
