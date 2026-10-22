@@ -1201,6 +1201,9 @@ class TAP_Shortcode_Search {
             'sitio-arqueologico'     => '<path d="M4 21h16"/><path d="M6 21V10l6-4 6 4v11"/><path d="M10 21v-6h4v6"/>',
             'zona-protegida'         => '<path d="M12 21s-7-6.5-7-11a7 7 0 0 1 14 0c0 4.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
             'monumento-natural'      => '<path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M12 22V12"/><path d="M3 7l9 5 9-5"/>',
+            'termas'                 => '<path d="M4 20c3-3 4-6 8-9s5-6 8-9"/><path d="M3 20h18"/><path d="M8 16c2-2 3-4 6-6"/>',
+            'pueblo'                 => '<path d="M3 21h18"/><path d="M5 21v-8h5v8"/><path d="M13 21v-11h6v11"/><path d="M7 16h1M16 14h1"/>',
+            'mirador'                => '<path d="M2 20h20"/><path d="M12 20V9"/><path d="M6 20l6-11 6 11"/><path d="M9.5 15.5l2.5-2.5 2.5 2.5"/>',
         ];
         $svg = $icons[$type] ?? '<path d="M12 21s-7-6.5-7-11a7 7 0 0 1 14 0c0 4.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>';
         return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' . $svg . '</svg>';

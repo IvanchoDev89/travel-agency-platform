@@ -20,6 +20,7 @@ class TAP_Destination_Spots {
     const TAX = 'tap_spot_type';
     const SEED_OPTION = 'tap_spot_seed';
     const ENRICH_OPTION = 'tap_spot_enriched';
+    const ENRICH_VERSION = 2;
     const PAGE_OPTION = 'tap_spot_page_id';
 
     /** Default categories (slug => label). Labels are translated at register time. */
@@ -33,6 +34,9 @@ class TAP_Destination_Spots {
             'sitio-arqueologico'     => __('Sitio Arqueológico', 'travel-agency-platform'),
             'zona-protegida'         => __('Zona Protectora', 'travel-agency-platform'),
             'monumento-natural'      => __('Monumento Natural', 'travel-agency-platform'),
+            'termas'                 => __('Termas', 'travel-agency-platform'),
+            'pueblo'                 => __('Pueblo Turístico', 'travel-agency-platform'),
+            'mirador'                => __('Mirador', 'travel-agency-platform'),
         ];
     }
 
@@ -743,12 +747,16 @@ class TAP_Destination_Spots {
      * editor's own edits are never overwritten.
      */
     public static function enrich_existing() {
-        if (!post_type_exists(self::CPT) || get_option(self::ENRICH_OPTION)) {
+        if (!post_type_exists(self::CPT)) {
+            return;
+        }
+        $done = (int) get_option(self::ENRICH_OPTION);
+        if ($done >= self::ENRICH_VERSION) {
             return;
         }
 
         $list_keys = ['biodiversity', 'activities', 'tips'];
-        $text_keys = ['region', 'ecosystem', 'altitude', 'best_season', 'conservation'];
+        $text_keys = ['region', 'ecosystem', 'altitude', 'best_season', 'conservation', 'accessibility', 'website'];
 
         foreach (self::seed_spots() as $slug => $spot) {
             $post = get_page_by_path($slug, OBJECT, self::CPT);
@@ -772,9 +780,32 @@ class TAP_Destination_Spots {
                     update_post_meta($id, '_tap_spot_' . $k, $spot[$k]);
                 }
             }
+            // The editorial body lives in the post itself, not in meta.
+            if (!empty($spot['content']) && '' === trim((string) $post->post_content)) {
+                wp_update_post([
+                    'ID'           => $id,
+                    'post_content' => $spot['content'],
+                ]);
+            }
         }
 
-        update_option(self::ENRICH_OPTION, 1);
+        update_option(self::ENRICH_OPTION, self::ENRICH_VERSION);
+    }
+
+    /**
+     * Insert the destinations added after the first release.
+     *
+     * Idempotent and non-destructive: a destination that already exists is
+     * left untouched, so an editor's edits are never lost.
+     */
+    public static function sync_extra_spots() {
+        if (!post_type_exists(self::CPT)) {
+            return;
+        }
+        self::seed_types();
+        foreach (self::seed_extra_spots() as $slug => $spot) {
+            self::insert_spot($slug, $spot);
+        }
     }
 
     private static function insert_spot($slug, array $spot) {
@@ -823,7 +854,7 @@ class TAP_Destination_Spots {
      * factual educational notes. Coordinates are approximate centroids.
      */
     public static function seed_spots() {
-        return [
+        $spots = [
             'volcan-arenal' => [
                 'title'    => 'Parque Nacional Volcán Arenal',
                 'type'     => 'parque-nacional',
@@ -1423,5 +1454,878 @@ class TAP_Destination_Spots {
                 'conservation' => __('Protege una de las últimas poblaciones de tortuga baula del Caribe, junto con el manglar más extenso de la zona.', 'travel-agency-platform'),
             ],
         ];
+
+        $spots = array_merge($spots, self::seed_extra_spots());
+        return self::merge_content($spots);
+    }
+
+    /**
+     * Destinations added to the map after the first release.
+     *
+     * They live in their own method so the original seed stays readable and
+     * both sets can be reviewed independently. Several of them sit on the same
+     * towns where the platform's services are published, so the map connects
+     * the protected areas with the bookable experiences around them.
+     *
+     * @return array<string,array<string,mixed>>
+     */
+    public static function seed_extra_spots() {
+        return [
+            'monteverde' => [
+                'title'    => 'Reserva Biológica del Bosque Nuboso de Monteverde',
+                'type'     => 'reserva-biologica',
+                'lat' => '10.3009', 'lng' => '-84.8245',
+                'province' => 'Puntarenas',
+                'excerpt'  => __('Niebla constante, aves que viven en el dosel y uno de los hábitats más difíciles de conservar del planeta.', 'travel-agency-platform'),
+                'interest' => [
+                    __('La neblina cubre el bosque casi todo el año y mantiene la humedad que lo hace único.', 'travel-agency-platform'),
+                    __('El quetzal anida en las copas: el macho tiene una cola de hasta un metro.', 'travel-agency-platform'),
+                    __('Protege 1.600 hectáreas donde las epífitas cubren el 75 por ciento de los troncos.', 'travel-agency-platform'),
+                    __('Se recorre con senderos de tablones y pasarelas entre la neblina.', 'travel-agency-platform'),
+                ],
+                'biodiversity' => [
+                    __('Quetzal, la cotinga y el tucán del bosque nuboso', 'travel-agency-platform'),
+                    __('Gavilanes, tucanes y más de 400 especies de aves', 'travel-agency-platform'),
+                    __('Perezoso de dos dedos, armadillo y zarigueya', 'travel-agency-platform'),
+                    __('Ranitas de colores y orquídeas epífitas', 'travel-agency-platform'),
+                ],
+                'activities' => [
+                    __('Recorrido guiado por los senderos con pasarela', 'travel-agency-platform'),
+                    __('Avistamiento del quetzal en los árboles', 'travel-agency-platform'),
+                    __('Caminatas nocturnas para ver animales activos', 'travel-agency-platform'),
+                    __('Visita al centro de visitantes del bosque', 'travel-agency-platform'),
+                ],
+                'tips' => [
+                    __('Lleve ropa impermeable y calzado cómodo', 'travel-agency-platform'),
+                    __('El sendero puede resbalar con la humedad', 'travel-agency-platform'),
+                    __('Use repelente y linterna', 'travel-agency-platform'),
+                ],
+                'schedule' => __('Todos los días, de 7:00 a 16:00', 'travel-agency-platform'),
+                'fee' => __('Entrada: $10 extranjeros / 3.000 colones nacionales', 'travel-agency-platform'),
+                'area' => __('1.600 hectáreas', 'travel-agency-platform'),
+                'created' => __('1983', 'travel-agency-platform'),
+                'region' => __('Puntarenas', 'travel-agency-platform'),
+                'ecosystem' => __('Bosque nuboso húmedo de montaña', 'travel-agency-platform'),
+                'altitude' => __('1.530-1.800 msnm', 'travel-agency-platform'),
+                'best_season' => __('Diciembre a abril para las aves migratorias', 'travel-agency-platform'),
+                'conservation' => __('Su creación en 1983 evitó la tala de un bosque que hoy alimenta a los cafetales de la zona; sigue siendo el mayor esfuerzo de conservación privada de bosque nuboso del país.', 'travel-agency-platform'),
+                'accessibility' => __('El sendero principal tiene tablones y es transitable con ayuda; la niebla y las escaleras limitan la movilidad autónoma.', 'travel-agency-platform'),
+                'website' => __('https://www.reservabosquedemonteverde.org/', 'travel-agency-platform'),
+                'content' => __('El bosque nuboso de Monteverde se mantuvo a salvo casi por accidente: cafetaleros sin un ingreso propio, junto con los conservacionistas, aceptaron dejar áreas sin talar a cambio de agua. Hoy la reserva protege 1.600 hectáreas de bosque con neblina permanente, donde el quetzal y las aves del dosel son la verdadera atracción. Las pasarelas de tablones permiten entrar sin pisar el suelo, algo poco habitual en un bosque tan húmedo.', 'travel-agency-platform'),
+            ],
+            'santa-rosa' => [
+                'title'    => 'Parque Nacional Santa Rosa',
+                'type'     => 'zona-protegida',
+                'lat' => '10.3006', 'lng' => '-85.5639',
+                'province' => 'Guanacaste',
+                'excerpt'  => __('El primer parque nacional del país, con el mayor manglar del Pacífico.', 'travel-agency-platform'),
+                'interest' => [
+                    __('Abrió en 1955 y fue el primer parque nacional del país.', 'travel-agency-platform'),
+                    __('Su manglar de 1.000 hectáreas es el mayor del Pacífico.', 'travel-agency-platform'),
+                    __('En Matapalo se protege bosque seco, matorral y dunas costeras.', 'travel-agency-platform'),
+                    __('La playa de Nacascolo es punto de llegada de las tortugas verdes.', 'travel-agency-platform'),
+                ],
+                'biodiversity' => [
+                    __('Crocodilo americano en los canales del manglar', 'travel-agency-platform'),
+                    __('Mono aullador en el bosque seco', 'travel-agency-platform'),
+                    __('Venado cola blanca en el sector de Matapalo', 'travel-agency-platform'),
+                    __('Tortuga verde en la playa de Nacascolo', 'travel-agency-platform'),
+                ],
+                'activities' => [
+                    __('Paseo en bote por los canales del manglar', 'travel-agency-platform'),
+                    __('Caminata desde el parque hasta la playa', 'travel-agency-platform'),
+                    __('Avistamiento de tortugas verdes en la costa', 'travel-agency-platform'),
+                    __('Observación de aves con guía especializado', 'travel-agency-platform'),
+                ],
+                'tips' => [
+                    __('La navegación en el manglar es difícil: vaya con guía.', 'travel-agency-platform'),
+                    __('En la playa no hay servicios, lleve agua y comida.', 'travel-agency-platform'),
+                    __('Manténgase lejos del agua por los crocodilos.', 'travel-agency-platform'),
+                ],
+                'schedule' => __('Todos los días, de 7:00 a 16:00', 'travel-agency-platform'),
+                'fee' => __('Entrada: $6 extranjeros / 1.000 colones nacionales', 'travel-agency-platform'),
+                'area' => __('13.500 hectáreas', 'travel-agency-platform'),
+                'created' => __('1955', 'travel-agency-platform'),
+                'region' => __('Guanacaste', 'travel-agency-platform'),
+                'ecosystem' => __('Bosque seco tropical, manglar y dunas costeras', 'travel-agency-platform'),
+                'altitude' => __('0-200 msnm', 'travel-agency-platform'),
+                'best_season' => __('Diciembre a abril, y julio para ver tortugas', 'travel-agency-platform'),
+                'conservation' => __('Forma parte del área de conservación Guanacaste y protege el bosque seco del Pacífico norte.', 'travel-agency-platform'),
+                'accessibility' => __('Los senderos son de tierra y el manglar exige barca; no hay sillas de ruedas.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+                'content' => __('El parque abrió en 1955 y fue la primera área protegida del país. Hoy protege bosque seco, el mayor manglar del Pacífico y la playa de Nacascolo. En julio llegan tortugas verdes a desovar en la costa.', 'travel-agency-platform'),
+            ],
+            'la-fortuna' => [
+                'title'    => 'La Fortuna y sus Termas',
+                'type'     => 'termas',
+                'lat' => '10.4678', 'lng' => '-84.6428',
+                'province' => 'Alajuela',
+                'excerpt'  => __('Aguas termales a los pies del Arenal, café de altura y el volcán de fondo.', 'travel-agency-platform'),
+                'interest' => [
+                    __('Las termas reciben agua de 60 a 100 grados de fuentes volcánicas.', 'travel-agency-platform'),
+                    __('El pueblo está en la base norte del Volcán Arenal, a 20 km del cono.', 'travel-agency-platform'),
+                    __('La zona cafétera produce café de altura de gran calidad.', 'travel-agency-platform'),
+                    __('Es punto de partida hacia el Arenal, el Río Celeste y Lomas Barbudal.', 'travel-agency-platform'),
+                ],
+                'biodiversity' => [
+                    __('Tucanes, colibríes y tres especies de monos en los cerros', 'travel-agency-platform'),
+                    __('Aves migratorias que descansan en la zona durante sus viajes', 'travel-agency-platform'),
+                    __('Arañas, escarabajos y moluscos de humedad tropical', 'travel-agency-platform'),
+                    __('Bosque ribereño con aves acuáticas en el Río San Carlos', 'travel-agency-platform'),
+                ],
+                'activities' => [
+                    __('Baño en las termas naturales', 'travel-agency-platform'),
+                    __('Visita una plantación de café con cata', 'travel-agency-platform'),
+                    __('Paseos en bote por el Lago Arenal al atardecer', 'travel-agency-platform'),
+                    __('Caminatas nocturnas con guía en los senderos del cono', 'travel-agency-platform'),
+                ],
+                'tips' => [
+                    __('Lleve traje de baño y toalla: hay taquillas y duchas con agua caliente.', 'travel-agency-platform'),
+                    __('El acceso a las termas es libre; se paga solo el uso de las instalaciones.', 'travel-agency-platform'),
+                    __('Use repelente en el bosque: los senderos son cortos y hay garrapatas.', 'travel-agency-platform'),
+                ],
+                'schedule' => __('Termas abiertas todos los días, de 8:00 a 21:00', 'travel-agency-platform'),
+                'fee' => __('Termas: desde $12 extranjeros / 4.000 colones nacionales', 'travel-agency-platform'),
+                'area' => __('Zona de termas de unas 3 hectáreas', 'travel-agency-platform'),
+                'created' => __('1913', 'travel-agency-platform'),
+                'region' => __('Zona Norte', 'travel-agency-platform'),
+                'ecosystem' => __('Bosque premontano, campos de café y fuentes geotérmicas', 'travel-agency-platform'),
+                'altitude' => __('340 msnm', 'travel-agency-platform'),
+                'best_season' => __('Diciembre a abril y julio a agosto', 'travel-agency-platform'),
+                'conservation' => __('Las fuentes termales nacen del mismo sistema volcánico que alimenta el Arenal; su uso se regula para evitar el sobreconsumo de agua.', 'travel-agency-platform'),
+                'accessibility' => __('Las termas tienen plataformas y acceso por rampa; los senderos naturales no son accesibles en silla de ruedas.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+                'content' => __('La Fortuna creció alrededor de las fuentes termales que afloran en la falda del Arenal y hoy es el punto de partida más usado de la Zona Norte. A veinte kilómetros del cono, el pueblo combina el volcán de fondo con restaurantes y la salida diaria de los tours hacia el parque nacional, el Río Celeste y las senderas de Lomas Barbudal.', 'travel-agency-platform'),
+            ],
+            'montezuma' => [
+                'title'    => 'Montezuma y Santa Teresa',
+                'type'     => 'pueblo',
+                'lat' => '9.6500', 'lng' => '-85.0667',
+                'province' => 'Puntarenas',
+                'excerpt'  => __('La playa más conocida de la península de Nicoya: surf, yoga y atardeceres sobre el Pacífico.', 'travel-agency-platform'),
+                'interest' => [
+                    __('Montezuma fue un pueblo pesquero que atrajo la primera ola de surf en los años 70.', 'travel-agency-platform'),
+                    __('Santa Teresa, a 7 km, es el foco de la vida nocturna y de las clases de yoga.', 'travel-agency-platform'),
+                    __('La zona protege bosque seco tropical y varias bahías con anidación de tortuga.', 'travel-agency-platform'),
+                    __('La bahía de Crucitas es el mejor punto para ver ballenas jorobadas en temporada.', 'travel-agency-platform'),
+                ],
+                'biodiversity' => [
+                    __('Ballenas jorobadas y delfines en temporada', 'travel-agency-platform'),
+                    __('Tortugas verdes que anidan en la arena de Malabrigo', 'travel-agency-platform'),
+                    __('Aves playeras y garzas en la franja de manglar', 'travel-agency-platform'),
+                    __('Bosque seco con quebranta y chapulines', 'travel-agency-platform'),
+                ],
+                'activities' => [
+                    __('Clases de surf para todos los niveles', 'travel-agency-platform'),
+                    __('Kayak y paddle board en la bahía de Crucitas', 'travel-agency-platform'),
+                    __('Avistamiento de ballenas desde el agua', 'travel-agency-platform'),
+                    __('Caminata al mirador de Montezuma al atardecer', 'travel-agency-platform'),
+                ],
+                'tips' => [
+                    __('Las corrientes son fuertes: nade solo en la zona marcada y con chaleco.', 'travel-agency-platform'),
+                    __('En temporada alta las playas se llenan: llegue temprano.', 'travel-agency-platform'),
+                    __('El camino a Santa Teresa es de tierra: use un vehículo alto.', 'travel-agency-platform'),
+                ],
+                'schedule' => __('Pueblo con acceso libre; las actividades se reservan por la tarde', 'travel-agency-platform'),
+                'fee' => __('Sin entrada; las clases de surf y las excursiones tienen precio aparte', 'travel-agency-platform'),
+                'area' => __('Bahías de Montezuma, Santa Teresa y Malabrigo', 'travel-agency-platform'),
+                'created' => __('1845', 'travel-agency-platform'),
+                'region' => __('Península de Nicoya', 'travel-agency-platform'),
+                'ecosystem' => __('Bosque seco tropical y selva costera', 'travel-agency-platform'),
+                'altitude' => __('0-120 msnm', 'travel-agency-platform'),
+                'best_season' => __('Diciembre a abril y julio a agosto', 'travel-agency-platform'),
+                'conservation' => __('La franja costera de Santa Teresa y Montezuma forma parte de la zona de protección del bosque seco y de las bahías de anidación de tortuga.', 'travel-agency-platform'),
+                'accessibility' => __('El centro del pueblo es transitable a pie; las playas de arena suave no tienen acceso para sillas de ruedas.', 'travel-agency-platform'),
+                'website' => __('https://www.visitcostarica.com/', 'travel-agency-platform'),
+                'content' => __('Montezuma cambio de pesquería a turismo cuando los surfistas llegaron en los años setenta, y hoy sigue siendo un pueblo pequeño de casas bajas con la playa como eje. A siete kilómetros, Santa Teresa concentra la escena de yoga, surf y vida nocturna, mientras que las playas del sur mantienen un ambiente más tranquilo. El atardecer sobre el Pacífico, los botes de pesca que salen de madrugada y las tortugas que anidan de noche en Malabrigo resumen el lugar.', 'travel-agency-platform'),
+            ],
+            'nuevo-arenal' => [
+                'title'    => 'Nuevo Arenal y el Lago Arenal',
+                'type'     => 'pueblo',
+                'lat' => '10.2622', 'lng' => '-84.5833',
+                'province' => 'Guanacaste',
+                'excerpt'  => __('Pueblo a la orilla del lago más grande del país, con botes al atardecer.', 'travel-agency-platform'),
+                'interest' => [
+                    __('El Lago Arenal tiene 51 km² y es el lago más grande de Costa Rica.', 'travel-agency-platform'),
+                    __('El pueblo viejo quedó bajo el agua en 1990, con el proyecto Arenal.', 'travel-agency-platform'),
+                    __('El Observatorio Arenal queda a 5 km y observa el volcán.', 'travel-agency-platform'),
+                    __('Desde el muelle salen los botes de atardecer por el lago.', 'travel-agency-platform'),
+                ],
+                'biodiversity' => [
+                    __('Mono aullador en el bosque de ribera', 'travel-agency-platform'),
+                    __('Perezoso de dos dedos en los árboles', 'travel-agency-platform'),
+                    __('Crocodrilos en el río Chiquito', 'travel-agency-platform'),
+                    __('Martin pescador en la orilla del lago', 'travel-agency-platform'),
+                ],
+                'activities' => [
+                    __('Paseo en bote al atardecer por el lago', 'travel-agency-platform'),
+                    __('Caminata hasta el Observatorio Arenal', 'travel-agency-platform'),
+                    __('Observación de aves en la orilla del lago', 'travel-agency-platform'),
+                    __('Kayak en el lago durante la mañana', 'travel-agency-platform'),
+                ],
+                'tips' => [
+                    __('Lleve una chaqueta para la tarde en el lago.', 'travel-agency-platform'),
+                    __('El camino al observatorio es angosto y con curvas.', 'travel-agency-platform'),
+                    __('Nade solo en las áreas marcadas del lago.', 'travel-agency-platform'),
+                ],
+                'schedule' => __('Acceso libre; los paseos en bote salen por la tarde', 'travel-agency-platform'),
+                'fee' => __('Sin entrada', 'travel-agency-platform'),
+                'area' => __('Pueblo a la orilla del Lago Arenal, en el norte de Guanacaste', 'travel-agency-platform'),
+                'created' => __('1990', 'travel-agency-platform'),
+                'region' => __('Guanacaste', 'travel-agency-platform'),
+                'ecosystem' => __('Lago de agua dulce y bosque de ribera', 'travel-agency-platform'),
+                'altitude' => __('520 msnm', 'travel-agency-platform'),
+                'best_season' => __('Diciembre a abril y de julio a octubre', 'travel-agency-platform'),
+                'conservation' => __('El lago y sus Áreas de ribera forman parte del área de conservación Guanacaste.', 'travel-agency-platform'),
+                'accessibility' => __('El pueblo es transitable a pie y el muelle es plano; los senderos del lago no.', 'travel-agency-platform'),
+                'website' => __('https://www.visitcostarica.com/', 'travel-agency-platform'),
+                'content' => __('Nuevo Arenal se levantó de nuevo en 1990, cuando el embalse tapó el pueblo viejo. Hoy vive del lago y ofrece los atardeceres más claros del norte del país. Los botes salen al atardecer y el Observatorio Arenal queda a cinco kilómetros.', 'travel-agency-platform'),
+            ],
+            'rio-celeste' => [
+                'title'    => 'Río Celeste y los Tenideros',
+                'type'     => 'termas',
+                'lat' => '10.5708', 'lng' => '-84.9547',
+                'province' => 'Alajuela',
+                'excerpt'  => __('Agua turquesa de minerales termales y una cascada dentro del parque Tenorio.', 'travel-agency-platform'),
+                'interest' => [
+                    __('El río nace donde el Río Grande del volcán se une con el Río Pailas.', 'travel-agency-platform'),
+                    __('Los minerales de las aguas termales dan el color turquesa.', 'travel-agency-platform'),
+                    __('Los tenideros son las pozas donde el color del agua cambia.', 'travel-agency-platform'),
+                    __('La cascada cae unos 8 metros sobre una piscina natural.', 'travel-agency-platform'),
+                ],
+                'biodiversity' => [
+                    __('Mono aullador en el bosque de montaña', 'travel-agency-platform'),
+                    __('Capuchin de cara blanca en los árboles', 'travel-agency-platform'),
+                    __('Quetzal resplandeciente en el bosque alto', 'travel-agency-platform'),
+                    __('Ocelote en la selva húmeda', 'travel-agency-platform'),
+                ],
+                'activities' => [
+                    __('Caminata de 3 km hasta la cascada y las pozas', 'travel-agency-platform'),
+                    __('Baño en el río de agua fría', 'travel-agency-platform'),
+                    __('Visita al centro de información', 'travel-agency-platform'),
+                    __('Observación de aves en el sendero', 'travel-agency-platform'),
+                ],
+                'tips' => [
+                    __('La corriente es fuerte: nade solo con chaleco y cuidado.', 'travel-agency-platform'),
+                    __('Lleve toalla y ropa para cambiarse.', 'travel-agency-platform'),
+                    __('Use calzado para las rocas resbalosas.', 'travel-agency-platform'),
+                ],
+                'schedule' => __('Todos los días, de 8:00 a 14:00, con cupo por hora', 'travel-agency-platform'),
+                'fee' => __('Entrada: $12 extranjeros / 800 colones nacionales', 'travel-agency-platform'),
+                'area' => __('Sitio termal dentro del Parque Nacional Volcán Tenorio', 'travel-agency-platform'),
+                'created' => __('1995', 'travel-agency-platform'),
+                'region' => __('Zona Norte', 'travel-agency-platform'),
+                'ecosystem' => __('Bosque húmedo de montaña y ríos geotermicos', 'travel-agency-platform'),
+                'altitude' => __('1.400 msnm', 'travel-agency-platform'),
+                'best_season' => __('Diciembre a abril para el cielo despejado', 'travel-agency-platform'),
+                'conservation' => __('Está dentro del Parque Nacional Volcán Tenorio, que protege los manantiales geotermicos.', 'travel-agency-platform'),
+                'accessibility' => __('El sendero de 3 km tiene tierra y escalones, no es apto para sillas de ruedas.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+                'content' => __('El Río Celeste nace del encuentro entre el Río Grande y el Río Pailas. Los minerales termales dan el color turquesa a los tenideros. La caminata de 3 km lleva a la cascada y cruza un puente.', 'travel-agency-platform'),
+            ],
+            'lomas-barbudal' => [
+                'title'    => 'Reserva Biológica Lomas Barbudal',
+                'type'     => 'reserva-biologica',
+                'lat' => '10.0833', 'lng' => '-85.3667',
+                'province' => 'Guanacaste',
+                'excerpt'  => __('Uno de los últimos bosques secos de Guanacaste y un gran refugio de aves.', 'travel-agency-platform'),
+                'interest' => [
+                    __('Se creó en 1991 junto con el área de conservación Guanacaste.', 'travel-agency-platform'),
+                    __('Protege 2.797 hectáreas de bosque seco casi intacto.', 'travel-agency-platform'),
+                    __('Es uno de los últimos bosques secos que quedan en Guanacaste.', 'travel-agency-platform'),
+                    __('Forma parte de un corredor biológico entre el norte y el sur.', 'travel-agency-platform'),
+                ],
+                'biodiversity' => [
+                    __('Más de 230 especies de aves registradas en la reserva', 'travel-agency-platform'),
+                    __('Ara escarlata en el bosque seco', 'travel-agency-platform'),
+                    __('Venado cola blanca en los claros', 'travel-agency-platform'),
+                    __('Mapache, iguana verde y otros mamíferos', 'travel-agency-platform'),
+                ],
+                'activities' => [
+                    __('Caminata guiada de observación de aves', 'travel-agency-platform'),
+                    __('Visita al centro de visitantes', 'travel-agency-platform'),
+                    __('Recorrido por los senderos del bosque seco', 'travel-agency-platform'),
+                    __('Picnic en el mirador', 'travel-agency-platform'),
+                ],
+                'tips' => [
+                    __('El sendero es rugoso y polvoroso en temporada seca.', 'travel-agency-platform'),
+                    __('Lleve agua, sombrero y protector solar.', 'travel-agency-platform'),
+                    __('La lista de aves del sitio está en la entrada.', 'travel-agency-platform'),
+                ],
+                'schedule' => __('Todos los días, de 8:00 a 16:00', 'travel-agency-platform'),
+                'fee' => __('Entrada: $10 extranjeros / 2.500 colones nacionales', 'travel-agency-platform'),
+                'area' => __('2.797 hectáreas', 'travel-agency-platform'),
+                'created' => __('1991', 'travel-agency-platform'),
+                'region' => __('Guanacaste', 'travel-agency-platform'),
+                'ecosystem' => __('Bosque seco tropical y galería de ribera', 'travel-agency-platform'),
+                'altitude' => __('100-800 msnm', 'travel-agency-platform'),
+                'best_season' => __('Diciembre a abril y julio para las aves', 'travel-agency-platform'),
+                'conservation' => __('Protege uno de los últimos bosques secos de Guanacaste dentro de un corredor biológico.', 'travel-agency-platform'),
+                'accessibility' => __('Los senderos son de tierra y piedra, no hay acceso en silla de ruedas.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+                'content' => __('Lomas Barbudal protege uno de los últimos bosques secos de Guanacaste. Sus senderos suben desde el suelo rojo hasta el mirador, con el bosque como protagonista. Su lista de aves roza las 230 especies, la razón de muchas visitas.', 'travel-agency-platform'),
+            ],
+            'cabo-blanco' => [
+                'title'    => 'Reserva Natural Absoluta de Cabo Blanco',
+                'type'     => 'monumento-natural',
+                'lat' => '9.5333', 'lng' => '-85.1167',
+                'province' => 'Puntarenas',
+                'excerpt'  => __('La primera reserva absoluta del país: bosque seco, costa rocosa y una playa de tortugas.', 'travel-agency-platform'),
+                'interest' => [
+                    __('Declarada en 1963, fue la primera reserva natural absoluta del país.', 'travel-agency-platform'),
+                    __('Cubre unas 7.800 hectáreas que incluyen el mar y el bosque seco.', 'travel-agency-platform'),
+                    __('En 1963 los Beatles nadaron en la playa que hoy protege las tortugas.', 'travel-agency-platform'),
+                    __('El proyecto Ostional administra la reserva de tortugas marinas del sitio.', 'travel-agency-platform'),
+                ],
+                'biodiversity' => [
+                    __('Tortuga verde que anida en la playa de Cabo Blanco', 'travel-agency-platform'),
+                    __('Buhón blanco y negro en el bosque seco', 'travel-agency-platform'),
+                    __('Ara escarlata en parejas en el dosel', 'travel-agency-platform'),
+                    __('Venado cola blanca en los claros del bosque', 'travel-agency-platform'),
+                ],
+                'activities' => [
+                    __('Visita a la playa de anidación de tortugas', 'travel-agency-platform'),
+                    __('Caminata por el sendero costero', 'travel-agency-platform'),
+                    __('Observación de aves al amanecer', 'travel-agency-platform'),
+                    __('Snorkel en el arrecife', 'travel-agency-platform'),
+                ],
+                'tips' => [
+                    __('Los senderos son cortos pero rocosos: lleve buen calzado.', 'travel-agency-platform'),
+                    __('No hay servicios en la playa, lleve agua y protector solar.', 'travel-agency-platform'),
+                    __('Respete las zonas marcadas de anidación de las tortugas.', 'travel-agency-platform'),
+                ],
+                'schedule' => __('Todos los días, de 8:00 a 16:00', 'travel-agency-platform'),
+                'fee' => __('Entrada: $6 extranjeros / 1.000 colones nacionales', 'travel-agency-platform'),
+                'area' => __('7.800 hectáreas, con el mar y el bosque', 'travel-agency-platform'),
+                'created' => __('1963', 'travel-agency-platform'),
+                'region' => __('Puntarenas', 'travel-agency-platform'),
+                'ecosystem' => __('Bosque seco tropical, costa rocosa y área marina', 'travel-agency-platform'),
+                'altitude' => __('0-120 msnm', 'travel-agency-platform'),
+                'best_season' => __('Junio a noviembre para las tortugas', 'travel-agency-platform'),
+                'conservation' => __('Protege el bosque seco y la costa donde anidan tortugas verdes, con áreas delimitadas para su protección.', 'travel-agency-platform'),
+                'accessibility' => __('Se llega por carretera y a pie; los senderos rocosos no admiten sillas de ruedas.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+                'content' => __('Cabo Blanco fue declarada reserva absoluta en 1963, la primera del país. Hoy protege unas 7.800 hectáreas de bosque seco, costa rocosa y mar. La playa donde nadaron los Beatles recibe tortugas verdes cada temporada.', 'travel-agency-platform'),
+            ],
+            'cabo-papagayo' => [
+                'title'    => 'Cabo Papagayo y Península de Nicoya',
+                'type'     => 'playa-protegida',
+                'lat' => '10.5372', 'lng' => '-85.7536',
+                'province' => 'Guanacaste',
+                'excerpt'  => __('El extremo más norte de la península de Nicoya, con acantilados y bosque seco.', 'travel-agency-platform'),
+                'interest' => [
+                    __('Es el punto más septentrional de la península de Nicoya.', 'travel-agency-platform'),
+                    __('Rodean el cabo el bosque seco y los acantilados rocosos.', 'travel-agency-platform'),
+                    __('Desde el mirador se ve todo el Golfo de Papagayo.', 'travel-agency-platform'),
+                    __('Cerca están los hoteles y las playas de Playa Nacascolo.', 'travel-agency-platform'),
+                ],
+                'biodiversity' => [
+                    __('Fragata y pelicano pardo sobre la costa', 'travel-agency-platform'),
+                    __('Mono aullador en el bosque seco', 'travel-agency-platform'),
+                    __('Venado cola blanca en los claros', 'travel-agency-platform'),
+                    __('Aves playeras en la franja de arena', 'travel-agency-platform'),
+                ],
+                'activities' => [
+                    __('Caminata por el sendero costero hasta el acantilado', 'travel-agency-platform'),
+                    __('Paseo en bote por el golfo', 'travel-agency-platform'),
+                    __('Visita a las playas cercanas', 'travel-agency-platform'),
+                    __('Snorkel en el arrecife', 'travel-agency-platform'),
+                ],
+                'tips' => [
+                    __('El sol es fuerte y no hay sombra en el camino.', 'travel-agency-platform'),
+                    __('Los caminos son rocosos, use calzado firme.', 'travel-agency-platform'),
+                    __('El bosque seco es ralo: no espere sombra.', 'travel-agency-platform'),
+                ],
+                'schedule' => __('Acceso libre todo el día en las áreas publicas', 'travel-agency-platform'),
+                'fee' => __('Sin entrada a las playas', 'travel-agency-platform'),
+                'area' => __('Cabo, Playa Nacascolo y los acantilados del norte', 'travel-agency-platform'),
+                'created' => __('2008', 'travel-agency-platform'),
+                'region' => __('Guanacaste', 'travel-agency-platform'),
+                'ecosystem' => __('Bosque seco tropical, manglar y costa rocosa', 'travel-agency-platform'),
+                'altitude' => __('0-80 msnm', 'travel-agency-platform'),
+                'best_season' => __('Diciembre a abril y de julio a octubre', 'travel-agency-platform'),
+                'conservation' => __('El cabo pertenece al Área de Conservación Tempisque, que protege el bosque seco y la anidación de tortugas.', 'travel-agency-platform'),
+                'accessibility' => __('Se llega en vehículo por camino de tierra; el sendero al acantilado es de rocas.', 'travel-agency-platform'),
+                'website' => __('https://www.visitcostarica.com/', 'travel-agency-platform'),
+                'content' => __('Cabo Papagayo marca el punto más septentrional de la península de Nicoya. El camino costero pasa entre bosque seco y acantilados hasta el mirador del golfo. Alrededor hay hoteles y playas, y al sur el refugio de tortugas de Ostional.', 'travel-agency-platform'),
+            ],
+            'cerro-de-la-muerte' => [
+                'title'    => 'Cerro de la Muerte',
+                'type'     => 'mirador',
+                'lat' => '9.5700', 'lng' => '-83.8700',
+                'province' => 'San José',
+                'excerpt'  => __('El punto más alto de la sierra de Talamanca, con vista al valle de Savegre.', 'travel-agency-platform'),
+                'interest' => [
+                    __('Su cima llega a 3.642 msnm y se conoce también como Savegre.', 'travel-agency-platform'),
+                    __('La carretera interamericana pasa a poca distancia del mirador.', 'travel-agency-platform'),
+                    __('Desde el mirador se ve el valle de Savegre y el Pacífico.', 'travel-agency-platform'),
+                    __('Alrededor hay plantaciones de pino, páramo y bosque frío de montaña.', 'travel-agency-platform'),
+                ],
+                'biodiversity' => [
+                    __('Gallo de monte, ave endémica de la sierra', 'travel-agency-platform'),
+                    __('Quetzal resplandeciente en el bosque nuboso cercano', 'travel-agency-platform'),
+                    __('Mono aullador en las zonas más bajas', 'travel-agency-platform'),
+                    __('Tapir de monte, el mamífero mayor del país', 'travel-agency-platform'),
+                ],
+                'activities' => [
+                    __('Caminata por el mirador de la carretera', 'travel-agency-platform'),
+                    __('Visita a la Reserva Biológica Lomas Barbudal, muy cerca', 'travel-agency-platform'),
+                    __('Recorrido por fincas de café y miel en el valle', 'travel-agency-platform'),
+                    __('Fotografía del valle al amanecer', 'travel-agency-platform'),
+                ],
+                'tips' => [
+                    __('Arriba hace frío y viento casi todo el año.', 'travel-agency-platform'),
+                    __('En la mañana hay neblina y la vista se pierde.', 'travel-agency-platform'),
+                    __('En temporada de lluvias use un vehículo 4x4.', 'travel-agency-platform'),
+                ],
+                'schedule' => __('Acceso todo el día; la carretera permanece abierta todo el año', 'travel-agency-platform'),
+                'fee' => __('Sin entrada', 'travel-agency-platform'),
+                'area' => __('Mirador y tramo de la ruta 32 en la sierra de Talamanca', 'travel-agency-platform'),
+                'created' => __('1943', 'travel-agency-platform'),
+                'region' => __('Talamanca', 'travel-agency-platform'),
+                'ecosystem' => __('Páramo de alta altura, bosque de pino y bosque nuboso', 'travel-agency-platform'),
+                'altitude' => __('1.500-3.642 msnm', 'travel-agency-platform'),
+                'best_season' => __('Diciembre a abril, y julio para la carretera', 'travel-agency-platform'),
+                'conservation' => __('Protege el pino, el páramo y el bosque nuboso de la sierra de Talamanca.', 'travel-agency-platform'),
+                'accessibility' => __('Llega en vehículo por la ruta 32; el mirador no tiene rampa.', 'travel-agency-platform'),
+                'website' => __('https://www.visitcostarica.com/', 'travel-agency-platform'),
+                'content' => __('A 3.642 msnm está la cima más alta de la sierra de Talamanca. La carretera interamericana que cruza el cerro se completó en 1943. Desde el mirador se ve el valle de Savegre y el mar en días claros.', 'travel-agency-platform'),
+            ],
+            'peninsula-nicoya' => [
+                'title'    => 'Península de Nicoya y el Área de Conservación Guanacaste',
+                'type'     => 'zona-protegida',
+                'lat' => '9.7000', 'lng' => '-85.0000',
+                'province' => 'Puntarenas',
+                'excerpt'  => __('La península más grande del país: bosque seco al norte y selva húmeda al sur.', 'travel-agency-platform'),
+                'interest' => [
+                    __('La península mide unos 3.200 km² y es la más grande del país.', 'travel-agency-platform'),
+                    __('El norte es bosque seco y el sur es selva húmeda.', 'travel-agency-platform'),
+                    __('El Área de Conservación Guanacaste fue creada en 1991.', 'travel-agency-platform'),
+                    __('Allí están Santa Rosa, Palo Verde y el río Tempisque.', 'travel-agency-platform'),
+                ],
+                'biodiversity' => [
+                    __('Venado cola blanca en el bosque seco', 'travel-agency-platform'),
+                    __('Mono aullador en la selva del sur', 'travel-agency-platform'),
+                    __('Tortuga verde en las playas del Golfo de Nicoya', 'travel-agency-platform'),
+                    __('Ara escarlata en los árboles del bosque seco', 'travel-agency-platform'),
+                ],
+                'activities' => [
+                    __('Visita a las áreas protegidas de la península', 'travel-agency-platform'),
+                    __('Paseo en bote por el río Tempisque', 'travel-agency-platform'),
+                    __('Visita a los pueblos pesqueros del sur', 'travel-agency-platform'),
+                    __('Recorrido por el cabo y sus miradores', 'travel-agency-platform'),
+                ],
+                'tips' => [
+                    __('Las distancias entre los extremos de la península son largas.', 'travel-agency-platform'),
+                    __('El sur es muy lluvioso en temporada.', 'travel-agency-platform'),
+                    __('Planifique la ruta con un mapa antes de salir.', 'travel-agency-platform'),
+                ],
+                'schedule' => __('Acceso libre todo el día; cada reserva cobra su entrada', 'travel-agency-platform'),
+                'fee' => __('Sin entrada general; cada reserva protegida tiene la suya', 'travel-agency-platform'),
+                'area' => __('Península de 3.200 km² con áreas protegidas de todo tipo', 'travel-agency-platform'),
+                'created' => __('1991', 'travel-agency-platform'),
+                'region' => __('Pacífico Sur', 'travel-agency-platform'),
+                'ecosystem' => __('Del bosque seco tropical a la selva húmeda', 'travel-agency-platform'),
+                'altitude' => __('0-1.200 msnm', 'travel-agency-platform'),
+                'best_season' => __('Diciembre a abril', 'travel-agency-platform'),
+                'conservation' => __('El Área de Conservación Guanacaste protege un mosaico de bosque seco, humedales y costa.', 'travel-agency-platform'),
+                'accessibility' => __('Se recorre en vehículo 4x4; los senderos de cada reserva son de tierra.', 'travel-agency-platform'),
+                'website' => __('https://whc.UNESCO.org/en/list/928/', 'travel-agency-platform'),
+                'content' => __('La península de Nicoya es la mayor del país, con 3.200 km². Al norte el bosque seco, al sur la selva húmeda y el Osa. El Área de Conservación Guanacaste, creada en 1991, protege el norte de la península.', 'travel-agency-platform'),
+            ],
+            'braulio-carrillo' => [
+                'title'    => 'Parque Nacional Braulio Carrillo',
+                'type'     => 'parque-nacional',
+                'lat' => '10.4036', 'lng' => '-84.0169',
+                'province' => 'Heredia',
+                'excerpt'  => __('La mayor selva primaria de las montanas centrales, con un río que la atraviesa.', 'travel-agency-platform'),
+                'interest' => [
+                    __('Creado en 1978, protege la mayor selva primaria de las montanas centrales.', 'travel-agency-platform'),
+                    __('Un solo sector del parque está abierto a los visitantes.', 'travel-agency-platform'),
+                    __('De 42.000 hectáreas, solo una parte pequeña recibe visitas.', 'travel-agency-platform'),
+                    __('El río Braulio Carrillo cruza el parque de lado a lado.', 'travel-agency-platform'),
+                ],
+                'biodiversity' => [
+                    __('La harpía, ave de rapaz mayor, sobrevuela el dosel', 'travel-agency-platform'),
+                    __('Ocelote y oso de anteojos en el suelo del bosque', 'travel-agency-platform'),
+                    __('Mono aullador y perezoso de dos dedos', 'travel-agency-platform'),
+                    __('Tucanes y pavas en el bosque de ribera', 'travel-agency-platform'),
+                ],
+                'activities' => [
+                    __('Caminata guiada por el sendero del río Braulio Carrillo', 'travel-agency-platform'),
+                    __('Observación de aves con guía especialista', 'travel-agency-platform'),
+                    __('Visita al centro de interpretación del parque', 'travel-agency-platform'),
+                    __('Baño en la cascada y la poza natural', 'travel-agency-platform'),
+                ],
+                'tips' => [
+                    __('Use manga larga: el bosque es denso y con mosquitos.', 'travel-agency-platform'),
+                    __('El sendero es resbaloso cuando hay humedad.', 'travel-agency-platform'),
+                    __('No entre al río: la corriente es fuerte.', 'travel-agency-platform'),
+                ],
+                'schedule' => __('Todos los días, de 8:00 a 16:00', 'travel-agency-platform'),
+                'fee' => __('Entrada: $6 extranjeros / 1.000 colones nacionales', 'travel-agency-platform'),
+                'area' => __('42.000 hectáreas', 'travel-agency-platform'),
+                'created' => __('1978', 'travel-agency-platform'),
+                'region' => __('Huetar Norte', 'travel-agency-platform'),
+                'ecosystem' => __('Bosque húmedo tropical y cerros karsticos', 'travel-agency-platform'),
+                'altitude' => __('60-1.174 msnm', 'travel-agency-platform'),
+                'best_season' => __('Diciembre a abril', 'travel-agency-platform'),
+                'conservation' => __('Conserva la mayor mancha de selva primaria de las montanas centrales del país.', 'travel-agency-platform'),
+                'accessibility' => __('Los senderos son de tierra, con pendientes y raíces; no hay acceso en silla de ruedas.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+                'content' => __('El parque protege una de las últimas manchas grandes de selva primaria del país. El río Braulio Carrillo lo atraviesa y define el sector abierto a visitas. El bosque conserva especies raras como la harpía y el ocelote.', 'travel-agency-platform'),
+            ],
+            'tapantial' => [
+                'title'    => 'Parque Nacional Tapantial',
+                'type'     => 'parque-nacional',
+                'lat' => '9.5636', 'lng' => '-83.8533',
+                'province' => 'Cartago',
+                'excerpt'  => __('Bosque nuboso de las montañas volcánicas centrales con una gran población de quetzal.', 'travel-agency-platform'),
+                'interest' => [
+                    __('Creado en 1982, protege el bosque más extenso de la sierra volcánica central.', 'travel-agency-platform'),
+                    __('Su bosque de neblina alberga una de las mayores poblaciones de quetzal.', 'travel-agency-platform'),
+                    __('El Mirador de la Gollita mira al valle y al dosel del bosque.', 'travel-agency-platform'),
+                    __('El Sendero del Quetzal une el parque con el valle de Savegre.', 'travel-agency-platform'),
+                ],
+                'biodiversity' => [
+                    __('Quetzal resplandeciente, la estrella del parque', 'travel-agency-platform'),
+                    __('Momoto resplandeciente en el dosel del bosque', 'travel-agency-platform'),
+                    __('Aves de seda y colibríes de la neblina', 'travel-agency-platform'),
+                    __('Mono aullador y tapir de monte en el sotobosque', 'travel-agency-platform'),
+                ],
+                'activities' => [
+                    __('Observación de quetzal con guía en el mirador', 'travel-agency-platform'),
+                    __('Caminata por los senderos de la reserva', 'travel-agency-platform'),
+                    __('Observación de aves en el Mirador de la Gollita', 'travel-agency-platform'),
+                    __('Visita a una finca de café en los alrededores', 'travel-agency-platform'),
+                ],
+                'tips' => [
+                    __('El sendero al mirador del quetzal es fangoso y resbaloso.', 'travel-agency-platform'),
+                    __('Lleve agua y bocadillos: no hay servicios dentro.', 'travel-agency-platform'),
+                    __('La puerta cierra a las 15:00, no después.', 'travel-agency-platform'),
+                ],
+                'schedule' => __('Todos los días, de 8:00 a 16:00', 'travel-agency-platform'),
+                'fee' => __('Entrada: $5 extranjeros / 1.000 colones nacionales', 'travel-agency-platform'),
+                'area' => __('9.500 hectáreas', 'travel-agency-platform'),
+                'created' => __('1982', 'travel-agency-platform'),
+                'region' => __('Cartago', 'travel-agency-platform'),
+                'ecosystem' => __('Bosque nuboso húmedo de la sierra volcánica central', 'travel-agency-platform'),
+                'altitude' => __('1.600-2.600 msnm', 'travel-agency-platform'),
+                'best_season' => __('Diciembre a abril', 'travel-agency-platform'),
+                'conservation' => __('Sostiene al quetzal y protege el bosque nuboso más extenso de la sierra volcánica central.', 'travel-agency-platform'),
+                'accessibility' => __('Los senderos son de tierra, con barro y pendientes; no hay acceso en silla de ruedas.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+                'content' => __('Tapantial protege el bosque nuboso más extenso de la sierra volcánica central. El quetzal anida en el dosel y se observa con guía desde el mirador. A las 15:00 cierra la puerta y el valle queda en silencio.', 'travel-agency-platform'),
+            ],
+            'juan-santamaria' => [
+                'title'    => 'Parque Nacional Juan Santamaría',
+                'type'     => 'parque-nacional',
+                'lat' => '10.1167', 'lng' => '-84.6333',
+                'province' => 'Alajuela',
+                'excerpt'  => __('El último gran tramo de bosque seco del Pacífico central, con el río Tárcoles.', 'travel-agency-platform'),
+                'interest' => [
+                    __('Creado en 1995, protege la mayor extensión de bosque seco del Pacífico central.', 'travel-agency-platform'),
+                    __('El río Tárcoles marca el límite norte del área protegida.', 'travel-agency-platform'),
+                    __('El mirador de la Piedra Bola domina la selva y el valle.', 'travel-agency-platform'),
+                    __('Los manglares del estero son parte de la zona protegida.', 'travel-agency-platform'),
+                ],
+                'biodiversity' => [
+                    __('Ara escarlata en parejas y bandadas del bosque seco', 'travel-agency-platform'),
+                    __('Capuchin de cara blanca en los árboles del bosque', 'travel-agency-platform'),
+                    __('Puma que recorre el parque de madrugada', 'travel-agency-platform'),
+                    __('Crocodrilos del río Tárcoles en las barras de arena', 'travel-agency-platform'),
+                ],
+                'activities' => [
+                    __('Caminata hasta el mirador de la Piedra Bola', 'travel-agency-platform'),
+                    __('Observación de aves a lo largo del río Tárcoles', 'travel-agency-platform'),
+                    __('Paseo en bote por el estero y los manglares', 'travel-agency-platform'),
+                    __('Visita a una granja de crocodilos', 'travel-agency-platform'),
+                ],
+                'tips' => [
+                    __('El último tramo del río solo se recorre en bote.', 'travel-agency-platform'),
+                    __('El camino de entrada es de tierra y grava.', 'travel-agency-platform'),
+                    __('Lleve repelente: en temporada hay muchos mosquitos.', 'travel-agency-platform'),
+                ],
+                'schedule' => __('Todos los días, de 8:00 a 16:00', 'travel-agency-platform'),
+                'fee' => __('Entrada: $6 extranjeros / 1.000 colones nacionales', 'travel-agency-platform'),
+                'area' => __('11.700 hectáreas', 'travel-agency-platform'),
+                'created' => __('1995', 'travel-agency-platform'),
+                'region' => __('Alajuela', 'travel-agency-platform'),
+                'ecosystem' => __('Bosque seco tropical y manglares del Pacífico central', 'travel-agency-platform'),
+                'altitude' => __('0-400 msnm', 'travel-agency-platform'),
+                'best_season' => __('Diciembre a abril', 'travel-agency-platform'),
+                'conservation' => __('Salva el último tramo de bosque seco del Pacífico central y protege los manglares.', 'travel-agency-platform'),
+                'accessibility' => __('El mirador se alcanza por sendero de tierra; el estero solo se visita en bote.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+                'content' => __('El parque protege el bosque seco que quedó entre el río Tárcoles y el Pacífico. El mirador de la Piedra Bola ofrece la mejor vista del sector. El río y los manglares se recorren en bote desde la entrada principal.', 'travel-agency-platform'),
+            ],
+            'samara' => [
+                'title'    => 'Samara',
+                'type'     => 'playa-protegida',
+                'lat' => '9.8819', 'lng' => '-85.5286',
+                'province' => 'Guanacaste',
+                'excerpt'  => __('Pueblo de surf con una playa protegida por el proyecto de tortugas Ostional.', 'travel-agency-platform'),
+                'interest' => [
+                    __('Pueblo de surf en la península de Nicoya, al norte de Guanacaste.', 'travel-agency-platform'),
+                    __('Su playa de unos 1,4 km va del río Samara hasta el mar.', 'travel-agency-platform'),
+                    __('El estuario entre el Womble y el río atrae cientos de aves.', 'travel-agency-platform'),
+                    __('Cerca están Isla Chora y la finca Rancho Quemado, con tortugas.', 'travel-agency-platform'),
+                ],
+                'biodiversity' => [
+                    __('Tortuga verde anidando en la arena de la playa', 'travel-agency-platform'),
+                    __('Mono aullador en el bosque seco cercano', 'travel-agency-platform'),
+                    __('Venado cola blanca en los claros del bosque', 'travel-agency-platform'),
+                    __('Ara en los árboles del bosque seco', 'travel-agency-platform'),
+                ],
+                'activities' => [
+                    __('Caminar por la playa durante la marea baja', 'travel-agency-platform'),
+                    __('Observación de aves en el estuario del río', 'travel-agency-platform'),
+                    __('Recorrido de anidación de tortugas en Rancho Quemado', 'travel-agency-platform'),
+                    __('Clase de surf para principiantes', 'travel-agency-platform'),
+                ],
+                'tips' => [
+                    __('La boca del río no es segura para nadar.', 'travel-agency-platform'),
+                    __('La playa tiene corrientes fuertes y resacas.', 'travel-agency-platform'),
+                    __('No deje sus pertenencias sobre la arena.', 'travel-agency-platform'),
+                ],
+                'schedule' => __('Abierto todo el día', 'travel-agency-platform'),
+                'fee' => __('Sin entrada para la playa; el recorrido de tortugas tiene su propio precio', 'travel-agency-platform'),
+                'area' => __('Sector Ostional con unas 3.000 ha de playa y 2.700 ha marinas', 'travel-agency-platform'),
+                'created' => __('1990', 'travel-agency-platform'),
+                'region' => __('Guanacaste', 'travel-agency-platform'),
+                'ecosystem' => __('Bosque seco tropical, estuario de río y playa arenosa', 'travel-agency-platform'),
+                'altitude' => __('0-30 msnm', 'travel-agency-platform'),
+                'best_season' => __('Diciembre a abril y julio a octubre', 'travel-agency-platform'),
+                'conservation' => __('La playa protege los sitios de anidación de tortugas verdes dentro del proyecto Ostional.', 'travel-agency-platform'),
+                'accessibility' => __('Se llega en bus o auto por carretera; la arena firme permite acceso a pie.', 'travel-agency-platform'),
+                'website' => __('https://www.visitcostarica.com/', 'travel-agency-platform'),
+                'content' => __('Samara es un pueblo de surf en la península de Nicoya con playa de 1,4 km. La entrada del río Samara forma un estuario con gran variedad de aves. La playa forma parte del proyecto de tortugas Ostional.', 'travel-agency-platform'),
+            ],
+            'puerto-jimenez' => [
+                'title'    => 'Puerto Jimenez y la Península de Osa',
+                'type'     => 'pueblo',
+                'lat' => '8.5390', 'lng' => '-83.3070',
+                'province' => 'Puntarenas',
+                'excerpt'  => __('Puerto de entrada a la península de Osa y al parque nacional Corcovado.', 'travel-agency-platform'),
+                'interest' => [
+                    __('Principal puerto de acceso a la península de Osa y al parque Corcovado.', 'travel-agency-platform'),
+                    __('El pueblo se desarrollo con la creación del parque en 1963.', 'travel-agency-platform'),
+                    __('La entrada principal del parque está a unos 10 km del centro.', 'travel-agency-platform'),
+                    __('Hoy es la base de una gran cantidad de lodges de aventura.', 'travel-agency-platform'),
+                ],
+                'biodiversity' => [
+                    __('Ara escarlata en el dosel de la selva', 'travel-agency-platform'),
+                    __('Mono aullador en el bosque húmedo', 'travel-agency-platform'),
+                    __('Tapir en los senderos del parque', 'travel-agency-platform'),
+                    __('Martin pescador a orillas del río Agujas', 'travel-agency-platform'),
+                ],
+                'activities' => [
+                    __('Visita al parque nacional Corcovado', 'travel-agency-platform'),
+                    __('Paseo en bote por la Bahía de Drake', 'travel-agency-platform'),
+                    __('Caminata sobre el manglar en Playa Juan Castillo', 'travel-agency-platform'),
+                    __('Visita a los lodges de la zona', 'travel-agency-platform'),
+                ],
+                'tips' => [
+                    __('El camino al parque es de tierra y queda en mal estado.', 'travel-agency-platform'),
+                    __('Reserve el permiso del parque y el guía con antelación.', 'travel-agency-platform'),
+                    __('Lleve efectivo porque hay pocos cajeros.', 'travel-agency-platform'),
+                ],
+                'schedule' => __('Todo el día; los cupos del parque se reservan con antelación', 'travel-agency-platform'),
+                'fee' => __('Sin entrada al pueblo; Corcovado exige permiso, guía y pago', 'travel-agency-platform'),
+                'area' => __('Pueblo costero con lodges, al norte de la península de Osa', 'travel-agency-platform'),
+                'created' => __('1963', 'travel-agency-platform'),
+                'region' => __('Península de Osa', 'travel-agency-platform'),
+                'ecosystem' => __('Selva tropical húmeda y manglar costero', 'travel-agency-platform'),
+                'altitude' => __('0-50 msnm', 'travel-agency-platform'),
+                'best_season' => __('Diciembre a abril y julio a octubre', 'travel-agency-platform'),
+                'conservation' => __('Corcovado protege el bosque tropical húmedo más extenso del país y la vida marina de Osa.', 'travel-agency-platform'),
+                'accessibility' => __('El pueblo tiene calle principal pavimentada; el camino al parque es de tierra y exige 4x4.', 'travel-agency-platform'),
+                'website' => __('https://www.visitcostarica.com/', 'travel-agency-platform'),
+                'content' => __('Puerto Jimenez es la principal puerta de entrada a la península de Osa. El parque nacional Corcovado está a unos 10 km del pueblo. Al sur comienza la Bahía de Drake y su reserva marina.', 'travel-agency-platform'),
+            ],
+        ];
+    }
+
+    /**
+     * Editorial body, accessibility note and official website per destination.
+     *
+     * Kept apart from the main seed so the factual tables stay readable and
+     * the three fields can be reviewed (and translated) on their own.
+     *
+     * @return array<string,array<string,string>>
+     */
+    public static function seed_content() {
+        return [
+            'monteverde' => [
+                'content' => __('El bosque nuboso de Monteverde se mantuvo a salvo casi por accidente: cafetaleros sin un ingreso propio, junto con los conservacionistas, aceptaron dejar áreas sin talar a cambio de agua. Hoy la reserva protege 1.600 hectáreas de bosque con neblina permanente, donde el quetzal y las aves del dosel son la verdadera atracción. Las pasarelas de tablones permiten entrar sin pisar el suelo, algo poco habitual en un bosque tan húmedo.', 'travel-agency-platform'),
+                'accessibility' => __('El sendero principal tiene tablones y es transitable con ayuda; la niebla y las escaleras limitan la movilidad autónoma.', 'travel-agency-platform'),
+                'website' => __('https://www.reservabosquedemonteverde.org/', 'travel-agency-platform'),
+            ],
+            'santa-rosa' => [
+                'content' => __('El parque abrió en 1955 y fue la primera área protegida del país. Hoy protege bosque seco, el mayor manglar del Pacífico y la playa de Nacascolo. En julio llegan tortugas verdes a desovar en la costa.', 'travel-agency-platform'),
+                'accessibility' => __('Los senderos son de tierra y el manglar exige barca; no hay sillas de ruedas.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+            ],
+            'la-fortuna' => [
+                'content' => __('La Fortuna creció alrededor de las fuentes termales que afloran en la falda del Arenal y hoy es el punto de partida más usado de la Zona Norte. A veinte kilómetros del cono, el pueblo combina el volcán de fondo con restaurantes y la salida diaria de los tours hacia el parque nacional, el Río Celeste y las senderas de Lomas Barbudal.', 'travel-agency-platform'),
+                'accessibility' => __('Las termas tienen plataformas y acceso por rampa; los senderos naturales no son accesibles en silla de ruedas.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+            ],
+            'montezuma' => [
+                'content' => __('Montezuma cambio de pesquería a turismo cuando los surfistas llegaron en los años setenta, y hoy sigue siendo un pueblo pequeño de casas bajas con la playa como eje. A siete kilómetros, Santa Teresa concentra la escena de yoga, surf y vida nocturna, mientras que las playas del sur mantienen un ambiente más tranquilo. El atardecer sobre el Pacífico, los botes de pesca que salen de madrugada y las tortugas que anidan de noche en Malabrigo resumen el lugar.', 'travel-agency-platform'),
+                'accessibility' => __('El centro del pueblo es transitable a pie; las playas de arena suave no tienen acceso para sillas de ruedas.', 'travel-agency-platform'),
+                'website' => __('https://www.visitcostarica.com/', 'travel-agency-platform'),
+            ],
+            'nuevo-arenal' => [
+                'content' => __('Nuevo Arenal se levantó de nuevo en 1990, cuando el embalse tapó el pueblo viejo. Hoy vive del lago y ofrece los atardeceres más claros del norte del país. Los botes salen al atardecer y el Observatorio Arenal queda a cinco kilómetros.', 'travel-agency-platform'),
+                'accessibility' => __('El pueblo es transitable a pie y el muelle es plano; los senderos del lago no.', 'travel-agency-platform'),
+                'website' => __('https://www.visitcostarica.com/', 'travel-agency-platform'),
+            ],
+            'rio-celeste' => [
+                'content' => __('El Río Celeste nace del encuentro entre el Río Grande y el Río Pailas. Los minerales termales dan el color turquesa a los tenideros. La caminata de 3 km lleva a la cascada y cruza un puente.', 'travel-agency-platform'),
+                'accessibility' => __('El sendero de 3 km tiene tierra y escalones, no es apto para sillas de ruedas.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+            ],
+            'lomas-barbudal' => [
+                'content' => __('Lomas Barbudal protege uno de los últimos bosques secos de Guanacaste. Sus senderos suben desde el suelo rojo hasta el mirador, con el bosque como protagonista. Su lista de aves roza las 230 especies, la razón de muchas visitas.', 'travel-agency-platform'),
+                'accessibility' => __('Los senderos son de tierra y piedra, no hay acceso en silla de ruedas.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+            ],
+            'cabo-blanco' => [
+                'content' => __('Cabo Blanco fue declarada reserva absoluta en 1963, la primera del país. Hoy protege unas 7.800 hectáreas de bosque seco, costa rocosa y mar. La playa donde nadaron los Beatles recibe tortugas verdes cada temporada.', 'travel-agency-platform'),
+                'accessibility' => __('Se llega por carretera y a pie; los senderos rocosos no admiten sillas de ruedas.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+            ],
+            'cabo-papagayo' => [
+                'content' => __('Cabo Papagayo marca el punto más septentrional de la península de Nicoya. El camino costero pasa entre bosque seco y acantilados hasta el mirador del golfo. Alrededor hay hoteles y playas, y al sur el refugio de tortugas de Ostional.', 'travel-agency-platform'),
+                'accessibility' => __('Se llega en vehículo por camino de tierra; el sendero al acantilado es de rocas.', 'travel-agency-platform'),
+                'website' => __('https://www.visitcostarica.com/', 'travel-agency-platform'),
+            ],
+            'cerro-de-la-muerte' => [
+                'content' => __('A 3.642 msnm está la cima más alta de la sierra de Talamanca. La carretera interamericana que cruza el cerro se completó en 1943. Desde el mirador se ve el valle de Savegre y el mar en días claros.', 'travel-agency-platform'),
+                'accessibility' => __('Llega en vehículo por la ruta 32; el mirador no tiene rampa.', 'travel-agency-platform'),
+                'website' => __('https://www.visitcostarica.com/', 'travel-agency-platform'),
+            ],
+            'peninsula-nicoya' => [
+                'content' => __('La península de Nicoya es la mayor del país, con 3.200 km². Al norte el bosque seco, al sur la selva húmeda y el Osa. El Área de Conservación Guanacaste, creada en 1991, protege el norte de la península.', 'travel-agency-platform'),
+                'accessibility' => __('Se recorre en vehículo 4x4; los senderos de cada reserva son de tierra.', 'travel-agency-platform'),
+                'website' => __('https://whc.UNESCO.org/en/list/928/', 'travel-agency-platform'),
+            ],
+            'braulio-carrillo' => [
+                'content' => __('El parque protege una de las últimas manchas grandes de selva primaria del país. El río Braulio Carrillo lo atraviesa y define el sector abierto a visitas. El bosque conserva especies raras como la harpía y el ocelote.', 'travel-agency-platform'),
+                'accessibility' => __('Los senderos son de tierra, con pendientes y raíces; no hay acceso en silla de ruedas.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+            ],
+            'tapantial' => [
+                'content' => __('Tapantial protege el bosque nuboso más extenso de la sierra volcánica central. El quetzal anida en el dosel y se observa con guía desde el mirador. A las 15:00 cierra la puerta y el valle queda en silencio.', 'travel-agency-platform'),
+                'accessibility' => __('Los senderos son de tierra, con barro y pendientes; no hay acceso en silla de ruedas.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+            ],
+            'juan-santamaria' => [
+                'content' => __('El parque protege el bosque seco que quedó entre el río Tárcoles y el Pacífico. El mirador de la Piedra Bola ofrece la mejor vista del sector. El río y los manglares se recorren en bote desde la entrada principal.', 'travel-agency-platform'),
+                'accessibility' => __('El mirador se alcanza por sendero de tierra; el estero solo se visita en bote.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+            ],
+            'samara' => [
+                'content' => __('Samara es un pueblo de surf en la península de Nicoya con playa de 1,4 km. La entrada del río Samara forma un estuario con gran variedad de aves. La playa forma parte del proyecto de tortugas Ostional.', 'travel-agency-platform'),
+                'accessibility' => __('Se llega en bus o auto por carretera; la arena firme permite acceso a pie.', 'travel-agency-platform'),
+                'website' => __('https://www.visitcostarica.com/', 'travel-agency-platform'),
+            ],
+            'puerto-jimenez' => [
+                'content' => __('Puerto Jimenez es la principal puerta de entrada a la península de Osa. El parque nacional Corcovado está a unos 10 km del pueblo. Al sur comienza la Bahía de Drake y su reserva marina.', 'travel-agency-platform'),
+                'accessibility' => __('El pueblo tiene calle principal pavimentada; el camino al parque es de tierra y exige 4x4.', 'travel-agency-platform'),
+                'website' => __('https://www.visitcostarica.com/', 'travel-agency-platform'),
+            ],
+            'volcan-arenal' => [
+                'content' => __('El Arenal es un estratovolcan de 1.670 msnm en el norte de Costa Rica. Erupciono entre 1968 y 2010, con flujos de lava que brillaban de noche. La colada de 1968 es hoy un sendero. El Observatorio Arenal está en la carretera de subida.', 'travel-agency-platform'),
+                'accessibility' => __('Se llega en vehículo hasta el mirador. El cráter se visita en vehículo abierto. El clima es caluroso en la base.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+            ],
+            'tortuguero' => [
+                'content' => __('Tortuguero es un parque de selva húmeda en la costa del Caribe. Solo se llega en bote o en avión. Sus 31.187 hectáreas están cruzadas por canales y el pueblo no tiene carreteras. Guarda la mayor playa de desove de tortuga verde del hemisferio, de julio a octubre.', 'travel-agency-platform'),
+                'accessibility' => __('No hay acceso por tierra: todo el recorrido es en bote y solo con guía. El pueblo es plano pero la humedad es alta.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+            ],
+            'manuel-antonio' => [
+                'content' => __('Manuel Antonio es el parque más visitado de Costa Rica. Es uno de los más pequenos, con 1.983 hectáreas. Sus tres playas son Espadilla Sur, Manuel Antonio y Puerto Escondido. Los monos carablanca y titi se ven en los senderos y el parque cierra los lunes.', 'travel-agency-platform'),
+                'accessibility' => __('Las playas son de arena y hay escalones en los accesos. El parque es transitable a pie, pero con mucha gente.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+            ],
+            'corcovado' => [
+                'content' => __('Corcovado protege el mayor bosque primario que queda en el Pacífico de Mesoamerica. Cubre 42.469 hectáreas. Reune las cuatro especies de monos del país, junto con tapir, jaguar y puma. El ingreso es obligatorio con guía. Se hace por las estaciones de Los Patos y Sirena.', 'travel-agency-platform'),
+                'accessibility' => __('El acceso es en bote o a pie por senderos de tierra. El clima es caluroso y húmedo todo el año.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+            ],
+            'rincon-de-la-vieja' => [
+                'content' => __('Rincón de la Vieja tiene nueve conos volcanicos. El Von Seebach es el más alto, con 1.895 msnm. Fumarolas, ollas de barro hirviendo y la catarata La Cangreja llenan el sector norte. Las termas del Río Clarillo son parte del Área de Conservación Guanacaste. Es Patrimonio de la Humanidad de la UNESCO.', 'travel-agency-platform'),
+                'accessibility' => __('El sendero a la catarata es de tierra y se llega en vehículo. Las termas tienen plataformas de descanso.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+            ],
+            'poas' => [
+                'content' => __('Poás tiene uno de los crateres volcanicos más anchos del mundo. Su diametro es de 1,3 km. La laguna del cráter cambia de color. La cima está a un corto sendero desde el estacionamiento. Los gases son toxicos, por eso hay barreras, y la visita exige reserva por turno.', 'travel-agency-platform'),
+                'accessibility' => __('El mirador se alcanza sin esfuerzo. Hace frío y hay que subir de vuelta en vehículo por la altura.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+            ],
+            'irazu' => [
+                'content' => __('Irazú es el volcán más alto de Costa Rica, con 3.432 msnm. En días despejados se ven los dos oceanos. La laguna del cráter cambia de color con los minerales. La carretera llega cerca del cráter. La cima es fría y ventosa todo el año.', 'travel-agency-platform'),
+                'accessibility' => __('La carretera llega casi al cráter sin caminata. El frío y el viento hacen que conviene bajar pronto.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+            ],
+            'chirripo' => [
+                'content' => __('Chirripó es el punto más alto de Costa Rica, con 3.820 msnm. Sus lagos glaciares Ditkevi y Chadolin son la principal atracción. El amanecer sobre el Pacífico completa el paisaje. El páramo está cubierto de frailejones y el refugio se debe reservar con anticipacion.', 'travel-agency-platform'),
+                'accessibility' => __('La subida toma dos días y el clima cambia muy rápido. Hace falta refugiarse y llevar ropa de frío.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+            ],
+            'cahuita' => [
+                'content' => __('Cahuita protege un arrecife de coral, una playa y un bosque de manglar. El terremoto de 1991 levantó la costa y formo la playa actual. El arrecife está bien conservado para el snorkel y un sendero de 8 km une la playa y el bosque.', 'travel-agency-platform'),
+                'accessibility' => __('El sendero es de tierra y de tramo corto; el mar tiene corrientes y no hay servicios dentro del parque.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+            ],
+            'marino-ballena' => [
+                'content' => __('Marino Ballena protege 5.375 hectáreas, casi todas marinas, alrededor de la península de Osa. Su tormbolo de arena parece una cola de ballena en marea baja. Ballenas jorobadas de los dos hemisferios migran aqui y Uvita organiza el festival de la ballena en temporada.', 'travel-agency-platform'),
+                'accessibility' => __('El avistamiento se hace en lancha y el tormbolo se recorre a pie; no hay acceso en silla de ruedas.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+            ],
+            'guayabo' => [
+                'content' => __('Guayabo fue la ciudad precolombina más importante de Costa Rica, habitada entre el 1000 a.C. y el 1400 d.C. Sus acueductos y tanques de piedra siguen funcionando y las calzadas empedradas conectan los monticulos. Fue declarado monumento nacional en 1973 y patrimonio de la ingenieria en 2009.', 'travel-agency-platform'),
+                'accessibility' => __('El sendero principal es de tierra y es accesible en silla de ruedas; el museo está a corta distancia.', 'travel-agency-platform'),
+                'website' => __('https://www.museosycostarica.go.cr/', 'travel-agency-platform'),
+            ],
+            'tenorio' => [
+                'content' => __('Tenorio tiene cuatro volcánes apagados y bosque nuboso con tapires y quetzales. El Río Celeste se vuelve turquesa donde se mezclan dos ríos, dentro del Área de Conservación Guanacaste. Un sendero de 3 km lleva a la laguna azul, los tenideros y la catarata.', 'travel-agency-platform'),
+                'accessibility' => __('El sendero es de tierra y empedrado con pendientes; hay que caminar entre tres y cinco horas.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+            ],
+            'palo-verde' => [
+                'content' => __('Palo Verde protege el humedal más importante de Costa Rica. Miles de aves acuáticas migratorias, entre ellas los jabiru, pasan el invierno en sus lagunas. Hay cocodrilos en las lagunas y el parque conserva uno de los últimos bosques tropicales secos del país.', 'travel-agency-platform'),
+                'accessibility' => __('El recorrido principal es en lancha por las lagunas; el centro de visitantes es accesible a pie.', 'travel-agency-platform'),
+                'website' => __('https://www.acguanacaste.ac.cr/', 'travel-agency-platform'),
+            ],
+            'isla-del-coco' => [
+                'content' => __('Isla del Coco está a 550 km de la costa y es Patrimonio de la Humanidad de la UNESCO desde 1997. Concentra más de 400 especies endémicas de insectos y plantas, ademas de cardumenes estacionales de tiburones martillo. El permiso de acceso lo emite el parque.', 'travel-agency-platform'),
+                'accessibility' => __('Solo se llega en barco, con 36 horas de viaje; no hay ninguna facilidad en la isla.', 'travel-agency-platform'),
+                'website' => __('https://www.sinervariascostarica.org/', 'travel-agency-platform'),
+            ],
+            'gandoca-manzanillo' => [
+                'content' => __('Gandoca-Manzanillo protege manglares, un arrecife de coral y una playa de arena de desove. La playa es sitio de anidación de tortuga baula, una de las últimas poblaciones del Caribe. Un sendero costero une Manzanillo con la laguna de Gandoca entre bosque de cativo y mangle rojo.', 'travel-agency-platform'),
+                'accessibility' => __('El sendero costero es de tierra y de clima caluroso; la playa es de arena blanda y no tiene servicios.', 'travel-agency-platform'),
+                'website' => __('https://www.visitcostarica.com/', 'travel-agency-platform'),
+            ],
+        ];
+    }
+
+    /**
+     * Merge the editorial content into the seed entries.
+     *
+     * @param array $spots Seed entries.
+     * @return array
+     */
+    private static function merge_content(array $spots) {
+        foreach (self::seed_content() as $slug => $content) {
+            if (isset($spots[$slug]) && is_array($content)) {
+                $spots[$slug] = array_merge($spots[$slug], $content);
+            }
+        }
+        return $spots;
     }
 }

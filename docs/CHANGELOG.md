@@ -6,6 +6,28 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.47] — 2026-10-21
+
+Sixteen new destinations, three new place types, and a complete editorial profile for every destination on the map.
+
+### Added
+
+- **Sixteen new destinations.** Monteverde (Reserva Biológica del Bosque Nuboso), La Fortuna y sus Termas, Montezuma y Santa Teresa, Nuevo Arenal y el Lago Arenal, Río Celeste y los Tenideros, Lomas Barbudal, Cabo Blanco, Cabo Papagayo, Cerro de la Muerte, Península de Nicoya, Braulio Carrillo, Tapantial, Juan Santamaría, Sámara, Santa Rosa and Puerto Jiménez. Each one ships with coordinates, an editorial body, a practical sheet (schedule, fee, area, year) and the full educational profile.
+- **Three new destination types.** *Termas* (hot springs), *Pueblo Turístico* (tourist town) and *Mirador* (viewpoint), so towns, springs and viewpoints can be classified honestly instead of being forced into a park category. The types are now seeded on every install, not only on a fresh one.
+- **Complete editorial bodies.** The fifteen destinations seeded in the previous release had no article text at all — only bullet lists. Every destination now has a short introduction, an accessibility note and a link to its official website.
+- **Installation on existing sites.** `sync_extra_spots()` inserts the new destinations on installs that were seeded before they existed. It is idempotent and never overwrites what an editor has already written.
+
+### Changed
+
+- The back-fill of the destination profile is now versioned, so the new fields (accessibility note, official website, editorial body) reach destinations that were created before them.
+- Plugin version bumped to `1.5.47` (header + `TAP_VERSION`).
+
+### Tests
+
+- `suite_spot_content`: the new types, the extra destinations, the completeness of every published destination (profile, lists, body and a valid website), the absence of overlapping map positions and the non-destructive behaviour of the back-fill.
+
+---
+
 ## [1.5.46] — 2026-10-21
 
 Dual-layer map: educational destinations and bookable services in one view, with a richer destination profile.
