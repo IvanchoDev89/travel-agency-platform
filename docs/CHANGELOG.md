@@ -12,6 +12,12 @@ Landing page: an editorial destinations section and friendlier interactions.
 
 ### Added
 
+- **Pexels hardening & quota cache (theme 2.0.2).** Review hardening of the Pexels integration:
+  - The admin search UI escapes every API-provided value (`alt`, image and page URLs, MP4 links) before interpolating them into `innerHTML` — third-party markup can no longer break out of an attribute in an administrator session.
+  - The photo sideload endpoint only accepts `*.pexels.com` URLs: it took a client-supplied URL and would otherwise double as a server-side download proxy.
+  - Search responses (`videos/search`, `v1/search`) are cached for 15 minutes, so repeated admin searches stop burning Pexels quota (200 requests/hour). Errors are never cached.
+  - Theme version bumped to `2.0.1` → `2.0.2` for asset cache-busting.
+
 - **Destinations section on the front page.** A new teaser between the Costa Rica facts strip and the interests chips shows up to six published destinations (`tap_spot`, fixtures filtered out, those with a featured image first): photo, destination type badge, title and region, each linking to its educational page. The section degrades gracefully when there are no spots or no images (gradient placeholder with the destination's initial).
 - **"Explorar el mapa de destinos"** call to action linking to `/destinos/`, surfacing the interactive map on the landing.
 - **Animated stat counters.** The landing stats strip now counts up from zero to its server-rendered value with an ease-out ramp when the section becomes visible. Reduced-motion users and environments without IntersectionObserver keep the static number.

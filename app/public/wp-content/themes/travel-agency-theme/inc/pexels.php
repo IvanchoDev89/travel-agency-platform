@@ -15,6 +15,25 @@ function tap_pexels_get_key() {
     return (string) get_option('tap_pexels_api_key', '');
 }
 
+/**
+ * Cached API GET for search endpoints: same path+args within 15 minutes reuse
+ * the previous response (searches are the bulk of the Pexels quota and they
+ * repeat constantly from the admin panel). Errors are not cached.
+ */
+function tap_pexels_cached($path, $args = []) {
+    $key = 'tap_pexels_' . md5($path . '|' . wp_json_encode($args) . '|' . tap_pexels_get_key());
+    $cached = get_transient($key);
+    if (is_array($cached)) {
+        return $cached;
+    }
+    $body = tap_pexels_api_get($path, $args);
+    if (is_wp_error($body)) {
+        return $body;
+    }
+    set_transient($key, $body, 15 * MINUTE_IN_SECONDS);
+    return $body;
+}
+
 function tap_pexels_api_get($path, $args = []) {
     $key = tap_pexels_get_key();
     if ('' === $key) {
@@ -37,13 +56,15 @@ function tap_pexels_api_get($path, $args = []) {
     return $body;
 }
 
-/** Search videos. Returns a normalized list or WP_Error. */
+/** Search videos. Returns a normalized list or WP_Error. Results are cached
+ * for 15 minutes to spare the Pexels quota on repeated searches. */
 function tap_pexels_search_videos($query, $orientation = 'landscape', $per_page = 12) {
-    $body = tap_pexels_api_get('videos/search', [
+    $args = [
         'query'       => sanitize_text_field($query),
         'orientation' => sanitize_key($orientation),
         'per_page'    => max(1, min(24, (int) $per_page)),
-    ]);
+    ];
+    $body = tap_pexels_cached('videos/search', $args);
     if (is_wp_error($body)) {
         return $body;
     }
@@ -74,13 +95,15 @@ function tap_pexels_search_videos($query, $orientation = 'landscape', $per_page 
     return $out;
 }
 
-/** Search photos. Returns a normalized list or WP_Error. */
+/** Search photos. Returns a normalized list or WP_Error. Results are cached
+ * for 15 minutes to spare the Pexels quota on repeated searches. */
 function tap_pexels_search_photos($query, $orientation = 'landscape', $per_page = 12) {
-    $body = tap_pexels_api_get('v1/search', [
+    $args = [
         'query'       => sanitize_text_field($query),
         'orientation' => sanitize_key($orientation),
         'per_page'    => max(1, min(24, (int) $per_page)),
-    ]);
+    ];
+    $body = tap_pexels_cached('v1/search', $args);
     if (is_wp_error($body)) {
         return $body;
     }
@@ -310,6 +333,12 @@ function tap_pexels_ajax_use_photo() {
     $url  = isset($_POST['photo_url']) ? esc_url_raw((string) $_POST['photo_url']) : '';
     if (!$id || !$url) {
         wp_send_json_error(['message' => __('Foto inválida.', 'travel-agency-platform')]);
+    }
+    // Only media straight from the Pexels CDN may be sideloaded: the URL comes
+    // from the client, and an open download endpoint would double as a proxy.
+    $host = (string) wp_parse_url($url, PHP_URL_HOST);
+    if ($host !== 'pexels.com' && !preg_match('/(^|\.)pexels\.com$/', $host)) {
+        wp_send_json_error(['message' => __('Solo se puede descargar contenido de Pexels.', 'travel-agency-platform')]);
     }
     if (function_exists('set_time_limit')) { @set_time_limit(300); }
     $att = tap_pexels_sideload($url, 'pexels-photo-' . $id . '.jpg');

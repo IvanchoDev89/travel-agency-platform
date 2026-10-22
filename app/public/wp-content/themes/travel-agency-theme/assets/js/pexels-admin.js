@@ -8,6 +8,17 @@
     function t(key, fallback) { return i18n[key] != null ? i18n[key] : fallback; }
     function qs(sel, root) { return (root || document).querySelector(sel); }
 
+    /* Third-party strings (Pexels API) are never trusted: escape every value
+     * interpolated into innerHTML for text or attribute context. */
+    function escHtml(s) {
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
     var form      = qs('#tap-pexels-form');
     var results   = qs('#tap-pexels-results');
     var msg       = qs('#tap-pexels-msg');
@@ -50,13 +61,13 @@
         var fig = document.createElement('figure');
         fig.className = 'tap-pexels-card';
         fig.innerHTML =
-            '<img loading="lazy" alt="" src="' + v.image + '">' +
+            '<img loading="lazy" alt="" src="' + escHtml(v.image) + '">' +
             '<figcaption>' +
-                '<span class="tap-pexels-meta">' + fmtDuration(v.duration) + ' · ' + v.width + '×' + v.height + '</span>' +
+                '<span class="tap-pexels-meta">' + escHtml(fmtDuration(v.duration)) + ' · ' + escHtml(v.width) + '×' + escHtml(v.height) + '</span>' +
             '<span class="tap-pexels-actions">' +
-                '<button type="button" class="button button-primary tap-pexels-use">' + t('use', 'Usar como hero') + '</button>' +
-                '<button type="button" class="button tap-pexels-use-login">' + t('use_login', 'Usar como fondo del login') + '</button>' +
-                '<a class="button" target="_blank" rel="noopener" href="' + (v.files[0] ? v.files[0].link : v.url) + '">' + (v.files[0] ? 'MP4' : 'Ver') + '</a>' +
+                '<button type="button" class="button button-primary tap-pexels-use">' + escHtml(t('use', 'Usar como hero')) + '</button>' +
+                '<button type="button" class="button tap-pexels-use-login">' + escHtml(t('use_login', 'Usar como fondo del login')) + '</button>' +
+                '<a class="button" target="_blank" rel="noopener" href="' + escHtml(v.files[0] ? v.files[0].link : v.url) + '">' + (v.files[0] ? 'MP4' : escHtml('Ver')) + '</a>' +
             '</span>' +
             '</figcaption>';
         var useBtn  = qs('.tap-pexels-use', fig);
@@ -129,13 +140,13 @@
         var fig = document.createElement('figure');
         fig.className = 'tap-pexels-card';
         fig.innerHTML =
-            '<img loading="lazy" alt="' + (p.alt || '') + '" src="' + p.image + '">' +
+            '<img loading="lazy" alt="' + escHtml(p.alt) + '" src="' + escHtml(p.image) + '">' +
             '<figcaption>' +
-                '<span class="tap-pexels-meta">' + p.width + '×' + p.height + '</span>' +
+                '<span class="tap-pexels-meta">' + escHtml(p.width) + '×' + escHtml(p.height) + '</span>' +
                 '<span class="tap-pexels-actions">' +
-                    '<button type="button" class="button button-primary tap-pexels-use">' + t('save', 'Guardar en medios') + '</button>' +
-                    '<button type="button" class="button tap-pexels-copy">' + t('copy', 'Copiar URL') + '</button>' +
-                    '<a class="button" target="_blank" rel="noopener" href="' + p.url + '">Ver</a>' +
+                    '<button type="button" class="button button-primary tap-pexels-use">' + escHtml(t('save', 'Guardar en medios')) + '</button>' +
+                    '<button type="button" class="button tap-pexels-copy">' + escHtml(t('copy', 'Copiar URL')) + '</button>' +
+                    '<a class="button" target="_blank" rel="noopener" href="' + escHtml(p.url) + '">Ver</a>' +
                 '</span>' +
             '</figcaption>';
 
