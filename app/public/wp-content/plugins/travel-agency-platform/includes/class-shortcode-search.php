@@ -456,6 +456,19 @@ class TAP_Shortcode_Search {
             <?php if (has_post_thumbnail()): ?>
                 <div class="tap-featured-image"><?php the_post_thumbnail('large', ['decoding' => 'async']); ?></div>
             <?php endif; ?>
+            <?php
+            $gallery_raw = (string) get_post_meta($post->ID, $prefix . '_gallery', true);
+            $gallery_ids = array_filter(array_map('absint', explode(',', $gallery_raw)));
+            if ($gallery_ids): ?>
+                <div class="tap-gallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin:var(--tap-space-4) 0;">
+                    <?php foreach ($gallery_ids as $gid): ?>
+                        <?php $gurl = wp_get_attachment_image_url($gid, 'medium'); if (!$gurl) continue; ?>
+                        <a href="<?php echo esc_url(wp_get_attachment_url($gid)); ?>" target="_blank" rel="noopener">
+                            <img src="<?php echo esc_url($gurl); ?>" alt="" loading="lazy" style="width:100%;height:140px;object-fit:cover;border-radius:var(--tap-radius);">
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
             <div class="tap-content"><?php the_content(); ?></div>
             <div class="tap-meta-grid">
                 <?php
@@ -476,7 +489,7 @@ class TAP_Shortcode_Search {
                     }
                 }
 
-                $exclude_keys = [$prefix . '_agency_id', $prefix . '_is_active', $price_key ?? '', $prefix . '_currency'];
+                $exclude_keys = [$prefix . '_agency_id', $prefix . '_is_active', $price_key ?? '', $prefix . '_currency', $prefix . '_gallery'];
                 $all_meta = get_post_meta($post->ID);
 
                 foreach ($all_meta as $key => $values) {

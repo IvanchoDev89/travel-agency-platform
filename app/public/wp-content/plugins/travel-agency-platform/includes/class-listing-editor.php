@@ -284,6 +284,31 @@ class TAP_Listing_Editor {
                     }
                     ?>
                     <?php
+                    // Coordinate map picker (when lat/lng fields exist).
+                    $has_coords = false;
+                    foreach ($fields as $mk => $cfg) {
+                        if (false !== stripos($mk, '_lat') || false !== stripos($mk, '_lng')) { $has_coords = true; break; }
+                    }
+                    if ($has_coords) {
+                        $lat_val = '';
+                        $lng_val = '';
+                        foreach ($fields as $mk => $cfg) {
+                            if (false !== stripos($mk, '_lat')) { $lat_val = $is_edit ? get_post_meta($listing_id, $mk, true) : ''; }
+                            if (false !== stripos($mk, '_lng')) { $lng_val = $is_edit ? get_post_meta($listing_id, $mk, true) : ''; }
+                        }
+                        if ('' === $lat_val) { $lat_val = '9.93'; }
+                        if ('' === $lng_val) { $lng_val = '-84.08'; }
+                        ?>
+                        <div class="tap-field tap-span-2" style="margin-top:var(--tap-space-3);">
+                            <label><?php esc_html_e('Ubicar en el mapa (arrastra el marcador)', 'travel-agency-platform'); ?></label>
+                            <div id="tap-listing-map" style="height:260px;border-radius:var(--tap-radius);overflow:hidden;border:1px solid var(--tap-border);"></div>
+                            <input type="hidden" id="tap-map-lat-init" value="<?php echo esc_attr($lat_val); ?>">
+                            <input type="hidden" id="tap-map-lng-init" value="<?php echo esc_attr($lng_val); ?>">
+                        </div>
+                        <?php
+                    }
+                    ?>
+                    <?php
                     // SEO section
                     $seo_fields = [];
                     foreach (['_tap_seo_title', '_tap_seo_description'] as $sk) {
@@ -385,8 +410,53 @@ class TAP_Listing_Editor {
                 'destRequired'  => __('Selecciona un destino para el servicio.', 'travel-agency-platform'),
             ],
         ]);
+        // Leaflet for the coordinate picker.
+        wp_enqueue_style('tap-leaflet', TAP_PLUGIN_URL . 'assets/leaflet/leaflet.css', [], '1.9.4');
+        wp_enqueue_script('tap-leaflet', TAP_PLUGIN_URL . 'assets/leaflet/leaflet.js', [], '1.9.4', true);
         ?>
-        <?php
+        <script>
+        (function(){
+            function initMap(){
+                if (typeof L === 'undefined') { setTimeout(initMap, 100); return; }
+                var el = document.getElementById('tap-listing-map');
+                if (!el) { return; }
+                var latInput = document.querySelector('input[name*="_lat"]');
+                var lngInput = document.querySelector('input[name*="_lng"]');
+                var lat0 = parseFloat(document.getElementById('tap-map-lat-init').value) || 9.93;
+                var lng0 = parseFloat(document.getElementById('tap-map-lng-init').value) || -84.08;
+                if (latInput && latInput.value) { lat0 = parseFloat(latInput.value) || lat0; }
+                if (lngInput && lngInput.value) { lng0 = parseFloat(lngInput.value) || lng0; }
+                var map = L.map(el).setView([lat0, lng0], 12);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap',
+                    maxZoom: 19
+                }).addTo(map);
+                var marker = L.marker([lat0, lng0], { draggable: true }).addTo(map);
+                function sync(lat, lng) {
+                    if (latInput) { latInput.value = lat.toFixed(6); }
+                    if (lngInput) { lngInput.value = lng.toFixed(6); }
+                }
+                marker.on('dragend', function(e){
+                    var ll = e.target.getLatLng();
+                    sync(ll.lat, ll.lng);
+                });
+                map.on('click', function(e){
+                    marker.setLatLng(e.latlng);
+                    sync(e.latlng.lat, e.latlng.lng);
+                });
+                // keep marker in sync if user types
+                [latInput, lngInput].forEach(function(inp){
+                    if (!inp) return;
+                    inp.addEventListener('change', function(){
+                        var la = parseFloat(latInput.value), ln = parseFloat(lngInput.value);
+                        if (!isNaN(la) && !isNaN(ln)) { marker.setLatLng([la, ln]); map.setView([la, ln], map.getZoom()); }
+                    });
+                });
+            }
+            if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initMap); } else { initMap(); }
+        })();
+        </script>
+<?php
         return ob_get_clean();
     }
 
