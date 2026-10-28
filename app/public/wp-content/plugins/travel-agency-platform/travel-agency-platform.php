@@ -102,10 +102,12 @@ final class TravelAgencyPlatform {
         add_action('init', ['TAP_Referrals', 'init'], 12);
         add_action('init', ['TAP_iCal', 'init'], 13);
         add_action('init', ['TAP_iCal_Import', 'init'], 14);
+        add_action('init', ['TAP_Push', 'init'], 15);
         // TAP_Waitlist has no init (static methods only).
         add_action('init', ['TAP_Email_Campaigns', 'init'], 14);
         add_action('init', ['TAP_Translations', 'init'], 15);
         add_shortcode('tap_lang_selector', ['TAP_Translations', 'render_selector']);
+        add_shortcode('tap_push_subscribe', ['TAP_Push', 'render_subscribe_button']);
         add_action('init', ['TAP_Loyalty', 'init'], 13);
         add_action('init', ['TAP_Emails', 'init'], 12);
         add_action('init', ['TAP_SEO', 'init'], 13);
@@ -152,6 +154,7 @@ final class TravelAgencyPlatform {
         add_action('wp_ajax_nopriv_tap_calculate_booking_total', ['TAP_Ajax_Public', 'calculate_booking_total']);
         add_action('wp_ajax_tap_set_currency', ['TAP_Ajax_Public', 'set_currency']);
         add_action('wp_ajax_nopriv_tap_set_currency', ['TAP_Ajax_Public', 'set_currency']);
+        add_action('wp_ajax_tap_push_subscribe_client', ['TAP_Ajax_Public', 'push_subscribe_client']);
         add_action('wp_ajax_tap_submit_question', ['TAP_Ajax_Public', 'submit_question']);
         add_action('wp_ajax_nopriv_tap_submit_question', ['TAP_Ajax_Public', 'submit_question']);
         add_action('wp_ajax_tap_answer_question', ['TAP_Ajax_Public', 'answer_question']);

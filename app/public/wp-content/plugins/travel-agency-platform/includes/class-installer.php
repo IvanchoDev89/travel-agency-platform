@@ -508,6 +508,19 @@ class TAP_Installer {
             KEY entity (entity_type, entity_id)
         ) {$wpdb->get_charset_collate()}");
 
+        $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_push_subscriptions (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) NOT NULL DEFAULT 0,
+            endpoint text NOT NULL,
+            p256dh varchar(255) NOT NULL,
+            auth varchar(255) NOT NULL,
+            user_agent varchar(255) DEFAULT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            last_used datetime DEFAULT NULL,
+            PRIMARY KEY (id),
+            KEY user_id (user_id)
+        ) {$wpdb->get_charset_collate()}");
+
         $cols_leads = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_leads");
         if (!in_array('mod_status', $cols_leads, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_leads ADD COLUMN mod_status varchar(20) DEFAULT 'ok' AFTER source");

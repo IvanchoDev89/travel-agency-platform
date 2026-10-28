@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-10-28T18:45:28+00:00\n"
+"POT-Creation-Date: 2026-10-28T18:50:02+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -822,7 +822,7 @@ msgstr "Click any day to edit its price, label or block it."
 #: includes/class-shortcode-booking.php:815
 #: includes/class-shortcode-booking.php:817
 #: includes/class-shortcode-booking.php:840
-#: includes/class-shortcode-booking.php:843 travel-agency-platform.php:276
+#: includes/class-shortcode-booking.php:843 travel-agency-platform.php:279
 msgid "Error"
 msgstr "Error"
 
@@ -1082,7 +1082,7 @@ msgstr ""
 "if you can."
 
 #: includes/class-acc-wizard-steps.php:730
-#: includes/class-acc-wizard-steps.php:929 includes/class-ajax-public.php:350
+#: includes/class-acc-wizard-steps.php:929 includes/class-ajax-public.php:368
 #: includes/class-listing-editor.php:333
 msgid "Destino"
 msgstr "Destination"
@@ -1755,6 +1755,7 @@ msgstr ""
 #: includes/class-ajax-dash.php:181 includes/class-ajax-dash.php:214
 #: includes/class-ajax-dash.php:245 includes/class-ajax-dash.php:327
 #: includes/class-ajax-dash.php:348 includes/class-ajax-public.php:42
+#: includes/class-ajax-public.php:71
 msgid "No autenticado."
 msgstr "Not authenticated."
 
@@ -2023,30 +2024,38 @@ msgstr "No permission."
 msgid "Respuesta guardada."
 msgstr "Reply saved."
 
-#: includes/class-ajax-public.php:72
+#: includes/class-ajax-public.php:74
+msgid "Push no disponible."
+msgstr "Push not available."
+
+#: includes/class-ajax-public.php:80
+msgid "Datos inválidos."
+msgstr "Invalid data."
+
+#: includes/class-ajax-public.php:90
 msgid "Moneda inválida."
 msgstr "Invalid currency."
 
-#: includes/class-ajax-public.php:82
+#: includes/class-ajax-public.php:100
 msgid "Demasiadas solicitudes. Esperá unos minutos e intentá de nuevo."
 msgstr "Too many requests. Please wait a few minutes and try again."
 
-#: includes/class-ajax-public.php:173
+#: includes/class-ajax-public.php:191
 msgid "Invalid request"
 msgstr "Invalid request"
 
-#: includes/class-ajax-public.php:246
+#: includes/class-ajax-public.php:264
 msgid "Parámetros inválidos"
 msgstr "Invalid parameters"
 
-#: includes/class-ajax-public.php:333 includes/class-booking.php:54
+#: includes/class-ajax-public.php:351 includes/class-booking.php:54
 #: includes/class-emails-send.php:510 includes/class-itinerary.php:31
 #: includes/class-itinerary.php:88 includes/class-shortcode-booking.php:918
 #: includes/class-taxonomies.php:278
 msgid "Alojamiento"
 msgstr "Accommodation"
 
-#: includes/class-ajax-public.php:388
+#: includes/class-ajax-public.php:406
 msgid "Invalid accommodation"
 msgstr "Invalid accommodation"
 
@@ -3534,7 +3543,7 @@ msgstr "Payment method"
 
 #: includes/class-dashboard-money.php:350
 #: includes/class-dashboard-money.php:475
-#: includes/class-dashboard-settings.php:485 includes/class-front-dash.php:683
+#: includes/class-dashboard-settings.php:487 includes/class-front-dash.php:683
 #: includes/class-payment.php:65
 msgid "Transferencia bancaria"
 msgstr "Bank transfer"
@@ -3706,15 +3715,15 @@ msgstr "Resolution note"
 msgid "Guardar resolución"
 msgstr "Save resolution"
 
-#: includes/class-dashboard-settings.php:105
+#: includes/class-dashboard-settings.php:107
 msgid "Plans saved."
 msgstr "Plans saved."
 
-#: includes/class-dashboard-settings.php:108
+#: includes/class-dashboard-settings.php:110
 msgid "Subscription Plans"
 msgstr "Subscription Plans"
 
-#: includes/class-dashboard-settings.php:109
+#: includes/class-dashboard-settings.php:111
 msgid ""
 "Commission rate (%) is used while the plan is active; leave blank to keep "
 "the agency/global commission. Listing limit -1 = unlimited."
@@ -3722,70 +3731,70 @@ msgstr ""
 "Commission rate (%) is used while the plan is active; leave blank to keep "
 "the agency/global commission. Listing limit -1 = unlimited."
 
-#: includes/class-dashboard-settings.php:122
+#: includes/class-dashboard-settings.php:124
 msgid "estándar"
 msgstr "standard"
 
-#: includes/class-dashboard-settings.php:125
+#: includes/class-dashboard-settings.php:127
 msgid "una por línea"
 msgstr "one per line"
 
-#: includes/class-dashboard-settings.php:130
+#: includes/class-dashboard-settings.php:132
 msgid "Save plans"
 msgstr "Save plans"
 
 #. translators: %s: fecha de vencimiento de la suscripción.
-#: includes/class-dashboard-settings.php:148
+#: includes/class-dashboard-settings.php:150
 #, php-format
 msgid "Subscription marked as paid until %s"
 msgstr "Subscription marked as paid until %s"
 
-#: includes/class-dashboard-settings.php:154
+#: includes/class-dashboard-settings.php:156
 msgid "Subscription expired."
 msgstr "Subscription expired."
 
-#: includes/class-dashboard-settings.php:168
+#: includes/class-dashboard-settings.php:170
 msgid "Agency Subscriptions"
 msgstr "Agency Subscriptions"
 
-#: includes/class-dashboard-settings.php:170
+#: includes/class-dashboard-settings.php:172
 msgid "Activas"
 msgstr "Active"
 
-#: includes/class-dashboard-settings.php:171
-#: includes/class-dashboard-settings.php:250
+#: includes/class-dashboard-settings.php:173
+#: includes/class-dashboard-settings.php:252
 msgid "Pendientes de pago"
 msgstr "Pending payment"
 
-#: includes/class-dashboard-settings.php:179
+#: includes/class-dashboard-settings.php:181
 msgid "No subscriptions yet."
 msgstr "No subscriptions yet."
 
-#: includes/class-dashboard-settings.php:196
+#: includes/class-dashboard-settings.php:198
 msgid "Marcar pagado"
 msgstr "Mark paid"
 
-#: includes/class-dashboard-settings.php:202
-#: includes/class-dashboard-settings.php:286
+#: includes/class-dashboard-settings.php:204
+#: includes/class-dashboard-settings.php:288
 msgid "Expirar"
 msgstr "Expire"
 
 #. translators: %s: fecha de vencimiento de la promoción.
-#: includes/class-dashboard-settings.php:222
+#: includes/class-dashboard-settings.php:224
 #, php-format
 msgid "Promotion activated until %s"
 msgstr "Promotion activated until %s"
 
-#: includes/class-dashboard-settings.php:230
+#: includes/class-dashboard-settings.php:232
 msgid "Promotion expired."
 msgstr "Promotion expired."
 
-#: includes/class-dashboard-settings.php:245
+#: includes/class-dashboard-settings.php:247
 msgid "Listado Promotions (Destacados)"
 msgstr "Listed Promotions (Featured)"
 
 #. translators: %s: precio mensual del destacado
-#: includes/class-dashboard-settings.php:247
+#: includes/class-dashboard-settings.php:249
 #, php-format
 msgid ""
 "Precio por destacado: %s/mes por listado. Confirma el pago para activar la "
@@ -3794,83 +3803,83 @@ msgstr ""
 "Price per featured listing: %s/month per listing. Confirm the payment to "
 "activate the promotion until the corresponding date."
 
-#: includes/class-dashboard-settings.php:249
+#: includes/class-dashboard-settings.php:251
 msgid "Activos"
 msgstr "Active"
 
-#: includes/class-dashboard-settings.php:251
+#: includes/class-dashboard-settings.php:253
 msgid "Facturado en destacados"
 msgstr "Billed in featured"
 
-#: includes/class-dashboard-settings.php:259
+#: includes/class-dashboard-settings.php:261
 msgid "No promotions yet."
 msgstr "No promotions yet."
 
-#: includes/class-dashboard-settings.php:264
+#: includes/class-dashboard-settings.php:266
 msgid "Listado borrado"
 msgstr "Listing deleted"
 
-#: includes/class-dashboard-settings.php:280
+#: includes/class-dashboard-settings.php:282
 msgid "Marcar activo"
 msgstr "Mark active"
 
-#: includes/class-dashboard-settings.php:298
+#: includes/class-dashboard-settings.php:300
 msgid "Travel Platform Settings"
 msgstr "Travel Platform Settings"
 
-#: includes/class-dashboard-settings.php:303
+#: includes/class-dashboard-settings.php:305
 msgid "Default Commission %"
 msgstr "Default Commission %"
 
-#: includes/class-dashboard-settings.php:307
+#: includes/class-dashboard-settings.php:309
 msgid "Default Currency"
 msgstr "Default Currency"
 
-#: includes/class-dashboard-settings.php:319
+#: includes/class-dashboard-settings.php:321
 msgid "Auto-confirm Bookings"
 msgstr "Auto-confirm Bookings"
 
-#: includes/class-dashboard-settings.php:323
+#: includes/class-dashboard-settings.php:325
 msgid "Cancelar pendientes tras (horas)"
 msgstr "Cancel pending after (hours)"
 
-#: includes/class-dashboard-settings.php:327
+#: includes/class-dashboard-settings.php:329
 msgid "Terms & Conditions Page"
 msgstr "Terms & Conditions Page"
 
-#: includes/class-dashboard-settings.php:328 includes/class-metaboxes.php:902
+#: includes/class-dashboard-settings.php:330 includes/class-metaboxes.php:902
 msgid "-- Select --"
 msgstr "-- Select --"
 
-#: includes/class-dashboard-settings.php:331
+#: includes/class-dashboard-settings.php:333
 msgid "Default Payment Gateway"
 msgstr "Default Payment Gateway"
 
-#: includes/class-dashboard-settings.php:334 includes/class-payment.php:53
+#: includes/class-dashboard-settings.php:336 includes/class-payment.php:53
 msgid "PayPal"
 msgstr "PayPal"
 
-#: includes/class-dashboard-settings.php:340
+#: includes/class-dashboard-settings.php:342
 msgid "Booking Fee (client)"
 msgstr "Booking Fee (client)"
 
-#: includes/class-dashboard-settings.php:343
+#: includes/class-dashboard-settings.php:345
 msgid "Fee Type"
 msgstr "Fee Type"
 
-#: includes/class-dashboard-settings.php:346
+#: includes/class-dashboard-settings.php:348
 msgid "No fee"
 msgstr "No fee"
 
-#: includes/class-dashboard-settings.php:347
+#: includes/class-dashboard-settings.php:349
 msgid "Fixed amount"
 msgstr "Fixed amount"
 
-#: includes/class-dashboard-settings.php:348
+#: includes/class-dashboard-settings.php:350
 msgid "Percentage of total"
 msgstr "Percentage of total"
 
-#: includes/class-dashboard-settings.php:350
+#: includes/class-dashboard-settings.php:352
 msgid ""
 "Charged to the client on top of the booking total. This revenue belongs to "
 "the platform (not the agency)."
@@ -3878,23 +3887,23 @@ msgstr ""
 "Charged to the client on top of the booking total. This revenue belongs to "
 "the platform (not the agency)."
 
-#: includes/class-dashboard-settings.php:354
+#: includes/class-dashboard-settings.php:356
 msgid "Fee Value"
 msgstr "Fee Value"
 
-#: includes/class-dashboard-settings.php:359
+#: includes/class-dashboard-settings.php:361
 msgid "Cancellation policies (T7, booking lifecycle)"
 msgstr "Cancellation policies (booking lifecycle)"
 
-#: includes/class-dashboard-settings.php:362
+#: includes/class-dashboard-settings.php:364
 msgid "Definiciones"
 msgstr "Definitions"
 
-#: includes/class-dashboard-settings.php:365
+#: includes/class-dashboard-settings.php:367
 msgid "Flexible — reembolso total si cancelas al menos 24h antes del check-in."
 msgstr "Flexible — full refund if you cancel at least 24h before check-in."
 
-#: includes/class-dashboard-settings.php:366
+#: includes/class-dashboard-settings.php:368
 msgid ""
 "Moderada — reembolso total 5 días antes; 50% entre 2 y 5 días; 0% menos de 2 "
 "días."
@@ -3902,15 +3911,15 @@ msgstr ""
 "Moderate — full refund 5 days before; 50% between 2 and 5 days; 0% less than "
 "2 days."
 
-#: includes/class-dashboard-settings.php:367
+#: includes/class-dashboard-settings.php:369
 msgid "Estricta — 50% de reembolso hasta 7 días antes; 0% después."
 msgstr "Strict — 50% refund up to 7 days before; 0% after."
 
-#: includes/class-dashboard-settings.php:368
+#: includes/class-dashboard-settings.php:370
 msgid "No reembolsable — sin reembolso."
 msgstr "Non-refundable — no refund."
 
-#: includes/class-dashboard-settings.php:370
+#: includes/class-dashboard-settings.php:372
 msgid ""
 "La política efectiva de un listado se resuelve así: política propia del "
 "listado → política por defecto del tipo de servicio (abajo). La agencia "
@@ -3921,11 +3930,11 @@ msgstr ""
 "the service type default (below). The agency can set a listing-level policy "
 "in its accommodation/tour editor."
 
-#: includes/class-dashboard-settings.php:386
+#: includes/class-dashboard-settings.php:388
 msgid "Auto-completar reservas"
 msgstr "Auto-complete bookings"
 
-#: includes/class-dashboard-settings.php:389
+#: includes/class-dashboard-settings.php:391
 msgid ""
 "Marcar automáticamente como \"completada\" toda reserva confirmada cuya "
 "fecha de salida ya pasó."
@@ -3933,43 +3942,43 @@ msgstr ""
 "Automatically mark confirmed bookings whose check-out date has passed as "
 "completed."
 
-#: includes/class-dashboard-settings.php:394
+#: includes/class-dashboard-settings.php:396
 msgid "Automations (T4, daily cron)"
 msgstr "Automations (T4, daily cron)"
 
-#: includes/class-dashboard-settings.php:397
+#: includes/class-dashboard-settings.php:399
 msgid "Payment reminders"
 msgstr "Payment reminders"
 
-#: includes/class-dashboard-settings.php:400
+#: includes/class-dashboard-settings.php:402
 msgid "Email guests with pending/request bookings that never got paid."
 msgstr "Email guests with pending/request bookings that never got paid."
 
-#: includes/class-dashboard-settings.php:404
+#: includes/class-dashboard-settings.php:406
 msgid "Remind after (hours)"
 msgstr "Remind after (hours)"
 
-#: includes/class-dashboard-settings.php:408
+#: includes/class-dashboard-settings.php:410
 msgid "Pre-arrival message"
 msgstr "Pre-arrival message"
 
-#: includes/class-dashboard-settings.php:411
+#: includes/class-dashboard-settings.php:413
 msgid "Send guests a heads-up when their confirmed stay starts within 48h."
 msgstr "Send guests a heads-up when their confirmed stay starts within 48h."
 
-#: includes/class-dashboard-settings.php:415
+#: includes/class-dashboard-settings.php:417
 msgid "Post-stay review request"
 msgstr "Post-stay review request"
 
-#: includes/class-dashboard-settings.php:418
+#: includes/class-dashboard-settings.php:420
 msgid "Ask guests to leave a review a few days after a completed stay."
 msgstr "Ask guests to leave a review a few days after a completed stay."
 
-#: includes/class-dashboard-settings.php:422
+#: includes/class-dashboard-settings.php:424
 msgid "Expiry warnings"
 msgstr "Expiry warnings"
 
-#: includes/class-dashboard-settings.php:425
+#: includes/class-dashboard-settings.php:427
 msgid ""
 "Email agencies when their plan subscription or a featured listing is near "
 "expiry."
@@ -3977,27 +3986,27 @@ msgstr ""
 "Email agencies when their plan subscription or a featured listing is near "
 "expiry."
 
-#: includes/class-dashboard-settings.php:429
+#: includes/class-dashboard-settings.php:431
 msgid "Warn days before expiry"
 msgstr "Warn days before expiry"
 
-#: includes/class-dashboard-settings.php:433
+#: includes/class-dashboard-settings.php:435
 msgid "Contact auto-reply"
 msgstr "Contact auto-reply"
 
-#: includes/class-dashboard-settings.php:436
+#: includes/class-dashboard-settings.php:438
 msgid "Send an acknowledgment email to people who use the contact form."
 msgstr "Send an acknowledgment email to people who use the contact form."
 
-#: includes/class-dashboard-settings.php:441
+#: includes/class-dashboard-settings.php:443
 msgid "PayPal Settings"
 msgstr "PayPal Settings"
 
-#: includes/class-dashboard-settings.php:444
+#: includes/class-dashboard-settings.php:446
 msgid "PayPal no está configurado."
 msgstr "PayPal is not configured."
 
-#: includes/class-dashboard-settings.php:445
+#: includes/class-dashboard-settings.php:447
 msgid ""
 "Las credenciales guardadas son de ejemplo o están vacías, así que «Pagar con "
 "PayPal» fallará. Pega el Client ID y el Secret de tu aplicación de PayPal "
@@ -4006,53 +4015,73 @@ msgstr ""
 "The saved credentials are sample values or empty, so “Pay with PayPal” will "
 "fail. Paste the Client ID and Secret from your PayPal app to enable payments."
 
-#: includes/class-dashboard-settings.php:450
+#: includes/class-dashboard-settings.php:452
 msgid "Enable PayPal"
 msgstr "Enable PayPal"
 
-#: includes/class-dashboard-settings.php:454
+#: includes/class-dashboard-settings.php:456
 msgid "Sandbox Mode"
 msgstr "Sandbox Mode"
 
-#: includes/class-dashboard-settings.php:455
+#: includes/class-dashboard-settings.php:457
 msgid "Enable to test payments in PayPal Sandbox"
 msgstr "Enable to test payments in PayPal Sandbox"
 
-#: includes/class-dashboard-settings.php:458
+#: includes/class-dashboard-settings.php:460
 msgid "Client ID"
 msgstr "Client ID"
 
-#: includes/class-dashboard-settings.php:462
+#: includes/class-dashboard-settings.php:464
 msgid "Secret Key"
 msgstr "Secret Key"
 
-#: includes/class-dashboard-settings.php:466
+#: includes/class-dashboard-settings.php:468
 msgid "Webhook ID"
 msgstr "Webhook ID"
 
-#: includes/class-dashboard-settings.php:468
+#: includes/class-dashboard-settings.php:470
 msgid "Webhook URL:"
 msgstr "Webhook URL:"
 
-#: includes/class-dashboard-settings.php:473
+#: includes/class-dashboard-settings.php:475
 msgid "SINPE Móvil (Costa Rica)"
 msgstr "SINPE Móvil (Costa Rica)"
 
-#: includes/class-dashboard-settings.php:476
+#: includes/class-dashboard-settings.php:478
 msgid "Enable SINPE Móvil"
 msgstr "Enable SINPE Móvil"
 
-#: includes/class-dashboard-settings.php:480
+#: includes/class-dashboard-settings.php:482
 msgid "Teléfono SINPE"
 msgstr "SINPE phone"
 
-#: includes/class-dashboard-settings.php:488
+#: includes/class-dashboard-settings.php:490
 msgid "Enable transferencia"
 msgstr "Enable bank transfer"
 
-#: includes/class-dashboard-settings.php:492
+#: includes/class-dashboard-settings.php:494
 msgid "Datos bancarios"
 msgstr "Bank details"
+
+#: includes/class-dashboard-settings.php:499
+msgid "Web Push Notifications"
+msgstr "Web Push Notifications"
+
+#: includes/class-dashboard-settings.php:502
+msgid "VAPID Public Key"
+msgstr "VAPID Public Key"
+
+#: includes/class-dashboard-settings.php:506
+msgid "VAPID Private Key"
+msgstr "VAPID Private Key"
+
+#: includes/class-dashboard-settings.php:508
+msgid ""
+"Genera las claves en https://vapidkeys.com/ o con web-push. Sin ellas, las "
+"notificaciones caen a email."
+msgstr ""
+"Generate keys at https://vapidkeys.com/ or with web-push. Without them, "
+"notifications fall back to email."
 
 #: includes/class-dashboard.php:29 includes/class-dashboard.php:30
 msgid "Travel Platform"
@@ -8569,7 +8598,7 @@ msgstr "Send now?"
 
 #: includes/class-email-campaigns.php:262 includes/class-front-dash.php:536
 #: includes/class-shortcode-account.php:405
-#: includes/class-shortcode-booking.php:794 travel-agency-platform.php:285
+#: includes/class-shortcode-booking.php:794 travel-agency-platform.php:288
 msgid "Enviar"
 msgstr "Send"
 
@@ -12216,6 +12245,26 @@ msgstr ""
 msgid "Confirmada el %s por el administrador"
 msgstr "Confirmed on %s by the administrator"
 
+#: includes/class-push.php:94
+msgid "Ver más"
+msgstr "View more"
+
+#: includes/class-push.php:232
+msgid "Datos de suscripción inválidos."
+msgstr "Invalid subscription data."
+
+#: includes/class-push.php:242
+msgid "Endpoint requerido."
+msgstr "Endpoint required."
+
+#: includes/class-push.php:250
+msgid "Las notificaciones push no están configuradas."
+msgstr "Push notifications are not configured."
+
+#: includes/class-push.php:254
+msgid "Activar notificaciones"
+msgstr "Enable notifications"
+
 #. translators: %s: nombre de la política de cancelación
 #: includes/class-refunds.php:14
 #, php-format
@@ -12624,11 +12673,11 @@ msgid "Network error. Please try again."
 msgstr "Network error. Please try again."
 
 #: includes/class-shortcode-account.php:389
-#: includes/class-shortcode-account.php:391 travel-agency-platform.php:281
+#: includes/class-shortcode-account.php:391 travel-agency-platform.php:284
 msgid "Asistente de viajes"
 msgstr "Travel assistant"
 
-#: includes/class-shortcode-account.php:395 travel-agency-platform.php:286
+#: includes/class-shortcode-account.php:395 travel-agency-platform.php:289
 msgid ""
 "¡Hola! Soy el asistente de viajes. Pregunta por alojamientos, tours, bonos o "
 "agencias, o toca una sugerencia."
@@ -12637,7 +12686,7 @@ msgstr ""
 "or tap a suggestion."
 
 #: includes/class-shortcode-account.php:403
-#: includes/class-shortcode-account.php:404 travel-agency-platform.php:284
+#: includes/class-shortcode-account.php:404 travel-agency-platform.php:287
 msgid "Escribe tu pregunta…"
 msgstr "Type your question…"
 
@@ -12809,7 +12858,7 @@ msgid "Solicitar reserva"
 msgstr "Request to Book"
 
 #: includes/class-shortcode-booking.php:31
-#: includes/class-shortcode-booking.php:70 travel-agency-platform.php:275
+#: includes/class-shortcode-booking.php:70 travel-agency-platform.php:278
 msgid "Book Now"
 msgstr "Book Now"
 
@@ -14053,117 +14102,117 @@ msgid ""
 msgstr ""
 "The Composer autoloader was not found. Run \"composer dump-autoload -o\"."
 
-#: travel-agency-platform.php:253
+#: travel-agency-platform.php:256
 msgid "results found"
 msgstr "results found"
 
-#: travel-agency-platform.php:254
+#: travel-agency-platform.php:257
 msgid "No results found"
 msgstr "No results found"
 
-#: travel-agency-platform.php:255
+#: travel-agency-platform.php:258
 msgid "Guardado en favoritos"
 msgstr "Saved to favorites"
 
-#: travel-agency-platform.php:256
+#: travel-agency-platform.php:259
 msgid "Quitado de favoritos"
 msgstr "Removed from favorites"
 
-#: travel-agency-platform.php:257
+#: travel-agency-platform.php:260
 msgid "Aún no hay reseñas."
 msgstr "No reviews yet."
 
-#: travel-agency-platform.php:258
+#: travel-agency-platform.php:261
 msgid "Aún no hay reseñas. Sé el primero en compartir tu experiencia."
 msgstr "No reviews yet. Be the first to share your experience."
 
-#: travel-agency-platform.php:259
+#: travel-agency-platform.php:262
 msgid "reseña"
 msgstr "review"
 
-#: travel-agency-platform.php:260
+#: travel-agency-platform.php:263
 msgid "reseñas"
 msgstr "reviews"
 
-#: travel-agency-platform.php:261
+#: travel-agency-platform.php:264
 msgid "Anónimo"
 msgstr "Anonymous"
 
-#: travel-agency-platform.php:262
+#: travel-agency-platform.php:265
 msgid "Enviando..."
 msgstr "Sending..."
 
-#: travel-agency-platform.php:263
+#: travel-agency-platform.php:266
 msgid "¡Reseña enviada! Pendiente de aprobación."
 msgstr "Review submitted! Pending approval."
 
-#: travel-agency-platform.php:264
+#: travel-agency-platform.php:267
 msgid "Error al enviar"
 msgstr "Error sending"
 
-#: travel-agency-platform.php:265
+#: travel-agency-platform.php:268
 msgid "Review submitted"
 msgstr "Review submitted"
 
-#: travel-agency-platform.php:266
+#: travel-agency-platform.php:269
 msgid "Error al enviar la reseña"
 msgstr "Error submitting the review"
 
 #. translators: %s: nombre del servicio
-#: travel-agency-platform.php:268
+#: travel-agency-platform.php:271
 #, php-format
 msgid "Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!"
 msgstr "Thank you for your stay (%s). Tell us how it went!"
 
-#: travel-agency-platform.php:269
+#: travel-agency-platform.php:272
 msgid "Reseña verificada"
 msgstr "Verified review"
 
 #. translators: 1: cupos disponibles, 2: cupos totales
-#: travel-agency-platform.php:271
+#: travel-agency-platform.php:274
 #, php-format
 msgid "Cupos disponibles: %s de %s"
 msgstr "Available spots: %s of %s"
 
 #. translators: 1: cupos ocupados, 2: cupos totales
-#: travel-agency-platform.php:273
+#: travel-agency-platform.php:276
 #, php-format
 msgid "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
 msgstr "Full for this date (%s/%s). Please choose another date."
 
-#: travel-agency-platform.php:274
+#: travel-agency-platform.php:277
 msgid "El tour está completo para esta fecha."
 msgstr "This tour is full for this date."
 
-#: travel-agency-platform.php:277
+#: travel-agency-platform.php:280
 msgid "Image gallery"
 msgstr "Image gallery"
 
-#: travel-agency-platform.php:278
+#: travel-agency-platform.php:281
 msgid "Close image gallery"
 msgstr "Close image gallery"
 
-#: travel-agency-platform.php:279
+#: travel-agency-platform.php:282
 msgid "Previous image"
 msgstr "Previous image"
 
-#: travel-agency-platform.php:280
+#: travel-agency-platform.php:283
 msgid "Next image"
 msgstr "Next image"
 
-#: travel-agency-platform.php:282
+#: travel-agency-platform.php:285
 msgid "Abrir asistente"
 msgstr "Open assistant"
 
-#: travel-agency-platform.php:283
+#: travel-agency-platform.php:286
 msgid "Cerrar asistente"
 msgstr "Close assistant"
 
-#: travel-agency-platform.php:287
+#: travel-agency-platform.php:290
 msgid "Pensando…"
 msgstr "Thinking…"
 
-#: travel-agency-platform.php:288
+#: travel-agency-platform.php:291
 msgid "Hubo un problema. Inténtalo de nuevo."
 msgstr "Something went wrong. Please try again."
 

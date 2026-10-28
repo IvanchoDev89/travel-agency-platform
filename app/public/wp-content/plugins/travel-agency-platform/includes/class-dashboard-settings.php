@@ -30,6 +30,8 @@ class TAP_Dashboard_Settings {
         register_setting('tap_settings', 'tap_sinpe_phone');
         register_setting('tap_settings', 'tap_manual_payment_enabled');
         register_setting('tap_settings', 'tap_manual_bank_info');
+        register_setting('tap_settings', 'tap_vapid_public');
+        register_setting('tap_settings', 'tap_vapid_private');
         register_setting('tap_settings', 'tap_default_gateway');
         register_setting('tap_settings', 'tap_booking_fee_type', [
             'type' => 'string',
@@ -491,6 +493,19 @@ class TAP_Dashboard_Settings {
                     <tr>
                         <th><label for="tap_manual_bank_info"><?php esc_html_e('Datos bancarios', 'travel-agency-platform'); ?></label></th>
                         <td><textarea id="tap_manual_bank_info" name="tap_manual_bank_info" rows="4" class="large-text"><?php echo esc_textarea(get_option('tap_manual_bank_info', '')); ?></textarea></td>
+                    </tr>
+                </table>
+
+                <h3><?php esc_html_e('Web Push Notifications', 'travel-agency-platform'); ?></h3>
+                <table class="form-table">
+                    <tr>
+                        <th><label for="tap_vapid_public"><?php esc_html_e('VAPID Public Key', 'travel-agency-platform'); ?></label></th>
+                        <td><input type="text" id="tap_vapid_public" name="tap_vapid_public" value="<?php echo esc_attr(get_option('tap_vapid_public', '')); ?>" class="regular-text" style="width:400px;"></td>
+                    </tr>
+                    <tr>
+                        <th><label for="tap_vapid_private"><?php esc_html_e('VAPID Private Key', 'travel-agency-platform'); ?></label></th>
+                        <td><input type="text" id="tap_vapid_private" name="tap_vapid_private" value="<?php echo esc_attr(get_option('tap_vapid_private', '')); ?>" class="regular-text" style="width:400px;">
+                        <p class="description"><?php esc_html_e('Genera las claves en https://vapidkeys.com/ o con web-push. Sin ellas, las notificaciones caen a email.', 'travel-agency-platform'); ?></p></td>
                     </tr>
                 </table>
 

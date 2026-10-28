@@ -65,6 +65,24 @@ class TAP_Ajax_Public {
         wp_send_json_success(['message' => __('Respuesta guardada.', 'travel-agency-platform')]);
     }
 
+    public static function push_subscribe_client() {
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => __('No autenticado.', 'travel-agency-platform')], 401);
+        }
+        if (!class_exists('TAP_Push')) {
+            wp_send_json_error(['message' => __('Push no disponible.', 'travel-agency-platform')], 500);
+        }
+        $endpoint = esc_url_raw(wp_unslash($_POST['endpoint'] ?? ''));
+        $p256dh   = sanitize_text_field(wp_unslash($_POST['p256dh'] ?? ''));
+        $auth     = sanitize_text_field(wp_unslash($_POST['auth'] ?? ''));
+        if (!$endpoint || !$p256dh || !$auth) {
+            wp_send_json_error(['message' => __('Datos inválidos.', 'travel-agency-platform')], 400);
+        }
+        $id = TAP_Push::subscribe(get_current_user_id(), $endpoint, $p256dh, $auth);
+        wp_send_json_success(['id' => $id]);
+    }
+
     public static function set_currency() {
         check_ajax_referer('tap_front_dash_nonce', 'nonce');
         $code = strtoupper(sanitize_text_field(wp_unslash($_POST['currency'] ?? '')));
