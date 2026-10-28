@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-10-28T17:10:03+00:00\n"
+"POT-Creation-Date: 2026-10-28T17:22:37+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -207,13 +207,13 @@ msgid "Guardar unidad"
 msgstr "Save unit"
 
 #: includes/class-acc-wizard-room-form.php:198
-#: includes/class-booking-pricing.php:256 includes/class-metaboxes.php:834
+#: includes/class-booking-pricing.php:260 includes/class-metaboxes.php:835
 #: includes/class-post-types.php:369
 msgid "King"
 msgstr "King"
 
 #: includes/class-acc-wizard-room-form.php:199
-#: includes/class-booking-pricing.php:257 includes/class-metaboxes.php:835
+#: includes/class-booking-pricing.php:261 includes/class-metaboxes.php:836
 #: includes/class-post-types.php:370
 msgid "Queen"
 msgstr "Queen"
@@ -223,7 +223,7 @@ msgid "Doble"
 msgstr "Double"
 
 #: includes/class-acc-wizard-room-form.php:201
-#: includes/class-booking-pricing.php:259 includes/class-post-types.php:372
+#: includes/class-booking-pricing.php:263 includes/class-post-types.php:372
 msgid "Twin"
 msgstr "Twin"
 
@@ -240,7 +240,7 @@ msgid "Cuna"
 msgstr "Crib"
 
 #: includes/class-acc-wizard-room-form.php:205
-#: includes/class-booking-pricing.php:263 includes/class-post-types.php:376
+#: includes/class-booking-pricing.php:267 includes/class-post-types.php:376
 msgid "Murphy"
 msgstr "Murphy"
 
@@ -822,7 +822,7 @@ msgstr "Click any day to edit its price, label or block it."
 #: includes/class-shortcode-booking.php:815
 #: includes/class-shortcode-booking.php:817
 #: includes/class-shortcode-booking.php:840
-#: includes/class-shortcode-booking.php:843 travel-agency-platform.php:271
+#: includes/class-shortcode-booking.php:843 travel-agency-platform.php:273
 msgid "Error"
 msgstr "Error"
 
@@ -2304,25 +2304,25 @@ msgstr "Plan"
 msgid "Servicio destacado"
 msgstr "Featured service"
 
-#: includes/class-booking-pricing.php:258 includes/class-post-types.php:371
+#: includes/class-booking-pricing.php:262 includes/class-post-types.php:371
 msgid "Double"
 msgstr "Double"
 
-#: includes/class-booking-pricing.php:260 includes/class-post-types.php:373
+#: includes/class-booking-pricing.php:264 includes/class-post-types.php:373
 msgid "Bunk"
 msgstr "Bunk"
 
-#: includes/class-booking-pricing.php:261 includes/class-metaboxes.php:839
+#: includes/class-booking-pricing.php:265 includes/class-metaboxes.php:840
 #: includes/class-post-types.php:374
 msgid "Sofa Bed"
 msgstr "Sofa Bed"
 
-#: includes/class-booking-pricing.php:262 includes/class-metaboxes.php:840
+#: includes/class-booking-pricing.php:266 includes/class-metaboxes.php:841
 #: includes/class-post-types.php:375
 msgid "Crib"
 msgstr "Crib"
 
-#: includes/class-booking-pricing.php:264 includes/class-metaboxes.php:842
+#: includes/class-booking-pricing.php:268 includes/class-metaboxes.php:843
 #: includes/class-post-types.php:377
 msgid "Futon"
 msgstr "Futon"
@@ -2883,12 +2883,12 @@ msgstr "Export CSV"
 msgid "Code"
 msgstr "Code"
 
-#: includes/class-dashboard-bookings.php:269 includes/class-metaboxes.php:937
+#: includes/class-dashboard-bookings.php:269 includes/class-metaboxes.php:938
 #: includes/class-roles.php:95
 msgid "Client"
 msgstr "Client"
 
-#: includes/class-dashboard-bookings.php:270 includes/class-metaboxes.php:940
+#: includes/class-dashboard-bookings.php:270 includes/class-metaboxes.php:941
 #: includes/class-shortcode-agency-panel.php:230
 #: includes/class-shortcode-booking.php:164
 msgid "Service"
@@ -2901,11 +2901,11 @@ msgstr "Service"
 #: includes/class-metaboxes.php:258 includes/class-metaboxes.php:285
 #: includes/class-metaboxes.php:303 includes/class-metaboxes.php:324
 #: includes/class-metaboxes.php:347 includes/class-metaboxes.php:368
-#: includes/class-metaboxes.php:938 includes/class-post-types.php:20
+#: includes/class-metaboxes.php:939 includes/class-post-types.php:20
 msgid "Agency"
 msgstr "Agency"
 
-#: includes/class-dashboard-bookings.php:273 includes/class-metaboxes.php:936
+#: includes/class-dashboard-bookings.php:273 includes/class-metaboxes.php:937
 #: includes/class-shortcode-agency-panel.php:238
 #: includes/class-shortcode-booking.php:167
 msgid "Status"
@@ -2913,7 +2913,7 @@ msgstr "Status"
 
 #: includes/class-dashboard-bookings.php:274
 #: includes/class-dashboard-insights.php:54
-#: includes/class-dashboard-money.php:301 includes/class-metaboxes.php:951
+#: includes/class-dashboard-money.php:301 includes/class-metaboxes.php:952
 #: includes/class-shortcode-agency-panel.php:137
 #: includes/class-shortcode-agency-panel.php:194
 #: includes/class-shortcode-agency-panel.php:235
@@ -3832,7 +3832,7 @@ msgstr "Cancel pending after (hours)"
 msgid "Terms & Conditions Page"
 msgstr "Terms & Conditions Page"
 
-#: includes/class-dashboard-settings.php:328 includes/class-metaboxes.php:833
+#: includes/class-dashboard-settings.php:328 includes/class-metaboxes.php:834
 msgid "-- Select --"
 msgstr "-- Select --"
 
@@ -8563,7 +8563,7 @@ msgstr "Send now?"
 
 #: includes/class-email-campaigns.php:262 includes/class-front-dash.php:536
 #: includes/class-shortcode-account.php:405
-#: includes/class-shortcode-booking.php:794 travel-agency-platform.php:280
+#: includes/class-shortcode-booking.php:794 travel-agency-platform.php:282
 msgid "Enviar"
 msgstr "Send"
 
@@ -8983,13 +8983,13 @@ msgstr "Room"
 msgid "Alquiler de auto"
 msgstr "Car rental"
 
-#: includes/class-emails-send.php:538 includes/class-metaboxes.php:943
+#: includes/class-emails-send.php:538 includes/class-metaboxes.php:944
 #: includes/class-shortcode-booking.php:651
 #: includes/class-shortcode-search.php:31
 msgid "Check-in"
 msgstr "Check-in"
 
-#: includes/class-emails-send.php:539 includes/class-metaboxes.php:946
+#: includes/class-emails-send.php:539 includes/class-metaboxes.php:947
 #: includes/class-shortcode-booking.php:655
 #: includes/class-shortcode-search.php:35
 msgid "Check-out"
@@ -9861,7 +9861,7 @@ msgstr "Listing deleted"
 msgid "Seleccionar reserva"
 msgstr "Select booking"
 
-#: includes/class-front-dash.php:508 includes/class-metaboxes.php:948
+#: includes/class-front-dash.php:508 includes/class-metaboxes.php:949
 #: includes/class-shortcode-booking.php:51
 msgid "Adults"
 msgstr "Adults"
@@ -10294,6 +10294,10 @@ msgstr "Traveler"
 #: includes/class-front-dash.php:1458
 msgid "Cerrar sesión"
 msgstr "Log Out"
+
+#: includes/class-ical.php:26
+msgid "Servicio no encontrado."
+msgstr "Service not found."
 
 #: includes/class-itinerary.php:31
 msgid "/noche"
@@ -10876,7 +10880,7 @@ msgstr "Longitude"
 #: includes/class-metaboxes.php:249 includes/class-metaboxes.php:275
 #: includes/class-metaboxes.php:294 includes/class-metaboxes.php:315
 #: includes/class-metaboxes.php:338 includes/class-metaboxes.php:359
-#: includes/class-metaboxes.php:374 includes/class-metaboxes.php:767
+#: includes/class-metaboxes.php:374 includes/class-metaboxes.php:768
 msgid "Active"
 msgstr "Active"
 
@@ -11188,7 +11192,7 @@ msgstr "Upload or select images for the property gallery."
 msgid "Select Images"
 msgstr "Select Images"
 
-#: includes/class-metaboxes.php:725 includes/class-metaboxes.php:880
+#: includes/class-metaboxes.php:725 includes/class-metaboxes.php:881
 msgid "Add to Gallery"
 msgstr "Add to Gallery"
 
@@ -11221,86 +11225,90 @@ msgid "Number of Rooms of This Type"
 msgstr "Number of Rooms of This Type"
 
 #: includes/class-metaboxes.php:764
+msgid "Overbooking % (0 = none)"
+msgstr "Overbooking % (0 = none)"
+
+#: includes/class-metaboxes.php:765
 msgid "Room Size (e.g. 35 m²)"
 msgstr "Room Size (e.g. 35 m²)"
 
-#: includes/class-metaboxes.php:765
+#: includes/class-metaboxes.php:766
 msgid "View (e.g. Ocean View, City View)"
 msgstr "View (e.g. Ocean View, City View)"
 
-#: includes/class-metaboxes.php:766
+#: includes/class-metaboxes.php:767
 msgid "Floor"
 msgstr "Floor"
 
-#: includes/class-metaboxes.php:785
+#: includes/class-metaboxes.php:786
 msgid "Add bed types available in this room:"
 msgstr "Add bed types available in this room:"
 
-#: includes/class-metaboxes.php:787
+#: includes/class-metaboxes.php:788
 msgid "Bed Type"
 msgstr "Bed Type"
 
-#: includes/class-metaboxes.php:787
+#: includes/class-metaboxes.php:788
 msgid "Count"
 msgstr "Count"
 
-#: includes/class-metaboxes.php:806
+#: includes/class-metaboxes.php:807
 msgid "+ Add Bed Type"
 msgstr "+ Add Bed Type"
 
-#: includes/class-metaboxes.php:836
+#: includes/class-metaboxes.php:837
 msgid "Double / Full"
 msgstr "Double / Full"
 
-#: includes/class-metaboxes.php:837
+#: includes/class-metaboxes.php:838
 msgid "Twin / Single"
 msgstr "Twin / Single"
 
-#: includes/class-metaboxes.php:838
+#: includes/class-metaboxes.php:839
 msgid "Bunk Bed"
 msgstr "Bunk Bed"
 
-#: includes/class-metaboxes.php:841
+#: includes/class-metaboxes.php:842
 msgid "Murphy Bed"
 msgstr "Murphy Bed"
 
-#: includes/class-metaboxes.php:872
+#: includes/class-metaboxes.php:873
 msgid "Add Photos"
 msgstr "Add Photos"
 
-#: includes/class-metaboxes.php:880
+#: includes/class-metaboxes.php:881
 msgid "Select Photos"
 msgstr "Select Photos"
 
-#: includes/class-metaboxes.php:914
+#: includes/class-metaboxes.php:915
 msgid "Booking details not found."
 msgstr "Booking details not found."
 
-#: includes/class-metaboxes.php:935
+#: includes/class-metaboxes.php:936
 msgid "Booking Code"
 msgstr "Booking Code"
 
-#: includes/class-metaboxes.php:949 includes/class-shortcode-booking.php:55
+#: includes/class-metaboxes.php:950 includes/class-shortcode-booking.php:55
 msgid "Children"
 msgstr "Children"
 
-#: includes/class-metaboxes.php:950
+#: includes/class-metaboxes.php:951
 msgid "Total Amount"
 msgstr "Total Amount"
 
-#: includes/class-metaboxes.php:952
+#: includes/class-metaboxes.php:953
 msgid "Payment Status"
 msgstr "Payment Status"
 
-#: includes/class-metaboxes.php:953
+#: includes/class-metaboxes.php:954
 msgid "Payment Method"
 msgstr "Payment Method"
 
-#: includes/class-metaboxes.php:955
+#: includes/class-metaboxes.php:956
 msgid "Notes"
 msgstr "Notes"
 
-#: includes/class-metaboxes.php:957
+#: includes/class-metaboxes.php:958
 msgid "Created"
 msgstr "Created"
 
@@ -12539,11 +12547,11 @@ msgid "Network error. Please try again."
 msgstr "Network error. Please try again."
 
 #: includes/class-shortcode-account.php:389
-#: includes/class-shortcode-account.php:391 travel-agency-platform.php:276
+#: includes/class-shortcode-account.php:391 travel-agency-platform.php:278
 msgid "Asistente de viajes"
 msgstr "Travel assistant"
 
-#: includes/class-shortcode-account.php:395 travel-agency-platform.php:281
+#: includes/class-shortcode-account.php:395 travel-agency-platform.php:283
 msgid ""
 "¡Hola! Soy el asistente de viajes. Pregunta por alojamientos, tours, bonos o "
 "agencias, o toca una sugerencia."
@@ -12552,7 +12560,7 @@ msgstr ""
 "or tap a suggestion."
 
 #: includes/class-shortcode-account.php:403
-#: includes/class-shortcode-account.php:404 travel-agency-platform.php:279
+#: includes/class-shortcode-account.php:404 travel-agency-platform.php:281
 msgid "Escribe tu pregunta…"
 msgstr "Type your question…"
 
@@ -12724,7 +12732,7 @@ msgid "Solicitar reserva"
 msgstr "Request to Book"
 
 #: includes/class-shortcode-booking.php:31
-#: includes/class-shortcode-booking.php:70 travel-agency-platform.php:270
+#: includes/class-shortcode-booking.php:70 travel-agency-platform.php:272
 msgid "Book Now"
 msgstr "Book Now"
 
@@ -13968,117 +13976,117 @@ msgid ""
 msgstr ""
 "The Composer autoloader was not found. Run \"composer dump-autoload -o\"."
 
-#: travel-agency-platform.php:248
+#: travel-agency-platform.php:250
 msgid "results found"
 msgstr "results found"
 
-#: travel-agency-platform.php:249
+#: travel-agency-platform.php:251
 msgid "No results found"
 msgstr "No results found"
 
-#: travel-agency-platform.php:250
+#: travel-agency-platform.php:252
 msgid "Guardado en favoritos"
 msgstr "Saved to favorites"
 
-#: travel-agency-platform.php:251
+#: travel-agency-platform.php:253
 msgid "Quitado de favoritos"
 msgstr "Removed from favorites"
 
-#: travel-agency-platform.php:252
+#: travel-agency-platform.php:254
 msgid "Aún no hay reseñas."
 msgstr "No reviews yet."
 
-#: travel-agency-platform.php:253
+#: travel-agency-platform.php:255
 msgid "Aún no hay reseñas. Sé el primero en compartir tu experiencia."
 msgstr "No reviews yet. Be the first to share your experience."
 
-#: travel-agency-platform.php:254
+#: travel-agency-platform.php:256
 msgid "reseña"
 msgstr "review"
 
-#: travel-agency-platform.php:255
+#: travel-agency-platform.php:257
 msgid "reseñas"
 msgstr "reviews"
 
-#: travel-agency-platform.php:256
+#: travel-agency-platform.php:258
 msgid "Anónimo"
 msgstr "Anonymous"
 
-#: travel-agency-platform.php:257
+#: travel-agency-platform.php:259
 msgid "Enviando..."
 msgstr "Sending..."
 
-#: travel-agency-platform.php:258
+#: travel-agency-platform.php:260
 msgid "¡Reseña enviada! Pendiente de aprobación."
 msgstr "Review submitted! Pending approval."
 
-#: travel-agency-platform.php:259
+#: travel-agency-platform.php:261
 msgid "Error al enviar"
 msgstr "Error sending"
 
-#: travel-agency-platform.php:260
+#: travel-agency-platform.php:262
 msgid "Review submitted"
 msgstr "Review submitted"
 
-#: travel-agency-platform.php:261
+#: travel-agency-platform.php:263
 msgid "Error al enviar la reseña"
 msgstr "Error submitting the review"
 
 #. translators: %s: nombre del servicio
-#: travel-agency-platform.php:263
+#: travel-agency-platform.php:265
 #, php-format
 msgid "Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!"
 msgstr "Thank you for your stay (%s). Tell us how it went!"
 
-#: travel-agency-platform.php:264
+#: travel-agency-platform.php:266
 msgid "Reseña verificada"
 msgstr "Verified review"
 
 #. translators: 1: cupos disponibles, 2: cupos totales
-#: travel-agency-platform.php:266
+#: travel-agency-platform.php:268
 #, php-format
 msgid "Cupos disponibles: %s de %s"
 msgstr "Available spots: %s of %s"
 
 #. translators: 1: cupos ocupados, 2: cupos totales
-#: travel-agency-platform.php:268
+#: travel-agency-platform.php:270
 #, php-format
 msgid "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
 msgstr "Full for this date (%s/%s). Please choose another date."
 
-#: travel-agency-platform.php:269
+#: travel-agency-platform.php:271
 msgid "El tour está completo para esta fecha."
 msgstr "This tour is full for this date."
 
-#: travel-agency-platform.php:272
+#: travel-agency-platform.php:274
 msgid "Image gallery"
 msgstr "Image gallery"
 
-#: travel-agency-platform.php:273
+#: travel-agency-platform.php:275
 msgid "Close image gallery"
 msgstr "Close image gallery"
 
-#: travel-agency-platform.php:274
+#: travel-agency-platform.php:276
 msgid "Previous image"
 msgstr "Previous image"
 
-#: travel-agency-platform.php:275
+#: travel-agency-platform.php:277
 msgid "Next image"
 msgstr "Next image"
 
-#: travel-agency-platform.php:277
+#: travel-agency-platform.php:279
 msgid "Abrir asistente"
 msgstr "Open assistant"
 
-#: travel-agency-platform.php:278
+#: travel-agency-platform.php:280
 msgid "Cerrar asistente"
 msgstr "Close assistant"
 
-#: travel-agency-platform.php:282
+#: travel-agency-platform.php:284
 msgid "Pensando…"
 msgstr "Thinking…"
 
-#: travel-agency-platform.php:283
+#: travel-agency-platform.php:285
 msgid "Hubo un problema. Inténtalo de nuevo."
 msgstr "Something went wrong. Please try again."
 

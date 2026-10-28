@@ -563,11 +563,11 @@ class TAP_Metaboxes {
         }
 
         if ($post_type === 'tap_room') {
-            $room_text = ['_tap_room_accommodation_id', '_tap_room_price_per_night', '_tap_room_min_stay', '_tap_room_currency', '_tap_room_max_adults', '_tap_room_max_children', '_tap_room_max_occupancy', '_tap_room_inventory', '_tap_room_size', '_tap_room_view', '_tap_room_floor', '_tap_room_gallery'];
+            $room_text = ['_tap_room_accommodation_id', '_tap_room_price_per_night', '_tap_room_min_stay', '_tap_room_currency', '_tap_room_max_adults', '_tap_room_max_children', '_tap_room_max_occupancy', '_tap_room_inventory', '_tap_room_overbooking_pct', '_tap_room_size', '_tap_room_view', '_tap_room_floor', '_tap_room_gallery'];
             foreach ($room_text as $key) {
                 if (isset($_POST[$key])) {
                     $val = sanitize_text_field(wp_unslash($_POST[$key]));
-                    if (in_array($key, ['_tap_room_price_per_night', '_tap_room_max_adults', '_tap_room_max_children', '_tap_room_max_occupancy', '_tap_room_inventory', '_tap_room_floor'], true)) {
+                    if (in_array($key, ['_tap_room_price_per_night', '_tap_room_max_adults', '_tap_room_max_children', '_tap_room_max_occupancy', '_tap_room_inventory', '_tap_room_overbooking_pct', '_tap_room_floor'], true)) {
                         $val = floatval($val);
                     }
                     update_post_meta($post_id, $key, $val);
@@ -761,6 +761,7 @@ endforeach;
             '_tap_room_max_children'     => ['type' => 'number', 'label' => __('Max Children', 'travel-agency-platform')],
             '_tap_room_max_occupancy'    => ['type' => 'number', 'label' => __('Max Total Occupancy', 'travel-agency-platform')],
             '_tap_room_inventory'        => ['type' => 'number', 'label' => __('Number of Rooms of This Type', 'travel-agency-platform'), 'default' => '1'],
+            '_tap_room_overbooking_pct'  => ['type' => 'number', 'label' => __('Overbooking % (0 = none)', 'travel-agency-platform'), 'default' => '0'],
             '_tap_room_size'             => ['type' => 'text', 'label' => __('Room Size (e.g. 35 m²)', 'travel-agency-platform')],
             '_tap_room_view'             => ['type' => 'text', 'label' => __('View (e.g. Ocean View, City View)', 'travel-agency-platform')],
             '_tap_room_floor'            => ['type' => 'number', 'label' => __('Floor', 'travel-agency-platform')],

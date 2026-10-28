@@ -134,6 +134,10 @@ class TAP_Booking_Pricing {
     public static function get_room_availability($room_id, $check_in, $check_out) {
         global $wpdb;
         $inventory = intval(get_post_meta($room_id, '_tap_room_inventory', true)) ?: 1;
+        $over_pct = (int) get_post_meta($room_id, '_tap_room_overbooking_pct', true);
+        if ($over_pct > 0) {
+            $inventory = (int) ceil($inventory * (1 + $over_pct / 100));
+        }
 
         $booked = $wpdb->get_var($wpdb->prepare(
             "SELECT COUNT(DISTINCT b.id) FROM {$wpdb->prefix}tap_bookings b

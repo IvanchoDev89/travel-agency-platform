@@ -476,6 +476,24 @@ class TAP_Installer {
             KEY user (user_id)
         ) {$wpdb->get_charset_collate()}");
 
+        $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_waitlist (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            service_type varchar(50) NOT NULL,
+            service_id bigint(20) NOT NULL,
+            room_id bigint(20) DEFAULT NULL,
+            user_id bigint(20) DEFAULT NULL,
+            guest_email varchar(150) DEFAULT NULL,
+            check_in date NOT NULL,
+            check_out date DEFAULT NULL,
+            adults int(11) DEFAULT 1,
+            status varchar(20) NOT NULL DEFAULT 'waiting',
+            notified_at datetime DEFAULT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY service (service_type, service_id),
+            KEY status (status)
+        ) {$wpdb->get_charset_collate()}");
+
         $cols_leads = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_leads");
         if (!in_array('mod_status', $cols_leads, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_leads ADD COLUMN mod_status varchar(20) DEFAULT 'ok' AFTER source");
