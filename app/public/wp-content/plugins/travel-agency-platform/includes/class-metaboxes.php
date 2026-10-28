@@ -99,7 +99,7 @@ class TAP_Metaboxes {
      * @return array<string,string>
      */
     public static function tour_type_options() {
-        $opts = ['' => __('— Select —', 'travel-agency-platform')];
+        $opts = [];
         if (!taxonomy_exists('tap_tour_type')) {
             return $opts;
         }
