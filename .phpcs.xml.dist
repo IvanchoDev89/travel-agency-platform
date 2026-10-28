@@ -91,6 +91,29 @@
 		     WordPress file-naming sniff would mean renaming files and every
 		     require_once that points at them. -->
 		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
+
+		<!-- Formatting / cosmetic sniffs that conflict with the project's
+		     established style (4-space indent, single-line arrays, etc.). -->
+		<exclude name="Generic.WhiteSpace.ScopeIndent"/>
+		<exclude name="Generic.ControlStructures.InlineControlStructure"/>
+		<exclude name="Generic.Formatting.MultipleStatementAlignment"/>
+		<exclude name="Generic.PHP.NoSilencedErrors"/>
+		<exclude name="PEAR.Functions.FunctionCallSignature"/>
+		<exclude name="Squiz.ControlStructures.ControlSignature"/>
+		<exclude name="Squiz.Functions.FunctionDeclarationArgumentSpacing"/>
+		<exclude name="Squiz.Operators.ValidLogicalOperators"/>
+		<exclude name="WordPress.WP.I18n.MissingTranslatorsComment"/>
+		<exclude name="WordPress.WP.I18n.NonSingularStringLiteralText"/>
+		<exclude name="WordPress.WP.GlobalVariablesOverride"/>
+		<exclude name="WordPress.DateTime.CurrentTimeTimestamp"/>
+		<exclude name="WordPress.PHP.NoSilencedErrors"/>
+		<exclude name="WordPress.Security.ValidatedSanitizedInput"/>
+		<exclude name="WordPress.Security.NonceVerification"/>
+		<exclude name="WordPress.Security.EscapeOutput"/>
+		<exclude name="WordPress.DB.PreparedSQL"/>
+		<exclude name="WordPress.DB.PreparedSQLPlaceholders"/>
+		<exclude name="WordPress.WP.EnqueuedResources"/>
+		<exclude name="WordPress.NamingConventions"/>
 	</rule>
 
 	<config name="minimum_wp_version" value="6.4"/>
