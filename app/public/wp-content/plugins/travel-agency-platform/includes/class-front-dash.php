@@ -370,6 +370,11 @@ class TAP_Front_Dash {
         <div class="tap-dash-section">
             <div class="tap-dash-section-header">
                 <h2><?php esc_html_e('Operaciones de reservas', 'travel-agency-platform'); ?></h2>
+                <?php
+                $agency_id = (int) TAP_Booking::get_agency_for_user(get_current_user_id());
+                if ($agency_id) : ?>
+                    <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php') . '?action=tap_export_bookings&agency=' . $agency_id, 'tap_export_bookings_' . get_current_user_id())); ?>"><?php esc_html_e('Exportar CSV', 'travel-agency-platform'); ?></a>
+                <?php endif; ?>
             </div>
             <div class="tap-agency-tabs">
                 <?php
@@ -871,6 +876,30 @@ class TAP_Front_Dash {
         }
 
         $base = home_url('/mi-cuenta/');
+
+        // Monthly revenue for the last 6 months (for the chart).
+        $monthly = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $monthly[date('Y-m', strtotime("-{$i} months"))] = 0.0;
+        }
+        if ($agency_id) {
+            $mrows = $wpdb->get_results($wpdb->prepare(
+                "SELECT DATE_FORMAT(created_at, '%Y-%m') ym, COALESCE(SUM(total_amount),0) amt
+                 FROM {$wpdb->prefix}tap_bookings
+                 WHERE agency_id = %d AND payment_status = 'paid'
+                   AND created_at >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+                 GROUP BY ym",
+                $agency_id
+            ));
+            foreach ($mrows as $mr) {
+                if (isset($monthly[$mr->ym])) {
+                    $monthly[$mr->ym] = (float) $mr->amt;
+                }
+            }
+        }
+        $chart_labels = array_keys($monthly);
+        $chart_data   = array_values($monthly);
+
         ob_start();
         ?>
         <div class="tap-dash-section">
@@ -957,6 +986,42 @@ endif;
                 <p class="tap-empty"><?php esc_html_e('Aún no tienes listados.', 'travel-agency-platform'); ?></p>
             </div>
             <?php endif; ?>
+
+            <div class="tap-panel-section" style="margin-top:24px;">
+                <div class="tap-section-head">
+                    <h3><?php esc_html_e('Ingresos por mes', 'travel-agency-platform'); ?></h3>
+                </div>
+                <div style="position:relative;height:220px;">
+                    <canvas id="tap-revenue-chart"></canvas>
+                </div>
+                <script src="<?php echo esc_url(TAP_PLUGIN_URL); ?>assets/js/chart.umd.min.js"></script>
+                <script>
+                (function(){
+                    var ctx = document.getElementById('tap-revenue-chart');
+                    if (!ctx || typeof Chart === 'undefined') return;
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: <?php echo wp_json_encode($chart_labels); ?>,
+                            datasets: [{
+                                label: <?php echo wp_json_encode(__('Ingresos', 'travel-agency-platform')); ?>,
+                                data: <?php echo wp_json_encode($chart_data); ?>,
+                                backgroundColor: 'rgba(13,148,136,.7)',
+                                borderColor: 'rgba(13,148,136,1)',
+                                borderWidth: 1,
+                                borderRadius: 6,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: { y: { beginAtZero: true } }
+                        }
+                    });
+                })();
+                </script>
+            </div>
 
             <div class="tap-panel-section" style="margin-top:24px;">
                 <div class="tap-section-head">
@@ -1145,4 +1210,59 @@ endif;
     /** Agency opens the guest chat thread for a booking. */
     /** Agency polls the global unread counter for the live nav badge. */
     /** Agency replies on the guest chat thread. */
+    /* ── bookings CSV export ─────────────────────────────────────────── */
+
+    public static function export_bookings_csv($agency_id) {
+        global $wpdb;
+        $agency_id = (int) $agency_id;
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}tap_bookings WHERE agency_id = %d ORDER BY created_at DESC",
+            $agency_id
+        ));
+        $out = "codigo,servicio,check_in,check_out,adultos,ninos,total,pago,estado,creado
+";
+        foreach ((array) $rows as $r) {
+            $title = get_the_title((int) $r->service_id);
+            $fields = [
+                $r->booking_code,
+                $title,
+                $r->check_in,
+                $r->check_out,
+                (int) $r->adults,
+                (int) $r->children,
+                $r->total_amount,
+                $r->payment_status,
+                $r->status,
+                $r->created_at,
+            ];
+            $out .= implode(',', array_map([__CLASS__, 'csv_cell'], $fields)) . "\n";
+        }
+        return $out;
+    }
+
+    public static function csv_cell($value) {
+        $v = (string) $value;
+        if (false !== strpos($v, ',') || false !== strpos($v, '"') || false !== strpos($v, "\n")) {
+            $v = '"' . str_replace('"', '""', $v) . '"';
+        }
+        return $v;
+    }
+
+    public static function bookings_csv_download() {
+        if (!is_user_logged_in()) {
+            wp_safe_redirect(home_url('/login/'));
+            exit;
+        }
+        $user_agency = (int) TAP_Booking::get_agency_for_user(get_current_user_id());
+        $agency_id   = isset($_GET['agency']) ? (int) $_GET['agency'] : 0;
+        $nonce       = sanitize_text_field(wp_unslash($_GET['_wpnonce'] ?? ''));
+        if (!$user_agency || $agency_id !== $user_agency || !wp_verify_nonce($nonce, 'tap_export_bookings_' . get_current_user_id())) {
+            wp_die(__('Acceso denegado.', 'travel-agency-platform'), '', ['response' => 403]);
+        }
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="tap-bookings-' . (int) $agency_id . '.csv"');
+        echo self::export_bookings_csv($agency_id);
+        exit;
+    }
+
 }
