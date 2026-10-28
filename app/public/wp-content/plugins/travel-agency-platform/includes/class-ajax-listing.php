@@ -305,26 +305,30 @@ class TAP_Ajax_Listing {
             }
         }
 
-        if ($listing_type === 'tap_accommodation') {
-            if (array_key_exists('gallery_attachment_ids', $input)) {
-                $ids = TAP_Agency_Media::usable_attachment_ids($input['gallery_attachment_ids'], 0, $new_id);
-                update_post_meta($new_id, '_tap_acc_gallery', implode(',', array_keys($ids)));
-            } elseif (array_key_exists('gallery_urls', $input)) {
-                $urls  = array_values(array_filter(array_map('trim', explode("\n", (string) $input['gallery_urls']))));
-                $known = TAP_Agency_Media::attachments_by_url(array_filter(array_map('absint', explode(',', (string) get_post_meta($new_id, '_tap_acc_gallery', true)))));
-                $ids   = [];
-                foreach ($urls as $u) {
-                    if (isset($known[$u])) {
-                        $ids[$known[$u]] = $known[$u];
-                        continue;
-                    }
-                    $att = TAP_Agency_Media::sideload_image($u);
-                    if ($att) {
-                        $ids[$att] = $att;
-                    }
+        // Gallery: supported for every service type now that the front editor
+        // ships the shared image uploader. Accommodation keeps its legacy meta
+        // key for backwards compatibility.
+        $gallery_meta_key = ('tap_accommodation' === $listing_type)
+            ? '_tap_acc_gallery'
+            : '_tap_' . $prefix . '_gallery';
+        if (array_key_exists('gallery_attachment_ids', $input)) {
+            $ids = TAP_Agency_Media::usable_attachment_ids($input['gallery_attachment_ids'], 0, $new_id);
+            update_post_meta($new_id, $gallery_meta_key, implode(',', array_keys($ids)));
+        } elseif (array_key_exists('gallery_urls', $input)) {
+            $urls  = array_values(array_filter(array_map('trim', explode("\n", (string) $input['gallery_urls']))));
+            $known = TAP_Agency_Media::attachments_by_url(array_filter(array_map('absint', explode(',', (string) get_post_meta($new_id, $gallery_meta_key, true)))));
+            $ids   = [];
+            foreach ($urls as $u) {
+                if (isset($known[$u])) {
+                    $ids[$known[$u]] = $known[$u];
+                    continue;
                 }
-                update_post_meta($new_id, '_tap_acc_gallery', implode(',', array_keys($ids)));
+                $att = TAP_Agency_Media::sideload_image($u);
+                if ($att) {
+                    $ids[$att] = $att;
+                }
             }
+            update_post_meta($new_id, $gallery_meta_key, implode(',', array_keys($ids)));
         }
 
         return true;

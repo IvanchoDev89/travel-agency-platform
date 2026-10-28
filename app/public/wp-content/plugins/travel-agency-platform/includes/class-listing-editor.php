@@ -188,11 +188,21 @@ class TAP_Listing_Editor {
                         <textarea name="description" rows="4"><?php echo esc_textarea($listing ? $listing->post_content : ''); ?></textarea>
                     </div>
                     <div class="tap-field tap-span-2">
-                        <label><?php esc_html_e('Foto principal (URL de la imagen)', 'travel-agency-platform'); ?></label>
-                        <input type="url" name="featured_image_url" placeholder="https://…" value="<?php echo esc_url($is_edit ? (string) get_the_post_thumbnail_url($listing_id, 'full') : ''); ?>">
-                        <?php if ($is_edit && get_the_post_thumbnail_url($listing_id)): ?>
-                            <img class="tap-img-preview" src="<?php echo esc_url(get_the_post_thumbnail_url($listing_id, 'medium')); ?>" alt="" style="max-width:180px;height:auto;margin-top:6px;border-radius:6px;">
-                        <?php endif; ?>
+                        <label><?php esc_html_e('Fotos', 'travel-agency-platform'); ?></label>
+                        <?php
+                        $main_id     = $is_edit ? (int) get_post_thumbnail_id($listing_id) : 0;
+                        $gallery_ids = $is_edit
+                            ? array_filter(array_map('trim', explode(',', (string) get_post_meta($listing_id, '_tap_' . $prefix . '_gallery', true))))
+                            : [];
+                        echo TAP_Acc_Wizard_Room_Form::render_image_uploader($listing_id, $main_id, $gallery_ids, [
+                            'main_id'      => 'featured_attachment_id',
+                            'gallery_ids'  => 'gallery_attachment_ids',
+                            'main_url'     => 'featured_image_url',
+                            'gallery_urls' => 'gallery_urls',
+                            'listing_id'   => $listing_id,
+                            'listing_type' => $type,
+                        ]);
+                        ?>
                     </div>
                     <?php
                     foreach ($fields as $meta_key => $cfg) {
@@ -269,6 +279,15 @@ class TAP_Listing_Editor {
                             <option value="request" <?php selected(TAP_Booking::booking_mode($type, $listing_id), 'request'); ?>><?php esc_html_e('Solicitud de reserva (la agencia confirma antes del pago)', 'travel-agency-platform'); ?></option>
                         </select>
                     </div>
+                    <?php if ($is_edit): ?>
+                    <div class="tap-field tap-span-2">
+                        <?php $is_published = 'publish' === $listing->post_status; ?>
+                        <button type="button" class="tap-btn <?php echo $is_published ? 'tap-btn-danger' : 'tap-btn-primary'; ?>" data-publish="<?php echo $is_published ? '0' : '1'; ?>">
+                            <?php echo $is_published ? esc_html__('Despublicar', 'travel-agency-platform') : esc_html__('Publicar', 'travel-agency-platform'); ?>
+                        </button>
+                        <span class="tap-form-msg" style="margin-left:0;margin-top:6px;"><?php echo $is_published ? esc_html__('El servicio está visible para los viajeros.', 'travel-agency-platform') : esc_html__('El servicio está en borrador o en revisión.', 'travel-agency-platform'); ?></span>
+                    </div>
+                    <?php endif; ?>
                 </div>
                 <button type="submit" class="tap-btn tap-btn-primary"><?php echo $is_edit ? esc_html__('Guardar cambios', 'travel-agency-platform') : esc_html__('Crear servicio', 'travel-agency-platform'); ?></button>
                 <span class="tap-form-msg"></span>
@@ -276,113 +295,50 @@ class TAP_Listing_Editor {
 
         </div>
 
-        <script>
-        (function(){
-            var boot = function(){
-            if (typeof tap_ajax === 'undefined') { return; }
-            var url = tap_ajax.ajax_url;
-            var nonce = tap_ajax.listing_nonce;
-            var msgBox = function(f, m){ var el = f.querySelector('.tap-form-msg'); if(el){ el.textContent = m; } };
-
-            var listing = document.getElementById('tap-listing-form');
-            if(listing){
-                listing.addEventListener('submit', function(ev){
-                    ev.preventDefault();
-                    var btn = listing.querySelector('button[type=submit]'); btn.disabled = true;
-                    var data = new FormData(listing); data.append('action','tap_agency_save_listing');
-                    data.set('nonce', nonce);
-                    fetch(url, {method:'POST', body:data, credentials:'same-origin'})
-                    .then(function(r){return r.json();})
-                    .then(function(j){
-                        btn.disabled = false;
-                        if(j.success){ window.location.href = j.data.edit_url; }
-                        else { msgBox(listing, j.data.message || 'Error'); }
-                    })
-                    .catch(function(){ btn.disabled = false; msgBox(listing, 'Network error'); });
-                });
-            }
-
-            var addRoom = document.getElementById('tap-room-add');
-            if(addRoom){
-                bindBedBuilder(addRoom);
-                addRoom.addEventListener('submit', function(ev){
-                    ev.preventDefault();
-                    var btn = addRoom.querySelector('button[type=submit]'); btn.disabled = true;
-                    var data = new FormData(addRoom); data.append('action','tap_agency_save_room');
-                    data.set('nonce', nonce);
-                    fetch(url, {method:'POST', body:data, credentials:'same-origin'})
-                    .then(function(r){return r.json();})
-                    .then(function(j){
-                        btn.disabled = false;
-                        if(j.success){ window.location.reload(); }
-                        else { msgBox(addRoom, j.data.message || 'Error'); }
-                    })
-                    .catch(function(){ btn.disabled = false; msgBox(addRoom, 'Network error'); });
-                });
-            }
-
-            var bedTypes = ['king','queen','double','twin','bunk','sofa','crib','murphy','futon'];
-            var bedLabels = {king:'King',queen:'Queen',double:'Double',twin:'Twin',bunk:'Bunk',sofa:'Sofa Bed',crib:'Crib',murphy:'Murphy',futon:'Futon'};
-            function bedRowHTML(type, count){
-                var opts = bedTypes.map(function(t){ return '<option value="'+t+'"'+(t===type?' selected':'')+'>'+(bedLabels[t]||t)+'</option>'; }).join('');
-                return '<div class="tap-bed-row"><select class="tap-bed-type">'+opts+'</select>'+
-                        '<input type="number" class="tap-bed-count" min="1" value="'+(count||1)+'">'+
-                        '<button type="button" class="tap-bed-remove" aria-label="<?php echo esc_attr__('Quitar cama', 'travel-agency-platform'); ?>">&times;</button></div>';
-            }
-            function bindBedBuilder(form){
-                var rows = form.querySelector('.tap-beds-rows');
-                if(!rows){ return; }
-                var json = form.querySelector('.tap-beds-json');
-                var add = form.querySelector('.tap-bed-add');
-                if(add){ add.addEventListener('click', function(){ rows.insertAdjacentHTML('beforeend', bedRowHTML('double',1)); }); }
-                rows.addEventListener('click', function(e){ if(e.target.classList.contains('tap-bed-remove')){ e.target.parentNode.remove(); } });
-                function serialize(){
-                    var arr = [];
-                    rows.querySelectorAll('.tap-bed-row').forEach(function(row){
-                        var t = row.querySelector('.tap-bed-type').value;
-                        var c = parseInt(row.querySelector('.tap-bed-count').value, 10) || 0;
-                        if(c > 0){ arr.push({type:t, count:c}); }
-                    });
-                    if(json){ json.value = JSON.stringify(arr); }
-                }
-                form.addEventListener('submit', serialize);
-                serialize();
-            }
-
-            document.querySelectorAll('.tap-room-form[data-room]').forEach(function(form){
-                bindBedBuilder(form);
-                form.addEventListener('submit', function(ev){
-                    ev.preventDefault();
-                    var btn = form.querySelector('button[type=submit]'); btn.disabled = true;
-                    var data = new FormData(form); data.append('action','tap_agency_save_room');
-                    data.set('nonce', nonce);
-                    fetch(url, {method:'POST', body:data, credentials:'same-origin'})
-                    .then(function(r){return r.json();})
-                    .then(function(j){
-                        btn.disabled = false;
-                        if(j.success){ msgBox(form, j.data.message); }
-                        else { msgBox(form, j.data.message || 'Error'); }
-                    })
-                    .catch(function(){ btn.disabled = false; msgBox(form, 'Network error'); });
-                });
-                var del = form.querySelector('.tap-delete-room');
-                if(del){
-                    del.addEventListener('click', function(){
-                        if(!window.confirm('Delete this room?')){ return; }
-                        var data = new FormData(); data.append('action','tap_agency_delete_room');
-                        data.append('room_id', form.getAttribute('data-room'));
-                        data.append('nonce', nonce);
-                        fetch(url, {method:'POST', body:data, credentials:'same-origin'})
-                        .then(function(r){return r.json();})
-                        .then(function(j){ if(j.success){ window.location.reload(); } else { window.alert(j.data.message || 'Error'); } });
-});
-                }
-            }
-        );
-            };
-            if ('loading' === document.readyState) { document.addEventListener('DOMContentLoaded', boot); } else { boot(); }
-        })();
-        </script>
+        <?php
+        // Reuse the shared wizard bundle: it provides the Media Library uploader,
+        // toasts, publish toggle and form submission. The generic editor has no
+        // steps, so cfg.genericEditor makes submitListing jump straight to the
+        // edit URL instead of step 2.
+        wp_enqueue_script('tap-agency-wizard', TAP_PLUGIN_URL . 'assets/js/agency-wizard.js', [], TAP_VERSION, true);
+        wp_localize_script('tap-agency-wizard', 'tapAgencyWizard', [
+            'ajaxUrl'         => admin_url('admin-ajax.php'),
+            'uploadNonce'     => wp_create_nonce('tap_front_dash_nonce'),
+            'listingNonce'    => wp_create_nonce('tap_agency_listing_nonce'),
+            'isEdit'          => (bool) $is_edit,
+            'listingId'       => (int) $listing_id,
+            'listingType'     => $type,
+            'stepUrl'         => '',
+            'currency'        => '$',
+            'currencyCode'    => 'USD',
+            'decimals'        => 2,
+            'maxUploadBytes'  => TAP_Agency_Media::agency_image_max_bytes(),
+            'bedTypes'        => [],
+            'genericEditor'   => true,
+            'requireDestination' => true,
+            'i18n' => [
+                'saved'         => __('Guardado', 'travel-agency-platform'),
+                'error'         => __('Ha ocurrido un error', 'travel-agency-platform'),
+                'confirm'       => __('Confirmar', 'travel-agency-platform'),
+                'cancel'        => __('Cancelar', 'travel-agency-platform'),
+                'close'         => __('Cerrar', 'travel-agency-platform'),
+                'main'          => __('Principal', 'travel-agency-platform'),
+                'setMain'       => __('Usar como foto principal', 'travel-agency-platform'),
+                'removeImage'   => __('Quitar imagen', 'travel-agency-platform'),
+                'uploading'     => __('Subiendo', 'travel-agency-platform'),
+                'uploadingDone' => __('Subiendo', 'travel-agency-platform'),
+                'uploadedCount' => __('Subidas', 'travel-agency-platform'),
+                'uploaded'      => __('Imágenes subidas.', 'travel-agency-platform'),
+                'uploadFailed'  => __('No se pudo subir la imagen.', 'travel-agency-platform'),
+                'badType'       => __('solo se permiten imágenes.', 'travel-agency-platform'),
+                'tooBig'        => __('la imagen supera el tamaño máximo.', 'travel-agency-platform'),
+                'added'         => __('Imagen añadida.', 'travel-agency-platform'),
+                'delete'        => __('Eliminar', 'travel-agency-platform'),
+                'networkError'  => __('Error de conexión. Revisa tu red e inténtalo de nuevo.', 'travel-agency-platform'),
+                'destRequired'  => __('Selecciona un destino para el servicio.', 'travel-agency-platform'),
+            ],
+        ]);
+        ?>
         <?php
         return ob_get_clean();
     }

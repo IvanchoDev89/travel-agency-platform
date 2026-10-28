@@ -707,6 +707,14 @@
 
     function submitListing(form, submitter) {
         var button = formSubmitter(form, submitter);
+        if (cfg.requireDestination) {
+            var destInput = form.querySelector('input[name="destination"]');
+            if (!destInput || !destInput.value) {
+                formMessage(form, t('destRequired', 'Selecciona un destino para el servicio.'), true);
+                toast(t('destRequired', 'Selecciona un destino para el servicio.'), 'error');
+                return false;
+            }
+        }
         setBusy(button, true);
         formMessage(form, '');
         return post('tap_agency_save_listing', new FormData(form), cfg.listingNonce)
@@ -719,7 +727,12 @@
                     return false;
                 }
                 toast(json.data.message || t('saved', 'Guardado.'), 'success');
-                var target = cfg.isEdit ? stepUrl(2) : (json.data.edit_url || '') + '&step=2';
+                var target;
+                if (cfg.genericEditor) {
+                    target = json.data.edit_url || '';
+                } else {
+                    target = cfg.isEdit ? stepUrl(2) : (json.data.edit_url || '') + '&step=2';
+                }
                 navigate(target);
                 return true;
             })
