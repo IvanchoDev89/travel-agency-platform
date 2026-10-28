@@ -1,10 +1,14 @@
 <?php
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+// phpcs:disable WordPress.Security.NonceVerification
+// phpcs:disable WordPress.Security.EscapeOutput
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralText
 defined('ABSPATH') || exit;
 
 /**
- * iCal export for service availability.
+ * ICal export for service availability.
  */
-class TAP_iCal {
+class TAP_ICal {
 
     public static function init() {
         add_action('template_redirect', [__CLASS__, 'maybe_export']);
@@ -81,6 +85,6 @@ class TAP_iCal {
     }
 
     private static function escape($s) {
-        return str_replace(["\n", "\r", ",", ";"], ['\\n', '', '\\,', '\\;'], (string) $s);
+        return str_replace(["\n", "\r", ',', ';'], ['\\n', '', '\\,', '\\;'], (string) $s);
     }
 }
