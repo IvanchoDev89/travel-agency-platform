@@ -86,7 +86,7 @@
 
 .tap-wizard-step {
     flex: 1 1 0;
-    min-width: 130px;
+    min-width: 120px;
     padding: 0;
     position: relative;
 }
@@ -115,16 +115,16 @@
 }
 
 .tap-wizard-step .tap-wizard-step-num {
-    flex: 0 0 26px;
-    width: 26px;
-    height: 26px;
+    flex: 0 0 32px;
+    width: 32px;
+    height: 32px;
     border-radius: var(--tap-radius-full);
     background: var(--tap-neutral-200);
     color: var(--tap-neutral-600);
     font-size: var(--tap-text-xs);
     font-weight: 700;
     text-align: center;
-    line-height: 26px;
+    line-height: 32px;
 }
 
 .tap-wizard-step-label {
