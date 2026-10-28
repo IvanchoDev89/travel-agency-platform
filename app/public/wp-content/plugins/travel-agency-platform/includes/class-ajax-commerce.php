@@ -82,6 +82,7 @@ class TAP_Ajax_Commerce {
         }
         $details = $error->get_error_message();
         if (function_exists('error_log')) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
             error_log('TAP PayPal subscription failure: ' . $details);
         }
         return new WP_Error(

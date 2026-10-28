@@ -29,6 +29,7 @@ class TAP_Emails {
         add_action('tap_promo_requested', [__CLASS__, 'on_promo_requested'], 10, 3);
         add_filter('wp_mail_content_type', [__CLASS__, 'set_html_content_type']);
         add_action('wp_mail_failed', function ($error) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
             error_log('TAP email failed: ' . $error->get_error_message());
         });
     }
