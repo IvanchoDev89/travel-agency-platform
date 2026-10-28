@@ -9,7 +9,7 @@ get_header();
     <?php
     $agency_id = intval($_GET['id'] ?? 0);
     if ($agency_id) {
-        echo do_shortcode('[tap_agency_detail id="' . $agency_id . '"]');
+        echo do_shortcode('[tap_agency_profile id="' . $agency_id . '"]');
     } else {
         echo '<p>' . __('Agency not specified.', 'travel-agency-platform') . '</p>';
     }

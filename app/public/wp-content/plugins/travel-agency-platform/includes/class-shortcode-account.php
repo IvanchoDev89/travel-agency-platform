@@ -34,6 +34,219 @@ class TAP_Shortcode_Account {
         return ob_get_clean();
     }
 
+    public static function agency_profile($atts) {
+        $atts = shortcode_atts(['id' => 0], $atts);
+        $agency_id = (int) $atts['id'];
+        if (!$agency_id && isset($_GET['id'])) {
+            $agency_id = (int) $_GET['id'];
+        }
+        $agency = $agency_id ? get_post($agency_id) : null;
+        if (!$agency || $agency->post_type !== 'tap_agency') {
+            return '<p class="tap-empty">' . esc_html__('Agencia no encontrada.', 'travel-agency-platform') . '</p>';
+        }
+
+        $verified    = (bool) get_post_meta($agency_id, '_tap_agency_verified', true);
+        $commission  = TAP_Booking::get_agency_commission($agency_id);
+        $email       = (string) get_post_meta($agency_id, '_tap_agency_email', true);
+        $phone       = (string) get_post_meta($agency_id, '_tap_agency_phone', true);
+        $whatsapp    = (string) get_post_meta($agency_id, '_tap_agency_whatsapp', true);
+        $website     = (string) get_post_meta($agency_id, '_tap_agency_website', true);
+        $address     = (string) get_post_meta($agency_id, '_tap_agency_address', true);
+        $city        = (string) get_post_meta($agency_id, '_tap_agency_city', true);
+        $country     = (string) get_post_meta($agency_id, '_tap_agency_country', true);
+        $is_active   = get_post_meta($agency_id, '_tap_agency_is_active', true);
+        // Sync from tap_agencies table if meta is empty.
+        global $wpdb;
+        $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_agencies WHERE user_id = %d LIMIT 1", (int) get_post_meta($agency_id, '_tap_agency_user_id', true)));
+        if ($row) {
+            if (!$email) $email = (string) $row->email;
+            if (!$phone) $phone = (string) $row->phone;
+            if (!$whatsapp) $whatsapp = (string) $row->whatsapp;
+            if (!$website) $website = (string) $row->website;
+            if (!$address) $address = (string) $row->address;
+            if (!$city) $city = (string) $row->city;
+            if (!$country) $country = (string) $row->country;
+        }
+
+        // Services published by this agency.
+        $types = TAP_Post_Types::get_service_types();
+        unset($types['tap_room'], $types['tap_agency']);
+        $services_by_type = [];
+        $all_services = [];
+        foreach ($types as $pt => $label) {
+            $ids = get_posts([
+                'post_type'      => $pt,
+                'post_status'    => 'publish',
+                'posts_per_page' => -1,
+                'meta_key'       => TAP_Post_Types::agency_meta_key($pt),
+                'meta_value'     => $agency_id,
+                'fields'         => 'ids',
+            ]);
+            if ($ids) {
+                $services_by_type[$pt] = ['label' => $label, 'ids' => $ids];
+                $all_services = array_merge($all_services, $ids);
+            }
+        }
+
+        // Reviews for this agency's services.
+        $reviews = [];
+        if ($all_services) {
+            $placeholders = implode(',', array_fill(0, count($all_services), '%d'));
+            $reviews = $wpdb->get_results($wpdb->prepare(
+                "SELECT r.* FROM {$wpdb->prefix}tap_reviews r
+                 WHERE r.service_id IN ({$placeholders}) AND r.is_approved = 1
+                 ORDER BY r.created_at DESC LIMIT 20",
+                $all_services
+            ));
+        }
+
+        // Rating stats.
+        $rating_avg = 0; $rating_count = 0;
+        if ($reviews) {
+            $sum = 0;
+            foreach ($reviews as $rv) { $sum += (float) $rv->rating; }
+            $rating_count = count($reviews);
+            $rating_avg = $rating_count ? $sum / $rating_count : 0;
+        }
+
+        // Leads count (for social proof).
+        $leads_count = class_exists('TAP_Leads') ? TAP_Leads::count_for_agency($agency_id) : 0;
+
+        ob_start();
+        ?>
+        <div class="tap-agency-profile">
+            <!-- Hero -->
+            <section class="tap-agency-hero" style="position:relative;background:linear-gradient(135deg,var(--tap-primary-bg),#fff);border:1px solid var(--tap-primary-border);border-radius:var(--tap-radius-xl);padding:var(--tap-space-8);margin-bottom:var(--tap-space-6);overflow:hidden;">
+                <div style="display:flex;align-items:center;gap:var(--tap-space-5);flex-wrap:wrap;">
+                    <div style="flex:0 0 96px;width:96px;height:96px;border-radius:50%;overflow:hidden;background:var(--tap-primary-bg);display:flex;align-items:center;justify-content:center;border:3px solid var(--tap-primary-border);">
+                        <?php if (has_post_thumbnail($agency_id)): ?>
+                            <?php echo get_the_post_thumbnail($agency_id, 'thumbnail', ['style' => 'width:100%;height:100%;object-fit:cover;']); ?>
+                        <?php else: ?>
+                            <span style="font-size:2rem;color:var(--tap-primary-dark);font-weight:800;"><?php echo esc_html(mb_substr($agency->post_title, 0, 1)); ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <div style="flex:1;min-width:240px;">
+                        <h1 style="margin:0 0 var(--tap-space-2);font-size:clamp(1.5rem,3vw,2rem);color:var(--tap-neutral-900);"><?php echo esc_html($agency->post_title); ?></h1>
+                        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:var(--tap-space-3);">
+                            <?php if ($verified): ?>
+                                <span style="padding:3px 10px;border-radius:999px;background:var(--tap-primary);color:#fff;font-size:var(--tap-text-xs);font-weight:700;">✓ <?php esc_html_e('Verificada', 'travel-agency-platform'); ?></span>
+                            <?php endif; ?>
+                            <?php if ($rating_count > 0): ?>
+                                <span style="padding:3px 10px;border-radius:999px;background:#fef3c7;color:#92400e;font-size:var(--tap-text-xs);font-weight:700;">★ <?php echo esc_html(number_format($rating_avg, 1)); ?> (<?php echo (int) $rating_count; ?>)</span>
+                            <?php endif; ?>
+                            <?php if ($city || $country): ?>
+                                <span style="padding:3px 10px;border-radius:999px;background:var(--tap-neutral-100);color:var(--tap-neutral-600);font-size:var(--tap-text-xs);font-weight:600;">📍 <?php echo esc_html(trim($city . ', ' . $country, ', ')); ?></span>
+                            <?php endif; ?>
+                        </div>
+                        <?php if ($agency->post_content): ?>
+                            <p style="margin:0;color:var(--tap-neutral-700);line-height:1.6;max-width:60ch;"><?php echo esc_html($agency->post_content); ?></p>
+                        <?php endif; ?>
+                        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:var(--tap-space-4);">
+                            <?php if ($email): ?><a href="mailto:<?php echo esc_attr($email); ?>" class="tap-btn tap-btn-sm"><?php esc_html_e('Email', 'travel-agency-platform'); ?></a><?php endif; ?>
+                            <?php if ($phone): ?><a href="tel:<?php echo esc_attr($phone); ?>" class="tap-btn tap-btn-sm"><?php esc_html_e('Llamar', 'travel-agency-platform'); ?></a><?php endif; ?>
+                            <?php if ($whatsapp): ?><a href="https://wa.me/<?php echo esc_attr(preg_replace('/[^0-9]/', '', $whatsapp)); ?>" target="_blank" rel="noopener" class="tap-btn tap-btn-sm tap-btn-primary"><?php esc_html_e('WhatsApp', 'travel-agency-platform'); ?></a><?php endif; ?>
+                            <?php if ($website): ?><a href="<?php echo esc_url($website); ?>" target="_blank" rel="noopener" class="tap-btn tap-btn-sm tap-btn-outline"><?php esc_html_e('Sitio web', 'travel-agency-platform'); ?></a><?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Services -->
+            <?php if ($services_by_type): ?>
+            <section style="margin-bottom:var(--tap-space-6);">
+                <h2 style="margin:0 0 var(--tap-space-4);"><?php esc_html_e('Servicios', 'travel-agency-platform'); ?></h2>
+                <?php foreach ($services_by_type as $pt => $info): ?>
+                    <div style="margin-bottom:var(--tap-space-5);">
+                        <h3 style="margin:0 0 var(--tap-space-3);font-size:var(--tap-text-lg);color:var(--tap-neutral-800);"><?php echo esc_html($info['label']); ?> <span style="font-size:var(--tap-text-sm);color:var(--tap-neutral-400);font-weight:400;">(<?php echo count($info['ids']); ?>)</span></h3>
+                        <div class="tap-services-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;">
+                            <?php foreach ($info['ids'] as $sid): $sp = get_post($sid); if (!$sp) continue; ?>
+                                <div class="tap-service-card">
+                                    <?php if (has_post_thumbnail($sid)): ?>
+                                        <a href="<?php echo esc_url(get_permalink($sid)); ?>"><?php echo get_the_post_thumbnail($sid, 'medium', ['loading' => 'lazy', 'decoding' => 'async']); ?></a>
+                                    <?php endif; ?>
+                                    <div class="tap-service-card-body">
+                                        <h3><a href="<?php echo esc_url(get_permalink($sid)); ?>"><?php echo esc_html($sp->post_title); ?></a></h3>
+                                        <p class="tap-service-excerpt"><?php echo esc_html(wp_trim_words($sp->post_excerpt ?: $sp->post_content, 18)); ?></p>
+                                        <a href="<?php echo esc_url(get_permalink($sid)); ?>" class="tap-btn tap-btn-outline tap-btn-sm"><?php esc_html_e('Ver detalle', 'travel-agency-platform'); ?></a>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </section>
+            <?php else: ?>
+                <p class="tap-empty"><?php esc_html_e('Esta agencia aún no tiene servicios publicados.', 'travel-agency-platform'); ?></p>
+            <?php endif; ?>
+
+            <!-- Reviews -->
+            <?php if ($reviews): ?>
+            <section style="margin-bottom:var(--tap-space-6);">
+                <h2 style="margin:0 0 var(--tap-space-4);"><?php esc_html_e('Reseñas', 'travel-agency-platform'); ?> <span style="font-size:var(--tap-text-sm);color:var(--tap-neutral-400);font-weight:400;">(<?php echo (int) $rating_count; ?>)</span></h2>
+                <div style="display:grid;gap:12px;">
+                    <?php foreach ($reviews as $rv): ?>
+                        <article style="border:1px solid var(--tap-border);border-radius:var(--tap-radius-lg);padding:var(--tap-space-4);">
+                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                                <strong><?php echo esc_html(get_the_author_meta('display_name', $rv->user_id) ?: __('Viajero', 'travel-agency-platform')); ?></strong>
+                                <?php if ($rv->is_verified): ?><span style="font-size:11px;color:var(--tap-primary-dark);font-weight:700;">✓ <?php esc_html_e('Verificado', 'travel-agency-platform'); ?></span><?php endif; ?>
+                                <span style="color:#d97706;font-weight:700;margin-left:auto;"><?php echo str_repeat('★', (int) $rv->rating); ?></span>
+                            </div>
+                            <?php if ($rv->title): ?><h4 style="margin:0 0 4px;"><?php echo esc_html($rv->title); ?></h4><?php endif; ?>
+                            <p style="margin:0 0 8px;color:var(--tap-neutral-700);"><?php echo esc_html($rv->content); ?></p>
+                            <?php
+                            $imgs = array_filter(array_map('absint', explode(',', (string) $rv->images)));
+                            if ($imgs): ?>
+                                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+                                    <?php foreach ($imgs as $img_id): ?>
+                                        <?php $iu = wp_get_attachment_image_url($img_id, 'thumbnail'); if (!$iu) continue; ?>
+                                        <img src="<?php echo esc_url($iu); ?>" alt="" loading="lazy" style="width:64px;height:64px;object-fit:cover;border-radius:var(--tap-radius-md);">
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+                            <small style="color:var(--tap-neutral-400);"><?php echo esc_html($rv->created_at); ?></small>
+                        </article>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+            <?php endif; ?>
+
+            <!-- Contact -->
+            <section style="margin-bottom:var(--tap-space-6);background:var(--tap-surface-muted);border-radius:var(--tap-radius-xl);padding:var(--tap-space-6);">
+                <h2 style="margin:0 0 var(--tap-space-3);"><?php esc_html_e('Contacto', 'travel-agency-platform'); ?></h2>
+                <div style="display:flex;flex-wrap:wrap;gap:var(--tap-space-4);">
+                    <?php if ($email): ?><div><strong><?php esc_html_e('Email', 'travel-agency-platform'); ?>:</strong> <a href="mailto:<?php echo esc_attr($email); ?>"><?php echo esc_html($email); ?></a></div><?php endif; ?>
+                    <?php if ($phone): ?><div><strong><?php esc_html_e('Teléfono', 'travel-agency-platform'); ?>:</strong> <a href="tel:<?php echo esc_attr($phone); ?>"><?php echo esc_html($phone); ?></a></div><?php endif; ?>
+                    <?php if ($whatsapp): ?><div><strong>WhatsApp:</strong> <a href="https://wa.me/<?php echo esc_attr(preg_replace('/[^0-9]/', '', $whatsapp)); ?>" target="_blank" rel="noopener"><?php echo esc_html($whatsapp); ?></a></div><?php endif; ?>
+                    <?php if ($address || $city || $country): ?><div><strong><?php esc_html_e('Dirección', 'travel-agency-platform'); ?>:</strong> <?php echo esc_html(trim($address . ', ' . $city . ', ' . $country, ', ')); ?></div><?php endif; ?>
+                </div>
+                <?php if ($website): ?>
+                    <div style="margin-top:var(--tap-space-3);"><a href="<?php echo esc_url($website); ?>" target="_blank" rel="noopener" class="tap-btn tap-btn-outline"><?php esc_html_e('Visitar sitio web', 'travel-agency-platform'); ?></a></div>
+                <?php endif; ?>
+            </section>
+
+            <!-- Chat de contacto directo -->
+            <section style="margin-bottom:var(--tap-space-6);">
+                <h2 style="margin:0 0 var(--tap-space-3);"><?php esc_html_e('Chat directo', 'travel-agency-platform'); ?></h2>
+                <p class="tap-agency-meta" style="margin-bottom:var(--tap-space-3);"><?php esc_html_e('Envía un mensaje a la agencia. Te responderán lo antes posible.', 'travel-agency-platform'); ?></p>
+                <?php echo do_shortcode('[tap_lead_form agency="' . (int) $agency_id . '" source="agency"]'); ?>
+            </section>
+
+            <!-- Newsletter -->
+            <section style="margin-bottom:var(--tap-space-6);background:var(--tap-primary-bg);border:1px solid var(--tap-primary-border);border-radius:var(--tap-radius-xl);padding:var(--tap-space-6);">
+                <h2 style="margin:0 0 var(--tap-space-2);"><?php esc_html_e('Newsletter', 'travel-agency-platform'); ?></h2>
+                <p style="margin:0 0 var(--tap-space-3);color:var(--tap-neutral-600);font-size:var(--tap-text-sm);"><?php esc_html_e('Recibe ofertas y novedades de esta agencia.', 'travel-agency-platform'); ?></p>
+                <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <input type="hidden" name="action" value="tap_lead_form">
+                    <input type="hidden" name="agency_id" value="<?php echo (int) $agency_id; ?>">
+                    <input type="email" name="email" placeholder="<?php esc_attr_e('Tu email', 'travel-agency-platform'); ?>" required style="flex:1;min-width:200px;padding:8px 12px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);">
+                    <button type="submit" class="tap-btn tap-btn-primary tap-btn-sm"><?php esc_html_e('Suscribirme', 'travel-agency-platform'); ?></button>
+                </form>
+            </section>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
     public static function plans($atts) {
         if (!class_exists('TAP_Subscriptions')) {
             return '<p class="tap-empty">' . esc_html__('Plans are not available.', 'travel-agency-platform') . '</p>';
