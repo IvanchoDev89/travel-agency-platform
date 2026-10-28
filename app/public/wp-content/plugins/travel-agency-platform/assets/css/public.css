@@ -825,6 +825,9 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 .tap-field-actions { grid-column: 1 / -1; display: flex; align-items: center; gap: var(--tap-space-3); }
 .tap-manage-hr { border: 0; border-top: 1px solid var(--tap-border); margin: var(--tap-space-8) 0; }
 
+/* Section headers inside the listing editor form. */
+.tap-section-head { grid-column: 1 / -1; display: flex; align-items: center; gap: var(--tap-space-2); padding: var(--tap-space-3) 0; margin-top: var(--tap-space-4); border-bottom: 1px solid var(--tap-border); color: var(--tap-primary-dark); font-size: var(--tap-text-sm); text-transform: uppercase; letter-spacing: 0.04em; }
+
 /* ===== Notices (were inline styles) ===== */
 .tap-notice {
     display: flex; align-items: flex-start; gap: var(--tap-space-2);

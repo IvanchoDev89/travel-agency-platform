@@ -205,6 +205,12 @@ class TAP_Listing_Editor {
                         ?>
                     </div>
                     <?php
+                    // Group fields into sections for a clearer, shorter form.
+                    $groups = [
+                        'price'    => ['title' => __('Precios', 'travel-agency-platform'), 'fields' => []],
+                        'location' => ['title' => __('Ubicación', 'travel-agency-platform'), 'fields' => []],
+                        'details'  => ['title' => __('Detalles', 'travel-agency-platform'), 'fields' => []],
+                    ];
                     foreach ($fields as $meta_key => $cfg) {
                         if (strpos($meta_key, '_tap_' . $prefix . '_agency_id') !== false) {
                             continue;
@@ -212,6 +218,18 @@ class TAP_Listing_Editor {
                         if ($meta_key === '_tap_seo_title' || $meta_key === '_tap_seo_description') {
                             continue;
                         }
+                        $key_lower = strtolower($meta_key);
+                        if (false !== strpos($key_lower, 'price') || false !== strpos($key_lower, 'deposit') || false !== strpos($key_lower, 'currency')) {
+                            $group = 'price';
+                        } elseif (false !== strpos($key_lower, 'lat') || false !== strpos($key_lower, 'lng') || false !== strpos($key_lower, 'city') || false !== strpos($key_lower, 'location') || false !== strpos($key_lower, 'from') || false !== strpos($key_lower, 'to') || false !== strpos($key_lower, 'meeting_point') || false !== strpos($key_lower, 'pickup') || false !== strpos($key_lower, 'departure') || false !== strpos($key_lower, 'delivery')) {
+                            $group = 'location';
+                        } else {
+                            $group = 'details';
+                        }
+                        $groups[$group]['fields'][$meta_key] = $cfg;
+                    }
+
+                    $render_field = static function ($meta_key, $cfg, $is_edit, $listing_id) {
                         $ftype  = isset($cfg['type']) ? $cfg['type'] : 'text';
                         $label  = isset($cfg['label']) ? $cfg['label'] : $meta_key;
                         $value  = $is_edit ? get_post_meta($listing_id, $meta_key, true) : (isset($cfg['default']) ? $cfg['default'] : '');
@@ -231,7 +249,11 @@ class TAP_Listing_Editor {
                                 break;
                             case 'number':
                                 $step = isset($cfg['step']) ? ' step="' . esc_attr($cfg['step']) . '"' : '';
-                                echo '<label>' . esc_html($label) . '</label><input type="number" name="' . esc_attr($meta_key) . '" min="0"' . $step . ' value="' . esc_attr($value) . '">';
+                                $min = '';
+                                if (false !== stripos($meta_key, '_lat')) { $min = ' min="-90" max="90"'; }
+                                elseif (false !== stripos($meta_key, '_lng')) { $min = ' min="-180" max="180"'; }
+                                else { $min = ' min="0"'; }
+                                echo '<label>' . esc_html($label) . '</label><input type="number" name="' . esc_attr($meta_key) . '"' . $min . $step . ' value="' . esc_attr($value) . '">';
                                 break;
                             case 'email':
                                 echo '<label>' . esc_html($label) . '</label><input type="email" name="' . esc_attr($meta_key) . '" value="' . esc_attr($value) . '">';
@@ -249,6 +271,31 @@ class TAP_Listing_Editor {
                                 echo '<label>' . esc_html($label) . '</label><input type="text" name="' . esc_attr($meta_key) . '" value="' . esc_attr($value) . '">';
                         }
                         echo '</div>';
+                    };
+
+                    foreach ($groups as $gkey => $gdata) {
+                        if (empty($gdata['fields'])) {
+                            continue;
+                        }
+                        echo '<div class="tap-field tap-span-2 tap-section-head" style="margin-top:var(--tap-space-4);"><strong>' . esc_html($gdata['title']) . '</strong></div>';
+                        foreach ($gdata['fields'] as $mk => $cfg) {
+                            $render_field($mk, $cfg, $is_edit, $listing_id);
+                        }
+                    }
+                    ?>
+                    <?php
+                    // SEO section
+                    $seo_fields = [];
+                    foreach (['_tap_seo_title', '_tap_seo_description'] as $sk) {
+                        if (isset($fields[$sk])) {
+                            $seo_fields[$sk] = $fields[$sk];
+                        }
+                    }
+                    if ($seo_fields) {
+                        echo '<div class="tap-field tap-span-2 tap-section-head" style="margin-top:var(--tap-space-4);"><strong>' . esc_html__('SEO', 'travel-agency-platform') . '</strong></div>';
+                        foreach ($seo_fields as $mk => $cfg) {
+                            $render_field($mk, $cfg, $is_edit, $listing_id);
+                        }
                     }
                     ?>
                     <div class="tap-field tap-span-2">

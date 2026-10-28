@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-10-28T02:28:42+00:00\n"
+"POT-Creation-Date: 2026-10-28T02:31:02+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -190,7 +190,7 @@ msgstr "Active unit"
 #: includes/class-dashboard-content.php:194
 #: includes/class-dashboard-content.php:374
 #: includes/class-front-dash-client.php:405
-#: includes/class-listing-editor.php:336
+#: includes/class-listing-editor.php:383
 msgid "Eliminar"
 msgstr "Delete"
 
@@ -337,7 +337,7 @@ msgstr "Days with special price"
 
 #: includes/class-acc-wizard-steps.php:99
 #: includes/class-acc-wizard-steps.php:741
-#: includes/class-listing-editor.php:276
+#: includes/class-listing-editor.php:323
 msgid "Modo de reserva"
 msgstr "Booking mode"
 
@@ -444,7 +444,7 @@ msgstr ""
 "All set. Publish whenever you want: it will appear in search instantly."
 
 #: includes/class-acc-wizard-steps.php:184 includes/class-acc-wizard.php:53
-#: includes/class-listing-editor.php:286
+#: includes/class-listing-editor.php:333
 msgid "Despublicar"
 msgstr "Unpublish"
 
@@ -711,7 +711,7 @@ msgid "Guardar"
 msgstr "Save"
 
 #: includes/class-acc-wizard-steps.php:380 includes/class-acc-wizard.php:28
-#: includes/class-front-dash.php:95 includes/class-listing-editor.php:320
+#: includes/class-front-dash.php:95 includes/class-listing-editor.php:367
 #: includes/class-pricing.php:473
 msgid "Guardado"
 msgstr "Saved"
@@ -984,7 +984,8 @@ msgid "Lo primero que verá el viajero."
 msgstr "The first thing the traveler will see."
 
 #: includes/class-acc-wizard-steps.php:595
-#: includes/class-destination-spots.php:111 includes/class-metaboxes.php:52
+#: includes/class-destination-spots.php:111
+#: includes/class-listing-editor.php:211 includes/class-metaboxes.php:52
 #: includes/class-shortcode-search.php:235
 msgid "Ubicación"
 msgstr "Location"
@@ -1077,7 +1078,7 @@ msgstr ""
 
 #: includes/class-acc-wizard-steps.php:730
 #: includes/class-acc-wizard-steps.php:929 includes/class-ajax-public.php:285
-#: includes/class-listing-editor.php:255
+#: includes/class-listing-editor.php:302
 msgid "Destino"
 msgstr "Destination"
 
@@ -1086,12 +1087,12 @@ msgid "Elige el lugar más específico (ciudad o distrito)."
 msgstr "Choose the most specific place (city or district)."
 
 #: includes/class-acc-wizard-steps.php:743
-#: includes/class-listing-editor.php:278
+#: includes/class-listing-editor.php:325
 msgid "Reserva directa (pago inmediato)"
 msgstr "Direct booking (immediate payment)"
 
 #: includes/class-acc-wizard-steps.php:744
-#: includes/class-listing-editor.php:279
+#: includes/class-listing-editor.php:326
 msgid "Solicitud de reserva (la agencia confirma antes del pago)"
 msgstr "Request to book (the agency confirms before payment)"
 
@@ -1296,12 +1297,12 @@ msgstr "Accommodation published"
 msgid "Publica cuando todo esté listo"
 msgstr "Publish when everything is ready"
 
-#: includes/class-acc-wizard.php:29 includes/class-listing-editor.php:321
+#: includes/class-acc-wizard.php:29 includes/class-listing-editor.php:368
 msgid "Ha ocurrido un error"
 msgstr "An error occurred"
 
 #: includes/class-acc-wizard.php:30 includes/class-front-dash.php:377
-#: includes/class-listing-editor.php:322
+#: includes/class-listing-editor.php:369
 msgid "Confirmar"
 msgstr "Confirm"
 
@@ -1309,56 +1310,56 @@ msgstr "Confirm"
 #: includes/class-dashboard-money.php:451
 #: includes/class-dashboard-money.php:488
 #: includes/class-front-dash-client.php:287 includes/class-front-dash.php:386
-#: includes/class-listing-editor.php:323
+#: includes/class-listing-editor.php:370
 #: includes/class-shortcode-booking.php:204
 #: includes/class-shortcode-booking.php:224
 #: includes/class-shortcode-booking.php:226
 msgid "Cancelar"
 msgstr "Cancel"
 
-#: includes/class-acc-wizard.php:32 includes/class-listing-editor.php:324
+#: includes/class-acc-wizard.php:32 includes/class-listing-editor.php:371
 msgid "Cerrar"
 msgstr "Close"
 
-#: includes/class-acc-wizard.php:33 includes/class-listing-editor.php:325
+#: includes/class-acc-wizard.php:33 includes/class-listing-editor.php:372
 msgid "Principal"
 msgstr "Main"
 
-#: includes/class-acc-wizard.php:34 includes/class-listing-editor.php:326
+#: includes/class-acc-wizard.php:34 includes/class-listing-editor.php:373
 msgid "Usar como foto principal"
 msgstr "Use as main photo"
 
-#: includes/class-acc-wizard.php:35 includes/class-listing-editor.php:327
+#: includes/class-acc-wizard.php:35 includes/class-listing-editor.php:374
 msgid "Quitar imagen"
 msgstr "Remove image"
 
 #: includes/class-acc-wizard.php:39 includes/class-acc-wizard.php:40
-#: includes/class-listing-editor.php:328 includes/class-listing-editor.php:329
+#: includes/class-listing-editor.php:375 includes/class-listing-editor.php:376
 msgid "Subiendo"
 msgstr "Uploading"
 
-#: includes/class-acc-wizard.php:41 includes/class-listing-editor.php:330
+#: includes/class-acc-wizard.php:41 includes/class-listing-editor.php:377
 msgid "Subidas"
 msgstr "Uploaded"
 
-#: includes/class-acc-wizard.php:42 includes/class-listing-editor.php:331
+#: includes/class-acc-wizard.php:42 includes/class-listing-editor.php:378
 msgid "Imágenes subidas."
 msgstr "Images uploaded."
 
 #: includes/class-acc-wizard.php:43 includes/class-agency-media.php:52
-#: includes/class-listing-editor.php:332
+#: includes/class-listing-editor.php:379
 msgid "No se pudo subir la imagen."
 msgstr "The image could not be uploaded."
 
-#: includes/class-acc-wizard.php:44 includes/class-listing-editor.php:333
+#: includes/class-acc-wizard.php:44 includes/class-listing-editor.php:380
 msgid "solo se permiten imágenes."
 msgstr "only images are allowed."
 
-#: includes/class-acc-wizard.php:45 includes/class-listing-editor.php:334
+#: includes/class-acc-wizard.php:45 includes/class-listing-editor.php:381
 msgid "la imagen supera el tamaño máximo."
 msgstr "the image exceeds the maximum size."
 
-#: includes/class-acc-wizard.php:46 includes/class-listing-editor.php:335
+#: includes/class-acc-wizard.php:46 includes/class-listing-editor.php:382
 msgid "Imagen añadida."
 msgstr "Image added."
 
@@ -1377,7 +1378,7 @@ msgstr ""
 "The unit and all its prices will be deleted. This action cannot be undone."
 
 #: includes/class-acc-wizard.php:51 includes/class-acc-wizard.php:83
-#: includes/class-listing-editor.php:286
+#: includes/class-listing-editor.php:333
 msgid "Publicar"
 msgstr "Publish"
 
@@ -1389,7 +1390,7 @@ msgstr "It will become visible to travelers."
 msgid "Dejará de aparecer en el buscador hasta que lo publiques de nuevo."
 msgstr "It will stop appearing in search until you publish it again."
 
-#: includes/class-acc-wizard.php:55 includes/class-listing-editor.php:337
+#: includes/class-acc-wizard.php:55 includes/class-listing-editor.php:384
 msgid "Error de conexión. Revisa tu red e inténtalo de nuevo."
 msgstr "Connection error. Check your network and try again."
 
@@ -1405,7 +1406,7 @@ msgstr "Name, photos and main details"
 msgid "Habitaciones, camas e inventario"
 msgstr "Rooms, beds and inventory"
 
-#: includes/class-acc-wizard.php:81
+#: includes/class-acc-wizard.php:81 includes/class-listing-editor.php:210
 msgid "Precios"
 msgstr "Prices"
 
@@ -10242,23 +10243,32 @@ msgstr "Back"
 msgid "Nombre *"
 msgstr "Name *"
 
-#: includes/class-listing-editor.php:288
+#: includes/class-listing-editor.php:212 includes/class-privacy.php:571
+#: includes/class-shortcode-booking.php:765
+msgid "Detalles"
+msgstr "Details"
+
+#: includes/class-listing-editor.php:295
+msgid "SEO"
+msgstr "SEO"
+
+#: includes/class-listing-editor.php:335
 msgid "El servicio está visible para los viajeros."
 msgstr "The service is visible to travelers."
 
-#: includes/class-listing-editor.php:288
+#: includes/class-listing-editor.php:335
 msgid "El servicio está en borrador o en revisión."
 msgstr "The service is in draft or under review."
 
-#: includes/class-listing-editor.php:292
+#: includes/class-listing-editor.php:339
 msgid "Guardar cambios"
 msgstr "Save changes"
 
-#: includes/class-listing-editor.php:292
+#: includes/class-listing-editor.php:339
 msgid "Crear servicio"
 msgstr "Create service"
 
-#: includes/class-listing-editor.php:338
+#: includes/class-listing-editor.php:385
 msgid "Selecciona un destino para el servicio."
 msgstr "Select a destination for the service."
 
@@ -11533,10 +11543,6 @@ msgstr "Data rights requests"
 #: includes/class-privacy.php:570
 msgid "Derechos"
 msgstr "Rights"
-
-#: includes/class-privacy.php:571 includes/class-shortcode-booking.php:765
-msgid "Detalles"
-msgstr "Details"
 
 #: includes/class-privacy.php:573
 msgid "Acción"
