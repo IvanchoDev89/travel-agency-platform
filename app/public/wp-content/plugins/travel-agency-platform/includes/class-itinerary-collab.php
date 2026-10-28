@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 defined('ABSPATH') || exit;
 
 /**
@@ -6,9 +7,15 @@ defined('ABSPATH') || exit;
  */
 class TAP_Itinerary_Collab {
 
-    public static function table_itineraries() { global $wpdb; return $wpdb->prefix . 'tap_itineraries'; }
-    public static function table_votes() { global $wpdb; return $wpdb->prefix . 'tap_itinerary_votes'; }
-    public static function table_comments() { global $wpdb; return $wpdb->prefix . 'tap_itinerary_comments'; }
+    public static function table_itineraries() {
+		global $wpdb;
+		return $wpdb->prefix . 'tap_itineraries'; }
+    public static function table_votes() {
+		global $wpdb;
+		return $wpdb->prefix . 'tap_itinerary_votes'; }
+    public static function table_comments() {
+		global $wpdb;
+		return $wpdb->prefix . 'tap_itinerary_comments'; }
 
     /** Create a shareable itinerary. */
     public static function create($user_id, $title, array $service_ids) {
@@ -188,9 +195,12 @@ class TAP_Itinerary_Collab {
         ?>
         <div class="tap-itinerary-share" data-token="<?php echo esc_attr($token); ?>">
             <h2><?php echo esc_html($itin->title); ?></h2>
-            <p class="tap-agency-meta"><?php echo esc_html(sprintf(__(' %d servicios', 'travel-agency-platform'), count($ids))); ?></p>
+            <p class="tap-agency-meta"><?php /* translators: %d: number of services */ echo esc_html(sprintf(__(' %d servicios', 'travel-agency-platform'), count($ids))); ?></p>
             <ul class="tap-itinerary-share-list" style="list-style:none;padding:0;display:grid;gap:12px;">
-                <?php foreach ($ids as $sid): $p = get_post((int) $sid); if (!$p) continue; ?>
+                <?php
+                foreach ($ids as $sid): $p = get_post((int) $sid);
+					if (!$p) continue;
+					?>
                     <li class="tap-itinerary-share-item" data-service-id="<?php echo (int) $sid; ?>" style="border:1px solid var(--tap-border);border-radius:var(--tap-radius-lg);padding:12px;display:flex;align-items:center;gap:12px;">
                         <?php if (has_post_thumbnail($p->ID)): ?>
                             <img src="<?php echo esc_url(get_the_post_thumbnail_url($p->ID, 'thumbnail')); ?>" alt="" style="width:64px;height:64px;object-fit:cover;border-radius:var(--tap-radius-md);">

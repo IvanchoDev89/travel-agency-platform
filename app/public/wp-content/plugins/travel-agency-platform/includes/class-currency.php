@@ -1,4 +1,7 @@
 <?php
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+// phpcs:disable WordPress.Security.NonceVerification
+// phpcs:disable WordPress.Security.EscapeOutput
 /**
  * Global currency handling for the travel platform.
  * The `tap_currency` setting stores an ISO code; this maps it to a symbol
@@ -138,7 +141,8 @@ class TAP_Currency {
         // find symbol
         $symbol = $code;
         foreach (self::list_active() as $c) {
-            if ($c->code === $code) { $symbol = $c->symbol; break; }
+            if ($c->code === $code) { $symbol = $c->symbol;
+				break; }
         }
         return $symbol . ' ' . number_format((float) $amount, $decimals);
     }

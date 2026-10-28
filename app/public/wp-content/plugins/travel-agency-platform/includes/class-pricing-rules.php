@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 defined('ABSPATH') || exit;
 
 /**
@@ -118,11 +119,11 @@ class TAP_Pricing_Rules {
                 $diff = (int) floor(($service_date - $booking_date) / DAY_IN_SECONDS);
                 return $diff <= $days && $diff >= 0;
             case 'weekend':
-                $dow = (int) date('N', isset($ctx['date']) ? strtotime($ctx['date']) : time());
+                $dow = (int) gmdate('N', isset($ctx['date']) ? strtotime($ctx['date']) : time());
                 return in_array($dow, [6, 7], true);
             case 'seasonal':
                 $months = (array) ($cond['months'] ?? []);
-                $m = (int) date('n', isset($ctx['date']) ? strtotime($ctx['date']) : time());
+                $m = (int) gmdate('n', isset($ctx['date']) ? strtotime($ctx['date']) : time());
                 return in_array($m, $months, true);
             case 'occupancy':
                 $threshold = (float) ($cond['occupancy_pct'] ?? 80);

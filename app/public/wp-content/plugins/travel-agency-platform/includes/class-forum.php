@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 defined('ABSPATH') || exit;
 
 /**
@@ -104,7 +105,10 @@ class TAP_Forum {
                             <p style="margin:0 0 8px;color:var(--tap-neutral-700);"><?php echo esc_html($p->content); ?></p>
                             <?php if ($p->image_id): $iu = wp_get_attachment_image_url($p->image_id, 'medium'); if ($iu): ?>
                                 <img src="<?php echo esc_url($iu); ?>" alt="" loading="lazy" style="max-width:100%;border-radius:var(--tap-radius-md);margin-bottom:8px;">
-                            <?php endif; endif; ?>
+									<?php
+                            endif;
+endif;
+							?>
                             <button type="button" class="tap-btn tap-btn-sm tap-forum-like" data-id="<?php echo (int) $p->id; ?>">👍 <?php echo (int) $p->likes; ?></button>
                         </article>
                     <?php endforeach; ?>

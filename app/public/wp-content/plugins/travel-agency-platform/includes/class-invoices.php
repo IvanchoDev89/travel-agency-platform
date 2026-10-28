@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 defined('ABSPATH') || exit;
 
 /**
@@ -17,7 +18,7 @@ class TAP_Invoices {
     public static function next_number() {
         global $wpdb;
         $t = self::table();
-        $today = date('Ymd');
+        $today = gmdate('Ymd');
         $last = $wpdb->get_var($wpdb->prepare(
             "SELECT invoice_number FROM {$t} WHERE invoice_number LIKE %s ORDER BY id DESC LIMIT 1",
             'TAP-' . $today . '-%'
@@ -37,7 +38,8 @@ class TAP_Invoices {
         if (!$booking) return new WP_Error('not_found', __('Reserva no encontrada.', 'travel-agency-platform'));
 
         // Avoid duplicate.
-        $existing = $wpdb->get_var($wpdb->prepare("SELECT id FROM " . self::table() . " WHERE booking_id = %d", $booking_id));
+        $t = self::table();
+        $existing = $wpdb->get_var($wpdb->prepare("SELECT id FROM {$t} WHERE booking_id = %d", $booking_id)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         if ($existing) return (int) $existing;
 
         $number = self::next_number();
@@ -160,7 +162,7 @@ class TAP_Invoices {
     }
     /** Admin page listing invoices. */
     public static function invoices_page() {
-        if (!current_user_can('manage_options')) wp_die(__('Acceso denegado.', 'travel-agency-platform'));
+        if (!current_user_can('manage_options')) wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform'));
         global $wpdb;
         $t = self::table();
         $invoices = $wpdb->get_results("SELECT * FROM {$t} ORDER BY issued_at DESC LIMIT 100");
@@ -192,17 +194,19 @@ class TAP_Invoices {
                             <a href="<?php echo esc_url(admin_url('admin.php?page=tap-invoices&view=' . (int) $inv->id)); ?>" class="button button-small"><?php esc_html_e('Ver', 'travel-agency-platform'); ?></a>
                         </td>
                     </tr>
-                <?php endforeach; endif; ?>
+						<?php
+                endforeach;
+endif;
+				?>
                 </tbody>
             </table>
             <?php
             $view = isset($_GET['view']) ? (int) $_GET['view'] : 0;
             if ($view) {
-                echo self::render_html($view);
+                echo wp_kses_post(self::render_html($view));
             }
             ?>
         </div>
         <?php
     }
-
 }

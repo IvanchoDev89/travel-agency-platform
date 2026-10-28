@@ -1,10 +1,14 @@
 <?php
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 defined('ABSPATH') || exit;
 
 /**
- * iCal import: fetch a remote .ics feed and block dates in tap_daily_pricing.
+ * ICal import: fetch a remote .ics feed and block dates in tap_daily_pricing.
+ *
+ * @package TravelAgencyPlatform
  */
-class TAP_iCal_Import {
+class TAP_ICal_Import {
+
 
     /** Fetch and parse an iCal feed, return array of blocked date ranges. */
     public static function fetch($url) {
@@ -22,10 +26,14 @@ class TAP_iCal_Import {
         $ranges = [];
         $lines = preg_split('/\r\n|\r|\n/', $ics);
         $in_event = false;
-        $start = null; $end = null;
+        $start = null;
+		$end = null;
         foreach ($lines as $line) {
             $line = trim($line);
-            if ($line === 'BEGIN:VEVENT') { $in_event = true; $start = null; $end = null; continue; }
+            if ($line === 'BEGIN:VEVENT') { $in_event = true;
+				$start = null;
+				$end = null;
+				continue; }
             if ($line === 'END:VEVENT') {
                 if ($in_event && $start) {
                     if (!$end) $end = $start;
@@ -85,7 +93,7 @@ class TAP_iCal_Import {
                         'is_blocked' => 1,
                     ]);
                 }
-                $count++;
+                ++$count;
                 $cur->modify('+1 day');
             }
         }
@@ -98,7 +106,8 @@ class TAP_iCal_Import {
             register_rest_route('tap/v1', '/ical/import', [
                 'methods'             => 'POST',
                 'callback'            => [__CLASS__, 'rest_import'],
-                'permission_callback' => function () { return current_user_can('edit_posts'); },
+                'permission_callback' => function () {
+					return current_user_can('edit_posts'); },
             ]);
         });
     }

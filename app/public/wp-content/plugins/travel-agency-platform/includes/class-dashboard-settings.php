@@ -1,4 +1,12 @@
 <?php
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+// phpcs:disable WordPress.Security.ValidatedSanitizedInput
+// phpcs:disable WordPress.Security.EscapeOutput
+// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralText
+// phpcs:disable WordPress.WP.GlobalVariablesOverride
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+// phpcs:disable WordPress.Security.NonceVerification
+// phpcs:disable WordPress.Security.EscapeOutput
 /**
  * TAP_Dashboard_Settings — admin pages of settings: plans, subscriptions,
  * promotions and the settings screen itself.

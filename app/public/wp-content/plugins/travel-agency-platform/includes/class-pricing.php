@@ -226,7 +226,7 @@ class TAP_Pricing {
         $days = [];
         for ($d = 1; $d <= $days_in_month; $d++) {
             $date = sprintf('%04d-%02d-%02d', $year, $month, $d);
-            $day_of_week = date('N', strtotime($date));
+            $day_of_week = gmdate('N', strtotime($date));
 
             $has_override = isset($overrides[$date]);
             $day = [

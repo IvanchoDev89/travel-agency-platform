@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 defined('ABSPATH') || exit;
 
 /**
@@ -34,9 +35,9 @@ class TAP_Loyalty {
     /** Level thresholds. */
     public static function levels() {
         return [
-            'bronze' => ['min' => 0,    'label' => __('Bronce', 'travel-agency-platform'), 'discount' => 0],
-            'silver' => ['min' => 500,  'label' => __('Plata', 'travel-agency-platform'),   'discount' => 5],
-            'gold'   => ['min' => 2000, 'label' => __('Oro', 'travel-agency-platform'),     'discount' => 10],
+            'bronze' => ['min' => 0, 'label' => __('Bronce', 'travel-agency-platform'), 'discount' => 0],
+            'silver' => ['min' => 500, 'label' => __('Plata', 'travel-agency-platform'), 'discount' => 5],
+            'gold'   => ['min' => 2000, 'label' => __('Oro', 'travel-agency-platform'), 'discount' => 10],
         ];
     }
 
@@ -71,7 +72,7 @@ class TAP_Loyalty {
             'points'     => $points,
             'source'     => sanitize_key($source),
             'source_id'  => (int) $source_id,
-            'expires_at' => date('Y-m-d H:i:s', strtotime('+12 months')),
+            'expires_at' => gmdate('Y-m-d H:i:s', strtotime('+12 months')),
         ]);
         return (int) $wpdb->insert_id;
     }

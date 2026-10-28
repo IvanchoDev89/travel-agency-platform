@@ -274,7 +274,7 @@ class TAP_Discounts {
         $prices = $range['prices'];
         $base_total = $range['total'];
         $nights = count($prices);
-        $today = new DateTime(date('Y-m-d'));
+        $today = new DateTime(gmdate('Y-m-d'));
         $checkin_dt = new DateTime($check_in);
         $days_ahead = $today->diff($checkin_dt)->days;
 

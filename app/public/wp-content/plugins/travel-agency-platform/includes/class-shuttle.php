@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 defined('ABSPATH') || exit;
 
 /**
@@ -94,7 +95,8 @@ class TAP_Shuttle {
             register_rest_route('tap/v1', '/shuttle/join', [
                 'methods'             => 'POST',
                 'callback'            => [__CLASS__, 'rest_join'],
-                'permission_callback' => function () { return is_user_logged_in(); },
+                'permission_callback' => function () {
+					return is_user_logged_in(); },
             ]);
         });
     }

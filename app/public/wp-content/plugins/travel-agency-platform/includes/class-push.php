@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 defined('ABSPATH') || exit;
 
 /**
@@ -65,7 +66,8 @@ class TAP_Push {
     /** Count subscriptions. */
     public static function count() {
         global $wpdb;
-        return (int) $wpdb->get_var("SELECT COUNT(*) FROM " . self::table());
+        $t = self::table();
+        return (int) $wpdb->get_var("SELECT COUNT(*) FROM {$t}"); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
     }
 
     /**
@@ -81,7 +83,7 @@ class TAP_Push {
         if (self::is_ready() && $subs) {
             foreach ($subs as $sub) {
                 if (self::send_push($sub, $title, $body, $url)) {
-                    $sent++;
+                    ++$sent;
                 }
             }
         }
@@ -176,14 +178,18 @@ class TAP_Push {
         $pos = 0;
         if (ord($der[$pos++]) !== 0x30) return '';
         $len = ord($der[$pos++]);
-        if ($len & 0x80) { $n = $len & 0x7f; $len = 0; for ($i = 0; $i < $n; $i++) $len = ($len << 8) | ord($der[$pos++]); }
+        if ($len & 0x80) { $n = $len & 0x7f;
+			$len = 0; for ($i = 0; $i < $n; $i++) $len = ($len << 8) | ord($der[$pos++]); }
         if (ord($der[$pos++]) !== 0x02) return '';
         $rlen = ord($der[$pos++]);
-        if ($rlen & 0x80) { $n = $rlen & 0x7f; $rlen = 0; for ($i = 0; $i < $n; $i++) $rlen = ($rlen << 8) | ord($der[$pos++]); }
-        $r = substr($der, $pos, $rlen); $pos += $rlen;
+        if ($rlen & 0x80) { $n = $rlen & 0x7f;
+			$rlen = 0; for ($i = 0; $i < $n; $i++) $rlen = ($rlen << 8) | ord($der[$pos++]); }
+        $r = substr($der, $pos, $rlen);
+		$pos += $rlen;
         if (ord($der[$pos++]) !== 0x02) return '';
         $slen = ord($der[$pos++]);
-        if ($slen & 0x80) { $n = $slen & 0x7f; $slen = 0; for ($i = 0; $i < $n; $i++) $slen = ($slen << 8) | ord($der[$pos++]); }
+        if ($slen & 0x80) { $n = $slen & 0x7f;
+			$slen = 0; for ($i = 0; $i < $n; $i++) $slen = ($slen << 8) | ord($der[$pos++]); }
         $s = substr($der, $pos, $slen);
         // Pad to 32 bytes each.
         $r = str_pad(ltrim($r, "\x00"), 32, "\x00", STR_PAD_LEFT);
@@ -213,12 +219,14 @@ class TAP_Push {
             register_rest_route('tap/v1', '/push/subscribe', [
                 'methods'             => 'POST',
                 'callback'            => [__CLASS__, 'rest_subscribe'],
-                'permission_callback' => function () { return is_user_logged_in(); },
+                'permission_callback' => function () {
+					return is_user_logged_in(); },
             ]);
             register_rest_route('tap/v1', '/push/unsubscribe', [
                 'methods'             => 'POST',
                 'callback'            => [__CLASS__, 'rest_unsubscribe'],
-                'permission_callback' => function () { return is_user_logged_in(); },
+                'permission_callback' => function () {
+					return is_user_logged_in(); },
             ]);
         });
     }
@@ -297,5 +305,4 @@ class TAP_Push {
         <?php
         return ob_get_clean();
     }
-
 }

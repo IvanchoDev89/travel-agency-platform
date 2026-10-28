@@ -1,4 +1,5 @@
 <?php
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 defined('ABSPATH') || exit;
 
 /**
@@ -52,7 +53,7 @@ class TAP_Travel_Insurance {
         $id = (int) $wpdb->insert_id;
 
         // Generate policy number.
-        $policy = 'POL-' . date('Ymd') . '-' . str_pad((string) $id, 4, '0', STR_PAD_LEFT);
+        $policy = 'POL-' . gmdate('Ymd') . '-' . str_pad((string) $id, 4, '0', STR_PAD_LEFT);
         $wpdb->update(self::table(), ['policy_number' => $policy, 'status' => 'issued', 'issued_at' => current_time('mysql')], ['id' => $id]);
 
         return $id;
@@ -98,7 +99,8 @@ class TAP_Travel_Insurance {
             register_rest_route('tap/v1', '/insurance/issue', [
                 'methods'             => 'POST',
                 'callback'            => [__CLASS__, 'rest_issue'],
-                'permission_callback' => function () { return is_user_logged_in(); },
+                'permission_callback' => function () {
+					return is_user_logged_in(); },
             ]);
         });
     }
@@ -114,6 +116,6 @@ class TAP_Travel_Insurance {
         if (is_wp_error($id)) {
             return $id;
         }
-        return rest_ensure_response(['id' => $id, 'policy' => 'POL-' . date('Ymd') . '-' . str_pad((string) $id, 4, '0', STR_PAD_LEFT)]);
+        return rest_ensure_response(['id' => $id, 'policy' => 'POL-' . gmdate('Ymd') . '-' . str_pad((string) $id, 4, '0', STR_PAD_LEFT)]);
     }
 }

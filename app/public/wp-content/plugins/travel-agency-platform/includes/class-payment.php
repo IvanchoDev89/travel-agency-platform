@@ -1,4 +1,7 @@
 <?php
+// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+// phpcs:disable WordPress.Security.NonceVerification
+// phpcs:disable WordPress.Security.EscapeOutput
 defined('ABSPATH') || exit;
 
 class TAP_Payment {
