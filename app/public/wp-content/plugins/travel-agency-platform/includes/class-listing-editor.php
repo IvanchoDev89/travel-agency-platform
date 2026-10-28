@@ -182,6 +182,7 @@ class TAP_Listing_Editor {
                     <div class="tap-field tap-span-2">
                         <label><?php esc_html_e('Nombre *', 'travel-agency-platform'); ?></label>
                         <input type="text" name="title" required value="<?php echo esc_attr($listing ? $listing->post_title : ''); ?>">
+                        <span class="tap-field-error" style="color:var(--tap-error);font-size:var(--tap-text-xs);min-height:1em;"></span>
                     </div>
                     <div class="tap-field tap-span-2">
                         <label><?php esc_html_e('Descripción', 'travel-agency-platform'); ?></label>
@@ -270,6 +271,7 @@ class TAP_Listing_Editor {
                             default:
                                 echo '<label>' . esc_html($label) . '</label><input type="text" name="' . esc_attr($meta_key) . '" value="' . esc_attr($value) . '">';
                         }
+                        echo '<span class="tap-field-error" style="color:var(--tap-error);font-size:var(--tap-text-xs);min-height:1em;"></span>';
                         echo '</div>';
                     };
 
@@ -454,6 +456,40 @@ class TAP_Listing_Editor {
                 });
             }
             if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', initMap); } else { initMap(); }
+        })();
+        </script>
+        <script>
+        (function(){
+            function showErr(input, msg) {
+                var field = input.closest('.tap-field');
+                if (!field) return;
+                var span = field.querySelector('.tap-field-error');
+                if (span) span.textContent = msg || '';
+                input.classList.toggle('is-invalid', !!msg);
+            }
+            function validate(input) {
+                if (!input || !input.name) return '';
+                var v = input.value.trim();
+                if (input.hasAttribute('required') && '' === v) return 'Requerido.';
+                if (input.type === 'email' && v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return 'Email inválido.';
+                if (input.type === 'url' && v && !/^https?:\/\//i.test(v)) return 'URL inválida (debe empezar con http).';
+                if (input.type === 'number') {
+                    if (v && isNaN(Number(v))) return 'Debe ser numérico.';
+                    var min = input.getAttribute('min'); var max = input.getAttribute('max');
+                    if (min !== null && v && Number(v) < Number(min)) return 'Mínimo ' + min + '.';
+                    if (max !== null && v && Number(v) > Number(max)) return 'Máximo ' + max + '.';
+                }
+                return '';
+            }
+            function boot() {
+                var form = document.getElementById('tap-listing-form');
+                if (!form) return;
+                form.querySelectorAll('input, select, textarea').forEach(function(inp){
+                    inp.addEventListener('blur', function(){ showErr(inp, validate(inp)); });
+                    inp.addEventListener('input', function(){ if (inp.classList.contains('is-invalid')) showErr(inp, validate(inp)); });
+                });
+            }
+            if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', boot); } else { boot(); }
         })();
         </script>
 <?php

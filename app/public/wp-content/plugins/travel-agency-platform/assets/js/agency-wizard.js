@@ -707,6 +707,37 @@
 
     function submitListing(form, submitter) {
         var button = formSubmitter(form, submitter);
+        // Generic client-side validation: block submit if any field is invalid.
+        var invalid = false;
+        qsa('input, select, textarea', form).forEach(function (inp) {
+            if (inp.type === 'hidden') { return; }
+            var v = (inp.value || '').trim();
+            var msg = '';
+            if (inp.hasAttribute('required') && '' === v) { msg = 'Requerido.'; }
+            else if (inp.type === 'email' && v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) { msg = 'Email inválido.'; }
+            else if (inp.type === 'url' && v && !/^https?:\/\//i.test(v)) { msg = 'URL inválida.'; }
+            else if (inp.type === 'number') {
+                if (v && isNaN(Number(v))) { msg = 'Debe ser numérico.'; }
+                else {
+                    var mn = inp.getAttribute('min'), mx = inp.getAttribute('max');
+                    if (mn !== null && v && Number(v) < Number(mn)) { msg = 'Mínimo ' + mn + '.'; }
+                    if (mx !== null && v && Number(v) > Number(mx)) { msg = 'Máximo ' + mx + '.'; }
+                }
+            }
+            if (msg) {
+                invalid = true;
+                // show under field
+                var field = inp.closest ? inp.closest('.tap-field') : null;
+                var span = field ? field.querySelector('.tap-field-error') : null;
+                if (span) span.textContent = msg;
+                inp.classList.add('is-invalid');
+            }
+        });
+        if (invalid) {
+            toast('Revisa los campos marcados.', 'error');
+            setBusy(button, false);
+            return false;
+        }
         if (cfg.requireDestination) {
             var destInput = form.querySelector('input[name="destination"]');
             if (!destInput || !destInput.value) {
