@@ -89,6 +89,24 @@ class TAP_Metaboxes {
         echo TAP_Destinations::render_picker($selected, 'tap_destination');
     }
 
+    /**
+     * Options for the tour_type taxonomy, keyed by term slug.
+     *
+     * @return array<string,string>
+     */
+    public static function tour_type_options() {
+        $opts = ['' => __('— Select —', 'travel-agency-platform')];
+        if (!taxonomy_exists('tap_tour_type')) {
+            return $opts;
+        }
+        foreach (get_terms(['taxonomy' => 'tap_tour_type', 'hide_empty' => false]) as $t) {
+            if ($t instanceof WP_Term) {
+                $opts[$t->slug] = $t->name;
+            }
+        }
+        return $opts;
+    }
+
     public static function get_fields($post_type) {
         if (!self::$loaded) {
             self::register();
@@ -144,6 +162,7 @@ class TAP_Metaboxes {
         self::maybe_add_meta_box('tap_tour_details', __('Tour Details', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_tour', 'normal', 'high');
         self::$fields['tap_tour'] = [
             '_tap_tour_agency_id'   => ['type' => 'select_post', 'label' => __('Agency', 'travel-agency-platform'), 'post_type' => 'tap_agency'],
+            '_tap_tour_type'        => ['type' => 'select', 'label' => __('Tour Type', 'travel-agency-platform'), 'options' => self::tour_type_options()],
             '_tap_tour_duration'    => ['type' => 'text', 'label' => __('Duration', 'travel-agency-platform'), 'placeholder' => 'e.g. 3 days / 2 nights'],
             '_tap_tour_difficulty'  => ['type' => 'select', 'label' => __('Difficulty', 'travel-agency-platform'), 'options' => ['easy' => 'Easy', 'moderate' => 'Moderate', 'hard' => 'Hard', 'extreme' => 'Extreme']],
             '_tap_tour_price_adult' => ['type' => 'number', 'label' => __('Price per Adult ($)', 'travel-agency-platform'), 'step' => '0.01'],
@@ -493,6 +512,17 @@ class TAP_Metaboxes {
                 wp_set_object_terms($post_id, [$term_id], 'tap_tour_difficulty', false);
             } else {
                 wp_set_object_terms($post_id, [], 'tap_tour_difficulty', false);
+            }
+        }
+
+        if ($post_type === 'tap_tour' && isset($_POST['_tap_tour_type'])) {
+            $ttype = sanitize_text_field(wp_unslash($_POST['_tap_tour_type']));
+            if ($ttype && term_exists($ttype, 'tap_tour_type')) {
+                $tt = term_exists($ttype, 'tap_tour_type');
+                $term_id = (int) (is_array($tt) ? $tt['term_id'] : $tt);
+                wp_set_object_terms($post_id, [$term_id], 'tap_tour_type', false);
+            } else {
+                wp_set_object_terms($post_id, [], 'tap_tour_type', false);
             }
         }
     }

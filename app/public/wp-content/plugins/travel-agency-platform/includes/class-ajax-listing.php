@@ -120,8 +120,9 @@ class TAP_Ajax_Listing {
             return __('Name is required', 'travel-agency-platform');
         }
 
-        // Money integrity: any price field that is provided must be > 0.
         $fields = TAP_Metaboxes::get_fields($listing_type);
+
+        // Money integrity: any price field that is provided must be > 0.
         foreach ($fields as $meta_key => $cfg) {
             if (!isset($cfg['type']) || 'number' !== $cfg['type'] || false === strpos($meta_key, 'price')) {
                 continue;
@@ -140,6 +141,27 @@ class TAP_Ajax_Listing {
             if ($value <= 0) {
                 /* translators: %s: etiqueta del tipo de tarifa */
                 return sprintf(__('El precio %s debe ser mayor que 0.', 'travel-agency-platform'), isset($cfg['label']) ? $cfg['label'] : $meta_key);
+            }
+        }
+
+        // Coordinate integrity: lat/lng, when provided, must be valid ranges.
+        foreach ($fields as $meta_key => $cfg) {
+            if (false === stripos($meta_key, '_lat') && false === stripos($meta_key, '_lng')) {
+                continue;
+            }
+            $raw = isset($input[$meta_key]) ? $input[$meta_key] : null;
+            if ($raw === null || (is_scalar($raw) && '' === trim((string) $raw))) {
+                continue;
+            }
+            if (!is_numeric($raw)) {
+                return sprintf(__('El campo %s debe ser numérico.', 'travel-agency-platform'), isset($cfg['label']) ? $cfg['label'] : $meta_key);
+            }
+            $val = (float) $raw;
+            if (false !== stripos($meta_key, '_lat') && ($val < -90 || $val > 90)) {
+                return sprintf(__('La latitud debe estar entre -90 y 90 (%s).', 'travel-agency-platform'), isset($cfg['label']) ? $cfg['label'] : $meta_key);
+            }
+            if (false !== stripos($meta_key, '_lng') && ($val < -180 || $val > 180)) {
+                return sprintf(__('La longitud debe estar entre -180 y 180 (%s).', 'travel-agency-platform'), isset($cfg['label']) ? $cfg['label'] : $meta_key);
             }
         }
 
@@ -259,6 +281,29 @@ class TAP_Ajax_Listing {
             $dest  = absint($input['destination']);
             $valid = $dest && term_exists($dest, 'tap_location');
             wp_set_object_terms($new_id, $valid ? [$dest] : [], 'tap_location', false);
+        }
+
+        if ('tap_tour' === $listing_type) {
+            if (isset($input['_tap_tour_difficulty'])) {
+                $difficulty = sanitize_key(wp_unslash($input['_tap_tour_difficulty']));
+                if ($difficulty && term_exists($difficulty, 'tap_tour_difficulty')) {
+                    $tt = term_exists($difficulty, 'tap_tour_difficulty');
+                    $term_id = (int) (is_array($tt) ? $tt['term_id'] : $tt);
+                    wp_set_object_terms($new_id, [$term_id], 'tap_tour_difficulty', false);
+                } else {
+                    wp_set_object_terms($new_id, [], 'tap_tour_difficulty', false);
+                }
+            }
+            if (isset($input['_tap_tour_type'])) {
+                $ttype = sanitize_text_field(wp_unslash($input['_tap_tour_type']));
+                if ($ttype && term_exists($ttype, 'tap_tour_type')) {
+                    $tt = term_exists($ttype, 'tap_tour_type');
+                    $term_id = (int) (is_array($tt) ? $tt['term_id'] : $tt);
+                    wp_set_object_terms($new_id, [$term_id], 'tap_tour_type', false);
+                } elseif ('' === trim($ttype)) {
+                    wp_set_object_terms($new_id, [], 'tap_tour_type', false);
+                }
+            }
         }
 
         $booking_mode = isset($input['booking_mode']) ? sanitize_key($input['booking_mode']) : '';
