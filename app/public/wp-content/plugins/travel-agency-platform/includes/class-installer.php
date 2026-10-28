@@ -515,6 +515,38 @@ class TAP_Installer {
             KEY type (post_type)
         ) {$wpdb->get_charset_collate()}");
 
+        $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_travel_insurance (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            booking_id bigint(20) NOT NULL,
+            plan varchar(40) NOT NULL DEFAULT 'basic',
+            provider varchar(60) NOT NULL DEFAULT 'internal',
+            premium decimal(10,2) NOT NULL DEFAULT 0,
+            commission decimal(10,2) NOT NULL DEFAULT 0,
+            status varchar(20) NOT NULL DEFAULT 'quoted',
+            policy_number varchar(60) DEFAULT NULL,
+            issued_at datetime DEFAULT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY booking (booking_id),
+            KEY status (status)
+        ) {$wpdb->get_charset_collate()}");
+
+        $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_travel_insurance (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            booking_id bigint(20) NOT NULL,
+            plan varchar(40) NOT NULL DEFAULT 'basic',
+            provider varchar(60) NOT NULL DEFAULT 'internal',
+            premium decimal(10,2) NOT NULL DEFAULT 0,
+            commission decimal(10,2) NOT NULL DEFAULT 0,
+            status varchar(20) NOT NULL DEFAULT 'quoted',
+            policy_number varchar(60) DEFAULT NULL,
+            issued_at datetime DEFAULT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY booking (booking_id),
+            KEY status (status)
+        ) {$wpdb->get_charset_collate()}");
+
         $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_translations (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             entity_type varchar(50) NOT NULL,

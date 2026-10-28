@@ -105,6 +105,7 @@ final class TravelAgencyPlatform {
         add_action('init', ['TAP_Shuttle', 'init'], 17);
         add_action('init', ['TAP_Forum', 'init'], 18);
         add_action('init', ['TAP_Itinerary_Collab', 'init'], 16);
+        add_action('init', ['TAP_Travel_Insurance', 'init'], 19);
         add_action('init', ['TAP_Invoices', 'init'], 17);
         add_action('init', ['TAP_Push', 'init'], 15);
         // TAP_Waitlist has no init (static methods only).
