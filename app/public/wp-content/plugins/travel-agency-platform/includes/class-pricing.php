@@ -520,20 +520,23 @@ class TAP_Pricing {
             if (isset($overrides[$date])) {
                 $row = $overrides[$date];
                 if ($row->is_blocked) {
-                    return self::$range_memo[$memo_key] = ['available' => false, 'date' => $date];
+                    self::$range_memo[$memo_key] = ['available' => false, 'date' => $date];
+                    return self::$range_memo[$memo_key];
                 }
                 $price = $row->price !== null ? (float) $row->price : $base;
             } else {
                 $price = $base ?: false;
             }
             if ($price === false) {
-                return self::$range_memo[$memo_key] = ['available' => false, 'date' => $date];
+                self::$range_memo[$memo_key] = ['available' => false, 'date' => $date];
+                return self::$range_memo[$memo_key];
             }
             $prices[$date] = $price;
             $current->modify('+1 day');
         }
 
-        return self::$range_memo[$memo_key] = ['available' => true, 'prices' => $prices, 'total' => array_sum($prices)];
+        self::$range_memo[$memo_key] = ['available' => true, 'prices' => $prices, 'total' => array_sum($prices)];
+        return self::$range_memo[$memo_key];
     }
 
     public static function calculate_total($room_id, $check_in, $check_out, $apply_discounts = true) {
@@ -608,7 +611,8 @@ class TAP_Pricing {
             $max = max($max, $ms);
             $current->modify('+1 day');
         }
-        return self::$range_memo[$memo_key] = $max;
+        self::$range_memo[$memo_key] = $max;
+        return self::$range_memo[$memo_key];
     }
 
     public static function is_date_available($room_id, $date) {

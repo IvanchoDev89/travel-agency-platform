@@ -69,7 +69,7 @@ class TAP_Emails_Send {
                 <p style="font-size:15px;color:' . $muted . ';line-height:1.6;margin:0;">' . $intro . '</p>
                 <p style="font-size:12px;color:' . $muted . ';line-height:1.5;margin:24px 0 0;">' . __('Este es un correo automático. Por favor no respondas a este mensaje.', 'travel-agency-platform') . '</p>
               </td></tr>
-              <tr><td style="background-color:' . $bg . ';padding:16px 32px;text-align:center;font-size:12px;color:' . $muted . ';">© ' . date('Y') . ' Travel Agency Platform</td></tr>
+              <tr><td style="background-color:' . $bg . ';padding:16px 32px;text-align:center;font-size:12px;color:' . $muted . ';">© ' . gmdate('Y') . ' Travel Agency Platform</td></tr>
             </table>
           </td></tr>
         </table></body></html>';
@@ -576,7 +576,7 @@ class TAP_Emails_Send {
                 ' . $cta . '
                 <p style="font-size:12px;color:' . $muted . ';line-height:1.5;margin:24px 0 0;">' . __('Este es un correo automático. Por favor no respondas a este mensaje.', 'travel-agency-platform') . '</p>
               </td></tr>
-              <tr><td style="background-color:' . $bg . ';padding:16px 32px;text-align:center;font-size:12px;color:' . $muted . ';">© ' . date('Y') . ' Travel Agency Platform</td></tr>
+              <tr><td style="background-color:' . $bg . ';padding:16px 32px;text-align:center;font-size:12px;color:' . $muted . ';">© ' . gmdate('Y') . ' Travel Agency Platform</td></tr>
             </table>
           </td></tr>
         </table></body></html>';

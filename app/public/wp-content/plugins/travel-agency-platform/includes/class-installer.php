@@ -846,14 +846,14 @@ class TAP_Installer {
         $duplicates = $wpdb->get_results("SELECT booking_code FROM {$wpdb->prefix}tap_bookings GROUP BY booking_code HAVING COUNT(*) > 1");
         $gen_free_code = function ($wpdb) {
             for ($i = 0; $i < 50; $i++) {
-                $code = class_exists('TAP_Booking') ? TAP_Booking::generate_booking_code() : ('TAP-' . strtoupper(wp_generate_password(12, false, false)) . '-' . date('ymd'));
+                $code = class_exists('TAP_Booking') ? TAP_Booking::generate_booking_code() : ('TAP-' . strtoupper(wp_generate_password(12, false, false)) . '-' . gmdate('ymd'));
                 $exists = $wpdb->get_var($wpdb->prepare(
                     "SELECT id FROM {$wpdb->prefix}tap_bookings WHERE booking_code = %s LIMIT 1",
                     $code
                 ));
                 if (!$exists) return $code;
             }
-            return 'TAP-' . strtoupper(wp_generate_password(12, false, false)) . '-' . date('ymd');
+            return 'TAP-' . strtoupper(wp_generate_password(12, false, false)) . '-' . gmdate('ymd');
         };
         foreach ($duplicates as $dup) {
             $rows = $wpdb->get_results($wpdb->prepare(

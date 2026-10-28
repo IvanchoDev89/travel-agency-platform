@@ -451,7 +451,7 @@ class TAP_Front_Dash_Client {
                                     <span class="tap-star <?php echo $i <= $r->rating ? 'tap-star-filled' : ''; ?>">★</span>
                                 <?php endfor; ?>
                             </div>
-                            <span class="tap-dash-review-date"><?php echo esc_html(date('d/m/Y', strtotime($r->created_at))); ?></span>
+                            <span class="tap-dash-review-date"><?php echo esc_html(gmdate('d/m/Y', strtotime($r->created_at))); ?></span>
                         </div>
                         <h3><?php echo $svc ? esc_html($svc->post_title) : 'Servicio eliminado'; ?></h3>
                         <?php if ($r->title) : ?>
