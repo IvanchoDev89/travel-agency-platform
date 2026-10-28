@@ -160,6 +160,23 @@ class TAP_Installer {
                 KEY active (is_active)
             ) $charset;",
 
+            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_referrals (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                referrer_agency_id bigint(20) NOT NULL,
+                referred_agency_id bigint(20) DEFAULT NULL,
+                referral_code varchar(16) NOT NULL,
+                status varchar(20) NOT NULL DEFAULT 'clicked',
+                commission_rate decimal(5,2) NOT NULL DEFAULT 10.00,
+                commission_months int(11) NOT NULL DEFAULT 12,
+                expires_at datetime DEFAULT NULL,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                converted_at datetime DEFAULT NULL,
+                PRIMARY KEY (id),
+                KEY referrer (referrer_agency_id),
+                KEY code (referral_code),
+                KEY status (status)
+            ) $charset;",
+
             "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_chat_events (
                 id bigint(20) NOT NULL AUTO_INCREMENT,
                 intent varchar(40) NOT NULL,

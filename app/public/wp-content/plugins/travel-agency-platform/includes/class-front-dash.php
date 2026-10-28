@@ -287,6 +287,9 @@ class TAP_Front_Dash {
                     case 'bo-promos':
                         echo self::agency_promos($user);
                         break;
+                    case 'bo-referrals':
+                        echo self::agency_referrals($user);
+                        break;
                     case 'bo-team':
                         echo self::agency_team($user);
                         break;
@@ -727,6 +730,73 @@ class TAP_Front_Dash {
     }
 
     /* ── agency back-office: team (employees) ──────────────────────── */
+
+    private static function agency_referrals($user) {
+        if (TAP_Roles::is_agency_employee($user)) {
+            return '<p class="tap-empty">' . esc_html__('Solo el administrador de la agencia gestiona los referidos.', 'travel-agency-platform') . '</p>';
+        }
+        $agency = (int) TAP_Booking::get_agency_for_user($user->ID);
+        if (!$agency) {
+            return '<p class="tap-empty">' . esc_html__('No tienes una agencia vinculada.', 'travel-agency-platform') . '</p>';
+        }
+        if (!class_exists('TAP_Referrals')) {
+            return '<p class="tap-empty">' . esc_html__('Módulo de referidos no disponible.', 'travel-agency-platform') . '</p>';
+        }
+
+        $code = TAP_Referrals::code_for_agency($agency);
+        $url  = TAP_Referrals::share_url($agency);
+        $stats = TAP_Referrals::stats($agency);
+        $rows  = TAP_Referrals::for_agency($agency);
+
+        ob_start();
+        ?>
+        <div class="tap-dash-section">
+            <div class="tap-dash-section-header">
+                <h2><?php esc_html_e('Programa de referidos', 'travel-agency-platform'); ?></h2>
+            </div>
+            <div class="tap-dash-card" style="margin-top:16px;">
+                <h3><?php esc_html_e('Tu enlace de referido', 'travel-agency-platform'); ?></h3>
+                <p class="tap-agency-meta"><?php esc_html_e('Comparte este enlace. Cuando una nueva agencia se registre usando tu código, ganarás una comisión del 10% sobre sus comisiones durante 12 meses.', 'travel-agency-platform'); ?></p>
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px;">
+                    <input type="text" readonly value="<?php echo esc_url($url); ?>" style="flex:1;min-width:260px;padding:8px 12px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);background:var(--tap-surface-muted);">
+                    <button type="button" class="tap-btn tap-btn-sm" onclick="navigator.clipboard && navigator.clipboard.writeText('<?php echo esc_js($url); ?>');"><?php esc_html_e('Copiar', 'travel-agency-platform'); ?></button>
+                </div>
+                <p class="tap-agency-meta" style="margin-top:8px;"><?php echo esc_html(sprintf(__('Código: %s', 'travel-agency-platform'), $code)); ?></p>
+            </div>
+
+            <div class="tap-stats-grid" style="margin-top:16px;">
+                <div class="tap-stat-card"><span class="tap-stat-number"><?php echo (int) $stats['clicks']; ?></span><span class="tap-stat-label"><?php esc_html_e('Clicks', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number"><?php echo (int) $stats['registrations']; ?></span><span class="tap-stat-label"><?php esc_html_e('Registros', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number"><?php echo (int) $stats['conversions']; ?></span><span class="tap-stat-label"><?php esc_html_e('Conversiones', 'travel-agency-platform'); ?></span></div>
+            </div>
+
+            <div class="tap-dash-section-header" style="margin-top:24px;">
+                <h3><?php esc_html_e('Referidos', 'travel-agency-platform'); ?></h3>
+            </div>
+            <?php if (!$rows): ?>
+                <p class="tap-empty"><?php esc_html_e('Aún no tienes referidos. Comparte tu enlace para empezar.', 'travel-agency-platform'); ?></p>
+            <?php else: ?>
+            <div class="tap-table-scroll"><table class="tap-table tap-table-compact">
+                <thead><tr>
+                    <th><?php esc_html_e('Agencia referida', 'travel-agency-platform'); ?></th>
+                    <th><?php esc_html_e('Estado', 'travel-agency-platform'); ?></th>
+                    <th><?php esc_html_e('Fecha', 'travel-agency-platform'); ?></th>
+                </tr></thead>
+                <tbody>
+                <?php foreach ($rows as $r): ?>
+                    <tr>
+                        <td><?php echo $r->referred_agency_id ? esc_html(get_the_title((int) $r->referred_agency_id)) : esc_html__('—', 'travel-agency-platform'); ?></td>
+                        <td><span class="tap-status tap-status-<?php echo in_array($r->status, ['converted'], true) ? 'confirmed' : 'pending'; ?>"><?php echo esc_html($r->status); ?></span></td>
+                        <td><?php echo esc_html($r->created_at); ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table></div>
+            <?php endif; ?>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
 
     private static function agency_team($user) {
         if (TAP_Roles::is_agency_employee($user)) {
@@ -1242,6 +1312,7 @@ endif;
         $nav[] = ['key' => 'bo-listings', 'label' => __('Listados', 'travel-agency-platform'), 'icon' => 'grid', 'url' => add_query_arg('seccion', 'bo-listings', $base)];
         if ($is_team_admin) {
             $nav[] = ['key' => 'bo-promos', 'label' => __('Destacados', 'travel-agency-platform'), 'icon' => 'star', 'url' => add_query_arg('seccion', 'bo-promos', $base)];
+            $nav[] = ['key' => 'bo-referrals', 'label' => __('Referidos', 'travel-agency-platform'), 'icon' => 'users', 'url' => add_query_arg('seccion', 'bo-referrals', $base)];
             $nav[] = ['key' => 'bo-team', 'label' => __('Equipo', 'travel-agency-platform'), 'icon' => 'users', 'url' => add_query_arg('seccion', 'bo-team', $base)];
         }
         return $nav;
