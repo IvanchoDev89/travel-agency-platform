@@ -115,16 +115,18 @@
 }
 
 .tap-wizard-step .tap-wizard-step-num {
-    flex: 0 0 32px;
-    width: 32px;
-    height: 32px;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
     border-radius: var(--tap-radius-full);
     background: var(--tap-neutral-200);
     color: var(--tap-neutral-600);
-    font-size: var(--tap-text-xs);
+    font-size: var(--tap-text-sm);
     font-weight: 700;
-    text-align: center;
-    line-height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
 }
 
 .tap-wizard-step-label {
