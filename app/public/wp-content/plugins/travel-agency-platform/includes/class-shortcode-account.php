@@ -101,7 +101,8 @@ class TAP_Shortcode_Account {
         }
 
         // Rating stats.
-        $rating_avg = 0; $rating_count = 0;
+        $rating_avg = 0;
+$rating_count = 0;
         if ($reviews) {
             $sum = 0;
             foreach ($reviews as $rv) { $sum += (float) $rv->rating; }
@@ -159,7 +160,10 @@ class TAP_Shortcode_Account {
                     <div style="margin-bottom:var(--tap-space-5);">
                         <h3 style="margin:0 0 var(--tap-space-3);font-size:var(--tap-text-lg);color:var(--tap-neutral-800);"><?php echo esc_html($info['label']); ?> <span style="font-size:var(--tap-text-sm);color:var(--tap-neutral-400);font-weight:400;">(<?php echo count($info['ids']); ?>)</span></h3>
                         <div class="tap-services-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;">
-                            <?php foreach ($info['ids'] as $sid): $sp = get_post($sid); if (!$sp) continue; ?>
+                            <?php
+                            foreach ($info['ids'] as $sid): $sp = get_post($sid);
+if (!$sp) continue;
+?>
                                 <div class="tap-service-card">
                                     <?php if (has_post_thumbnail($sid)): ?>
                                         <a href="<?php echo esc_url(get_permalink($sid)); ?>"><?php echo get_the_post_thumbnail($sid, 'medium', ['loading' => 'lazy', 'decoding' => 'async']); ?></a>
@@ -195,10 +199,14 @@ class TAP_Shortcode_Account {
                             <p style="margin:0 0 8px;color:var(--tap-neutral-700);"><?php echo esc_html($rv->content); ?></p>
                             <?php
                             $imgs = array_filter(array_map('absint', explode(',', (string) $rv->images)));
-                            if ($imgs): ?>
+                            if ($imgs):
+                            ?>
                                 <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
                                     <?php foreach ($imgs as $img_id): ?>
-                                        <?php $iu = wp_get_attachment_image_url($img_id, 'thumbnail'); if (!$iu) continue; ?>
+                                        <?php
+                                        $iu = wp_get_attachment_image_url($img_id, 'thumbnail');
+if (!$iu) continue;
+?>
                                         <img src="<?php echo esc_url($iu); ?>" alt="" loading="lazy" style="width:64px;height:64px;object-fit:cover;border-radius:var(--tap-radius-md);">
                                     <?php endforeach; ?>
                                 </div>
