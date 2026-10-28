@@ -58,13 +58,20 @@ class TAP_Booking_Pricing {
             }
             $day_price = floatval(get_post_meta($service_id, '_tap_eq_price_day', true));
             if ($day_price > 0) {
-                return $day_price * $days;
+                $res = $day_price * $days;
+            } else {
+                $res = floatval(get_post_meta($service_id, '_tap_eq_price_hour', true)) * max($days, 1);
             }
-            return floatval(get_post_meta($service_id, '_tap_eq_price_hour', true)) * max($days, 1);
+            if (class_exists('TAP_Pricing_Rules') && $check_in) {
+                $res = TAP_Pricing_Rules::quote($service_type, $service_id, $res, ['date' => $check_in, 'booking_date' => date('Y-m-d')]);
+            }
+            return $res;
         }
 
         $unit_price = floatval(get_post_meta($service_id, $price_key, true));
         if ($unit_price <= 0) return 0;
+
+        $result = null;
 
         switch ($service_type) {
             case 'tap_accommodation':
@@ -79,10 +86,12 @@ class TAP_Booking_Pricing {
             case 'tap_tour':
                 $adult_price = $unit_price;
                 $child_price = floatval(get_post_meta($service_id, '_tap_tour_price_child', true)) ?: $adult_price * 0.7;
-                return ($adult_price * $adults) + ($child_price * $children);
+                $result = ($adult_price * $adults) + ($child_price * $children);
+                break;
 
             case 'tap_transport':
-                return $unit_price;
+                $result = $unit_price;
+                break;
 
             case 'tap_car_rental':
                 $days = 1;
@@ -91,21 +100,35 @@ class TAP_Booking_Pricing {
                     $d2 = new DateTime($check_out);
                     $days = max(1, $d1->diff($d2)->days);
                 }
-                return $unit_price * $days;
+                $result = $unit_price * $days;
+                break;
 
             case 'tap_boat':
-                return $unit_price;
+                $result = $unit_price;
+                break;
 
             case 'tap_package':
                 $price_per_person = floatval(get_post_meta($service_id, '_tap_pkg_price_per_person', true));
                 if ($price_per_person > 0) {
-                    return $price_per_person * ($adults + $children);
+                    $result = $price_per_person * ($adults + $children);
+                } else {
+                    $result = $unit_price;
                 }
-                return $unit_price;
+                break;
 
             default:
-                return $unit_price;
+                $result = $unit_price;
+                break;
         }
+        // Apply yield pricing rules (early bird, last minute, seasonal, etc.)
+        if (class_exists('TAP_Pricing_Rules') && $check_in) {
+            $ctx = [
+                'date'         => $check_in,
+                'booking_date' => date('Y-m-d'),
+            ];
+            $result = TAP_Pricing_Rules::quote($service_type, $service_id, $result, $ctx);
+        }
+        return $result;
     }
 
     public static function get_room_availability($room_id, $check_in, $check_out) {

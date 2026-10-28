@@ -143,6 +143,23 @@ class TAP_Installer {
                 KEY date (date)
             ) $charset;",
 
+            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_pricing_rules (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                service_type varchar(50) NOT NULL,
+                service_id bigint(20) NOT NULL,
+                rule_type varchar(30) NOT NULL,
+                condition_json text NOT NULL,
+                modifier_type varchar(10) NOT NULL DEFAULT 'percent',
+                modifier_value decimal(10,2) NOT NULL DEFAULT 0,
+                priority int(11) NOT NULL DEFAULT 0,
+                is_active tinyint(1) NOT NULL DEFAULT 1,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY service (service_type, service_id),
+                KEY active (is_active)
+            ) $charset;",
+
             "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_chat_events (
                 id bigint(20) NOT NULL AUTO_INCREMENT,
                 intent varchar(40) NOT NULL,
