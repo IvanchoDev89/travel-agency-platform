@@ -33,6 +33,7 @@ class TAP_Front_Dash {
 
         // AJAX handlers (agency back-office, Fase 16)
         add_action('wp_ajax_tap_dash_agency_booking', ['TAP_Ajax_Dash', 'ajax_agency_booking']);
+        add_action('wp_ajax_tap_dash_agency_profile_save', ['TAP_Ajax_Dash', 'ajax_agency_profile_save']);
         add_action('wp_ajax_tap_dash_agency_bulk_booking', ['TAP_Ajax_Dash', 'ajax_agency_bulk_booking']);
         add_action('wp_ajax_tap_dash_agency_payout', ['TAP_Ajax_Dash', 'ajax_agency_payout']);
         add_action('wp_ajax_tap_dash_chat_thread', ['TAP_Ajax_Dash', 'ajax_chat_thread']);
@@ -296,6 +297,9 @@ class TAP_Front_Dash {
                         break;
                     case 'bo-listings':
                         echo TAP_Listing_Editor::agency_manage([]);
+                        break;
+                    case 'bo-profile':
+                        echo self::agency_profile($user);
                         break;
                     case 'bo-promos':
                         echo self::agency_promos($user);
@@ -948,6 +952,95 @@ class TAP_Front_Dash {
         return ob_get_clean();
     }
 
+    private static function agency_profile($user) {
+        if (TAP_Roles::is_agency_employee($user)) {
+            return '<p class="tap-empty">' . esc_html__('Solo el administrador de la agencia edita el perfil.', 'travel-agency-platform') . '</p>';
+        }
+        $agency_id = (int) TAP_Booking::get_agency_for_user($user->ID);
+        if (!$agency_id) {
+            return '<p class="tap-empty">' . esc_html__('No tienes una agencia vinculada.', 'travel-agency-platform') . '</p>';
+        }
+        $agency = get_post($agency_id);
+        global $wpdb;
+        $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_agencies WHERE user_id = %d LIMIT 1", $user->ID));
+
+        $name     = $agency ? $agency->post_title : '';
+        $desc     = $agency ? $agency->post_content : '';
+        $email    = $row ? $row->email : get_post_meta($agency_id, '_tap_agency_email', true);
+        $phone    = $row ? $row->phone : get_post_meta($agency_id, '_tap_agency_phone', true);
+        $whatsapp = $row ? $row->whatsapp : get_post_meta($agency_id, '_tap_agency_whatsapp', true);
+        $website  = $row ? $row->website : get_post_meta($agency_id, '_tap_agency_website', true);
+        $address  = $row ? $row->address : get_post_meta($agency_id, '_tap_agency_address', true);
+        $city     = $row ? $row->city : get_post_meta($agency_id, '_tap_agency_city', true);
+        $country  = $row ? $row->country : get_post_meta($agency_id, '_tap_agency_country', true);
+
+        ob_start();
+        ?>
+        <div class="tap-dash-section">
+            <div class="tap-dash-section-header">
+                <h2><?php esc_html_e('Perfil de la agencia', 'travel-agency-platform'); ?></h2>
+            </div>
+            <div class="tap-dash-card" style="margin-top:16px;">
+                <form id="tap-agency-profile-form" class="tap-bo-form">
+                    <input type="hidden" name="agency_id" value="<?php echo (int) $agency_id; ?>">
+                    <label><?php esc_html_e('Nombre de la agencia', 'travel-agency-platform'); ?>
+                        <input type="text" name="name" value="<?php echo esc_attr($name); ?>" required>
+                    </label>
+                    <label><?php esc_html_e('Descripción', 'travel-agency-platform'); ?>
+                        <textarea name="description" rows="4"><?php echo esc_textarea($desc); ?></textarea>
+                    </label>
+                    <label><?php esc_html_e('Email', 'travel-agency-platform'); ?>
+                        <input type="email" name="email" value="<?php echo esc_attr($email); ?>">
+                    </label>
+                    <label><?php esc_html_e('Teléfono', 'travel-agency-platform'); ?>
+                        <input type="text" name="phone" value="<?php echo esc_attr($phone); ?>">
+                    </label>
+                    <label><?php esc_html_e('WhatsApp', 'travel-agency-platform'); ?>
+                        <input type="text" name="whatsapp" value="<?php echo esc_attr($whatsapp); ?>">
+                    </label>
+                    <label><?php esc_html_e('Sitio web', 'travel-agency-platform'); ?>
+                        <input type="url" name="website" value="<?php echo esc_url($website); ?>">
+                    </label>
+                    <label><?php esc_html_e('Dirección', 'travel-agency-platform'); ?>
+                        <input type="text" name="address" value="<?php echo esc_attr($address); ?>">
+                    </label>
+                    <label><?php esc_html_e('Ciudad', 'travel-agency-platform'); ?>
+                        <input type="text" name="city" value="<?php echo esc_attr($city); ?>">
+                    </label>
+                    <label><?php esc_html_e('País', 'travel-agency-platform'); ?>
+                        <input type="text" name="country" value="<?php echo esc_attr($country); ?>">
+                    </label>
+                    <button type="submit" class="tap-btn tap-btn-primary"><?php esc_html_e('Guardar perfil', 'travel-agency-platform'); ?></button>
+                    <span class="tap-form-msg" style="margin-left:8px;"></span>
+                </form>
+            </div>
+        </div>
+        <script>
+        (function(){
+            var form = document.getElementById('tap-agency-profile-form');
+            if (!form) return;
+            form.addEventListener('submit', function(e){
+                e.preventDefault();
+                var fd = new FormData(form);
+                fd.append('action', 'tap_dash_agency_profile_save');
+                fd.append('nonce', (window.tapDash && window.tapDash.nonce) || '');
+                var btn = form.querySelector('button[type="submit"]'); btn.disabled = true;
+                fetch((window.tapDash && window.tapDash.ajax_url) || '/wp-admin/admin-ajax.php', {method:'POST', body:fd, credentials:'same-origin'})
+                .then(function(r){return r.json();})
+                .then(function(j){
+                    btn.disabled = false;
+                    var msg = form.querySelector('.tap-form-msg');
+                    if (msg) msg.textContent = (j && j.data && j.data.message) || (j && j.success ? 'Guardado' : 'Error');
+                    if (j && j.success) msg.style.color = '#047857'; else msg.style.color = '#b91c1c';
+                })
+                .catch(function(){ btn.disabled = false; });
+            });
+        })();
+        </script>
+        <?php
+        return ob_get_clean();
+    }
+
     private static function agency_team($user) {
         if (TAP_Roles::is_agency_employee($user)) {
             return '<p class="tap-empty">' . esc_html__('Solo el administrador de la agencia gestiona el equipo.', 'travel-agency-platform') . '</p>';
@@ -1463,6 +1556,9 @@ endif;
             $nav[] = ['key' => 'bo-audit', 'label' => __('Actividad', 'travel-agency-platform'), 'icon' => 'list', 'url' => add_query_arg('seccion', 'bo-audit', $base)];
         }
         $nav[] = ['key' => 'bo-listings', 'label' => __('Listados', 'travel-agency-platform'), 'icon' => 'grid', 'url' => add_query_arg('seccion', 'bo-listings', $base)];
+        if ($is_team_admin) {
+            $nav[] = ['key' => 'bo-profile', 'label' => __('Perfil', 'travel-agency-platform'), 'icon' => 'user', 'url' => add_query_arg('seccion', 'bo-profile', $base)];
+        }
         if ($is_team_admin) {
             $nav[] = ['key' => 'bo-promos', 'label' => __('Destacados', 'travel-agency-platform'), 'icon' => 'star', 'url' => add_query_arg('seccion', 'bo-promos', $base)];
             $nav[] = ['key' => 'bo-referrals', 'label' => __('Referidos', 'travel-agency-platform'), 'icon' => 'users', 'url' => add_query_arg('seccion', 'bo-referrals', $base)];

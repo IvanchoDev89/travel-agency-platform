@@ -179,6 +179,64 @@ continue;
         ]);
     }
 
+    public static function ajax_agency_profile_save() {
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => __('No autenticado.', 'travel-agency-platform')], 401);
+        }
+        $user = wp_get_current_user();
+        $agency_id = (int) TAP_Booking::get_agency_for_user($user->ID);
+        if (!$agency_id || !TAP_Roles::can_manage_agency_panel($user)) {
+            wp_send_json_error(['message' => __('Sin permiso.', 'travel-agency-platform')], 403);
+        }
+
+        $name     = sanitize_text_field(wp_unslash($_POST['name'] ?? ''));
+        $desc     = sanitize_textarea_field(wp_unslash($_POST['description'] ?? ''));
+        $email    = sanitize_email(wp_unslash($_POST['email'] ?? ''));
+        $phone    = sanitize_text_field(wp_unslash($_POST['phone'] ?? ''));
+        $whatsapp = sanitize_text_field(wp_unslash($_POST['whatsapp'] ?? ''));
+        $website  = esc_url_raw(wp_unslash($_POST['website'] ?? ''));
+        $address  = sanitize_textarea_field(wp_unslash($_POST['address'] ?? ''));
+        $city     = sanitize_text_field(wp_unslash($_POST['city'] ?? ''));
+        $country  = sanitize_text_field(wp_unslash($_POST['country'] ?? ''));
+
+        if ($name) {
+            wp_update_post(['ID' => $agency_id, 'post_title' => $name, 'post_content' => $desc]);
+        }
+
+        $metas = [
+            '_tap_agency_email'    => $email,
+            '_tap_agency_phone'    => $phone,
+            '_tap_agency_whatsapp' => $whatsapp,
+            '_tap_agency_website'  => $website,
+            '_tap_agency_address'  => $address,
+            '_tap_agency_city'     => $city,
+            '_tap_agency_country'  => $country,
+        ];
+        foreach ($metas as $k => $v) {
+            update_post_meta($agency_id, $k, $v);
+        }
+
+        // Sync tap_agencies table.
+        global $wpdb;
+        $wpdb->update("{$wpdb->prefix}tap_agencies", [
+            'name'    => $name ?: null,
+            'email'   => $email,
+            'phone'   => $phone,
+            'whatsapp'=> $whatsapp,
+            'website' => $website,
+            'address' => $address,
+            'city'    => $city,
+            'country' => $country,
+        ], ['user_id' => (int) $user->ID]);
+
+        if (class_exists('TAP_Audit_Log')) {
+            TAP_Audit_Log::log('agency_profile_updated', 'agency', $agency_id, null, $agency_id, $user->ID);
+        }
+
+        wp_send_json_success(['message' => __('Perfil actualizado.', 'travel-agency-platform')]);
+    }
+
     public static function ajax_delete_review() {
         check_ajax_referer('tap_front_dash_nonce', 'nonce');
 
