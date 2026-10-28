@@ -63,6 +63,9 @@ jobs:
       - name: Install dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
 
+      - name: Regenerate autoloader
+        run: composer dump-autoload -o
+
       - name: Run PHP_CodeSniffer
         run: composer lint
 
