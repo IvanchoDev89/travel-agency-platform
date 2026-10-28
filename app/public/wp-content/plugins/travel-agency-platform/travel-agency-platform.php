@@ -100,6 +100,7 @@ final class TravelAgencyPlatform {
         add_action('init', ['TAP_Pricing', 'init'], 10);
         add_action('init', ['TAP_Discounts', 'init'], 11);
         add_action('init', ['TAP_Referrals', 'init'], 12);
+        add_action('init', ['TAP_Email_Campaigns', 'init'], 14);
         add_action('init', ['TAP_Loyalty', 'init'], 13);
         add_action('init', ['TAP_Emails', 'init'], 12);
         add_action('init', ['TAP_SEO', 'init'], 13);
@@ -184,6 +185,10 @@ final class TravelAgencyPlatform {
         add_action('admin_post_tap_export_leads', ['TAP_Leads', 'csv_download']);
         add_action('admin_post_tap_export_bookings', ['TAP_Front_Dash', 'bookings_csv_download']);
         add_action('admin_post_tap_export_finances', ['TAP_Front_Dash', 'finances_csv_download']);
+        add_action('admin_post_tap_email_campaign_save', ['TAP_Email_Campaigns_Admin', 'handle_save']);
+        add_action('admin_post_tap_email_campaign_delete', ['TAP_Email_Campaigns_Admin', 'handle_delete']);
+        add_action('admin_post_tap_email_campaign_send', ['TAP_Email_Campaigns_Admin', 'handle_send']);
+        add_action('admin_post_tap_email_campaign_schedule', ['TAP_Email_Campaigns_Admin', 'handle_schedule']);
         // Kept on purpose: the handler enforces login + nonce + agency ownership
         // and this lets an expired session get the friendly /login/ redirect
         // instead of a blank admin-post response.

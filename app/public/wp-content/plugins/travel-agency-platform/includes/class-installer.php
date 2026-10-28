@@ -190,6 +190,26 @@ class TAP_Installer {
                 KEY expires (expires_at)
             ) $charset;",
 
+            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_email_campaigns (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                name varchar(120) NOT NULL,
+                subject varchar(200) NOT NULL,
+                body longtext NOT NULL,
+                segment varchar(40) NOT NULL DEFAULT 'all',
+                status varchar(20) NOT NULL DEFAULT 'draft',
+                scheduled_at datetime DEFAULT NULL,
+                sent_at datetime DEFAULT NULL,
+                sent_count int(11) NOT NULL DEFAULT 0,
+                open_count int(11) NOT NULL DEFAULT 0,
+                click_count int(11) NOT NULL DEFAULT 0,
+                created_by bigint(20) NOT NULL DEFAULT 0,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY status (status),
+                KEY scheduled (scheduled_at)
+            ) $charset;",
+
             "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_currencies (
                 code varchar(5) NOT NULL,
                 name varchar(60) NOT NULL,
