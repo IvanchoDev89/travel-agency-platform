@@ -47,7 +47,7 @@ class TAP_Privacy {
         }
 
         if (!isset($GLOBALS['wp_rewrite']) || !($GLOBALS['wp_rewrite'] instanceof WP_Rewrite)) {
-            $GLOBALS['wp_rewrite'] = new WP_Rewrite();
+            $GLOBALS['wp_rewrite'] = new WP_Rewrite(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
         }
 
         $new_id = wp_insert_post([

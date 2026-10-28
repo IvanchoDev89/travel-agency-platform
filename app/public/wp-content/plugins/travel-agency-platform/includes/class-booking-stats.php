@@ -108,8 +108,8 @@ class TAP_Booking_Stats {
             'completed'  => $wpdb->get_var("SELECT COUNT(*) FROM $table $where AND status = 'completed'"),
             'cancelled'  => $wpdb->get_var("SELECT COUNT(*) FROM $table $where AND status = 'cancelled'"),
             'revenue'    => $wpdb->get_var("SELECT COALESCE(SUM(total_amount), 0) FROM $table $where AND status NOT IN ('cancelled', 'refunded')"),
-            'commission' => $wpdb->get_var("SELECT COALESCE(SUM(" . self::commission_case() . "), 0) FROM $table $where AND status NOT IN ('cancelled', 'refunded')"),
-            'net'        => $wpdb->get_var("SELECT COALESCE(SUM(" . self::net_expr() . "), 0) FROM $table $where AND status NOT IN ('cancelled', 'refunded')"),
+            'commission' => $wpdb->get_var('SELECT COALESCE(SUM(' . self::commission_case() . '), 0) FROM ' . $table . ' ' . $where . " AND status NOT IN ('cancelled', 'refunded')"),
+            'net'        => $wpdb->get_var('SELECT COALESCE(SUM(' . self::net_expr() . '), 0) FROM ' . $table . ' ' . $where . " AND status NOT IN ('cancelled', 'refunded')"),
             'fees'       => $wpdb->get_var("SELECT COALESCE(SUM(booking_fee), 0) FROM $table $where AND status NOT IN ('cancelled', 'refunded')"),
         ];
     }

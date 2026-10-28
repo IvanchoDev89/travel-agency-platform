@@ -232,7 +232,7 @@ class TAP_Destination_Spots {
                 'taxonomy' => self::TAX,
                 'field'    => 'slug',
                 'terms'    => $args['type'],
-            ]];
+            ],];
             unset($args['type']);
         }
 
@@ -453,7 +453,7 @@ class TAP_Destination_Spots {
                 }
                 $sums[$term->slug]['lat'] += (float) $candidate['lat'];
                 $sums[$term->slug]['lng'] += (float) $candidate['lng'];
-                $sums[$term->slug]['n']++;
+                ++$sums[$term->slug]['n'];
             }
         }
 
@@ -756,7 +756,8 @@ class TAP_Destination_Spots {
             return $cache[$term_id];
         }
         if (! $term_id) {
-            return $cache[$term_id] = 0;
+            $cache[$term_id] = 0;
+            return 0;
         }
         $ids = get_posts([
             'post_type'      => self::CPT,
@@ -884,7 +885,7 @@ class TAP_Destination_Spots {
                 'field'            => 'term_id',
                 'terms'            => (int) $term->term_id,
                 'include_children' => true,
-            ]],
+            ],],
         ];
 
         $excluded = class_exists('TAP_Approval') ? TAP_Approval::excluded_listing_ids() : [];
