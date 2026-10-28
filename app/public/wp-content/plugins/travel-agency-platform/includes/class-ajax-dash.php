@@ -139,6 +139,41 @@ class TAP_Ajax_Dash {
     }
 
 
+    public static function ajax_agency_bulk_booking() {
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => __('No autenticado.', 'travel-agency-platform')], 401);
+        }
+        $user = wp_get_current_user();
+        $my_agency = (int) TAP_Booking::get_agency_for_user($user->ID);
+        if (!$my_agency) {
+            wp_send_json_error(['message' => __('Sin agencia vinculada.', 'travel-agency-platform')], 403);
+        }
+
+        $ids = isset($_POST['ids']) ? (array) $_POST['ids'] : [];
+        $ids = array_values(array_filter(array_map('absint', $ids)));
+        $op  = sanitize_key(wp_unslash($_POST['op'] ?? ''));
+        if (!$ids || !in_array($op, ['confirm', 'complete', 'cancel'], true)) {
+            wp_send_json_error(['message' => __('Parámetros inválidos.', 'travel-agency-platform')], 400);
+        }
+
+        $ok = 0; $fail = 0; $errs = [];
+        foreach ($ids as $bid) {
+            global $wpdb;
+            $bk = $wpdb->get_row($wpdb->prepare("SELECT agency_id FROM {$wpdb->prefix}tap_bookings WHERE id = %d", $bid));
+            if (!$bk || (int) $bk->agency_id !== $my_agency) {
+                $fail++; $errs[] = $bid; continue;
+            }
+            $res = TAP_Booking::agency_booking_action($bid, $op, 0, '');
+            if (is_wp_error($res)) { $fail++; } else { $ok++; }
+        }
+        wp_send_json_success([
+            'message' => sprintf(__('Procesadas: %d OK, %d con error.', 'travel-agency-platform'), $ok, $fail),
+            'ok'      => $ok,
+            'fail'    => $fail,
+        ]);
+    }
+
     public static function ajax_delete_review() {
         check_ajax_referer('tap_front_dash_nonce', 'nonce');
 

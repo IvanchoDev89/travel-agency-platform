@@ -27,6 +27,7 @@ class TAP_Front_Dash {
 
         // AJAX handlers (agency back-office, Fase 16)
         add_action('wp_ajax_tap_dash_agency_booking', ['TAP_Ajax_Dash', 'ajax_agency_booking']);
+        add_action('wp_ajax_tap_dash_agency_bulk_booking', ['TAP_Ajax_Dash', 'ajax_agency_bulk_booking']);
         add_action('wp_ajax_tap_dash_agency_payout', ['TAP_Ajax_Dash', 'ajax_agency_payout']);
         add_action('wp_ajax_tap_dash_chat_thread', ['TAP_Ajax_Dash', 'ajax_chat_thread']);
         add_action('wp_ajax_tap_dash_chat_send', ['TAP_Ajax_Dash', 'ajax_chat_send']);
@@ -413,6 +414,20 @@ class TAP_Front_Dash {
                 <span class="tap-agency-meta" style="margin-left:auto;"><?php echo esc_html(sprintf(__(' %d resultados', 'travel-agency-platform'), $total)); ?></span>
             </form>
 
+            <div class="tap-bulk-bar" style="margin:var(--tap-space-3) 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <label style="display:flex;align-items:center;gap:6px;font-size:var(--tap-text-sm);">
+                    <input type="checkbox" id="tap-bulk-select-all"> <?php esc_html_e('Seleccionar todo', 'travel-agency-platform'); ?>
+                </label>
+                <select id="tap-bulk-op" class="tap-input" style="padding:6px 10px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);">
+                    <option value=""><?php esc_html_e('Acción masiva…', 'travel-agency-platform'); ?></option>
+                    <option value="confirm"><?php esc_html_e('Confirmar', 'travel-agency-platform'); ?></option>
+                    <option value="complete"><?php esc_html_e('Completar', 'travel-agency-platform'); ?></option>
+                    <option value="cancel"><?php esc_html_e('Cancelar', 'travel-agency-platform'); ?></option>
+                </select>
+                <button type="button" id="tap-bulk-apply" class="tap-btn tap-btn-sm tap-btn-primary"><?php esc_html_e('Aplicar', 'travel-agency-platform'); ?></button>
+                <span id="tap-bulk-msg" class="tap-agency-meta"></span>
+            </div>
+
             <?php if (!$bookings): ?>
                 <p class="tap-empty"><?php echo esc_html('all' === $status ? __('No hay reservas todavía.', 'travel-agency-platform') : __('No hay reservas en este estado.', 'travel-agency-platform')); ?></p>
             <?php else: ?>
@@ -420,6 +435,7 @@ class TAP_Front_Dash {
             <table class="tap-table tap-table-compact">
                 <thead>
                     <tr>
+                        <th><input type="checkbox" class="tap-bulk-cb-all" aria-label="<?php esc_attr_e('Seleccionar', 'travel-agency-platform'); ?>"></th>
                         <th><?php esc_html_e('Código', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Servicio', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Fechas', 'travel-agency-platform'); ?></th>
@@ -437,6 +453,7 @@ class TAP_Front_Dash {
                     $b_title = $b_title ?: __('Listado eliminado', 'travel-agency-platform');
                     ?>
                     <tr>
+                        <td><input type="checkbox" class="tap-bulk-cb" value="<?php echo (int) $b->id; ?>" aria-label="<?php esc_attr_e('Seleccionar reserva', 'travel-agency-platform'); ?>"></td>
                         <td><a class="tap-booking-code" href="<?php echo esc_url(home_url('/booking-detail/?code=' . rawurlencode($b->booking_code))); ?>"><?php echo esc_html($b->booking_code); ?></a></td>
                         <td>
                         <?php
@@ -483,6 +500,49 @@ class TAP_Front_Dash {
                 <?php endforeach; ?>
                 </tbody>
             </table>
+            <script>
+            (function(){
+                var all = document.getElementById('tap-bulk-select-all');
+                var cbs = function(){ return Array.prototype.slice.call(document.querySelectorAll('.tap-bulk-cb')); };
+                if (all) {
+                    all.addEventListener('change', function(){
+                        cbs().forEach(function(cb){ cb.checked = all.checked; });
+                        var h = document.querySelector('.tap-bulk-cb-all');
+                        if (h) h.checked = all.checked;
+                    });
+                }
+                var hall = document.querySelector('.tap-bulk-cb-all');
+                if (hall) {
+                    hall.addEventListener('change', function(){
+                        cbs().forEach(function(cb){ cb.checked = hall.checked; });
+                        if (all) all.checked = hall.checked;
+                    });
+                }
+                var apply = document.getElementById('tap-bulk-apply');
+                if (apply) {
+                    apply.addEventListener('click', function(){
+                        var op = document.getElementById('tap-bulk-op').value;
+                        if (!op) { alert(<?php echo wp_json_encode(__('Selecciona una acción.', 'travel-agency-platform')); ?>); return; }
+                        var ids = cbs().filter(function(cb){ return cb.checked; }).map(function(cb){ return cb.value; });
+                        if (!ids.length) { alert(<?php echo wp_json_encode(__('Selecciona al menos una reserva.', 'travel-agency-platform')); ?>); return; }
+                        if (!confirm(<?php echo wp_json_encode(__('¿Aplicar la acción a las reservas seleccionadas?', 'travel-agency-platform')); ?>)) return;
+                        var fd = new FormData();
+                        fd.append('action', 'tap_dash_agency_bulk_booking');
+                        fd.append('nonce', (window.tapDash && window.tapDash.nonce) || '');
+                        fd.append('op', op);
+                        ids.forEach(function(id){ fd.append('ids[]', id); });
+                        fetch((window.tapDash && window.tapDash.ajax_url) || (window.ajaxurl || '/wp-admin/admin-ajax.php'), {method:'POST', body:fd, credentials:'same-origin'})
+                        .then(function(r){return r.json();})
+                        .then(function(j){
+                            var msg = document.getElementById('tap-bulk-msg');
+                            if (msg) msg.textContent = (j && j.data && j.data.message) || (j && j.success ? 'OK' : 'Error');
+                            if (j && j.success) { window.location.reload(); }
+                        })
+                        .catch(function(){ alert('Network error'); });
+                    });
+                }
+            })();
+            </script>
             </div>
             <?php if ($total_pages > 1): ?>
             <nav class="tap-pagination" style="display:flex;gap:6px;justify-content:center;margin-top:var(--tap-space-4);flex-wrap:wrap;">
