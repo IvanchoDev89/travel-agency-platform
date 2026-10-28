@@ -14,6 +14,7 @@ class TAP_Sitemap {
     protected static $service_types = [
         'tap_accommodation',
         'tap_tour',
+        'tap_experience',
         'tap_transport',
         'tap_car_rental',
         'tap_boat',

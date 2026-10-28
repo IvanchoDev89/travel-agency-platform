@@ -11,7 +11,7 @@ class TAP_Archive_Query {
         $types = (array) $wp_query->get('post_type');
         $types = array_filter($types);
         if (empty($types) && $wp_query->is_search()) {
-            $types = ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
+            $types = ['tap_accommodation', 'tap_tour', 'tap_experience', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
         }
         if (empty($types)) return $clauses;
 

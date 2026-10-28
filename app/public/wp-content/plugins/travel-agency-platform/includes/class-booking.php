@@ -53,6 +53,7 @@ class TAP_Booking {
         return [
             'tap_accommodation' => __('Alojamiento', 'travel-agency-platform'),
             'tap_tour'          => __('Tour', 'travel-agency-platform'),
+        'tap_experience'    => __('Experience', 'travel-agency-platform'),
             'tap_transport'     => __('Transporte', 'travel-agency-platform'),
             'tap_car_rental'    => __('Alquiler de coches', 'travel-agency-platform'),
             'tap_boat'          => __('Barco', 'travel-agency-platform'),
@@ -1161,7 +1162,7 @@ class TAP_Booking {
 
     /** Service types that accept a verified review from a client. */
     public static function reviewable_types() {
-        return ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
+        return ['tap_accommodation', 'tap_tour', 'tap_experience', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
     }
 
     /**

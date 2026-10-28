@@ -98,7 +98,7 @@ class TAP_Roles {
     }
 
     private static function get_service_capabilities(...$actions) {
-        $post_types = ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment', 'tap_room'];
+        $post_types = ['tap_accommodation', 'tap_tour', 'tap_experience', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment', 'tap_room'];
 
         // Primitive caps the meta-cap router needs for a member of the agency
         // to edit their own listings (map_meta_cap requires the *_published_*
@@ -139,7 +139,7 @@ class TAP_Roles {
         $admin->add_cap('tap_view_reports', true);
         $admin->add_cap('tap_manage_settings', true);
 
-        $post_types = ['tap_agency', 'tap_accommodation', 'tap_room', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
+        $post_types = ['tap_agency', 'tap_accommodation', 'tap_room', 'tap_tour', 'tap_experience', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
 
         // Role-usable primitive caps, taken from each CPT's capability_type so
         // irregular plurals (tap_agencies, tap_equipment_items) and the

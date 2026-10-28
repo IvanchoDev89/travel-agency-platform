@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-10-28T17:22:37+00:00\n"
+"POT-Creation-Date: 2026-10-28T18:31:30+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -61,7 +61,7 @@ msgid "Inactiva"
 msgstr "Inactive"
 
 #: includes/class-acc-wizard-room-form.php:52
-#: includes/class-email-campaigns.php:260 includes/class-listing-editor.php:138
+#: includes/class-email-campaigns.php:260 includes/class-listing-editor.php:140
 msgid "Editar"
 msgstr "Edit"
 
@@ -191,7 +191,7 @@ msgstr "Active unit"
 #: includes/class-dashboard-content.php:374
 #: includes/class-email-campaigns.php:264
 #: includes/class-front-dash-client.php:468
-#: includes/class-listing-editor.php:410 includes/class-metaboxes.php:150
+#: includes/class-listing-editor.php:414 includes/class-metaboxes.php:151
 msgid "Eliminar"
 msgstr "Delete"
 
@@ -207,14 +207,14 @@ msgid "Guardar unidad"
 msgstr "Save unit"
 
 #: includes/class-acc-wizard-room-form.php:198
-#: includes/class-booking-pricing.php:260 includes/class-metaboxes.php:835
-#: includes/class-post-types.php:369
+#: includes/class-booking-pricing.php:266 includes/class-metaboxes.php:863
+#: includes/class-post-types.php:401
 msgid "King"
 msgstr "King"
 
 #: includes/class-acc-wizard-room-form.php:199
-#: includes/class-booking-pricing.php:261 includes/class-metaboxes.php:836
-#: includes/class-post-types.php:370
+#: includes/class-booking-pricing.php:267 includes/class-metaboxes.php:864
+#: includes/class-post-types.php:402
 msgid "Queen"
 msgstr "Queen"
 
@@ -223,7 +223,7 @@ msgid "Doble"
 msgstr "Double"
 
 #: includes/class-acc-wizard-room-form.php:201
-#: includes/class-booking-pricing.php:263 includes/class-post-types.php:372
+#: includes/class-booking-pricing.php:269 includes/class-post-types.php:404
 msgid "Twin"
 msgstr "Twin"
 
@@ -240,7 +240,7 @@ msgid "Cuna"
 msgstr "Crib"
 
 #: includes/class-acc-wizard-room-form.php:205
-#: includes/class-booking-pricing.php:267 includes/class-post-types.php:376
+#: includes/class-booking-pricing.php:273 includes/class-post-types.php:408
 msgid "Murphy"
 msgstr "Murphy"
 
@@ -302,16 +302,16 @@ msgid "Comprueba los datos que aparecerán en la web."
 msgstr "Check the details that will appear on the website."
 
 #: includes/class-acc-wizard-steps.php:59 includes/class-acc-wizard.php:146
-#: includes/class-listing-editor.php:91
+#: includes/class-listing-editor.php:93
 msgid "Publicado"
 msgstr "Published"
 
-#: includes/class-acc-wizard-steps.php:61 includes/class-listing-editor.php:92
+#: includes/class-acc-wizard-steps.php:61 includes/class-listing-editor.php:94
 msgid "En revisión"
 msgstr "Under review"
 
 #: includes/class-acc-wizard-steps.php:63 includes/class-acc-wizard.php:146
-#: includes/class-listing-editor.php:93
+#: includes/class-listing-editor.php:95
 msgid "Borrador"
 msgstr "Draft"
 
@@ -340,7 +340,7 @@ msgstr "Days with special price"
 
 #: includes/class-acc-wizard-steps.php:99
 #: includes/class-acc-wizard-steps.php:741
-#: includes/class-listing-editor.php:350
+#: includes/class-listing-editor.php:354
 msgid "Modo de reserva"
 msgstr "Booking mode"
 
@@ -447,7 +447,7 @@ msgstr ""
 "All set. Publish whenever you want: it will appear in search instantly."
 
 #: includes/class-acc-wizard-steps.php:184 includes/class-acc-wizard.php:53
-#: includes/class-listing-editor.php:360
+#: includes/class-listing-editor.php:364
 msgid "Despublicar"
 msgstr "Unpublish"
 
@@ -714,7 +714,7 @@ msgid "Guardar"
 msgstr "Save"
 
 #: includes/class-acc-wizard-steps.php:380 includes/class-acc-wizard.php:28
-#: includes/class-front-dash.php:132 includes/class-listing-editor.php:394
+#: includes/class-front-dash.php:132 includes/class-listing-editor.php:398
 #: includes/class-pricing.php:473
 msgid "Guardado"
 msgstr "Saved"
@@ -990,7 +990,7 @@ msgstr "The first thing the traveler will see."
 
 #: includes/class-acc-wizard-steps.php:595
 #: includes/class-destination-spots.php:111
-#: includes/class-listing-editor.php:212 includes/class-metaboxes.php:52
+#: includes/class-listing-editor.php:216 includes/class-metaboxes.php:53
 #: includes/class-shortcode-search.php:235
 msgid "Ubicación"
 msgstr "Location"
@@ -1058,7 +1058,7 @@ msgstr "e.g. Hotel Aurora – Sea View Room"
 
 #: includes/class-acc-wizard-steps.php:651
 #: includes/class-acc-wizard-steps.php:922
-#: includes/class-listing-editor.php:188
+#: includes/class-listing-editor.php:192
 #: includes/class-shortcode-booking.php:671
 msgid "Descripción"
 msgstr "Description"
@@ -1069,7 +1069,7 @@ msgstr ""
 "What it includes, who it is ideal for, what makes your accommodation special…"
 
 #: includes/class-acc-wizard-steps.php:662
-#: includes/class-listing-editor.php:192
+#: includes/class-listing-editor.php:196
 msgid "Fotos"
 msgstr "Photos"
 
@@ -1083,7 +1083,7 @@ msgstr ""
 
 #: includes/class-acc-wizard-steps.php:730
 #: includes/class-acc-wizard-steps.php:929 includes/class-ajax-public.php:350
-#: includes/class-listing-editor.php:329
+#: includes/class-listing-editor.php:333
 msgid "Destino"
 msgstr "Destination"
 
@@ -1092,12 +1092,12 @@ msgid "Elige el lugar más específico (ciudad o distrito)."
 msgstr "Choose the most specific place (city or district)."
 
 #: includes/class-acc-wizard-steps.php:743
-#: includes/class-listing-editor.php:352
+#: includes/class-listing-editor.php:356
 msgid "Reserva directa (pago inmediato)"
 msgstr "Direct booking (immediate payment)"
 
 #: includes/class-acc-wizard-steps.php:744
-#: includes/class-listing-editor.php:353
+#: includes/class-listing-editor.php:357
 msgid "Solicitud de reserva (la agencia confirma antes del pago)"
 msgstr "Request to book (the agency confirms before payment)"
 
@@ -1302,12 +1302,12 @@ msgstr "Accommodation published"
 msgid "Publica cuando todo esté listo"
 msgstr "Publish when everything is ready"
 
-#: includes/class-acc-wizard.php:29 includes/class-listing-editor.php:395
+#: includes/class-acc-wizard.php:29 includes/class-listing-editor.php:399
 msgid "Ha ocurrido un error"
 msgstr "An error occurred"
 
 #: includes/class-acc-wizard.php:30 includes/class-front-dash.php:465
-#: includes/class-front-dash.php:514 includes/class-listing-editor.php:396
+#: includes/class-front-dash.php:514 includes/class-listing-editor.php:400
 msgid "Confirmar"
 msgstr "Confirm"
 
@@ -1315,57 +1315,57 @@ msgstr "Confirm"
 #: includes/class-dashboard-money.php:451
 #: includes/class-dashboard-money.php:488
 #: includes/class-front-dash-client.php:290 includes/class-front-dash.php:467
-#: includes/class-front-dash.php:523 includes/class-listing-editor.php:397
+#: includes/class-front-dash.php:523 includes/class-listing-editor.php:401
 #: includes/class-shortcode-booking.php:204
 #: includes/class-shortcode-booking.php:224
 #: includes/class-shortcode-booking.php:226
 msgid "Cancelar"
 msgstr "Cancel"
 
-#: includes/class-acc-wizard.php:32 includes/class-listing-editor.php:398
+#: includes/class-acc-wizard.php:32 includes/class-listing-editor.php:402
 #: includes/class-shortcode-search.php:1351
 msgid "Cerrar"
 msgstr "Close"
 
-#: includes/class-acc-wizard.php:33 includes/class-listing-editor.php:399
+#: includes/class-acc-wizard.php:33 includes/class-listing-editor.php:403
 msgid "Principal"
 msgstr "Main"
 
-#: includes/class-acc-wizard.php:34 includes/class-listing-editor.php:400
+#: includes/class-acc-wizard.php:34 includes/class-listing-editor.php:404
 msgid "Usar como foto principal"
 msgstr "Use as main photo"
 
-#: includes/class-acc-wizard.php:35 includes/class-listing-editor.php:401
+#: includes/class-acc-wizard.php:35 includes/class-listing-editor.php:405
 msgid "Quitar imagen"
 msgstr "Remove image"
 
 #: includes/class-acc-wizard.php:39 includes/class-acc-wizard.php:40
-#: includes/class-listing-editor.php:402 includes/class-listing-editor.php:403
+#: includes/class-listing-editor.php:406 includes/class-listing-editor.php:407
 msgid "Subiendo"
 msgstr "Uploading"
 
-#: includes/class-acc-wizard.php:41 includes/class-listing-editor.php:404
+#: includes/class-acc-wizard.php:41 includes/class-listing-editor.php:408
 msgid "Subidas"
 msgstr "Uploaded"
 
-#: includes/class-acc-wizard.php:42 includes/class-listing-editor.php:405
+#: includes/class-acc-wizard.php:42 includes/class-listing-editor.php:409
 msgid "Imágenes subidas."
 msgstr "Images uploaded."
 
 #: includes/class-acc-wizard.php:43 includes/class-agency-media.php:52
-#: includes/class-listing-editor.php:406
+#: includes/class-listing-editor.php:410
 msgid "No se pudo subir la imagen."
 msgstr "The image could not be uploaded."
 
-#: includes/class-acc-wizard.php:44 includes/class-listing-editor.php:407
+#: includes/class-acc-wizard.php:44 includes/class-listing-editor.php:411
 msgid "solo se permiten imágenes."
 msgstr "only images are allowed."
 
-#: includes/class-acc-wizard.php:45 includes/class-listing-editor.php:408
+#: includes/class-acc-wizard.php:45 includes/class-listing-editor.php:412
 msgid "la imagen supera el tamaño máximo."
 msgstr "the image exceeds the maximum size."
 
-#: includes/class-acc-wizard.php:46 includes/class-listing-editor.php:409
+#: includes/class-acc-wizard.php:46 includes/class-listing-editor.php:413
 msgid "Imagen añadida."
 msgstr "Image added."
 
@@ -1384,7 +1384,7 @@ msgstr ""
 "The unit and all its prices will be deleted. This action cannot be undone."
 
 #: includes/class-acc-wizard.php:51 includes/class-acc-wizard.php:83
-#: includes/class-listing-editor.php:360
+#: includes/class-listing-editor.php:364
 msgid "Publicar"
 msgstr "Publish"
 
@@ -1396,7 +1396,7 @@ msgstr "It will become visible to travelers."
 msgid "Dejará de aparecer en el buscador hasta que lo publiques de nuevo."
 msgstr "It will stop appearing in search until you publish it again."
 
-#: includes/class-acc-wizard.php:55 includes/class-listing-editor.php:411
+#: includes/class-acc-wizard.php:55 includes/class-listing-editor.php:415
 msgid "Error de conexión. Revisa tu red e inténtalo de nuevo."
 msgstr "Connection error. Check your network and try again."
 
@@ -1412,7 +1412,7 @@ msgstr "Name, photos and main details"
 msgid "Habitaciones, camas e inventario"
 msgstr "Rooms, beds and inventory"
 
-#: includes/class-acc-wizard.php:81 includes/class-listing-editor.php:211
+#: includes/class-acc-wizard.php:81 includes/class-listing-editor.php:215
 msgid "Precios"
 msgstr "Prices"
 
@@ -1716,7 +1716,7 @@ msgstr "Invalid PayPal order"
 
 #: includes/class-ajax-commerce.php:307 includes/class-ajax-commerce.php:315
 #: includes/class-ajax-commerce.php:373 includes/class-ajax-commerce.php:380
-#: includes/class-api.php:354 includes/class-booking.php:698
+#: includes/class-api.php:354 includes/class-booking.php:699
 #: includes/class-payment.php:40 includes/class-paypal.php:79
 msgid "Booking not found"
 msgstr "Booking not found"
@@ -1777,17 +1777,17 @@ msgstr "Payout request sent to the administrator."
 
 #: includes/class-ajax-dash.php:42 includes/class-ajax-dash.php:92
 #: includes/class-ajax.php:141 includes/class-ajax.php:184
-#: includes/class-booking.php:465 includes/class-booking.php:479
-#: includes/class-booking.php:485 includes/class-booking.php:623
-#: includes/class-booking.php:946 includes/class-booking.php:979
+#: includes/class-booking.php:466 includes/class-booking.php:480
+#: includes/class-booking.php:486 includes/class-booking.php:624
+#: includes/class-booking.php:947 includes/class-booking.php:980
 #: includes/class-refunds.php:40
 msgid "Reserva no encontrada."
 msgstr "Booking not found."
 
 #: includes/class-ajax-dash.php:45 includes/class-ajax-dash.php:51
 #: includes/class-ajax-dash.php:95 includes/class-ajax-dash.php:101
-#: includes/class-ajax.php:190 includes/class-booking.php:635
-#: includes/class-booking.php:645
+#: includes/class-ajax.php:190 includes/class-booking.php:636
+#: includes/class-booking.php:646
 msgid "No tienes permiso sobre esta reserva."
 msgstr "You do not have permission over this booking."
 
@@ -1950,8 +1950,8 @@ msgstr ""
 "Submitted for review. An administrator will approve it and it will become "
 "visible."
 
-#: includes/class-ajax-listing.php:522 includes/class-booking.php:489
-#: includes/class-booking.php:618
+#: includes/class-ajax-listing.php:522 includes/class-booking.php:490
+#: includes/class-booking.php:619
 msgid "Debes iniciar sesión."
 msgstr "You must log in."
 
@@ -2110,7 +2110,7 @@ msgstr "No agency linked to your account."
 msgid "You can only manage bookings from your own agency."
 msgstr "You can only manage bookings from your own agency."
 
-#: includes/class-ajax.php:241 includes/class-booking.php:676
+#: includes/class-ajax.php:241 includes/class-booking.php:677
 msgid "Solo los administradores pueden cancelar reservas pagadas."
 msgstr "Only administrators can cancel paid bookings."
 
@@ -2304,69 +2304,74 @@ msgstr "Plan"
 msgid "Servicio destacado"
 msgstr "Featured service"
 
-#: includes/class-booking-pricing.php:262 includes/class-post-types.php:371
+#: includes/class-booking-pricing.php:268 includes/class-post-types.php:403
 msgid "Double"
 msgstr "Double"
 
-#: includes/class-booking-pricing.php:264 includes/class-post-types.php:373
+#: includes/class-booking-pricing.php:270 includes/class-post-types.php:405
 msgid "Bunk"
 msgstr "Bunk"
 
-#: includes/class-booking-pricing.php:265 includes/class-metaboxes.php:840
-#: includes/class-post-types.php:374
+#: includes/class-booking-pricing.php:271 includes/class-metaboxes.php:868
+#: includes/class-post-types.php:406
 msgid "Sofa Bed"
 msgstr "Sofa Bed"
 
-#: includes/class-booking-pricing.php:266 includes/class-metaboxes.php:841
-#: includes/class-post-types.php:375
+#: includes/class-booking-pricing.php:272 includes/class-metaboxes.php:869
+#: includes/class-post-types.php:407
 msgid "Crib"
 msgstr "Crib"
 
-#: includes/class-booking-pricing.php:268 includes/class-metaboxes.php:843
-#: includes/class-post-types.php:377
+#: includes/class-booking-pricing.php:274 includes/class-metaboxes.php:871
+#: includes/class-post-types.php:409
 msgid "Futon"
 msgstr "Futon"
 
 #: includes/class-booking.php:55 includes/class-dashboard-bookings.php:26
 #: includes/class-emails-send.php:512 includes/class-itinerary.php:32
-#: includes/class-post-types.php:104 includes/class-post-types.php:275
+#: includes/class-post-types.php:105 includes/class-post-types.php:304
 #: includes/class-shortcode-booking.php:919
 msgid "Tour"
 msgstr "Tour"
 
-#: includes/class-booking.php:56 includes/class-emails-send.php:513
+#: includes/class-booking.php:56 includes/class-post-types.php:133
+#: includes/class-post-types.php:305
+msgid "Experience"
+msgstr "Experience"
+
+#: includes/class-booking.php:57 includes/class-emails-send.php:513
 #: includes/class-itinerary.php:33 includes/class-itinerary.php:90
 #: includes/class-seo.php:67 includes/class-shortcode-booking.php:920
 #: includes/class-shortcode-search.php:208
 msgid "Transporte"
 msgstr "Transport"
 
-#: includes/class-booking.php:57
+#: includes/class-booking.php:58
 msgid "Alquiler de coches"
 msgstr "Car rentals"
 
-#: includes/class-booking.php:58 includes/class-emails-send.php:515
+#: includes/class-booking.php:59 includes/class-emails-send.php:515
 #: includes/class-itinerary.php:35 includes/class-itinerary.php:92
 msgid "Barco"
 msgstr "Boat"
 
-#: includes/class-booking.php:59 includes/class-emails-send.php:516
+#: includes/class-booking.php:60 includes/class-emails-send.php:516
 #: includes/class-itinerary.php:36 includes/class-shortcode-booking.php:923
 msgid "Paquete"
 msgstr "Package"
 
-#: includes/class-booking.php:60 includes/class-emails-send.php:517
+#: includes/class-booking.php:61 includes/class-emails-send.php:517
 #: includes/class-front-dash.php:898 includes/class-front-dash.php:966
 #: includes/class-front-dash.php:1128 includes/class-front-dash.php:1401
 #: includes/class-itinerary.php:37
 msgid "Equipo"
 msgstr "Equipment"
 
-#: includes/class-booking.php:141 includes/class-booking.php:406
+#: includes/class-booking.php:142 includes/class-booking.php:407
 msgid "Booking created successfully"
 msgstr "Booking created successfully"
 
-#: includes/class-booking.php:154
+#: includes/class-booking.php:155
 msgid ""
 "La agencia que ofrece este servicio aún está en revisión y no puede recibir "
 "reservas."
@@ -2374,27 +2379,27 @@ msgstr ""
 "The agency offering this service is still under review and cannot receive "
 "bookings yet."
 
-#: includes/class-booking.php:165
+#: includes/class-booking.php:166
 msgid "El número de huéspedes no es válido."
 msgstr "The number of guests is not valid."
 
-#: includes/class-booking.php:186
+#: includes/class-booking.php:187
 msgid "La habitación seleccionada no pertenece a este alojamiento."
 msgstr "The selected room does not belong to this accommodation."
 
-#: includes/class-booking.php:219
+#: includes/class-booking.php:220
 msgid "No puedes reservar para una fecha pasada. Revisa la fecha de inicio."
 msgstr "You cannot book for a past date. Check the start date."
 
-#: includes/class-booking.php:222
+#: includes/class-booking.php:223
 msgid "La fecha de salida debe ser posterior a la de entrada."
 msgstr "The check-out date must be after the check-in date."
 
-#: includes/class-booking.php:233
+#: includes/class-booking.php:234
 msgid "Debes indicar un correo electrónico válido para completar la reserva."
 msgstr "You must provide a valid email to complete the booking."
 
-#: includes/class-booking.php:261 includes/class-booking.php:751
+#: includes/class-booking.php:262 includes/class-booking.php:752
 msgid ""
 "No pudimos procesar la reserva en este momento. Intenta nuevamente en unos "
 "segundos."
@@ -2402,30 +2407,30 @@ msgstr ""
 "We could not process the booking right now. Please try again in a few "
 "seconds."
 
-#: includes/class-booking.php:282
+#: includes/class-booking.php:283
 msgid "The room is not available for the selected dates."
 msgstr "The room is not available for the selected dates."
 
-#: includes/class-booking.php:286
+#: includes/class-booking.php:287
 msgid "No hay disponibilidad para las fechas seleccionadas."
 msgstr "There is no availability for the selected dates."
 
-#: includes/class-booking.php:298
+#: includes/class-booking.php:299
 msgid "El número de huéspedes supera la capacidad de la habitación."
 msgstr "The number of guests exceeds the room capacity."
 
-#: includes/class-booking.php:305
+#: includes/class-booking.php:306
 msgid "Alguna de las fechas seleccionadas no está disponible para reservar."
 msgstr "One of the selected dates is not available to book."
 
 #. translators: %d: número mínimo de noches
-#: includes/class-booking.php:312
+#: includes/class-booking.php:313
 #, php-format
 msgid "Esta habitación requiere una estadía mínima de %d noches."
 msgstr "This room requires a minimum stay of %d nights."
 
 #. translators: 1: cupos disponibles, 2: cupos solicitados
-#: includes/class-booking.php:329
+#: includes/class-booking.php:330
 #, php-format
 msgid ""
 "El tour está completo para la fecha seleccionada. Quedan %1$d cupos y "
@@ -2434,11 +2439,11 @@ msgstr ""
 "The tour is full for the selected date. %1$d spots remain and you requested "
 "%2$d."
 
-#: includes/class-booking.php:365
+#: includes/class-booking.php:366
 msgid "Could not create booking"
 msgstr "Could not create booking"
 
-#: includes/class-booking.php:429
+#: includes/class-booking.php:430
 msgid ""
 "La agencia no respondió a tu solicitud dentro del plazo y se canceló "
 "automáticamente."
@@ -2446,53 +2451,53 @@ msgstr ""
 "The agency did not respond to your request in time and it was cancelled "
 "automatically."
 
-#: includes/class-booking.php:430
+#: includes/class-booking.php:431
 msgid ""
 "La reserva se canceló automáticamente por no confirmarse dentro del plazo."
 msgstr ""
 "The booking was cancelled automatically because it was not confirmed in time."
 
-#: includes/class-booking.php:468
+#: includes/class-booking.php:469
 msgid "No tienes permiso para cancelar esta reserva."
 msgstr "You do not have permission to cancel this booking."
 
-#: includes/class-booking.php:492
+#: includes/class-booking.php:493
 msgid "Debes verificar el correo de la reserva para cancelarla."
 msgstr "You must verify the booking email to cancel it."
 
-#: includes/class-booking.php:497 includes/class-booking.php:532
-#: includes/class-booking.php:669
+#: includes/class-booking.php:498 includes/class-booking.php:533
+#: includes/class-booking.php:670
 msgid "Esta reserva ya no puede cancelarse."
 msgstr "This booking can no longer be cancelled."
 
-#: includes/class-booking.php:500 includes/class-booking.php:679
+#: includes/class-booking.php:501 includes/class-booking.php:680
 msgid "La reserva ya comenzó."
 msgstr "The booking has already started."
 
-#: includes/class-booking.php:632
+#: includes/class-booking.php:633
 msgid "Solo cuentas de agencia pueden operar reservas."
 msgstr "Only agency accounts can operate bookings."
 
-#: includes/class-booking.php:648 includes/class-booking.php:692
+#: includes/class-booking.php:649 includes/class-booking.php:693
 msgid "Invalid status"
 msgstr "Invalid status"
 
-#: includes/class-booking.php:651 includes/class-booking.php:663
-#: includes/class-booking.php:942
+#: includes/class-booking.php:652 includes/class-booking.php:664
+#: includes/class-booking.php:943
 msgid "Invalid payment status"
 msgstr "Invalid payment status"
 
-#: includes/class-booking.php:683
+#: includes/class-booking.php:684
 msgid "Operación inválida."
 msgstr "Invalid operation."
 
 #. translators: 1: estado actual de la reserva, 2: estado solicitado
-#: includes/class-booking.php:712
+#: includes/class-booking.php:713
 #, php-format
 msgid "No se puede pasar el estado de \"%1$s\" a \"%2$s\"."
 msgstr "Cannot change the status from \"%1$s\" to \"%2$s\"."
 
-#: includes/class-booking.php:723
+#: includes/class-booking.php:724
 msgid ""
 "Una reserva pagada y completada no puede cancelarse: debe reembolsarse "
 "(estado \"refunded\")."
@@ -2501,7 +2506,7 @@ msgstr ""
 "(status \"refunded\")."
 
 #. translators: 1: cupos ocupados, 2: capacidad del tour
-#: includes/class-booking.php:760
+#: includes/class-booking.php:761
 #, php-format
 msgid ""
 "El tour ya no tiene cupos disponibles para la fecha seleccionada (%1$d de "
@@ -2510,11 +2515,11 @@ msgstr ""
 "The tour no longer has seats available for the selected date (%1$d of %2$d "
 "booked)."
 
-#: includes/class-booking.php:955
+#: includes/class-booking.php:956
 msgid "No se pudo actualizar el estado del pago."
 msgstr "The payment status could not be updated."
 
-#: includes/class-booking.php:990
+#: includes/class-booking.php:991
 msgid ""
 "La reserva fue cancelada antes de procesar la captura; el pago fue "
 "reembolsado automáticamente."
@@ -2522,15 +2527,15 @@ msgstr ""
 "The booking was cancelled before processing the capture; the payment was "
 "refunded automatically."
 
-#: includes/class-booking.php:993
+#: includes/class-booking.php:994
 msgid "La reserva ya no existe: el pago fue reembolsado automáticamente."
 msgstr "The booking no longer exists: the payment was refunded automatically."
 
-#: includes/class-booking.php:997
+#: includes/class-booking.php:998
 msgid "Esta reserva ya tiene un pago registrado."
 msgstr "This booking already has a recorded payment."
 
-#: includes/class-booking.php:1014
+#: includes/class-booking.php:1015
 msgid ""
 "La moneda del pago capturado no coincide con la moneda configurada; el pago "
 "fue reembolsado automáticamente."
@@ -2538,17 +2543,17 @@ msgstr ""
 "The captured payment currency does not match the configured currency; the "
 "payment was refunded automatically."
 
-#: includes/class-booking.php:1018
+#: includes/class-booking.php:1019
 msgid ""
 "La moneda del pago no coincide; el pago fue reembolsado automáticamente."
 msgstr ""
 "The payment currency does not match; the payment was refunded automatically."
 
-#: includes/class-booking.php:1033 includes/class-booking.php:1068
+#: includes/class-booking.php:1034 includes/class-booking.php:1069
 msgid "El pago se registró en otra petición."
 msgstr "The payment was recorded in another request."
 
-#: includes/class-booking.php:1058
+#: includes/class-booking.php:1059
 msgid "Pago parcial recibido; la reserva aún no está pagada por completo."
 msgstr "Partial payment received; the booking is not fully paid yet."
 
@@ -2610,28 +2615,28 @@ msgstr "Cancelled"
 msgid "Refunded"
 msgstr "Refunded"
 
-#: includes/class-dashboard-bookings.php:26 includes/class-post-types.php:48
-#: includes/class-post-types.php:273
+#: includes/class-dashboard-bookings.php:26 includes/class-post-types.php:49
+#: includes/class-post-types.php:302
 msgid "Accommodation"
 msgstr "Accommodation"
 
-#: includes/class-dashboard-bookings.php:26 includes/class-post-types.php:132
-#: includes/class-post-types.php:276
+#: includes/class-dashboard-bookings.php:26 includes/class-post-types.php:161
+#: includes/class-post-types.php:306
 msgid "Transport"
 msgstr "Transport"
 
-#: includes/class-dashboard-bookings.php:26 includes/class-post-types.php:160
-#: includes/class-post-types.php:277
+#: includes/class-dashboard-bookings.php:26 includes/class-post-types.php:189
+#: includes/class-post-types.php:307
 msgid "Car Rental"
 msgstr "Car Rental"
 
-#: includes/class-dashboard-bookings.php:26 includes/class-post-types.php:188
-#: includes/class-post-types.php:278
+#: includes/class-dashboard-bookings.php:26 includes/class-post-types.php:217
+#: includes/class-post-types.php:308
 msgid "Boat"
 msgstr "Boat"
 
-#: includes/class-dashboard-bookings.php:26 includes/class-post-types.php:216
-#: includes/class-post-types.php:279
+#: includes/class-dashboard-bookings.php:26 includes/class-post-types.php:245
+#: includes/class-post-types.php:309
 msgid "Package"
 msgstr "Package"
 
@@ -2789,7 +2794,7 @@ msgid "Pago"
 msgstr "Payment"
 
 #: includes/class-dashboard-bookings.php:176 includes/class-emails-send.php:547
-#: includes/class-front-dash.php:919 includes/class-metaboxes.php:214
+#: includes/class-front-dash.php:919 includes/class-metaboxes.php:215
 #: includes/class-shortcode-account.php:255
 msgid "Email"
 msgstr "Email"
@@ -2883,12 +2888,12 @@ msgstr "Export CSV"
 msgid "Code"
 msgstr "Code"
 
-#: includes/class-dashboard-bookings.php:269 includes/class-metaboxes.php:938
+#: includes/class-dashboard-bookings.php:269 includes/class-metaboxes.php:966
 #: includes/class-roles.php:95
 msgid "Client"
 msgstr "Client"
 
-#: includes/class-dashboard-bookings.php:270 includes/class-metaboxes.php:941
+#: includes/class-dashboard-bookings.php:270 includes/class-metaboxes.php:969
 #: includes/class-shortcode-agency-panel.php:230
 #: includes/class-shortcode-booking.php:164
 msgid "Service"
@@ -2897,15 +2902,16 @@ msgstr "Service"
 #: includes/class-dashboard-bookings.php:271
 #: includes/class-dashboard-content.php:543
 #: includes/class-dashboard-money.php:298
-#: includes/class-dashboard-money.php:393 includes/class-metaboxes.php:236
-#: includes/class-metaboxes.php:258 includes/class-metaboxes.php:285
-#: includes/class-metaboxes.php:303 includes/class-metaboxes.php:324
-#: includes/class-metaboxes.php:347 includes/class-metaboxes.php:368
-#: includes/class-metaboxes.php:939 includes/class-post-types.php:20
+#: includes/class-dashboard-money.php:393 includes/class-metaboxes.php:237
+#: includes/class-metaboxes.php:259 includes/class-metaboxes.php:286
+#: includes/class-metaboxes.php:304 includes/class-metaboxes.php:331
+#: includes/class-metaboxes.php:352 includes/class-metaboxes.php:375
+#: includes/class-metaboxes.php:396 includes/class-metaboxes.php:967
+#: includes/class-post-types.php:21
 msgid "Agency"
 msgstr "Agency"
 
-#: includes/class-dashboard-bookings.php:273 includes/class-metaboxes.php:937
+#: includes/class-dashboard-bookings.php:273 includes/class-metaboxes.php:965
 #: includes/class-shortcode-agency-panel.php:238
 #: includes/class-shortcode-booking.php:167
 msgid "Status"
@@ -2913,7 +2919,7 @@ msgstr "Status"
 
 #: includes/class-dashboard-bookings.php:274
 #: includes/class-dashboard-insights.php:54
-#: includes/class-dashboard-money.php:301 includes/class-metaboxes.php:952
+#: includes/class-dashboard-money.php:301 includes/class-metaboxes.php:980
 #: includes/class-shortcode-agency-panel.php:137
 #: includes/class-shortcode-agency-panel.php:194
 #: includes/class-shortcode-agency-panel.php:235
@@ -3057,8 +3063,8 @@ msgstr ""
 "removes them."
 
 #: includes/class-dashboard-content.php:160 includes/class-emails-send.php:537
-#: includes/class-front-dash.php:1012 includes/class-metaboxes.php:127
-#: includes/class-metaboxes.php:163
+#: includes/class-front-dash.php:1012 includes/class-metaboxes.php:128
+#: includes/class-metaboxes.php:164
 #: includes/class-shortcode-agency-panel.php:476
 #: includes/class-shortcode-search.php:227
 msgid "Tipo"
@@ -3084,7 +3090,7 @@ msgid "Mensaje"
 msgstr "Message"
 
 #: includes/class-dashboard-content.php:255 includes/class-dashboard.php:85
-#: includes/class-dashboard.php:86 includes/class-post-types.php:19
+#: includes/class-dashboard.php:86 includes/class-post-types.php:20
 msgid "Agencies"
 msgstr "Agencies"
 
@@ -3216,7 +3222,7 @@ msgstr ""
 "district, place) is derived from its position in the tree."
 
 #: includes/class-dashboard-destinations.php:106
-#: includes/class-metaboxes.php:41 includes/class-metaboxes.php:356
+#: includes/class-metaboxes.php:42 includes/class-metaboxes.php:384
 #: includes/class-shortcode-search.php:24 includes/class-taxonomies.php:19
 msgid "Destination"
 msgstr "Destination"
@@ -3499,7 +3505,7 @@ msgstr "Cancelled"
 msgid "Booking"
 msgstr "Booking"
 
-#: includes/class-dashboard-money.php:300 includes/class-metaboxes.php:221
+#: includes/class-dashboard-money.php:300 includes/class-metaboxes.php:222
 msgid "Commission %"
 msgstr "Commission %"
 
@@ -3832,7 +3838,7 @@ msgstr "Cancel pending after (hours)"
 msgid "Terms & Conditions Page"
 msgstr "Terms & Conditions Page"
 
-#: includes/class-dashboard-settings.php:328 includes/class-metaboxes.php:834
+#: includes/class-dashboard-settings.php:328 includes/class-metaboxes.php:862
 msgid "-- Select --"
 msgstr "-- Select --"
 
@@ -8983,13 +8989,13 @@ msgstr "Room"
 msgid "Alquiler de auto"
 msgstr "Car rental"
 
-#: includes/class-emails-send.php:538 includes/class-metaboxes.php:944
+#: includes/class-emails-send.php:538 includes/class-metaboxes.php:972
 #: includes/class-shortcode-booking.php:651
 #: includes/class-shortcode-search.php:31
 msgid "Check-in"
 msgstr "Check-in"
 
-#: includes/class-emails-send.php:539 includes/class-metaboxes.php:947
+#: includes/class-emails-send.php:539 includes/class-metaboxes.php:975
 #: includes/class-shortcode-booking.php:655
 #: includes/class-shortcode-search.php:35
 msgid "Check-out"
@@ -9861,7 +9867,7 @@ msgstr "Listing deleted"
 msgid "Seleccionar reserva"
 msgstr "Select booking"
 
-#: includes/class-front-dash.php:508 includes/class-metaboxes.php:949
+#: includes/class-front-dash.php:508 includes/class-metaboxes.php:977
 #: includes/class-shortcode-booking.php:51
 msgid "Adults"
 msgstr "Adults"
@@ -10109,7 +10115,7 @@ msgid "Alojamientos"
 msgstr "Accommodations"
 
 #: includes/class-front-dash.php:961 includes/class-front-dash.php:1123
-#: includes/class-post-types.php:103
+#: includes/class-post-types.php:104
 #: includes/class-shortcode-agency-panel.php:102
 #: includes/class-shortcode-search.php:207
 msgid "Tours"
@@ -10569,85 +10575,85 @@ msgstr "Only agency accounts can manage listings."
 msgid "Listing not found."
 msgstr "Listing not found."
 
-#: includes/class-listing-editor.php:71
+#: includes/class-listing-editor.php:72
 msgid "Gestiona tus listados"
 msgstr "Manage your listings"
 
-#: includes/class-listing-editor.php:72
+#: includes/class-listing-editor.php:73
 msgid "Crea y edita tus servicios desde el panel."
 msgstr "Create and edit your services from the dashboard."
 
-#: includes/class-listing-editor.php:75
+#: includes/class-listing-editor.php:76
 msgid "Nuevo:"
 msgstr "New:"
 
-#: includes/class-listing-editor.php:77
+#: includes/class-listing-editor.php:78
 msgid "Seleccionar tipo…"
 msgstr "Select type…"
 
-#: includes/class-listing-editor.php:133
+#: includes/class-listing-editor.php:135
 msgid "Activo"
 msgstr "Active"
 
-#: includes/class-listing-editor.php:133
+#: includes/class-listing-editor.php:135
 msgid "Inactivo"
 msgstr "Inactive"
 
-#: includes/class-listing-editor.php:144
+#: includes/class-listing-editor.php:146
 msgid ""
 "Todavía no tienes listados. Usa \"Nuevo\" para crear tu primer servicio."
 msgstr ""
 "You do not have listings yet. Use \"New\" to create your first service."
 
 #. translators: %s: etiqueta del tipo de servicio
-#: includes/class-listing-editor.php:161
+#: includes/class-listing-editor.php:165
 msgid "Edit listing"
 msgstr "Edit listing"
 
 #. translators: %s: etiqueta del tipo de servicio
-#: includes/class-listing-editor.php:161
+#: includes/class-listing-editor.php:165
 #, php-format
 msgid "New %s"
 msgstr "New %s"
 
-#: includes/class-listing-editor.php:174
+#: includes/class-listing-editor.php:178
 msgid "Volver"
 msgstr "Back"
 
-#: includes/class-listing-editor.php:183
+#: includes/class-listing-editor.php:187
 msgid "Nombre *"
 msgstr "Name *"
 
-#: includes/class-listing-editor.php:213 includes/class-privacy.php:571
+#: includes/class-listing-editor.php:217 includes/class-privacy.php:571
 #: includes/class-shortcode-booking.php:765
 msgid "Detalles"
 msgstr "Details"
 
-#: includes/class-listing-editor.php:305
+#: includes/class-listing-editor.php:309
 msgid "Ubicar en el mapa (arrastra el marcador)"
 msgstr "Locate on map (drag the marker)"
 
-#: includes/class-listing-editor.php:322
+#: includes/class-listing-editor.php:326
 msgid "SEO"
 msgstr "SEO"
 
-#: includes/class-listing-editor.php:362
+#: includes/class-listing-editor.php:366
 msgid "El servicio está visible para los viajeros."
 msgstr "The service is visible to travelers."
 
-#: includes/class-listing-editor.php:362
+#: includes/class-listing-editor.php:366
 msgid "El servicio está en borrador o en revisión."
 msgstr "The service is in draft or under review."
 
-#: includes/class-listing-editor.php:366
+#: includes/class-listing-editor.php:370
 msgid "Guardar cambios"
 msgstr "Save changes"
 
-#: includes/class-listing-editor.php:366
+#: includes/class-listing-editor.php:370
 msgid "Crear servicio"
 msgstr "Create service"
 
-#: includes/class-listing-editor.php:412
+#: includes/class-listing-editor.php:416
 msgid "Selecciona un destino para el servicio."
 msgstr "Select a destination for the service."
 
@@ -10663,15 +10669,15 @@ msgstr "Silver"
 msgid "Oro"
 msgstr "Gold"
 
-#: includes/class-metaboxes.php:51
+#: includes/class-metaboxes.php:52
 msgid "Ficha educativa"
 msgstr "Educational sheet"
 
-#: includes/class-metaboxes.php:56
+#: includes/class-metaboxes.php:57
 msgid "Reglas de precio (yield)"
 msgstr "Pricing rules (yield)"
 
-#: includes/class-metaboxes.php:70
+#: includes/class-metaboxes.php:71
 msgid ""
 "Lugar al que pertenece esta ficha. Los servicios publicados en esa ubicación "
 "se muestran en la ficha."
@@ -10679,19 +10685,15 @@ msgstr ""
 "Place this card belongs to. Services published in that location are shown on "
 "the card."
 
-#: includes/class-metaboxes.php:73
+#: includes/class-metaboxes.php:74
 msgid "Sin ubicación: la ficha se muestra igual, pero no lista servicios."
 msgstr "No location: the card still renders, but it does not list services."
 
-#: includes/class-metaboxes.php:92
+#: includes/class-metaboxes.php:93
 msgid "Destination hierarchy: país → provincia → cantón → distrito → lugar."
 msgstr "Destination hierarchy: country → province → canton → district → place."
 
-#: includes/class-metaboxes.php:102
-msgid "— Select —"
-msgstr "— Select —"
-
-#: includes/class-metaboxes.php:123
+#: includes/class-metaboxes.php:124
 msgid ""
 "Las reglas aplican un modificador al precio base cuando se cumplen las "
 "condiciones. La primera regla que haga match (por prioridad) se aplica."
@@ -10699,616 +10701,632 @@ msgstr ""
 "Rules apply a modifier to the base price when conditions are met. The first "
 "matching rule (by priority) is applied."
 
-#: includes/class-metaboxes.php:128
+#: includes/class-metaboxes.php:129
 msgid "Condición"
 msgstr "Condition"
 
-#: includes/class-metaboxes.php:129
+#: includes/class-metaboxes.php:130
 msgid "Modificador"
 msgstr "Modifier"
 
-#: includes/class-metaboxes.php:130 includes/class-metaboxes.php:195
+#: includes/class-metaboxes.php:131 includes/class-metaboxes.php:196
 msgid "Prioridad"
 msgstr "Priority"
 
-#: includes/class-metaboxes.php:131 includes/class-privacy.php:573
+#: includes/class-metaboxes.php:132 includes/class-privacy.php:573
 msgid "Acción"
 msgstr "Action"
 
-#: includes/class-metaboxes.php:150
+#: includes/class-metaboxes.php:151
 msgid "¿Eliminar esta regla?"
 msgstr "Delete this rule?"
 
-#: includes/class-metaboxes.php:157
+#: includes/class-metaboxes.php:158
 msgid "Sin reglas. El precio base se usa sin modificadores."
 msgstr "No rules. Base price is used without modifiers."
 
-#: includes/class-metaboxes.php:160 includes/class-metaboxes.php:199
+#: includes/class-metaboxes.php:161 includes/class-metaboxes.php:200
 msgid "Agregar regla"
 msgstr "Add rule"
 
-#: includes/class-metaboxes.php:174
+#: includes/class-metaboxes.php:175
 msgid "Días de anticipación (early bird / last minute)"
 msgstr "Days in advance (early bird / last minute)"
 
-#: includes/class-metaboxes.php:178
+#: includes/class-metaboxes.php:179
 msgid "Meses (seasonal, separados por coma)"
 msgstr "Months (seasonal, comma-separated)"
 
-#: includes/class-metaboxes.php:182
+#: includes/class-metaboxes.php:183
 msgid "Tipo de modificador"
 msgstr "Modifier type"
 
-#: includes/class-metaboxes.php:185
+#: includes/class-metaboxes.php:186
 msgid "Porcentaje (%)"
 msgstr "Percentage (%)"
 
-#: includes/class-metaboxes.php:186
+#: includes/class-metaboxes.php:187
 msgid "Monto fijo"
 msgstr "Fixed amount"
 
-#: includes/class-metaboxes.php:191
+#: includes/class-metaboxes.php:192
 msgid "Valor (negativo = descuento)"
 msgstr "Value (negative = discount)"
 
-#: includes/class-metaboxes.php:212
+#: includes/class-metaboxes.php:213
 msgid "Agency Details"
 msgstr "Agency Details"
 
-#: includes/class-metaboxes.php:215 includes/class-shortcode-account.php:267
+#: includes/class-metaboxes.php:216 includes/class-shortcode-account.php:267
 msgid "Phone"
 msgstr "Phone"
 
-#: includes/class-metaboxes.php:216 includes/class-shortcode-account.php:271
+#: includes/class-metaboxes.php:217 includes/class-shortcode-account.php:271
 msgid "WhatsApp"
 msgstr "WhatsApp"
 
-#: includes/class-metaboxes.php:217 includes/class-shortcode-account.php:275
+#: includes/class-metaboxes.php:218 includes/class-shortcode-account.php:275
 msgid "Website"
 msgstr "Website"
 
-#: includes/class-metaboxes.php:218 includes/class-shortcode-account.php:287
+#: includes/class-metaboxes.php:219 includes/class-shortcode-account.php:287
 msgid "Address"
 msgstr "Address"
 
-#: includes/class-metaboxes.php:219 includes/class-metaboxes.php:658
+#: includes/class-metaboxes.php:220 includes/class-metaboxes.php:686
 #: includes/class-shortcode-account.php:279
 msgid "City"
 msgstr "City"
 
-#: includes/class-metaboxes.php:220 includes/class-metaboxes.php:661
+#: includes/class-metaboxes.php:221 includes/class-metaboxes.php:689
 #: includes/class-shortcode-account.php:283
 msgid "Country"
 msgstr "Country"
 
-#: includes/class-metaboxes.php:222
+#: includes/class-metaboxes.php:223
 msgid "Verified Agency"
 msgstr "Verified Agency"
 
-#: includes/class-metaboxes.php:223
+#: includes/class-metaboxes.php:224
 msgid "WordPress User ID"
 msgstr "WordPress User ID"
 
-#: includes/class-metaboxes.php:224 includes/class-metaboxes.php:250
-#: includes/class-metaboxes.php:277 includes/class-metaboxes.php:295
-#: includes/class-metaboxes.php:316 includes/class-metaboxes.php:339
-#: includes/class-metaboxes.php:360 includes/class-metaboxes.php:375
+#: includes/class-metaboxes.php:225 includes/class-metaboxes.php:251
+#: includes/class-metaboxes.php:278 includes/class-metaboxes.php:296
+#: includes/class-metaboxes.php:322 includes/class-metaboxes.php:344
+#: includes/class-metaboxes.php:367 includes/class-metaboxes.php:388
+#: includes/class-metaboxes.php:403
 msgid "SEO Title"
 msgstr "SEO Title"
 
-#: includes/class-metaboxes.php:224 includes/class-metaboxes.php:250
-#: includes/class-metaboxes.php:277 includes/class-metaboxes.php:295
-#: includes/class-metaboxes.php:316 includes/class-metaboxes.php:339
-#: includes/class-metaboxes.php:360 includes/class-metaboxes.php:375
+#: includes/class-metaboxes.php:225 includes/class-metaboxes.php:251
+#: includes/class-metaboxes.php:278 includes/class-metaboxes.php:296
+#: includes/class-metaboxes.php:322 includes/class-metaboxes.php:344
+#: includes/class-metaboxes.php:367 includes/class-metaboxes.php:388
+#: includes/class-metaboxes.php:403
 msgid "Falls back to post title"
 msgstr "Falls back to post title"
 
-#: includes/class-metaboxes.php:225 includes/class-metaboxes.php:251
-#: includes/class-metaboxes.php:278 includes/class-metaboxes.php:296
-#: includes/class-metaboxes.php:317 includes/class-metaboxes.php:340
-#: includes/class-metaboxes.php:361 includes/class-metaboxes.php:376
+#: includes/class-metaboxes.php:226 includes/class-metaboxes.php:252
+#: includes/class-metaboxes.php:279 includes/class-metaboxes.php:297
+#: includes/class-metaboxes.php:323 includes/class-metaboxes.php:345
+#: includes/class-metaboxes.php:368 includes/class-metaboxes.php:389
+#: includes/class-metaboxes.php:404
 msgid "Meta Description (SEO)"
 msgstr "Meta Description (SEO)"
 
-#: includes/class-metaboxes.php:230
+#: includes/class-metaboxes.php:231
 msgid "Accommodation Details"
 msgstr "Accommodation Details"
 
-#: includes/class-metaboxes.php:231
+#: includes/class-metaboxes.php:232
 msgid "Location & Address"
 msgstr "Location & Address"
 
-#: includes/class-metaboxes.php:232
+#: includes/class-metaboxes.php:233
 msgid "Policies & Rules"
 msgstr "Policies & Rules"
 
-#: includes/class-metaboxes.php:233
+#: includes/class-metaboxes.php:234
 msgid "Photo Gallery"
 msgstr "Photo Gallery"
 
-#: includes/class-metaboxes.php:237
+#: includes/class-metaboxes.php:238
 msgid "Type"
 msgstr "Type"
 
-#: includes/class-metaboxes.php:238
+#: includes/class-metaboxes.php:239
 msgid "Stars"
 msgstr "Stars"
 
-#: includes/class-metaboxes.php:239
+#: includes/class-metaboxes.php:240
 msgid "Price per Night ($) — fallback if no room types"
 msgstr "Price per Night ($) — fallback if no room types"
 
-#: includes/class-metaboxes.php:240 includes/class-metaboxes.php:264
-#: includes/class-metaboxes.php:291 includes/class-metaboxes.php:309
-#: includes/class-metaboxes.php:333 includes/class-metaboxes.php:354
-#: includes/class-metaboxes.php:372 includes/class-metaboxes.php:759
+#: includes/class-metaboxes.php:241 includes/class-metaboxes.php:265
+#: includes/class-metaboxes.php:292 includes/class-metaboxes.php:309
+#: includes/class-metaboxes.php:337 includes/class-metaboxes.php:361
+#: includes/class-metaboxes.php:382 includes/class-metaboxes.php:400
+#: includes/class-metaboxes.php:787
 msgid "Currency"
 msgstr "Currency"
 
-#: includes/class-metaboxes.php:241
+#: includes/class-metaboxes.php:242
 msgid "Max Guests"
 msgstr "Max Guests"
 
-#: includes/class-metaboxes.php:242
+#: includes/class-metaboxes.php:243
 msgid "Number of Rooms"
 msgstr "Number of Rooms"
 
-#: includes/class-metaboxes.php:243
+#: includes/class-metaboxes.php:244
 msgid "Bathrooms"
 msgstr "Bathrooms"
 
-#: includes/class-metaboxes.php:244
+#: includes/class-metaboxes.php:245
 msgid "Bedrooms"
 msgstr "Bedrooms"
 
-#: includes/class-metaboxes.php:245
+#: includes/class-metaboxes.php:246
 msgid "Default Check-in Time"
 msgstr "Default Check-in Time"
 
-#: includes/class-metaboxes.php:246
+#: includes/class-metaboxes.php:247
 msgid "Default Check-out Time"
 msgstr "Default Check-out Time"
 
-#: includes/class-metaboxes.php:247 includes/class-metaboxes.php:273
+#: includes/class-metaboxes.php:248 includes/class-metaboxes.php:274
+#: includes/class-metaboxes.php:318
 msgid "Latitude"
 msgstr "Latitude"
 
-#: includes/class-metaboxes.php:248 includes/class-metaboxes.php:274
+#: includes/class-metaboxes.php:249 includes/class-metaboxes.php:275
+#: includes/class-metaboxes.php:319
 msgid "Longitude"
 msgstr "Longitude"
 
-#: includes/class-metaboxes.php:249 includes/class-metaboxes.php:275
-#: includes/class-metaboxes.php:294 includes/class-metaboxes.php:315
-#: includes/class-metaboxes.php:338 includes/class-metaboxes.php:359
-#: includes/class-metaboxes.php:374 includes/class-metaboxes.php:768
+#: includes/class-metaboxes.php:250 includes/class-metaboxes.php:276
+#: includes/class-metaboxes.php:295 includes/class-metaboxes.php:320
+#: includes/class-metaboxes.php:343 includes/class-metaboxes.php:366
+#: includes/class-metaboxes.php:387 includes/class-metaboxes.php:402
+#: includes/class-metaboxes.php:796
 msgid "Active"
 msgstr "Active"
 
-#: includes/class-metaboxes.php:256
+#: includes/class-metaboxes.php:257
 msgid "Tour Details"
 msgstr "Tour Details"
 
-#: includes/class-metaboxes.php:259 includes/class-taxonomies.php:141
+#: includes/class-metaboxes.php:260 includes/class-taxonomies.php:141
 msgid "Tour Type"
 msgstr "Tour Type"
 
-#: includes/class-metaboxes.php:260 includes/class-metaboxes.php:369
+#: includes/class-metaboxes.php:261 includes/class-metaboxes.php:306
+#: includes/class-metaboxes.php:397
 msgid "Duration"
 msgstr "Duration"
 
-#: includes/class-metaboxes.php:261
+#: includes/class-metaboxes.php:262
 msgid "Difficulty"
 msgstr "Difficulty"
 
-#: includes/class-metaboxes.php:262
+#: includes/class-metaboxes.php:263
 msgid "Price per Adult ($)"
 msgstr "Price per Adult ($)"
 
-#: includes/class-metaboxes.php:263
+#: includes/class-metaboxes.php:264 includes/class-metaboxes.php:308
 msgid "Price per Child ($)"
 msgstr "Price per Child ($)"
 
-#: includes/class-metaboxes.php:265
+#: includes/class-metaboxes.php:266
 msgid "Max People per Group"
 msgstr "Max People per Group"
 
-#: includes/class-metaboxes.php:266
+#: includes/class-metaboxes.php:267 includes/class-metaboxes.php:311
 msgid "Minimum Age"
 msgstr "Minimum Age"
 
-#: includes/class-metaboxes.php:267
+#: includes/class-metaboxes.php:268 includes/class-metaboxes.php:312
 msgid "Start Time"
 msgstr "Start Time"
 
-#: includes/class-metaboxes.php:268
+#: includes/class-metaboxes.php:269 includes/class-metaboxes.php:313
 msgid "End Time"
 msgstr "End Time"
 
-#: includes/class-metaboxes.php:269
+#: includes/class-metaboxes.php:270 includes/class-metaboxes.php:314
 msgid "Meeting Point"
 msgstr "Meeting Point"
 
-#: includes/class-metaboxes.php:270
+#: includes/class-metaboxes.php:271 includes/class-metaboxes.php:315
 msgid "What's Included"
 msgstr "What's Included"
 
-#: includes/class-metaboxes.php:271
+#: includes/class-metaboxes.php:272 includes/class-metaboxes.php:316
 msgid "What's Not Included"
 msgstr "What's Not Included"
 
-#: includes/class-metaboxes.php:272
+#: includes/class-metaboxes.php:273 includes/class-metaboxes.php:317
 msgid "What to Bring"
 msgstr "What to Bring"
 
-#: includes/class-metaboxes.php:276
+#: includes/class-metaboxes.php:277 includes/class-metaboxes.php:321
 msgid "Cupos por fecha (capacidad)"
 msgstr "Slots per date (capacity)"
 
-#: includes/class-metaboxes.php:283
+#: includes/class-metaboxes.php:284
 msgid "Equipment Details"
 msgstr "Equipment Details"
 
-#: includes/class-metaboxes.php:286
+#: includes/class-metaboxes.php:287 includes/class-metaboxes.php:305
 msgid "Category"
 msgstr "Category"
 
-#: includes/class-metaboxes.php:287 includes/class-metaboxes.php:332
+#: includes/class-metaboxes.php:288 includes/class-metaboxes.php:360
 msgid "Price per Day ($)"
 msgstr "Price per Day ($)"
 
-#: includes/class-metaboxes.php:288
+#: includes/class-metaboxes.php:289
 msgid "Price per Hour ($)"
 msgstr "Price per Hour ($)"
 
-#: includes/class-metaboxes.php:289
+#: includes/class-metaboxes.php:290
 msgid "Security Deposit ($)"
 msgstr "Security Deposit ($)"
 
-#: includes/class-metaboxes.php:290
+#: includes/class-metaboxes.php:291
 msgid "Units Available"
 msgstr "Units Available"
 
-#: includes/class-metaboxes.php:292
+#: includes/class-metaboxes.php:293
 msgid "Pick-up / Delivery Location"
 msgstr "Pick-up / Delivery Location"
 
-#: includes/class-metaboxes.php:293
+#: includes/class-metaboxes.php:294
 msgid "Rental Conditions"
 msgstr "Rental Conditions"
 
-#: includes/class-metaboxes.php:301
-msgid "Transport Details"
-msgstr "Transport Details"
+#: includes/class-metaboxes.php:302
+msgid "Experience Details"
+msgstr "Experience Details"
 
-#: includes/class-metaboxes.php:304
-msgid "Service Type"
-msgstr "Service Type"
-
-#: includes/class-metaboxes.php:305 includes/class-taxonomies.php:163
-msgid "Vehicle Type"
-msgstr "Vehicle Type"
-
-#: includes/class-metaboxes.php:306
-msgid "Passenger Capacity"
-msgstr "Passenger Capacity"
-
-#: includes/class-metaboxes.php:307
-msgid "Price ($)"
-msgstr "Price ($)"
-
-#: includes/class-metaboxes.php:308
-msgid "Price Type"
-msgstr "Price Type"
-
-#: includes/class-metaboxes.php:310 includes/class-metaboxes.php:334
-msgid "Pick-up Location"
-msgstr "Pick-up Location"
-
-#: includes/class-metaboxes.php:311
-msgid "Drop-off Location"
-msgstr "Drop-off Location"
-
-#: includes/class-metaboxes.php:312
-msgid "Trip Duration"
-msgstr "Trip Duration"
-
-#: includes/class-metaboxes.php:313
-msgid "WiFi on Board"
-msgstr "WiFi on Board"
-
-#: includes/class-metaboxes.php:314 includes/class-metaboxes.php:337
-msgid "Air Conditioning"
-msgstr "Air Conditioning"
-
-#: includes/class-metaboxes.php:322
-msgid "Car Rental Details"
-msgstr "Car Rental Details"
-
-#: includes/class-metaboxes.php:325
-msgid "Brand"
-msgstr "Brand"
-
-#: includes/class-metaboxes.php:326
-msgid "Model"
-msgstr "Model"
-
-#: includes/class-metaboxes.php:327
-msgid "Year"
-msgstr "Year"
-
-#: includes/class-metaboxes.php:328
-msgid "Car Type"
-msgstr "Car Type"
-
-#: includes/class-metaboxes.php:329
-msgid "Transmission"
-msgstr "Transmission"
-
-#: includes/class-metaboxes.php:330
-msgid "Seats"
-msgstr "Seats"
-
-#: includes/class-metaboxes.php:331
-msgid "Doors"
-msgstr "Doors"
-
-#: includes/class-metaboxes.php:335
-msgid "GPS Included"
-msgstr "GPS Included"
-
-#: includes/class-metaboxes.php:336
-msgid "Insurance Included"
-msgstr "Insurance Included"
-
-#: includes/class-metaboxes.php:345
-msgid "Boat Details"
-msgstr "Boat Details"
-
-#: includes/class-metaboxes.php:348 includes/class-taxonomies.php:185
-msgid "Boat Type"
-msgstr "Boat Type"
-
-#: includes/class-metaboxes.php:349
-msgid "Max Passengers"
-msgstr "Max Passengers"
-
-#: includes/class-metaboxes.php:350
-msgid "Length"
-msgstr "Length"
-
-#: includes/class-metaboxes.php:351
-msgid "Half Day Price ($)"
-msgstr "Half Day Price ($)"
-
-#: includes/class-metaboxes.php:352
-msgid "Full Day Price ($)"
-msgstr "Full Day Price ($)"
-
-#: includes/class-metaboxes.php:353
-msgid "Hourly Price ($)"
-msgstr "Hourly Price ($)"
-
-#: includes/class-metaboxes.php:355
-msgid "Departure Point"
-msgstr "Departure Point"
-
-#: includes/class-metaboxes.php:357
-msgid "Captain Included"
-msgstr "Captain Included"
-
-#: includes/class-metaboxes.php:358
-msgid "Crew Included"
-msgstr "Crew Included"
-
-#: includes/class-metaboxes.php:366
-msgid "Package Details"
-msgstr "Package Details"
-
-#: includes/class-metaboxes.php:370
-msgid "Total Price ($)"
-msgstr "Total Price ($)"
-
-#: includes/class-metaboxes.php:371
+#: includes/class-metaboxes.php:307 includes/class-metaboxes.php:399
 msgid "Price per Person ($)"
 msgstr "Price per Person ($)"
 
+#: includes/class-metaboxes.php:310
+msgid "Max Participants"
+msgstr "Max Participants"
+
+#: includes/class-metaboxes.php:329
+msgid "Transport Details"
+msgstr "Transport Details"
+
+#: includes/class-metaboxes.php:332
+msgid "Service Type"
+msgstr "Service Type"
+
+#: includes/class-metaboxes.php:333 includes/class-taxonomies.php:163
+msgid "Vehicle Type"
+msgstr "Vehicle Type"
+
+#: includes/class-metaboxes.php:334
+msgid "Passenger Capacity"
+msgstr "Passenger Capacity"
+
+#: includes/class-metaboxes.php:335
+msgid "Price ($)"
+msgstr "Price ($)"
+
+#: includes/class-metaboxes.php:336
+msgid "Price Type"
+msgstr "Price Type"
+
+#: includes/class-metaboxes.php:338 includes/class-metaboxes.php:362
+msgid "Pick-up Location"
+msgstr "Pick-up Location"
+
+#: includes/class-metaboxes.php:339
+msgid "Drop-off Location"
+msgstr "Drop-off Location"
+
+#: includes/class-metaboxes.php:340
+msgid "Trip Duration"
+msgstr "Trip Duration"
+
+#: includes/class-metaboxes.php:341
+msgid "WiFi on Board"
+msgstr "WiFi on Board"
+
+#: includes/class-metaboxes.php:342 includes/class-metaboxes.php:365
+msgid "Air Conditioning"
+msgstr "Air Conditioning"
+
+#: includes/class-metaboxes.php:350
+msgid "Car Rental Details"
+msgstr "Car Rental Details"
+
+#: includes/class-metaboxes.php:353
+msgid "Brand"
+msgstr "Brand"
+
+#: includes/class-metaboxes.php:354
+msgid "Model"
+msgstr "Model"
+
+#: includes/class-metaboxes.php:355
+msgid "Year"
+msgstr "Year"
+
+#: includes/class-metaboxes.php:356
+msgid "Car Type"
+msgstr "Car Type"
+
+#: includes/class-metaboxes.php:357
+msgid "Transmission"
+msgstr "Transmission"
+
+#: includes/class-metaboxes.php:358
+msgid "Seats"
+msgstr "Seats"
+
+#: includes/class-metaboxes.php:359
+msgid "Doors"
+msgstr "Doors"
+
+#: includes/class-metaboxes.php:363
+msgid "GPS Included"
+msgstr "GPS Included"
+
+#: includes/class-metaboxes.php:364
+msgid "Insurance Included"
+msgstr "Insurance Included"
+
 #: includes/class-metaboxes.php:373
+msgid "Boat Details"
+msgstr "Boat Details"
+
+#: includes/class-metaboxes.php:376 includes/class-taxonomies.php:185
+msgid "Boat Type"
+msgstr "Boat Type"
+
+#: includes/class-metaboxes.php:377
+msgid "Max Passengers"
+msgstr "Max Passengers"
+
+#: includes/class-metaboxes.php:378
+msgid "Length"
+msgstr "Length"
+
+#: includes/class-metaboxes.php:379
+msgid "Half Day Price ($)"
+msgstr "Half Day Price ($)"
+
+#: includes/class-metaboxes.php:380
+msgid "Full Day Price ($)"
+msgstr "Full Day Price ($)"
+
+#: includes/class-metaboxes.php:381
+msgid "Hourly Price ($)"
+msgstr "Hourly Price ($)"
+
+#: includes/class-metaboxes.php:383
+msgid "Departure Point"
+msgstr "Departure Point"
+
+#: includes/class-metaboxes.php:385
+msgid "Captain Included"
+msgstr "Captain Included"
+
+#: includes/class-metaboxes.php:386
+msgid "Crew Included"
+msgstr "Crew Included"
+
+#: includes/class-metaboxes.php:394
+msgid "Package Details"
+msgstr "Package Details"
+
+#: includes/class-metaboxes.php:398
+msgid "Total Price ($)"
+msgstr "Total Price ($)"
+
+#: includes/class-metaboxes.php:401
 msgid "Max People"
 msgstr "Max People"
 
-#: includes/class-metaboxes.php:381
+#: includes/class-metaboxes.php:409
 msgid "Booking Details"
 msgstr "Booking Details"
 
-#: includes/class-metaboxes.php:385
+#: includes/class-metaboxes.php:413
 msgid "Room Details"
 msgstr "Room Details"
 
-#: includes/class-metaboxes.php:386
+#: includes/class-metaboxes.php:414
 msgid "Bed Configuration"
 msgstr "Bed Configuration"
 
-#: includes/class-metaboxes.php:387
+#: includes/class-metaboxes.php:415
 msgid "Room Photos"
 msgstr "Room Photos"
 
-#: includes/class-metaboxes.php:395
+#: includes/class-metaboxes.php:423
 msgid "No configuration fields found."
 msgstr "No configuration fields found."
 
 #. translators: %d: número máximo de resultados mostrados
-#: includes/class-metaboxes.php:503
+#: includes/class-metaboxes.php:531
 #, php-format
 msgid ""
 "Mostrando los primeros %d resultados. Usa la búsqueda del listado para "
 "localizar otros."
 msgstr "Showing the first %d results. Use the list search to find any others."
 
-#: includes/class-metaboxes.php:657
+#: includes/class-metaboxes.php:685
 msgid "Street Address"
 msgstr "Street Address"
 
-#: includes/class-metaboxes.php:659
+#: includes/class-metaboxes.php:687
 msgid "State / Province"
 msgstr "State / Province"
 
-#: includes/class-metaboxes.php:660
+#: includes/class-metaboxes.php:688
 msgid "ZIP / Postal Code"
 msgstr "ZIP / Postal Code"
 
-#: includes/class-metaboxes.php:679
+#: includes/class-metaboxes.php:707
 msgid "Cancellation Policy"
 msgstr "Cancellation Policy"
 
-#: includes/class-metaboxes.php:682
+#: includes/class-metaboxes.php:710
 msgid "Flexible — Free cancellation 24h before"
 msgstr "Flexible — Free cancellation 24h before"
 
-#: includes/class-metaboxes.php:683
+#: includes/class-metaboxes.php:711
 msgid "Moderate — Free cancellation 5 days before"
 msgstr "Moderate — Free cancellation 5 days before"
 
-#: includes/class-metaboxes.php:684
+#: includes/class-metaboxes.php:712
 msgid "Strict — 50% refund up to 7 days before"
 msgstr "Strict — 50% refund up to 7 days before"
 
-#: includes/class-metaboxes.php:685
+#: includes/class-metaboxes.php:713
 msgid "Non-Refundable"
 msgstr "Non-Refundable"
 
-#: includes/class-metaboxes.php:690
+#: includes/class-metaboxes.php:718
 msgid "House Rules"
 msgstr "House Rules"
 
-#: includes/class-metaboxes.php:714
+#: includes/class-metaboxes.php:742
 msgid "Add Images"
 msgstr "Add Images"
 
-#: includes/class-metaboxes.php:715
+#: includes/class-metaboxes.php:743
 msgid "Upload or select images for the property gallery."
 msgstr "Upload or select images for the property gallery."
 
-#: includes/class-metaboxes.php:724
+#: includes/class-metaboxes.php:752
 msgid "Select Images"
 msgstr "Select Images"
 
-#: includes/class-metaboxes.php:725 includes/class-metaboxes.php:881
+#: includes/class-metaboxes.php:753 includes/class-metaboxes.php:909
 msgid "Add to Gallery"
 msgstr "Add to Gallery"
 
-#: includes/class-metaboxes.php:756
+#: includes/class-metaboxes.php:784
 msgid "Parent Accommodation"
 msgstr "Parent Accommodation"
 
-#: includes/class-metaboxes.php:757
+#: includes/class-metaboxes.php:785
 msgid "Precio base por noche ($)"
 msgstr "Base price per night ($)"
 
-#: includes/class-metaboxes.php:758
+#: includes/class-metaboxes.php:786
 msgid "Estadía mínima base (noches)"
 msgstr "Minimum base stay (nights)"
 
-#: includes/class-metaboxes.php:760
+#: includes/class-metaboxes.php:788
 msgid "Max Adults"
 msgstr "Max Adults"
 
-#: includes/class-metaboxes.php:761
+#: includes/class-metaboxes.php:789
 msgid "Max Children"
 msgstr "Max Children"
 
-#: includes/class-metaboxes.php:762
+#: includes/class-metaboxes.php:790
 msgid "Max Total Occupancy"
 msgstr "Max Total Occupancy"
 
-#: includes/class-metaboxes.php:763
+#: includes/class-metaboxes.php:791
 msgid "Number of Rooms of This Type"
 msgstr "Number of Rooms of This Type"
 
-#: includes/class-metaboxes.php:764
+#: includes/class-metaboxes.php:792
 msgid "Overbooking % (0 = none)"
 msgstr "Overbooking % (0 = none)"
 
-#: includes/class-metaboxes.php:765
+#: includes/class-metaboxes.php:793
 msgid "Room Size (e.g. 35 m²)"
 msgstr "Room Size (e.g. 35 m²)"
 
-#: includes/class-metaboxes.php:766
+#: includes/class-metaboxes.php:794
 msgid "View (e.g. Ocean View, City View)"
 msgstr "View (e.g. Ocean View, City View)"
 
-#: includes/class-metaboxes.php:767
+#: includes/class-metaboxes.php:795
 msgid "Floor"
 msgstr "Floor"
 
-#: includes/class-metaboxes.php:786
+#: includes/class-metaboxes.php:814
 msgid "Add bed types available in this room:"
 msgstr "Add bed types available in this room:"
 
-#: includes/class-metaboxes.php:788
+#: includes/class-metaboxes.php:816
 msgid "Bed Type"
 msgstr "Bed Type"
 
-#: includes/class-metaboxes.php:788
+#: includes/class-metaboxes.php:816
 msgid "Count"
 msgstr "Count"
 
-#: includes/class-metaboxes.php:807
+#: includes/class-metaboxes.php:835
 msgid "+ Add Bed Type"
 msgstr "+ Add Bed Type"
 
-#: includes/class-metaboxes.php:837
+#: includes/class-metaboxes.php:865
 msgid "Double / Full"
 msgstr "Double / Full"
 
-#: includes/class-metaboxes.php:838
+#: includes/class-metaboxes.php:866
 msgid "Twin / Single"
 msgstr "Twin / Single"
 
-#: includes/class-metaboxes.php:839
+#: includes/class-metaboxes.php:867
 msgid "Bunk Bed"
 msgstr "Bunk Bed"
 
-#: includes/class-metaboxes.php:842
+#: includes/class-metaboxes.php:870
 msgid "Murphy Bed"
 msgstr "Murphy Bed"
 
-#: includes/class-metaboxes.php:873
+#: includes/class-metaboxes.php:901
 msgid "Add Photos"
 msgstr "Add Photos"
 
-#: includes/class-metaboxes.php:881
+#: includes/class-metaboxes.php:909
 msgid "Select Photos"
 msgstr "Select Photos"
 
-#: includes/class-metaboxes.php:915
+#: includes/class-metaboxes.php:943
 msgid "Booking details not found."
 msgstr "Booking details not found."
 
-#: includes/class-metaboxes.php:936
+#: includes/class-metaboxes.php:964
 msgid "Booking Code"
 msgstr "Booking Code"
 
-#: includes/class-metaboxes.php:950 includes/class-shortcode-booking.php:55
+#: includes/class-metaboxes.php:978 includes/class-shortcode-booking.php:55
 msgid "Children"
 msgstr "Children"
 
-#: includes/class-metaboxes.php:951
+#: includes/class-metaboxes.php:979
 msgid "Total Amount"
 msgstr "Total Amount"
 
-#: includes/class-metaboxes.php:953
+#: includes/class-metaboxes.php:981
 msgid "Payment Status"
 msgstr "Payment Status"
 
-#: includes/class-metaboxes.php:954
+#: includes/class-metaboxes.php:982
 msgid "Payment Method"
 msgstr "Payment Method"
 
-#: includes/class-metaboxes.php:956
+#: includes/class-metaboxes.php:984
 msgid "Notes"
 msgstr "Notes"
 
-#: includes/class-metaboxes.php:958
+#: includes/class-metaboxes.php:986
 msgid "Created"
 msgstr "Created"
 
@@ -11392,301 +11410,333 @@ msgstr "Could not capture PayPal order"
 msgid "Could not process refund"
 msgstr "Could not process refund"
 
-#: includes/class-post-types.php:21
+#: includes/class-post-types.php:22
 msgid "Add Agency"
 msgstr "Add Agency"
 
-#: includes/class-post-types.php:22
+#: includes/class-post-types.php:23
 msgid "Add New Agency"
 msgstr "Add New Agency"
 
-#: includes/class-post-types.php:23
+#: includes/class-post-types.php:24
 msgid "Edit Agency"
 msgstr "Edit Agency"
 
-#: includes/class-post-types.php:24
+#: includes/class-post-types.php:25
 msgid "View Agency"
 msgstr "View Agency"
 
-#: includes/class-post-types.php:25
+#: includes/class-post-types.php:26
 msgid "Search Agencies"
 msgstr "Search Agencies"
 
-#: includes/class-post-types.php:26
+#: includes/class-post-types.php:27
 msgid "No agencies found"
 msgstr "No agencies found"
 
-#: includes/class-post-types.php:27
+#: includes/class-post-types.php:28
 msgid "All Agencies"
 msgstr "All Agencies"
 
-#: includes/class-post-types.php:47
+#: includes/class-post-types.php:48
 #: includes/class-shortcode-agency-panel.php:101
 msgid "Accommodations"
 msgstr "Accommodations"
 
-#: includes/class-post-types.php:49
+#: includes/class-post-types.php:50
 msgid "Add Accommodation"
 msgstr "Add Accommodation"
 
-#: includes/class-post-types.php:50
+#: includes/class-post-types.php:51
 msgid "Add New Accommodation"
 msgstr "Add New Accommodation"
 
-#: includes/class-post-types.php:51
+#: includes/class-post-types.php:52
 msgid "Edit Accommodation"
 msgstr "Edit Accommodation"
 
-#: includes/class-post-types.php:52
+#: includes/class-post-types.php:53
 msgid "View Accommodation"
 msgstr "View Accommodation"
 
-#: includes/class-post-types.php:53
+#: includes/class-post-types.php:54
 msgid "Search Accommodations"
 msgstr "Search Accommodations"
 
-#: includes/class-post-types.php:54
+#: includes/class-post-types.php:55
 msgid "No accommodations found"
 msgstr "No accommodations found"
 
-#: includes/class-post-types.php:55
+#: includes/class-post-types.php:56
 msgid "All Accommodations"
 msgstr "All Accommodations"
 
-#: includes/class-post-types.php:75
+#: includes/class-post-types.php:76
 msgid "Room Types"
 msgstr "Room Types"
 
-#: includes/class-post-types.php:76
+#: includes/class-post-types.php:77
 msgid "Room Type"
 msgstr "Room Type"
 
-#: includes/class-post-types.php:77
+#: includes/class-post-types.php:78
 msgid "Add Room Type"
 msgstr "Add Room Type"
 
-#: includes/class-post-types.php:78
+#: includes/class-post-types.php:79
 msgid "Add New Room Type"
 msgstr "Add New Room Type"
 
-#: includes/class-post-types.php:79
+#: includes/class-post-types.php:80
 msgid "Edit Room Type"
 msgstr "Edit Room Type"
 
-#: includes/class-post-types.php:80
+#: includes/class-post-types.php:81
 msgid "View Room Type"
 msgstr "View Room Type"
 
-#: includes/class-post-types.php:81
+#: includes/class-post-types.php:82
 msgid "Search Room Types"
 msgstr "Search Room Types"
 
-#: includes/class-post-types.php:82
+#: includes/class-post-types.php:83
 msgid "No room types found"
 msgstr "No room types found"
 
-#: includes/class-post-types.php:83
+#: includes/class-post-types.php:84
 msgid "All Room Types"
 msgstr "All Room Types"
 
-#: includes/class-post-types.php:105
+#: includes/class-post-types.php:106
 msgid "Add Tour"
 msgstr "Add Tour"
 
-#: includes/class-post-types.php:106
+#: includes/class-post-types.php:107
 msgid "Add New Tour"
 msgstr "Add New Tour"
 
-#: includes/class-post-types.php:107
+#: includes/class-post-types.php:108
 msgid "Edit Tour"
 msgstr "Edit Tour"
 
-#: includes/class-post-types.php:108
+#: includes/class-post-types.php:109
 msgid "View Tour"
 msgstr "View Tour"
 
-#: includes/class-post-types.php:109
+#: includes/class-post-types.php:110
 msgid "Search Tours"
 msgstr "Search Tours"
 
-#: includes/class-post-types.php:110
+#: includes/class-post-types.php:111
 msgid "No tours found"
 msgstr "No tours found"
 
-#: includes/class-post-types.php:111
+#: includes/class-post-types.php:112
 msgid "All Tours"
 msgstr "All Tours"
 
-#: includes/class-post-types.php:131
+#: includes/class-post-types.php:132
+msgid "Experiences"
+msgstr "Experiences"
+
+#: includes/class-post-types.php:134
+msgid "Add Experience"
+msgstr "Add Experience"
+
+#: includes/class-post-types.php:135
+msgid "Add New Experience"
+msgstr "Add New Experience"
+
+#: includes/class-post-types.php:136
+msgid "Edit Experience"
+msgstr "Edit Experience"
+
+#: includes/class-post-types.php:137
+msgid "View Experience"
+msgstr "View Experience"
+
+#: includes/class-post-types.php:138
+msgid "Search Experiences"
+msgstr "Search Experiences"
+
+#: includes/class-post-types.php:139
+msgid "No experiences found"
+msgstr "No experiences found"
+
+#: includes/class-post-types.php:140
+msgid "All Experiences"
+msgstr "All Experiences"
+
+#: includes/class-post-types.php:160
 #: includes/class-shortcode-agency-panel.php:103
 msgid "Transports"
 msgstr "Transports"
 
-#: includes/class-post-types.php:133
+#: includes/class-post-types.php:162
 msgid "Add Transport"
 msgstr "Add Transport"
 
-#: includes/class-post-types.php:134
+#: includes/class-post-types.php:163
 msgid "Add New Transport"
 msgstr "Add New Transport"
 
-#: includes/class-post-types.php:135
+#: includes/class-post-types.php:164
 msgid "Edit Transport"
 msgstr "Edit Transport"
 
-#: includes/class-post-types.php:136
+#: includes/class-post-types.php:165
 msgid "View Transport"
 msgstr "View Transport"
 
-#: includes/class-post-types.php:137
+#: includes/class-post-types.php:166
 msgid "Search Transports"
 msgstr "Search Transports"
 
-#: includes/class-post-types.php:138
+#: includes/class-post-types.php:167
 msgid "No transports found"
 msgstr "No transports found"
 
-#: includes/class-post-types.php:139
+#: includes/class-post-types.php:168
 msgid "All Transports"
 msgstr "All Transports"
 
-#: includes/class-post-types.php:159
+#: includes/class-post-types.php:188
 #: includes/class-shortcode-agency-panel.php:104
 msgid "Car Rentals"
 msgstr "Car Rentals"
 
-#: includes/class-post-types.php:161
+#: includes/class-post-types.php:190
 msgid "Add Car Rental"
 msgstr "Add Car Rental"
 
-#: includes/class-post-types.php:162
+#: includes/class-post-types.php:191
 msgid "Add New Car Rental"
 msgstr "Add New Car Rental"
 
-#: includes/class-post-types.php:163
+#: includes/class-post-types.php:192
 msgid "Edit Car Rental"
 msgstr "Edit Car Rental"
 
-#: includes/class-post-types.php:164
+#: includes/class-post-types.php:193
 msgid "View Car Rental"
 msgstr "View Car Rental"
 
-#: includes/class-post-types.php:165
+#: includes/class-post-types.php:194
 msgid "Search Car Rentals"
 msgstr "Search Car Rentals"
 
-#: includes/class-post-types.php:166
+#: includes/class-post-types.php:195
 msgid "No car rentals found"
 msgstr "No car rentals found"
 
-#: includes/class-post-types.php:167
+#: includes/class-post-types.php:196
 msgid "All Car Rentals"
 msgstr "All Car Rentals"
 
-#: includes/class-post-types.php:187
+#: includes/class-post-types.php:216
 #: includes/class-shortcode-agency-panel.php:105
 msgid "Boats"
 msgstr "Boats"
 
-#: includes/class-post-types.php:189
+#: includes/class-post-types.php:218
 msgid "Add Boat"
 msgstr "Add Boat"
 
-#: includes/class-post-types.php:190
+#: includes/class-post-types.php:219
 msgid "Add New Boat"
 msgstr "Add New Boat"
 
-#: includes/class-post-types.php:191
+#: includes/class-post-types.php:220
 msgid "Edit Boat"
 msgstr "Edit Boat"
 
-#: includes/class-post-types.php:192
+#: includes/class-post-types.php:221
 msgid "View Boat"
 msgstr "View Boat"
 
-#: includes/class-post-types.php:193
+#: includes/class-post-types.php:222
 msgid "Search Boats"
 msgstr "Search Boats"
 
-#: includes/class-post-types.php:194
+#: includes/class-post-types.php:223
 msgid "No boats found"
 msgstr "No boats found"
 
-#: includes/class-post-types.php:195
+#: includes/class-post-types.php:224
 msgid "All Boats"
 msgstr "All Boats"
 
-#: includes/class-post-types.php:215
+#: includes/class-post-types.php:244
 #: includes/class-shortcode-agency-panel.php:106
 msgid "Packages"
 msgstr "Packages"
 
-#: includes/class-post-types.php:217
+#: includes/class-post-types.php:246
 msgid "Add Package"
 msgstr "Add Package"
 
-#: includes/class-post-types.php:218
+#: includes/class-post-types.php:247
 msgid "Add New Package"
 msgstr "Add New Package"
 
-#: includes/class-post-types.php:219
+#: includes/class-post-types.php:248
 msgid "Edit Package"
 msgstr "Edit Package"
 
-#: includes/class-post-types.php:220
+#: includes/class-post-types.php:249
 msgid "View Package"
 msgstr "View Package"
 
-#: includes/class-post-types.php:221
+#: includes/class-post-types.php:250
 msgid "Search Packages"
 msgstr "Search Packages"
 
-#: includes/class-post-types.php:222
+#: includes/class-post-types.php:251
 msgid "No packages found"
 msgstr "No packages found"
 
-#: includes/class-post-types.php:223
+#: includes/class-post-types.php:252
 msgid "All Packages"
 msgstr "All Packages"
 
-#: includes/class-post-types.php:245
+#: includes/class-post-types.php:274
 msgid "Equipment & Rentals"
 msgstr "Equipment & Rentals"
 
-#: includes/class-post-types.php:246 includes/class-post-types.php:280
+#: includes/class-post-types.php:275 includes/class-post-types.php:310
 #: includes/class-shortcode-agency-panel.php:107
 msgid "Equipment"
 msgstr "Equipment"
 
-#: includes/class-post-types.php:247
+#: includes/class-post-types.php:276
 msgid "Add Equipment"
 msgstr "Add Equipment"
 
-#: includes/class-post-types.php:248
+#: includes/class-post-types.php:277
 msgid "Add New Equipment"
 msgstr "Add New Equipment"
 
-#: includes/class-post-types.php:249
+#: includes/class-post-types.php:278
 msgid "Edit Equipment"
 msgstr "Edit Equipment"
 
-#: includes/class-post-types.php:250
+#: includes/class-post-types.php:279
 msgid "View Equipment"
 msgstr "View Equipment"
 
-#: includes/class-post-types.php:251
+#: includes/class-post-types.php:280
 msgid "Search Equipment"
 msgstr "Search Equipment"
 
-#: includes/class-post-types.php:252
+#: includes/class-post-types.php:281
 msgid "No equipment found"
 msgstr "No equipment found"
 
-#: includes/class-post-types.php:253
+#: includes/class-post-types.php:282
 msgid "All Equipment"
 msgstr "All Equipment"
 
-#: includes/class-post-types.php:274
+#: includes/class-post-types.php:303
 msgid "Room"
 msgstr "Room"
 
@@ -14089,6 +14139,9 @@ msgstr "Thinking…"
 #: travel-agency-platform.php:285
 msgid "Hubo un problema. Inténtalo de nuevo."
 msgstr "Something went wrong. Please try again."
+
+msgid "— Select —"
+msgstr "— Select —"
 
 msgid "No services found."
 msgstr "No services found."

@@ -192,7 +192,7 @@ class TAP_Shortcode_Account {
         }
 
         $all_services = [];
-        $types = ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
+        $types = ['tap_accommodation', 'tap_tour', 'tap_experience', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
 
         // IDs resolved per type with indexed meta lookups (no OR meta_query).
         $ids = [];

@@ -99,7 +99,7 @@ class TAP_Ajax_Public {
             $type = 'tap_tour';
         }
 
-        $types = $type ? [$type] : ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
+        $types = $type ? [$type] : ['tap_accommodation', 'tap_tour', 'tap_experience', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
         $results = [];
 
         foreach ($types as $pt) {

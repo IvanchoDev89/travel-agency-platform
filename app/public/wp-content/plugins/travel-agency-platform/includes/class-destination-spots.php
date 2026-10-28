@@ -321,7 +321,7 @@ class TAP_Destination_Spots {
      * @return array<int,array<string,mixed>>
      */
     public static function services_map_data(array $args = []) {
-        $types = !empty($args['types']) ? (array) $args['types'] : ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
+        $types = !empty($args['types']) ? (array) $args['types'] : ['tap_accommodation', 'tap_tour', 'tap_experience', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
         $types = array_values(array_filter($types, 'post_type_exists'));
         if (!$types) {
             return [];

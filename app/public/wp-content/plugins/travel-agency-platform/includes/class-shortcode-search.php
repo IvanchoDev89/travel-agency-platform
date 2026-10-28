@@ -323,7 +323,7 @@ class TAP_Shortcode_Search {
             'columns'   => 3,
         ], $atts);
 
-        $types = $atts['type'] ? (array) $atts['type'] : ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
+        $types = $atts['type'] ? (array) $atts['type'] : ['tap_accommodation', 'tap_tour', 'tap_experience', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
 
         // Destination archive filter: the unified ficha links to
         // "/tour/?destino=la-fortuna", and the archive grid is rendered by this
@@ -1007,7 +1007,7 @@ class TAP_Shortcode_Search {
             return [];
         }
         $keys = [];
-        foreach (['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'] as $type) {
+        foreach (['tap_accommodation', 'tap_tour', 'tap_experience', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'] as $type) {
             $key = TAP_Post_Types::agency_meta_key($type);
             if ($key) {
                 $keys[$key] = $type;
@@ -1051,7 +1051,7 @@ class TAP_Shortcode_Search {
             return [];
         }
         $cases = [];
-        foreach (['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'] as $type) {
+        foreach (['tap_accommodation', 'tap_tour', 'tap_experience', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'] as $type) {
             $key = TAP_Post_Types::agency_meta_key($type);
             if ($key) {
                 $cases[] = $wpdb->prepare('WHEN %s THEN %s', $type, $key);
@@ -1091,7 +1091,7 @@ class TAP_Shortcode_Search {
             return [];
         }
         $keys = [];
-        foreach (['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'] as $type) {
+        foreach (['tap_accommodation', 'tap_tour', 'tap_experience', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'] as $type) {
             $key = TAP_Post_Types::agency_meta_key($type);
             if ($key) {
                 $keys[] = $key;
@@ -1469,7 +1469,7 @@ class TAP_Shortcode_Search {
     public static function featured_services($atts) {
         $atts = shortcode_atts(['type' => '', 'limit' => 6], $atts);
 
-        $types = $atts['type'] ? (array) $atts['type'] : ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
+        $types = $atts['type'] ? (array) $atts['type'] : ['tap_accommodation', 'tap_tour', 'tap_experience', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
         $types = array_values(array_filter($types, function ($pt) {
             return (bool) TAP_Promotions::keys_for_type($pt);
         }));

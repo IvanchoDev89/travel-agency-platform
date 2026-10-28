@@ -17,6 +17,7 @@ class TAP_Booking_Pricing {
         $price_keys = [
             'tap_accommodation' => '_tap_acc_price_per_night',
             'tap_tour'          => '_tap_tour_price_adult',
+            'tap_experience'    => '_tap_exp_price_adult',
             'tap_transport'     => '_tap_trans_price',
             'tap_car_rental'    => '_tap_car_price_per_day',
             'tap_boat'          => '_tap_boat_price_half',
@@ -86,6 +87,11 @@ class TAP_Booking_Pricing {
             case 'tap_tour':
                 $adult_price = $unit_price;
                 $child_price = floatval(get_post_meta($service_id, '_tap_tour_price_child', true)) ?: $adult_price * 0.7;
+                $result = ($adult_price * $adults) + ($child_price * $children);
+                break;
+            case 'tap_experience':
+                $adult_price = $unit_price;
+                $child_price = floatval(get_post_meta($service_id, '_tap_exp_price_child', true)) ?: $adult_price * 0.5;
                 $result = ($adult_price * $adults) + ($child_price * $children);
                 break;
 

@@ -10,6 +10,7 @@ class TAP_Metaboxes {
         self::register_accommodation_metabox();
         self::register_room_metabox();
         self::register_tour_metabox();
+        self::register_experience_metabox();
         self::register_transport_metabox();
         self::register_car_rental_metabox();
         self::register_boat_metabox();
@@ -22,7 +23,7 @@ class TAP_Metaboxes {
     }
 
     private static function service_types() {
-        return ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
+        return ['tap_accommodation', 'tap_tour', 'tap_experience', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
     }
 
     /**
@@ -295,6 +296,33 @@ class TAP_Metaboxes {
             '_tap_seo_title'       => ['type' => 'text', 'label' => __('SEO Title', 'travel-agency-platform'), 'placeholder' => __('Falls back to post title', 'travel-agency-platform')],
             '_tap_seo_description' => ['type' => 'textarea', 'label' => __('Meta Description (SEO)', 'travel-agency-platform')],
         ];
+    }
+
+    private static function register_experience_metabox() {
+        self::maybe_add_meta_box('tap_experience_details', __('Experience Details', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_experience', 'normal', 'high');
+        self::$fields['tap_experience'] = [
+            '_tap_exp_agency_id'     => ['type' => 'select_post', 'label' => __('Agency', 'travel-agency-platform'), 'post_type' => 'tap_agency'],
+            '_tap_exp_type'          => ['type' => 'select', 'label' => __('Category', 'travel-agency-platform'), 'options' => ['workshop' => 'Workshop', 'class' => 'Class', 'tasting' => 'Tasting', 'art' => 'Art', 'nature' => 'Nature', 'wellness' => 'Wellness', 'other' => 'Other']],
+            '_tap_exp_duration'      => ['type' => 'text', 'label' => __('Duration', 'travel-agency-platform'), 'placeholder' => 'e.g. 2 hours'],
+            '_tap_exp_price_adult'   => ['type' => 'number', 'label' => __('Price per Person ($)', 'travel-agency-platform'), 'step' => '0.01'],
+            '_tap_exp_price_child'   => ['type' => 'number', 'label' => __('Price per Child ($)', 'travel-agency-platform'), 'step' => '0.01'],
+            '_tap_exp_currency'      => ['type' => 'text', 'label' => __('Currency', 'travel-agency-platform'), 'default' => 'USD'],
+            '_tap_exp_max_people'    => ['type' => 'number', 'label' => __('Max Participants', 'travel-agency-platform')],
+            '_tap_exp_min_age'       => ['type' => 'number', 'label' => __('Minimum Age', 'travel-agency-platform')],
+            '_tap_exp_start_time'    => ['type' => 'time', 'label' => __('Start Time', 'travel-agency-platform')],
+            '_tap_exp_end_time'      => ['type' => 'time', 'label' => __('End Time', 'travel-agency-platform')],
+            '_tap_exp_meeting_point' => ['type' => 'text', 'label' => __('Meeting Point', 'travel-agency-platform')],
+            '_tap_exp_includes'      => ['type' => 'textarea', 'label' => __("What's Included", 'travel-agency-platform')],
+            '_tap_exp_excludes'      => ['type' => 'textarea', 'label' => __("What's Not Included", 'travel-agency-platform')],
+            '_tap_exp_what_bring'    => ['type' => 'textarea', 'label' => __('What to Bring', 'travel-agency-platform')],
+            '_tap_exp_lat'           => ['type' => 'text', 'label' => __('Latitude', 'travel-agency-platform')],
+            '_tap_exp_lng'           => ['type' => 'text', 'label' => __('Longitude', 'travel-agency-platform')],
+            '_tap_exp_is_active'     => ['type' => 'checkbox', 'label' => __('Active', 'travel-agency-platform'), 'default' => '1'],
+            '_tap_exp_capacity'      => ['type' => 'number', 'label' => __('Cupos por fecha (capacidad)', 'travel-agency-platform')],
+            '_tap_seo_title'         => ['type' => 'text', 'label' => __('SEO Title', 'travel-agency-platform'), 'placeholder' => __('Falls back to post title', 'travel-agency-platform')],
+            '_tap_seo_description'   => ['type' => 'textarea', 'label' => __('Meta Description (SEO)', 'travel-agency-platform')],
+        ];
+        // Yield pricing rules metabox registered via service_types() loop.
     }
 
     private static function register_transport_metabox() {

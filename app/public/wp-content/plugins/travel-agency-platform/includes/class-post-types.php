@@ -7,6 +7,7 @@ class TAP_Post_Types {
         self::register_accommodation();
         self::register_room();
         self::register_tour();
+        self::register_experience();
         self::register_transport();
         self::register_car_rental();
         self::register_boat();
@@ -121,6 +122,34 @@ class TAP_Post_Types {
             'supports'     => ['title', 'editor', 'thumbnail', 'custom-fields'],
             'rewrite'      => ['slug' => 'tour'],
             'capability_type' => ['tap_tour', 'tap_tours'],
+            'map_meta_cap' => true,
+            'show_in_rest' => true,
+        ]);
+    }
+
+    private static function register_experience() {
+        $labels = [
+            'name'               => __('Experiences', 'travel-agency-platform'),
+            'singular_name'      => __('Experience', 'travel-agency-platform'),
+            'add_new'            => __('Add Experience', 'travel-agency-platform'),
+            'add_new_item'       => __('Add New Experience', 'travel-agency-platform'),
+            'edit_item'          => __('Edit Experience', 'travel-agency-platform'),
+            'view_item'          => __('View Experience', 'travel-agency-platform'),
+            'search_items'       => __('Search Experiences', 'travel-agency-platform'),
+            'not_found'          => __('No experiences found', 'travel-agency-platform'),
+            'all_items'          => __('All Experiences', 'travel-agency-platform'),
+        ];
+
+        register_post_type('tap_experience', [
+            'labels'       => $labels,
+            'public'       => true,
+            'has_archive'  => true,
+            'show_in_menu' => true,
+            'menu_icon'    => 'dashicons-smiley',
+            'menu_position' => 22,
+            'supports'     => ['title', 'editor', 'thumbnail', 'custom-fields'],
+            'rewrite'      => ['slug' => 'experience'],
+            'capability_type' => ['tap_experience', 'tap_experiences'],
             'map_meta_cap' => true,
             'show_in_rest' => true,
         ]);
@@ -273,6 +302,7 @@ class TAP_Post_Types {
             'tap_accommodation' => __('Accommodation', 'travel-agency-platform'),
             'tap_room'          => __('Room', 'travel-agency-platform'),
             'tap_tour'          => __('Tour', 'travel-agency-platform'),
+        'tap_experience'    => __('Experience', 'travel-agency-platform'),
             'tap_transport'     => __('Transport', 'travel-agency-platform'),
             'tap_car_rental'    => __('Car Rental', 'travel-agency-platform'),
             'tap_boat'          => __('Boat', 'travel-agency-platform'),
@@ -287,6 +317,7 @@ class TAP_Post_Types {
             'tap_accommodation'  => 'accommodation',
             'tap_room'          => 'room-type',
             'tap_tour'          => 'tour',
+            'tap_experience'    => 'experience',
             'tap_transport'     => 'transport',
             'tap_car_rental'    => 'car-rental',
             'tap_boat'          => 'boat',
@@ -303,6 +334,7 @@ class TAP_Post_Types {
         return [
             'tap_accommodation' => 'acc',
             'tap_tour'          => 'tour',
+            'tap_experience'    => 'exp',
             'tap_transport'     => 'trans',
             'tap_car_rental'    => 'car',
             'tap_boat'          => 'boat',
