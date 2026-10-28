@@ -44,6 +44,7 @@ class TAP_Front_Dash_Client {
             ['key' => 'bookings', 'label' => __('Mis reservas', 'travel-agency-platform'), 'icon' => 'calendar', 'url' => add_query_arg('seccion', 'bookings', $base)],
             ['key' => 'favorites', 'label' => __('Favoritos', 'travel-agency-platform'), 'icon' => 'heart', 'url' => add_query_arg('seccion', 'favorites', $base)],
             ['key' => 'reviews', 'label' => __('Mis reseñas', 'travel-agency-platform'), 'icon' => 'star', 'url' => add_query_arg('seccion', 'reviews', $base)],
+            ['key' => 'loyalty', 'label' => __('Fidelidad', 'travel-agency-platform'), 'icon' => 'star', 'url' => add_query_arg('seccion', 'loyalty', $base)],
         ];
     }
 
@@ -55,6 +56,8 @@ class TAP_Front_Dash_Client {
                 return self::client_favorites($user);
             case 'reviews':
                 return self::client_reviews($user);
+            case 'loyalty':
+                return self::client_loyalty($user);
             default:
                 return self::client_overview($user);
         }
@@ -353,6 +356,66 @@ class TAP_Front_Dash_Client {
     }
 
     /* ── client: reviews ───────────────────────────────────────────── */
+
+    private static function client_loyalty($user) {
+        if (!class_exists('TAP_Loyalty')) {
+            return '<p class="tap-empty">' . esc_html__('Módulo de fidelidad no disponible.', 'travel-agency-platform') . '</p>';
+        }
+        $bal   = TAP_Loyalty::balance($user->ID);
+        $level = TAP_Loyalty::level($user->ID);
+        $info  = TAP_Loyalty::levels()[$level];
+        $hist  = TAP_Loyalty::history($user->ID, 20);
+        ob_start();
+        ?>
+        <div class="tap-dash-section">
+            <div class="tap-dash-section-header">
+                <h2><?php esc_html_e('Mi fidelidad', 'travel-agency-platform'); ?></h2>
+            </div>
+            <div class="tap-stats-grid" style="margin-top:16px;">
+                <div class="tap-stat-card">
+                    <span class="tap-stat-number"><?php echo (int) $bal; ?></span>
+                    <span class="tap-stat-label"><?php esc_html_e('Puntos disponibles', 'travel-agency-platform'); ?></span>
+                </div>
+                <div class="tap-stat-card">
+                    <span class="tap-stat-number"><?php echo esc_html($info['label']); ?></span>
+                    <span class="tap-stat-label"><?php esc_html_e('Nivel', 'travel-agency-platform'); ?></span>
+                </div>
+                <div class="tap-stat-card">
+                    <span class="tap-stat-number"><?php echo (int) $info['discount']; ?>%</span>
+                    <span class="tap-stat-label"><?php esc_html_e('Descuento por nivel', 'travel-agency-platform'); ?></span>
+                </div>
+            </div>
+            <p class="tap-agency-meta" style="margin-top:12px;">
+                <?php echo esc_html(sprintf(__('Ganas %s punto(s) por cada unidad de moneda gastada. 100 puntos = 1 de descuento.', 'travel-agency-platform'), number_format(TAP_Loyalty::points_per_unit(), 2))); ?>
+            </p>
+
+            <div class="tap-dash-section-header" style="margin-top:24px;">
+                <h3><?php esc_html_e('Historial de puntos', 'travel-agency-platform'); ?></h3>
+            </div>
+            <?php if (!$hist): ?>
+                <p class="tap-empty"><?php esc_html_e('Aún no tienes movimientos de puntos.', 'travel-agency-platform'); ?></p>
+            <?php else: ?>
+            <div class="tap-table-scroll"><table class="tap-table tap-table-compact">
+                <thead><tr>
+                    <th><?php esc_html_e('Fecha', 'travel-agency-platform'); ?></th>
+                    <th><?php esc_html_e('Puntos', 'travel-agency-platform'); ?></th>
+                    <th><?php esc_html_e('Origen', 'travel-agency-platform'); ?></th>
+                </tr></thead>
+                <tbody>
+                <?php foreach ($hist as $h): ?>
+                    <tr>
+                        <td><?php echo esc_html($h->created_at); ?></td>
+                        <td style="color:<?php echo $h->points >= 0 ? '#047857' : '#b91c1c'; ?>;font-weight:700;"><?php echo ($h->points >= 0 ? '+' : '') . (int) $h->points; ?></td>
+                        <td><?php echo esc_html($h->source); ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table></div>
+            <?php endif; ?>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
 
     private static function client_reviews($user) {
         global $wpdb;

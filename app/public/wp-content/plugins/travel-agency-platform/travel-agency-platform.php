@@ -99,6 +99,7 @@ final class TravelAgencyPlatform {
         add_action('init', ['TAP_Pricing', 'init'], 10);
         add_action('init', ['TAP_Discounts', 'init'], 11);
         add_action('init', ['TAP_Referrals', 'init'], 12);
+        add_action('init', ['TAP_Loyalty', 'init'], 13);
         add_action('init', ['TAP_Emails', 'init'], 12);
         add_action('init', ['TAP_SEO', 'init'], 13);
         add_action('init', ['TAP_Itinerary', 'init'], 14);

@@ -177,6 +177,32 @@ class TAP_Installer {
                 KEY status (status)
             ) $charset;",
 
+            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_loyalty_points (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                user_id bigint(20) NOT NULL,
+                points int(11) NOT NULL DEFAULT 0,
+                source varchar(30) NOT NULL DEFAULT 'booking',
+                source_id bigint(20) DEFAULT NULL,
+                expires_at datetime DEFAULT NULL,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY user_id (user_id),
+                KEY expires (expires_at)
+            ) $charset;",
+
+            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_loyalty_points (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                user_id bigint(20) NOT NULL,
+                points int(11) NOT NULL DEFAULT 0,
+                source varchar(30) NOT NULL DEFAULT 'booking',
+                source_id bigint(20) DEFAULT NULL,
+                expires_at datetime DEFAULT NULL,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY user_id (user_id),
+                KEY expires (expires_at)
+            ) $charset;",
+
             "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_chat_events (
                 id bigint(20) NOT NULL AUTO_INCREMENT,
                 intent varchar(40) NOT NULL,
