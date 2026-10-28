@@ -9,9 +9,10 @@ class TAP_Payment {
 
     public static function record_order($paypal_order_id, $object_type, $object_id, $amount, $status = 'created', $capture_id = null) {
         global $wpdb;
-        $existing = $wpdb->get_var($wpdb->prepare('SELECT id FROM ' . self::orders_table() . ' WHERE paypal_order_id = %s', $paypal_order_id));
+        $table = self::orders_table();
+        $existing = $wpdb->get_var($wpdb->prepare("SELECT id FROM {$table} WHERE paypal_order_id = %s", $paypal_order_id));
         if ($existing) {
-            return $wpdb->update(self::orders_table(), [
+            return $wpdb->update($table, [
                 'status'     => $status,
                 'capture_id' => $capture_id,
             ], ['id' => (int) $existing]);
@@ -29,8 +30,9 @@ class TAP_Payment {
     /** Resolve recorded object for a completed PayPal order (sub/promo). */
     public static function resolve_order($paypal_order_id) {
         global $wpdb;
+        $table = self::orders_table();
         return $wpdb->get_row($wpdb->prepare(
-            'SELECT * FROM ' . self::orders_table() . ' WHERE paypal_order_id = %s',
+            "SELECT * FROM {$table} WHERE paypal_order_id = %s",
             $paypal_order_id
         ));
     }
@@ -133,7 +135,8 @@ class TAP_Payment {
         ];
 
         foreach ($paypal_headers as $h) {
-            $headers[$h] = $_SERVER['HTTP_' . str_replace('-', '_', $h)] ?? '';
+            $key = 'HTTP_' . str_replace('-', '_', $h);
+            $headers[$h] = isset($_SERVER[$key]) ? sanitize_text_field(wp_unslash($_SERVER[$key])) : '';
         }
 
         return $headers;
@@ -151,8 +154,9 @@ class TAP_Payment {
     public static function find_booking_by_order($paypal_order_id) {
         global $wpdb;
 
+        $table = self::orders_table();
         $booking_id = $wpdb->get_var($wpdb->prepare(
-            'SELECT object_id FROM ' . self::orders_table() . "
+            "SELECT object_id FROM {$table}
              WHERE paypal_order_id = %s AND object_type = 'booking' AND object_id > 0 LIMIT 1",
             $paypal_order_id
         ));

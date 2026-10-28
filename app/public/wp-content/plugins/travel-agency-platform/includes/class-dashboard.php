@@ -235,6 +235,9 @@ class TAP_Dashboard {
      * True when the form $trigger was submitted with a valid $action nonce.
      */
     public static function post_verified($trigger, $action) {
-        return isset($_POST[$trigger]) && self::post_nonce_ok($action);
+        if (!isset($_POST[$trigger])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            return false;
+        }
+        return self::post_nonce_ok($action);
     }
 }

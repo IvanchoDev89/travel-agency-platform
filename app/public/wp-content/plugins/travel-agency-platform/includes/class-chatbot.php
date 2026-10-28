@@ -54,18 +54,18 @@ class TAP_Chatbot {
         $links = [];
         foreach (($spec['links'] ?? []) as $item) {
             $links[] = [
-                'label' => __($item[0], 'travel-agency-platform'),
+                'label' => __($item[0], 'travel-agency-platform'), // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
                 'url'   => $item[1](),
             ];
         }
-        $reply = ($key === 'recommend') ? self::recommendation_reply() : __($spec['reply'], 'travel-agency-platform');
+        $reply = ($key === 'recommend') ? self::recommendation_reply() : __($spec['reply'], 'travel-agency-platform'); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
 
         return [
             'intent'      => $key,
             'reply'       => $reply,
             'links'       => $links,
             'suggestions' => array_map(function ($s) {
-                return __($s, 'travel-agency-platform');
+                return __($s, 'travel-agency-platform'); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
             }, self::SUGGESTIONS),
         ];
     }

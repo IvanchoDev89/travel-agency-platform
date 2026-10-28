@@ -46,12 +46,11 @@ if (!class_exists('TAP_Booking')) {
      * plugin cannot register anything, so surface the real cause instead of
      * letting WordPress die on the first missing class.
      */
-    function tap_autoload_missing_notice() {
+    add_action('admin_notices', function () {
         echo '<div class="notice notice-error"><p><strong>Travel Agency Platform:</strong> '
             . esc_html__('no se encontró el autoloader de Composer. Ejecuta "composer dump-autoload -o".', 'travel-agency-platform')
             . '</p></div>';
-    }
-    add_action('admin_notices', 'tap_autoload_missing_notice');
+    });
     return;
 }
 
@@ -314,8 +313,4 @@ final class TravelAgencyPlatform {
     }
 }
 
-function TAP() {
-    return TravelAgencyPlatform::instance();
-}
-
-TAP();
+TravelAgencyPlatform::instance();

@@ -31,6 +31,9 @@ jobs:
       - name: Install dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
 
+      - name: Regenerate autoloader
+        run: composer dump-autoload -o
+
       - name: Run PHPStan
         run: composer analyse
 
@@ -74,6 +77,9 @@ jobs:
         with:
           php-version: '8.3'
           coverage: none
+
+      - name: Regenerate autoloader
+        run: composer dump-autoload -o
 
       - name: Check every translated string is in the catalogs
         run: php tools/i18n-check.php
