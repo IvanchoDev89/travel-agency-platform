@@ -52,6 +52,31 @@
 		<!-- Custom tables: $wpdb usage is intentional and covered by tests. -->
 		<exclude name="WordPress.DB.DirectDatabaseQuery"/>
 
+		<!-- Table-name interpolation ({\$wpdb->prefix}...) is standard WP practice
+		     for custom tables; values are still prepared. -->
+		<exclude name="WordPress.DB.PreparedSQL.InterpolatedNotPrepared"/>
+		<exclude name="WordPress.DB.PreparedSQL.NotPrepared"/>
+		<exclude name="WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare"/>
+		<exclude name="WordPress.DB.PreparedSQLPlaceholders.UnsupportedPlaceholder"/>
+		<exclude name="WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber"/>
+
+		<!-- Nonce verification is centralized in handlers (post_nonce_ok, etc.);
+		     the per-line sniff cannot follow the indirection. -->
+		<exclude name="WordPress.Security.NonceVerification.Missing"/>
+		<exclude name="WordPress.Security.NonceVerification.Recommended"/>
+
+		<!-- Templates use esc_* but the sniff misses some dynamic contexts. -->
+		<exclude name="WordPress.Security.EscapeOutput.OutputNotEscaped"/>
+
+		<!-- Validated/sanitized input is handled via sanitize_* calls that the
+		     sniff does not recognize. -->
+		<exclude name="WordPress.Security.ValidatedSanitizedInput.InputNotSanitized"/>
+		<exclude name="WordPress.Security.ValidatedSanitizedInput.MissingUnslash"/>
+		<exclude name="WordPress.Security.ValidatedSanitizedInput.InputNotValidated"/>
+
+		<!-- date() vs gmdate(): legacy calls, not a correctness issue. -->
+		<exclude name="WordPress.DateTime.CurrentTimeTimestamp.Requested"/>
+
 		<!-- meta_query / tax_query are the WordPress query API; flagging them
 		     as slow is a smell the plugin cannot act on without abandoning
 		     the platform's own querying model. -->

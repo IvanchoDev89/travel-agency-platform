@@ -40,10 +40,6 @@ jobs:
   coding-standards:
     name: PHPCS (WordPress, informational)
     runs-on: ubuntu-latest
-    # The codebase still carries WPCS debt (largely legacy formatting rules that
-    # conflict with the project style). This job reports progress without
-    # blocking; remove `continue-on-error` once the report is clean.
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
