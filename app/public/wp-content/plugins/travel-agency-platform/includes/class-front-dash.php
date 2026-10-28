@@ -981,37 +981,50 @@ class TAP_Front_Dash {
                 <h2><?php esc_html_e('Perfil de la agencia', 'travel-agency-platform'); ?></h2>
             </div>
             <div class="tap-dash-card" style="margin-top:16px;">
-                <form id="tap-agency-profile-form" class="tap-bo-form">
+                <form id="tap-agency-profile-form" class="tap-profile-form">
                     <input type="hidden" name="agency_id" value="<?php echo (int) $agency_id; ?>">
-                    <label><?php esc_html_e('Nombre de la agencia', 'travel-agency-platform'); ?>
-                        <input type="text" name="name" value="<?php echo esc_attr($name); ?>" required>
-                    </label>
-                    <label><?php esc_html_e('Descripción', 'travel-agency-platform'); ?>
-                        <textarea name="description" rows="4"><?php echo esc_textarea($desc); ?></textarea>
-                    </label>
-                    <label><?php esc_html_e('Email', 'travel-agency-platform'); ?>
-                        <input type="email" name="email" value="<?php echo esc_attr($email); ?>">
-                    </label>
-                    <label><?php esc_html_e('Teléfono', 'travel-agency-platform'); ?>
-                        <input type="text" name="phone" value="<?php echo esc_attr($phone); ?>">
-                    </label>
-                    <label><?php esc_html_e('WhatsApp', 'travel-agency-platform'); ?>
-                        <input type="text" name="whatsapp" value="<?php echo esc_attr($whatsapp); ?>">
-                    </label>
-                    <label><?php esc_html_e('Sitio web', 'travel-agency-platform'); ?>
-                        <input type="url" name="website" value="<?php echo esc_url($website); ?>">
-                    </label>
-                    <label><?php esc_html_e('Dirección', 'travel-agency-platform'); ?>
-                        <input type="text" name="address" value="<?php echo esc_attr($address); ?>">
-                    </label>
-                    <label><?php esc_html_e('Ciudad', 'travel-agency-platform'); ?>
-                        <input type="text" name="city" value="<?php echo esc_attr($city); ?>">
-                    </label>
-                    <label><?php esc_html_e('País', 'travel-agency-platform'); ?>
-                        <input type="text" name="country" value="<?php echo esc_attr($country); ?>">
-                    </label>
-                    <button type="submit" class="tap-btn tap-btn-primary"><?php esc_html_e('Guardar perfil', 'travel-agency-platform'); ?></button>
-                    <span class="tap-form-msg" style="margin-left:8px;"></span>
+                    <div class="tap-profile-grid">
+                        <div class="tap-profile-field tap-profile-field--full">
+                            <label><?php esc_html_e('Nombre de la agencia', 'travel-agency-platform'); ?></label>
+                            <input type="text" name="name" value="<?php echo esc_attr($name); ?>" required>
+                        </div>
+                        <div class="tap-profile-field tap-profile-field--full">
+                            <label><?php esc_html_e('Descripción', 'travel-agency-platform'); ?></label>
+                            <textarea name="description" rows="4"><?php echo esc_textarea($desc); ?></textarea>
+                        </div>
+                        <div class="tap-profile-field">
+                            <label><?php esc_html_e('Email', 'travel-agency-platform'); ?></label>
+                            <input type="email" name="email" value="<?php echo esc_attr($email); ?>">
+                        </div>
+                        <div class="tap-profile-field">
+                            <label><?php esc_html_e('Teléfono', 'travel-agency-platform'); ?></label>
+                            <input type="text" name="phone" value="<?php echo esc_attr($phone); ?>">
+                        </div>
+                        <div class="tap-profile-field">
+                            <label><?php esc_html_e('WhatsApp', 'travel-agency-platform'); ?></label>
+                            <input type="text" name="whatsapp" value="<?php echo esc_attr($whatsapp); ?>">
+                        </div>
+                        <div class="tap-profile-field">
+                            <label><?php esc_html_e('Sitio web', 'travel-agency-platform'); ?></label>
+                            <input type="url" name="website" value="<?php echo esc_url($website); ?>">
+                        </div>
+                        <div class="tap-profile-field tap-profile-field--full">
+                            <label><?php esc_html_e('Dirección', 'travel-agency-platform'); ?></label>
+                            <input type="text" name="address" value="<?php echo esc_attr($address); ?>">
+                        </div>
+                        <div class="tap-profile-field">
+                            <label><?php esc_html_e('Ciudad', 'travel-agency-platform'); ?></label>
+                            <input type="text" name="city" value="<?php echo esc_attr($city); ?>">
+                        </div>
+                        <div class="tap-profile-field">
+                            <label><?php esc_html_e('País', 'travel-agency-platform'); ?></label>
+                            <input type="text" name="country" value="<?php echo esc_attr($country); ?>">
+                        </div>
+                    </div>
+                    <div class="tap-profile-actions">
+                        <button type="submit" class="tap-btn tap-btn-primary"><?php esc_html_e('Guardar perfil', 'travel-agency-platform'); ?></button>
+                        <span class="tap-form-msg" style="margin-left:8px;"></span>
+                    </div>
                 </form>
             </div>
         </div>
@@ -1638,6 +1651,9 @@ endif;
             'wallet'   => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="14" rx="2" ry="2"/><path d="M2 10h6a2 2 0 0 1 2 2 2 2 0 0 1-2 2H2"/><circle cx="17" cy="14" r="1"/></svg>',
             'grid'     => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>',
             'users'    => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+            'chart'    => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+            'list'     => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',
+            'user'     => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
         ];
         echo $icons[$icon] ?? '';
     }

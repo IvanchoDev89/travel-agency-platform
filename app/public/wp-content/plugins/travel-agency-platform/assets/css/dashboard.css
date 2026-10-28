@@ -845,3 +845,51 @@
         font-size: 0.8rem;
     }
 }
+
+/* ── Agency profile form ────────────────────────────────────────── */
+.tap-profile-form { display: grid; gap: 1.25rem; }
+.tap-profile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem 1.25rem;
+}
+.tap-profile-field { display: flex; flex-direction: column; gap: 0.35rem; }
+.tap-profile-field--full { grid-column: 1 / -1; }
+.tap-profile-field label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.tap-profile-field input,
+.tap-profile-field textarea {
+    padding: 0.6rem 0.85rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #f8fafc;
+    font-size: 0.9rem;
+    color: #0f172a;
+    transition: all 0.18s ease;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+.tap-profile-field input:focus,
+.tap-profile-field textarea:focus {
+    background: #fff;
+    border-color: #0d9488;
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+    outline: none;
+}
+.tap-profile-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #e2e8f0;
+    margin-top: 0.5rem;
+}
+@media (max-width: 640px) {
+    .tap-profile-grid { grid-template-columns: 1fr; }
+}
