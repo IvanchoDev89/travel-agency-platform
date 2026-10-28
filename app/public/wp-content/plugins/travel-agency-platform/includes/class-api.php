@@ -492,6 +492,25 @@ class TAP_API {
 
         $content = sanitize_textarea_field($params['content']);
         $title   = !empty($params['title']) ? sanitize_text_field($params['title']) : '';
+
+        // Optional review photos: validate ownership.
+        $images = '';
+        if (!empty($params['images'])) {
+            $raw_ids = is_array($params['images']) ? $params['images'] : explode(',', (string) $params['images']);
+            $ids = [];
+            foreach ($raw_ids as $rid) {
+                $rid = absint($rid);
+                if (!$rid) continue;
+                $att = get_post($rid);
+                if (!$att || $att->post_type !== 'attachment') continue;
+                // Owner check: only the user's own uploads.
+                if ((int) $att->post_author !== $uid && !current_user_can('manage_options')) continue;
+                $ids[] = $rid;
+            }
+            $ids = array_values(array_unique($ids));
+            $images = implode(',', array_slice($ids, 0, 6));
+        }
+
         $hit     = TAP_Moderation::assess($title . ' ' . $content, 'review');
         if (TAP_Moderation::BLOCK === $hit['status']) {
             return new WP_Error('review_blocked', __('Your review did not pass our safety checks. Please adjust it and try again.', 'travel-agency-platform'), ['status' => 400]);
@@ -508,6 +527,7 @@ class TAP_API {
                 'rating'       => $rating,
                 'title'        => $title,
                 'content'      => $content,
+                'images'       => $images,
                 'is_approved'  => 0,
                 'mod_status'   => $hit['status'],
                 'mod_reason'   => $hit['reason'],

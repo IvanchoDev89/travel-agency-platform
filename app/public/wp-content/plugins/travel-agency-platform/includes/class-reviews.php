@@ -78,6 +78,37 @@ class TAP_Reviews {
         return ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
     }
 
+    /** Compute badges for a user (verified traveler, top reviewer, photographer). */
+    public static function user_badges($user_id) {
+        global $wpdb;
+        $badges = [];
+        // Verified traveler: has at least one completed/paid booking.
+        $has_booking = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tap_bookings WHERE client_id = %d AND status IN ('confirmed','completed') AND payment_status = 'paid'",
+            (int) $user_id
+        ));
+        if ($has_booking > 0) {
+            $badges[] = __('Viajero verificado', 'travel-agency-platform');
+        }
+        // Top reviewer: 5+ approved reviews.
+        $review_count = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tap_reviews WHERE user_id = %d AND is_approved = 1",
+            (int) $user_id
+        ));
+        if ($review_count >= 5) {
+            $badges[] = __('Top reviewer', 'travel-agency-platform');
+        }
+        // Photographer: at least one review with photo.
+        $has_photo = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tap_reviews WHERE user_id = %d AND images IS NOT NULL AND images != ''",
+            (int) $user_id
+        ));
+        if ($has_photo > 0) {
+            $badges[] = __('Fotógrafo', 'travel-agency-platform');
+        }
+        return $badges;
+    }
+
     /** Human message shared by the form gate and REST rejection. */
     public static function verified_only_message() {
         return __('Solo puedes dejar reseñas después de una reserva confirmada o completada y pagada.', 'travel-agency-platform');

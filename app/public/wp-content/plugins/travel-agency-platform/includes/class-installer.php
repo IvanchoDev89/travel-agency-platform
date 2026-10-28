@@ -455,6 +455,27 @@ class TAP_Installer {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_reviews ADD COLUMN is_verified tinyint(1) DEFAULT 0 AFTER booking_id");
         }
 
+        if (!in_array('images', $cols_reviews, true)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_reviews ADD COLUMN images text DEFAULT NULL AFTER content");
+        }
+
+        // Q&A table for services.
+        $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_qa (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            service_type varchar(50) NOT NULL,
+            service_id bigint(20) NOT NULL,
+            user_id bigint(20) NOT NULL,
+            question text NOT NULL,
+            answer text DEFAULT NULL,
+            answered_by bigint(20) DEFAULT NULL,
+            answered_at datetime DEFAULT NULL,
+            is_approved tinyint(1) NOT NULL DEFAULT 1,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY service (service_type, service_id),
+            KEY user (user_id)
+        ) {$wpdb->get_charset_collate()}");
+
         $cols_leads = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_leads");
         if (!in_array('mod_status', $cols_leads, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_leads ADD COLUMN mod_status varchar(20) DEFAULT 'ok' AFTER source");

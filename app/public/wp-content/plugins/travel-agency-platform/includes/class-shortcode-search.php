@@ -532,6 +532,132 @@ class TAP_Shortcode_Search {
                 }
                 ?>
             </div>
+            <?php
+            // Reviews section
+            global $wpdb;
+            $reviews = $wpdb->get_results($wpdb->prepare(
+                "SELECT * FROM {$wpdb->prefix}tap_reviews WHERE service_type = %s AND service_id = %d AND is_approved = 1 ORDER BY created_at DESC LIMIT 20",
+                $type, $post->ID
+            ));
+            if ($reviews): ?>
+                <section class="tap-reviews" style="margin-top:var(--tap-space-6);">
+                    <h2><?php esc_html_e('Reseñas de viajeros', 'travel-agency-platform'); ?></h2>
+                    <?php foreach ($reviews as $rv): ?>
+                        <article class="tap-review" style="border:1px solid var(--tap-border);border-radius:var(--tap-radius-lg);padding:var(--tap-space-4);margin-bottom:var(--tap-space-3);">
+                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                                <strong><?php echo esc_html(get_the_author_meta('display_name', $rv->user_id) ?: __('Viajero', 'travel-agency-platform')); ?></strong>
+                                <?php if ($rv->is_verified): ?><span style="font-size:11px;color:var(--tap-primary-dark);font-weight:700;">✓ <?php esc_html_e('Verificado', 'travel-agency-platform'); ?></span><?php endif; ?>
+                                <?php if (class_exists('TAP_Reviews')): foreach (TAP_Reviews::user_badges($rv->user_id) as $badge): ?>
+                                    <span style="font-size:10px;padding:2px 6px;border-radius:999px;background:var(--tap-primary-bg);color:var(--tap-primary-dark);font-weight:700;"><?php echo esc_html($badge); ?></span>
+                                <?php endforeach; endif; ?>
+                                <span style="color:#d97706;font-weight:700;margin-left:auto;"><?php echo str_repeat('★', (int) $rv->rating); ?></span>
+                            </div>
+                            <?php if ($rv->title): ?><h4 style="margin:0 0 4px;"><?php echo esc_html($rv->title); ?></h4><?php endif; ?>
+                            <p style="margin:0 0 8px;color:var(--tap-neutral-700);"><?php echo esc_html($rv->content); ?></p>
+                            <?php
+                            $imgs = array_filter(array_map('absint', explode(',', (string) $rv->images)));
+                            if ($imgs): ?>
+                                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                    <?php foreach ($imgs as $img_id): ?>
+                                        <?php $iu = wp_get_attachment_image_url($img_id, 'thumbnail'); if (!$iu) continue; ?>
+                                        <img src="<?php echo esc_url($iu); ?>" alt="" loading="lazy" style="width:64px;height:64px;object-fit:cover;border-radius:var(--tap-radius-md);">
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+                            <?php if ($rv->reply): ?>
+                                <div style="margin-top:8px;padding:8px 12px;background:var(--tap-surface-muted);border-radius:var(--tap-radius-md);font-size:var(--tap-text-sm);">
+                                    <strong><?php esc_html_e('Respuesta de la agencia:', 'travel-agency-platform'); ?></strong> <?php echo esc_html($rv->reply); ?>
+                                </div>
+                            <?php endif; ?>
+                            <small style="color:var(--tap-neutral-400);"><?php echo esc_html($rv->created_at); ?></small>
+                        </article>
+                    <?php endforeach; ?>
+                </section>
+            <?php endif; ?>
+
+            <?php
+            // Q&A section
+            global $wpdb;
+            $qas = $wpdb->get_results($wpdb->prepare(
+                "SELECT * FROM {$wpdb->prefix}tap_qa WHERE service_type = %s AND service_id = %d AND is_approved = 1 ORDER BY created_at DESC",
+                $type, $post->ID
+            ));
+            ?>
+            <section class="tap-qa" style="margin-top:var(--tap-space-6);">
+                <h2><?php esc_html_e('Preguntas y respuestas', 'travel-agency-platform'); ?></h2>
+                <?php if ($qas): ?>
+                    <?php foreach ($qas as $qa): ?>
+                        <div class="tap-qa-item" style="border:1px solid var(--tap-border);border-radius:var(--tap-radius-lg);padding:var(--tap-space-4);margin-bottom:var(--tap-space-3);">
+                            <p style="margin:0 0 6px;font-weight:600;"><?php echo esc_html($qa->question); ?></p>
+                            <?php if ($qa->answer): ?>
+                                <p style="margin:0 0 6px;color:var(--tap-neutral-700);"><strong><?php esc_html_e('Respuesta:', 'travel-agency-platform'); ?></strong> <?php echo esc_html($qa->answer); ?></p>
+                                <?php if (is_user_logged_in() && (current_user_can('manage_options') || TAP_Booking::get_agency_for_user(get_current_user_id()) === (int) get_post_meta($post->ID, '_tap_' . TAP_Post_Types::meta_prefix($type) . '_agency_id', true))): ?>
+                                    <form class="tap-qa-answer-form" data-qid="<?php echo (int) $qa->id; ?>" style="margin-top:8px;">
+                                        <textarea name="answer" rows="2" placeholder="<?php esc_attr_e('Responder…', 'travel-agency-platform'); ?>" style="width:100%;padding:6px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);"></textarea>
+                                        <button type="submit" class="tap-btn tap-btn-sm" style="margin-top:4px;"><?php esc_html_e('Responder', 'travel-agency-platform'); ?></button>
+                                    </form>
+                                <?php endif; ?>
+                            <?php elseif (is_user_logged_in() && (current_user_can('manage_options') || TAP_Booking::get_agency_for_user(get_current_user_id()) === (int) get_post_meta($post->ID, '_tap_' . TAP_Post_Types::meta_prefix($type) . '_agency_id', true))): ?>
+                                <form class="tap-qa-answer-form" data-qid="<?php echo (int) $qa->id; ?>" style="margin-top:8px;">
+                                    <textarea name="answer" rows="2" placeholder="<?php esc_attr_e('Responder…', 'travel-agency-platform'); ?>" style="width:100%;padding:6px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);"></textarea>
+                                    <button type="submit" class="tap-btn tap-btn-sm" style="margin-top:4px;"><?php esc_html_e('Responder', 'travel-agency-platform'); ?></button>
+                                </form>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p class="tap-agency-meta"><?php esc_html_e('Aún no hay preguntas.', 'travel-agency-platform'); ?></p>
+                <?php endif; ?>
+
+                <?php if (is_user_logged_in()): ?>
+                    <form id="tap-qa-ask" style="margin-top:var(--tap-space-3);">
+                        <input type="hidden" name="service_type" value="<?php echo esc_attr($type); ?>">
+                        <input type="hidden" name="service_id" value="<?php echo (int) $post->ID; ?>">
+                        <textarea name="question" rows="3" placeholder="<?php esc_attr_e('Haz una pregunta sobre este servicio…', 'travel-agency-platform'); ?>" style="width:100%;padding:8px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);"></textarea>
+                        <button type="submit" class="tap-btn tap-btn-sm tap-btn-primary" style="margin-top:6px;"><?php esc_html_e('Preguntar', 'travel-agency-platform'); ?></button>
+                        <span class="tap-qa-msg" style="margin-left:8px;font-size:var(--tap-text-sm);"></span>
+                    </form>
+                <?php else: ?>
+                    <p class="tap-agency-meta"><?php esc_html_e('Inicia sesión para preguntar.', 'travel-agency-platform'); ?></p>
+                <?php endif; ?>
+            </section>
+
+            <script>
+            (function(){
+                var askForm = document.getElementById('tap-qa-ask');
+                if (askForm) {
+                    askForm.addEventListener('submit', function(e){
+                        e.preventDefault();
+                        var fd = new FormData(askForm);
+                        fd.append('action', 'tap_submit_question');
+                        fd.append('nonce', (window.tapDash && window.tapDash.nonce) || (window.tapAgencyWizard && window.tapAgencyWizard.listingNonce) || '');
+                        fetch((window.tapDash && window.tapDash.ajax_url) || '/wp-admin/admin-ajax.php', {method:'POST', body:fd, credentials:'same-origin'})
+                        .then(function(r){return r.json();})
+                        .then(function(j){
+                            var msg = askForm.querySelector('.tap-qa-msg');
+                            if (msg) msg.textContent = (j && j.data && j.data.message) || '';
+                            if (j && j.success) { askForm.reset(); setTimeout(function(){ location.reload(); }, 800); }
+                        });
+                    });
+                }
+                document.querySelectorAll('.tap-qa-answer-form').forEach(function(f){
+                    f.addEventListener('submit', function(e){
+                        e.preventDefault();
+                        var fd = new FormData(f);
+                        fd.append('action', 'tap_answer_question');
+                        fd.append('question_id', f.dataset.qid);
+                        fd.append('nonce', (window.tapDash && window.tapDash.nonce) || (window.tapAgencyWizard && window.tapAgencyWizard.listingNonce) || '');
+                        fetch((window.tapDash && window.tapDash.ajax_url) || '/wp-admin/admin-ajax.php', {method:'POST', body:fd, credentials:'same-origin'})
+                        .then(function(r){return r.json();})
+                        .then(function(j){
+                            if (j && j.success) { location.reload(); }
+                            else { alert((j && j.data && j.data.message) || 'Error'); }
+                        });
+                    });
+                });
+            })();
+            </script>
+
             <?php echo do_shortcode('[tap_booking_form service_type="' . esc_attr($type) . '" service_id="' . $post->ID . ']'); ?>
         </div>
         <?php

@@ -10,6 +10,61 @@ defined('ABSPATH') || exit;
  * audit (every write stays in one file).
  */
 class TAP_Ajax_Public {
+    public static function submit_question() {
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => __('Inicia sesión para preguntar.', 'travel-agency-platform')], 401);
+        }
+        global $wpdb;
+        $service_type = sanitize_text_field(wp_unslash($_POST['service_type'] ?? ''));
+        $service_id   = absint($_POST['service_id'] ?? 0);
+        $question     = sanitize_textarea_field(wp_unslash($_POST['question'] ?? ''));
+        if (!$service_type || !$service_id || '' === $question) {
+            wp_send_json_error(['message' => __('Pregunta inválida.', 'travel-agency-platform')], 400);
+        }
+        $svc = get_post($service_id);
+        if (!$svc || $svc->post_type !== $service_type) {
+            wp_send_json_error(['message' => __('Servicio inválido.', 'travel-agency-platform')], 400);
+        }
+        $wpdb->insert("{$wpdb->prefix}tap_qa", [
+            'service_type' => $service_type,
+            'service_id'   => $service_id,
+            'user_id'      => get_current_user_id(),
+            'question'     => $question,
+            'is_approved'  => 1,
+        ]);
+        wp_send_json_success(['message' => __('Pregunta enviada.', 'travel-agency-platform')]);
+    }
+
+    public static function answer_question() {
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => __('No autenticado.', 'travel-agency-platform')], 401);
+        }
+        global $wpdb;
+        $qid    = absint($_POST['question_id'] ?? 0);
+        $answer = sanitize_textarea_field(wp_unslash($_POST['answer'] ?? ''));
+        if (!$qid || '' === $answer) {
+            wp_send_json_error(['message' => __('Respuesta inválida.', 'travel-agency-platform')], 400);
+        }
+        $q = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_qa WHERE id = %d", $qid));
+        if (!$q) {
+            wp_send_json_error(['message' => __('Pregunta no encontrada.', 'travel-agency-platform')], 404);
+        }
+        // Only agency owner or admin can answer.
+        $agency = TAP_Booking::get_agency_for_user(get_current_user_id());
+        $svc_agency = (int) get_post_meta($q->service_id, '_tap_' . TAP_Post_Types::meta_prefix($q->service_type) . '_agency_id', true);
+        if (!current_user_can('manage_options') && (!$agency || $agency !== $svc_agency)) {
+            wp_send_json_error(['message' => __('Sin permiso.', 'travel-agency-platform')], 403);
+        }
+        $wpdb->update("{$wpdb->prefix}tap_qa", [
+            'answer'      => $answer,
+            'answered_by' => get_current_user_id(),
+            'answered_at' => current_time('mysql'),
+        ], ['id' => $qid]);
+        wp_send_json_success(['message' => __('Respuesta guardada.', 'travel-agency-platform')]);
+    }
+
     public static function set_currency() {
         check_ajax_referer('tap_front_dash_nonce', 'nonce');
         $code = strtoupper(sanitize_text_field(wp_unslash($_POST['currency'] ?? '')));

@@ -147,6 +147,9 @@ final class TravelAgencyPlatform {
         add_action('wp_ajax_nopriv_tap_calculate_booking_total', ['TAP_Ajax_Public', 'calculate_booking_total']);
         add_action('wp_ajax_tap_set_currency', ['TAP_Ajax_Public', 'set_currency']);
         add_action('wp_ajax_nopriv_tap_set_currency', ['TAP_Ajax_Public', 'set_currency']);
+        add_action('wp_ajax_tap_submit_question', ['TAP_Ajax_Public', 'submit_question']);
+        add_action('wp_ajax_nopriv_tap_submit_question', ['TAP_Ajax_Public', 'submit_question']);
+        add_action('wp_ajax_tap_answer_question', ['TAP_Ajax_Public', 'answer_question']);
         add_action('wp_ajax_tap_get_rooms', ['TAP_Ajax_Public', 'get_rooms']);
         add_action('wp_ajax_nopriv_tap_get_rooms', ['TAP_Ajax_Public', 'get_rooms']);
         add_action('wp_ajax_tap_get_public_pricing', ['TAP_Ajax_Public', 'get_public_pricing']);
