@@ -2996,3 +2996,19 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
     backdrop-filter: blur(4px);
     pointer-events: none;
 }
+
+/* ===== Skeleton loading for destinations map ===== */
+.tap-destmap-skeleton {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--tap-radius-lg);
+    background: linear-gradient(90deg, var(--tap-neutral-100) 0%, var(--tap-neutral-50) 50%, var(--tap-neutral-100) 100%);
+    background-size: 200% 100%;
+    animation: tap-shimmer 1.4s ease-in-out infinite;
+    z-index: 2;
+}
+.tap-destmap-skeleton.is-hidden { display: none; }
+@keyframes tap-shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}

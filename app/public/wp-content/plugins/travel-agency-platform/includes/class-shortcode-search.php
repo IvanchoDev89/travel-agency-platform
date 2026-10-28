@@ -1130,6 +1130,7 @@ class TAP_Shortcode_Search {
 
                 <div class="tap-destmap-layout">
                     <div class="tap-destmap-canvas">
+                        <div class="tap-destmap-skeleton" id="tap-destmap-skeleton" aria-hidden="true"></div>
                         <div id="tap-destmap" class="tap-destmap-map" style="height:<?php echo esc_attr($height); ?>px" role="application" aria-label="<?php esc_attr_e('Mapa de destinos y servicios', 'travel-agency-platform'); ?>"></div>
                         <input type="hidden" id="tap-destmap-data" value="<?php echo esc_attr(wp_json_encode($spots)); ?>">
                         <input type="hidden" id="tap-destmap-services" value="<?php echo esc_attr(wp_json_encode($services)); ?>">

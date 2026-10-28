@@ -286,6 +286,8 @@
     if (bounds.length) {
       map.fitBounds(bounds, { padding: [30, 30], maxZoom: 12 });
     }
+    var sk = document.getElementById('tap-destmap-skeleton');
+    if (sk) { sk.classList.add('is-hidden'); }
 
     /* ------------------------------------------------------------------ */
     /* Search + filter                                                     */
