@@ -58,7 +58,7 @@ function tat_customize_register($wp_customize) {
     ]);
     $wp_customize->add_control('tap_hero_video_url', [
         'label'       => __('URL del video de fondo (MP4/WebM)', 'travel-agency-platform'),
-        'description' => __('Pega la URL del video. Recomendado formato MP4 (muted/autoplay/loop).', 'travel-agency-platform'),
+        'description' => __('Pega la URL del video. Recomendado formato MP4 (muted/autoplay/loop). Si el grupo de videos del hero tiene elementos, se elige uno al azar en cada recarga y esta URL se ignora.', 'travel-agency-platform'),
         'section'     => 'tap_landing_hero',
         'type'        => 'url',
     ]);

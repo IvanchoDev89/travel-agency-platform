@@ -270,6 +270,102 @@ function tap_pexels_resolve_media($id, $download, $mode) {
     return ['url' => $video_url, 'poster' => $poster, 'note' => $note];
 }
 
+/* ── Hero pool (rota en cada recarga) ─────────────────────────────── */
+
+/**
+ * The hero pool theme_mod: a list of ['url','poster'] pairs. When it has
+ * entries the hero picks a random one on every render, falling back to the
+ * single-video mods when it is empty.
+ */
+function tap_pexels_pool_get() {
+    $pool = get_theme_mod('tap_hero_video_pool', []);
+    return is_array($pool) ? array_values($pool) : [];
+}
+
+/**
+ * Pick one random background from the pool. Entries whose local file no longer
+ * exists (deleted Media Library attachments) drop out of the rotation; remote
+ * URLs are kept as-is. Returns null when no entry is usable, so the caller can
+ * fall back to the single-video theme mods.
+ *
+ * @param array<int,mixed> $pool
+ * @return array{url:string,poster:string}|null
+ */
+function tap_pexels_pool_pick($pool) {
+    if (!is_array($pool)) {
+        return null;
+    }
+    $valid = [];
+    foreach ($pool as $item) {
+        if (!is_array($item)) { continue; }
+        $url    = tap_media_url((string) ($item['url'] ?? ''));
+        $poster = tap_media_url((string) ($item['poster'] ?? ''));
+        if ('' === $url) { continue; }
+        $path = ('/' === $url[0]) ? ABSPATH . ltrim($url, '/') : null;
+        if ($path !== null && !file_exists($path)) { continue; }
+        $valid[] = ['url' => $url, 'poster' => $poster];
+    }
+    if (empty($valid)) {
+        return null;
+    }
+    return $valid[wp_rand(0, count($valid) - 1)];
+}
+
+function tap_pexels_ajax_pool_add() {
+    tap_pexels_ajax_guard();
+    $id       = isset($_POST['video_id']) ? absint($_POST['video_id']) : 0;
+    $download = !empty($_POST['download']);
+    $mode     = isset($_POST['quality']) ? sanitize_key($_POST['quality']) : 'auto';
+    if (!in_array($mode, ['auto', '1080', 'max'], true)) { $mode = 'auto'; }
+    if (!$id) {
+        wp_send_json_error(['message' => __('Video inválido.', 'travel-agency-platform')]);
+    }
+
+    $media = tap_pexels_resolve_media($id, $download, $mode);
+    if (is_wp_error($media)) {
+        wp_send_json_error(['message' => $media->get_error_message()]);
+    }
+
+    $pool  = tap_pexels_pool_get();
+    $entry = ['url' => $media['url'], 'poster' => $media['poster']];
+    foreach ($pool as $p) {
+        if (($p['url'] ?? '') === $entry['url']) {
+            wp_send_json_error(['message' => __('El video ya estaba en el grupo del hero.', 'travel-agency-platform')]);
+        }
+    }
+    $pool[] = $entry;
+    set_theme_mod('tap_hero_video_pool', $pool);
+
+    $message = __('Añadido al grupo del hero.', 'travel-agency-platform');
+    if ('' !== $media['note']) {
+        $message .= ' ' . $media['note'];
+    }
+
+    wp_send_json_success([
+        'message' => $message,
+        'note'    => $media['note'],
+        'count'   => count($pool),
+        'pool'    => $pool,
+    ]);
+}
+
+function tap_pexels_ajax_pool_remove() {
+    tap_pexels_ajax_guard();
+    $index = isset($_POST['index']) && is_numeric($_POST['index']) ? (int) $_POST['index'] : -1;
+    $pool  = tap_pexels_pool_get();
+    if ($index < 0 || !isset($pool[$index])) {
+        wp_send_json_error(['message' => __('Ese video ya no está en el grupo.', 'travel-agency-platform')]);
+    }
+    array_splice($pool, $index, 1);
+    set_theme_mod('tap_hero_video_pool', $pool);
+
+    wp_send_json_success([
+        'message' => __('Video quitado del grupo.', 'travel-agency-platform'),
+        'count'   => count($pool),
+        'pool'    => $pool,
+    ]);
+}
+
 function tap_pexels_ajax_use_video() {
     tap_pexels_ajax_guard();
     $id       = isset($_POST['video_id']) ? absint($_POST['video_id']) : 0;
@@ -357,3 +453,5 @@ add_action('wp_ajax_tap_pexels_search', 'tap_pexels_ajax_search');
 add_action('wp_ajax_tap_pexels_use_video', 'tap_pexels_ajax_use_video');
 add_action('wp_ajax_tap_pexels_use_login_video', 'tap_pexels_ajax_use_login_video');
 add_action('wp_ajax_tap_pexels_use_photo', 'tap_pexels_ajax_use_photo');
+add_action('wp_ajax_tap_pexels_pool_add', 'tap_pexels_ajax_pool_add');
+add_action('wp_ajax_tap_pexels_pool_remove', 'tap_pexels_ajax_pool_remove');

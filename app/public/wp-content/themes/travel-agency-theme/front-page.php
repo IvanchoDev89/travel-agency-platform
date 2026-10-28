@@ -214,6 +214,18 @@ $hero_title    = get_theme_mod('tap_hero_title', __('Descubrí lo que tu viaje p
 $hero_subtitle = get_theme_mod('tap_hero_subtitle', __('Tours, alojamientos y experiencias de agencias locales verificadas. Elegí tus intereses y armá tu propio itinerario.', 'travel-agency-platform'));
 $hero_video    = tap_media_url(get_theme_mod('tap_hero_video_url', ''));
 $hero_poster   = tap_media_url(get_theme_mod('tap_hero_video_poster', ''));
+
+/*
+ * Hero pool: when the admin registered several Pexels videos, one is picked
+ * at random on every render (their file is verified to still exist; deleted
+ * Media Library entries simply drop out of the rotation).
+ */
+$hero_pick = tap_pexels_pool_pick(tap_pexels_pool_get());
+if (null !== $hero_pick) {
+    $hero_video  = $hero_pick['url'];
+    $hero_poster = $hero_pick['poster'];
+}
+
 $hero_overlay  = (float) get_theme_mod('tap_hero_overlay_opacity', 0.4);
 $hero_search   = get_theme_mod('tap_hero_show_search', true);
 if ($hero_overlay < 0) { $hero_overlay = 0; }

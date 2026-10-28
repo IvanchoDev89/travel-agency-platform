@@ -23,6 +23,7 @@
     var results   = qs('#tap-pexels-results');
     var msg       = qs('#tap-pexels-msg');
     var goBtn     = qs('#tap-pexels-go');
+    var poolList  = qs('#tap-pexels-pool-list');
 
     function setMsg(text, isError) {
         if (!msg) { return; }
@@ -43,6 +44,75 @@
         sec = parseInt(sec, 10) || 0;
         var m = Math.floor(sec / 60), s = sec % 60;
         return m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    /* ---- Hero pool ---- */
+    function renderPool(list) {
+        if (!poolList) { return; }
+        list = list || [];
+        poolList.innerHTML = '';
+        if (!list.length) {
+            var emptyP = document.createElement('li');
+            emptyP.className = 'tap-pexels-pool-empty';
+            emptyP.textContent = t('pool_empty', 'El grupo está vacío.');
+            poolList.appendChild(emptyP);
+            return;
+        }
+        list.forEach(function (item, i) {
+            var li = document.createElement('li');
+            var thumb = item.poster
+                ? '<img class="tap-pexels-pool-thumb" alt="" loading="lazy" src="' + escHtml(item.poster) + '">'
+                : '<span class="tap-pexels-pool-thumb tap-pexels-pool-thumb--empty" aria-hidden="true"></span>';
+            li.innerHTML =
+                thumb +
+                '<code title="' + escHtml(item.url || '') + '">' + escHtml(item.url || '') + '</code>' +
+                '<button type="button" class="button tap-pexels-pool-remove" data-index="' + i + '">' + escHtml(t('remove', 'Quitar')) + '</button>';
+            poolList.appendChild(li);
+        });
+    }
+    renderPool(cfg.pool);
+
+    if (poolList) {
+        poolList.addEventListener('click', function (ev) {
+            var btn = ev.target.closest ? ev.target.closest('.tap-pexels-pool-remove') : null;
+            if (!btn) { return; }
+            busy(btn, true);
+            post('tap_pexels_pool_remove', { index: btn.dataset.index })
+                .then(function (json) {
+                    busy(btn, false);
+                    if (!json || !json.success) {
+                        setMsg((json && json.data && json.data.message) || t('error', 'Algo salió mal.'), true);
+                        return;
+                    }
+                    renderPool(json.data.pool);
+                    setMsg(json.data.message);
+                })
+                .catch(function () {
+                    busy(btn, false);
+                    setMsg(t('error', 'Algo salió mal.'), true);
+                });
+        });
+    }
+
+    function addToPool(button, videoId) {
+        busy(button, true);
+        setMsg(t('saving', 'Guardando…'));
+        post('tap_pexels_pool_add', {
+            video_id: videoId,
+            quality: qs('#tap-pexels-quality').value,
+            download: qs('#tap-pexels-download').checked ? '1' : ''
+        }).then(function (json) {
+            busy(button, false);
+            if (!json || !json.success) {
+                setMsg((json && json.data && json.data.message) || t('error', 'Algo salió mal.'), true);
+                return;
+            }
+            renderPool(json.data.pool || []);
+            setMsg(json.data.message);
+        }).catch(function () {
+            busy(button, false);
+            setMsg(t('error', 'Algo salió mal.'), true);
+        });
     }
 
     function busy(button, isBusy) {
@@ -66,12 +136,19 @@
                 '<span class="tap-pexels-meta">' + escHtml(fmtDuration(v.duration)) + ' · ' + escHtml(v.width) + '×' + escHtml(v.height) + '</span>' +
             '<span class="tap-pexels-actions">' +
                 '<button type="button" class="button button-primary tap-pexels-use">' + escHtml(t('use', 'Usar como hero')) + '</button>' +
+                '<button type="button" class="button tap-pexels-pool-use">' + escHtml(t('add_pool', 'Añadir al grupo')) + '</button>' +
                 '<button type="button" class="button tap-pexels-use-login">' + escHtml(t('use_login', 'Usar como fondo del login')) + '</button>' +
                 '<a class="button" target="_blank" rel="noopener" href="' + escHtml(v.files[0] ? v.files[0].link : v.url) + '">' + (v.files[0] ? 'MP4' : escHtml('Ver')) + '</a>' +
             '</span>' +
             '</figcaption>';
         var useBtn  = qs('.tap-pexels-use', fig);
         var useLBtn = qs('.tap-pexels-use-login', fig);
+        var poolBtn = qs('.tap-pexels-pool-use', fig);
+        if (poolBtn) {
+            poolBtn.addEventListener('click', function () {
+                addToPool(poolBtn, v.id);
+            });
+        }
         if (useBtn) {
             useBtn.addEventListener('click', function () {
                 busy(useBtn, true);

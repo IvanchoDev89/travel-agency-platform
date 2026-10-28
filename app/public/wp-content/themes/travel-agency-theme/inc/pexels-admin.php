@@ -81,6 +81,14 @@ function tap_pexels_admin_page() {
         <div id="tap-pexels-msg" class="tap-pexels-msg" role="status" aria-live="polite"></div>
         <div id="tap-pexels-results" class="tap-pexels-grid"></div>
 
+        <div class="tap-pexels-pool">
+            <h2><?php esc_html_e('Grupo del hero', 'travel-agency-platform'); ?></h2>
+            <p class="description">
+                <?php esc_html_e('Cada video del grupo se toma al azar en cada recarga de la landing. "Añadir al grupo" suma un video; "Quitar" lo saca. Si el grupo está vacío se usa el video único.', 'travel-agency-platform'); ?>
+            </p>
+            <ul id="tap-pexels-pool-list" class="tap-pexels-pool-list"></ul>
+        </div>
+
         <?php if ($video): ?>
         <p class="tap-pexels-current">
             <?php esc_html_e('Video actual del hero:', 'travel-agency-platform'); ?>
@@ -101,16 +109,20 @@ function tap_pexels_admin_assets($hook) {
     wp_localize_script('tap-pexels-admin', 'tapPexels', [
         'ajaxUrl' => admin_url('admin-ajax.php'),
         'nonce'   => wp_create_nonce('tap_pexels_admin'),
+        'pool'    => tap_pexels_pool_get(),
         'i18n'    => [
-            'searching' => __('Buscando…', 'travel-agency-platform'),
-            'empty'     => __('No se encontraron resultados. Probá con otra palabra.', 'travel-agency-platform'),
-            'error'     => __('Algo salió mal.', 'travel-agency-platform'),
-            'use'       => __('Usar como hero', 'travel-agency-platform'),
-            'save'      => __('Guardar en medios', 'travel-agency-platform'),
-            'saving'    => __('Guardando…', 'travel-agency-platform'),
-            'copied'    => __('URL copiada.', 'travel-agency-platform'),
-            'copy'      => __('Copiar URL', 'travel-agency-platform'),
-            'use_login' => __('Usar como fondo del login', 'travel-agency-platform'),
+            'searching'  => __('Buscando…', 'travel-agency-platform'),
+            'empty'      => __('No se encontraron resultados. Probá con otra palabra.', 'travel-agency-platform'),
+            'error'      => __('Algo salió mal.', 'travel-agency-platform'),
+            'use'        => __('Usar como hero', 'travel-agency-platform'),
+            'save'       => __('Guardar en medios', 'travel-agency-platform'),
+            'saving'     => __('Guardando…', 'travel-agency-platform'),
+            'copied'     => __('URL copiada.', 'travel-agency-platform'),
+            'copy'       => __('Copiar URL', 'travel-agency-platform'),
+            'use_login'  => __('Usar como fondo del login', 'travel-agency-platform'),
+            'add_pool'   => __('Añadir al grupo', 'travel-agency-platform'),
+            'remove'     => __('Quitar', 'travel-agency-platform'),
+            'pool_empty' => __('El grupo está vacío: buscá un video y usá "Añadir al grupo".', 'travel-agency-platform'),
         ],
     ]);
 }
