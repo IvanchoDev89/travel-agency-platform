@@ -68,9 +68,9 @@
       return L.divIcon({
         className: 'tap-destmap-pin-wrap',
         html: '<span class="' + cls + '" aria-hidden="true"></span>',
-        iconSize: [20, 20],
-        iconAnchor: [10, 10],
-        popupAnchor: [0, -8]
+        iconSize: [28, 28],
+        iconAnchor: [14, 14],
+        popupAnchor: [0, -12]
       });
     }
 
@@ -140,12 +140,12 @@
       var hasFacts = facts.some(function (f) { return f[1]; });
       if (hasFacts) {
         html += '<h4>' + esc(i18n('practical', 'Ficha práctica')) + '</h4>';
-        html += '<dl class="tap-destmap-detail-facts">';
+        html += '<div class="tap-destmap-detail-facts">';
         facts.forEach(function (f) {
           if (!f[1]) return;
-          html += '<dt>' + esc(i18n(f[0], f[0])) + '</dt><dd>' + esc(f[1]) + '</dd>';
+          html += '<span class="tap-fact-chip"><dt>' + esc(i18n(f[0], f[0])) + '</dt><dd>' + esc(f[1]) + '</dd></span>';
         });
-        html += '</dl>';
+        html += '</div>';
       }
       html += '<a class="tap-btn tap-btn-primary tap-destmap-detail-cta" href="' + esc(spot.url) + '">' + esc(i18n('visit', 'Ver ficha completa')) + '</a>';
       html += '</div></div>';
@@ -185,6 +185,17 @@
     /* Detail opening                                                      */
     /* ------------------------------------------------------------------ */
 
+    function openModal() {
+      var $m = $('#tap-destmap-modal');
+      $m.prop('hidden', false).attr('aria-hidden', 'false');
+      $('body').css('overflow', 'hidden');
+    }
+    function closeModal() {
+      var $m = $('#tap-destmap-modal');
+      $m.prop('hidden', true).attr('aria-hidden', 'true');
+      $('body').css('overflow', '');
+    }
+
     function openDetail(kind, id, scroll) {
       var isService = kind === 'service';
       var items = isService ? services : spots;
@@ -195,22 +206,27 @@
       if (!item) return;
 
       var $detail = $('#tap-destmap-detail');
-      $detail.html(isService ? serviceDetailHtml(item) : spotDetailHtml(item)).prop('hidden', false);
+      $detail.html(isService ? serviceDetailHtml(item) : spotDetailHtml(item));
 
       $('.tap-destmap-item').removeClass('is-active');
       $('.tap-destmap-item-btn').attr('aria-expanded', 'false');
       var $item = $('.tap-destmap-item[data-item-id="' + id + '"][data-item-kind="' + kind + '"]');
       $item.addClass('is-active').find('.tap-destmap-item-btn').attr('aria-expanded', 'true');
+      if ($item.length) {
+        try { $item[0].scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {}
+      }
 
       var marker = isService ? serviceMarkers[id] : spotMarkers[id];
       if (marker) {
         map.setView(marker.getLatLng(), Math.max(map.getZoom(), 11), { animate: true });
         marker.openPopup();
       }
-      if (scroll && $item.length && window.matchMedia('(max-width: 900px)').matches) {
-        $('html, body').animate({ scrollTop: $detail.offset().top - 20 }, 200);
-      }
+      openModal();
     }
+
+    /* close handlers */
+    $(document).on('click', '[data-close]', function () { closeModal(); });
+    $(document).on('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
 
     /* ------------------------------------------------------------------ */
     /* Markers                                                             */

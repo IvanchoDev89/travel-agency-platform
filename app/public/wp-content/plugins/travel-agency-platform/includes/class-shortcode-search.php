@@ -988,7 +988,7 @@ class TAP_Shortcode_Search {
         $atts = shortcode_atts([
             'type'  => '',
             'limit' => 0,
-            'height' => 560,
+            'height' => 720,
         ], $atts);
 
         $active_type = isset($_GET['spot_type']) ? sanitize_title(wp_unslash($_GET['spot_type'])) : '';
@@ -1182,12 +1182,19 @@ class TAP_Shortcode_Search {
                             <?php endforeach; ?>
                         </ul>
 
-                        <div class="tap-destmap-detail" id="tap-destmap-detail" hidden></div>
-
                         <?php if (!$spots && !$services): ?>
                             <p class="tap-destmap-empty"><?php esc_html_e('Todavía no hay destinos ni servicios publicados. Agrégalos desde el panel de administración.', 'travel-agency-platform'); ?></p>
                         <?php endif; ?>
                     </aside>
+                </div>
+
+                <!-- Detail overlay modal -->
+                <div class="tap-destmap-modal" id="tap-destmap-modal" hidden aria-hidden="true">
+                    <div class="tap-destmap-modal-backdrop" data-close></div>
+                    <div class="tap-destmap-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="tap-destmap-modal-title">
+                        <button type="button" class="tap-destmap-modal-close" data-close aria-label="<?php esc_attr_e('Cerrar', 'travel-agency-platform'); ?>">&times;</button>
+                        <div class="tap-destmap-modal-body" id="tap-destmap-detail"></div>
+                    </div>
                 </div>
             </section>
         </div>

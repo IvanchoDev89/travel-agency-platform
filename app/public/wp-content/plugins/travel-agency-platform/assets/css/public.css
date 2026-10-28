@@ -2310,7 +2310,7 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 
 .tap-destmap-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
+  grid-template-columns: minmax(0, 1.85fr) minmax(320px, 420px);
   gap: var(--tap-space-5);
   align-items: start;
 }
@@ -2354,8 +2354,10 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
   border-radius: var(--tap-radius-lg);
   box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
   padding: var(--tap-space-4);
-  max-height: 640px;
+  max-height: calc(100vh - 120px);
   overflow-y: auto;
+  position: sticky;
+  top: 80px;
 }
 .tap-destmap-panel-head {
   display: flex;
@@ -2445,10 +2447,82 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 .tap-destmap-detail-cta { width: 100%; justify-content: center; display: inline-flex; }
 .tap-destmap-empty { font-size: var(--tap-text-sm); color: var(--tap-neutral-500); margin: var(--tap-space-3) 0 0; }
 
+
+/* Detail modal overlay */
+.tap-destmap-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--tap-space-4);
+}
+.tap-destmap-modal[hidden] { display: none; }
+.tap-destmap-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, .55);
+  backdrop-filter: blur(4px);
+}
+.tap-destmap-modal-dialog {
+  position: relative;
+  z-index: 1;
+  width: min(640px, 92vw);
+  max-height: 86vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: var(--tap-radius-xl);
+  box-shadow: 0 24px 48px rgba(0,0,0,.25);
+  padding: var(--tap-space-6);
+}
+.tap-destmap-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--tap-neutral-100);
+  color: var(--tap-neutral-700);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tap-destmap-modal-close:hover { background: var(--tap-danger); color: #fff; }
+.tap-destmap-modal .tap-destmap-detail-media img { height: 220px; }
+
+/* Facts as chips */
+.tap-destmap-detail-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 var(--tap-space-3);
+  padding: 0;
+  background: transparent;
+}
+.tap-destmap-detail-facts .tap-fact-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--tap-primary-bg);
+  border: 1px solid var(--tap-primary-border);
+  border-radius: 999px;
+  font-size: var(--tap-text-sm);
+}
+.tap-destmap-detail-facts .tap-fact-chip dt { font-weight: 700; color: var(--tap-primary-dark); font-size: var(--tap-text-xs); text-transform: uppercase; letter-spacing: .04em; }
+.tap-destmap-detail-facts .tap-fact-chip dd { margin: 0; color: var(--tap-neutral-900); font-weight: 600; }
+
 @media (max-width: 900px) {
   .tap-destmap-layout { grid-template-columns: minmax(0, 1fr); }
-  .tap-destmap-panel { max-height: none; }
+  .tap-destmap-panel { max-height: none; position: static; }
   .tap-destmap-detail-media img { height: 200px; }
+  .tap-destmap-modal-dialog { width: 96vw; max-height: 90vh; }
 }
 
 /* Single destination spot page (single-tap_spot.php) */
@@ -2645,14 +2719,21 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 .tap-destmap-legend-item { display: inline-flex; align-items: center; gap: 8px; }
 
 .tap-destmap-pin-wrap { background: none; border: 0; }
+/* Larger, more visible markers */
 .tap-destmap-pin {
   display: block;
-  width: 16px;
-  height: 16px;
+  width: 22px;
+  height: 22px;
   border-radius: 50% 50% 50% 0;
   transform: rotate(-45deg);
-  border: 2px solid #fff;
-  box-shadow: 0 2px 6px rgba(15, 23, 42, .35);
+  border: 2.5px solid #fff;
+  box-shadow: 0 3px 8px rgba(15, 23, 42, .4);
+  transition: transform .15s ease;
+}
+.tap-destmap-pin-wrap:hover .tap-destmap-pin { transform: rotate(-45deg) scale(1.15); }
+.tap-destmap-pin.is-selected {
+  transform: rotate(-45deg) scale(1.25);
+  box-shadow: 0 0 0 4px rgba(13,148,136,.35), 0 3px 8px rgba(15,23,42,.4);
 }
 .tap-destmap-pin--spot { background: var(--tap-primary); }
 .tap-destmap-pin--service { background: var(--tap-secondary); }
