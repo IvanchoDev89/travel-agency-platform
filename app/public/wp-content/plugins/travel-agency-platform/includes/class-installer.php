@@ -508,6 +508,45 @@ class TAP_Installer {
             KEY entity (entity_type, entity_id)
         ) {$wpdb->get_charset_collate()}");
 
+        $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_itineraries (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) NOT NULL DEFAULT 0,
+            title varchar(120) NOT NULL DEFAULT '',
+            service_ids text NOT NULL,
+            share_token varchar(32) NOT NULL,
+            is_public tinyint(1) NOT NULL DEFAULT 1,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY share_token (share_token),
+            KEY user (user_id)
+        ) {$wpdb->get_charset_collate()}");
+
+        $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_itinerary_votes (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            itinerary_id bigint(20) NOT NULL,
+            service_id bigint(20) NOT NULL,
+            voter_email varchar(150) NOT NULL DEFAULT '',
+            voter_name varchar(100) DEFAULT NULL,
+            vote tinyint(4) NOT NULL DEFAULT 1,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY itinerary (itinerary_id),
+            KEY service (service_id),
+            UNIQUE KEY voter_service (itinerary_id, service_id, voter_email)
+        ) {$wpdb->get_charset_collate()}");
+
+        $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_itinerary_comments (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            itinerary_id bigint(20) NOT NULL,
+            user_id bigint(20) NOT NULL DEFAULT 0,
+            author_name varchar(100) DEFAULT NULL,
+            comment text NOT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY itinerary (itinerary_id)
+        ) {$wpdb->get_charset_collate()}");
+
         $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_audit_log (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             user_id bigint(20) NOT NULL DEFAULT 0,
