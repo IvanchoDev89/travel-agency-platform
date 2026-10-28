@@ -289,6 +289,10 @@ class TAP_Front_Dash {
         if (!in_array($status, $filters, true)) {
             $status = 'all';
         }
+        $search = sanitize_text_field(wp_unslash($_GET['bo_q'] ?? ''));
+        $page   = max(1, (int) wp_unslash($_GET['bo_page'] ?? 1));
+        $per_page = 20;
+
         $counts = [];
         $rows = $wpdb->get_results($wpdb->prepare(
             "SELECT status, COUNT(*) c FROM {$wpdb->prefix}tap_bookings WHERE agency_id = %d GROUP BY status",
@@ -299,13 +303,57 @@ class TAP_Front_Dash {
         }
         $counts['all'] = array_sum($counts);
 
+        // Search: booking code, guest name/email, or service title.
+        $search_svc_ids = [];
+        if ('' !== $search) {
+            $matching = get_posts([
+                'post_type'      => 'any',
+                'post_status'    => 'any',
+                's'              => $search,
+                'posts_per_page' => -1,
+                'fields'         => 'ids',
+            ]);
+            $search_svc_ids = array_map('intval', (array) $matching);
+        }
+
         $where  = $wpdb->prepare('WHERE agency_id = %d', $agency);
+        $params = [$agency];
         if ('all' !== $status) {
             $where .= $wpdb->prepare(' AND status = %s', $status);
+            $params[] = $status;
         }
-        $bookings = $wpdb->get_results(
-            "SELECT * FROM {$wpdb->prefix}tap_bookings {$where} ORDER BY created_at DESC LIMIT 40"
-        );
+        if ('' !== $search) {
+            $clauses = [];
+            $clauses[] = 'booking_code LIKE %s';
+            $params[] = '%' . $wpdb->esc_like($search) . '%';
+            $clauses[] = 'guest_name LIKE %s';
+            $params[] = '%' . $wpdb->esc_like($search) . '%';
+            $clauses[] = 'guest_email LIKE %s';
+            $params[] = '%' . $wpdb->esc_like($search) . '%';
+            if ($search_svc_ids) {
+                $placeholders = implode(',', array_fill(0, count($search_svc_ids), '%d'));
+                $clauses[] = "service_id IN ({$placeholders})";
+                foreach ($search_svc_ids as $sid) {
+                    $params[] = $sid;
+                }
+            }
+            $where .= ' AND (' . implode(' OR ', $clauses) . ')';
+        }
+
+        $total = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tap_bookings {$where}",
+            $params
+        ));
+        $total_pages = max(1, (int) ceil($total / $per_page));
+        if ($page > $total_pages) {
+            $page = $total_pages;
+        }
+        $offset = ($page - 1) * $per_page;
+
+        $bookings = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}tap_bookings {$where} ORDER BY created_at DESC LIMIT %d OFFSET %d",
+            array_merge($params, [$per_page, $offset])
+        ));
         self::prime_titles(array_map(static fn($b) => (int) $b->service_id, $bookings));
         // Prime the room posts and batch the unread chat counts so the row loop
         // below issues no per-booking queries.
@@ -334,6 +382,17 @@ class TAP_Front_Dash {
                     </a>
                 <?php endforeach; ?>
             </div>
+
+            <form method="get" class="tap-bo-search" style="margin:var(--tap-space-3) 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                <input type="hidden" name="seccion" value="bo-operations">
+                <input type="hidden" name="bo_status" value="<?php echo esc_attr($status); ?>">
+                <input type="search" name="bo_q" value="<?php echo esc_attr($search); ?>" placeholder="<?php esc_attr_e('Buscar por código, huésped o servicio…', 'travel-agency-platform'); ?>" style="flex:1;min-width:220px;padding:8px 12px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);background:#fff;">
+                <button type="submit" class="tap-btn tap-btn-sm"><?php esc_html_e('Buscar', 'travel-agency-platform'); ?></button>
+                <?php if ('' !== $search): ?>
+                    <a class="tap-btn tap-btn-sm tap-btn-outline" href="<?php echo esc_url(add_query_arg(['seccion'=>'bo-operations','bo_status'=>$status], home_url('/mi-cuenta/'))); ?>"><?php esc_html_e('Limpiar', 'travel-agency-platform'); ?></a>
+                <?php endif; ?>
+                <span class="tap-agency-meta" style="margin-left:auto;"><?php echo esc_html(sprintf(__(' %d resultados', 'travel-agency-platform'), $total)); ?></span>
+            </form>
 
             <?php if (!$bookings): ?>
                 <p class="tap-empty"><?php echo esc_html('all' === $status ? __('No hay reservas todavía.', 'travel-agency-platform') : __('No hay reservas en este estado.', 'travel-agency-platform')); ?></p>
@@ -406,6 +465,15 @@ class TAP_Front_Dash {
                 </tbody>
             </table>
             </div>
+            <?php if ($total_pages > 1): ?>
+            <nav class="tap-pagination" style="display:flex;gap:6px;justify-content:center;margin-top:var(--tap-space-4);flex-wrap:wrap;">
+                <?php for ($p = 1; $p <= $total_pages; $p++):
+                    $purl = add_query_arg(['seccion'=>'bo-operations','bo_status'=>$status,'bo_q'=>$search,'bo_page'=>$p], home_url('/mi-cuenta/'));
+                    ?>
+                    <a class="tap-btn tap-btn-sm <?php echo $p === $page ? 'tap-btn-primary' : 'tap-btn-outline'; ?>" href="<?php echo esc_url($purl); ?>"><?php echo (int) $p; ?></a>
+                <?php endfor; ?>
+            </nav>
+            <?php endif; ?>
             <?php endif; ?>
         </div>
         <?php
