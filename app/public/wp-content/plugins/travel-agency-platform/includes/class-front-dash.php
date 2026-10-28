@@ -37,6 +37,8 @@ class TAP_Front_Dash {
 
         // 301 redirect legacy /dashboard/ page to the unified /mi-cuenta/ back-office
         add_action('template_redirect', [__CLASS__, 'dashboard_redirect']);
+        add_action('admin_init', [__CLASS__, 'restrict_agency_admin_access']);
+        add_filter('show_admin_bar', [__CLASS__, 'maybe_hide_admin_bar']);
 
         // Enqueue dashboard CSS on front-end dashboard pages
         add_action('wp_enqueue_scripts', [__CLASS__, 'enqueue_assets'], 20);
@@ -49,6 +51,40 @@ class TAP_Front_Dash {
             wp_safe_redirect(home_url('/mi-cuenta/'), 301);
             exit;
         }
+    }
+
+    /**
+     * Keep agency users out of wp-admin: everything they need lives in the
+     * front-end panel (/mi-cuenta/). AJAX and REST requests are exempt so the
+     * uploader, chat and bulk actions keep working.
+     */
+    public static function restrict_agency_admin_access() {
+        if (wp_doing_ajax()) return;
+        if (defined('REST_REQUEST') && REST_REQUEST) return;
+        if (!is_user_logged_in()) return;
+        $user = wp_get_current_user();
+        $roles = (array) $user->roles;
+        $is_agency = in_array('tap_agency_admin', $roles, true) || in_array('tap_agency_employee', $roles, true);
+        if (!$is_agency) return;
+        if (current_user_can('manage_options')) return; // platform admins keep access
+
+        // Allow admin-post.php (CSV exports, etc.) to run, then redirect.
+        $script = isset($_SERVER['SCRIPT_NAME']) ? basename($_SERVER['SCRIPT_NAME']) : '';
+        if (in_array($script, ['admin-post.php', 'admin-ajax.php'], true)) return;
+
+        wp_safe_redirect(home_url('/mi-cuenta/'));
+        exit;
+    }
+
+    public static function maybe_hide_admin_bar($show) {
+        if (!is_user_logged_in()) return $show;
+        $user = wp_get_current_user();
+        $roles = (array) $user->roles;
+        $is_agency = in_array('tap_agency_admin', $roles, true) || in_array('tap_agency_employee', $roles, true);
+        if ($is_agency && !current_user_can('manage_options')) {
+            return false;
+        }
+        return $show;
     }
 
     /* ── assets ────────────────────────────────────────────────────── */
