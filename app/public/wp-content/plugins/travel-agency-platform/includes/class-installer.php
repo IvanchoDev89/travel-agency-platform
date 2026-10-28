@@ -494,6 +494,20 @@ class TAP_Installer {
             KEY status (status)
         ) {$wpdb->get_charset_collate()}");
 
+        $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_translations (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            entity_type varchar(50) NOT NULL,
+            entity_id bigint(20) NOT NULL,
+            lang varchar(5) NOT NULL,
+            field varchar(60) NOT NULL,
+            value longtext NOT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY entity_lang_field (entity_type, entity_id, lang, field),
+            KEY entity (entity_type, entity_id)
+        ) {$wpdb->get_charset_collate()}");
+
         $cols_leads = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_leads");
         if (!in_array('mod_status', $cols_leads, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_leads ADD COLUMN mod_status varchar(20) DEFAULT 'ok' AFTER source");

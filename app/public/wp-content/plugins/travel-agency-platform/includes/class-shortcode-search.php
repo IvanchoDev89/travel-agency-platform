@@ -467,7 +467,11 @@ class TAP_Shortcode_Search {
                     <?php if ($featured): ?>
                         <span class="tap-featured-badge">★ <?php esc_html_e('Destacado', 'travel-agency-platform'); ?></span>
                     <?php endif; ?>
-                    <h1><?php the_title(); ?></h1>
+                    <?php
+                    $tr_title = class_exists('TAP_Translations') ? TAP_Translations::get($type, $post->ID, 'title') : null;
+                    $tr_desc  = class_exists('TAP_Translations') ? TAP_Translations::get($type, $post->ID, 'description') : null;
+                    ?>
+                    <h1><?php echo esc_html($tr_title ?: get_the_title()); ?></h1>
                     <?php if ($rating['count'] > 0): ?>
                         <span class="tap-rating">
                             <?php echo esc_html(number_format($rating['avg'], 1)); ?> ★ <small><?php echo esc_html(sprintf(/* translators: %d: número de reseñas */ _n('(%d reseña)', '(%d reseñas)', (int) $rating['count'], 'travel-agency-platform'), (int) $rating['count'])); ?></small>
@@ -494,7 +498,7 @@ class TAP_Shortcode_Search {
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
-            <div class="tap-content"><?php the_content(); ?></div>
+            <div class="tap-content"><?php echo $tr_desc ? wpautop(wp_kses_post($tr_desc)) : apply_filters('the_content', get_the_content()); ?></div>
             <div class="tap-meta-grid">
                 <?php
                 $price_fields = [

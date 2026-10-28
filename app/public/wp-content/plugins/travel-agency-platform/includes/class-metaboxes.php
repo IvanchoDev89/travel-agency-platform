@@ -18,6 +18,7 @@ class TAP_Metaboxes {
         self::register_booking_metabox();
         self::register_equipment_metabox();
         self::register_destination_metabox();
+        self::register_translation_metabox();
         self::register_spot_metabox();
         self::$loaded = true;
     }
@@ -48,6 +49,31 @@ class TAP_Metaboxes {
      * generic render()/save() pipeline so the same field registry drives the
      * metabox, the REST payload and the map.
      */
+    private static function register_translation_metabox() {
+        foreach (self::service_types() as $type) {
+            self::maybe_add_meta_box('tap_translations', __('Traducciones (EN)', 'travel-agency-platform'), [__CLASS__, 'render_translations'], $type, 'normal', 'low');
+        }
+    }
+
+    public static function render_translations($post) {
+        if (!class_exists('TAP_Translations')) return;
+        $tr = TAP_Translations::all_for($post->post_type, $post->ID, 'en');
+        wp_nonce_field('tap_translations_save', 'tap_translations_nonce');
+        ?>
+        <p class="description"><?php esc_html_e('Traducción al inglés del título y descripción. Si se deja vacío, se usa el español.', 'travel-agency-platform'); ?></p>
+        <table class="form-table" style="margin-top:0;">
+            <tr>
+                <th><label for="tap_tr_title"><?php esc_html_e('Título (EN)', 'travel-agency-platform'); ?></label></th>
+                <td><input type="text" id="tap_tr_title" name="tap_tr_title" value="<?php echo esc_attr($tr['title'] ?? ''); ?>" class="regular-text" style="width:100%;"></td>
+            </tr>
+            <tr>
+                <th><label for="tap_tr_description"><?php esc_html_e('Descripción (EN)', 'travel-agency-platform'); ?></label></th>
+                <td><textarea id="tap_tr_description" name="tap_tr_description" rows="4" class="large-text"><?php echo esc_textarea($tr['description'] ?? ''); ?></textarea></td>
+            </tr>
+        </table>
+        <?php
+    }
+
     private static function register_spot_metabox() {
         self::maybe_add_meta_box('tap_spot_details', __('Ficha educativa', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_spot', 'normal', 'high');
         self::maybe_add_meta_box('tap_spot_location', __('Ubicación', 'travel-agency-platform'), [__CLASS__, 'render_spot_location'], 'tap_spot', 'side', 'default');
@@ -614,6 +640,20 @@ class TAP_Metaboxes {
             // The ficha's place: stored as post meta and mirrored on the term so
             // a location page can hand over to its ficha without an extra query.
             TAP_Destination_Spots::set_location_term($post_id, absint($_POST['tap_spot_location']));
+        }
+
+        // Translations (multi-language content).
+        if (in_array($post_type, self::service_types(), true) && isset($_POST['tap_translations_nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['tap_translations_nonce'])), 'tap_translations_save')) {
+            if (class_exists('TAP_Translations')) {
+                $title = sanitize_text_field(wp_unslash($_POST['tap_tr_title'] ?? ''));
+                $desc  = sanitize_textarea_field(wp_unslash($_POST['tap_tr_description'] ?? ''));
+                if ('' !== $title) {
+                    TAP_Translations::set($post_type, $post_id, 'en', 'title', $title);
+                }
+                if ('' !== $desc) {
+                    TAP_Translations::set($post_type, $post_id, 'en', 'description', $desc);
+                }
+            }
         }
 
         // Yield pricing rules management.
