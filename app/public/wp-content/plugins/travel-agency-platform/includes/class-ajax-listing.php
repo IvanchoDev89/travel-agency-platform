@@ -198,10 +198,12 @@ class TAP_Ajax_Listing {
             // Non-publishers still go to review so an employee cannot self-publish.
             if (!$can_publish) {
                 $post['post_status'] = 'pending';
-            } elseif ('tap_accommodation' === $listing_type) {
-                $post['post_status'] = 'draft';
             } else {
-                $post['post_status'] = 'publish';
+                // All service types start as draft: publishing is an explicit
+                // action (see set_listing_published / togglePublish), so an
+                // agency can review before going live. Accommodation already
+                // followed this; the rest now match for consistency.
+                $post['post_status'] = 'draft';
             }
             $new_id = wp_insert_post($post, true);
         }
