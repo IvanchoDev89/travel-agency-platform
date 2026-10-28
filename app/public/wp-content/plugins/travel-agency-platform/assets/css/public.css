@@ -2244,7 +2244,14 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
    Destinations educational map ([tap_destinations_map])
    ============================================================ */
 .tap-destmap { padding: var(--tap-space-10) 0 var(--tap-space-16); }
-.tap-destmap-intro { max-width: 68ch; margin-bottom: var(--tap-space-6); }
+.tap-destmap-intro {
+  max-width: 68ch;
+  margin-bottom: var(--tap-space-6);
+  padding: var(--tap-space-5) var(--tap-space-6);
+  background: linear-gradient(135deg, var(--tap-primary-bg), #fff);
+  border: 1px solid var(--tap-primary-border);
+  border-radius: var(--tap-radius-xl);
+}
 .tap-destmap-eyebrow {
   display: inline-block;
   margin: 0 0 var(--tap-space-3);
