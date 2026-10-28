@@ -284,6 +284,9 @@ class TAP_Front_Dash {
                     case 'bo-analytics':
                         echo self::agency_analytics($user);
                         break;
+                    case 'bo-audit':
+                        echo self::agency_audit($user);
+                        break;
                     case 'bo-listings':
                         echo TAP_Listing_Editor::agency_manage([]);
                         break;
@@ -882,6 +885,53 @@ class TAP_Front_Dash {
         return ob_get_clean();
     }
 
+    private static function agency_audit($user) {
+        if (TAP_Roles::is_agency_employee($user)) {
+            return '<p class="tap-empty">' . esc_html__('Solo el administrador de la agencia ve el historial de actividad.', 'travel-agency-platform') . '</p>';
+        }
+        $agency = (int) TAP_Booking::get_agency_for_user($user->ID);
+        if (!$agency) {
+            return '<p class="tap-empty">' . esc_html__('No tienes una agencia vinculada.', 'travel-agency-platform') . '</p>';
+        }
+        if (!class_exists('TAP_Audit_Log')) {
+            return '<p class="tap-empty">' . esc_html__('Módulo de auditoría no disponible.', 'travel-agency-platform') . '</p>';
+        }
+        $logs = TAP_Audit_Log::for_agency($agency, 50);
+        ob_start();
+        ?>
+        <div class="tap-dash-section">
+            <div class="tap-dash-section-header">
+                <h2><?php esc_html_e('Historial de actividad', 'travel-agency-platform'); ?></h2>
+            </div>
+            <?php if (!$logs): ?>
+                <p class="tap-empty"><?php esc_html_e('Sin actividad registrada.', 'travel-agency-platform'); ?></p>
+            <?php else: ?>
+            <div class="tap-table-scroll"><table class="tap-table tap-table-compact">
+                <thead><tr>
+                    <th><?php esc_html_e('Fecha', 'travel-agency-platform'); ?></th>
+                    <th><?php esc_html_e('Usuario', 'travel-agency-platform'); ?></th>
+                    <th><?php esc_html_e('Acción', 'travel-agency-platform'); ?></th>
+                    <th><?php esc_html_e('Objeto', 'travel-agency-platform'); ?></th>
+                    <th><?php esc_html_e('Detalles', 'travel-agency-platform'); ?></th>
+                </tr></thead>
+                <tbody>
+                <?php foreach ($logs as $l): ?>
+                    <tr>
+                        <td><?php echo esc_html($l->created_at); ?></td>
+                        <td><?php $u = get_userdata((int) $l->user_id); echo esc_html($u ? $u->display_name : '#' . $l->user_id); ?></td>
+                        <td><?php echo esc_html($l->action); ?></td>
+                        <td><?php echo esc_html(($l->object_type ?: '') . ($l->object_id ? ' #' . $l->object_id : '')); ?></td>
+                        <td><?php echo esc_html($l->details ?: '—'); ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table></div>
+            <?php endif; ?>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
     private static function agency_team($user) {
         if (TAP_Roles::is_agency_employee($user)) {
             return '<p class="tap-empty">' . esc_html__('Solo el administrador de la agencia gestiona el equipo.', 'travel-agency-platform') . '</p>';
@@ -1393,6 +1443,7 @@ endif;
         if ($is_team_admin) {
             $nav[] = ['key' => 'bo-finances', 'label' => __('Finanzas', 'travel-agency-platform'), 'icon' => 'wallet', 'url' => add_query_arg('seccion', 'bo-finances', $base)];
             $nav[] = ['key' => 'bo-analytics', 'label' => __('Analytics', 'travel-agency-platform'), 'icon' => 'chart', 'url' => add_query_arg('seccion', 'bo-analytics', $base)];
+            $nav[] = ['key' => 'bo-audit', 'label' => __('Actividad', 'travel-agency-platform'), 'icon' => 'list', 'url' => add_query_arg('seccion', 'bo-audit', $base)];
         }
         $nav[] = ['key' => 'bo-listings', 'label' => __('Listados', 'travel-agency-platform'), 'icon' => 'grid', 'url' => add_query_arg('seccion', 'bo-listings', $base)];
         if ($is_team_admin) {

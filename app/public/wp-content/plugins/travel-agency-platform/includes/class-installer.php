@@ -508,6 +508,23 @@ class TAP_Installer {
             KEY entity (entity_type, entity_id)
         ) {$wpdb->get_charset_collate()}");
 
+        $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_audit_log (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            user_id bigint(20) NOT NULL DEFAULT 0,
+            agency_id bigint(20) NOT NULL DEFAULT 0,
+            action varchar(60) NOT NULL,
+            object_type varchar(40) DEFAULT NULL,
+            object_id bigint(20) DEFAULT NULL,
+            details text DEFAULT NULL,
+            ip varchar(45) DEFAULT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY agency (agency_id),
+            KEY user (user_id),
+            KEY action (action),
+            KEY created (created_at)
+        ) {$wpdb->get_charset_collate()}");
+
         $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_push_subscriptions (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             user_id bigint(20) NOT NULL DEFAULT 0,

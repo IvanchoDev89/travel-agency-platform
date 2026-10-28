@@ -638,9 +638,17 @@ class TAP_Booking {
 
         switch ($action) {
             case 'confirm':
-                return self::update_status($booking->id, 'confirmed');
+                $r = self::update_status($booking->id, 'confirmed');
+                if (!is_wp_error($r) && class_exists('TAP_Audit_Log')) {
+                    TAP_Audit_Log::log('booking_confirmed', 'booking', $booking->id, null, (int) $booking->agency_id, $user_id);
+                }
+                return $r;
             case 'complete':
-                return self::update_status($booking->id, 'completed');
+                $r = self::update_status($booking->id, 'completed');
+                if (!is_wp_error($r) && class_exists('TAP_Audit_Log')) {
+                    TAP_Audit_Log::log('booking_completed', 'booking', $booking->id, null, (int) $booking->agency_id, $user_id);
+                }
+                return $r;
             case 'mark_paid':
                 if (!$is_admin) {
                     return new WP_Error('forbidden', __('No tienes permiso sobre esta reserva.', 'travel-agency-platform'));
@@ -664,6 +672,9 @@ class TAP_Booking {
                     return new WP_Error('payment_update_failed', __('Invalid payment status', 'travel-agency-platform'));
                 }
                 do_action('tap_payment_completed', $booking->id, 'office', '');
+                if (class_exists('TAP_Audit_Log')) {
+                    TAP_Audit_Log::log('booking_marked_paid', 'booking', $booking->id, null, (int) $booking->agency_id, $user_id);
+                }
                 return true;
             case 'cancel':
                 if (!in_array($booking->status, ['pending', 'confirmed', 'request'], true)) {
@@ -679,7 +690,11 @@ class TAP_Booking {
                 if ($booking->check_in && $booking->check_in < current_time('Y-m-d')) {
                     return new WP_Error('started', __('La reserva ya comenzó.', 'travel-agency-platform'));
                 }
-                return self::apply_cancellation($booking->id, $booking, $is_admin ? 'admin' : 'agency', 'cancelled', $reason);
+                $r = self::apply_cancellation($booking->id, $booking, $is_admin ? 'admin' : 'agency', 'cancelled', $reason);
+                if (!is_wp_error($r) && class_exists('TAP_Audit_Log')) {
+                    TAP_Audit_Log::log('booking_cancelled', 'booking', $booking->id, $reason, (int) $booking->agency_id, $user_id);
+                }
+                return $r;
             default:
                 return new WP_Error('invalid_action', __('Operación inválida.', 'travel-agency-platform'));
         }
