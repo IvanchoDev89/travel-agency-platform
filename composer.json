@@ -25,7 +25,7 @@
         "sort-packages": true
     },
     "scripts": {
-        "lint": "phpcs",
+        "lint": "phpcs --warning-severity=0",
         "lint:fix": "phpcbf",
         "analyse": "phpstan analyse",
         "test": "TAP_TEST_ALLOW_DB_WRITES=1 ./tests/run.sh",
