@@ -100,9 +100,18 @@ class TAP_Travel_Insurance {
                 'methods'             => 'POST',
                 'callback'            => [__CLASS__, 'rest_issue'],
                 'permission_callback' => function () {
-					return is_user_logged_in(); },
+                    return is_user_logged_in();
+                },
             ]);
         });
+        add_action('tap_booking_created', [__CLASS__, 'on_booking_created'], 10, 2);
+    }
+
+    public static function on_booking_created($booking_id, $data) {
+        if (empty($data['insurance_plan'])) return;
+        $plan = sanitize_key($data['insurance_plan']);
+        if (!isset(self::plans()[$plan])) return;
+        self::issue((int) $booking_id, $plan);
     }
 
     public static function rest_issue($request) {

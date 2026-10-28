@@ -66,6 +66,11 @@ class TAP_Shortcode_Booking {
                 <div class="tap-form-group">
                     <?php echo TAP_Privacy::consent_field('booking'); ?>
                 </div>
+                <?php if (class_exists('TAP_Travel_Insurance')): ?>
+                <div class="tap-form-group">
+                    <?php echo TAP_Travel_Insurance::render_options(0); ?>
+                </div>
+                <?php endif; ?>
                 <div class="tap-form-group">
                     <button type="submit" class="tap-btn tap-btn-primary tap-btn-lg"><?php echo $is_request ? esc_html__('Enviar solicitud', 'travel-agency-platform') : esc_html__('Book Now', 'travel-agency-platform'); ?></button>
                 </div>
