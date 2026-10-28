@@ -292,6 +292,4 @@ class TAP_Acc_Wizard {
         echo self::render_acc_wizard_script($listing_id);
         return ob_get_clean();
     }
-
-
 }

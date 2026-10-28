@@ -157,15 +157,20 @@ class TAP_Ajax_Dash {
             wp_send_json_error(['message' => __('Parámetros inválidos.', 'travel-agency-platform')], 400);
         }
 
-        $ok = 0; $fail = 0; $errs = [];
+        $ok = 0;
+$fail = 0;
+$errs = [];
         foreach ($ids as $bid) {
             global $wpdb;
             $bk = $wpdb->get_row($wpdb->prepare("SELECT agency_id FROM {$wpdb->prefix}tap_bookings WHERE id = %d", $bid));
             if (!$bk || (int) $bk->agency_id !== $my_agency) {
-                $fail++; $errs[] = $bid; continue;
+                ++$fail;
+$errs[] = $bid;
+continue;
             }
             $res = TAP_Booking::agency_booking_action($bid, $op, 0, '');
-            if (is_wp_error($res)) { $fail++; } else { $ok++; }
+            if (is_wp_error($res)) { ++$fail;
+} else { ++$ok; }
         }
         wp_send_json_success([
             'message' => sprintf(__('Procesadas: %d OK, %d con error.', 'travel-agency-platform'), $ok, $fail),
