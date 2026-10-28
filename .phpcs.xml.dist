@@ -123,4 +123,5 @@
 
 	<config name="minimum_wp_version" value="6.4"/>
 	<config name="testVersion" value="8.1-"/>
+	<config name="custom_capabilities" value="tap_manage_bookings,tap_manage_agencies,tap_manage_commissions,tap_manage_reviews,tap_manage_disputes,tap_view_reports,tap_manage_settings"/>
 </ruleset>
