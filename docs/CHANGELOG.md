@@ -6,6 +6,77 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.52] — 2026-10-27
+
+Destinations are now one page: an educational ficha that also lists the services published there.
+
+### Added
+
+- **Unified destination ficha.** Each destination (`tap_spot`) is linked 1:1 to the `tap_location` term that represents its place. The ficha shows the services published in that location — grouped by type, with a count and a "Ver todos" link — plus its educational profile and nearby destinations. The link is stored on both sides (`_tap_spot_location` + `tap_spot_id` term meta) so lookups are cheap in both directions.
+- **"Ubicación" box** on the ficha editor: the same 5-level cascade used by listings, so a destination and its services speak the same language. Unlinking is stored explicitly (`0`) and the automatic sync respects it.
+- **`?destino=<slug>` archive filter** for every service type (accommodations, tours, transport, car rentals, boats, packages, equipment) with a removable chip in the archive header, so "Ver todos" from a ficha lands on a destination-scoped list instead of a second destination page.
+- 13 seeded fichas were linked automatically by exact slug (la-fortuna, samara, manuel-antonio, tortuguero, poás…). The remaining protected areas have no town term and keep their ficha without services.
+
+### Changed
+
+- **Location term pages with a ficha now 301 to it.** A destination has one canonical URL: the ficha carries both the educational profile and the services, so `/destination/{slug}/` no longer competes with `/destino/{slug}/`. Terms without a ficha keep serving their archive untouched.
+- **Sitemap** excludes the redirecting term URLs so it never advertises a 301.
+- **Primary menu**: the item mislabelled "Destinos" that pointed to the itinerary builder is now "Armá tu viaje", and the destination links point at the fichas directly.
+
+### Fixed
+
+- The site menu had two entries called "Destinos" pointing to different pages (the map and the itinerary builder).
+
+---
+
+## [1.5.51] — 2026-10-26
+
+Performance, autoloading and data-integrity cleanup.
+
+### Added
+
+- **Composer classmap autoloading.** The 70 hand-maintained `require_once` lines in the bootstrap are gone; every class in `includes/` is discovered from `vendor/composer/autoload_classmap.php`. A clear admin notice replaces the previous silent fatal when the autoloader is missing.
+
+### Changed
+
+- **Destination seeding no longer queries the database on every request.** `seed_types()` and `sync_extra_spots()` short-circuit on an autoloaded signature of the seed set (one `get_option()` and zero queries once the data exists). Adding a new spot to `seed_extra_spots()` still triggers exactly one sync. `ensure_page()` reads the page once instead of four times and only touches the menu when the page had to be resolved or created. Measured on the landing page: **180 → 124 queries per request**.
+- **Blocked-date checks read the real source.** `get_room_availability()` counted `tap_availability`, a legacy table nothing writes to, so blocked nights were invisible to the pre-booking check. It now reads `tap_daily_pricing`, the table the per-room calendar actually writes.
+- **`GET /tap/v1/availability/{type}/{id}`** read the same dead table and always returned an empty list. It now aggregates the per-room calendar for accommodations (`date`, `rooms`, `blocked_rooms`, `available`, `price`, `min_stay`); tours and the other types keep returning `[]` because their capacity is date-dependent and validated at booking time.
+- **`tools/includes-check.php`** understands both loader strategies and fails when a class file is newer than the generated classmap, so a forgotten `composer dump-autoload` is caught before deploy.
+
+### Removed
+
+- **Legacy `tap_availability` table.** No longer created. The migration drops it when it holds no rows and leaves it untouched (data preserved) when it does.
+- Dead `leaflet-src.js` (440 KB) and a stray empty `post_title` file at the repository root.
+
+### Docs
+
+- `README.md` version/schema corrected to `1.5.51`; `composer.json` PHP requirement aligned with the plugin header (`>=8.2.35`).
+
+---
+
+
+
+Landing hero: a video pool that rotates on every page load.
+
+### Added
+
+- **Hero video pool (theme 2.0.4).** Appearance → Hero Landing (Pexels) now has a "Hero pool" section. "Añadir al grupo" on any search result appends that video and its poster to the rotation, and "Quitar" takes it out; the landing picks one entry at random on every render. When the pool is empty it keeps using the single hero video/poster theme mods, so existing sites are unaffected.
+- Entries whose local Media Library file was deleted drop out of the rotation automatically, while remote Pexels links (sideload disabled) stay in it. The picker lives in `tap_pexels_pool_pick()` so the template and the tests share the same rules.
+- English catalog entries for the new admin strings; the en_US catalog was recompiled (a duplicate `Quitar` entry from the manual block was dropped).
+
+### Changed
+
+- The pool add endpoint reports the sideload fallback ("no se pudo descargar…") together with the success message, matching the single-video flow.
+- The remove endpoint rejects a missing or non-numeric index instead of treating it as `0` (which used to remove the first video).
+- Theme version bumped to `2.0.4` (asset cache-busting). Plugin version bumped to `1.5.50` (header + `TAP_VERSION`).
+
+### Tests
+
+- `suite_hero_pool`: pool normalization, entries dropped when their local file is gone, remote links preserved, random coverage of every entry, and the AJAX hooks.
+
+---
+
 ## [1.5.49] — 2026-10-22
 
 Landing page: an editorial destinations section and friendlier interactions.

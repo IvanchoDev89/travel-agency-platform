@@ -325,6 +325,16 @@ class TAP_Shortcode_Search {
 
         $types = $atts['type'] ? (array) $atts['type'] : ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
 
+        // Destination archive filter: the unified ficha links to
+        // "/tour/?destino=la-fortuna", and the archive grid is rendered by this
+        // shortcode (not by the main query), so the filter has to be applied
+        // here too. An explicit `location` attribute still wins.
+        $destination = null;
+        if (! $atts['location']) {
+            $dest_slug   = sanitize_title(wp_unslash($_GET['destino'] ?? ''));
+            $destination = $dest_slug ? get_term_by('slug', $dest_slug, 'tap_location') : null;
+        }
+
         $all_posts = [];
         foreach ($types as $pt) {
             $pt_args = [
@@ -344,6 +354,13 @@ class TAP_Shortcode_Search {
                 $pt_args['tax_query'] = [
                     ['taxonomy' => 'tap_location', 'field' => 'term_id', 'terms' => intval($atts['location'])],
                 ];
+            } elseif ($destination instanceof WP_Term) {
+                $pt_args['tax_query'] = [[
+                    'taxonomy'         => 'tap_location',
+                    'field'            => 'term_id',
+                    'terms'            => (int) $destination->term_id,
+                    'include_children' => true,
+                ]];
             }
 
             if ($atts['featured'] === 'yes') {

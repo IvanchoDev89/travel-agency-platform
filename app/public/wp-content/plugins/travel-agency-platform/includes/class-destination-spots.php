@@ -22,6 +22,8 @@ class TAP_Destination_Spots {
     const ENRICH_OPTION = 'tap_spot_enriched';
     const ENRICH_VERSION = 2;
     const PAGE_OPTION = 'tap_spot_page_id';
+    const TYPES_SIGNATURE_OPTION = 'tap_spot_types_signature';
+    const SPOTS_SIGNATURE_OPTION = 'tap_spot_sync_signature';
 
     /** Default categories (slug => label). Labels are translated at register time. */
     public static function default_types() {
@@ -91,6 +93,40 @@ class TAP_Destination_Spots {
     public static function register() {
         self::register_cpt();
         self::register_taxonomy();
+
+        add_filter('manage_tap_spot_posts_columns', [__CLASS__, 'admin_columns']);
+        add_action('manage_tap_spot_posts_custom_column', [__CLASS__, 'admin_column'], 10, 2);
+    }
+
+    /**
+     * "Ubicación" column in the destinations list.
+     *
+     * Makes the unification visible at a glance: a ficha without a place will
+     * not list any services, so the empty cells are the ones to fix.
+     *
+     * @param array<string,string> $columns Existing columns.
+     * @return array<string,string>
+     */
+    public static function admin_columns($columns) {
+        $columns['tap_spot_location'] = __('Ubicación', 'travel-agency-platform');
+        return $columns;
+    }
+
+    public static function admin_column($column, $post_id) {
+        if ('tap_spot_location' !== $column) {
+            return;
+        }
+        $term = self::location_term($post_id);
+        if (! $term) {
+            echo '<span style="color:#b45309">' . esc_html__('Sin ubicación', 'travel-agency-platform') . '</span>';
+            return;
+        }
+        $url = get_edit_term_link($term->term_id, 'tap_location');
+        if ($url) {
+            echo '<a href="' . esc_url($url) . '">' . esc_html($term->name) . '</a>';
+            return;
+        }
+        echo esc_html($term->name);
     }
 
     private static function register_cpt() {
@@ -144,15 +180,32 @@ class TAP_Destination_Spots {
     }
 
     /** Create the default type terms if they do not exist yet (idempotent). */
+    /**
+     * Seed the default spot categories.
+     *
+     * Runs on `init` for every request, so it must not query the database when
+     * nothing changed. The signature of the default set is stored in an
+     * autoloaded option: once the terms exist, the check costs zero queries.
+     * Bumping the list (or a first install) re-runs the seed.
+     */
     public static function seed_types() {
         if (!taxonomy_exists(self::TAX)) {
             return;
         }
-        foreach (self::default_types() as $slug => $name) {
+
+        $types = self::default_types();
+        $signature = md5(implode('|', array_keys($types)) . '|' . self::ENRICH_VERSION);
+        if (get_option(self::TYPES_SIGNATURE_OPTION) === $signature) {
+            return;
+        }
+
+        foreach ($types as $slug => $name) {
             if (!term_exists($slug, self::TAX)) {
                 wp_insert_term($name, self::TAX, ['slug' => $slug]);
             }
         }
+
+        update_option(self::TYPES_SIGNATURE_OPTION, $signature);
     }
 
     // ---------------------------------------------------------------------
@@ -650,6 +703,330 @@ class TAP_Destination_Spots {
     }
 
     // ---------------------------------------------------------------------
+    // Unified destination: ficha ↔ location term
+    // ---------------------------------------------------------------------
+    //
+    // A destination is ONE concept shown on ONE canonical page: the ficha
+    // (tap_spot). Listings keep tagging their location with the `tap_location`
+    // taxonomy so every existing search/archive keeps working; the ficha is
+    // linked 1:1 to the term that represents its place and uses it to pull the
+    // services published there.
+    //
+    // The link is stored twice (post meta + term meta) so a lookup is cheap in
+    // both directions: the ficha needs its term, and a term page needs to know
+    // it must hand over to the ficha.
+
+    const LOCATION_META      = '_tap_spot_location';
+    const LOCATION_TERM_META = 'tap_spot_id';
+    const LINK_OPTION        = 'tap_spot_link_version';
+    const LINK_VERSION       = 1;
+
+    /** Linked `tap_location` term id, or 0. Validated on read. */
+    public static function location_term_id($spot_id) {
+        $term_id = (int) get_post_meta((int) $spot_id, self::LOCATION_META, true);
+        if ($term_id <= 0) {
+            return 0;
+        }
+        if (! term_exists($term_id, 'tap_location')) {
+            return 0;
+        }
+        return $term_id;
+    }
+
+    /** Linked `tap_location` term, or null. */
+    public static function location_term($spot_id) {
+        $term_id = self::location_term_id($spot_id);
+        if (! $term_id) {
+            return null;
+        }
+        $term = get_term($term_id, 'tap_location');
+        return ($term instanceof WP_Term) ? $term : null;
+    }
+
+    /**
+     * The ficha linked to a location term (one ficha per place), or 0.
+     *
+     * Memoized per request: a destination archive can ask for the same term
+     * several times while rendering breadcrumbs and cards.
+     */
+    public static function spot_for_term($term_id) {
+        static $cache = [];
+        $term_id = (int) $term_id;
+        if (isset($cache[$term_id])) {
+            return $cache[$term_id];
+        }
+        if (! $term_id) {
+            return $cache[$term_id] = 0;
+        }
+        $ids = get_posts([
+            'post_type'      => self::CPT,
+            'post_status'    => 'publish',
+            'posts_per_page' => 1,
+            'fields'         => 'ids',
+            'no_found_rows'  => true,
+            'meta_key'       => self::LOCATION_META,
+            'meta_value'     => $term_id,
+            'orderby'        => 'date',
+            'order'          => 'DESC',
+        ]);
+        $cache[$term_id] = $ids ? (int) $ids[0] : 0;
+        return $cache[$term_id];
+    }
+
+    /**
+     * Link a ficha to a location term (0 unlinks it).
+     *
+     * Both sides are kept in sync: a term never points at a ficha that no
+     * longer claims it, and the previous term of a re-linked ficha is cleared.
+     * Unlinking stores `0` instead of deleting the meta so the automatic
+     * same-slug sync leaves the admin's decision alone.
+     */
+    public static function set_location_term($spot_id, $term_id) {
+        $spot_id = (int) $spot_id;
+        $term_id = (int) $term_id;
+        if (! $spot_id || self::CPT !== get_post_type($spot_id)) {
+            return;
+        }
+        if ($term_id && ! term_exists($term_id, 'tap_location')) {
+            $term_id = 0;
+        }
+
+        $previous = (int) get_post_meta($spot_id, self::LOCATION_META, true);
+
+        update_post_meta($spot_id, self::LOCATION_META, $term_id);
+        if ($term_id) {
+            update_term_meta($term_id, self::LOCATION_TERM_META, $spot_id);
+        }
+        if ($previous && $previous !== $term_id) {
+            // Only clear the old term when it still points at this ficha.
+            if ((int) get_term_meta($previous, self::LOCATION_TERM_META, true) === $spot_id) {
+                delete_term_meta($previous, self::LOCATION_TERM_META);
+            }
+        }
+    }
+
+    /**
+     * One-off: link fichas to the same-slug location term.
+     *
+     * 13 of the 31 seeded fichas share a slug with a term (la-fortuna, samara,
+     * manuel-antonio…). Linking them automatically is safe and reversible;
+     * everything else stays unlinked until an editor picks a place in the
+     * "Ubicación" box, because a fuzzy name match would attach, say, "Parque
+     * Nacional Braulio Carrillo" to the canton of "Carrillo".
+     *
+     * Runs once and then short-circuits on a stored flag, so a front-end
+     * request costs a single autoloaded option read and zero queries. When a
+     * release adds new seeded destinations, bump LINK_VERSION to run it again;
+     * explicit links (including "unlinked") are always respected.
+     */
+    public static function link_locations() {
+        if ((int) get_option(self::LINK_OPTION) >= self::LINK_VERSION) {
+            return;
+        }
+        if (! post_type_exists(self::CPT) || ! taxonomy_exists('tap_location')) {
+            return;
+        }
+
+        $spots = get_posts([
+            'post_type'      => self::CPT,
+            'post_status'    => 'any',
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+            'no_found_rows'  => true,
+        ]);
+
+        foreach ($spots as $spot_id) {
+            // An explicit choice (including "Sin ubicación" = 0) is respected.
+            if (metadata_exists('post', $spot_id, self::LOCATION_META)) {
+                continue;
+            }
+            $slug = get_post_field('post_name', $spot_id);
+            $term = $slug ? get_term_by('slug', $slug, 'tap_location') : null;
+            if ($term instanceof WP_Term) {
+                self::set_location_term($spot_id, (int) $term->term_id);
+            }
+        }
+
+        update_option(self::LINK_OPTION, self::LINK_VERSION, true);
+    }
+
+    /**
+     * Published services placed in the destination of a ficha.
+     *
+     * Returns the linked term, one group per service type (label, total and a
+     * preview of the newest `$per_type`) and the overall total. Two queries:
+     * one for the ids (grouping + counts) and one for the cards, so a
+     * destination with 200 services still renders in constant time.
+     *
+     * @param int $spot_id  Ficha id.
+     * @param int $per_type Cards shown per service type.
+     * @return array{term:WP_Term|null,groups:array<string,array{label:string,total:int,posts:array<int,WP_Post>}>,total:int}
+     */
+    public static function services_for_spot($spot_id, $per_type = 4) {
+        $term = self::location_term($spot_id);
+        if (! $term) {
+            return ['term' => null, 'groups' => [], 'total' => 0];
+        }
+
+        $labels = TAP_Post_Types::get_service_types();
+        $types  = array_values(array_diff(array_keys($labels), ['tap_room']));
+
+        $args = [
+            'post_type'      => $types,
+            'post_status'    => 'publish',
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+            'no_found_rows'  => true,
+            'orderby'        => 'date',
+            'order'          => 'DESC',
+            'tax_query'      => [[
+                'taxonomy'         => 'tap_location',
+                'field'            => 'term_id',
+                'terms'            => (int) $term->term_id,
+                'include_children' => true,
+            ]],
+        ];
+
+        $excluded = class_exists('TAP_Approval') ? TAP_Approval::excluded_listing_ids() : [];
+        if ($excluded) {
+            $args['post__not_in'] = array_map('intval', $excluded);
+        }
+
+        $ids = get_posts($args);
+        if (! $ids) {
+            return ['term' => $term, 'groups' => [], 'total' => 0];
+        }
+
+        $by_type = [];
+        foreach ($ids as $id) {
+            $by_type[get_post_type($id)][] = (int) $id;
+        }
+
+        $groups = [];
+        $preview = [];
+        foreach ($by_type as $type => $list) {
+            $groups[$type] = [
+                'label' => $labels[$type] ?? $type,
+                'total' => count($list),
+                'posts' => [],
+            ];
+            $preview = array_merge($preview, array_slice($list, 0, max(1, (int) $per_type)));
+        }
+
+        if ($preview) {
+            $posts = get_posts([
+                'post_type'      => $types,
+                'post_status'    => 'publish',
+                'post__in'       => $preview,
+                'orderby'        => 'post__in',
+                'posts_per_page' => count($preview),
+                'no_found_rows'  => true,
+            ]);
+            foreach ($posts as $post) {
+                $groups[$post->post_type]['posts'][] = $post;
+            }
+        }
+
+        return ['term' => $term, 'groups' => $groups, 'total' => count($ids)];
+    }
+
+    /**
+     * Child places of a destination that are worth showing in the ficha.
+     *
+     * Prefers places that have a ficha or published services, so the block
+     * never fills with empty administrative cantons.
+     *
+     * @param int $term_id Location term.
+     * @param int $limit   Maximum entries.
+     * @return array<int,array{term:WP_Term,url:string,spot_id:int,count:int}>
+     */
+    public static function nearby_places($term_id, $limit = 6) {
+        if (! $term_id || ! class_exists('TAP_Destinations')) {
+            return [];
+        }
+        $children = TAP_Destinations::children($term_id);
+        if (is_wp_error($children) || ! $children) {
+            return [];
+        }
+
+        $out = [];
+        foreach ($children as $child) {
+            $spot_id = self::spot_for_term($child->term_id);
+            $count   = (int) $child->count;
+            if (! $spot_id && ! $count) {
+                continue;
+            }
+            $out[] = [
+                'term'    => $child,
+                'spot_id' => $spot_id,
+                'count'   => $count,
+                'url'     => $spot_id ? get_permalink($spot_id) : get_term_link($child),
+            ];
+            if (count($out) >= (int) $limit) {
+                break;
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Term ids that already have a ficha (their URL 301s to the ficha).
+     *
+     * Used by the sitemap so it does not advertise redirecting URLs.
+     *
+     * @return int[]
+     */
+    public static function linked_term_ids() {
+        $spots = get_posts([
+            'post_type'      => self::CPT,
+            'post_status'    => 'publish',
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+            'no_found_rows'  => true,
+            'meta_key'       => self::LOCATION_META,
+            'meta_value'     => '0',
+            'meta_compare'   => '>',
+            'meta_type'      => 'NUMERIC',
+        ]);
+
+        $terms = [];
+        foreach ($spots as $spot_id) {
+            $term_id = (int) get_post_meta($spot_id, self::LOCATION_META, true);
+            if ($term_id) {
+                $terms[$term_id] = $term_id;
+            }
+        }
+        return array_values($terms);
+    }
+
+    /**
+     * Send a location term page to its ficha when one is linked.
+     *
+     * A destination has ONE canonical URL: the ficha. Terms that have a ficha
+     * are consolidated with a 301 so links, bookmarks and search engines land
+     * on the page that carries both the educational profile and the services.
+     * Terms without a ficha keep serving their archive untouched.
+     */
+    public static function redirect_linked_terms() {
+        if (is_admin() || ! is_tax('tap_location')) {
+            return;
+        }
+        $term = get_queried_object();
+        if (! $term instanceof WP_Term) {
+            return;
+        }
+        $spot_id = self::spot_for_term($term->term_id);
+        if (! $spot_id) {
+            return;
+        }
+        $url = get_permalink($spot_id);
+        if ($url) {
+            wp_safe_redirect($url, 301);
+            exit;
+        }
+    }
+
+    // ---------------------------------------------------------------------
     // Seeding
     // ---------------------------------------------------------------------
 
@@ -668,13 +1045,20 @@ class TAP_Destination_Spots {
 
         $page_id = (int) get_option(self::PAGE_OPTION);
 
-        // Re-validate: a stale option (page deleted) must fall through and heal.
-        if ($page_id && 'page' !== get_post_status($page_id) && get_post($page_id)) {
-            $page_id = 0;
+        // Re-validate with a single post read: a stale option (page deleted,
+        // trashed or replaced) must fall through and heal. get_post() is
+        // primed in the object cache, so this stays at one query per request
+        // instead of the four the previous status/post pair issued.
+        if ($page_id) {
+            $page = get_post($page_id);
+            if (!$page || 'page' !== $page->post_type || 'trash' === $page->post_status) {
+                $page_id = 0;
+            }
         }
-        if ($page_id && get_post($page_id) && 'trash' === get_post_status($page_id)) {
-            $page_id = 0;
-        }
+
+        // Only touch the menu when the page had to be resolved or created;
+        // linking on every request would re-read the whole menu for nothing.
+        $needs_link = ($page_id === 0);
 
         if (!$page_id) {
             $existing = get_page_by_path('destinos', OBJECT, 'page');
@@ -696,7 +1080,9 @@ class TAP_Destination_Spots {
             update_option(self::PAGE_OPTION, $page_id);
         }
 
-        self::link_menu_item($page_id);
+        if ($needs_link) {
+            self::link_menu_item($page_id);
+        }
     }
 
     /** Append the Destinos page to the primary menu if it is not already there. */
@@ -797,15 +1183,30 @@ class TAP_Destination_Spots {
      *
      * Idempotent and non-destructive: a destination that already exists is
      * left untouched, so an editor's edits are never lost.
+     *
+     * Runs on `init` for every request, so it short-circuits on a stored
+     * signature of the seed set. Adding a new destination to
+     * seed_extra_spots() changes the signature and triggers exactly one sync;
+     * every other request costs a single autoloaded option read and zero
+     * queries.
      */
     public static function sync_extra_spots() {
         if (!post_type_exists(self::CPT)) {
             return;
         }
+
+        $spots     = self::seed_extra_spots();
+        $signature = md5(implode('|', array_keys($spots)));
+        if (get_option(self::SPOTS_SIGNATURE_OPTION) === $signature) {
+            return;
+        }
+
         self::seed_types();
-        foreach (self::seed_extra_spots() as $slug => $spot) {
+        foreach ($spots as $slug => $spot) {
             self::insert_spot($slug, $spot);
         }
+
+        update_option(self::SPOTS_SIGNATURE_OPTION, $signature);
     }
 
     private static function insert_spot($slug, array $spot) {

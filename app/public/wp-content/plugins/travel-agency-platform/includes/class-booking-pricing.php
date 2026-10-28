@@ -119,10 +119,13 @@ class TAP_Booking_Pricing {
             $room_id, $check_out, $check_in
         ));
 
-        $blocked = $wpdb->get_var($wpdb->prepare(
-            "SELECT COUNT(*) FROM {$wpdb->prefix}tap_availability
-            WHERE service_type = 'tap_room' AND service_id = %d
-            AND date >= %s AND date < %s AND is_blocked = 1",
+        // Blocked nights live in tap_daily_pricing (the per-room calendar that
+        // the agency back-office writes). tap_availability is a legacy table
+        // from an earlier schema and is never written, so counting it here
+        // always returned zero.
+        $blocked = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tap_daily_pricing
+            WHERE room_id = %d AND date >= %s AND date < %s AND is_blocked = 1",
             $room_id, $check_in, $check_out
         ));
 
@@ -130,7 +133,7 @@ class TAP_Booking_Pricing {
             'available'   => ($booked + $blocked) < $inventory,
             'total'       => $inventory,
             'booked'      => intval($booked),
-            'blocked'     => intval($blocked),
+            'blocked'     => $blocked,
             'remaining'   => $inventory - $booked - $blocked,
         ];
     }

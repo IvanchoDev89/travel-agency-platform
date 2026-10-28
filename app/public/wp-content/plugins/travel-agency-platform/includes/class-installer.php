@@ -127,19 +127,6 @@ class TAP_Installer {
                 KEY user_id (user_id)
             ) $charset;",
 
-            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_availability (
-                id bigint(20) NOT NULL AUTO_INCREMENT,
-                service_type varchar(50) NOT NULL,
-                service_id bigint(20) NOT NULL,
-                date date NOT NULL,
-                available int(11) DEFAULT 1,
-                price_modifier decimal(15,2) DEFAULT NULL,
-                is_blocked tinyint(1) DEFAULT 0,
-                PRIMARY KEY (id),
-                KEY service_type_service_id (service_type, service_id),
-                KEY date (date)
-            ) $charset;",
-
             "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_daily_pricing (
                 id bigint(20) NOT NULL AUTO_INCREMENT,
                 room_id bigint(20) NOT NULL,
@@ -611,6 +598,23 @@ class TAP_Installer {
         $subs_idx = $wpdb->get_var("SHOW INDEX FROM {$wpdb->prefix}tap_agency_subscriptions WHERE Key_name = 'status_paid_until'");
         if (!$subs_idx) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_agency_subscriptions ADD KEY status_paid_until (status, paid_until)");
+        }
+
+        // Retire the legacy tap_availability table. Availability has lived in
+        // tap_daily_pricing since the per-room calendar shipped and nothing has
+        // written to tap_availability for several releases. Drop it only when
+        // it holds no rows, so an unknown third-party integration that still
+        // feeds it keeps its data (and its table) instead of losing records.
+        $legacy_availability = $wpdb->prefix . 'tap_availability';
+        $exists = $wpdb->get_var($wpdb->prepare(
+            'SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = %s',
+            $legacy_availability
+        ));
+        if ($exists === $legacy_availability) {
+            $legacy_rows = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$legacy_availability}");
+            if (0 === $legacy_rows) {
+                $wpdb->query("DROP TABLE {$legacy_availability}");
+            }
         }
 
         // Default cancellation policies per service type (1.5.1).

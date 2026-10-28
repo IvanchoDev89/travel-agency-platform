@@ -58,8 +58,49 @@ class TAP_Archive_Query {
     }
 
 
+    /**
+     * `?destino=<slug>` narrows any service archive or search to one destination.
+     *
+     * The unified ficha links here ("Ver todos los tours en La Fortuna"), so it
+     * must work for every service type, not just accommodations. Children are
+     * included: a service tagged "La Fortuna" belongs to the San Carlos page.
+     */
+    private static function apply_destination_filter($query) {
+        $slug = sanitize_title(wp_unslash($_GET['destino'] ?? ''));
+        if ('' === $slug) {
+            return;
+        }
+
+        $is_service_archive = false;
+        foreach (array_keys(TAP_Post_Types::get_service_types()) as $type) {
+            if ($query->is_post_type_archive($type)) {
+                $is_service_archive = true;
+                break;
+            }
+        }
+        if (! $is_service_archive && ! $query->is_search()) {
+            return;
+        }
+
+        $term = get_term_by('slug', $slug, 'tap_location');
+        if (! $term instanceof WP_Term) {
+            return;
+        }
+
+        $tax_query   = (array) $query->get('tax_query', []);
+        $tax_query[] = [
+            'taxonomy'         => 'tap_location',
+            'field'            => 'term_id',
+            'terms'            => (int) $term->term_id,
+            'include_children' => true,
+        ];
+        $query->set('tax_query', $tax_query);
+    }
+
     public static function filter_archive_query($query) {
         if (is_admin() || !$query->is_main_query()) return;
+
+        self::apply_destination_filter($query);
 
         if ($query->is_search()) {
             $excluded = TAP_Approval::excluded_listing_ids();

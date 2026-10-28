@@ -49,7 +49,25 @@ class TAP_Metaboxes {
      */
     private static function register_spot_metabox() {
         self::maybe_add_meta_box('tap_spot_details', __('Ficha educativa', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_spot', 'normal', 'high');
+        self::maybe_add_meta_box('tap_spot_location', __('Ubicación', 'travel-agency-platform'), [__CLASS__, 'render_spot_location'], 'tap_spot', 'side', 'default');
         self::$fields['tap_spot'] = TAP_Destination_Spots::fields();
+    }
+
+    /**
+     * "Ubicación" box on a destination ficha.
+     *
+     * The place is picked with the same 5-level cascade the listings use, so
+     * both sides speak the same language: one destination = one ficha + one
+     * location term, and the services tagged with that term show up on the
+     * ficha.
+     */
+    public static function render_spot_location($post) {
+        $term_id = TAP_Destination_Spots::location_term_id($post->ID);
+        echo '<p class="description">' . esc_html__('Lugar al que pertenece esta ficha. Los servicios publicados en esa ubicación se muestran en la ficha.', 'travel-agency-platform') . '</p>';
+        echo TAP_Destinations::render_picker($term_id, 'tap_spot_location');
+        if (! $term_id) {
+            echo '<p class="description">' . esc_html__('Sin ubicación: la ficha se muestra igual, pero no lista servicios.', 'travel-agency-platform') . '</p>';
+        }
     }
 
     public static function render_destination($post) {
@@ -331,7 +349,29 @@ class TAP_Metaboxes {
                 break;
 
             case 'select_post':
-                $posts = get_posts(['post_type' => $field['post_type'], 'posts_per_page' => -1, 'post_status' => 'publish']);
+                // Bounded dropdown: a catalogue can hold thousands of posts and
+                // rendering every one of them made the editor unusable. The
+                // current selection is always injected even when it falls
+                // outside the window, so saving never clears an existing link.
+                $limit   = 300;
+                $current = (int) $value;
+                $query   = new WP_Query([
+                    'post_type'      => $field['post_type'],
+                    'posts_per_page' => $limit,
+                    'post_status'    => 'publish',
+                    'orderby'        => 'title',
+                    'order'          => 'ASC',
+                ]);
+                $posts     = $query->posts;
+                $truncated = $query->found_posts > $limit;
+
+                $listed = array_map('intval', wp_list_pluck($posts, 'ID'));
+                if ($current && !in_array($current, $listed, true)) {
+                    $selected_post = get_post($current);
+                    if ($selected_post && 'publish' === $selected_post->post_status) {
+                        array_unshift($posts, $selected_post);
+                    }
+                }
                 printf('<select id="%s" name="%s"><option value="">-- Select --</option>', esc_attr($key), esc_attr($key));
                 foreach ($posts as $p) {
                     printf(
@@ -342,6 +382,16 @@ class TAP_Metaboxes {
                     );
                 }
                 echo '</select>';
+                if ($truncated) {
+                    printf(
+                        '<p class="description">%s</p>',
+                        esc_html(sprintf(
+                            /* translators: %d: número máximo de resultados mostrados */
+                            __('Mostrando los primeros %d resultados. Usa la búsqueda del listado para localizar otros.', 'travel-agency-platform'),
+                            $limit
+                        ))
+                    );
+                }
                 break;
         }
     }
@@ -417,6 +467,12 @@ class TAP_Metaboxes {
             if (isset($_POST['_tap_room_beds'])) {
                 update_post_meta($post_id, '_tap_room_beds', sanitize_text_field(wp_unslash($_POST['_tap_room_beds'])));
             }
+        }
+
+        if ($post_type === TAP_Destination_Spots::CPT && isset($_POST['tap_spot_location'])) {
+            // The ficha's place: stored as post meta and mirrored on the term so
+            // a location page can hand over to its ficha without an extra query.
+            TAP_Destination_Spots::set_location_term($post_id, absint($_POST['tap_spot_location']));
         }
 
         $service_like = in_array($post_type, self::service_types(), true);

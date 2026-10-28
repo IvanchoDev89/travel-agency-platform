@@ -3,7 +3,7 @@
  * Plugin Name: Travel Agency Platform
  * Plugin URI: https://ivanchodev.com
  * Description: Multi-agency travel platform B2B & B2C. Manage accommodations, tours, transports, car rentals, boats and packages.
- * Version:           1.5.49
+ * Version:           1.5.52
  * Requires at least: 6.4
  * Requires PHP:      8.2.35
  * Author: IvanchoDev
@@ -13,9 +13,47 @@
 
 defined('ABSPATH') || exit;
 
-define('TAP_VERSION', '1.5.49');
+define('TAP_VERSION', '1.5.52');
 define('TAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TAP_PLUGIN_URL', plugin_dir_url(__FILE__));
+
+// Composer classmap autoloader (see composer.json → autoload.classmap).
+//
+// Lookup order, most specific first:
+//   1. A plugin-local vendor/ — the shape used when the plugin is shipped as a
+//      standalone folder inside a regular WordPress install.
+//   2. This repository's root vendor/ — the Local-by-Flywheel checkout, whose
+//      composer.json lives at the repo root and points at the plugin's
+//      includes/ directory.
+$tap_autoload_candidates = [
+    TAP_PLUGIN_DIR . 'vendor/autoload.php',
+    dirname(__DIR__, 5) . '/vendor/autoload.php',
+];
+foreach ($tap_autoload_candidates as $tap_autoload) {
+    if (file_exists($tap_autoload)) {
+        require_once $tap_autoload;
+        unset($tap_autoload);
+        break;
+    }
+}
+unset($tap_autoload_candidates);
+
+// Trigger the autoloader once and check the class resolves. Without this the
+// plugin would fatal later on the first TAP_* class it touches.
+if (!class_exists('TAP_Booking')) {
+    /**
+     * The autoloader is what wires every class in includes/. Without it the
+     * plugin cannot register anything, so surface the real cause instead of
+     * letting WordPress die on the first missing class.
+     */
+    function tap_autoload_missing_notice() {
+        echo '<div class="notice notice-error"><p><strong>Travel Agency Platform:</strong> '
+            . esc_html__('no se encontró el autoloader de Composer. Ejecuta "composer dump-autoload -o".', 'travel-agency-platform')
+            . '</p></div>';
+    }
+    add_action('admin_notices', 'tap_autoload_missing_notice');
+    return;
+}
 
 final class TravelAgencyPlatform {
     private static $instance = null;
@@ -28,77 +66,7 @@ final class TravelAgencyPlatform {
     }
 
     private function __construct() {
-        $this->includes();
         $this->init_hooks();
-    }
-
-    private function includes() {
-        require_once TAP_PLUGIN_DIR . 'includes/class-installer.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-requirements.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-localization.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-currency.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-post-types.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-taxonomies.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-destinations.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-destination-spots.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-approval.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-roles.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-rate-limit.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-metaboxes.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-pricing.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-discounts.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-booking.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-booking-pricing.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-refunds.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-booking-stats.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-api.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-shortcodes.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-listing-editor.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-acc-wizard.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-acc-wizard-room-form.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-acc-wizard-steps.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-shortcode-search.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-shortcode-booking.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-shortcode-account.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-shortcode-agency-panel.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-ajax.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-ajax-listing.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-listing-access.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-ajax-public.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-ajax-commerce.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-guest-checkout.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-agency-media.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-archive-query.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-chatbot.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-moderation.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-reviews.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-payouts.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-chat.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-disputes.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-dashboard.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-dashboard-bookings.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-dashboard-money.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-dashboard-content.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-dashboard-insights.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-dashboard-settings.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-dashboard-destinations.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-paypal.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-payment.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-emails.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-emails-send.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-seo.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-subscriptions.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-promotions.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-leads.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-analytics.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-sitemap.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-attribution.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-privacy.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-itinerary.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-automations.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-front-dash.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-front-dash-client.php';
-        require_once TAP_PLUGIN_DIR . 'includes/class-ajax-dash.php';
     }
 
     private function init_hooks() {
@@ -120,7 +88,9 @@ final class TravelAgencyPlatform {
         add_action('init', ['TAP_Destination_Spots', 'seed'], 8);
         add_action('init', ['TAP_Destination_Spots', 'sync_extra_spots'], 9);
         add_action('init', ['TAP_Destination_Spots', 'enrich_existing'], 10);
+        add_action('init', ['TAP_Destination_Spots', 'link_locations'], 11);
         add_action('init', ['TAP_Destination_Spots', 'ensure_page'], 30);
+        add_action('template_redirect', ['TAP_Destination_Spots', 'redirect_linked_terms']);
         add_action('init', ['TAP_Destinations', 'init'], 7);
         add_action('init', ['TAP_Taxonomies', 'migrate_tour_difficulty'], 8);
         add_action('init', ['TAP_Roles', 'setup'], 9);
@@ -207,6 +177,9 @@ final class TravelAgencyPlatform {
         add_action('wp_ajax_tap_lead_submit', ['TAP_Ajax', 'submit_lead']);
         add_action('wp_ajax_nopriv_tap_lead_submit', ['TAP_Ajax', 'submit_lead']);
         add_action('admin_post_tap_export_leads', ['TAP_Leads', 'csv_download']);
+        // Kept on purpose: the handler enforces login + nonce + agency ownership
+        // and this lets an expired session get the friendly /login/ redirect
+        // instead of a blank admin-post response.
         add_action('admin_post_nopriv_tap_export_leads', ['TAP_Leads', 'csv_download']);
         add_shortcode('tap_checkout', [TAP_Shortcode_Booking::class, 'checkout']);
     }

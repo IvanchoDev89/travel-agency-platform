@@ -36,6 +36,7 @@ class TAP_Sitemap {
         add_filter('wp_sitemaps_post_types', [__CLASS__, 'post_types']);
         add_filter('wp_sitemaps_taxonomies', [__CLASS__, 'taxonomies']);
         add_filter('wp_sitemaps_posts_query_args', [__CLASS__, 'posts_query_args'], 10, 2);
+        add_filter('wp_sitemaps_taxonomies_query_args', [__CLASS__, 'taxonomy_query_args'], 10, 2);
         add_action('do_robots', [__CLASS__, 'robots_sitemap_line']);
     }
 
@@ -57,6 +58,25 @@ class TAP_Sitemap {
             }
         }
         return $taxonomies;
+    }
+
+    /**
+     * Keep redirecting term URLs out of the XML sitemap.
+     *
+     * A linked destination term answers 301 → its ficha, so listing it would
+     * advertise a redirect to search engines.
+     */
+    public static function taxonomy_query_args($args, $taxonomy) {
+        if ('tap_location' === $taxonomy && class_exists('TAP_Destination_Spots')) {
+            $excluded = TAP_Destination_Spots::linked_term_ids();
+            if ($excluded) {
+                $args['exclude'] = array_values(array_unique(array_merge(
+                    (array) ($args['exclude'] ?? []),
+                    $excluded
+                )));
+            }
+        }
+        return $args;
     }
 
     public static function posts_query_args($args, $post_type) {

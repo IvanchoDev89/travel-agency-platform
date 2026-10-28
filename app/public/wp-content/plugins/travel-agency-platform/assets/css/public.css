@@ -2486,6 +2486,40 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 .tap-spot-facts dd a { color: var(--tap-primary-dark); word-break: break-word; }
 .tap-spot-map { height: 260px; border-radius: var(--tap-radius-md); overflow: hidden; }
 
+/* Active destination filter chip on a service archive. */
+.tap-archive-filter { display: inline-flex; align-items: center; gap: 8px; margin: var(--tap-space-2) 0 0; padding: 6px 12px; border-radius: 999px; background: var(--tap-primary-bg); color: var(--tap-neutral-700); font-size: var(--tap-text-sm); }
+.tap-archive-filter a { color: var(--tap-primary-dark); font-weight: 600; text-decoration: none; }
+.tap-archive-filter a:hover { text-decoration: underline; }
+
+/* ===== Destination ficha: location chain, services, nearby places ===== */
+.tap-spot-location { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 var(--tap-space-3); font-size: var(--tap-text-sm); color: var(--tap-neutral-500); }
+.tap-spot-location a { color: var(--tap-primary-dark); font-weight: 600; text-decoration: none; }
+.tap-spot-location a:hover { text-decoration: underline; }
+.tap-spot-service-count { margin: 0; }
+.tap-spot-service-count a { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; background: var(--tap-primary-bg); color: var(--tap-primary-dark); font-size: var(--tap-text-sm); font-weight: 600; text-decoration: none; }
+.tap-spot-service-count a:hover { box-shadow: var(--tap-shadow-primary); }
+
+.tap-spot-services { margin-top: var(--tap-space-10); padding-top: var(--tap-space-8); border-top: 1px solid var(--tap-border); }
+.tap-spot-services-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--tap-space-2); margin-bottom: var(--tap-space-6); }
+.tap-spot-services-head h2 { margin: 0; font-size: clamp(1.35rem, 2.4vw, 1.75rem); color: var(--tap-neutral-900); }
+.tap-spot-services-head p { margin: 0; color: var(--tap-neutral-500); font-size: var(--tap-text-sm); }
+.tap-spot-service-group + .tap-spot-service-group { margin-top: var(--tap-space-8); }
+.tap-spot-service-group-head { display: flex; align-items: center; justify-content: space-between; gap: var(--tap-space-3); margin-bottom: var(--tap-space-4); }
+.tap-spot-service-group-head h3 { display: flex; align-items: center; gap: 8px; margin: 0; font-size: var(--tap-text-lg); color: var(--tap-neutral-900); }
+.tap-spot-service-total { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 7px; border-radius: 999px; background: var(--tap-neutral-100); color: var(--tap-neutral-600); font-size: var(--tap-text-xs); font-weight: 700; }
+.tap-link-more { color: var(--tap-primary-dark); font-weight: 600; font-size: var(--tap-text-sm); text-decoration: none; white-space: nowrap; }
+.tap-link-more:hover { text-decoration: underline; }
+/* The catalogue grid ships inline columns; keep it responsive on the ficha. */
+.tap-spot-services .tap-services-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)) !important; }
+
+.tap-spot-nearby { margin-top: var(--tap-space-10); padding-top: var(--tap-space-6); border-top: 1px solid var(--tap-border); }
+.tap-spot-nearby h2 { margin: 0 0 var(--tap-space-4); font-size: var(--tap-text-lg); color: var(--tap-neutral-900); }
+.tap-spot-nearby-list { display: flex; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.tap-spot-nearby-list li { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border: 1px solid var(--tap-border); border-radius: 999px; background: var(--tap-surface); font-size: var(--tap-text-sm); }
+.tap-spot-nearby-list a { color: var(--tap-neutral-700); font-weight: 600; text-decoration: none; }
+.tap-spot-nearby-list a:hover { color: var(--tap-primary-dark); }
+.tap-spot-nearby-list span { color: var(--tap-neutral-400); font-size: var(--tap-text-xs); }
+
 @media (max-width: 900px) {
   .tap-spot-grid { grid-template-columns: minmax(0, 1fr); }
   .tap-spot-side { position: static; }

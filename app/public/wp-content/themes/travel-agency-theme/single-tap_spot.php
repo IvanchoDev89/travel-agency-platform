@@ -24,6 +24,13 @@ while (have_posts()): the_post();
     $types    = TAP_Destination_Spots::types_of($id);
     $type     = $types ? $types[0] : null;
     $has_map  = ($lat !== '' && $lng !== '');
+    $location = TAP_Destination_Spots::location_term($id);
+    $chain    = $location ? TAP_Destinations::chain($location->term_id) : [];
+    // The last link of the chain is the place itself: show its parents only.
+    $parents  = array_slice($chain, 0, -1);
+    $services = TAP_Destination_Spots::services_for_spot($id);
+    $nearby   = $location ? TAP_Destination_Spots::nearby_places($location->term_id) : [];
+    $total    = (int) $services['total'];
 
     $facts = array_filter([
         __('Horario', 'travel-agency-platform')       => get_post_meta($id, '_tap_spot_schedule', true),
@@ -74,10 +81,31 @@ while (have_posts()): the_post();
                     <span class="tap-spot-badge"><?php echo esc_html($type->name); ?></span>
                 <?php endif; ?>
                 <h1><?php the_title(); ?></h1>
-                <?php if ($province || $region): ?>
+                <?php if (! $parents && ($province || $region)): ?>
                     <p class="tap-spot-province">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                         <?php echo esc_html(implode(' · ', array_filter([$province, $region]))); ?>
+                    </p>
+                <?php endif; ?>
+                <?php if ($parents): ?>
+                    <p class="tap-spot-location">
+                        <a href="<?php echo esc_url(home_url('/destinos/')); ?>"><?php esc_html_e('Destinos', 'travel-agency-platform'); ?></a>
+                        <?php foreach ($parents as $node): ?>
+                            <span aria-hidden="true">/</span>
+                            <span><?php echo esc_html($node->name); ?></span>
+                        <?php endforeach; ?>
+                    </p>
+                <?php endif; ?>
+                <?php if ($total): ?>
+                    <p class="tap-spot-service-count">
+                        <a href="#servicios">
+                            <?php
+                            printf(
+                                esc_html(_n('%d servicio disponible en este destino', '%d servicios disponibles en este destino', $total, 'travel-agency-platform')),
+                                (int) $total
+                            );
+                            ?>
+                        </a>
                     </p>
                 <?php endif; ?>
                 <?php if (has_excerpt()): ?>
@@ -186,6 +214,72 @@ while (have_posts()): the_post();
                     <?php endif; ?>
                 </aside>
             </div>
+
+            <?php if ($total): ?>
+                <section class="tap-spot-services" id="servicios">
+                    <header class="tap-spot-services-head">
+                        <h2><?php esc_html_e('Servicios en este destino', 'travel-agency-platform'); ?></h2>
+                        <p>
+                            <?php
+                            printf(
+                                esc_html(_n('%d servicio publicado', '%d servicios publicados', $total, 'travel-agency-platform')),
+                                (int) $total
+                            );
+                            ?>
+                        </p>
+                    </header>
+
+                    <?php foreach ($services['groups'] as $svc_type => $group): ?>
+                        <?php if (empty($group['posts'])) { continue; } ?>
+                        <div class="tap-spot-service-group">
+                            <div class="tap-spot-service-group-head">
+                                <h3>
+                                    <?php echo esc_html($group['label']); ?>
+                                    <span class="tap-spot-service-total"><?php echo (int) $group['total']; ?></span>
+                                </h3>
+                                <?php
+                                $archive  = get_post_type_archive_link($svc_type);
+                                $more_url = ($archive && $location) ? add_query_arg('destino', $location->slug, $archive) : '';
+                                ?>
+                                <?php if ($more_url): ?>
+                                    <a class="tap-link-more" href="<?php echo esc_url($more_url); ?>"><?php esc_html_e('Ver todos', 'travel-agency-platform'); ?></a>
+                                <?php endif; ?>
+                            </div>
+                            <?php
+                            // Reuse the catalogue card so a service looks identical
+                            // on the ficha and in the archive.
+                            echo do_shortcode(sprintf(
+                                '[tap_services type="%s" location="%d" limit="3" columns="3"]',
+                                esc_attr($svc_type),
+                                (int) $location->term_id
+                            ));
+                            ?>
+                        </div>
+                    <?php endforeach; ?>
+                </section>
+            <?php else: ?>
+                <section class="tap-spot-services tap-spot-services--empty" id="servicios">
+                    <h2><?php esc_html_e('Servicios en este destino', 'travel-agency-platform'); ?></h2>
+                    <p><?php esc_html_e('Todavía no hay servicios publicados en este destino.', 'travel-agency-platform'); ?></p>
+                    <a class="tap-btn tap-btn-outline" href="<?php echo esc_url(home_url('/destinos/')); ?>"><?php esc_html_e('Explorar otros destinos', 'travel-agency-platform'); ?></a>
+                </section>
+            <?php endif; ?>
+
+            <?php if ($nearby): ?>
+                <section class="tap-spot-nearby">
+                    <h2><?php esc_html_e('Otros destinos de la zona', 'travel-agency-platform'); ?></h2>
+                    <ul class="tap-spot-nearby-list">
+                        <?php foreach ($nearby as $place): ?>
+                            <li>
+                                <a href="<?php echo esc_url($place['url']); ?>"><?php echo esc_html($place['term']->name); ?></a>
+                                <?php if ($place['count']): ?>
+                                    <span><?php echo (int) $place['count']; ?></span>
+                                <?php endif; ?>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </section>
+            <?php endif; ?>
         </article>
     </div>
 

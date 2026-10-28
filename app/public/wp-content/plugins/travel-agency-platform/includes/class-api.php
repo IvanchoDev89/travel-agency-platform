@@ -523,6 +523,19 @@ class TAP_API {
         ]);
     }
 
+    /**
+     * Per-date availability for a service.
+     *
+     * The endpoint used to read `tap_availability`, a legacy table that no
+     * code writes to, so it always answered with an empty list. It now reads
+     * the sources that actually hold the data:
+     *
+     * - accommodations: the per-room calendar (`tap_daily_pricing`), aggregated
+     *   over the accommodation's rooms (blocked nights + cheapest rate).
+     * - tours: not exposed here. Capacity is per-date and depends on the live
+     *   booking load, so the booking form (`tap_booking_create`) is the
+     *   authoritative check. Returning an empty list keeps the contract.
+     */
     public static function get_availability($request) {
         global $wpdb;
         $type = (string) $request->get_param('type');
@@ -534,22 +547,49 @@ class TAP_API {
             return new WP_Error('invalid_params', __('Parámetros inválidos.', 'travel-agency-platform'), ['status' => 400]);
         }
 
-        $where = 'service_type = %s AND service_id = %d';
-        $params = [$type, $id];
+        if ('tap_accommodation' !== $type) {
+            return rest_ensure_response([]);
+        }
+
+        $where  = "pm.meta_key = '_tap_room_accommodation_id' AND pm.meta_value = %d";
+        $params = [(string) $id];
 
         if ($from) {
-            $where .= ' AND date >= %s';
-            $params[] = $from;
+            $where .= ' AND dp.date >= %s';
+            $params[] = (string) $from;
         }
         if ($to) {
-            $where .= ' AND date <= %s';
-            $params[] = $to;
+            $where .= ' AND dp.date <= %s';
+            $params[] = (string) $to;
         }
 
-        $availability = $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM {$wpdb->prefix}tap_availability WHERE $where ORDER BY date ASC LIMIT %d",
-            array_merge($params, [366])
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT dp.date,
+                    COUNT(*) AS rooms,
+                    SUM(CASE WHEN dp.is_blocked = 1 THEN 1 ELSE 0 END) AS blocked_rooms,
+                    MIN(dp.price) AS min_price,
+                    MAX(dp.min_stay) AS min_stay
+               FROM {$wpdb->prefix}tap_daily_pricing dp
+               INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = dp.room_id
+              WHERE {$where}
+              GROUP BY dp.date
+              ORDER BY dp.date ASC
+              LIMIT 366",
+            $params
         ));
+
+        $availability = array_map(static function ($row) {
+            $rooms   = (int) $row->rooms;
+            $blocked = (int) $row->blocked_rooms;
+            return [
+                'date'          => (string) $row->date,
+                'rooms'         => $rooms,
+                'blocked_rooms' => $blocked,
+                'available'     => $blocked < $rooms,
+                'price'         => null === $row->min_price ? null : (float) $row->min_price,
+                'min_stay'      => null === $row->min_stay ? null : (int) $row->min_stay,
+            ];
+        }, $rows);
 
         return rest_ensure_response($availability);
     }

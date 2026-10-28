@@ -20,8 +20,25 @@
         $is_tap_type_archive = isset($type_labels[$post_type]) || 'tap_equipment' === $post_type;
         $is_custom_tax       = is_tax() && !is_category() && !is_tag();
         $is_blog_archive     = !$is_tap_type_archive && !$is_custom_tax;
+
+        // Active destination filter (?destino=slug), set from a destination ficha.
+        $dest_term = null;
+        $dest_slug = sanitize_title(wp_unslash($_GET['destino'] ?? ''));
+        if ($dest_slug && taxonomy_exists('tap_location')) {
+            $maybe = get_term_by('slug', $dest_slug, 'tap_location');
+            if ($maybe instanceof WP_Term) {
+                $dest_term = $maybe;
+            }
+        }
         ?>
         <h1><?php echo esc_html($title); ?></h1>
+        <?php if ($dest_term): ?>
+            <p class="tap-archive-filter">
+                <?php esc_html_e('Destino:', 'travel-agency-platform'); ?>
+                <strong><?php echo esc_html($dest_term->name); ?></strong>
+                <a href="<?php echo esc_url(remove_query_arg('destino')); ?>"><?php esc_html_e('Quitar filtro', 'travel-agency-platform'); ?></a>
+            </p>
+        <?php endif; ?>
     </div>
 </div>
 

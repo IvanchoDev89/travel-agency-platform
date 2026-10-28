@@ -3,8 +3,13 @@
     "description": "Multi-agency travel marketplace for WordPress (plugin, E2E suites and dev tooling).",
     "type": "project",
     "license": "proprietary",
+    "autoload": {
+        "classmap": [
+            "app/public/wp-content/plugins/travel-agency-platform/includes/"
+        ]
+    },
     "require-dev": {
-        "php": ">=8.1",
+        "php": ">=8.2.35",
         "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",
