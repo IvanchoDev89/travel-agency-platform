@@ -547,6 +547,22 @@ class TAP_Installer {
             KEY itinerary (itinerary_id)
         ) {$wpdb->get_charset_collate()}");
 
+        $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_invoices (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            booking_id bigint(20) NOT NULL,
+            invoice_number varchar(40) NOT NULL,
+            amount decimal(15,2) NOT NULL DEFAULT 0,
+            currency varchar(5) NOT NULL DEFAULT 'USD',
+            status varchar(20) NOT NULL DEFAULT 'issued',
+            hacienda_key varchar(80) DEFAULT NULL,
+            hacienda_status varchar(20) DEFAULT NULL,
+            pdf_url varchar(500) DEFAULT NULL,
+            issued_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY booking (booking_id),
+            UNIQUE KEY invoice_number (invoice_number)
+        ) {$wpdb->get_charset_collate()}");
+
         $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_audit_log (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             user_id bigint(20) NOT NULL DEFAULT 0,

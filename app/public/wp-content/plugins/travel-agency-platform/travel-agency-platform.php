@@ -103,6 +103,7 @@ final class TravelAgencyPlatform {
         add_action('init', ['TAP_iCal', 'init'], 13);
         add_action('init', ['TAP_iCal_Import', 'init'], 14);
         add_action('init', ['TAP_Itinerary_Collab', 'init'], 16);
+        add_action('init', ['TAP_Invoices', 'init'], 17);
         add_action('init', ['TAP_Push', 'init'], 15);
         // TAP_Waitlist has no init (static methods only).
         add_action('init', ['TAP_Email_Campaigns', 'init'], 14);

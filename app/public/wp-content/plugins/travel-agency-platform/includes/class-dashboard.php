@@ -109,6 +109,15 @@ class TAP_Dashboard {
 
         add_submenu_page(
             'travel-platform',
+            __('Invoices', 'travel-agency-platform'),
+            __('Invoices', 'travel-agency-platform'),
+            'manage_options',
+            'tap-invoices',
+            [TAP_Invoices::class, 'invoices_page']
+        );
+
+        add_submenu_page(
+            'travel-platform',
             __('Email campaigns', 'travel-agency-platform'),
             __('Email campaigns', 'travel-agency-platform'),
             'manage_options',
