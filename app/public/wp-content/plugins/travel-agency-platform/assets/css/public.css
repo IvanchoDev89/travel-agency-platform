@@ -2960,3 +2960,39 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
   box-shadow: 0 0 0 3px rgba(13,148,136,.12);
   outline: none;
 }
+
+/* ===== Card carousel (service cards) ===== */
+.tap-card-carousel { position: relative; overflow: hidden; border-radius: var(--tap-radius-lg) var(--tap-radius-lg) 0 0; }
+.tap-card-carousel-track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+.tap-card-carousel-track::-webkit-scrollbar { display: none; }
+.tap-card-carousel-slide {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    display: block;
+}
+.tap-card-carousel-slide img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+}
+.tap-card-carousel-count {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(15,23,42,.65);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    backdrop-filter: blur(4px);
+    pointer-events: none;
+}

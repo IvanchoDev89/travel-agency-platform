@@ -377,7 +377,7 @@ class TAP_Shortcode_Search {
         }
 
         if (empty($all_posts)) {
-            return '<p class="tap-no-results">' . __('No services found.', 'travel-agency-platform') . '</p>';
+            return '<div class="tap-no-results" style="text-align:center;padding:var(--tap-space-8);color:var(--tap-neutral-500);"><p style="font-size:var(--tap-text-lg);margin:0 0 var(--tap-space-3);">' . __('No services found for these filters.', 'travel-agency-platform') . '</p><a class="tap-btn tap-btn-outline" href="' . esc_url(home_url('/destinos/')) . '">' . __('Explore destinations', 'travel-agency-platform') . '</a></div>';
         }
 
         ob_start();
@@ -390,8 +390,33 @@ class TAP_Shortcode_Search {
 				$GLOBALS['post'] = $post;
                 ?>
                 <div class="tap-service-card">
-                    <?php if (has_post_thumbnail()): ?>
-                        <a href="<?php the_permalink(); ?>"><?php the_post_thumbnail('medium', ['loading' => 'lazy', 'decoding' => 'async']); ?></a>
+                    <?php
+                    $card_prefix = '_tap_' . TAP_Post_Types::meta_prefix($post->post_type);
+                    $gallery_raw = (string) get_post_meta($post->ID, $card_prefix . '_gallery', true);
+                    $card_imgs = [];
+                    if (has_post_thumbnail()) {
+                        $card_imgs[] = get_post_thumbnail_id($post->ID);
+                    }
+                    foreach (array_filter(array_map('absint', explode(',', $gallery_raw))) as $gid) {
+                        if (!in_array($gid, $card_imgs, true)) {
+                            $card_imgs[] = $gid;
+                        }
+                    }
+                    if ($card_imgs):
+                    ?>
+                        <div class="tap-card-carousel">
+                            <div class="tap-card-carousel-track">
+                                <?php foreach ($card_imgs as $ci): ?>
+                                    <?php $cu = wp_get_attachment_image_url($ci, 'medium'); if (!$cu) continue; ?>
+                                    <a href="<?php the_permalink(); ?>" class="tap-card-carousel-slide">
+                                        <img src="<?php echo esc_url($cu); ?>" alt="" loading="lazy" decoding="async">
+                                    </a>
+                                <?php endforeach; ?>
+                            </div>
+                            <?php if (count($card_imgs) > 1): ?>
+                                <span class="tap-card-carousel-count"><?php echo count($card_imgs); ?> 📷</span>
+                            <?php endif; ?>
+                        </div>
                     <?php endif; ?>
                     <div class="tap-service-card-body">
                         <h3><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>

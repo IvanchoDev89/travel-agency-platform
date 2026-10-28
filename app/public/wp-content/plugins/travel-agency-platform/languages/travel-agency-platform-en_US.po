@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-10-28T05:04:27+00:00\n"
+"POT-Creation-Date: 2026-10-28T05:24:06+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -78,7 +78,7 @@ msgstr "e.g. Standard Double Room"
 #: includes/class-acc-wizard-steps.php:371
 #: includes/class-acc-wizard-steps.php:841
 #: includes/class-acc-wizard-steps.php:951
-#: includes/class-shortcode-search.php:476
+#: includes/class-shortcode-search.php:501
 msgid "Precio por noche"
 msgstr "Price per night"
 
@@ -864,7 +864,7 @@ msgstr "To"
 
 #: includes/class-acc-wizard-steps.php:451
 #: includes/class-shortcode-booking.php:673
-#: includes/class-shortcode-search.php:478
+#: includes/class-shortcode-search.php:503
 msgid "Precio"
 msgstr "Price"
 
@@ -1318,7 +1318,7 @@ msgid "Cancelar"
 msgstr "Cancel"
 
 #: includes/class-acc-wizard.php:32 includes/class-listing-editor.php:398
-#: includes/class-shortcode-search.php:1199
+#: includes/class-shortcode-search.php:1224
 msgid "Cerrar"
 msgstr "Close"
 
@@ -1607,7 +1607,7 @@ msgstr "The file is not a valid image."
 #: includes/class-ajax-commerce.php:11 includes/class-ajax-commerce.php:98
 #: includes/class-ajax-commerce.php:137 includes/class-ajax-commerce.php:185
 #: includes/class-ajax-commerce.php:224 includes/class-ajax-commerce.php:267
-#: includes/class-ajax-listing.php:20 includes/class-ajax-listing.php:545
+#: includes/class-ajax-listing.php:20 includes/class-ajax-listing.php:547
 msgid "Authentication required"
 msgstr "Authentication required"
 
@@ -1865,7 +1865,7 @@ msgid "Listing created"
 msgstr "Listing created"
 
 #: includes/class-ajax-listing.php:90 includes/class-ajax-listing.php:93
-#: includes/class-ajax-listing.php:550 includes/class-ajax-listing.php:717
+#: includes/class-ajax-listing.php:552 includes/class-ajax-listing.php:719
 #: includes/class-listing-editor.php:41
 msgid "You can only manage your own listings."
 msgstr "You can only manage your own listings."
@@ -1903,19 +1903,19 @@ msgstr "Latitude must be between -90 and 90 (%s)."
 msgid "La longitud debe estar entre -180 y 180 (%s)."
 msgstr "Longitude must be between -180 and 180 (%s)."
 
-#: includes/class-ajax-listing.php:213
+#: includes/class-ajax-listing.php:215
 msgid "Could not save the listing"
 msgstr "Could not save the listing"
 
-#: includes/class-ajax-listing.php:461 includes/class-ajax-listing.php:526
+#: includes/class-ajax-listing.php:463 includes/class-ajax-listing.php:528
 msgid "Alojamiento no encontrado."
 msgstr "Accommodation not found."
 
-#: includes/class-ajax-listing.php:475
+#: includes/class-ajax-listing.php:477
 msgid "Alojamiento despublicado. Ya no aparece en el buscador."
 msgstr "Accommodation unpublished. It no longer appears in search."
 
-#: includes/class-ajax-listing.php:487
+#: includes/class-ajax-listing.php:489
 msgid ""
 "Has alcanzado el límite de listados de tu plan. Mejora tu plan para publicar "
 "más."
@@ -1923,54 +1923,54 @@ msgstr ""
 "You have reached your plan's listing limit. Upgrade your plan to publish "
 "more."
 
-#: includes/class-ajax-listing.php:498
+#: includes/class-ajax-listing.php:500
 msgid "¡Alojamiento publicado! Ya está visible para los viajeros."
 msgstr "Accommodation published! It is now visible to travelers."
 
-#: includes/class-ajax-listing.php:506
+#: includes/class-ajax-listing.php:508
 msgid "Enviado a revisión. Un administrador lo aprobará y quedará visible."
 msgstr ""
 "Submitted for review. An administrator will approve it and it will become "
 "visible."
 
-#: includes/class-ajax-listing.php:520 includes/class-booking.php:489
+#: includes/class-ajax-listing.php:522 includes/class-booking.php:489
 #: includes/class-booking.php:618
 msgid "Debes iniciar sesión."
 msgstr "You must log in."
 
-#: includes/class-ajax-listing.php:529
+#: includes/class-ajax-listing.php:531
 msgid "Solo puedes gestionar tus propios alojamientos."
 msgstr "You can only manage your own accommodations."
 
-#: includes/class-ajax-listing.php:560
+#: includes/class-ajax-listing.php:562
 msgid "Room updated"
 msgstr "Room updated"
 
-#: includes/class-ajax-listing.php:560
+#: includes/class-ajax-listing.php:562
 msgid "Room created"
 msgstr "Room created"
 
-#: includes/class-ajax-listing.php:582
+#: includes/class-ajax-listing.php:584
 msgid "Room name is required"
 msgstr "Room name is required"
 
-#: includes/class-ajax-listing.php:586 includes/class-ajax-listing.php:713
+#: includes/class-ajax-listing.php:588 includes/class-ajax-listing.php:715
 msgid "Invalid room"
 msgstr "Invalid room"
 
-#: includes/class-ajax-listing.php:591
+#: includes/class-ajax-listing.php:593
 msgid "Price per night must be greater than 0"
 msgstr "Price per night must be greater than 0"
 
-#: includes/class-ajax-listing.php:613
+#: includes/class-ajax-listing.php:615
 msgid "Could not save the room"
 msgstr "Could not save the room"
 
-#: includes/class-ajax-listing.php:727
+#: includes/class-ajax-listing.php:729
 msgid "This room has future bookings and cannot be deleted."
 msgstr "This room has future bookings and cannot be deleted."
 
-#: includes/class-ajax-listing.php:731
+#: includes/class-ajax-listing.php:733
 msgid "Room deleted"
 msgstr "Room deleted"
 
@@ -2808,7 +2808,7 @@ msgstr "All agencies"
 
 #: includes/class-dashboard-bookings.php:260
 #: includes/class-dashboard-insights.php:246
-#: includes/class-shortcode-search.php:609
+#: includes/class-shortcode-search.php:634
 msgid "Filtrar"
 msgstr "Filter"
 
@@ -2898,7 +2898,7 @@ msgstr "Only approved ones are shown on the public site."
 #: includes/class-dashboard-money.php:283
 #: includes/class-dashboard-money.php:370
 #: includes/class-dashboard-money.php:577 includes/class-front-dash.php:332
-#: includes/class-shortcode-search.php:620
+#: includes/class-shortcode-search.php:645
 msgid "Todas"
 msgstr "All"
 
@@ -2944,7 +2944,7 @@ msgstr "Based on a confirmed booking"
 #: includes/class-dashboard-content.php:98
 #: includes/class-dashboard-content.php:309
 #: includes/class-dashboard-content.php:358 includes/class-front-dash.php:813
-#: includes/class-shortcode-search.php:686
+#: includes/class-shortcode-search.php:711
 msgid "Verificada"
 msgstr "Verified"
 
@@ -4066,7 +4066,7 @@ msgid "p. ej. Guanacaste, Caribe Sur"
 msgstr "e.g. Guanacaste, South Caribbean"
 
 #: includes/class-destination-spots.php:62
-#: includes/class-shortcode-search.php:1038
+#: includes/class-shortcode-search.php:1063
 msgid "Ecosistema"
 msgstr "Ecosystem"
 
@@ -4083,7 +4083,7 @@ msgid "p. ej. 1 670 msnm"
 msgstr "e.g. 1,670 masl"
 
 #: includes/class-destination-spots.php:64
-#: includes/class-shortcode-search.php:1036
+#: includes/class-shortcode-search.php:1061
 msgid "Datos de interés"
 msgstr "Facts of interest"
 
@@ -4092,7 +4092,7 @@ msgid "Uno por línea. Se muestran como viñetas."
 msgstr "One per line. Displayed as bullets."
 
 #: includes/class-destination-spots.php:65
-#: includes/class-shortcode-search.php:1040
+#: includes/class-shortcode-search.php:1065
 msgid "Biodiversidad"
 msgstr "Biodiversity"
 
@@ -4101,7 +4101,7 @@ msgid "Una especie o grupo por línea."
 msgstr "One species or group per line."
 
 #: includes/class-destination-spots.php:66
-#: includes/class-shortcode-search.php:1041
+#: includes/class-shortcode-search.php:1066
 msgid "Actividades recomendadas"
 msgstr "Recommended activities"
 
@@ -4110,7 +4110,7 @@ msgid "Una por línea."
 msgstr "One per line."
 
 #: includes/class-destination-spots.php:67
-#: includes/class-shortcode-search.php:1042
+#: includes/class-shortcode-search.php:1067
 msgid "Consejos para el visitante"
 msgstr "Visitor tips"
 
@@ -4119,7 +4119,7 @@ msgid "Uno por línea."
 msgstr "One per line."
 
 #: includes/class-destination-spots.php:68
-#: includes/class-shortcode-search.php:1043
+#: includes/class-shortcode-search.php:1068
 msgid "Conservación"
 msgstr "Conservation"
 
@@ -4128,7 +4128,7 @@ msgid "Estado, amenazas y esfuerzos de conservación."
 msgstr "Status, threats and conservation efforts."
 
 #: includes/class-destination-spots.php:69
-#: includes/class-shortcode-search.php:1039
+#: includes/class-shortcode-search.php:1064
 msgid "Mejor época"
 msgstr "Best season"
 
@@ -4137,27 +4137,27 @@ msgid "p. ej. Diciembre a abril"
 msgstr "e.g. December to April"
 
 #: includes/class-destination-spots.php:70
-#: includes/class-shortcode-search.php:1031
+#: includes/class-shortcode-search.php:1056
 msgid "Horario"
 msgstr "Schedule"
 
 #: includes/class-destination-spots.php:71
-#: includes/class-shortcode-search.php:1032
+#: includes/class-shortcode-search.php:1057
 msgid "Tarifa"
 msgstr "Fee"
 
 #: includes/class-destination-spots.php:72
-#: includes/class-shortcode-search.php:1033
+#: includes/class-shortcode-search.php:1058
 msgid "Extensión"
 msgstr "Area"
 
 #: includes/class-destination-spots.php:73
-#: includes/class-shortcode-search.php:1034
+#: includes/class-shortcode-search.php:1059
 msgid "Año de creación"
 msgstr "Year established"
 
 #: includes/class-destination-spots.php:74
-#: includes/class-shortcode-search.php:1035
+#: includes/class-shortcode-search.php:1060
 msgid "Accesibilidad"
 msgstr "Accessibility"
 
@@ -4208,8 +4208,8 @@ msgstr "All destinations"
 #: includes/class-destination-spots.php:143
 #: includes/class-destination-spots.php:1071
 #: includes/class-destination-spots.php:1103
-#: includes/class-shortcode-search.php:1066
-#: includes/class-shortcode-search.php:1124
+#: includes/class-shortcode-search.php:1091
+#: includes/class-shortcode-search.php:1149
 msgid "Destinos"
 msgstr "Destinations"
 
@@ -9403,7 +9403,7 @@ msgstr "Explore Tours"
 #: includes/class-front-dash-client.php:279 includes/class-itinerary.php:375
 #: includes/class-shortcode-booking.php:949
 #: includes/class-shortcode-search.php:310
-#: includes/class-shortcode-search.php:1047
+#: includes/class-shortcode-search.php:1072
 msgid "Ver detalles"
 msgstr "View details"
 
@@ -9816,7 +9816,7 @@ msgstr "Feature"
 msgid "Tu agencia"
 msgstr "Your agency"
 
-#: includes/class-front-dash.php:813 includes/class-shortcode-search.php:452
+#: includes/class-front-dash.php:813 includes/class-shortcode-search.php:477
 msgid "Agencia verificada"
 msgstr "Verified agency"
 
@@ -12097,7 +12097,7 @@ msgid "Verified agency"
 msgstr "Verified agency"
 
 #: includes/class-shortcode-agency-panel.php:134
-#: includes/class-shortcode-search.php:1291
+#: includes/class-shortcode-search.php:1316
 msgid "Verified"
 msgstr "Verified"
 
@@ -12236,8 +12236,8 @@ msgid "Invalid service configuration."
 msgstr "Invalid service configuration."
 
 #: includes/class-shortcode-booking.php:23
-#: includes/class-shortcode-search.php:416
-#: includes/class-shortcode-search.php:420
+#: includes/class-shortcode-search.php:441
+#: includes/class-shortcode-search.php:445
 msgid "Service not found."
 msgstr "Service not found."
 
@@ -12768,64 +12768,68 @@ msgid "Aplicar"
 msgstr "Apply"
 
 #: includes/class-shortcode-search.php:302
-#: includes/class-shortcode-search.php:443
+#: includes/class-shortcode-search.php:468
 msgid "Destacado"
 msgstr "Featured"
 
 #: includes/class-shortcode-search.php:380
-msgid "No services found."
-msgstr "No services found."
+msgid "No services found for these filters."
+msgstr "No services found for these filters."
 
-#: includes/class-shortcode-search.php:399
-#: includes/class-shortcode-search.php:1380
+#: includes/class-shortcode-search.php:380
+msgid "Explore destinations"
+msgstr "Explore destinations"
+
+#: includes/class-shortcode-search.php:424
+#: includes/class-shortcode-search.php:1405
 msgid "View Details"
 msgstr "View Details"
 
 #. translators: %d: número de reseñas
-#: includes/class-shortcode-search.php:448
+#: includes/class-shortcode-search.php:473
 #, php-format
 msgid "(%d reseña)"
 msgid_plural "(%d reseñas)"
 msgstr[0] "(%d review)"
 msgstr[1] "(%d reviews)"
 
-#: includes/class-shortcode-search.php:452
+#: includes/class-shortcode-search.php:477
 msgid "Operado por"
 msgstr "Operated by"
 
-#: includes/class-shortcode-search.php:477
+#: includes/class-shortcode-search.php:502
 msgid "Precio por adulto"
 msgstr "Price per adult"
 
-#: includes/class-shortcode-search.php:479
+#: includes/class-shortcode-search.php:504
 msgid "Precio por día"
 msgstr "Price per day"
 
-#: includes/class-shortcode-search.php:480
+#: includes/class-shortcode-search.php:505
 msgid "Precio medio día"
 msgstr "Half-day price"
 
-#: includes/class-shortcode-search.php:481
+#: includes/class-shortcode-search.php:506
 msgid "Precio total"
 msgstr "Total price"
 
-#: includes/class-shortcode-search.php:503
+#: includes/class-shortcode-search.php:528
 msgid "Sí"
 msgstr "Yes"
 
-#: includes/class-shortcode-search.php:504
+#: includes/class-shortcode-search.php:529
 msgid "No"
 msgstr "No"
 
-#: includes/class-shortcode-search.php:587
+#: includes/class-shortcode-search.php:612
 msgid "Directorio verificado"
 msgstr "Verified directory"
 
-#: includes/class-shortcode-search.php:588
+#: includes/class-shortcode-search.php:613
 msgid "Encuentra tu agencia local"
 msgstr "Find your local agency"
 
-#: includes/class-shortcode-search.php:589
+#: includes/class-shortcode-search.php:614
 msgid ""
 "Agencias y operadores aprobados por la plataforma. Compara sus servicios y "
 "contacta directamente."
@@ -12833,40 +12837,40 @@ msgstr ""
 "Agencies and operators approved by the platform. Compare their services and "
 "get in touch directly."
 
-#: includes/class-shortcode-search.php:591
+#: includes/class-shortcode-search.php:616
 msgid "Publica tu agencia"
 msgstr "List your agency"
 
-#: includes/class-shortcode-search.php:599
+#: includes/class-shortcode-search.php:624
 msgid "Buscar agencias"
 msgstr "Search agencies"
 
-#: includes/class-shortcode-search.php:600
+#: includes/class-shortcode-search.php:625
 msgid "Buscar por nombre…"
 msgstr "Search by name…"
 
-#: includes/class-shortcode-search.php:603
+#: includes/class-shortcode-search.php:628
 msgid "Ordenar por"
 msgstr "Sort by"
 
-#: includes/class-shortcode-search.php:605
+#: includes/class-shortcode-search.php:630
 msgid "Nombre (A-Z)"
 msgstr "Name (A-Z)"
 
-#: includes/class-shortcode-search.php:606
+#: includes/class-shortcode-search.php:631
 msgid "Más servicios"
 msgstr "Most services"
 
-#: includes/class-shortcode-search.php:611
+#: includes/class-shortcode-search.php:636
 msgid "Limpiar filtros"
 msgstr "Clear filters"
 
-#: includes/class-shortcode-search.php:616
+#: includes/class-shortcode-search.php:641
 msgid "Filtrar por ubicación"
 msgstr "Filter by location"
 
 #. translators: %d: number of agencies matching the filters
-#: includes/class-shortcode-search.php:639
+#: includes/class-shortcode-search.php:664
 #, php-format
 msgid "%d agencia"
 msgid_plural "%d agencias"
@@ -12874,56 +12878,56 @@ msgstr[0] "%d agency"
 msgstr[1] "%d agencies"
 
 #. translators: 1: average rating, 2: number of reviews
-#: includes/class-shortcode-search.php:700
+#: includes/class-shortcode-search.php:725
 #, php-format
 msgid "Valoración media %1$s de 5 (%2$d reseñas)"
 msgstr "Average rating %1$s out of 5 (%2$d reviews)"
 
-#: includes/class-shortcode-search.php:715
+#: includes/class-shortcode-search.php:740
 msgid "Tipos de servicio"
 msgstr "Service types"
 
 #. translators: %d: number of published services
-#: includes/class-shortcode-search.php:733
+#: includes/class-shortcode-search.php:758
 #, php-format
 msgid "%d servicio publicado"
 msgid_plural "%d servicios publicados"
 msgstr[0] "%d published service"
 msgstr[1] "%d published services"
 
-#: includes/class-shortcode-search.php:741
+#: includes/class-shortcode-search.php:766
 msgid "Ver perfil"
 msgstr "View profile"
 
-#: includes/class-shortcode-search.php:749
+#: includes/class-shortcode-search.php:774
 msgid "Paginación de agencias"
 msgstr "Agency pagination"
 
-#: includes/class-shortcode-search.php:764
+#: includes/class-shortcode-search.php:789
 msgid "‹ Anterior"
 msgstr "‹ Previous"
 
-#: includes/class-shortcode-search.php:765
+#: includes/class-shortcode-search.php:790
 msgid "Siguiente ›"
 msgstr "Next ›"
 
-#: includes/class-shortcode-search.php:780
+#: includes/class-shortcode-search.php:805
 msgid "No encontramos agencias"
 msgstr "No agencies found"
 
-#: includes/class-shortcode-search.php:781
+#: includes/class-shortcode-search.php:806
 msgid "Prueba con otra búsqueda o ubicación."
 msgstr "Try another search or location."
 
-#: includes/class-shortcode-search.php:790
+#: includes/class-shortcode-search.php:815
 msgid "Ver todas las agencias"
 msgstr "View all agencies"
 
-#: includes/class-shortcode-search.php:797
+#: includes/class-shortcode-search.php:822
 msgid "¿Tienes una agencia?"
 msgstr "Do you run an agency?"
 
-#: includes/class-shortcode-search.php:798
+#: includes/class-shortcode-search.php:823
 msgid ""
 "Crea tu perfil, publica tus servicios y recibe reservas de viajeros de todo "
 "el mundo."
@@ -12931,62 +12935,62 @@ msgstr ""
 "Create your profile, publish your services and receive bookings from "
 "travelers around the world."
 
-#: includes/class-shortcode-search.php:800
+#: includes/class-shortcode-search.php:825
 msgid "Crear mi perfil de agencia"
 msgstr "Create my agency profile"
 
-#: includes/class-shortcode-search.php:1027
-#: includes/class-shortcode-search.php:1093
+#: includes/class-shortcode-search.php:1052
+#: includes/class-shortcode-search.php:1118
 msgid "Todos"
 msgstr "All"
 
 #. translators: %d: number of places
-#: includes/class-shortcode-search.php:1028
-#: includes/class-shortcode-search.php:1135
+#: includes/class-shortcode-search.php:1053
+#: includes/class-shortcode-search.php:1160
 #, php-format
 msgid "%d lugar"
 msgid_plural "%d lugares"
 msgstr[0] "%d place"
 msgstr[1] "%d places"
 
-#: includes/class-shortcode-search.php:1029
+#: includes/class-shortcode-search.php:1054
 #, php-format
 msgid "%d lugares"
 msgstr "%d places"
 
-#: includes/class-shortcode-search.php:1030
+#: includes/class-shortcode-search.php:1055
 msgid "No hay lugares para este filtro."
 msgstr "No places for this filter."
 
-#: includes/class-shortcode-search.php:1037
+#: includes/class-shortcode-search.php:1062
 msgid "Ver ficha completa"
 msgstr "View full sheet"
 
-#: includes/class-shortcode-search.php:1044
+#: includes/class-shortcode-search.php:1069
 msgid "Ficha práctica"
 msgstr "Practical information"
 
-#: includes/class-shortcode-search.php:1045
+#: includes/class-shortcode-search.php:1070
 msgid "Ubicación aproximada según su destino."
 msgstr "Location approximated from its destination."
 
-#: includes/class-shortcode-search.php:1046
+#: includes/class-shortcode-search.php:1071
 msgid "Ver servicio"
 msgstr "View service"
 
-#: includes/class-shortcode-search.php:1048
+#: includes/class-shortcode-search.php:1073
 msgid "Selecciona un punto en el mapa para ver su ficha."
 msgstr "Select a point on the map to see its card."
 
-#: includes/class-shortcode-search.php:1057
+#: includes/class-shortcode-search.php:1082
 msgid "Mapa interactivo"
 msgstr "Interactive map"
 
-#: includes/class-shortcode-search.php:1058
+#: includes/class-shortcode-search.php:1083
 msgid "Destinos y servicios en un solo mapa"
 msgstr "Destinations and services on a single map"
 
-#: includes/class-shortcode-search.php:1059
+#: includes/class-shortcode-search.php:1084
 msgid ""
 "Explora parques, reservas y sitios protegidos de Costa Rica junto con los "
 "alojamientos, tours y paquetes que puedes reservar. Cambia de capa para ver "
@@ -12996,48 +13000,48 @@ msgstr ""
 "accommodations, tours and packages you can book. Switch layers to see only "
 "destinations, only services or everything."
 
-#: includes/class-shortcode-search.php:1063
+#: includes/class-shortcode-search.php:1088
 msgid "Capas del mapa"
 msgstr "Map layers"
 
-#: includes/class-shortcode-search.php:1064
+#: includes/class-shortcode-search.php:1089
 msgid "Todo"
 msgstr "All"
 
-#: includes/class-shortcode-search.php:1070
-#: includes/class-shortcode-search.php:1128
+#: includes/class-shortcode-search.php:1095
+#: includes/class-shortcode-search.php:1153
 msgid "Servicios"
 msgstr "Services"
 
-#: includes/class-shortcode-search.php:1076
+#: includes/class-shortcode-search.php:1101
 msgid "Filtrar por tipo de destino"
 msgstr "Filter by destination type"
 
-#: includes/class-shortcode-search.php:1091
+#: includes/class-shortcode-search.php:1116
 msgid "Filtrar por tipo de servicio"
 msgstr "Filter by service type"
 
-#: includes/class-shortcode-search.php:1108
+#: includes/class-shortcode-search.php:1133
 msgid "Mapa de destinos y servicios"
 msgstr "Map of destinations and services"
 
-#: includes/class-shortcode-search.php:1112
+#: includes/class-shortcode-search.php:1137
 msgid "Destino protegido"
 msgstr "Protected destination"
 
-#: includes/class-shortcode-search.php:1113
+#: includes/class-shortcode-search.php:1138
 msgid "Servicio reservable"
 msgstr "Bookable service"
 
-#: includes/class-shortcode-search.php:1119
+#: includes/class-shortcode-search.php:1144
 msgid "Buscar destino o servicio…"
 msgstr "Search destination or service…"
 
-#: includes/class-shortcode-search.php:1119
+#: includes/class-shortcode-search.php:1144
 msgid "Buscar"
 msgstr "Search"
 
-#: includes/class-shortcode-search.php:1189
+#: includes/class-shortcode-search.php:1214
 msgid ""
 "Todavía no hay destinos ni servicios publicados. Agrégalos desde el panel de "
 "administración."
@@ -13045,59 +13049,59 @@ msgstr ""
 "There are no published destinations or services yet. Add them from the admin "
 "panel."
 
-#: includes/class-shortcode-search.php:1191
+#: includes/class-shortcode-search.php:1216
 msgid "Sin resultados para esa búsqueda."
 msgstr "No results for that search."
 
-#: includes/class-shortcode-search.php:1258
+#: includes/class-shortcode-search.php:1283
 msgid "Agency not found."
 msgstr "Agency not found."
 
-#: includes/class-shortcode-search.php:1268
+#: includes/class-shortcode-search.php:1293
 msgid "Esta agencia está en revisión y aún no es visible públicamente."
 msgstr "This agency is under review and is not yet publicly visible."
 
-#: includes/class-shortcode-search.php:1300
+#: includes/class-shortcode-search.php:1325
 msgid "Contact Information"
 msgstr "Contact Information"
 
-#: includes/class-shortcode-search.php:1301
+#: includes/class-shortcode-search.php:1326
 msgid "Email:"
 msgstr "Email:"
 
-#: includes/class-shortcode-search.php:1302
+#: includes/class-shortcode-search.php:1327
 msgid "Phone:"
 msgstr "Phone:"
 
-#: includes/class-shortcode-search.php:1303
+#: includes/class-shortcode-search.php:1328
 msgid "WhatsApp:"
 msgstr "WhatsApp:"
 
-#: includes/class-shortcode-search.php:1304
+#: includes/class-shortcode-search.php:1329
 msgid "Website:"
 msgstr "Website:"
 
-#: includes/class-shortcode-search.php:1305
+#: includes/class-shortcode-search.php:1330
 msgid "Address:"
 msgstr "Address:"
 
-#: includes/class-shortcode-search.php:1309
+#: includes/class-shortcode-search.php:1334
 msgid "Our Services"
 msgstr "Our Services"
 
-#: includes/class-shortcode-search.php:1369
+#: includes/class-shortcode-search.php:1394
 msgid "Featured"
 msgstr "Featured"
 
-#: includes/class-shortcode-search.php:1371
+#: includes/class-shortcode-search.php:1396
 msgid "starting"
 msgstr "starting"
 
-#: includes/class-shortcode-search.php:1394
+#: includes/class-shortcode-search.php:1419
 msgid "No featured services yet"
 msgstr "No featured services yet"
 
-#: includes/class-shortcode-search.php:1394
+#: includes/class-shortcode-search.php:1419
 msgid "Check back soon for new featured listings."
 msgstr "Check back soon for new featured listings."
 
@@ -13569,6 +13573,9 @@ msgstr "Thinking…"
 #: travel-agency-platform.php:268
 msgid "Hubo un problema. Inténtalo de nuevo."
 msgstr "Something went wrong. Please try again."
+
+msgid "No services found."
+msgstr "No services found."
 
 msgid "Foto principal (URL de la imagen)"
 msgstr "Main photo (image URL)"
