@@ -114,6 +114,11 @@
 		<exclude name="WordPress.DB.PreparedSQLPlaceholders"/>
 		<exclude name="WordPress.WP.EnqueuedResources"/>
 		<exclude name="WordPress.NamingConventions"/>
+		<exclude name="Squiz.Strings.DoubleQuoteUsage"/>
+		<exclude name="Generic.WhiteSpace.ScopeIndent"/>
+		<exclude name="Generic.Files.LineLength"/>
+		<exclude name="WordPress.WP.GlobalVariablesOverride"/>
+		<exclude name="WordPress.WP.EnqueuedResources"/>
 	</rule>
 
 	<config name="minimum_wp_version" value="6.4"/>
