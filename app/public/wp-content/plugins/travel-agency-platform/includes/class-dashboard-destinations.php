@@ -111,7 +111,8 @@ class TAP_Dashboard_Destinations {
                     </thead>
                     <tbody>
                     <?php foreach ($rows as $row) : ?>
-                    <?php $t = $row['term']; $tid = (int) $t->term_id; ?>
+						<?php $t = $row['term']; ?>
+						<?php $tid = (int) $t->term_id; ?>
                         <?php $blocked = self::descendants($terms, $tid); ?>
                         <tr>
                             <td>

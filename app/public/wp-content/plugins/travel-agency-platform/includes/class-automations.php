@@ -60,8 +60,8 @@ class TAP_Automations {
                    AND id > %d
                  ORDER BY created_at ASC, id ASC
                  LIMIT %d",
-                date('Y-m-d H:i:s', $now - $stale * HOUR_IN_SECONDS),
-                date('Y-m-d H:i:s', $now - $hours * HOUR_IN_SECONDS),
+                gmdate('Y-m-d H:i:s', $now - $stale * HOUR_IN_SECONDS),
+                gmdate('Y-m-d H:i:s', $now - $hours * HOUR_IN_SECONDS),
                 $after_id,
                 $limit
             ));
@@ -91,8 +91,8 @@ class TAP_Automations {
         if ('1' !== (string) get_option('tap_auto_prearrival', '0')) {
             return;
         }
-        $today = date('Y-m-d', current_time('timestamp'));
-        $soon  = date('Y-m-d', current_time('timestamp') + 2 * DAY_IN_SECONDS);
+        $today = gmdate('Y-m-d', current_time('timestamp'));
+        $soon  = gmdate('Y-m-d', current_time('timestamp') + 2 * DAY_IN_SECONDS);
 
         global $wpdb;
         $t = $wpdb->prefix . 'tap_bookings';
@@ -135,8 +135,8 @@ class TAP_Automations {
         if ('1' !== (string) get_option('tap_auto_review_request', '0')) {
             return;
         }
-        $from = date('Y-m-d', current_time('timestamp') - 14 * DAY_IN_SECONDS);
-        $to   = date('Y-m-d', current_time('timestamp') - 2 * DAY_IN_SECONDS);
+        $from = gmdate('Y-m-d', current_time('timestamp') - 14 * DAY_IN_SECONDS);
+        $to   = gmdate('Y-m-d', current_time('timestamp') - 2 * DAY_IN_SECONDS);
 
         global $wpdb;
         $t = $wpdb->prefix . 'tap_bookings';
@@ -183,8 +183,8 @@ class TAP_Automations {
             return;
         }
         $days = max(1, (int) get_option('tap_expiry_warn_days', 3));
-        $until = date('Y-m-d', current_time('timestamp') + $days * DAY_IN_SECONDS);
-        $today = date('Y-m-d', current_time('timestamp'));
+        $until = gmdate('Y-m-d', current_time('timestamp') + $days * DAY_IN_SECONDS);
+        $today = gmdate('Y-m-d', current_time('timestamp'));
 
         global $wpdb;
 
@@ -281,7 +281,7 @@ class TAP_Automations {
     }
 
     private static function mark($task, $id) {
-        $cutoff = date('Y-m-d H:i:s', current_time('timestamp') - self::LOG_DAYS * DAY_IN_SECONDS);
+        $cutoff = gmdate('Y-m-d H:i:s', current_time('timestamp') - self::LOG_DAYS * DAY_IN_SECONDS);
         $log = (array) get_option(self::log_key($task), []);
         $log[(string) $id] = current_time('Y-m-d H:i:s');
         foreach ($log as $key => $when) {
