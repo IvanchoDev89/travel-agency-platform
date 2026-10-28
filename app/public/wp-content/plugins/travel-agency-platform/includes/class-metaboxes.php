@@ -51,6 +51,10 @@ class TAP_Metaboxes {
         self::maybe_add_meta_box('tap_spot_details', __('Ficha educativa', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_spot', 'normal', 'high');
         self::maybe_add_meta_box('tap_spot_location', __('Ubicación', 'travel-agency-platform'), [__CLASS__, 'render_spot_location'], 'tap_spot', 'side', 'default');
         self::$fields['tap_spot'] = TAP_Destination_Spots::fields();
+        // Yield pricing rules for every service type.
+        foreach (self::service_types() as $stype) {
+            self::maybe_add_meta_box('tap_pricing_rules_' . $stype, __('Reglas de precio (yield)', 'travel-agency-platform'), [__CLASS__, 'render_pricing_rules'], $stype, 'normal', 'low');
+        }
     }
 
     /**
@@ -105,6 +109,96 @@ class TAP_Metaboxes {
             }
         }
         return $opts;
+    }
+
+    /**
+     * Render the yield pricing rules metabox.
+     */
+    public static function render_pricing_rules($post) {
+        if (!class_exists('TAP_Pricing_Rules')) return;
+        $rules = TAP_Pricing_Rules::for_service($post->post_type, $post->ID);
+        wp_nonce_field('tap_pricing_rules_save', 'tap_pricing_rules_nonce');
+        ?>
+        <div class="tap-pricing-rules">
+            <p class="description"><?php esc_html_e('Las reglas aplican un modificador al precio base cuando se cumplen las condiciones. La primera regla que haga match (por prioridad) se aplica.', 'travel-agency-platform'); ?></p>
+            <?php if ($rules): ?>
+                <table class="widefat striped" style="margin-bottom:12px;">
+                    <thead><tr>
+                        <th><?php esc_html_e('Tipo', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Condición', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Modificador', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Prioridad', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Acción', 'travel-agency-platform'); ?></th>
+                    </tr></thead>
+                    <tbody>
+                    <?php foreach ($rules as $r):
+                        $cond = json_decode($r->condition_json, true);
+                        $cond_str = '';
+                        if (is_array($cond)) {
+                            foreach ($cond as $k => $v) {
+                                if (is_array($v)) $v = implode(',', $v);
+                                $cond_str .= $k . '=' . $v . ' ';
+                            }
+                        }
+                        ?>
+                        <tr>
+                            <td><?php echo esc_html(TAP_Pricing_Rules::rule_types()[$r->rule_type] ?? $r->rule_type); ?></td>
+                            <td><?php echo esc_html(trim($cond_str)); ?></td>
+                            <td><?php echo esc_html(($r->modifier_type === 'percent' ? $r->modifier_value . '%' : '$' . $r->modifier_value)); ?></td>
+                            <td><?php echo (int) $r->priority; ?></td>
+                            <td>
+                                <button type="submit" name="tap_pricing_rule_delete" value="<?php echo (int) $r->id; ?>" class="button button-small" onclick="return confirm('<?php echo esc_js(__('¿Eliminar esta regla?', 'travel-agency-platform')); ?>');"><?php esc_html_e('Eliminar', 'travel-agency-platform'); ?></button>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php else: ?>
+                <p><?php esc_html_e('Sin reglas. El precio base se usa sin modificadores.', 'travel-agency-platform'); ?></p>
+            <?php endif; ?>
+
+            <h4><?php esc_html_e('Agregar regla', 'travel-agency-platform'); ?></h4>
+            <table class="form-table" style="margin-top:0;">
+                <tr>
+                    <th><label for="tap_rule_type"><?php esc_html_e('Tipo', 'travel-agency-platform'); ?></label></th>
+                    <td>
+                        <select name="tap_rule_type" id="tap_rule_type">
+                            <option value="">—</option>
+                            <?php foreach (TAP_Pricing_Rules::rule_types() as $k => $v): ?>
+                                <option value="<?php echo esc_attr($k); ?>"><?php echo esc_html($v); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="tap_rule_days"><?php esc_html_e('Días de anticipación (early bird / last minute)', 'travel-agency-platform'); ?></label></th>
+                    <td><input type="number" name="tap_rule_days" id="tap_rule_days" value="30" min="0" style="width:80px;"></td>
+                </tr>
+                <tr>
+                    <th><label for="tap_rule_months"><?php esc_html_e('Meses (seasonal, separados por coma)', 'travel-agency-platform'); ?></label></th>
+                    <td><input type="text" name="tap_rule_months" id="tap_rule_months" value="" placeholder="12,1,2" style="width:200px;"></td>
+                </tr>
+                <tr>
+                    <th><label for="tap_rule_modifier_type"><?php esc_html_e('Tipo de modificador', 'travel-agency-platform'); ?></label></th>
+                    <td>
+                        <select name="tap_rule_modifier_type" id="tap_rule_modifier_type">
+                            <option value="percent"><?php esc_html_e('Porcentaje (%)', 'travel-agency-platform'); ?></option>
+                            <option value="fixed"><?php esc_html_e('Monto fijo', 'travel-agency-platform'); ?></option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th><label for="tap_rule_modifier_value"><?php esc_html_e('Valor (negativo = descuento)', 'travel-agency-platform'); ?></label></th>
+                    <td><input type="number" name="tap_rule_modifier_value" id="tap_rule_modifier_value" value="-10" step="0.01" style="width:100px;"></td>
+                </tr>
+                <tr>
+                    <th><label for="tap_rule_priority"><?php esc_html_e('Prioridad', 'travel-agency-platform'); ?></label></th>
+                    <td><input type="number" name="tap_rule_priority" id="tap_rule_priority" value="5" min="0" style="width:80px;"></td>
+                </tr>
+            </table>
+            <button type="submit" name="tap_pricing_rule_add" value="1" class="button button-primary"><?php esc_html_e('Agregar regla', 'travel-agency-platform'); ?></button>
+        </div>
+        <?php
     }
 
     public static function get_fields($post_type) {
@@ -492,6 +586,36 @@ class TAP_Metaboxes {
             // The ficha's place: stored as post meta and mirrored on the term so
             // a location page can hand over to its ficha without an extra query.
             TAP_Destination_Spots::set_location_term($post_id, absint($_POST['tap_spot_location']));
+        }
+
+        // Yield pricing rules management.
+        if (in_array($post_type, self::service_types(), true) && isset($_POST['tap_pricing_rules_nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['tap_pricing_rules_nonce'])), 'tap_pricing_rules_save')) {
+            if (isset($_POST['tap_pricing_rule_delete'])) {
+                TAP_Pricing_Rules::delete(absint($_POST['tap_pricing_rule_delete']));
+            } elseif (isset($_POST['tap_pricing_rule_add'])) {
+                $rule_type = sanitize_key(wp_unslash($_POST['tap_rule_type'] ?? ''));
+                if ($rule_type && isset(TAP_Pricing_Rules::rule_types()[$rule_type])) {
+                    $condition = [];
+                    $days = absint($_POST['tap_rule_days'] ?? 0);
+                    if (in_array($rule_type, ['early_bird', 'last_minute'], true)) {
+                        $condition['days_before'] = $days;
+                    }
+                    $months_raw = sanitize_text_field(wp_unslash($_POST['tap_rule_months'] ?? ''));
+                    if ('seasonal' === $rule_type && '' !== $months_raw) {
+                        $condition['months'] = array_map('intval', array_filter(array_map('trim', explode(',', $months_raw))));
+                    }
+                    TAP_Pricing_Rules::save([
+                        'service_type'   => $post_type,
+                        'service_id'     => $post_id,
+                        'rule_type'      => $rule_type,
+                        'condition'      => $condition,
+                        'modifier_type'  => sanitize_key(wp_unslash($_POST['tap_rule_modifier_type'] ?? 'percent')),
+                        'modifier_value' => (float) ($_POST['tap_rule_modifier_value'] ?? 0),
+                        'priority'       => absint($_POST['tap_rule_priority'] ?? 0),
+                        'is_active'      => 1,
+                    ]);
+                }
+            }
         }
 
         $service_like = in_array($post_type, self::service_types(), true);
