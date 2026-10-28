@@ -292,6 +292,10 @@ class TAP_Front_Dash {
         $search = sanitize_text_field(wp_unslash($_GET['bo_q'] ?? ''));
         $page   = max(1, (int) wp_unslash($_GET['bo_page'] ?? 1));
         $per_page = 20;
+        $date_from = sanitize_text_field(wp_unslash($_GET['bo_from'] ?? ''));
+        $date_to   = sanitize_text_field(wp_unslash($_GET['bo_to'] ?? ''));
+        if ($date_from && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date_from)) { $date_from = ''; }
+        if ($date_to && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $date_to)) { $date_to = ''; }
 
         $counts = [];
         $rows = $wpdb->get_results($wpdb->prepare(
@@ -316,11 +320,19 @@ class TAP_Front_Dash {
             $search_svc_ids = array_map('intval', (array) $matching);
         }
 
-        $where  = $wpdb->prepare('WHERE agency_id = %d', $agency);
+        $where  = 'WHERE agency_id = %d';
         $params = [$agency];
         if ('all' !== $status) {
             $where .= $wpdb->prepare(' AND status = %s', $status);
             $params[] = $status;
+        }
+        if ($date_from) {
+            $where .= ' AND check_in >= %s';
+            $params[] = $date_from;
+        }
+        if ($date_to) {
+            $where .= ' AND check_in <= %s';
+            $params[] = $date_to;
         }
         if ('' !== $search) {
             $clauses = [];
@@ -391,6 +403,8 @@ class TAP_Front_Dash {
             <form method="get" class="tap-bo-search" style="margin:var(--tap-space-3) 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
                 <input type="hidden" name="seccion" value="bo-operations">
                 <input type="hidden" name="bo_status" value="<?php echo esc_attr($status); ?>">
+                <input type="date" name="bo_from" value="<?php echo esc_attr($date_from); ?>" style="padding:8px 12px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);background:#fff;" title="<?php esc_attr_e('Desde', 'travel-agency-platform'); ?>">
+                <input type="date" name="bo_to" value="<?php echo esc_attr($date_to); ?>" style="padding:8px 12px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);background:#fff;" title="<?php esc_attr_e('Hasta', 'travel-agency-platform'); ?>">
                 <input type="search" name="bo_q" value="<?php echo esc_attr($search); ?>" placeholder="<?php esc_attr_e('Buscar por código, huésped o servicio…', 'travel-agency-platform'); ?>" style="flex:1;min-width:220px;padding:8px 12px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);background:#fff;">
                 <button type="submit" class="tap-btn tap-btn-sm"><?php esc_html_e('Buscar', 'travel-agency-platform'); ?></button>
                 <?php if ('' !== $search): ?>
@@ -473,7 +487,7 @@ class TAP_Front_Dash {
             <?php if ($total_pages > 1): ?>
             <nav class="tap-pagination" style="display:flex;gap:6px;justify-content:center;margin-top:var(--tap-space-4);flex-wrap:wrap;">
                 <?php for ($p = 1; $p <= $total_pages; $p++):
-                    $purl = add_query_arg(['seccion'=>'bo-operations','bo_status'=>$status,'bo_q'=>$search,'bo_page'=>$p], home_url('/mi-cuenta/'));
+                    $purl = add_query_arg(['seccion'=>'bo-operations','bo_status'=>$status,'bo_q'=>$search,'bo_from'=>$date_from,'bo_to'=>$date_to,'bo_page'=>$p], home_url('/mi-cuenta/'));
                     ?>
                     <a class="tap-btn tap-btn-sm <?php echo $p === $page ? 'tap-btn-primary' : 'tap-btn-outline'; ?>" href="<?php echo esc_url($purl); ?>"><?php echo (int) $p; ?></a>
                 <?php endfor; ?>
@@ -1108,10 +1122,18 @@ endif;
         $base = home_url('/mi-cuenta/');
         $agency = (int) TAP_Booking::get_agency_for_user(get_current_user_id());
         $unread = $agency ? TAP_Chat::unread_total_for_agency($agency) : 0;
+        $new_bookings = 0;
+        if ($agency) {
+            global $wpdb;
+            $new_bookings = (int) $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->prefix}tap_bookings WHERE agency_id = %d AND status IN ('request','pending')",
+                $agency
+            ));
+        }
         $is_team_admin = ('tap_agency_employee' !== $role);
         $nav = [
             ['key' => 'overview', 'label' => __('Resumen', 'travel-agency-platform'), 'icon' => 'home', 'url' => $base],
-            ['key' => 'bo-operations', 'label' => __('Operaciones', 'travel-agency-platform'), 'icon' => 'calendar', 'url' => add_query_arg('seccion', 'bo-operations', $base), 'badge' => $unread],
+            ['key' => 'bo-operations', 'label' => __('Operaciones', 'travel-agency-platform'), 'icon' => 'calendar', 'url' => add_query_arg('seccion', 'bo-operations', $base), 'badge' => ($unread + $new_bookings)],
         ];
         // Finanzas y Equipo son solo del administrador de la agencia;
         // los empleados ven Resumen, Operaciones y Listados.
