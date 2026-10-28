@@ -281,6 +281,9 @@ class TAP_Front_Dash {
                     case 'bo-finances':
                         echo self::agency_finances($user);
                         break;
+                    case 'bo-analytics':
+                        echo self::agency_analytics($user);
+                        break;
                     case 'bo-listings':
                         echo TAP_Listing_Editor::agency_manage([]);
                         break;
@@ -798,6 +801,87 @@ class TAP_Front_Dash {
         return ob_get_clean();
     }
 
+    private static function agency_analytics($user) {
+        if (TAP_Roles::is_agency_employee($user)) {
+            return '<p class="tap-empty">' . esc_html__('Solo el administrador de la agencia ve los analytics.', 'travel-agency-platform') . '</p>';
+        }
+        $agency = (int) TAP_Booking::get_agency_for_user($user->ID);
+        if (!$agency) {
+            return '<p class="tap-empty">' . esc_html__('No tienes una agencia vinculada.', 'travel-agency-platform') . '</p>';
+        }
+        if (!class_exists('TAP_Analytics')) {
+            return '<p class="tap-empty">' . esc_html__('Módulo de analytics no disponible.', 'travel-agency-platform') . '</p>';
+        }
+
+        $from = sanitize_text_field(wp_unslash($_GET['an_from'] ?? date('Y-m', strtotime('-5 months'))));
+        $to   = sanitize_text_field(wp_unslash($_GET['an_to'] ?? date('Y-m')));
+        $stats = TAP_Analytics::agency_stats($agency, $from, $to);
+        $funnel = TAP_Analytics::booking_funnel($from, $to);
+
+        ob_start();
+        ?>
+        <div class="tap-dash-section">
+            <div class="tap-dash-section-header">
+                <h2><?php esc_html_e('Analytics de la agencia', 'travel-agency-platform'); ?></h2>
+            </div>
+
+            <form method="get" style="margin:var(--tap-space-3) 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                <input type="hidden" name="seccion" value="bo-analytics">
+                <label style="font-size:var(--tap-text-sm);"><?php esc_html_e('Desde', 'travel-agency-platform'); ?>
+                    <input type="month" name="an_from" value="<?php echo esc_attr($from); ?>" style="padding:6px 10px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);">
+                </label>
+                <label style="font-size:var(--tap-text-sm);"><?php esc_html_e('Hasta', 'travel-agency-platform'); ?>
+                    <input type="month" name="an_to" value="<?php echo esc_attr($to); ?>" style="padding:6px 10px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);">
+                </label>
+                <button type="submit" class="tap-btn tap-btn-sm"><?php esc_html_e('Aplicar', 'travel-agency-platform'); ?></button>
+            </form>
+
+            <div class="tap-stats-grid" style="margin-top:16px;">
+                <div class="tap-stat-card"><span class="tap-stat-number"><?php echo (int) $stats['views']; ?></span><span class="tap-stat-label"><?php esc_html_e('Vistas de listados', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number"><?php echo (int) $stats['bookings']; ?></span><span class="tap-stat-label"><?php esc_html_e('Reservas', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(TAP_Currency::fmt($stats['revenue'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Ingresos (pagados)', 'travel-agency-platform'); ?></span></div>
+            </div>
+
+            <div class="tap-panel-section" style="margin-top:24px;">
+                <div class="tap-section-head">
+                    <h3><?php esc_html_e('Embudo de conversión', 'travel-agency-platform'); ?></h3>
+                </div>
+                <div class="tap-stats-grid">
+                    <?php foreach ($funnel as $stage): ?>
+                        <div class="tap-stat-card">
+                            <span class="tap-stat-number"><?php echo (int) $stage['value']; ?></span>
+                            <span class="tap-stat-label"><?php echo esc_html($stage['label']); ?><?php if ($stage['rate'] > 0): ?> (<?php echo esc_html($stage['rate']); ?>%)<?php endif; ?></span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <?php if (!empty($stats['top_services'])): ?>
+            <div class="tap-panel-section" style="margin-top:24px;">
+                <div class="tap-section-head">
+                    <h3><?php esc_html_e('Top servicios por vistas', 'travel-agency-platform'); ?></h3>
+                </div>
+                <div class="tap-table-scroll"><table class="tap-table tap-table-compact">
+                    <thead><tr>
+                        <th><?php esc_html_e('Servicio', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Vistas', 'travel-agency-platform'); ?></th>
+                    </tr></thead>
+                    <tbody>
+                    <?php foreach ($stats['top_services'] as $ts): ?>
+                        <tr>
+                            <td><?php echo esc_html($ts['title']); ?></td>
+                            <td><?php echo (int) $ts['views']; ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table></div>
+            </div>
+            <?php endif; ?>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
     private static function agency_team($user) {
         if (TAP_Roles::is_agency_employee($user)) {
             return '<p class="tap-empty">' . esc_html__('Solo el administrador de la agencia gestiona el equipo.', 'travel-agency-platform') . '</p>';
@@ -1308,6 +1392,7 @@ endif;
         // los empleados ven Resumen, Operaciones y Listados.
         if ($is_team_admin) {
             $nav[] = ['key' => 'bo-finances', 'label' => __('Finanzas', 'travel-agency-platform'), 'icon' => 'wallet', 'url' => add_query_arg('seccion', 'bo-finances', $base)];
+            $nav[] = ['key' => 'bo-analytics', 'label' => __('Analytics', 'travel-agency-platform'), 'icon' => 'chart', 'url' => add_query_arg('seccion', 'bo-analytics', $base)];
         }
         $nav[] = ['key' => 'bo-listings', 'label' => __('Listados', 'travel-agency-platform'), 'icon' => 'grid', 'url' => add_query_arg('seccion', 'bo-listings', $base)];
         if ($is_team_admin) {

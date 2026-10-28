@@ -108,6 +108,69 @@ class TAP_Analytics {
         return $out;
     }
 
+    /**
+     * Agency-level analytics: views, bookings, revenue, top services.
+     *
+     * @return array{views:int,bookings:int,revenue:float,top_services:array}
+     */
+    public static function agency_stats($agency_id, $from = '', $to = '') {
+        global $wpdb;
+        $agency_id = (int) $agency_id;
+        $where = self::date_where($from, $to);
+
+        // Listing views for this agency's services.
+        $ids = [];
+        $types = ['tap_accommodation','tap_tour','tap_transport','tap_car_rental','tap_boat','tap_package','tap_equipment'];
+        foreach ($types as $t) {
+            $prefix = '_tap_' . substr(str_replace('tap_', '', $t), 0, 3) . '_agency_id';
+            // simpler: use TAP_Post_Types meta_prefix
+        }
+        // Use proper prefix via TAP_Post_Types.
+        $ids = [];
+        foreach ($types as $t) {
+            if (!class_exists('TAP_Post_Types')) continue;
+            $prefix = '_tap_' . TAP_Post_Types::meta_prefix($t) . '_agency_id';
+            $rows = $wpdb->get_col($wpdb->prepare(
+                "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s AND meta_value = %d",
+                $prefix, $agency_id
+            ));
+            foreach ($rows as $r) $ids[] = (int) $r;
+        }
+        $ids = array_unique($ids);
+
+        $views = 0;
+        if ($ids) {
+            $placeholders = implode(',', array_fill(0, count($ids), '%d'));
+            $views = (int) $wpdb->get_var($wpdb->prepare(
+                "SELECT COALESCE(SUM(views),0) FROM " . self::views_table() . " WHERE listing_id IN ({$placeholders}) AND {$where}",
+                $ids
+            ));
+        }
+
+        // Bookings + revenue.
+        $bw = "agency_id = %d";
+        $bparams = [$agency_id];
+        if ($from && preg_match('/^\d{4}-\d{2}$/', $from)) { $bw .= " AND DATE_FORMAT(created_at, '%%Y-%%m') >= %s"; $bparams[] = $from; }
+        if ($to && preg_match('/^\d{4}-\d{2}$/', $to)) { $bw .= " AND DATE_FORMAT(created_at, '%%Y-%%m') <= %s"; $bparams[] = $to; }
+        $bookings = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}tap_bookings WHERE {$bw}", $bparams));
+        $revenue  = (float) $wpdb->get_var($wpdb->prepare("SELECT COALESCE(SUM(total_amount),0) FROM {$wpdb->prefix}tap_bookings WHERE {$bw} AND payment_status = 'paid'", $bparams));
+
+        // Top services by views.
+        $top = [];
+        if ($ids) {
+            $placeholders = implode(',', array_fill(0, count($ids), '%d'));
+            $toprows = $wpdb->get_results($wpdb->prepare(
+                "SELECT listing_id, COALESCE(SUM(views),0) v FROM " . self::views_table() . " WHERE listing_id IN ({$placeholders}) AND {$where} GROUP BY listing_id ORDER BY v DESC LIMIT 5",
+                $ids
+            ));
+            foreach ($toprows as $tr) {
+                $top[] = ['id' => (int) $tr->listing_id, 'title' => get_the_title((int) $tr->listing_id), 'views' => (int) $tr->v];
+            }
+        }
+
+        return ['views' => $views, 'bookings' => $bookings, 'revenue' => $revenue, 'top_services' => $top];
+    }
+
     private static function date_where($from, $to) {
         global $wpdb;
         if ($from && !preg_match('/^\d{4}-\d{2}$/', $from)) $from = '';
