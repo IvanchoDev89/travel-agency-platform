@@ -190,6 +190,17 @@ class TAP_Installer {
                 KEY expires (expires_at)
             ) $charset;",
 
+            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_currencies (
+                code varchar(5) NOT NULL,
+                name varchar(60) NOT NULL,
+                symbol varchar(10) NOT NULL,
+                rate_to_usd decimal(12,6) NOT NULL DEFAULT 1.000000,
+                decimals int(2) NOT NULL DEFAULT 2,
+                is_active tinyint(1) NOT NULL DEFAULT 1,
+                updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (code)
+            ) $charset;",
+
             "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_loyalty_points (
                 id bigint(20) NOT NULL AUTO_INCREMENT,
                 user_id bigint(20) NOT NULL,
