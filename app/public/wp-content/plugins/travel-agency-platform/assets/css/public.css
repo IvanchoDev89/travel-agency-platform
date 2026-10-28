@@ -2466,8 +2466,20 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
   align-items: center;
   justify-content: center;
   padding: var(--tap-space-4);
+  animation: tap-modal-in .18s ease-out;
 }
 .tap-destmap-modal[hidden] { display: none; }
+@keyframes tap-modal-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.tap-destmap-modal-dialog {
+  animation: tap-modal-dialog-in .22s ease-out;
+}
+@keyframes tap-modal-dialog-in {
+  from { opacity: 0; transform: translateY(12px) scale(.98); }
+  to { opacity: 1; transform: none; }
+}
 .tap-destmap-modal-backdrop {
   position: absolute;
   inset: 0;

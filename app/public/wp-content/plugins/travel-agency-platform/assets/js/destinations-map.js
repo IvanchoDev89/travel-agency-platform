@@ -187,12 +187,12 @@
 
     function openModal() {
       var $m = $('#tap-destmap-modal');
-      $m.prop('hidden', false).attr('aria-hidden', 'false');
+      $m.removeAttr('hidden').attr('aria-hidden', 'false');
       $('body').css('overflow', 'hidden');
     }
     function closeModal() {
       var $m = $('#tap-destmap-modal');
-      $m.prop('hidden', true).attr('aria-hidden', 'true');
+      $m.attr('hidden', 'hidden').attr('aria-hidden', 'true');
       $('body').css('overflow', '');
     }
 
@@ -206,7 +206,7 @@
       if (!item) return;
 
       var $detail = $('#tap-destmap-detail');
-      $detail.html(isService ? serviceDetailHtml(item) : spotDetailHtml(item));
+      $detail.removeAttr('hidden').html(isService ? serviceDetailHtml(item) : spotDetailHtml(item));
 
       $('.tap-destmap-item').removeClass('is-active');
       $('.tap-destmap-item-btn').attr('aria-expanded', 'false');
@@ -381,7 +381,7 @@
     $(document).on('click', '.tap-destmap-layer', function () {
       layer = String($(this).data('layer') || 'all');
       syncVisibility();
-      $('#tap-destmap-detail').prop('hidden', true);
+      $('#tap-destmap-detail').attr('hidden', 'hidden');
       window.setTimeout(function () { map.invalidateSize(); }, 60);
     });
 
@@ -389,7 +389,7 @@
       var tab = String($(this).data('tab') || 'spots');
       layer = tab;
       syncVisibility();
-      $('#tap-destmap-detail').prop('hidden', true);
+      $('#tap-destmap-detail').attr('hidden', 'hidden');
       window.setTimeout(function () { map.invalidateSize(); }, 60);
     });
 
