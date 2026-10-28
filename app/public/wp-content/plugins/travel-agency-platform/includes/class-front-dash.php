@@ -604,6 +604,9 @@ class TAP_Front_Dash {
         <div class="tap-dash-section">
             <div class="tap-dash-section-header">
                 <h2><?php esc_html_e('Finanzas de la agencia', 'travel-agency-platform'); ?></h2>
+                <?php $f_agency = (int) TAP_Booking::get_agency_for_user(get_current_user_id()); if ($f_agency): ?>
+                    <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php') . '?action=tap_export_finances&agency=' . $f_agency, 'tap_export_finances_' . get_current_user_id())); ?>"><?php esc_html_e('Exportar CSV', 'travel-agency-platform'); ?></a>
+                <?php endif; ?>
             </div>
             <div class="tap-stats-grid">
                 <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b45309;"><?php echo esc_html(TAP_Currency::fmt($totals->owed ?? 0)); ?></span><span class="tap-stat-label"><?php esc_html_e('Por cobrar', 'travel-agency-platform'); ?></span></div>
@@ -1344,6 +1347,48 @@ endif;
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename="tap-bookings-' . (int) $agency_id . '.csv"');
         echo self::export_bookings_csv($agency_id);
+        exit;
+    }
+
+    /* ── finances CSV export ─────────────────────────────────────────── */
+
+    public static function export_finances_csv($agency_id) {
+        global $wpdb;
+        $agency_id = (int) $agency_id;
+        $history = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}tap_commission_payments WHERE agency_id = %d ORDER BY created_at DESC",
+            $agency_id
+        ));
+        $out = "id,monto,metodo,origen,nota,estado,fecha\n";
+        foreach ((array) $history as $h) {
+            $fields = [
+                (int) $h->id,
+                $h->amount,
+                $h->method,
+                ('agency' === ($h->source ?? 'admin')) ? 'Solicitud agencia' : 'Admin',
+                $h->note,
+                $h->status,
+                $h->created_at,
+            ];
+            $out .= implode(',', array_map([__CLASS__, 'csv_cell'], $fields)) . "\n";
+        }
+        return $out;
+    }
+
+    public static function finances_csv_download() {
+        if (!is_user_logged_in()) {
+            wp_safe_redirect(home_url('/login/'));
+            exit;
+        }
+        $user_agency = (int) TAP_Booking::get_agency_for_user(get_current_user_id());
+        $agency_id   = isset($_GET['agency']) ? (int) $_GET['agency'] : 0;
+        $nonce       = sanitize_text_field(wp_unslash($_GET['_wpnonce'] ?? ''));
+        if (!$user_agency || $agency_id !== $user_agency || !wp_verify_nonce($nonce, 'tap_export_finances_' . get_current_user_id())) {
+            wp_die(__('Acceso denegado.', 'travel-agency-platform'), '', ['response' => 403]);
+        }
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="tap-finances-' . (int) $agency_id . '.csv"');
+        echo self::export_finances_csv($agency_id);
         exit;
     }
 

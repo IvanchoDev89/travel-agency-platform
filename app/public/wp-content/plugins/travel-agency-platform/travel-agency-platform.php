@@ -178,6 +178,7 @@ final class TravelAgencyPlatform {
         add_action('wp_ajax_nopriv_tap_lead_submit', ['TAP_Ajax', 'submit_lead']);
         add_action('admin_post_tap_export_leads', ['TAP_Leads', 'csv_download']);
         add_action('admin_post_tap_export_bookings', ['TAP_Front_Dash', 'bookings_csv_download']);
+        add_action('admin_post_tap_export_finances', ['TAP_Front_Dash', 'finances_csv_download']);
         // Kept on purpose: the handler enforces login + nonce + agency ownership
         // and this lets an expired session get the friendly /login/ redirect
         // instead of a blank admin-post response.
