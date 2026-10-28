@@ -582,12 +582,19 @@
 
 .tap-ac-cal-body {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 330px;
-    gap: var(--tap-space-4);
+    grid-template-columns: minmax(0, 1.6fr) minmax(280px, 360px);
+    gap: var(--tap-space-5);
     align-items: start;
 }
 @media (max-width: 860px) {
-    .tap-ac-cal-body { grid-template-columns: 1fr; }
+    .tap-ac-cal-body { grid-template-columns: minmax(0, 1fr); }
+}
+
+.tap-ac-cal-side {
+    position: sticky;
+    top: 80px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
 }
 
 .tap-ac-month-nav {
@@ -601,8 +608,9 @@
     min-width: 160px;
     text-align: center;
     display: inline-block;
-    font-size: var(--tap-text-base);
+    font-size: var(--tap-text-lg);
     font-weight: 700;
+    letter-spacing: -0.01em;
 }
 .tap-ac-legend { display: flex; gap: var(--tap-space-3); flex-wrap: wrap; font-size: var(--tap-text-xs); color: var(--tap-neutral-500); margin-left: auto; }
 .tap-ac-legend span { display: inline-flex; align-items: center; gap: var(--tap-space-1); }
