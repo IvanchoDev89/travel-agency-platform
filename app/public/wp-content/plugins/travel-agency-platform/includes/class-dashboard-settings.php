@@ -26,6 +26,10 @@ class TAP_Dashboard_Settings {
         register_setting('tap_settings', 'tap_paypal_client_id');
         register_setting('tap_settings', 'tap_paypal_secret');
         register_setting('tap_settings', 'tap_paypal_webhook_id');
+        register_setting('tap_settings', 'tap_sinpe_enabled');
+        register_setting('tap_settings', 'tap_sinpe_phone');
+        register_setting('tap_settings', 'tap_manual_payment_enabled');
+        register_setting('tap_settings', 'tap_manual_bank_info');
         register_setting('tap_settings', 'tap_default_gateway');
         register_setting('tap_settings', 'tap_booking_fee_type', [
             'type' => 'string',
@@ -465,6 +469,31 @@ class TAP_Dashboard_Settings {
                         </td>
                     </tr>
                 </table>
+
+                <h3><?php esc_html_e('SINPE Móvil (Costa Rica)', 'travel-agency-platform'); ?></h3>
+                <table class="form-table">
+                    <tr>
+                        <th><label for="tap_sinpe_enabled"><?php esc_html_e('Enable SINPE Móvil', 'travel-agency-platform'); ?></label></th>
+                        <td><input type="checkbox" id="tap_sinpe_enabled" name="tap_sinpe_enabled" value="1" <?php checked('1', get_option('tap_sinpe_enabled', '0')); ?>></td>
+                    </tr>
+                    <tr>
+                        <th><label for="tap_sinpe_phone"><?php esc_html_e('Teléfono SINPE', 'travel-agency-platform'); ?></label></th>
+                        <td><input type="text" id="tap_sinpe_phone" name="tap_sinpe_phone" value="<?php echo esc_attr(get_option('tap_sinpe_phone', '')); ?>" class="regular-text"></td>
+                    </tr>
+                </table>
+
+                <h3><?php esc_html_e('Transferencia bancaria', 'travel-agency-platform'); ?></h3>
+                <table class="form-table">
+                    <tr>
+                        <th><label for="tap_manual_payment_enabled"><?php esc_html_e('Enable transferencia', 'travel-agency-platform'); ?></label></th>
+                        <td><input type="checkbox" id="tap_manual_payment_enabled" name="tap_manual_payment_enabled" value="1" <?php checked('1', get_option('tap_manual_payment_enabled', '0')); ?>></td>
+                    </tr>
+                    <tr>
+                        <th><label for="tap_manual_bank_info"><?php esc_html_e('Datos bancarios', 'travel-agency-platform'); ?></label></th>
+                        <td><textarea id="tap_manual_bank_info" name="tap_manual_bank_info" rows="4" class="large-text"><?php echo esc_textarea(get_option('tap_manual_bank_info', '')); ?></textarea></td>
+                    </tr>
+                </table>
+
                 <?php submit_button(); ?>
             </form>
         </div>

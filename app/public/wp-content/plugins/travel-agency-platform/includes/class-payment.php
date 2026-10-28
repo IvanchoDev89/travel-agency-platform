@@ -52,7 +52,19 @@ class TAP_Payment {
                 'id'      => 'paypal',
                 'name'    => __('PayPal', 'travel-agency-platform'),
                 'enabled' => get_option('tap_paypal_enabled', '0') === '1',
-                'ready'   => TAP_PayPal::is_ready(),
+                'ready'   => class_exists('TAP_PayPal') && TAP_PayPal::is_ready(),
+            ],
+            'sinpe' => [
+                'id'      => 'sinpe',
+                'name'    => __('SINPE Móvil', 'travel-agency-platform'),
+                'enabled' => get_option('tap_sinpe_enabled', '0') === '1',
+                'ready'   => (bool) get_option('tap_sinpe_phone', ''),
+            ],
+            'manual' => [
+                'id'      => 'manual',
+                'name'    => __('Transferencia bancaria', 'travel-agency-platform'),
+                'enabled' => get_option('tap_manual_payment_enabled', '0') === '1',
+                'ready'   => (bool) get_option('tap_manual_bank_info', ''),
             ],
         ];
 

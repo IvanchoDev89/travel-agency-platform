@@ -10,6 +10,16 @@ defined('ABSPATH') || exit;
  * audit (every write stays in one file).
  */
 class TAP_Ajax_Public {
+    public static function set_currency() {
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        $code = strtoupper(sanitize_text_field(wp_unslash($_POST['currency'] ?? '')));
+        if (!$code) {
+            wp_send_json_error(['message' => __('Moneda inválida.', 'travel-agency-platform')]);
+        }
+        TAP_Currency::set_user_currency($code);
+        wp_send_json_success(['currency' => $code]);
+    }
+
 
     /** Reject a visitor who hammered a public read-only endpoint (5 min window). */
     private static function throttle($bucket, $limit) {

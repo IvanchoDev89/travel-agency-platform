@@ -95,6 +95,7 @@ final class TravelAgencyPlatform {
         add_action('init', ['TAP_Taxonomies', 'migrate_tour_difficulty'], 8);
         add_action('init', ['TAP_Roles', 'setup'], 9);
         add_action('init', ['TAP_Shortcodes', 'init'], 8);
+        add_shortcode('tap_currency_selector', ['TAP_Currency', 'render_selector']);
         add_action('init', ['TAP_Dashboard', 'init'], 9);
         add_action('init', ['TAP_Pricing', 'init'], 10);
         add_action('init', ['TAP_Discounts', 'init'], 11);
@@ -143,6 +144,8 @@ final class TravelAgencyPlatform {
         add_action('wp_ajax_nopriv_tap_capture_paypal_order', ['TAP_Ajax_Commerce', 'capture_paypal_order']);
         add_action('wp_ajax_tap_calculate_booking_total', ['TAP_Ajax_Public', 'calculate_booking_total']);
         add_action('wp_ajax_nopriv_tap_calculate_booking_total', ['TAP_Ajax_Public', 'calculate_booking_total']);
+        add_action('wp_ajax_tap_set_currency', ['TAP_Ajax_Public', 'set_currency']);
+        add_action('wp_ajax_nopriv_tap_set_currency', ['TAP_Ajax_Public', 'set_currency']);
         add_action('wp_ajax_tap_get_rooms', ['TAP_Ajax_Public', 'get_rooms']);
         add_action('wp_ajax_nopriv_tap_get_rooms', ['TAP_Ajax_Public', 'get_rooms']);
         add_action('wp_ajax_tap_get_public_pricing', ['TAP_Ajax_Public', 'get_public_pricing']);
