@@ -563,6 +563,22 @@ class TAP_Installer {
             UNIQUE KEY invoice_number (invoice_number)
         ) {$wpdb->get_charset_collate()}");
 
+        $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_shuttle_groups (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            service_id bigint(20) NOT NULL,
+            route_key varchar(120) NOT NULL,
+            travel_date date NOT NULL,
+            max_passengers int(11) NOT NULL DEFAULT 0,
+            booked_passengers int(11) NOT NULL DEFAULT 0,
+            status varchar(20) NOT NULL DEFAULT 'open',
+            price_per_seat decimal(10,2) DEFAULT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY service (service_id),
+            KEY route_date (route_key, travel_date),
+            KEY status (status)
+        ) {$wpdb->get_charset_collate()}");
+
         $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_audit_log (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             user_id bigint(20) NOT NULL DEFAULT 0,
