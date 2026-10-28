@@ -65,6 +65,7 @@ class TAP_Listing_Editor {
         unset($types['tap_room']);
         ob_start();
         ?>
+        <?php if (!($new_type && isset($types[$new_type]))): ?>
         <div class="tap-agency-panel tap-manage-wrap">
             <div class="tap-panel-head">
                 <div>
@@ -81,6 +82,7 @@ class TAP_Listing_Editor {
                     </select>
                 </div>
             </div>
+        <?php endif; ?>
 
             <?php if ($new_type && isset($types[$new_type])): ?>
                 <?php echo self::render_manage_editor(0, $new_type); ?>
@@ -146,7 +148,9 @@ class TAP_Listing_Editor {
                 ?>
             </div>
             <?php endif; ?>
+        <?php if (!($new_type && isset($types[$new_type]))): ?>
         </div>
+        <?php endif; ?>
         <?php
         return ob_get_clean();
     }
@@ -222,7 +226,7 @@ class TAP_Listing_Editor {
                         $key_lower = strtolower($meta_key);
                         if (false !== strpos($key_lower, 'price') || false !== strpos($key_lower, 'deposit') || false !== strpos($key_lower, 'currency')) {
                             $group = 'price';
-                        } elseif (false !== strpos($key_lower, 'lat') || false !== strpos($key_lower, 'lng') || false !== strpos($key_lower, 'city') || false !== strpos($key_lower, 'location') || false !== strpos($key_lower, 'from') || false !== strpos($key_lower, 'to') || false !== strpos($key_lower, 'meeting_point') || false !== strpos($key_lower, 'pickup') || false !== strpos($key_lower, 'departure') || false !== strpos($key_lower, 'delivery')) {
+                        } elseif (false !== strpos($key_lower, 'lat') || false !== strpos($key_lower, 'lng') || false !== strpos($key_lower, 'city') || false !== strpos($key_lower, 'location') || false !== strpos($key_lower, 'meeting_point') || false !== strpos($key_lower, 'pickup') || false !== strpos($key_lower, 'departure') || false !== strpos($key_lower, 'delivery') || false !== strpos($key_lower, 'destination')) {
                             $group = 'location';
                         } else {
                             $group = 'details';
