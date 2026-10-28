@@ -1115,6 +1115,9 @@ class TAP_Shortcode_Search {
                     </div>
 
                     <aside class="tap-destmap-panel" aria-live="polite">
+                        <div class="tap-destmap-panel-search">
+                            <input type="search" id="tap-destmap-search" placeholder="<?php esc_attr_e('Buscar destino o servicio…', 'travel-agency-platform'); ?>" aria-label="<?php esc_attr_e('Buscar', 'travel-agency-platform'); ?>">
+                        </div>
                         <div class="tap-destmap-panel-head">
                             <div class="tap-destmap-tabs" role="tablist">
                                 <button type="button" class="tap-destmap-tab is-active" role="tab" data-tab="spots" aria-selected="true">
@@ -1185,6 +1188,7 @@ class TAP_Shortcode_Search {
                         <?php if (!$spots && !$services): ?>
                             <p class="tap-destmap-empty"><?php esc_html_e('Todavía no hay destinos ni servicios publicados. Agrégalos desde el panel de administración.', 'travel-agency-platform'); ?></p>
                         <?php endif; ?>
+                        <p class="tap-destmap-empty" id="tap-destmap-no-results" hidden><?php esc_html_e('Sin resultados para esa búsqueda.', 'travel-agency-platform'); ?></p>
                     </aside>
                 </div>
 

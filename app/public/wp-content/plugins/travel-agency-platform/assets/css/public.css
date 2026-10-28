@@ -2370,6 +2370,8 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 .tap-destmap-count { font-size: var(--tap-text-xs); color: var(--tap-neutral-500); white-space: nowrap; }
 
 .tap-destmap-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.tap-destmap-item { transition: opacity .2s ease, transform .2s ease; }
+.tap-destmap-item.is-hidden { opacity: 0; transform: translateY(4px); pointer-events: none; }
 .tap-destmap-item { margin: 0; }
 .tap-destmap-item-btn {
   display: flex;
@@ -2940,3 +2942,21 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 .tap-service-detail .tap-meta-item { padding: var(--tap-space-2) var(--tap-space-3); background: var(--tap-surface-muted); border-radius: var(--tap-radius-md); }
 .tap-gallery a { transition: transform .15s ease; }
 .tap-gallery a:hover { transform: scale(1.02); }
+
+/* Search in destinations panel */
+.tap-destmap-panel-search { margin-bottom: var(--tap-space-3); }
+.tap-destmap-panel-search input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--tap-border);
+  border-radius: var(--tap-radius-md);
+  background: var(--tap-surface-muted);
+  font-size: var(--tap-text-sm);
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.tap-destmap-panel-search input:focus {
+  background: #fff;
+  border-color: var(--tap-primary);
+  box-shadow: 0 0 0 3px rgba(13,148,136,.12);
+  outline: none;
+}

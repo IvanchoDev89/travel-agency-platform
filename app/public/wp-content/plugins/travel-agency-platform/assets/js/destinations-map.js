@@ -239,6 +239,7 @@
       bounds.push([lat, lng]);
 
       var marker = L.marker([lat, lng], { icon: pinIcon('spot', spot.type, spot.title) });
+      marker.bindTooltip(esc(spot.title), { direction: 'top', offset: [0, -12], opacity: 0.92 });
       var popup =
         '<div class="tap-destmap-popup">' +
           (spot.img ? '<img class="tap-destmap-popup-img" src="' + esc(spot.img) + '" alt="" loading="lazy">' : '') +
@@ -263,6 +264,7 @@
       bounds.push([lat, lng]);
 
       var marker = L.marker([lat, lng], { icon: pinIcon('service', service.type, service.title) });
+      marker.bindTooltip(esc(service.title), { direction: 'top', offset: [0, -12], opacity: 0.92 });
       var popup =
         '<div class="tap-destmap-popup tap-destmap-popup--service">' +
           (service.img ? '<img class="tap-destmap-popup-img" src="' + esc(service.img) + '" alt="" loading="lazy">' : '') +
@@ -284,6 +286,39 @@
     if (bounds.length) {
       map.fitBounds(bounds, { padding: [30, 30], maxZoom: 12 });
     }
+
+    /* ------------------------------------------------------------------ */
+    /* Search + filter                                                     */
+    /* ------------------------------------------------------------------ */
+
+    var searchQuery = '';
+
+    function itemMatchesSearch($item) {
+      if (!searchQuery) return true;
+      var title = ($item.find('.tap-destmap-item-title').text() || '').toLowerCase();
+      var meta = ($item.find('.tap-destmap-item-meta').text() || '').toLowerCase();
+      return title.indexOf(searchQuery) !== -1 || meta.indexOf(searchQuery) !== -1;
+    }
+
+    function applySearch() {
+      searchQuery = ($('#tap-destmap-search').val() || '').trim().toLowerCase();
+      var $list = $('.tap-destmap-list:visible');
+      $list.stop(true).fadeTo(120, 0.3, function () {
+        var any = false;
+        $('.tap-destmap-item').each(function () {
+          var $el = $(this);
+          var vis = itemMatchesSearch($el);
+          $el.toggle(vis);
+          if (vis) any = true;
+        });
+        $('#tap-destmap-no-results').toggle(!any);
+        $list.fadeTo(120, 1);
+      });
+    }
+
+    $('#tap-destmap-search').on('input', function () {
+      applySearch();
+    });
 
     /* ------------------------------------------------------------------ */
     /* Layer / tab / filter switching                                      */
