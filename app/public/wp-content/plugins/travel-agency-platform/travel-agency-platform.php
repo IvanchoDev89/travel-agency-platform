@@ -103,6 +103,7 @@ final class TravelAgencyPlatform {
         add_action('init', ['TAP_iCal', 'init'], 13);
         add_action('init', ['TAP_iCal_Import', 'init'], 14);
         add_action('init', ['TAP_Shuttle', 'init'], 17);
+        add_action('init', ['TAP_Forum', 'init'], 18);
         add_action('init', ['TAP_Itinerary_Collab', 'init'], 16);
         add_action('init', ['TAP_Invoices', 'init'], 17);
         add_action('init', ['TAP_Push', 'init'], 15);

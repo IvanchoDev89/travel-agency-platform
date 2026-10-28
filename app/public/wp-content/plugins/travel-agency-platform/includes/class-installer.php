@@ -494,6 +494,27 @@ class TAP_Installer {
             KEY status (status)
         ) {$wpdb->get_charset_collate()}");
 
+        $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_forum_posts (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            destination_id bigint(20) NOT NULL DEFAULT 0,
+            user_id bigint(20) NOT NULL DEFAULT 0,
+            author_name varchar(100) DEFAULT NULL,
+            post_type varchar(20) NOT NULL DEFAULT 'tip',
+            title varchar(200) DEFAULT NULL,
+            content text NOT NULL,
+            image_id bigint(20) DEFAULT NULL,
+            status varchar(20) NOT NULL DEFAULT 'pending',
+            mod_status varchar(20) DEFAULT 'ok',
+            mod_reason varchar(50) DEFAULT NULL,
+            likes int(11) NOT NULL DEFAULT 0,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY destination (destination_id),
+            KEY user (user_id),
+            KEY status (status),
+            KEY type (post_type)
+        ) {$wpdb->get_charset_collate()}");
+
         $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_translations (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             entity_type varchar(50) NOT NULL,
