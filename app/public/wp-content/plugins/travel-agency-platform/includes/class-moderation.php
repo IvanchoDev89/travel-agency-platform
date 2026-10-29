@@ -96,14 +96,14 @@ class TAP_Moderation {
                 self::OK, $limit
             )) ?: [];
         }
-        // Q&A (if table exists).
+        // Q&A (if table exists). tap_qa uses is_approved (0/1) instead of mod_status.
         $qa = [];
         $table_exists2 = $wpdb->get_var("SHOW TABLES LIKE '{$p}tap_qa'");
         if ($table_exists2) {
             $qa = $wpdb->get_results($wpdb->prepare(
-                "SELECT id, 'qa' AS kind, created_at, 0 AS rating, question AS content, mod_status, mod_reason, '' AS owner
-                 FROM {$p}tap_qa WHERE mod_status <> %s ORDER BY id DESC LIMIT %d",
-                self::OK, $limit
+                "SELECT id, 'qa' AS kind, created_at, 0 AS rating, question AS content, CASE WHEN is_approved = 1 THEN %s ELSE %s END AS mod_status, NULL AS mod_reason, '' AS owner
+                 FROM {$p}tap_qa WHERE is_approved = 0 ORDER BY id DESC LIMIT %d",
+                self::OK, self::REVIEW, $limit
             )) ?: [];
         }
         return array_merge($rv, $ld, $fp, $qa);
@@ -169,17 +169,24 @@ class TAP_Moderation {
         if ('approve' === $action) {
             if ('review' === $kind) {
                 $wpdb->update($table, ['is_approved' => 1, 'mod_status' => self::OK, 'mod_reason' => null], ['id' => $id]);
-            } elseif ('forum' === $kind || 'qa' === $kind) {
+            } elseif ('forum' === $kind) {
                 $wpdb->update($table, ['is_approved' => 1, 'status' => 'approved', 'mod_status' => self::OK, 'mod_reason' => null], ['id' => $id]);
+            } elseif ('qa' === $kind) {
+                $wpdb->update($table, ['is_approved' => 1], ['id' => $id]);
             } else {
                 $wpdb->update($table, ['mod_status' => self::OK, 'mod_reason' => null], ['id' => $id]);
             }
         } elseif ('block' === $action) {
             $data = ['mod_status' => self::BLOCK, 'mod_reason' => 'manual'];
+            if ('qa' === $kind) {
+                $data = ['is_approved' => 0];
+            }
             if ('review' === $kind) {
                 $data['is_approved'] = 0;
-            } elseif ('forum' === $kind || 'qa' === $kind) {
+            } elseif ('forum' === $kind) {
                 $data['status'] = 'rejected';
+                $data['is_approved'] = 0;
+            } elseif ('qa' === $kind) {
                 $data['is_approved'] = 0;
             }
             $wpdb->update($table, $data, ['id' => $id]);
