@@ -4,7 +4,7 @@
     <?php
     $hero_img = get_header_image();
     if ($hero_img): ?>
-    <div class="tap-hero-bg"><img src="<?php echo esc_url($hero_img); ?>" alt=""></div>
+    <div class="tap-hero-bg"><img src="<?php echo esc_url($hero_img); ?>" alt="" loading="eager" fetchpriority="high"></div>
     <?php endif; ?>
     <div class="tap-hero-overlay"></div>
     <div class="tap-hero-content">

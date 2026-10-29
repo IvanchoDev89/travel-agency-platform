@@ -350,6 +350,7 @@ class TAP_Shortcode_Search {
                 'post_type'      => $pt,
                 'posts_per_page' => intval($atts['limit']),
                 'post_status'    => 'publish',
+                'no_found_rows'  => true,
             ];
 
             if ($atts['agency']) {

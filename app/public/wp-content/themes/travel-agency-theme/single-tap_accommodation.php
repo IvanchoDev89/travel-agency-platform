@@ -68,7 +68,7 @@ while (have_posts()): the_post();
         if ($count > 4) break;
       ?>
         <div class="tap-acc-gallery-thumb">
-          <img src="<?php echo esc_url($img[0]); ?>" alt="" class="tap-lightbox-trigger" style="cursor:pointer">
+          <img src="<?php echo esc_url($img[0]); ?>" alt="" loading="lazy" decoding="async" class="tap-lightbox-trigger" style="cursor:pointer">
         </div>
       <?php endforeach; ?>
       <?php if (count($gallery_ids) > 4): ?>
@@ -78,10 +78,10 @@ while (have_posts()): the_post();
       <?php endif; ?>
       <div style="display:none">
         <?php foreach ($all_imgs as $src): ?>
-        <img src="<?php echo esc_url($src); ?>">
+        <img src="<?php echo esc_url($src); ?>" loading="lazy" decoding="async">
         <?php endforeach; ?>
         <?php if (has_post_thumbnail()): $ft = wp_get_attachment_image_src(get_post_thumbnail_id(), 'large'); if ($ft): ?>
-        <img src="<?php echo esc_url($ft[0]); ?>">
+        <img src="<?php echo esc_url($ft[0]); ?>" loading="lazy" decoding="async">
         <?php endif; endif; ?>
       </div>
     </div>
@@ -190,7 +190,7 @@ while (have_posts()): the_post();
           <div class="tap-room-card <?php echo !$room['available'] ? 'tap-room-unavailable' : ''; ?>" data-room-id="<?php echo esc_attr($room['id']); ?>">
             <div class="tap-room-card-img">
               <?php if ($room['thumbnail']): ?>
-                <img src="<?php echo esc_url($room['thumbnail']); ?>" alt="<?php echo esc_attr($room['title']); ?>">
+                <img src="<?php echo esc_url($room['thumbnail']); ?>" alt="<?php echo esc_attr($room['title']); ?>" loading="lazy" decoding="async">
               <?php else: ?>
                 <div class="tap-room-card-img-placeholder"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></div>
               <?php endif; ?>
