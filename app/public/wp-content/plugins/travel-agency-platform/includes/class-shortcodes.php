@@ -23,6 +23,7 @@ class TAP_Shortcodes {
             'tap_search_results' => [TAP_Shortcode_Search::class, 'search_results'],
             'tap_chatbot'       => [TAP_Shortcode_Account::class, 'chatbot'],
             'tap_destinations_map' => [TAP_Shortcode_Search::class, 'destinations_map'],
+            'tap_waiver_form'      => [TAP_Waiver::class, 'shortcode'],
         ];
 
         foreach ($shortcodes as $tag => $callback) {
