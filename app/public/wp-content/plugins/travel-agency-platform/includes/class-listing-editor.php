@@ -186,11 +186,31 @@ class TAP_Listing_Editor {
                 <input type="hidden" name="listing_id" value="<?php echo (int) $listing_id; ?>">
                 <input type="hidden" name="listing_type" value="<?php echo esc_attr($type); ?>">
                 <div class="tap-tour-wizard-bar">
-                    <div class="tap-tour-wizard-steps">
-                        <button type="button" class="tap-tour-wizard-stepbtn is-active" data-step="1">1. <?php esc_html_e('Información', 'travel-agency-platform'); ?></button>
-                        <button type="button" class="tap-tour-wizard-stepbtn" data-step="2">2. <?php esc_html_e('Precios y ubicación', 'travel-agency-platform'); ?></button>
-                        <button type="button" class="tap-tour-wizard-stepbtn" data-step="3">3. <?php esc_html_e('Detalles', 'travel-agency-platform'); ?></button>
-                        <button type="button" class="tap-tour-wizard-stepbtn" data-step="4">4. <?php esc_html_e('SEO y publicación', 'travel-agency-platform'); ?></button>
+                    <div class="tap-tour-wizard-progress">
+                        <div class="tap-tour-wizard-progress-track">
+                            <div class="tap-tour-wizard-progress-fill" id="tap-wiz-fill"></div>
+                        </div>
+                        <div class="tap-tour-wizard-steps">
+                            <button type="button" class="tap-tour-wizard-stepbtn is-active" data-step="1">
+                                <span class="tap-tour-wizard-stepnum">1</span>
+                                <span class="tap-tour-wizard-steplabel"><?php esc_html_e('Información', 'travel-agency-platform'); ?></span>
+                            </button>
+                            <button type="button" class="tap-tour-wizard-stepbtn" data-step="2">
+                                <span class="tap-tour-wizard-stepnum">2</span>
+                                <span class="tap-tour-wizard-steplabel"><?php esc_html_e('Precios y ubicación', 'travel-agency-platform'); ?></span>
+                            </button>
+                            <button type="button" class="tap-tour-wizard-stepbtn" data-step="3">
+                                <span class="tap-tour-wizard-stepnum">3</span>
+                                <span class="tap-tour-wizard-steplabel"><?php esc_html_e('Detalles', 'travel-agency-platform'); ?></span>
+                            </button>
+                            <button type="button" class="tap-tour-wizard-stepbtn" data-step="4">
+                                <span class="tap-tour-wizard-stepnum">4</span>
+                                <span class="tap-tour-wizard-steplabel"><?php esc_html_e('SEO y publicación', 'travel-agency-platform'); ?></span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="tap-tour-wizard-counter">
+                        <?php esc_html_e('Paso', 'travel-agency-platform'); ?> <strong id="tap-wiz-cur">1</strong> <?php esc_html_e('de', 'travel-agency-platform'); ?> <strong>4</strong>
                     </div>
                 </div>
                 <div class="tap-form-grid tap-tour-wizard-step" data-step="1">
@@ -396,14 +416,26 @@ class TAP_Listing_Editor {
         </div>
 
         <style>
-        .tap-tour-wizard-bar{margin-bottom:16px;}
-        .tap-tour-wizard-steps{display:flex;flex-wrap:wrap;gap:6px;}
-        .tap-tour-wizard-stepbtn{padding:6px 12px;border:1px solid #d1d5db;border-radius:999px;background:#fff;cursor:pointer;font-size:13px;color:#4b5563;transition:all .2s;}
-        .tap-tour-wizard-stepbtn.is-active{background:#2563eb;color:#fff;border-color:#2563eb;}
-        .tap-tour-wizard-stepbtn:hover:not(.is-active){background:#f3f4f6;}
-        .tap-tour-wizard-step{animation:fadeIn .2s;}
-        @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-        .tap-tour-wizard-nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:12px;border-top:1px solid var(--tap-border,#e5e7eb);gap:8px;}
+        .tap-tour-wizard-bar{margin-bottom:24px;}
+        .tap-tour-wizard-progress{position:relative;}
+        .tap-tour-wizard-progress-track{height:4px;background:#e5e7eb;border-radius:2px;overflow:hidden;margin-bottom:16px;}
+        .tap-tour-wizard-progress-fill{height:100%;background:linear-gradient(90deg,#2563eb,#1e40af);border-radius:2px;transition:width .4s cubic-bezier(.4,0,.2,1);width:25%;}
+        .tap-tour-wizard-steps{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;}
+        .tap-tour-wizard-stepbtn{display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid #d1d5db;border-radius:10px;background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:#4b5563;transition:all .25s;flex:1;min-width:120px;justify-content:center;}
+        .tap-tour-wizard-stepbtn.is-active{background:#2563eb;color:#fff;border-color:#2563eb;box-shadow:0 4px 12px rgba(37,99,235,.3);}
+        .tap-tour-wizard-stepbtn:hover:not(.is-active){background:#f3f4f6;border-color:#9ca3af;transform:translateY(-1px);}
+        .tap-tour-wizard-stepbtn.is-done{background:#ecfdf5;color:#047857;border-color:#a7f3d0;}
+        .tap-tour-wizard-stepnum{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.08);font-weight:700;font-size:12px;transition:all .25s;}
+        .tap-tour-wizard-stepbtn.is-active .tap-tour-wizard-stepnum{background:rgba(255,255,255,.25);}
+        .tap-tour-wizard-stepbtn.is-done .tap-tour-wizard-stepnum{background:#10b981;color:#fff;}
+        .tap-tour-wizard-steplabel{white-space:nowrap;}
+        .tap-tour-wizard-counter{text-align:center;margin-top:8px;font-size:13px;color:#6b7280;}
+        .tap-tour-wizard-counter strong{color:#2563eb;}
+        .tap-tour-wizard-step{animation:fadeIn .3s ease;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+        .tap-tour-wizard-nav{display:flex;justify-content:space-between;align-items:center;margin-top:20px;padding-top:16px;border-top:1px solid var(--tap-border,#e5e7eb);gap:8px;}
+        .tap-tour-wizard-prev,.tap-tour-wizard-next,.tap-tour-wizard-submit{min-width:120px;}
+        @media (max-width:600px){.tap-tour-wizard-stepbtn{min-width:0;flex-basis:48%;font-size:12px;padding:8px 10px;}.tap-tour-wizard-steplabel{display:none;}}
         </style>
         <script>
         (function(){
@@ -414,6 +446,8 @@ class TAP_Listing_Editor {
             var nextBtn = form.querySelector('.tap-tour-wizard-next');
             var prevBtn = form.querySelector('.tap-tour-wizard-prev');
             var submitBtn = form.querySelector('.tap-tour-wizard-submit');
+            var fill = document.getElementById('tap-wiz-fill');
+            var counter = document.getElementById('tap-wiz-cur');
             var current = 1;
             var total = steps.length;
             function show(n){
@@ -421,10 +455,19 @@ class TAP_Listing_Editor {
                 if (n > total) n = total;
                 current = n;
                 steps.forEach(function(s){ s.style.display = (parseInt(s.dataset.step,10)===n) ? '' : 'none'; });
-                btns.forEach(function(b){ b.classList.toggle('is-active', parseInt(b.dataset.step,10)===n); });
+                btns.forEach(function(b, idx){
+                    b.classList.toggle('is-active', parseInt(b.dataset.step,10)===n);
+                    if (parseInt(b.dataset.step,10) < n) b.classList.add('is-done');
+                    else b.classList.remove('is-done');
+                });
                 if (prevBtn) prevBtn.style.display = (n>1) ? '' : 'none';
                 if (nextBtn) nextBtn.style.display = (n<total) ? '' : 'none';
                 if (submitBtn) submitBtn.style.display = (n===total) ? '' : 'none';
+                if (fill) fill.style.width = (n/total*100) + '%';
+                if (counter) counter.textContent = n;
+                // scroll to top of form
+                var top = form.getBoundingClientRect().top + window.scrollY - 20;
+                if (window.scrollY > top) window.scrollTo({top: top, behavior:'smooth'});
             }
             btns.forEach(function(b){ b.addEventListener('click', function(){ show(parseInt(b.dataset.step,10)); }); });
             if (nextBtn) nextBtn.addEventListener('click', function(){ show(current+1); });
