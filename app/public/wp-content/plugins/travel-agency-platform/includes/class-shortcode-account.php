@@ -115,34 +115,43 @@ $rating_count = 0;
 
         ob_start();
         ?>
-        <div class="tap-agency-profile">
+        <div class="tap-agency-profile tap-agency-landing">
             <!-- Hero -->
-            <section class="tap-agency-hero" style="position:relative;background:linear-gradient(135deg,var(--tap-primary-bg),#fff);border:1px solid var(--tap-primary-border);border-radius:var(--tap-radius-xl);padding:var(--tap-space-8);margin-bottom:var(--tap-space-6);overflow:hidden;">
-                <div style="display:flex;align-items:center;gap:var(--tap-space-5);flex-wrap:wrap;">
-                    <div style="flex:0 0 96px;width:96px;height:96px;border-radius:50%;overflow:hidden;background:var(--tap-primary-bg);display:flex;align-items:center;justify-content:center;border:3px solid var(--tap-primary-border);">
+            <section class="tap-agency-hero">
+                <div class="tap-agency-hero-cover">
+                    <?php if (has_post_thumbnail($agency_id)): ?>
+                        <?php echo get_the_post_thumbnail($agency_id, 'large', ['class' => 'tap-agency-hero-cover-img', 'loading' => 'eager', 'decoding' => 'async']); ?>
+                    <?php endif; ?>
+                    <div class="tap-agency-hero-overlay"></div>
+                </div>
+                <div class="tap-agency-hero-body">
+                    <div class="tap-agency-hero-avatar">
                         <?php if (has_post_thumbnail($agency_id)): ?>
                             <?php echo get_the_post_thumbnail($agency_id, 'thumbnail', ['style' => 'width:100%;height:100%;object-fit:cover;']); ?>
                         <?php else: ?>
-                            <span style="font-size:2rem;color:var(--tap-primary-dark);font-weight:800;"><?php echo esc_html(mb_substr($agency->post_title, 0, 1)); ?></span>
+                            <span><?php echo esc_html(mb_substr($agency->post_title, 0, 1)); ?></span>
                         <?php endif; ?>
                     </div>
-                    <div style="flex:1;min-width:240px;">
-                        <h1 style="margin:0 0 var(--tap-space-2);font-size:clamp(1.5rem,3vw,2rem);color:var(--tap-neutral-900);"><?php echo esc_html($agency->post_title); ?></h1>
-                        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:var(--tap-space-3);">
+                    <div class="tap-agency-hero-info">
+                        <h1 class="tap-agency-hero-title"><?php echo esc_html($agency->post_title); ?></h1>
+                        <div class="tap-agency-hero-badges">
                             <?php if ($verified): ?>
-                                <span style="padding:3px 10px;border-radius:999px;background:var(--tap-primary);color:#fff;font-size:var(--tap-text-xs);font-weight:700;">✓ <?php esc_html_e('Verificada', 'travel-agency-platform'); ?></span>
+                                <span class="tap-agency-badge tap-agency-badge--verified">✓ <?php esc_html_e('Verificada', 'travel-agency-platform'); ?></span>
                             <?php endif; ?>
                             <?php if ($rating_count > 0): ?>
-                                <span style="padding:3px 10px;border-radius:999px;background:#fef3c7;color:#92400e;font-size:var(--tap-text-xs);font-weight:700;">★ <?php echo esc_html(number_format($rating_avg, 1)); ?> (<?php echo (int) $rating_count; ?>)</span>
+                                <span class="tap-agency-badge tap-agency-badge--rating">★ <?php echo esc_html(number_format($rating_avg, 1)); ?> (<?php echo (int) $rating_count; ?>)</span>
                             <?php endif; ?>
                             <?php if ($city || $country): ?>
-                                <span style="padding:3px 10px;border-radius:999px;background:var(--tap-neutral-100);color:var(--tap-neutral-600);font-size:var(--tap-text-xs);font-weight:600;">📍 <?php echo esc_html(trim($city . ', ' . $country, ', ')); ?></span>
+                                <span class="tap-agency-badge tap-agency-badge--location">📍 <?php echo esc_html(trim($city . ', ' . $country, ', ')); ?></span>
+                            <?php endif; ?>
+                            <?php if ($leads_count > 0): ?>
+                                <span class="tap-agency-badge tap-agency-badge--leads"><?php echo (int) $leads_count; ?> <?php esc_html_e('consultas', 'travel-agency-platform'); ?></span>
                             <?php endif; ?>
                         </div>
                         <?php if ($agency->post_content): ?>
-                            <p style="margin:0;color:var(--tap-neutral-700);line-height:1.6;max-width:60ch;"><?php echo esc_html($agency->post_content); ?></p>
+                            <p class="tap-agency-hero-desc"><?php echo esc_html($agency->post_content); ?></p>
                         <?php endif; ?>
-                        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:var(--tap-space-4);">
+                        <div class="tap-agency-hero-ctas">
                             <?php if ($email): ?><a href="mailto:<?php echo esc_attr($email); ?>" class="tap-btn tap-btn-sm"><?php esc_html_e('Email', 'travel-agency-platform'); ?></a><?php endif; ?>
                             <?php if ($phone): ?><a href="tel:<?php echo esc_attr($phone); ?>" class="tap-btn tap-btn-sm"><?php esc_html_e('Llamar', 'travel-agency-platform'); ?></a><?php endif; ?>
                             <?php if ($whatsapp): ?><a href="https://wa.me/<?php echo esc_attr(preg_replace('/[^0-9]/', '', $whatsapp)); ?>" target="_blank" rel="noopener" class="tap-btn tap-btn-sm tap-btn-primary"><?php esc_html_e('WhatsApp', 'travel-agency-platform'); ?></a><?php endif; ?>
@@ -152,105 +161,181 @@ $rating_count = 0;
                 </div>
             </section>
 
-            <!-- Services -->
-            <?php if ($services_by_type): ?>
-            <section style="margin-bottom:var(--tap-space-6);">
-                <h2 style="margin:0 0 var(--tap-space-4);"><?php esc_html_e('Servicios', 'travel-agency-platform'); ?></h2>
-                <?php foreach ($services_by_type as $pt => $info): ?>
-                    <div style="margin-bottom:var(--tap-space-5);">
-                        <h3 style="margin:0 0 var(--tap-space-3);font-size:var(--tap-text-lg);color:var(--tap-neutral-800);"><?php echo esc_html($info['label']); ?> <span style="font-size:var(--tap-text-sm);color:var(--tap-neutral-400);font-weight:400;">(<?php echo count($info['ids']); ?>)</span></h3>
-                        <div class="tap-services-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;">
-                            <?php
-                            foreach ($info['ids'] as $sid): $sp = get_post($sid);
-if (!$sp) continue;
-?>
-                                <div class="tap-service-card">
-                                    <?php if (has_post_thumbnail($sid)): ?>
-                                        <a href="<?php echo esc_url(get_permalink($sid)); ?>"><?php echo get_the_post_thumbnail($sid, 'medium', ['loading' => 'lazy', 'decoding' => 'async']); ?></a>
-                                    <?php endif; ?>
-                                    <div class="tap-service-card-body">
-                                        <h3><a href="<?php echo esc_url(get_permalink($sid)); ?>"><?php echo esc_html($sp->post_title); ?></a></h3>
-                                        <p class="tap-service-excerpt"><?php echo esc_html(wp_trim_words($sp->post_excerpt ?: $sp->post_content, 18)); ?></p>
-                                        <a href="<?php echo esc_url(get_permalink($sid)); ?>" class="tap-btn tap-btn-outline tap-btn-sm"><?php esc_html_e('Ver detalle', 'travel-agency-platform'); ?></a>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            </section>
-            <?php else: ?>
-                <p class="tap-empty"><?php esc_html_e('Esta agencia aún no tiene servicios publicados.', 'travel-agency-platform'); ?></p>
-            <?php endif; ?>
+            <!-- Stats -->
+            <?php
+            $total_services = count($all_services);
+            ?>
+            <div class="tap-agency-stats">
+                <div class="tap-agency-stat"><span class="tap-agency-stat-num"><?php echo (int) $total_services; ?></span><span class="tap-agency-stat-label"><?php esc_html_e('Servicios', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-agency-stat"><span class="tap-agency-stat-num"><?php echo (int) count($services_by_type); ?></span><span class="tap-agency-stat-label"><?php esc_html_e('Categorías', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-agency-stat"><span class="tap-agency-stat-num"><?php echo (int) $rating_count; ?></span><span class="tap-agency-stat-label"><?php esc_html_e('Reseñas', 'travel-agency-platform'); ?></span></div>
+                <?php if ($rating_count > 0): ?>
+                <div class="tap-agency-stat"><span class="tap-agency-stat-num"><?php echo esc_html(number_format($rating_avg, 1)); ?></span><span class="tap-agency-stat-label"><?php esc_html_e('Rating', 'travel-agency-platform'); ?></span></div>
+                <?php endif; ?>
+            </div>
 
-            <!-- Reviews -->
-            <?php if ($reviews): ?>
-            <section style="margin-bottom:var(--tap-space-6);">
-                <h2 style="margin:0 0 var(--tap-space-4);"><?php esc_html_e('Reseñas', 'travel-agency-platform'); ?> <span style="font-size:var(--tap-text-sm);color:var(--tap-neutral-400);font-weight:400;">(<?php echo (int) $rating_count; ?>)</span></h2>
-                <div style="display:grid;gap:12px;">
-                    <?php foreach ($reviews as $rv): ?>
-                        <article style="border:1px solid var(--tap-border);border-radius:var(--tap-radius-lg);padding:var(--tap-space-4);">
-                            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-                                <strong><?php echo esc_html(get_the_author_meta('display_name', $rv->user_id) ?: __('Viajero', 'travel-agency-platform')); ?></strong>
-                                <?php if ($rv->is_verified): ?><span style="font-size:11px;color:var(--tap-primary-dark);font-weight:700;">✓ <?php esc_html_e('Verificado', 'travel-agency-platform'); ?></span><?php endif; ?>
-                                <span style="color:#d97706;font-weight:700;margin-left:auto;"><?php echo str_repeat('★', (int) $rv->rating); ?></span>
-                            </div>
-                            <?php if ($rv->title): ?><h4 style="margin:0 0 4px;"><?php echo esc_html($rv->title); ?></h4><?php endif; ?>
-                            <p style="margin:0 0 8px;color:var(--tap-neutral-700);"><?php echo esc_html($rv->content); ?></p>
-                            <?php
-                            $imgs = array_filter(array_map('absint', explode(',', (string) $rv->images)));
-                            if ($imgs):
-                            ?>
-                                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
-                                    <?php foreach ($imgs as $img_id): ?>
-                                        <?php
-                                        $iu = wp_get_attachment_image_url($img_id, 'thumbnail');
-if (!$iu) continue;
-?>
-                                        <img src="<?php echo esc_url($iu); ?>" alt="" loading="lazy" style="width:64px;height:64px;object-fit:cover;border-radius:var(--tap-radius-md);">
+            <!-- Main + Sidebar -->
+            <div class="tap-agency-layout">
+                <main class="tap-agency-main">
+                    <!-- Services -->
+                    <?php if ($services_by_type): ?>
+                    <section class="tap-agency-section" id="servicios">
+                        <h2 class="tap-agency-section-title"><?php esc_html_e('Servicios', 'travel-agency-platform'); ?></h2>
+                        <?php foreach ($services_by_type as $pt => $info): ?>
+                            <div class="tap-agency-service-group">
+                                <h3 class="tap-agency-service-group-title"><?php echo esc_html($info['label']); ?> <span class="tap-agency-service-group-count">(<?php echo count($info['ids']); ?>)</span></h3>
+                                <div class="tap-agency-services-grid">
+                                    <?php foreach ($info['ids'] as $sid): ?>
+                                        <?php $sp = get_post($sid); ?>
+                                        <?php if (!$sp) continue; ?>
+                                        <article class="tap-agency-service-card">
+                                            <?php if (has_post_thumbnail($sid)): ?>
+                                                <a href="<?php echo esc_url(get_permalink($sid)); ?>" class="tap-agency-service-card-img"><?php echo get_the_post_thumbnail($sid, 'medium', ['loading' => 'lazy', 'decoding' => 'async']); ?></a>
+                                            <?php endif; ?>
+                                            <div class="tap-agency-service-card-body">
+                                                <h3><a href="<?php echo esc_url(get_permalink($sid)); ?>"><?php echo esc_html($sp->post_title); ?></a></h3>
+                                                <p class="tap-agency-service-excerpt"><?php echo esc_html(wp_trim_words($sp->post_excerpt ?: $sp->post_content, 18)); ?></p>
+                                                <a href="<?php echo esc_url(get_permalink($sid)); ?>" class="tap-btn tap-btn-outline tap-btn-sm"><?php esc_html_e('Ver detalle', 'travel-agency-platform'); ?></a>
+                                            </div>
+                                        </article>
                                     <?php endforeach; ?>
                                 </div>
-                            <?php endif; ?>
-                            <small style="color:var(--tap-neutral-400);"><?php echo esc_html($rv->created_at); ?></small>
-                        </article>
-                    <?php endforeach; ?>
-                </div>
-            </section>
-            <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                    </section>
+                    <?php else: ?>
+                        <p class="tap-empty"><?php esc_html_e('Esta agencia aún no tiene servicios publicados.', 'travel-agency-platform'); ?></p>
+                    <?php endif; ?>
 
-            <!-- Contact -->
-            <section style="margin-bottom:var(--tap-space-6);background:var(--tap-surface-muted);border-radius:var(--tap-radius-xl);padding:var(--tap-space-6);">
-                <h2 style="margin:0 0 var(--tap-space-3);"><?php esc_html_e('Contacto', 'travel-agency-platform'); ?></h2>
-                <div style="display:flex;flex-wrap:wrap;gap:var(--tap-space-4);">
-                    <?php if ($email): ?><div><strong><?php esc_html_e('Email', 'travel-agency-platform'); ?>:</strong> <a href="mailto:<?php echo esc_attr($email); ?>"><?php echo esc_html($email); ?></a></div><?php endif; ?>
-                    <?php if ($phone): ?><div><strong><?php esc_html_e('Teléfono', 'travel-agency-platform'); ?>:</strong> <a href="tel:<?php echo esc_attr($phone); ?>"><?php echo esc_html($phone); ?></a></div><?php endif; ?>
-                    <?php if ($whatsapp): ?><div><strong>WhatsApp:</strong> <a href="https://wa.me/<?php echo esc_attr(preg_replace('/[^0-9]/', '', $whatsapp)); ?>" target="_blank" rel="noopener"><?php echo esc_html($whatsapp); ?></a></div><?php endif; ?>
-                    <?php if ($address || $city || $country): ?><div><strong><?php esc_html_e('Dirección', 'travel-agency-platform'); ?>:</strong> <?php echo esc_html(trim($address . ', ' . $city . ', ' . $country, ', ')); ?></div><?php endif; ?>
-                </div>
-                <?php if ($website): ?>
-                    <div style="margin-top:var(--tap-space-3);"><a href="<?php echo esc_url($website); ?>" target="_blank" rel="noopener" class="tap-btn tap-btn-outline"><?php esc_html_e('Visitar sitio web', 'travel-agency-platform'); ?></a></div>
-                <?php endif; ?>
-            </section>
+                    <!-- Reviews -->
+                    <?php if ($reviews): ?>
+                    <section class="tap-agency-section" id="resenas">
+                        <h2 class="tap-agency-section-title"><?php esc_html_e('Reseñas', 'travel-agency-platform'); ?> <span class="tap-agency-section-count">(<?php echo (int) $rating_count; ?>)</span></h2>
+                        <div class="tap-agency-reviews">
+                            <?php foreach ($reviews as $rv): ?>
+                                <article class="tap-agency-review">
+                                    <div class="tap-agency-review-header">
+                                        <strong><?php echo esc_html(get_the_author_meta('display_name', $rv->user_id) ?: __('Viajero', 'travel-agency-platform')); ?></strong>
+                                        <?php if ($rv->is_verified): ?><span class="tap-agency-verified">✓ <?php esc_html_e('Verificado', 'travel-agency-platform'); ?></span><?php endif; ?>
+                                        <span class="tap-agency-review-stars"><?php echo str_repeat('★', (int) $rv->rating); ?></span>
+                                    </div>
+                                    <?php if ($rv->title): ?><h4 class="tap-agency-review-title"><?php echo esc_html($rv->title); ?></h4><?php endif; ?>
+                                    <p class="tap-agency-review-content"><?php echo esc_html($rv->content); ?></p>
+                                    <?php
+                                    $imgs = array_filter(array_map('absint', explode(',', (string) $rv->images)));
+                                    if ($imgs):
+                                    ?>
+                                        <div class="tap-agency-review-images">
+                                            <?php foreach ($imgs as $img_id): ?>
+                                                <?php $iu = wp_get_attachment_image_url($img_id, 'thumbnail'); ?>
+                                                <?php if (!$iu) continue; ?>
+                                                <img src="<?php echo esc_url($iu); ?>" alt="" loading="lazy">
+                                            <?php endforeach; ?>
+                                        </div>
+                                    <?php endif; ?>
+                                    <small class="tap-agency-review-date"><?php echo esc_html($rv->created_at); ?></small>
+                                </article>
+                            <?php endforeach; ?>
+                        </div>
+                    </section>
+                    <?php endif; ?>
+                </main>
 
-            <!-- Chat de contacto directo -->
-            <section style="margin-bottom:var(--tap-space-6);">
-                <h2 style="margin:0 0 var(--tap-space-3);"><?php esc_html_e('Chat directo', 'travel-agency-platform'); ?></h2>
-                <p class="tap-agency-meta" style="margin-bottom:var(--tap-space-3);"><?php esc_html_e('Envía un mensaje a la agencia. Te responderán lo antes posible.', 'travel-agency-platform'); ?></p>
-                <?php echo do_shortcode('[tap_lead_form agency="' . (int) $agency_id . '" source="agency"]'); ?>
-            </section>
+                <aside class="tap-agency-sidebar">
+                    <!-- Contact card -->
+                    <div class="tap-agency-card tap-agency-card--contact">
+                        <h3><?php esc_html_e('Contacto', 'travel-agency-platform'); ?></h3>
+                        <ul class="tap-agency-contact-list">
+                            <?php if ($email): ?><li><strong><?php esc_html_e('Email', 'travel-agency-platform'); ?>:</strong> <a href="mailto:<?php echo esc_attr($email); ?>"><?php echo esc_html($email); ?></a></li><?php endif; ?>
+                            <?php if ($phone): ?><li><strong><?php esc_html_e('Teléfono', 'travel-agency-platform'); ?>:</strong> <a href="tel:<?php echo esc_attr($phone); ?>"><?php echo esc_html($phone); ?></a></li><?php endif; ?>
+                            <?php if ($whatsapp): ?><li><strong>WhatsApp:</strong> <a href="https://wa.me/<?php echo esc_attr(preg_replace('/[^0-9]/', '', $whatsapp)); ?>" target="_blank" rel="noopener"><?php echo esc_html($whatsapp); ?></a></li><?php endif; ?>
+                            <?php if ($address || $city || $country): ?><li><strong><?php esc_html_e('Dirección', 'travel-agency-platform'); ?>:</strong> <?php echo esc_html(trim($address . ', ' . $city . ', ' . $country, ', ')); ?></li><?php endif; ?>
+                        </ul>
+                        <?php if ($website): ?>
+                            <a href="<?php echo esc_url($website); ?>" target="_blank" rel="noopener" class="tap-btn tap-btn-outline tap-btn-sm tap-agency-card-cta"><?php esc_html_e('Visitar sitio web', 'travel-agency-platform'); ?></a>
+                        <?php endif; ?>
+                    </div>
 
-            <!-- Newsletter -->
-            <section style="margin-bottom:var(--tap-space-6);background:var(--tap-primary-bg);border:1px solid var(--tap-primary-border);border-radius:var(--tap-radius-xl);padding:var(--tap-space-6);">
-                <h2 style="margin:0 0 var(--tap-space-2);"><?php esc_html_e('Newsletter', 'travel-agency-platform'); ?></h2>
-                <p style="margin:0 0 var(--tap-space-3);color:var(--tap-neutral-600);font-size:var(--tap-text-sm);"><?php esc_html_e('Recibe ofertas y novedades de esta agencia.', 'travel-agency-platform'); ?></p>
-                <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="display:flex;gap:8px;flex-wrap:wrap;">
-                    <input type="hidden" name="action" value="tap_lead_form">
-                    <input type="hidden" name="agency_id" value="<?php echo (int) $agency_id; ?>">
-                    <input type="email" name="email" placeholder="<?php esc_attr_e('Tu email', 'travel-agency-platform'); ?>" required style="flex:1;min-width:200px;padding:8px 12px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);">
-                    <button type="submit" class="tap-btn tap-btn-primary tap-btn-sm"><?php esc_html_e('Suscribirme', 'travel-agency-platform'); ?></button>
-                </form>
-            </section>
+                    <!-- Chat -->
+                    <div class="tap-agency-card">
+                        <h3><?php esc_html_e('Chat directo', 'travel-agency-platform'); ?></h3>
+                        <p class="tap-agency-card-desc"><?php esc_html_e('Envía un mensaje a la agencia. Te responderán lo antes posible.', 'travel-agency-platform'); ?></p>
+                        <?php echo do_shortcode('[tap_lead_form agency="' . (int) $agency_id . '" source="agency"]'); ?>
+                    </div>
+
+                    <!-- Newsletter -->
+                    <div class="tap-agency-card tap-agency-card--newsletter">
+                        <h3><?php esc_html_e('Newsletter', 'travel-agency-platform'); ?></h3>
+                        <p class="tap-agency-card-desc"><?php esc_html_e('Recibe ofertas y novedades de esta agencia.', 'travel-agency-platform'); ?></p>
+                        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" class="tap-agency-newsletter-form">
+                            <input type="hidden" name="action" value="tap_lead_form">
+                            <input type="hidden" name="agency_id" value="<?php echo (int) $agency_id; ?>">
+                            <input type="email" name="email" placeholder="<?php esc_attr_e('Tu email', 'travel-agency-platform'); ?>" required>
+                            <button type="submit" class="tap-btn tap-btn-primary tap-btn-sm"><?php esc_html_e('Suscribirme', 'travel-agency-platform'); ?></button>
+                        </form>
+                    </div>
+                </aside>
+            </div>
         </div>
+        <style>
+        .tap-agency-landing{max-width:1100px;margin:0 auto;}
+        .tap-agency-hero{position:relative;border-radius:var(--tap-radius-xl,12px);overflow:hidden;margin-bottom:var(--tap-space-6,24px);border:1px solid var(--tap-border,#e5e7eb);}
+        .tap-agency-hero-cover{position:relative;height:220px;background:linear-gradient(135deg,var(--tap-primary-bg,#eff6ff),#fff);overflow:hidden;}
+        .tap-agency-hero-cover-img{width:100%;height:100%;object-fit:cover;display:block;}
+        .tap-agency-hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.35),transparent 60%);}
+        .tap-agency-hero-body{padding:var(--tap-space-6,24px);display:flex;gap:var(--tap-space-5,20px);flex-wrap:wrap;align-items:flex-start;}
+        .tap-agency-hero-avatar{flex:0 0 96px;width:96px;height:96px;border-radius:50%;overflow:hidden;background:var(--tap-primary-bg,#eff6ff);display:flex;align-items:center;justify-content:center;border:4px solid #fff;box-shadow:0 4px 12px rgba(0,0,0,.12);margin-top:-64px;position:relative;z-index:2;}
+        .tap-agency-hero-avatar span{font-size:2rem;color:var(--tap-primary-dark,#1e40af);font-weight:800;}
+        .tap-agency-hero-info{flex:1;min-width:240px;}
+        .tap-agency-hero-title{margin:0 0 var(--tap-space-2,8px);font-size:clamp(1.5rem,3vw,2rem);color:var(--tap-neutral-900,#111827);}
+        .tap-agency-hero-badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:var(--tap-space-3,12px);}
+        .tap-agency-badge{padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;}
+        .tap-agency-badge--verified{background:var(--tap-primary,#2563eb);color:#fff;}
+        .tap-agency-badge--rating{background:#fef3c7;color:#92400e;}
+        .tap-agency-badge--location{background:var(--tap-neutral-100,#f3f4f6);color:var(--tap-neutral-600,#4b5563);}
+        .tap-agency-badge--leads{background:var(--tap-neutral-100,#f3f4f6);color:var(--tap-neutral-600,#4b5563);}
+        .tap-agency-hero-desc{margin:0;color:var(--tap-neutral-700,#374151);line-height:1.6;max-width:60ch;}
+        .tap-agency-hero-ctas{display:flex;flex-wrap:wrap;gap:8px;margin-top:var(--tap-space-4,16px);}
+        .tap-agency-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:var(--tap-space-6,24px);}
+        .tap-agency-stat{text-align:center;padding:12px;background:var(--tap-surface-muted,#f9fafb);border-radius:var(--tap-radius-lg,8px);border:1px solid var(--tap-border,#e5e7eb);}
+        .tap-agency-stat-num{display:block;font-size:1.5rem;font-weight:800;color:var(--tap-primary-dark,#1e40af);}
+        .tap-agency-stat-label{display:block;font-size:12px;color:var(--tap-neutral-500,#6b7280);margin-top:2px;}
+        .tap-agency-layout{display:grid;grid-template-columns:1fr 320px;gap:var(--tap-space-6,24px);align-items:start;}
+        @media (max-width:900px){.tap-agency-layout{grid-template-columns:1fr;}}
+        .tap-agency-sidebar{position:sticky;top:20px;display:flex;flex-direction:column;gap:16px;}
+        .tap-agency-card{background:#fff;border:1px solid var(--tap-border,#e5e7eb);border-radius:var(--tap-radius-lg,8px);padding:var(--tap-space-4,16px);}
+        .tap-agency-card h3{margin:0 0 8px;font-size:1rem;color:var(--tap-neutral-800,#1f2937);}
+        .tap-agency-card-desc{margin:0 0 10px;font-size:13px;color:var(--tap-neutral-500,#6b7280);}
+        .tap-agency-card-cta{margin-top:10px;display:inline-block;}
+        .tap-agency-contact-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px;font-size:14px;}
+        .tap-agency-contact-list li{line-height:1.4;}
+        .tap-agency-contact-list a{color:var(--tap-primary,#2563eb);}
+        .tap-agency-newsletter-form{display:flex;gap:8px;flex-wrap:wrap;}
+        .tap-agency-newsletter-form input{flex:1;min-width:140px;padding:8px 10px;border:1px solid var(--tap-border,#e5e7eb);border-radius:var(--tap-radius-md,6px);}
+        .tap-agency-section{margin-bottom:var(--tap-space-6,24px);}
+        .tap-agency-section-title{margin:0 0 var(--tap-space-4,16px);font-size:1.25rem;color:var(--tap-neutral-800,#1f2937);}
+        .tap-agency-section-count{font-size:.85rem;color:var(--tap-neutral-400,#9ca3af);font-weight:400;}
+        .tap-agency-service-group{margin-bottom:var(--tap-space-5,20px);}
+        .tap-agency-service-group-title{margin:0 0 var(--tap-space-3,12px);font-size:1.05rem;color:var(--tap-neutral-800,#1f2937);}
+        .tap-agency-service-group-count{font-size:.85rem;color:var(--tap-neutral-400,#9ca3af);font-weight:400;}
+        .tap-agency-services-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;}
+        .tap-agency-service-card{border:1px solid var(--tap-border,#e5e7eb);border-radius:var(--tap-radius-lg,8px);overflow:hidden;background:#fff;}
+        .tap-agency-service-card-img img{width:100%;height:160px;object-fit:cover;display:block;}
+        .tap-agency-service-card-body{padding:12px;}
+        .tap-agency-service-card-body h3{margin:0 0 6px;font-size:1rem;}
+        .tap-agency-service-card-body h3 a{color:var(--tap-neutral-900,#111827);text-decoration:none;}
+        .tap-agency-service-excerpt{margin:0 0 10px;font-size:13px;color:var(--tap-neutral-500,#6b7280);line-height:1.4;}
+        .tap-agency-reviews{display:flex;flex-direction:column;gap:12px;}
+        .tap-agency-review{border:1px solid var(--tap-border,#e5e7eb);border-radius:var(--tap-radius-lg,8px);padding:var(--tap-space-4,16px);background:#fff;}
+        .tap-agency-review-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
+        .tap-agency-review-stars{color:#d97706;font-weight:700;margin-left:auto;}
+        .tap-agency-verified{font-size:11px;color:var(--tap-primary-dark,#1e40af);font-weight:700;}
+        .tap-agency-review-title{margin:0 0 4px;font-size:1rem;}
+        .tap-agency-review-content{margin:0 0 8px;color:var(--tap-neutral-700,#374151);}
+        .tap-agency-review-images{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+        .tap-agency-review-images img{width:64px;height:64px;object-fit:cover;border-radius:var(--tap-radius-md,6px);}
+        .tap-agency-review-date{color:var(--tap-neutral-400,#9ca3af);}
+        </style>
         <?php
         return ob_get_clean();
     }
