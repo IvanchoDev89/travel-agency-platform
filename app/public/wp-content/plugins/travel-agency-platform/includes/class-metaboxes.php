@@ -523,6 +523,12 @@ class TAP_Metaboxes {
             return;
         }
 
+        // Multi-step wizard for tours/experiences (user-friendly for agencies).
+        if (in_array($post_type, ['tap_tour', 'tap_experience'], true)) {
+            self::render_wizard($post, $post_type);
+            return;
+        }
+
         echo '<table class="form-table">';
         foreach (self::$fields[$post_type] as $key => $field) {
             $value = get_post_meta($post->ID, $key, true);
@@ -537,6 +543,110 @@ class TAP_Metaboxes {
             echo '</tr>';
         }
         echo '</table>';
+    }
+
+    /**
+     * Multi-step wizard renderer for tours/experiences.
+     * Groups fields into logical steps with prev/next navigation.
+     */
+    private static function render_wizard($post, $post_type) {
+        $steps = self::wizard_steps($post_type);
+        $all_fields = self::$fields[$post_type];
+        ?>
+        <div class="tap-wizard" data-post-type="<?php echo esc_attr($post_type); ?>">
+            <div class="tap-wizard-progress">
+                <?php foreach ($steps as $i => $step): ?>
+                    <button type="button" class="tap-wizard-step-btn <?php echo 0 === $i ? 'is-active' : ''; ?>" data-step="<?php echo (int) $i; ?>">
+                        <span class="tap-wizard-step-num"><?php echo (int) ($i + 1); ?></span>
+                        <span class="tap-wizard-step-label"><?php echo esc_html($step['label']); ?></span>
+                    </button>
+                <?php endforeach; ?>
+            </div>
+            <?php foreach ($steps as $i => $step): ?>
+                <div class="tap-wizard-panel <?php echo 0 === $i ? 'is-active' : ''; ?>" data-step="<?php echo (int) $i; ?>">
+                    <h3 class="tap-wizard-panel-title"><?php echo esc_html($step['label']); ?></h3>
+                    <table class="form-table">
+                        <?php foreach ($step['fields'] as $key): ?>
+                            <?php if (!isset($all_fields[$key])) continue; ?>
+                            <?php $field = $all_fields[$key]; ?>
+                            <?php $value = get_post_meta($post->ID, $key, true); ?>
+                            <?php if (empty($value) && isset($field['default'])) $value = $field['default']; ?>
+                            <tr>
+                                <th><label for="<?php echo esc_attr($key); ?>"><?php echo esc_html($field['label']); ?></label></th>
+                                <td><?php self::render_field($key, $field, $value); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </table>
+                    <div class="tap-wizard-nav">
+                        <?php if ($i > 0): ?>
+                            <button type="button" class="button tap-wizard-prev" data-step="<?php echo (int) $i; ?>">&larr; <?php esc_html_e('Anterior', 'travel-agency-platform'); ?></button>
+                        <?php endif; ?>
+                        <?php if ($i < count($steps) - 1): ?>
+                            <button type="button" class="button button-primary tap-wizard-next" data-step="<?php echo (int) $i; ?>"><?php esc_html_e('Siguiente', 'travel-agency-platform'); ?> &rarr;</button>
+                        <?php else: ?>
+                            <span class="tap-wizard-hint"><?php esc_html_e('Guarda el tour con el botón "Actualizar/Publish" del panel derecho.', 'travel-agency-platform'); ?></span>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+        <style>
+        .tap-wizard{max-width:100%;}
+        .tap-wizard-progress{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #e5e7eb;}
+        .tap-wizard-step-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #d1d5db;border-radius:999px;background:#fff;cursor:pointer;font-size:13px;color:#4b5563;transition:all .2s;}
+        .tap-wizard-step-btn.is-active{background:#2563eb;color:#fff;border-color:#2563eb;}
+        .tap-wizard-step-btn:hover:not(.is-active){background:#f3f4f6;}
+        .tap-wizard-step-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.08);font-weight:700;font-size:12px;}
+        .tap-wizard-step-btn.is-active .tap-wizard-step-num{background:rgba(255,255,255,.25);}
+        .tap-wizard-panel{display:none;}
+        .tap-wizard-panel.is-active{display:block;}
+        .tap-wizard-panel-title{margin:0 0 12px;font-size:1.15rem;color:#1f2937;}
+        .tap-wizard-nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:12px;border-top:1px solid #e5e7eb;}
+        .tap-wizard-hint{font-size:12px;color:#6b7280;font-style:italic;}
+        </style>
+        <script>
+        (function(){
+            var w = document.querySelector('.tap-wizard');
+            if (!w) return;
+            var panels = w.querySelectorAll('.tap-wizard-panel');
+            var btns = w.querySelectorAll('.tap-wizard-step-btn');
+            function show(i){
+                panels.forEach(function(p){ p.classList.remove('is-active'); });
+                btns.forEach(function(b){ b.classList.remove('is-active'); });
+                if (panels[i]) panels[i].classList.add('is-active');
+                if (btns[i]) btns[i].classList.add('is-active');
+            }
+            btns.forEach(function(b){ b.addEventListener('click', function(){ show(parseInt(b.dataset.step,10)); }); });
+            w.querySelectorAll('.tap-wizard-next').forEach(function(b){ b.addEventListener('click', function(){ show(parseInt(b.dataset.step,10)+1); }); });
+            w.querySelectorAll('.tap-wizard-prev').forEach(function(b){ b.addEventListener('click', function(){ show(parseInt(b.dataset.step,10)-1); }); });
+        })();
+        </script>
+        <?php
+    }
+
+    /**
+     * Step definitions for the tour/experience wizard.
+     */
+    private static function wizard_steps($post_type) {
+        // Define steps per type.
+        if ($post_type === 'tap_tour') {
+            return [
+                ['label' => __('1. Información básica', 'travel-agency-platform'), 'fields' => ['_tap_tour_agency_id', '_tap_tour_category', '_tap_tour_type', '_tap_tour_tags', '_tap_tour_duration', '_tap_tour_difficulty', '_tap_tour_fitness', '_tap_tour_min_age', '_tap_tour_max_age', '_tap_tour_is_active']],
+                ['label' => __('2. Logística', 'travel-agency-platform'), 'fields' => ['_tap_tour_start_time', '_tap_tour_end_time', '_tap_tour_meeting_point', '_tap_tour_lat', '_tap_tour_lng', '_tap_tour_pickup', '_tap_tour_pickup_locations']],
+                ['label' => __('3. Tarifas y capacidad', 'travel-agency-platform'), 'fields' => ['_tap_tour_price_adult', '_tap_tour_price_child', '_tap_tour_price_senior', '_tap_tour_price_student', '_tap_tour_currency', '_tap_tour_child_age', '_tap_tour_capacity', '_tap_tour_min_people', '_tap_tour_max_people', '_tap_tour_max_per_booking', '_tap_tour_private', '_tap_tour_private_price']],
+                ['label' => __('4. Inclusiones y ecoturismo', 'travel-agency-platform'), 'fields' => ['_tap_tour_includes', '_tap_tour_excludes', '_tap_tour_what_bring', '_tap_tour_equipment', '_tap_tour_equipment_rental', '_tap_tour_leave_no_trace', '_tap_tour_carbon_offset', '_tap_tour_local_community', '_tap_tour_wildlife', '_tap_tour_trail', '_tap_tour_elevation']],
+                ['label' => __('5. Legales', 'travel-agency-platform'), 'fields' => ['_tap_tour_terms', '_tap_tour_privacy', '_tap_tour_waiver', '_tap_tour_waiver_required', '_tap_tour_waiver_min_age']],
+                ['label' => __('6. SEO', 'travel-agency-platform'), 'fields' => ['_tap_seo_title', '_tap_seo_description']],
+            ];
+        }
+        return [
+            ['label' => __('1. Información básica', 'travel-agency-platform'), 'fields' => ['_tap_exp_agency_id', '_tap_exp_category', '_tap_exp_type', '_tap_exp_tags', '_tap_exp_duration', '_tap_exp_fitness', '_tap_exp_min_age', '_tap_exp_max_age', '_tap_exp_is_active']],
+            ['label' => __('2. Logística', 'travel-agency-platform'), 'fields' => ['_tap_exp_start_time', '_tap_exp_end_time', '_tap_exp_meeting_point', '_tap_exp_lat', '_tap_exp_lng', '_tap_exp_pickup', '_tap_exp_pickup_locations']],
+            ['label' => __('3. Tarifas y capacidad', 'travel-agency-platform'), 'fields' => ['_tap_exp_price_adult', '_tap_exp_price_child', '_tap_exp_price_senior', '_tap_exp_price_student', '_tap_exp_currency', '_tap_exp_child_age', '_tap_exp_capacity', '_tap_exp_min_people', '_tap_exp_max_people', '_tap_exp_max_per_booking', '_tap_exp_private', '_tap_exp_private_price']],
+            ['label' => __('4. Inclusiones y ecoturismo', 'travel-agency-platform'), 'fields' => ['_tap_exp_includes', '_tap_exp_excludes', '_tap_exp_what_bring', '_tap_exp_equipment', '_tap_exp_equipment_rental', '_tap_exp_leave_no_trace', '_tap_exp_carbon_offset', '_tap_exp_local_community', '_tap_exp_wildlife']],
+            ['label' => __('5. Legales', 'travel-agency-platform'), 'fields' => ['_tap_exp_terms', '_tap_exp_privacy', '_tap_exp_waiver', '_tap_exp_waiver_required', '_tap_exp_waiver_min_age']],
+            ['label' => __('6. SEO', 'travel-agency-platform'), 'fields' => ['_tap_seo_title', '_tap_seo_description']],
+        ];
     }
 
     private static function render_field($key, $field, $value) {
