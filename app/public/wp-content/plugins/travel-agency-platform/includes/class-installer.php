@@ -129,17 +129,24 @@ class TAP_Installer {
 
             "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_daily_pricing (
                 id bigint(20) NOT NULL AUTO_INCREMENT,
-                room_id bigint(20) NOT NULL,
+                room_id bigint(20) NOT NULL DEFAULT 0,
+                service_type varchar(50) NOT NULL DEFAULT 'tap_accommodation',
+                service_id bigint(20) NOT NULL DEFAULT 0,
                 date date NOT NULL,
+                time_slot time DEFAULT NULL,
+                time_end time DEFAULT NULL,
                 price decimal(15,2) DEFAULT NULL,
                 min_stay int(11) DEFAULT NULL,
                 is_blocked tinyint(1) DEFAULT 0,
                 label varchar(100) DEFAULT NULL,
+                capacity int(11) NOT NULL DEFAULT 0,
+                booked int(11) NOT NULL DEFAULT 0,
                 created_at datetime DEFAULT CURRENT_TIMESTAMP,
                 updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 PRIMARY KEY (id),
                 UNIQUE KEY room_date (room_id, date),
-                KEY room_id (room_id),
+                KEY service_date (service_type, service_id, date),
+                KEY service_slot (service_type, service_id, date, time_slot),
                 KEY date (date)
             ) $charset;",
 
@@ -315,11 +322,20 @@ class TAP_Installer {
             dbDelta($sql);
         }
 
+        // Backfill service_type/service_id for legacy room rows (idempotent).
+        $wpdb->query("UPDATE {$wpdb->prefix}tap_daily_pricing SET service_type='tap_accommodation', service_id=room_id WHERE (service_type IS NULL OR service_type='' OR (service_type='tap_accommodation' AND service_id=0)) AND room_id > 0");
+
         self::migrate();
     }
 
     public static function migrate() {
         global $wpdb;
+
+        // Drop legacy unique key room_date (blocks multiple tour slots per date).
+        $indexes = $wpdb->get_results("SHOW INDEX FROM {$wpdb->prefix}tap_daily_pricing WHERE Key_name = 'room_date'");
+        if (!empty($indexes)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_daily_pricing DROP INDEX room_date");
+        }
 
         $columns = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
         if (!in_array('room_id', $columns, true)) {
@@ -336,6 +352,29 @@ class TAP_Installer {
         if (!in_array('room_id', $columns_items, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_booking_items ADD COLUMN room_id bigint(20) DEFAULT NULL AFTER service_id");
         }
+
+        // Extend tap_daily_pricing for tours/experiences availability (Fase 2).
+        $cols_dp = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_daily_pricing");
+        if (!in_array('service_type', $cols_dp, true)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_daily_pricing ADD COLUMN service_type varchar(50) NOT NULL DEFAULT 'tap_accommodation' AFTER room_id");
+        }
+        if (!in_array('service_id', $cols_dp, true)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_daily_pricing ADD COLUMN service_id bigint(20) NOT NULL DEFAULT 0 AFTER service_type");
+        }
+        if (!in_array('time_slot', $cols_dp, true)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_daily_pricing ADD COLUMN time_slot time DEFAULT NULL AFTER date");
+        }
+        if (!in_array('time_end', $cols_dp, true)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_daily_pricing ADD COLUMN time_end time DEFAULT NULL AFTER time_slot");
+        }
+        if (!in_array('capacity', $cols_dp, true)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_daily_pricing ADD COLUMN capacity int(11) NOT NULL DEFAULT 0 AFTER label");
+        }
+        if (!in_array('booked', $cols_dp, true)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_daily_pricing ADD COLUMN booked int(11) NOT NULL DEFAULT 0 AFTER capacity");
+        }
+        // Backfill legacy rows.
+        $wpdb->query("UPDATE {$wpdb->prefix}tap_daily_pricing SET service_type='tap_accommodation', service_id=room_id WHERE (service_type IS NULL OR service_type='' OR (service_type='tap_accommodation' AND service_id=0)) AND room_id > 0");
 
         $cols_bookings = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
         if (!in_array('commission_status', $cols_bookings, true)) {
