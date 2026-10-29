@@ -23,8 +23,10 @@ class TAP_Tour_Availability {
         if (!$service_type || !$service_id) return [];
         $where = 'WHERE service_type = %s AND service_id = %d';
         $params = [$service_type, $service_id];
-        if ($from) { $where .= ' AND date >= %s'; $params[] = $from; }
-        if ($to) { $where .= ' AND date <= %s'; $params[] = $to; }
+        if ($from) { $where .= ' AND date >= %s';
+$params[] = $from; }
+        if ($to) { $where .= ' AND date <= %s';
+$params[] = $to; }
         $sql = "SELECT * FROM {$t} {$where} ORDER BY date ASC, time_slot ASC";
         return $wpdb->get_results($wpdb->prepare($sql, $params)) ?: [];
     }
@@ -73,13 +75,20 @@ class TAP_Tour_Availability {
         if (!$id) return false;
         $fields = [];
         $formats = [];
-        if (isset($data['date'])) { $fields['date'] = sanitize_text_field($data['date']); $formats[] = '%s'; }
-        if (isset($data['time_slot'])) { $fields['time_slot'] = $data['time_slot'] ? sanitize_text_field($data['time_slot']) : null; $formats[] = '%s'; }
-        if (isset($data['time_end'])) { $fields['time_end'] = $data['time_end'] ? sanitize_text_field($data['time_end']) : null; $formats[] = '%s'; }
-        if (array_key_exists('price', $data)) { $fields['price'] = ($data['price'] === '' || $data['price'] === null) ? null : (float) $data['price']; $formats[] = '%f'; }
-        if (isset($data['is_blocked'])) { $fields['is_blocked'] = !empty($data['is_blocked']) ? 1 : 0; $formats[] = '%d'; }
-        if (isset($data['label'])) { $fields['label'] = sanitize_text_field($data['label']); $formats[] = '%s'; }
-        if (isset($data['capacity'])) { $fields['capacity'] = (int) $data['capacity']; $formats[] = '%d'; }
+        if (isset($data['date'])) { $fields['date'] = sanitize_text_field($data['date']);
+$formats[] = '%s'; }
+        if (isset($data['time_slot'])) { $fields['time_slot'] = $data['time_slot'] ? sanitize_text_field($data['time_slot']) : null;
+$formats[] = '%s'; }
+        if (isset($data['time_end'])) { $fields['time_end'] = $data['time_end'] ? sanitize_text_field($data['time_end']) : null;
+$formats[] = '%s'; }
+        if (array_key_exists('price', $data)) { $fields['price'] = ($data['price'] === '' || $data['price'] === null) ? null : (float) $data['price'];
+$formats[] = '%f'; }
+        if (isset($data['is_blocked'])) { $fields['is_blocked'] = !empty($data['is_blocked']) ? 1 : 0;
+$formats[] = '%d'; }
+        if (isset($data['label'])) { $fields['label'] = sanitize_text_field($data['label']);
+$formats[] = '%s'; }
+        if (isset($data['capacity'])) { $fields['capacity'] = (int) $data['capacity'];
+$formats[] = '%d'; }
         if (empty($fields)) return false;
         $wpdb->update($t, $fields, ['id' => $id], $formats, ['%d']);
         return true;
@@ -156,7 +165,7 @@ class TAP_Tour_Availability {
 
         $start = new DateTime($rule['start_date'] ?? 'today');
         $end = new DateTime($rule['end_date'] ?? '+3 months');
-        $days_of_week = isset($rule['days']) && is_array($rule['days']) ? $rule['days'] : [1,2,3,4,5]; // Mon-Fri default
+        $days_of_week = isset($rule['days']) && is_array($rule['days']) ? $rule['days'] : [1, 2, 3, 4, 5]; // Mon-Fri default
         $time_slot = sanitize_text_field($rule['time_slot'] ?? '');
         $time_end = sanitize_text_field($rule['time_end'] ?? '');
         $capacity = (int) ($rule['capacity'] ?? 0);
@@ -179,7 +188,7 @@ class TAP_Tour_Availability {
                     'price'        => $price,
                     'label'        => $label,
                 ]);
-                $count++;
+                ++$count;
             }
             $cur->modify('+1 day');
         }
