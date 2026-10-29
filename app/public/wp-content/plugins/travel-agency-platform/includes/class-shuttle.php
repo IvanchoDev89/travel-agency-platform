@@ -125,7 +125,24 @@ class TAP_Shuttle {
         return rest_ensure_response($out);
     }
 
+
+
+    /** Simple per-IP rate limiter using transients. Returns true if allowed. */
+    private static function rate_limit($key, $max, $window) {
+        $ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : 'unknown';
+        $transient = 'tap_rl_' . md5($key . '|' . $ip);
+        $count = (int) get_transient($transient);
+        if ($count >= $max) {
+            return false;
+        }
+        set_transient($transient, $count + 1, $window);
+        return true;
+    }
+
     public static function rest_join($request) {
+        if (!self::rate_limit('shuttle_join', 10, 60)) {
+            return new WP_Error('rate_limited', __('Demasiadas solicitudes. Intenta más tarde.', 'travel-agency-platform'), ['status' => 429]);
+        }
         $params = $request->get_params();
         $group_id = absint($params['group_id'] ?? 0);
         $adults   = max(1, absint($params['adults'] ?? 1));

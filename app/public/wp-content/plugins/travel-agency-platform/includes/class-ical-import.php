@@ -14,11 +14,57 @@ class TAP_ICal_Import {
     public static function fetch($url) {
         $url = esc_url_raw($url);
         if (!$url) return [];
-        $resp = wp_remote_get($url, ['timeout' => 15]);
+        if (!self::is_safe_url($url)) return [];
+        $resp = wp_remote_get($url, ['timeout' => 15, 'redirection' => 0]);
         if (is_wp_error($resp)) return [];
+        // Reject redirects to avoid SSRF via open redirects.
+        $code = (int) wp_remote_retrieve_response_code($resp);
+        if ($code >= 300 && $code < 400) return [];
         $body = wp_remote_retrieve_body($resp);
         if (!$body) return [];
         return self::parse($body);
+    }
+
+    /**
+     * SSRF guard: only allow public http(s) hosts, block private/reserved IPs
+     * and localhost.
+     */
+    public static function is_safe_url($url) {
+        $parts = wp_parse_url($url);
+        if (!is_array($parts)) return false;
+        $scheme = strtolower($parts['scheme'] ?? '');
+        if (!in_array($scheme, ['http', 'https'], true)) return false;
+        $host = $parts['host'] ?? '';
+        if ('' === $host) return false;
+        $host = strtolower($host);
+        if (in_array($host, ['localhost', '0.0.0.0', '::', '[::]'], true)) return false;
+        // Resolve DNS.
+        $ips = [];
+        if (filter_var($host, FILTER_VALIDATE_IP)) {
+            $ips = [$host];
+        } else {
+            $resolved = gethostbynamel($host);
+            if (is_array($resolved)) $ips = $resolved;
+            // IPv6
+            $v6 = @dns_get_record($host, DNS_AAAA);
+            if (is_array($v6)) {
+                foreach ($v6 as $r) {
+                    if (!empty($r['ipv6'])) $ips[] = $r['ipv6'];
+                }
+            }
+        }
+        if (empty($ips)) return false;
+        foreach ($ips as $ip) {
+            if (self::is_private_ip($ip)) return false;
+        }
+        return true;
+    }
+
+    private static function is_private_ip($ip) {
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+            return true;
+        }
+        return false;
     }
 
     /** Parse iCal text into array of {start, end} date ranges. */

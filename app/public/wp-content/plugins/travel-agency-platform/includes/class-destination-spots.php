@@ -740,6 +740,9 @@ class TAP_Destination_Spots {
     const LINK_OPTION        = 'tap_spot_link_version';
     const LINK_VERSION       = 1;
 
+    /** @var array<int,int> term_id => spot_id cache for spot_for_term() */
+    private static $spot_for_term_cache = [];
+
     /** Linked `tap_location` term id, or 0. Validated on read. */
     public static function location_term_id($spot_id) {
         $term_id = (int) get_post_meta((int) $spot_id, self::LOCATION_META, true);
@@ -769,13 +772,12 @@ class TAP_Destination_Spots {
      * several times while rendering breadcrumbs and cards.
      */
     public static function spot_for_term($term_id) {
-        static $cache = [];
         $term_id = (int) $term_id;
-        if (isset($cache[$term_id])) {
-            return $cache[$term_id];
+        if (isset(self::$spot_for_term_cache[$term_id])) {
+            return self::$spot_for_term_cache[$term_id];
         }
         if (! $term_id) {
-            $cache[$term_id] = 0;
+            self::$spot_for_term_cache[$term_id] = 0;
             return 0;
         }
         $ids = get_posts([
@@ -789,8 +791,8 @@ class TAP_Destination_Spots {
             'orderby'        => 'date',
             'order'          => 'DESC',
         ]);
-        $cache[$term_id] = $ids ? (int) $ids[0] : 0;
-        return $cache[$term_id];
+        self::$spot_for_term_cache[$term_id] = $ids ? (int) $ids[0] : 0;
+        return self::$spot_for_term_cache[$term_id];
     }
 
     /**
@@ -812,6 +814,9 @@ class TAP_Destination_Spots {
         }
 
         $previous = (int) get_post_meta($spot_id, self::LOCATION_META, true);
+
+        // Invalidate spot_for_term() cache for affected terms.
+        unset(self::$spot_for_term_cache[$term_id], self::$spot_for_term_cache[$previous]);
 
         update_post_meta($spot_id, self::LOCATION_META, $term_id);
         if ($term_id) {

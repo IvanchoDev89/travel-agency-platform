@@ -80,10 +80,11 @@ class TAP_Ajax_Commerce {
         if (!in_array($error->get_error_code(), ['paypal_token_error', 'paypal_order_error'], true)) {
             return $error;
         }
+        $code = $error->get_error_code();
         $details = $error->get_error_message();
         if (function_exists('error_log')) {
             // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-            error_log('TAP PayPal subscription failure: ' . $details);
+            error_log('TAP PayPal subscription failure: code=' . $code . ' msg_hash=' . md5($error->get_error_message()));
         }
         return new WP_Error(
             $error->get_error_code(),
