@@ -63,6 +63,72 @@ class TAP_Metaboxes {
         }
     }
 
+    public static function render_extras($post) {
+        $service_type = $post->post_type;
+        $service_id = (int) $post->ID;
+        $extras = TAP_Service_Extras::for_service($service_type, $service_id, false);
+        wp_nonce_field('tap_extras_save', 'tap_extras_nonce');
+        ?>
+        <div class="tap-extras-editor" data-service-type="<?php echo esc_attr($service_type); ?>"
+            data-service-id="<?php echo (int) $service_id; ?>">
+            <p class="description"><?php esc_html_e('Agrega servicios adicionales que el cliente puede contratar junto al tour/experiencia.', 'travel-agency-platform'); ?></p>
+            <table class="widefat striped tap-extras-table">
+                <thead>
+                    <tr>
+                        <th><?php esc_html_e('Nombre', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Descripción', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Precio', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Moneda', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Por persona', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Obligatorio', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Activo', 'travel-agency-platform'); ?></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="tap-extras-rows">
+                    <?php foreach ($extras as $ex): ?>
+                        <tr data-id="<?php echo (int) $ex->id; ?>">
+                            <td><input type="text" name="extras_name[]" value="<?php echo esc_attr($ex->name); ?>" class="regular-text"></td>
+                            <td><textarea name="extras_desc[]" rows="2" class="large-text"><?php echo esc_textarea($ex->description); ?></textarea></td>
+                            <td><input type="number" name="extras_price[]" value="<?php echo esc_attr($ex->price); ?>" step="0.01" style="width:90px;"></td>
+                            <td><input type="text" name="extras_currency[]" value="<?php echo esc_attr($ex->currency); ?>" style="width:60px;"></td>
+                            <td><input type="checkbox" name="extras_per_person[<?php echo (int) $ex->id; ?>]" value="1" <?php checked(1, $ex->is_per_person); ?>></td>
+                            <td><input type="checkbox" name="extras_required[<?php echo (int) $ex->id; ?>]" value="1" <?php checked(1, $ex->is_required); ?>></td>
+                            <td><input type="checkbox" name="extras_active[<?php echo (int) $ex->id; ?>]" value="1" <?php checked(1, $ex->is_active); ?>></td>
+                            <td><button type="button" class="button tap-extra-remove"><?php esc_html_e('Eliminar', 'travel-agency-platform'); ?></button><input type="hidden" name="extras_id[]" value="<?php echo (int) $ex->id; ?>"></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            <p><button type="button" class="button" id="tap-extra-add"><?php esc_html_e('Agregar extra', 'travel-agency-platform'); ?></button></p>
+            <script>
+            (function(){
+                var btn = document.getElementById('tap-extra-add');
+                var tbody = document.getElementById('tap-extras-rows');
+                if (!btn || !tbody) return;
+                btn.addEventListener('click', function(){
+                    var tr = document.createElement('tr');
+                    tr.innerHTML = '<td><input type="text" name="extras_name[]" value="" class="regular-text"></td>'
+                        + '<td><textarea name="extras_desc[]" rows="2" class="large-text"></textarea></td>'
+                        + '<td><input type="number" name="extras_price[]" value="0" step="0.01" style="width:90px;"></td>'
+                        + '<td><input type="text" name="extras_currency[]" value="USD" style="width:60px;"></td>'
+                        + '<td><input type="checkbox" name="extras_per_person[new]" value="1" checked></td>'
+                        + '<td><input type="checkbox" name="extras_required[new]" value="1"></td>'
+                        + '<td><input type="checkbox" name="extras_active[new]" value="1" checked></td>'
+                        + '<td><button type="button" class="button tap-extra-remove"><?php echo esc_js(__('Eliminar', 'travel-agency-platform')); ?></button><input type="hidden" name="extras_id[]" value="0"></td>';
+                    tbody.appendChild(tr);
+                });
+                tbody.addEventListener('click', function(e){
+                    if (e.target && e.target.classList.contains('tap-extra-remove')) {
+                        e.target.closest('tr').remove();
+                    }
+                });
+            })();
+            </script>
+        </div>
+        <?php
+    }
+
     public static function render_translations($post) {
         if (!class_exists('TAP_Translations')) return;
         $tr = TAP_Translations::all_for($post->post_type, $post->ID, 'en');
@@ -290,6 +356,7 @@ class TAP_Metaboxes {
 
     private static function register_tour_metabox() {
         self::maybe_add_meta_box('tap_tour_details', __('Tour Details', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_tour', 'normal', 'high');
+        self::maybe_add_meta_box('tap_extras', __('Servicios extra (add-ons)', 'travel-agency-platform'), [__CLASS__, 'render_extras'], 'tap_tour', 'normal', 'low');
         self::$fields['tap_tour'] = [
             '_tap_tour_agency_id'   => ['type' => 'select_post', 'label' => __('Agency', 'travel-agency-platform'), 'post_type' => 'tap_agency'],
             '_tap_tour_type'        => ['type' => 'select', 'label' => __('Tour Type', 'travel-agency-platform'), 'options' => self::tour_type_options()],
@@ -368,6 +435,7 @@ class TAP_Metaboxes {
 
     private static function register_experience_metabox() {
         self::maybe_add_meta_box('tap_experience_details', __('Experience Details', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_experience', 'normal', 'high');
+        self::maybe_add_meta_box('tap_extras', __('Servicios extra (add-ons)', 'travel-agency-platform'), [__CLASS__, 'render_extras'], 'tap_experience', 'normal', 'low');
         self::$fields['tap_experience'] = [
             '_tap_exp_agency_id'     => ['type' => 'select_post', 'label' => __('Agency', 'travel-agency-platform'), 'post_type' => 'tap_agency'],
             '_tap_exp_type'          => ['type' => 'select', 'label' => __('Category', 'travel-agency-platform'), 'options' => ['workshop' => 'Workshop', 'class' => 'Class', 'tasting' => 'Tasting', 'art' => 'Art', 'nature' => 'Nature', 'wellness' => 'Wellness', 'other' => 'Other']],
@@ -795,6 +863,55 @@ class TAP_Metaboxes {
             foreach ($text_fields as $key) {
                 if (isset($_POST[$key])) {
                     update_post_meta($post_id, $key, sanitize_text_field(wp_unslash($_POST[$key])));
+                }
+            }
+        }
+
+        // Service extras (tours/experiences).
+        if (in_array($post_type, ['tap_tour', 'tap_experience'], true)) {
+            if (isset($_POST['tap_extras_nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['tap_extras_nonce'])), 'tap_extras_save')) {
+                $names = isset($_POST['extras_name']) && is_array($_POST['extras_name']) ? (array) wp_unslash($_POST['extras_name']) : [];
+                $descs = isset($_POST['extras_desc']) && is_array($_POST['extras_desc']) ? (array) wp_unslash($_POST['extras_desc']) : [];
+                $prices = isset($_POST['extras_price']) && is_array($_POST['extras_price']) ? (array) wp_unslash($_POST['extras_price']) : [];
+                $currencies = isset($_POST['extras_currency']) && is_array($_POST['extras_currency']) ? (array) wp_unslash($_POST['extras_currency']) : [];
+                $ids = isset($_POST['extras_id']) && is_array($_POST['extras_id']) ? (array) wp_unslash($_POST['extras_id']) : [];
+                $per_person = isset($_POST['extras_per_person']) && is_array($_POST['extras_per_person']) ? (array) wp_unslash($_POST['extras_per_person']) : [];
+                $required = isset($_POST['extras_required']) && is_array($_POST['extras_required']) ? (array) wp_unslash($_POST['extras_required']) : [];
+                $active = isset($_POST['extras_active']) && is_array($_POST['extras_active']) ? (array) wp_unslash($_POST['extras_active']) : [];
+
+                // Existing extras for this service.
+                $existing = TAP_Service_Extras::for_service($post_type, $post_id, false);
+                $existing_ids = array_map('intval', wp_list_pluck($existing, 'id'));
+                $submitted_ids = array_map('intval', $ids);
+                // Delete removed extras.
+                foreach ($existing_ids as $eid) {
+                    if (!in_array($eid, $submitted_ids, true)) {
+                        TAP_Service_Extras::delete($eid);
+                    }
+                }
+                // Upsert.
+                foreach ($names as $i => $name) {
+                    $name = sanitize_text_field($name);
+                    if ($name === '') continue;
+                    $eid = isset($ids[$i]) ? (int) $ids[$i] : 0;
+                    $data = [
+                        'service_type'  => $post_type,
+                        'service_id'    => $post_id,
+                        'name'          => $name,
+                        'description'   => isset($descs[$i]) ? sanitize_textarea_field($descs[$i]) : '',
+                        'price'         => isset($prices[$i]) ? (float) $prices[$i] : 0,
+                        'currency'      => isset($currencies[$i]) ? sanitize_text_field($currencies[$i]) : 'USD',
+                        'is_per_person' => isset($per_person[$eid]) ? 1 : (isset($per_person['new']) ? 1 : 0),
+                        'is_required'   => isset($required[$eid]) ? 1 : (isset($required['new']) ? 1 : 0),
+                        'is_active'     => isset($active[$eid]) ? 1 : (isset($active['new']) ? 1 : 0),
+                        'sort_order'    => $i,
+                    ];
+                    // For new rows, id=0; the per_person/required/active arrays use "new" key.
+                    if ($eid > 0) {
+                        TAP_Service_Extras::update($eid, $data);
+                    } else {
+                        TAP_Service_Extras::create($data);
+                    }
                 }
             }
         }

@@ -586,6 +586,24 @@ class TAP_Installer {
             KEY status (status)
         ) {$wpdb->get_charset_collate()}");
 
+        $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_service_extras (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            service_type varchar(50) NOT NULL DEFAULT '',
+            service_id bigint(20) NOT NULL DEFAULT 0,
+            name varchar(255) NOT NULL DEFAULT '',
+            description text,
+            price decimal(10,2) NOT NULL DEFAULT 0,
+            currency varchar(10) NOT NULL DEFAULT 'USD',
+            is_per_person tinyint(1) NOT NULL DEFAULT 1,
+            is_required tinyint(1) NOT NULL DEFAULT 0,
+            sort_order int(11) NOT NULL DEFAULT 0,
+            is_active tinyint(1) NOT NULL DEFAULT 1,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY service (service_type, service_id)
+        ) {$wpdb->get_charset_collate()};");
+
         $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_waivers (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             booking_id bigint(20) NOT NULL DEFAULT 0,
