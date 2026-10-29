@@ -86,7 +86,27 @@ class TAP_Moderation {
              FROM {$p}tap_leads WHERE mod_status <> %s ORDER BY id DESC LIMIT %d",
             self::OK, $limit
         )) ?: [];
-        return array_merge($rv, $ld);
+        // Forum posts (if table exists).
+        $fp = [];
+        $table_exists = $wpdb->get_var("SHOW TABLES LIKE '{$p}tap_forum_posts'");
+        if ($table_exists) {
+            $fp = $wpdb->get_results($wpdb->prepare(
+                "SELECT id, 'forum' AS kind, created_at, 0 AS rating, content, mod_status, mod_reason, author_name AS owner
+                 FROM {$p}tap_forum_posts WHERE mod_status <> %s ORDER BY id DESC LIMIT %d",
+                self::OK, $limit
+            )) ?: [];
+        }
+        // Q&A (if table exists).
+        $qa = [];
+        $table_exists2 = $wpdb->get_var("SHOW TABLES LIKE '{$p}tap_qa'");
+        if ($table_exists2) {
+            $qa = $wpdb->get_results($wpdb->prepare(
+                "SELECT id, 'qa' AS kind, created_at, 0 AS rating, question AS content, mod_status, mod_reason, '' AS owner
+                 FROM {$p}tap_qa WHERE mod_status <> %s ORDER BY id DESC LIMIT %d",
+                self::OK, $limit
+            )) ?: [];
+        }
+        return array_merge($rv, $ld, $fp, $qa);
     }
 
     public static function reason_label($reason) {
@@ -112,7 +132,10 @@ class TAP_Moderation {
 
     private static function table_for($kind) {
         global $wpdb;
-        return ('review' === $kind) ? $wpdb->prefix . 'tap_reviews' : $wpdb->prefix . 'tap_leads';
+        if ('review' === $kind) return $wpdb->prefix . 'tap_reviews';
+        if ('forum' === $kind) return $wpdb->prefix . 'tap_forum_posts';
+        if ('qa' === $kind) return $wpdb->prefix . 'tap_qa';
+        return $wpdb->prefix . 'tap_leads';
     }
 
     private static function row_reason($kind, $key) {
@@ -133,27 +156,30 @@ class TAP_Moderation {
             return;
         }
         $action = sanitize_key(wp_unslash($_GET['mod_action'] ?? ''));
-        $kind   = ('review' === sanitize_key(wp_unslash($_GET['kind'] ?? ''))) ? 'review' : 'lead';
+        $kind_raw = sanitize_key(wp_unslash($_GET['kind'] ?? ''));
+        $kind = in_array($kind_raw, ['review', 'lead', 'forum', 'qa'], true) ? $kind_raw : 'lead';
         $id     = intval($_GET['item_id'] ?? 0);
         $nonce  = sanitize_text_field(wp_unslash($_GET['_wpnonce'] ?? ''));
 
         if (!$action || !$id || !wp_verify_nonce((string) $nonce, "tap_mod_{$action}_{$kind}_{$id}")) {
             return;
         }
-        $table = ('review' === $kind) ? $wpdb->prefix . 'tap_reviews' : $wpdb->prefix . 'tap_leads';
+        $table = self::table_for($kind);
 
         if ('approve' === $action) {
             if ('review' === $kind) {
                 $wpdb->update($table, ['is_approved' => 1, 'mod_status' => self::OK, 'mod_reason' => null], ['id' => $id]);
+            } elseif ('forum' === $kind || 'qa' === $kind) {
+                $wpdb->update($table, ['is_approved' => 1, 'status' => 'approved', 'mod_status' => self::OK, 'mod_reason' => null], ['id' => $id]);
             } else {
                 $wpdb->update($table, ['mod_status' => self::OK, 'mod_reason' => null], ['id' => $id]);
             }
         } elseif ('block' === $action) {
             $data = ['mod_status' => self::BLOCK, 'mod_reason' => 'manual'];
             if ('review' === $kind) {
-                // approve() sets is_approved, so block() has to clear it: every
-                // public query and the star average filter on is_approved alone,
-                // so leaving it at 1 would keep a "blocked" review published.
+                $data['is_approved'] = 0;
+            } elseif ('forum' === $kind || 'qa' === $kind) {
+                $data['status'] = 'rejected';
                 $data['is_approved'] = 0;
             }
             $wpdb->update($table, $data, ['id' => $id]);

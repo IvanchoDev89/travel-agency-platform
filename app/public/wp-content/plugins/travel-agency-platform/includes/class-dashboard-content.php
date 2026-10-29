@@ -170,14 +170,16 @@ class TAP_Dashboard_Content {
                     <?php endif; ?>
                     <?php
                     foreach ($items as $it):
-                        $is_review = 'review' === $it->kind;
-                        $base = admin_url('admin.php?page=tap-moderation&kind=' . ($is_review ? 'review' : 'lead') . '&item_id=' . (int) $it->id);
-                        $aw = wp_nonce_url($base . '&mod_action=approve', 'tap_mod_approve_' . ($is_review ? 'review' : 'lead') . '_' . (int) $it->id);
-                        $bl = wp_nonce_url($base . '&mod_action=block', 'tap_mod_block_' . ($is_review ? 'review' : 'lead') . '_' . (int) $it->id);
-                        $dl = wp_nonce_url($base . '&mod_action=delete', 'tap_mod_delete_' . ($is_review ? 'review' : 'lead') . '_' . (int) $it->id);
+                        $kind = in_array($it->kind, ['review', 'lead', 'forum', 'qa'], true) ? $it->kind : 'lead';
+                        $base = admin_url('admin.php?page=tap-moderation&kind=' . $kind . '&item_id=' . (int) $it->id);
+                        $aw = wp_nonce_url($base . '&mod_action=approve', 'tap_mod_approve_' . $kind . '_' . (int) $it->id);
+                        $bl = wp_nonce_url($base . '&mod_action=block', 'tap_mod_block_' . $kind . '_' . (int) $it->id);
+                        $dl = wp_nonce_url($base . '&mod_action=delete', 'tap_mod_delete_' . $kind . '_' . (int) $it->id);
+                        $kind_label = 'review' === $kind ? __('Reseña', 'travel-agency-platform') : ('forum' === $kind ? __('Foro', 'travel-agency-platform') : ('qa' === $kind ? __('Pregunta', 'travel-agency-platform') : __('Mensaje', 'travel-agency-platform')));
+                        $kind_icon = 'review' === $kind ? 'dashicons-star-filled' : ('forum' === $kind ? 'dashicons-format-chat' : ('qa' === $kind ? 'dashicons-editor-help' : 'dashicons-email-alt'));
 						?>
                     <tr>
-                        <td><span class="dashicons <?php echo $is_review ? 'dashicons-star-filled' : 'dashicons-email-alt'; ?>"></span> <?php echo $is_review ? esc_html__('Reseña', 'travel-agency-platform') : esc_html__('Mensaje', 'travel-agency-platform'); ?></td>
+                        <td><span class="dashicons <?php echo esc_attr($kind_icon); ?>"></span> <?php echo esc_html($kind_label); ?></td>
                         <td>
                             <?php if ($it->rating > 0): ?><span class="tap-admin-stars" style="color:#f59e0b;"><?php echo str_repeat('★', (int) $it->rating); ?></span> <?php endif; ?>
                             <?php echo esc_html(mb_substr((string) $it->content, 0, 160)); ?>
