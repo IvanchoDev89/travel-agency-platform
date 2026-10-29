@@ -185,7 +185,15 @@ class TAP_Listing_Editor {
                 <?php wp_nonce_field('tap_agency_listing_nonce', 'nonce'); ?>
                 <input type="hidden" name="listing_id" value="<?php echo (int) $listing_id; ?>">
                 <input type="hidden" name="listing_type" value="<?php echo esc_attr($type); ?>">
-                <div class="tap-form-grid">
+                <div class="tap-tour-wizard-bar">
+                    <div class="tap-tour-wizard-steps">
+                        <button type="button" class="tap-tour-wizard-stepbtn is-active" data-step="1">1. <?php esc_html_e('Información', 'travel-agency-platform'); ?></button>
+                        <button type="button" class="tap-tour-wizard-stepbtn" data-step="2">2. <?php esc_html_e('Precios y ubicación', 'travel-agency-platform'); ?></button>
+                        <button type="button" class="tap-tour-wizard-stepbtn" data-step="3">3. <?php esc_html_e('Detalles', 'travel-agency-platform'); ?></button>
+                        <button type="button" class="tap-tour-wizard-stepbtn" data-step="4">4. <?php esc_html_e('SEO y publicación', 'travel-agency-platform'); ?></button>
+                    </div>
+                </div>
+                <div class="tap-form-grid tap-tour-wizard-step" data-step="1">
                     <div class="tap-field tap-span-2">
                         <label><?php esc_html_e('Nombre *', 'travel-agency-platform'); ?></label>
                         <input type="text" name="title" required value="<?php echo esc_attr($listing ? $listing->post_title : ''); ?>">
@@ -212,6 +220,8 @@ class TAP_Listing_Editor {
                         ]);
                         ?>
                     </div>
+                </div>
+                <div class="tap-form-grid tap-tour-wizard-step" data-step="2" style="display:none;">
                     <?php
                     // Group fields into sections for a clearer, shorter form.
                     $groups = [
@@ -318,6 +328,8 @@ class TAP_Listing_Editor {
                         <?php
                     }
                     ?>
+                </div>
+                <div class="tap-form-grid tap-tour-wizard-step" data-step="3" style="display:none;">
                     <?php
                     // SEO section
                     $seo_fields = [];
@@ -361,6 +373,8 @@ class TAP_Listing_Editor {
                             <option value="request" <?php selected(TAP_Booking::booking_mode($type, $listing_id), 'request'); ?>><?php esc_html_e('Solicitud de reserva (la agencia confirma antes del pago)', 'travel-agency-platform'); ?></option>
                         </select>
                     </div>
+                </div>
+                <div class="tap-form-grid tap-tour-wizard-step" data-step="4" style="display:none;">
                     <?php if ($is_edit): ?>
                     <div class="tap-field tap-span-2">
                         <?php $is_published = 'publish' === $listing->post_status; ?>
@@ -371,12 +385,53 @@ class TAP_Listing_Editor {
                     </div>
                     <?php endif; ?>
                 </div>
-                <button type="submit" class="tap-btn tap-btn-primary"><?php echo $is_edit ? esc_html__('Guardar cambios', 'travel-agency-platform') : esc_html__('Crear servicio', 'travel-agency-platform'); ?></button>
+                <div class="tap-tour-wizard-nav">
+                    <button type="button" class="tap-btn tap-tour-wizard-prev" style="display:none;">&larr; <?php esc_html_e('Anterior', 'travel-agency-platform'); ?></button>
+                    <button type="button" class="tap-btn tap-btn-primary tap-tour-wizard-next"><?php esc_html_e('Siguiente', 'travel-agency-platform'); ?> &rarr;</button>
+                    <button type="submit" class="tap-btn tap-btn-primary tap-tour-wizard-submit" style="display:none;"><?php echo $is_edit ? esc_html__('Guardar cambios', 'travel-agency-platform') : esc_html__('Crear servicio', 'travel-agency-platform'); ?></button>
+                </div>
                 <span class="tap-form-msg"></span>
             </form>
 
         </div>
 
+        <style>
+        .tap-tour-wizard-bar{margin-bottom:16px;}
+        .tap-tour-wizard-steps{display:flex;flex-wrap:wrap;gap:6px;}
+        .tap-tour-wizard-stepbtn{padding:6px 12px;border:1px solid #d1d5db;border-radius:999px;background:#fff;cursor:pointer;font-size:13px;color:#4b5563;transition:all .2s;}
+        .tap-tour-wizard-stepbtn.is-active{background:#2563eb;color:#fff;border-color:#2563eb;}
+        .tap-tour-wizard-stepbtn:hover:not(.is-active){background:#f3f4f6;}
+        .tap-tour-wizard-step{animation:fadeIn .2s;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+        .tap-tour-wizard-nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:12px;border-top:1px solid var(--tap-border,#e5e7eb);gap:8px;}
+        </style>
+        <script>
+        (function(){
+            var form = document.getElementById('tap-listing-form');
+            if (!form) return;
+            var steps = form.querySelectorAll('.tap-tour-wizard-step');
+            var btns = form.querySelectorAll('.tap-tour-wizard-stepbtn');
+            var nextBtn = form.querySelector('.tap-tour-wizard-next');
+            var prevBtn = form.querySelector('.tap-tour-wizard-prev');
+            var submitBtn = form.querySelector('.tap-tour-wizard-submit');
+            var current = 1;
+            var total = steps.length;
+            function show(n){
+                if (n < 1) n = 1;
+                if (n > total) n = total;
+                current = n;
+                steps.forEach(function(s){ s.style.display = (parseInt(s.dataset.step,10)===n) ? '' : 'none'; });
+                btns.forEach(function(b){ b.classList.toggle('is-active', parseInt(b.dataset.step,10)===n); });
+                if (prevBtn) prevBtn.style.display = (n>1) ? '' : 'none';
+                if (nextBtn) nextBtn.style.display = (n<total) ? '' : 'none';
+                if (submitBtn) submitBtn.style.display = (n===total) ? '' : 'none';
+            }
+            btns.forEach(function(b){ b.addEventListener('click', function(){ show(parseInt(b.dataset.step,10)); }); });
+            if (nextBtn) nextBtn.addEventListener('click', function(){ show(current+1); });
+            if (prevBtn) prevBtn.addEventListener('click', function(){ show(current-1); });
+            show(1);
+        })();
+        </script>
         <?php
         // Reuse the shared wizard bundle: it provides the Media Library uploader,
         // toasts, publish toggle and form submission. The generic editor has no
