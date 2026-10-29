@@ -145,6 +145,135 @@ if ($deepest && class_exists('TAP_Destinations')) {
         </div>
         <?php endif; ?>
 
+        <?php if ('tap_tour' === $pt): ?>
+        <!-- Ecotourism badges -->
+        <?php
+        $eco_badges = [];
+        if (get_post_meta($id, '_tap_tour_leave_no_trace', true)) $eco_badges[] = __('Leave No Trace', 'travel-agency-platform');
+        if (get_post_meta($id, '_tap_tour_carbon_offset', true)) $eco_badges[] = __('Carbono compensado', 'travel-agency-platform');
+        if (get_post_meta($id, '_tap_tour_local_community', true)) $eco_badges[] = __('Apoya comunidad local', 'travel-agency-platform');
+        if (get_post_meta($id, '_tap_tour_wildlife', true)) $eco_badges[] = __('Observación de fauna', 'travel-agency-platform');
+        if (get_post_meta($id, '_tap_tour_equipment_rental', true)) $eco_badges[] = __('Alquiler de equipo', 'travel-agency-platform');
+        if ($eco_badges):
+        ?>
+        <div class="tap-tour-eco-badges">
+          <?php foreach ($eco_badges as $b): ?>
+            <span class="tap-tour-eco-badge">🌿 <?php echo esc_html($b); ?></span>
+          <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+
+        <!-- Meeting point + Map -->
+        <?php
+        $tlat = get_post_meta($id, '_tap_tour_lat', true);
+        $tlng = get_post_meta($id, '_tap_tour_lng', true);
+        $meeting = get_post_meta($id, '_tap_tour_meeting_point', true);
+        if ($meeting || ($tlat && $tlng)):
+        ?>
+        <div class="tap-acc-section tap-tour-meeting">
+          <h2><?php _e('Punto de encuentro', 'travel-agency-platform'); ?></h2>
+          <?php if ($meeting): ?><p><?php echo esc_html($meeting); ?></p><?php endif; ?>
+          <?php if ($tlat && $tlng): ?>
+          <div id="tap-tour-map" style="height:320px;border-radius:8px;overflow:hidden;margin-top:12px;"></div>
+          <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+          <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+          <script>
+          (function(){
+            var map = L.map('tap-tour-map').setView([<?php echo (float)$tlat; ?>, <?php echo (float)$tlng; ?>], 14);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap'}).addTo(map);
+            L.marker([<?php echo (float)$tlat; ?>, <?php echo (float)$tlng; ?>]).addTo(map).bindPopup(<?php echo wp_json_encode($meeting ?: get_the_title()); ?>);
+          })();
+          </script>
+          <?php endif; ?>
+        </div>
+        <?php endif; ?>
+
+        <!-- Inclusions -->
+        <?php
+        $includes = get_post_meta($id, '_tap_tour_includes', true);
+        $excludes = get_post_meta($id, '_tap_tour_excludes', true);
+        $what_bring = get_post_meta($id, '_tap_tour_what_bring', true);
+        $equipment = get_post_meta($id, '_tap_tour_equipment', true);
+        if ($includes || $excludes || $what_bring || $equipment):
+        ?>
+        <div class="tap-acc-section tap-tour-inclusions">
+          <h2><?php _e('Detalles del tour', 'travel-agency-platform'); ?></h2>
+          <?php if ($includes): ?>
+          <div class="tap-tour-inc"><h3><?php _e('Qué incluye', 'travel-agency-platform'); ?></h3><p><?php echo nl2br(esc_html($includes)); ?></p></div>
+          <?php endif; ?>
+          <?php if ($excludes): ?>
+          <div class="tap-tour-inc"><h3><?php _e('Qué no incluye', 'travel-agency-platform'); ?></h3><p><?php echo nl2br(esc_html($excludes)); ?></p></div>
+          <?php endif; ?>
+          <?php if ($what_bring): ?>
+          <div class="tap-tour-inc"><h3><?php _e('Qué traer', 'travel-agency-platform'); ?></h3><p><?php echo nl2br(esc_html($what_bring)); ?></p></div>
+          <?php endif; ?>
+          <?php if ($equipment): ?>
+          <div class="tap-tour-inc"><h3><?php _e('Equipo provisto', 'travel-agency-platform'); ?></h3><p><?php echo nl2br(esc_html($equipment)); ?></p></div>
+          <?php endif; ?>
+          <?php if (get_post_meta($id, '_tap_tour_equipment_rental', true)): ?>
+          <p><strong><?php _e('Alquiler de equipo disponible.', 'travel-agency-platform'); ?></strong></p>
+          <?php endif; ?>
+        </div>
+        <?php endif; ?>
+
+        <!-- Extras -->
+        <?php
+        $extras_html = TAP_Service_Extras::render_selector('tap_tour', $id);
+        if ($extras_html):
+        ?>
+        <div class="tap-acc-section tap-tour-extras">
+          <h2><?php _e('Servicios extra', 'travel-agency-platform'); ?></h2>
+          <?php echo $extras_html; ?>
+        </div>
+        <?php endif; ?>
+
+        <!-- Legals (collapsible) -->
+        <?php
+        $terms = get_post_meta($id, '_tap_tour_terms', true);
+        $privacy = get_post_meta($id, '_tap_tour_privacy', true);
+        $waiver = get_post_meta($id, '_tap_tour_waiver', true);
+        $waiver_required = get_post_meta($id, '_tap_tour_waiver_required', true);
+        if ($terms || $privacy || $waiver):
+        ?>
+        <div class="tap-acc-section tap-tour-legals">
+          <h2><?php _e('Términos y condiciones', 'travel-agency-platform'); ?></h2>
+          <?php if ($terms): ?>
+          <details class="tap-tour-legal"><summary><?php _e('Términos y condiciones', 'travel-agency-platform'); ?></summary><div><?php echo wp_kses_post(nl2br($terms)); ?></div></details>
+          <?php endif; ?>
+          <?php if ($privacy): ?>
+          <details class="tap-tour-legal"><summary><?php _e('Política de privacidad', 'travel-agency-platform'); ?></summary><div><?php echo wp_kses_post(nl2br($privacy)); ?></div></details>
+          <?php endif; ?>
+          <?php if ($waiver): ?>
+          <details class="tap-tour-legal"><summary><?php _e('Waiver (descargo de responsabilidad)', 'travel-agency-platform'); ?><?php if ($waiver_required): ?> *<?php endif; ?></summary><div><?php echo wp_kses_post(nl2br($waiver)); ?></div></details>
+          <?php endif; ?>
+        </div>
+        <?php endif; ?>
+
+        <!-- Availability calendar -->
+        <?php
+        $slots = TAP_Tour_Availability::slots_for('tap_tour', $id);
+        if ($slots):
+        ?>
+        <div class="tap-acc-section tap-tour-calendar">
+          <h2><?php _e('Disponibilidad', 'travel-agency-platform'); ?></h2>
+          <div class="tap-tour-slots">
+            <?php foreach ($slots as $sl): ?>
+              <div class="tap-tour-slot <?php echo $sl->is_blocked ? 'is-blocked' : ''; ?>">
+                <strong><?php echo esc_html($sl->date); ?></strong>
+                <?php if ($sl->time_slot): ?>
+                  <span><?php echo esc_html(substr($sl->time_slot,0,5)); ?><?php if ($sl->time_end): ?> – <?php echo esc_html(substr($sl->time_end,0,5)); ?><?php endif; ?></span>
+                <?php endif; ?>
+                <?php if ($sl->label): ?><span class="tap-tour-slot-label"><?php echo esc_html($sl->label); ?></span><?php endif; ?>
+                <span class="tap-tour-slot-cap"><?php echo (int)$sl->booked; ?>/<?php echo (int)$sl->capacity ?: '∞'; ?></span>
+                <?php if ($sl->price !== null): ?><span class="tap-tour-slot-price"><?php echo esc_html(TAP_Currency::fmt((float)$sl->price)); ?></span><?php endif; ?>
+              </div>
+            <?php endforeach; ?>
+          </div>
+        </div>
+        <?php endif; ?>
+        <?php endif; // tap_tour ?>
+
+        <?php get_template_part('templates/partials/service-reviews'); ?>
         <?php get_template_part('templates/partials/service-reviews'); ?>
       </div>
     </div>
@@ -347,4 +476,30 @@ jQuery(document).ready(function($) {
   });
 });
 </script>
+<?php if ('tap_tour' === $pt): ?>
+<script type="application/ld+json"><?php
+$eco = [];
+if (get_post_meta($id, '_tap_tour_leave_no_trace', true)) $eco[] = 'Leave No Trace';
+if (get_post_meta($id, '_tap_tour_carbon_offset', true)) $eco[] = 'Carbon offset';
+$ld = [
+    '@context' => 'https://schema.org',
+    '@type' => 'TouristAttraction',
+    'name' => get_the_title(),
+    'description' => wp_strip_all_tags(get_the_content()),
+    'url' => get_permalink(),
+    'touristType' => get_post_meta($id, '_tap_tour_category', true) ?: 'general',
+];
+if (get_post_meta($id, '_tap_tour_lat', true) && get_post_meta($id, '_tap_tour_lng', true)) {
+    $ld['geo'] = [
+        '@type' => 'GeoCoordinates',
+        'latitude' => (float) get_post_meta($id, '_tap_tour_lat', true),
+        'longitude' => (float) get_post_meta($id, '_tap_tour_lng', true),
+    ];
+}
+if ($agency) {
+    $ld['provider'] = ['@type' => 'TravelAgency', 'name' => $agency->post_title, 'url' => get_permalink($agency)];
+}
+echo wp_json_encode($ld, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+?></script>
+<?php endif; ?>
 <?php get_footer(); ?>
