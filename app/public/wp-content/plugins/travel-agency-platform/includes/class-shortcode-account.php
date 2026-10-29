@@ -292,6 +292,9 @@ break; }
                             <?php if ($phone): ?><li><strong><?php esc_html_e('Teléfono', 'travel-agency-platform'); ?>:</strong> <a href="tel:<?php echo esc_attr($phone); ?>"><?php echo esc_html($phone); ?></a></li><?php endif; ?>
                             <?php if ($whatsapp): ?><li><strong>WhatsApp:</strong> <a href="https://wa.me/<?php echo esc_attr(preg_replace('/[^0-9]/', '', $whatsapp)); ?>" target="_blank" rel="noopener"><?php echo esc_html($whatsapp); ?></a></li><?php endif; ?>
                             <?php if ($address || $city || $country): ?><li><strong><?php esc_html_e('Dirección', 'travel-agency-platform'); ?>:</strong> <?php echo esc_html(trim($address . ', ' . $city . ', ' . $country, ', ')); ?></li><?php endif; ?>
+                            <?php if ($address || $city || $country): ?>
+                            <li><a href="https://www.google.com/maps/search/?api=1&query=<?php echo urlencode(trim($address . ' ' . $city . ' ' . $country)); ?>" target="_blank" rel="noopener" class="tap-agency-map-link">📍 <?php esc_html_e('Ver en mapa', 'travel-agency-platform'); ?></a></li>
+                            <?php endif; ?>
                         </ul>
                         <?php if ($website): ?>
                             <a href="<?php echo esc_url($website); ?>" target="_blank" rel="noopener" class="tap-btn tap-btn-outline tap-btn-sm tap-agency-card-cta"><?php esc_html_e('Visitar sitio web', 'travel-agency-platform'); ?></a>
@@ -318,6 +321,17 @@ break; }
                     </div>
                 </aside>
             </div>
+
+            <!-- Final CTA -->
+            <section class="tap-agency-final-cta">
+                <h2><?php esc_html_e('¿Listo para tu próximo viaje?', 'travel-agency-platform'); ?></h2>
+                <p><?php esc_html_e('Contáctanos y te ayudamos a planificar una experiencia inolvidable.', 'travel-agency-platform'); ?></p>
+                <div class="tap-agency-hero-ctas" style="justify-content:center;">
+                    <?php if ($whatsapp): ?><a href="https://wa.me/<?php echo esc_attr(preg_replace('/[^0-9]/', '', $whatsapp)); ?>" target="_blank" rel="noopener" class="tap-btn tap-btn-primary"><?php esc_html_e('WhatsApp', 'travel-agency-platform'); ?></a><?php endif; ?>
+                    <?php if ($email): ?><a href="mailto:<?php echo esc_attr($email); ?>" class="tap-btn tap-btn-outline"><?php esc_html_e('Email', 'travel-agency-platform'); ?></a><?php endif; ?>
+                    <a href="#servicios" class="tap-btn tap-btn-outline"><?php esc_html_e('Ver servicios', 'travel-agency-platform'); ?></a>
+                </div>
+            </section>
         </div>
         <style>
         .tap-agency-landing{max-width:1100px;margin:0 auto;}
@@ -377,6 +391,11 @@ break; }
         .tap-agency-review-images{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
         .tap-agency-review-images img{width:64px;height:64px;object-fit:cover;border-radius:var(--tap-radius-md,6px);}
         .tap-agency-review-date{color:var(--tap-neutral-400,#9ca3af);}
+        .tap-agency-map-link{display:inline-block;margin-top:4px;color:var(--tap-primary,#2563eb);font-size:13px;text-decoration:none;}
+        .tap-agency-map-link:hover{text-decoration:underline;}
+        .tap-agency-final-cta{text-align:center;padding:var(--tap-space-8,32px);background:linear-gradient(135deg,var(--tap-primary-bg,#eff6ff),#fff);border:1px solid var(--tap-primary-border,#dbeafe);border-radius:var(--tap-radius-xl,12px);margin:var(--tap-space-6,24px) 0;}
+        .tap-agency-final-cta h2{margin:0 0 8px;font-size:1.5rem;color:var(--tap-neutral-900,#111827);}
+        .tap-agency-final-cta p{margin:0 0 16px;color:var(--tap-neutral-600,#4b5563);}
         .tap-agency-tabs{display:flex;gap:4px;margin-bottom:var(--tap-space-6,24px);border-bottom:2px solid var(--tap-border,#e5e7eb);padding-bottom:0;}
         .tap-agency-tab{padding:10px 16px;font-size:14px;font-weight:600;color:var(--tap-neutral-500,#6b7280);text-decoration:none;border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .2s,border-color .2s;}
         .tap-agency-tab:hover{color:var(--tap-primary,#2563eb);}

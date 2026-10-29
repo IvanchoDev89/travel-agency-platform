@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-10-29T14:48:57+00:00\n"
+"POT-Creation-Date: 2026-10-29T15:02:27+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -2296,11 +2296,11 @@ msgstr "Review submitted and pending moderation"
 msgid "Review submitted and pending approval"
 msgstr "Review submitted and pending approval"
 
-#: includes/class-approval.php:125 includes/class-shortcode-account.php:685
+#: includes/class-approval.php:125 includes/class-shortcode-account.php:704
 msgid "Representante legal / razón social"
 msgstr "Legal representative / business name"
 
-#: includes/class-approval.php:126 includes/class-shortcode-account.php:689
+#: includes/class-approval.php:126 includes/class-shortcode-account.php:708
 msgid "Tipo de documento"
 msgstr "Document type"
 
@@ -2308,7 +2308,7 @@ msgstr "Document type"
 msgid "Número de documento (cédula)"
 msgstr "ID number (cédula)"
 
-#: includes/class-approval.php:128 includes/class-shortcode-account.php:701
+#: includes/class-approval.php:128 includes/class-shortcode-account.php:720
 msgid "Cédula jurídica"
 msgstr "Corporate tax ID (cédula jurídica)"
 
@@ -2824,7 +2824,8 @@ msgstr "Payment"
 #: includes/class-front-dash.php:996 includes/class-front-dash.php:1091
 #: includes/class-metaboxes.php:250 includes/class-shortcode-account.php:176
 #: includes/class-shortcode-account.php:291
-#: includes/class-shortcode-account.php:641
+#: includes/class-shortcode-account.php:331
+#: includes/class-shortcode-account.php:660
 msgid "Email"
 msgstr "Email"
 
@@ -3174,12 +3175,12 @@ msgid "KYC:"
 msgstr "KYC:"
 
 #: includes/class-dashboard-content.php:317
-#: includes/class-shortcode-account.php:693
+#: includes/class-shortcode-account.php:712
 msgid "Jurídica"
 msgstr "Company"
 
 #: includes/class-dashboard-content.php:317
-#: includes/class-shortcode-account.php:692
+#: includes/class-shortcode-account.php:711
 msgid "Física"
 msgstr "Individual"
 
@@ -8777,7 +8778,7 @@ msgid "¿Enviar ahora?"
 msgstr "Send now?"
 
 #: includes/class-email-campaigns.php:265 includes/class-front-dash.php:553
-#: includes/class-shortcode-account.php:791
+#: includes/class-shortcode-account.php:810
 #: includes/class-shortcode-booking.php:799 travel-agency-platform.php:296
 msgid "Enviar"
 msgstr "Send"
@@ -10371,7 +10372,8 @@ msgstr "Phone"
 
 #: includes/class-front-dash.php:1004 includes/class-metaboxes.php:252
 #: includes/class-shortcode-account.php:178
-#: includes/class-shortcode-account.php:657
+#: includes/class-shortcode-account.php:330
+#: includes/class-shortcode-account.php:676
 msgid "WhatsApp"
 msgstr "WhatsApp"
 
@@ -11166,25 +11168,25 @@ msgstr "Value (negative = discount)"
 msgid "Agency Details"
 msgstr "Agency Details"
 
-#: includes/class-metaboxes.php:251 includes/class-shortcode-account.php:653
+#: includes/class-metaboxes.php:251 includes/class-shortcode-account.php:672
 msgid "Phone"
 msgstr "Phone"
 
-#: includes/class-metaboxes.php:253 includes/class-shortcode-account.php:661
+#: includes/class-metaboxes.php:253 includes/class-shortcode-account.php:680
 msgid "Website"
 msgstr "Website"
 
-#: includes/class-metaboxes.php:254 includes/class-shortcode-account.php:673
+#: includes/class-metaboxes.php:254 includes/class-shortcode-account.php:692
 msgid "Address"
 msgstr "Address"
 
 #: includes/class-metaboxes.php:255 includes/class-metaboxes.php:735
-#: includes/class-shortcode-account.php:665
+#: includes/class-shortcode-account.php:684
 msgid "City"
 msgstr "City"
 
 #: includes/class-metaboxes.php:256 includes/class-metaboxes.php:738
-#: includes/class-shortcode-account.php:669
+#: includes/class-shortcode-account.php:688
 msgid "Country"
 msgstr "Country"
 
@@ -12919,89 +12921,105 @@ msgstr "This agency has no published services yet."
 msgid "Verificado"
 msgstr "Verified"
 
-#: includes/class-shortcode-account.php:297
+#: includes/class-shortcode-account.php:296
+msgid "Ver en mapa"
+msgstr "View on map"
+
+#: includes/class-shortcode-account.php:300
 msgid "Visitar sitio web"
 msgstr "Visit website"
 
-#: includes/class-shortcode-account.php:303
+#: includes/class-shortcode-account.php:306
 msgid "Chat directo"
 msgstr "Direct chat"
 
-#: includes/class-shortcode-account.php:304
+#: includes/class-shortcode-account.php:307
 msgid "Envía un mensaje a la agencia. Te responderán lo antes posible."
 msgstr "Send a message to the agency. They will reply as soon as possible."
 
-#: includes/class-shortcode-account.php:310
+#: includes/class-shortcode-account.php:313
 msgid "Newsletter"
 msgstr "Newsletter"
 
-#: includes/class-shortcode-account.php:311
+#: includes/class-shortcode-account.php:314
 msgid "Recibe ofertas y novedades de esta agencia."
 msgstr "Receive offers and news from this agency."
 
-#: includes/class-shortcode-account.php:315
+#: includes/class-shortcode-account.php:318
 msgid "Tu email"
 msgstr "Your email"
 
-#: includes/class-shortcode-account.php:316
+#: includes/class-shortcode-account.php:319
 msgid "Suscribirme"
 msgstr "Subscribe"
 
-#: includes/class-shortcode-account.php:425
+#: includes/class-shortcode-account.php:327
+msgid "¿Listo para tu próximo viaje?"
+msgstr "Ready for your next trip?"
+
+#: includes/class-shortcode-account.php:328
+msgid "Contáctanos y te ayudamos a planificar una experiencia inolvidable."
+msgstr "Contact us and we will help you plan an unforgettable experience."
+
+#: includes/class-shortcode-account.php:332
+msgid "Ver servicios"
+msgstr "View services"
+
+#: includes/class-shortcode-account.php:444
 msgid "Plans are not available."
 msgstr "Plans are not available."
 
-#: includes/class-shortcode-account.php:429
+#: includes/class-shortcode-account.php:448
 msgid "No plans configured yet."
 msgstr "No plans configured yet."
 
-#: includes/class-shortcode-account.php:455
+#: includes/class-shortcode-account.php:474
 msgid "Listados ilimitados"
 msgstr "Unlimited listings"
 
 #. translators: %d: número máximo de listados permitidos por el plan
-#: includes/class-shortcode-account.php:457
+#: includes/class-shortcode-account.php:476
 #, php-format
 msgid "Hasta %d listados"
 msgstr "Up to %d listings"
 
 #. translators: %s: porcentaje de comisión
-#: includes/class-shortcode-account.php:460
+#: includes/class-shortcode-account.php:479
 #, php-format
 msgid "Comisión solo %s%%"
 msgstr "Commission only %s%%"
 
-#: includes/class-shortcode-account.php:461
+#: includes/class-shortcode-account.php:480
 msgid "Comisión estándar"
 msgstr "Standard commission"
 
-#: includes/class-shortcode-account.php:466
+#: includes/class-shortcode-account.php:485
 msgid "/mes"
 msgstr "/month"
 
 #. translators: %d: número de destacados incluidos en el plan
-#: includes/class-shortcode-account.php:472
+#: includes/class-shortcode-account.php:491
 #, php-format
 msgid "%d destacado(s)"
 msgstr "%d featured"
 
-#: includes/class-shortcode-account.php:480
+#: includes/class-shortcode-account.php:499
 msgid "Plan actual"
 msgstr "Current plan"
 
-#: includes/class-shortcode-account.php:482
+#: includes/class-shortcode-account.php:501
 msgid "Pago pendiente de confirmación"
 msgstr "Payment pending confirmation"
 
-#: includes/class-shortcode-account.php:487
+#: includes/class-shortcode-account.php:506
 msgid "Pagar con PayPal"
 msgstr "Pay with PayPal"
 
-#: includes/class-shortcode-account.php:488
+#: includes/class-shortcode-account.php:507
 msgid "Seleccionar plan"
 msgstr "Select plan"
 
-#: includes/class-shortcode-account.php:495
+#: includes/class-shortcode-account.php:514
 msgid ""
 "Tu agencia está en revisión. Podrás contratar un plan cuando un "
 "administrador la apruebe."
@@ -13009,7 +13027,7 @@ msgstr ""
 "Your agency is under review. You will be able to contract a plan once an "
 "administrator approves it."
 
-#: includes/class-shortcode-account.php:497
+#: includes/class-shortcode-account.php:516
 msgid ""
 "Tu agencia usa el plan Gratis. Elige un plan para desbloquear más listados y "
 "una comisión menor."
@@ -13017,27 +13035,27 @@ msgstr ""
 "Your agency uses the Free plan. Choose a plan to unlock more listings and a "
 "lower commission."
 
-#: includes/class-shortcode-account.php:499
+#: includes/class-shortcode-account.php:518
 msgid "Inicia sesión como agencia para seleccionar un plan."
 msgstr "Log in as an agency to select a plan."
 
-#: includes/class-shortcode-account.php:602
+#: includes/class-shortcode-account.php:621
 msgid "No services from this agency."
 msgstr "No services from this agency."
 
-#: includes/class-shortcode-account.php:623
+#: includes/class-shortcode-account.php:642
 msgid "You already have an account. Go to your"
 msgstr "You already have an account. Go to your"
 
-#: includes/class-shortcode-account.php:623
+#: includes/class-shortcode-account.php:642
 msgid "dashboard"
 msgstr "dashboard"
 
-#: includes/class-shortcode-account.php:629
+#: includes/class-shortcode-account.php:648
 msgid "Registra tu agencia"
 msgstr "Register your agency"
 
-#: includes/class-shortcode-account.php:630
+#: includes/class-shortcode-account.php:649
 msgid ""
 "Crea una cuenta de agencia, publica tus alojamientos y tours, y empieza a "
 "recibir reservas de miles de viajeros."
@@ -13045,27 +13063,27 @@ msgstr ""
 "Create an agency account, publish your accommodations and tours, and start "
 "receiving bookings from thousands of travelers."
 
-#: includes/class-shortcode-account.php:637
+#: includes/class-shortcode-account.php:656
 msgid "Agency Name"
 msgstr "Agency Name"
 
-#: includes/class-shortcode-account.php:645
+#: includes/class-shortcode-account.php:664
 msgid "Username"
 msgstr "Username"
 
-#: includes/class-shortcode-account.php:649
+#: includes/class-shortcode-account.php:668
 msgid "Password"
 msgstr "Password"
 
-#: includes/class-shortcode-account.php:677
+#: includes/class-shortcode-account.php:696
 msgid "Describe tu agencia"
 msgstr "Describe your agency"
 
-#: includes/class-shortcode-account.php:681
+#: includes/class-shortcode-account.php:700
 msgid "Identificación (verificación de la agencia)"
 msgstr "Identity (agency verification)"
 
-#: includes/class-shortcode-account.php:682
+#: includes/class-shortcode-account.php:701
 msgid ""
 "Tus datos de identificación solo los revisa el administrador para aprobar tu "
 "agencia."
@@ -13073,11 +13091,11 @@ msgstr ""
 "Your identity data is only reviewed by the administrator to approve your "
 "agency."
 
-#: includes/class-shortcode-account.php:697
+#: includes/class-shortcode-account.php:716
 msgid "Cédula"
 msgstr "Cédula (ID number)"
 
-#: includes/class-shortcode-account.php:705
+#: includes/class-shortcode-account.php:724
 msgid ""
 "Confirmo que los datos son verídicos y acepto los términos y condiciones de "
 "verificación."
@@ -13085,23 +13103,23 @@ msgstr ""
 "I confirm the data is truthful and I accept the verification terms and "
 "conditions."
 
-#: includes/class-shortcode-account.php:714
-#: includes/class-shortcode-account.php:738
-#: includes/class-shortcode-account.php:743
-#: includes/class-shortcode-account.php:749
+#: includes/class-shortcode-account.php:733
+#: includes/class-shortcode-account.php:757
+#: includes/class-shortcode-account.php:762
+#: includes/class-shortcode-account.php:768
 msgid "Crear mi cuenta de agencia"
 msgstr "Create my agency account"
 
-#: includes/class-shortcode-account.php:748
+#: includes/class-shortcode-account.php:767
 msgid "Network error. Please try again."
 msgstr "Network error. Please try again."
 
-#: includes/class-shortcode-account.php:775
-#: includes/class-shortcode-account.php:777 travel-agency-platform.php:292
+#: includes/class-shortcode-account.php:794
+#: includes/class-shortcode-account.php:796 travel-agency-platform.php:292
 msgid "Asistente de viajes"
 msgstr "Travel assistant"
 
-#: includes/class-shortcode-account.php:781 travel-agency-platform.php:297
+#: includes/class-shortcode-account.php:800 travel-agency-platform.php:297
 msgid ""
 "¡Hola! Soy el asistente de viajes. Pregunta por alojamientos, tours, bonos o "
 "agencias, o toca una sugerencia."
@@ -13109,8 +13127,8 @@ msgstr ""
 "Hi! I am the travel assistant. Ask about stays, tours, vouchers or agencies, "
 "or tap a suggestion."
 
-#: includes/class-shortcode-account.php:789
-#: includes/class-shortcode-account.php:790 travel-agency-platform.php:295
+#: includes/class-shortcode-account.php:808
+#: includes/class-shortcode-account.php:809 travel-agency-platform.php:295
 msgid "Escribe tu pregunta…"
 msgstr "Type your question…"
 
