@@ -124,7 +124,7 @@ class TAP_Dashboard_Settings {
             echo '<th>' . esc_html($h) . '</th>';
         }
         echo '</tr></thead><tbody>';
-        foreach ($wpdb->get_results("SELECT * FROM $t ORDER BY price_monthly ASC, id ASC") as $p) {
+        foreach ((array) $wpdb->get_results("SELECT * FROM $t ORDER BY price_monthly ASC, id ASC") as $p) {
             $features_txt = implode("\n", (array) json_decode($p->features ?: '', true)) ?: $p->features;
             echo '<tr>';
             echo '<td><input type="text" name="tap_plans[' . (int) $p->id . '][name]" value="' . esc_attr($p->name) . '" class="regular-text"></td>';

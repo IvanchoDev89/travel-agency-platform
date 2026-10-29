@@ -257,7 +257,7 @@ class TAP_Dashboard_Money {
         $tab_counts = [
             'pending'   => 0, 'completed' => 0, 'cancelled' => 0, 'failed' => 0,
         ];
-        foreach ($wpdb->get_results("SELECT status, COUNT(*) c FROM {$p_table} GROUP BY status") as $trow) {
+        foreach ((array) $wpdb->get_results("SELECT status, COUNT(*) c FROM {$p_table} GROUP BY status") as $trow) {
             if (isset($tab_counts[$trow->status])) {
                 $tab_counts[$trow->status] = (int) $trow->c;
             }

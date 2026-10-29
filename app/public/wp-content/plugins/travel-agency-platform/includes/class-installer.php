@@ -876,7 +876,7 @@ class TAP_Installer {
 
         // Cover the analytics / availability lookups that run per pageview.
         $book_indexes = [];
-        foreach ($wpdb->get_results("SHOW INDEX FROM {$wpdb->prefix}tap_bookings") as $idx) {
+        foreach ((array) $wpdb->get_results("SHOW INDEX FROM {$wpdb->prefix}tap_bookings") as $idx) {
             $book_indexes[] = $idx->Key_name;
         }
         foreach (['created_at' => 'created_at', 'check_in' => 'check_in', 'check_out' => 'check_out'] as $key => $col) {
