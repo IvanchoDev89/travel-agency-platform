@@ -631,7 +631,7 @@ class TAP_Metaboxes {
                 <?php endforeach; ?>
             </div>
             <?php foreach ($steps as $i => $step): ?>
-                <div class="tap-wizard-panel <?php echo 0 === $i ? 'is-active' : ''; ?>" data-step="<?php echo (int) $i; ?>">
+                <div class="tap-wizard-panel <?php echo 0 === $i ? 'is-active' : 'is-hidden'; ?>" data-step="<?php echo (int) $i; ?>">
                     <h3 class="tap-wizard-panel-title"><?php echo esc_html($step['label']); ?></h3>
                     <table class="form-table">
                         <?php foreach ($step['fields'] as $key): ?>
@@ -666,22 +666,24 @@ class TAP_Metaboxes {
         .tap-wizard-step-btn:hover:not(.is-active){background:#f3f4f6;}
         .tap-wizard-step-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.08);font-weight:700;font-size:12px;}
         .tap-wizard-step-btn.is-active .tap-wizard-step-num{background:rgba(255,255,255,.25);}
-        .tap-wizard-panel{display:none;}
-        .tap-wizard-panel.is-active{display:block;}
+        .tap-wizard-panel{display:block;}
+        .tap-wizard-panel.is-hidden{display:none;}
         .tap-wizard-panel-title{margin:0 0 12px;font-size:1.15rem;color:#1f2937;}
         .tap-wizard-nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:12px;border-top:1px solid #e5e7eb;}
         .tap-wizard-hint{font-size:12px;color:#6b7280;font-style:italic;}
         </style>
         <script>
-        (function(){
+        (function initWizard(){
             var w = document.querySelector('.tap-wizard');
-            if (!w) return;
+            if (!w) { setTimeout(initWizard, 100); return; }
             var panels = w.querySelectorAll('.tap-wizard-panel');
             var btns = w.querySelectorAll('.tap-wizard-step-btn');
+            // Hide all but first.
+            panels.forEach(function(p, idx){ if (idx !== 0) p.classList.add('is-hidden'); });
             function show(i){
-                panels.forEach(function(p){ p.classList.remove('is-active'); });
+                panels.forEach(function(p){ p.classList.add('is-hidden'); p.classList.remove('is-active'); });
                 btns.forEach(function(b){ b.classList.remove('is-active'); });
-                if (panels[i]) panels[i].classList.add('is-active');
+                if (panels[i]) { panels[i].classList.remove('is-hidden'); panels[i].classList.add('is-active'); }
                 if (btns[i]) btns[i].classList.add('is-active');
             }
             btns.forEach(function(b){ b.addEventListener('click', function(){ show(parseInt(b.dataset.step,10)); }); });
