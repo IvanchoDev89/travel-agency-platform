@@ -30,7 +30,7 @@ class TAP_Emails {
         add_filter('wp_mail_content_type', [__CLASS__, 'set_html_content_type']);
         add_action('wp_mail_failed', function ($error) {
             // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-            error_log('TAP email failed: ' . $error->get_error_message());
+            error_log('TAP email failed: code=' . $error->get_error_code() . ' msg_hash=' . md5($error->get_error_message()));
         });
     }
 

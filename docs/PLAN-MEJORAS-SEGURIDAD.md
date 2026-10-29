@@ -63,5 +63,5 @@ Travel Agency Platform, manteniendo todas las quality gates en verde.
 - [x] Fase 2 — implementada
 - [x] Fase 3 — implementada
 - [x] Fase 4 — implementada
-- [ ] Fase 5 — pendiente (documentación)
+- [x] Fase 5 — documentada en docs/SEGURIDAD-HEADERS.md
 PY
