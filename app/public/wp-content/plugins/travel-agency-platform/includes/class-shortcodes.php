@@ -12,6 +12,7 @@ class TAP_Shortcodes {
             'tap_booking_form'  => [TAP_Shortcode_Booking::class, 'booking_form'],
             'tap_my_bookings'   => [TAP_Shortcode_Booking::class, 'my_bookings'],
             'tap_dashboard'     => [TAP_Shortcode_Account::class, 'dashboard'],
+            'tap_agency_profile' => [TAP_Shortcode_Account::class, 'agency_profile'],
             'tap_featured'      => [TAP_Shortcode_Search::class, 'featured_services'],
             'tap_agency_services' => [TAP_Shortcode_Account::class, 'agency_services'],
             'tap_agency_register' => [TAP_Shortcode_Account::class, 'agency_register'],
