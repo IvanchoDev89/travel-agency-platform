@@ -115,6 +115,30 @@ $rating_count = 0;
 
         ob_start();
         ?>
+        <script type="application/ld+json">
+        <?php
+        echo wp_json_encode([
+            '@context' => 'https://schema.org',
+            '@type' => 'TravelAgency',
+            'name' => $agency->post_title,
+            'description' => wp_strip_all_tags($agency->post_content),
+            'url' => get_permalink($agency_id),
+            'telephone' => $phone,
+            'email' => $email,
+            'address' => [
+                '@type' => 'PostalAddress',
+                'streetAddress' => $address,
+                'addressLocality' => $city,
+                'addressCountry' => $country,
+            ],
+            'aggregateRating' => $rating_count > 0 ? [
+                '@type' => 'AggregateRating',
+                'ratingValue' => round($rating_avg, 1),
+                'reviewCount' => $rating_count,
+            ] : null,
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        ?>
+        </script>
         <div class="tap-agency-profile tap-agency-landing">
             <!-- Hero -->
             <section class="tap-agency-hero">
@@ -126,11 +150,7 @@ $rating_count = 0;
                 </div>
                 <div class="tap-agency-hero-body">
                     <div class="tap-agency-hero-avatar">
-                        <?php if (has_post_thumbnail($agency_id)): ?>
-                            <?php echo get_the_post_thumbnail($agency_id, 'thumbnail', ['style' => 'width:100%;height:100%;object-fit:cover;']); ?>
-                        <?php else: ?>
-                            <span><?php echo esc_html(mb_substr($agency->post_title, 0, 1)); ?></span>
-                        <?php endif; ?>
+                        <span><?php echo esc_html(mb_strtoupper(mb_substr($agency->post_title, 0, 2))); ?></span>
                     </div>
                     <div class="tap-agency-hero-info">
                         <h1 class="tap-agency-hero-title"><?php echo esc_html($agency->post_title); ?></h1>
@@ -152,6 +172,7 @@ $rating_count = 0;
                             <p class="tap-agency-hero-desc"><?php echo esc_html($agency->post_content); ?></p>
                         <?php endif; ?>
                         <div class="tap-agency-hero-ctas">
+                            <a href="#contacto" class="tap-btn tap-btn-primary tap-btn-sm"><?php esc_html_e('Solicitar cotización', 'travel-agency-platform'); ?></a>
                             <?php if ($email): ?><a href="mailto:<?php echo esc_attr($email); ?>" class="tap-btn tap-btn-sm"><?php esc_html_e('Email', 'travel-agency-platform'); ?></a><?php endif; ?>
                             <?php if ($phone): ?><a href="tel:<?php echo esc_attr($phone); ?>" class="tap-btn tap-btn-sm"><?php esc_html_e('Llamar', 'travel-agency-platform'); ?></a><?php endif; ?>
                             <?php if ($whatsapp): ?><a href="https://wa.me/<?php echo esc_attr(preg_replace('/[^0-9]/', '', $whatsapp)); ?>" target="_blank" rel="noopener" class="tap-btn tap-btn-sm tap-btn-primary"><?php esc_html_e('WhatsApp', 'travel-agency-platform'); ?></a><?php endif; ?>
@@ -174,6 +195,13 @@ $rating_count = 0;
                 <?php endif; ?>
             </div>
 
+            <!-- Tab navigation -->
+            <nav class="tap-agency-tabs" aria-label="<?php esc_attr_e('Navegación de secciones', 'travel-agency-platform'); ?>">
+                <a href="#servicios" class="tap-agency-tab is-active"><?php esc_html_e('Servicios', 'travel-agency-platform'); ?></a>
+                <?php if ($reviews): ?><a href="#resenas" class="tap-agency-tab"><?php esc_html_e('Reseñas', 'travel-agency-platform'); ?></a><?php endif; ?>
+                <a href="#contacto" class="tap-agency-tab"><?php esc_html_e('Contacto', 'travel-agency-platform'); ?></a>
+            </nav>
+
             <!-- Main + Sidebar -->
             <div class="tap-agency-layout">
                 <main class="tap-agency-main">
@@ -195,6 +223,20 @@ $rating_count = 0;
                                             <div class="tap-agency-service-card-body">
                                                 <h3><a href="<?php echo esc_url(get_permalink($sid)); ?>"><?php echo esc_html($sp->post_title); ?></a></h3>
                                                 <p class="tap-agency-service-excerpt"><?php echo esc_html(wp_trim_words($sp->post_excerpt ?: $sp->post_content, 18)); ?></p>
+                                                <?php
+                                                $price_meta = '';
+                                                foreach (['_tap_acc_price_per_night', '_tap_tour_price', '_tap_trans_price', '_tap_car_price_per_day', '_tap_boat_price', '_tap_pkg_price', '_tap_equipment_price_per_day'] as $pmk) {
+                                                    $pv = get_post_meta($sid, $pmk, true);
+                                                    if ($pv !== '' && $pv !== null) { $price_meta = $pmk;
+break; }
+                                                }
+                                                if ($price_meta) {
+                                                    $pval = (float) get_post_meta($sid, $price_meta, true);
+                                                    if ($pval > 0) {
+                                                        echo '<div class="tap-agency-service-price">' . esc_html(TAP_Currency::fmt($pval)) . '</div>';
+                                                    }
+                                                }
+                                                ?>
                                                 <a href="<?php echo esc_url(get_permalink($sid)); ?>" class="tap-btn tap-btn-outline tap-btn-sm"><?php esc_html_e('Ver detalle', 'travel-agency-platform'); ?></a>
                                             </div>
                                         </article>
@@ -243,7 +285,7 @@ $rating_count = 0;
 
                 <aside class="tap-agency-sidebar">
                     <!-- Contact card -->
-                    <div class="tap-agency-card tap-agency-card--contact">
+                    <div class="tap-agency-card tap-agency-card--contact" id="contacto">
                         <h3><?php esc_html_e('Contacto', 'travel-agency-platform'); ?></h3>
                         <ul class="tap-agency-contact-list">
                             <?php if ($email): ?><li><strong><?php esc_html_e('Email', 'travel-agency-platform'); ?>:</strong> <a href="mailto:<?php echo esc_attr($email); ?>"><?php echo esc_html($email); ?></a></li><?php endif; ?>
@@ -335,7 +377,45 @@ $rating_count = 0;
         .tap-agency-review-images{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
         .tap-agency-review-images img{width:64px;height:64px;object-fit:cover;border-radius:var(--tap-radius-md,6px);}
         .tap-agency-review-date{color:var(--tap-neutral-400,#9ca3af);}
+        .tap-agency-tabs{display:flex;gap:4px;margin-bottom:var(--tap-space-6,24px);border-bottom:2px solid var(--tap-border,#e5e7eb);padding-bottom:0;}
+        .tap-agency-tab{padding:10px 16px;font-size:14px;font-weight:600;color:var(--tap-neutral-500,#6b7280);text-decoration:none;border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .2s,border-color .2s;}
+        .tap-agency-tab:hover{color:var(--tap-primary,#2563eb);}
+        .tap-agency-tab.is-active{color:var(--tap-primary,#2563eb);border-bottom-color:var(--tap-primary,#2563eb);}
+        .tap-agency-service-price{font-size:1.1rem;font-weight:700;color:var(--tap-primary-dark,#1e40af);margin:0 0 10px;}
+        .tap-agency-hero-avatar{background:linear-gradient(135deg,var(--tap-primary,#2563eb),var(--tap-primary-dark,#1e40af));color:#fff;}
+        .tap-agency-hero-avatar span{color:#fff;}
+        .tap-agency-stat{transition:transform .2s,box-shadow .2s;}
+        .tap-agency-stat:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08);}
+        .tap-agency-service-card{transition:transform .2s,box-shadow .2s;}
+        .tap-agency-service-card:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.1);}
+        .tap-agency-review{transition:box-shadow .2s;}
+        .tap-agency-review:hover{box-shadow:0 4px 12px rgba(0,0,0,.06);}
         </style>
+        <script>
+        (function(){
+            var tabs = document.querySelectorAll('.tap-agency-tab');
+            tabs.forEach(function(t){
+                t.addEventListener('click', function(e){
+                    tabs.forEach(function(x){ x.classList.remove('is-active'); });
+                    t.classList.add('is-active');
+                });
+            });
+            // Highlight active tab on scroll
+            var sections = ['servicios','resenas','contacto'].map(function(id){ return document.getElementById(id); }).filter(Boolean);
+            if (sections.length && 'IntersectionObserver' in window) {
+                var obs = new IntersectionObserver(function(entries){
+                    entries.forEach(function(en){
+                        if (en.isIntersecting) {
+                            tabs.forEach(function(t){ t.classList.remove('is-active'); });
+                            var a = document.querySelector('.tap-agency-tab[href="#'+en.target.id+'"]');
+                            if (a) a.classList.add('is-active');
+                        }
+                    });
+                }, {rootMargin:'-40% 0px -50% 0px'});
+                sections.forEach(function(s){ obs.observe(s); });
+            }
+        })();
+        </script>
         <?php
         return ob_get_clean();
     }
