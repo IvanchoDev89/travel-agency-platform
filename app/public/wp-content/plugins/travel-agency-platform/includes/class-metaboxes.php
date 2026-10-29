@@ -13,6 +13,18 @@ class TAP_Metaboxes {
     private static $fields   = [];
     private static $loaded   = false;
 
+    /**
+     * Ensure the tour/experience wizard metabox is visible by default
+     * (not collapsed/hidden) in the block editor.
+     */
+    public static function unhide_tour_metabox($hidden, $screen) {
+        if (!is_object($screen)) return $hidden;
+        $post_type = isset($screen->post_type) ? $screen->post_type : '';
+        if (!in_array($post_type, ['tap_tour', 'tap_experience'], true)) return $hidden;
+        $hidden = array_values(array_diff((array) $hidden, ['tap_tour_details', 'tap_experience_details', 'tap_extras']));
+        return $hidden;
+    }
+
     public static function register() {
         self::register_agency_metabox();
         self::register_accommodation_metabox();
@@ -355,7 +367,7 @@ class TAP_Metaboxes {
     }
 
     private static function register_tour_metabox() {
-        self::maybe_add_meta_box('tap_tour_details', __('Tour Details', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_tour', 'normal', 'high');
+        self::maybe_add_meta_box('tap_tour_details', __('Tour Details — Wizard multi-paso', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_tour', 'normal', 'high');
         self::maybe_add_meta_box('tap_extras', __('Servicios extra (add-ons)', 'travel-agency-platform'), [__CLASS__, 'render_extras'], 'tap_tour', 'normal', 'low');
         self::$fields['tap_tour'] = [
             '_tap_tour_agency_id'   => ['type' => 'select_post', 'label' => __('Agency', 'travel-agency-platform'), 'post_type' => 'tap_agency'],
@@ -434,7 +446,7 @@ class TAP_Metaboxes {
     }
 
     private static function register_experience_metabox() {
-        self::maybe_add_meta_box('tap_experience_details', __('Experience Details', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_experience', 'normal', 'high');
+        self::maybe_add_meta_box('tap_experience_details', __('Experience Details — Wizard multi-paso', 'travel-agency-platform'), [__CLASS__, 'render'], 'tap_experience', 'normal', 'high');
         self::maybe_add_meta_box('tap_extras', __('Servicios extra (add-ons)', 'travel-agency-platform'), [__CLASS__, 'render_extras'], 'tap_experience', 'normal', 'low');
         self::$fields['tap_experience'] = [
             '_tap_exp_agency_id'     => ['type' => 'select_post', 'label' => __('Agency', 'travel-agency-platform'), 'post_type' => 'tap_agency'],
@@ -621,6 +633,13 @@ class TAP_Metaboxes {
         $steps = self::wizard_steps($post_type);
         $all_fields = self::$fields[$post_type];
         ?>
+        <div class="tap-wizard-notice" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+            <span style="font-size:20px;">🧙</span>
+            <div>
+                <strong style="color:#1e40af;"><?php esc_html_e('Wizard multi-paso', 'travel-agency-platform'); ?></strong>
+                <p style="margin:2px 0 0;font-size:13px;color:#374151;"><?php esc_html_e('Completa cada paso para configurar el tour. Usa los botones Anterior/Siguiente o haz clic en los números de arriba.', 'travel-agency-platform'); ?></p>
+            </div>
+        </div>
         <div class="tap-wizard" data-post-type="<?php echo esc_attr($post_type); ?>">
             <div class="tap-wizard-progress">
                 <?php foreach ($steps as $i => $step): ?>

@@ -142,6 +142,7 @@ final class TravelAgencyPlatform {
         add_action('tap_refund_retry_hook', ['TAP_Booking', 'retry_pending_refunds']);
         add_action('tap_payment_completed', ['TAP_Booking', 'mark_commission_owed'], 20, 1);
         add_action('add_meta_boxes', ['TAP_Metaboxes', 'register']);
+        add_filter('default_hidden_meta_boxes', ['TAP_Metaboxes', 'unhide_tour_metabox'], 10, 2);
         add_action('save_post', ['TAP_Metaboxes', 'save'], 10, 2);
         // Tanda D: drop the tap_agencies registry row when an agency is hard-deleted.
         add_action('deleted_post', ['TAP_Dashboard_Content', 'on_agency_deleted'], 10, 2);
