@@ -249,28 +249,117 @@ if ($deepest && class_exists('TAP_Destinations')) {
         </div>
         <?php endif; ?>
 
+        <?php if ('tap_tour' === $pt): ?>
         <!-- Availability calendar -->
         <?php
-        $slots = TAP_Tour_Availability::slots_for('tap_tour', $id);
-        if ($slots):
+        $cal_month = isset($_GET['cal_month']) ? sanitize_text_field(wp_unslash($_GET['cal_month'])) : gmdate('Y-m');
+        if (!preg_match('/^\d{4}-\d{2}$/', $cal_month)) $cal_month = gmdate('Y-m');
+        list($cal_y, $cal_m) = explode('-', $cal_month);
+        $cal_y = (int) $cal_y; $cal_m = (int) $cal_m;
+        $first_day = mktime(0, 0, 0, $cal_m, 1, $cal_y);
+        $days_in_month = (int) date('t', $first_day);
+        $start_dow = (int) date('w', $first_day); // 0=Sun
+        $prev_month = date('Y-m', strtotime('-1 month', $first_day));
+        $next_month = date('Y-m', strtotime('+1 month', $first_day));
+        $month_label = date_i18n('F Y', $first_day);
+
+        $from = sprintf('%04d-%02d-01', $cal_y, $cal_m);
+        $to = sprintf('%04d-%02d-%02d', $cal_y, $cal_m, $days_in_month);
+        $month_slots = TAP_Tour_Availability::slots_for('tap_tour', $id, $from, $to);
+        // group by date
+        $slots_by_date = [];
+        foreach ($month_slots as $sl) {
+            $slots_by_date[$sl->date][] = $sl;
+        }
         ?>
         <div class="tap-acc-section tap-tour-calendar">
-          <h2><?php _e('Disponibilidad', 'travel-agency-platform'); ?></h2>
-          <div class="tap-tour-slots">
-            <?php foreach ($slots as $sl): ?>
-              <div class="tap-tour-slot <?php echo $sl->is_blocked ? 'is-blocked' : ''; ?>">
-                <strong><?php echo esc_html($sl->date); ?></strong>
-                <?php if ($sl->time_slot): ?>
-                  <span><?php echo esc_html(substr($sl->time_slot,0,5)); ?><?php if ($sl->time_end): ?> – <?php echo esc_html(substr($sl->time_end,0,5)); ?><?php endif; ?></span>
-                <?php endif; ?>
-                <?php if ($sl->label): ?><span class="tap-tour-slot-label"><?php echo esc_html($sl->label); ?></span><?php endif; ?>
-                <span class="tap-tour-slot-cap"><?php echo (int)$sl->booked; ?>/<?php echo (int)$sl->capacity ?: '∞'; ?></span>
-                <?php if ($sl->price !== null): ?><span class="tap-tour-slot-price"><?php echo esc_html(TAP_Currency::fmt((float)$sl->price)); ?></span><?php endif; ?>
-              </div>
-            <?php endforeach; ?>
+          <h2><?php _e('Disponibilidad y reservas', 'travel-agency-platform'); ?></h2>
+          <div class="tap-tour-cal-nav">
+            <a href="<?php echo esc_url(add_query_arg('cal_month', $prev_month)); ?>" class="tap-btn tap-btn-sm">&larr; <?php echo esc_html(date_i18n('M', strtotime($prev_month.'-01'))); ?></a>
+            <strong class="tap-tour-cal-month"><?php echo esc_html($month_label); ?></strong>
+            <a href="<?php echo esc_url(add_query_arg('cal_month', $next_month)); ?>" class="tap-btn tap-btn-sm"><?php echo esc_html(date_i18n('M', strtotime($next_month.'-01'))); ?> &rarr;</a>
+          </div>
+          <div class="tap-tour-cal-legend">
+            <span><span class="tap-tour-cal-swatch tap-tour-cal-swatch--avail"></span> <?php esc_html_e('Disponible', 'travel-agency-platform'); ?></span>
+            <span><span class="tap-tour-cal-swatch tap-tour-cal-swatch--blocked"></span> <?php esc_html_e('Bloqueado', 'travel-agency-platform'); ?></span>
+            <span><span class="tap-tour-cal-swatch tap-tour-cal-swatch--full"></span> <?php esc_html_e('Completo', 'travel-agency-platform'); ?></span>
+          </div>
+          <div class="tap-tour-cal-grid">
+            <?php
+            $weekdays = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+            foreach ($weekdays as $wd) echo '<div class="tap-tour-cal-wd">' . esc_html($wd) . '</div>';
+            for ($p = 0; $p < $start_dow; $p++) echo '<div class="tap-tour-cal-day tap-tour-cal-day--empty"></div>';
+            for ($d = 1; $d <= $days_in_month; $d++) {
+                $date = sprintf('%04d-%02d-%02d', $cal_y, $cal_m, $d);
+                $day_slots = isset($slots_by_date[$date]) ? $slots_by_date[$date] : [];
+                $is_blocked = false;
+                $has_avail = false;
+                $total_cap = 0; $total_booked = 0;
+                foreach ($day_slots as $sl) {
+                    if ($sl->is_blocked) $is_blocked = true;
+                    else { $has_avail = true; $total_cap += (int)$sl->capacity ?: 999; $total_booked += (int)$sl->booked; }
+                }
+                $cls = 'tap-tour-cal-day';
+                if ($is_blocked && !$has_avail) $cls .= ' tap-tour-cal-day--blocked';
+                elseif ($has_avail && $total_booked >= $total_cap) $cls .= ' tap-tour-cal-day--full';
+                elseif ($has_avail) $cls .= ' tap-tour-cal-day--avail';
+                else $cls .= ' tap-tour-cal-day--none';
+                $today = gmdate('Y-m-d');
+                if ($date === $today) $cls .= ' tap-tour-cal-day--today';
+                ?>
+                <div class="<?php echo esc_attr($cls); ?>" data-date="<?php echo esc_attr($date); ?>">
+                    <span class="tap-tour-cal-num"><?php echo (int) $d; ?></span>
+                    <?php if ($day_slots): ?>
+                        <div class="tap-tour-cal-slots">
+                            <?php foreach ($day_slots as $sl): ?>
+                                <div class="tap-tour-cal-slot <?php echo $sl->is_blocked ? 'is-blocked' : ''; ?>">
+                                    <?php if ($sl->time_slot): ?>
+                                        <span class="tap-tour-cal-time"><?php echo esc_html(substr($sl->time_slot, 0, 5)); ?></span>
+                                    <?php endif; ?>
+                                    <?php if ($sl->label): ?><span class="tap-tour-cal-label"><?php echo esc_html($sl->label); ?></span><?php endif; ?>
+                                    <?php if (!$sl->is_blocked): ?>
+                                        <span class="tap-tour-cal-cap"><?php echo (int)$sl->booked; ?>/<?php echo (int)$sl->capacity ?: '∞'; ?></span>
+                                    <?php else: ?>
+                                        <span class="tap-tour-cal-blocked">🚫</span>
+                                    <?php endif; ?>
+                                    <?php if ($sl->price !== null): ?><span class="tap-tour-cal-price"><?php echo esc_html(TAP_Currency::fmt((float)$sl->price)); ?></span><?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            <?php } ?>
           </div>
         </div>
-        <?php endif; ?>
+        <?php endif; // tap_tour ?>
+        <style>
+        .tap-tour-cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px;}
+        .tap-tour-cal-month{font-size:1.1rem;color:var(--tap-neutral-800,#1f2937);}
+        .tap-tour-cal-legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px;font-size:12px;color:var(--tap-neutral-500,#6b7280);}
+        .tap-tour-cal-swatch{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:middle;}
+        .tap-tour-cal-swatch--avail{background:#10b981;}
+        .tap-tour-cal-swatch--blocked{background:#ef4444;}
+        .tap-tour-cal-swatch--full{background:#f59e0b;}
+        .tap-tour-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+        .tap-tour-cal-wd{text-align:center;font-size:11px;font-weight:700;color:var(--tap-neutral-500,#6b7280);padding:4px 0;}
+        .tap-tour-cal-day{min-height:70px;border:1px solid var(--tap-border,#e5e7eb);border-radius:6px;padding:4px;font-size:11px;background:#fff;}
+        .tap-tour-cal-day--empty{border:none;background:transparent;}
+        .tap-tour-cal-day--avail{border-color:#10b981;background:#f0fdf4;}
+        .tap-tour-cal-day--blocked{border-color:#ef4444;background:#fef2f2;}
+        .tap-tour-cal-day--full{border-color:#f59e0b;background:#fffbeb;}
+        .tap-tour-cal-day--none{background:#f9fafb;}
+        .tap-tour-cal-day--today{box-shadow:0 0 0 2px #2563eb;}
+        .tap-tour-cal-num{display:block;font-weight:700;font-size:13px;margin-bottom:2px;}
+        .tap-tour-cal-slots{display:flex;flex-direction:column;gap:2px;}
+        .tap-tour-cal-slot{display:flex;flex-wrap:wrap;gap:3px;align-items:center;font-size:10px;padding:2px 4px;background:rgba(0,0,0,.04);border-radius:3px;}
+        .tap-tour-cal-slot.is-blocked{background:#fee2e2;text-decoration:line-through;}
+        .tap-tour-cal-time{font-weight:600;}
+        .tap-tour-cal-label{color:var(--tap-neutral-500,#6b7280);}
+        .tap-tour-cal-cap{margin-left:auto;font-weight:600;}
+        .tap-tour-cal-price{color:#047857;font-weight:700;}
+        .tap-tour-cal-blocked{margin-left:auto;}
+        @media (max-width:600px){.tap-tour-cal-day{min-height:50px;font-size:10px;}.tap-tour-cal-slot{font-size:9px;}}
+        </style>
         <?php endif; // tap_tour ?>
 
         <?php get_template_part('templates/partials/service-reviews'); ?>
