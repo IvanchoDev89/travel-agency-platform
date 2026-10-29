@@ -78,10 +78,10 @@ function am_make_temp_agency() {
 
 function am_cleanup_temp() {
     global $created_agencies, $created_users;
-    foreach ($created_agencies as $aid) {
+    foreach ((array) $created_agencies as $aid) {
         wp_delete_post($aid, true);
     }
-    foreach ($created_users as $uid) {
+    foreach ((array) $created_users as $uid) {
         wp_delete_user($uid);
     }
 }
