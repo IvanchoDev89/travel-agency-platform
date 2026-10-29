@@ -237,7 +237,6 @@ class TAP_Destination_Spots {
             return $cached;
         }
 
-
         if (!empty($args['type'])) {
             $args['tax_query'] = [[
                 'taxonomy' => self::TAX,
@@ -2755,5 +2754,4 @@ class TAP_Destination_Spots {
         $ver = (int) get_option('tap_map_cache_version', 1);
         update_option('tap_map_cache_version', $ver + 1);
     }
-
 }
