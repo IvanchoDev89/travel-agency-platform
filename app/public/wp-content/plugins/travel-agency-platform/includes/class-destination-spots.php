@@ -93,6 +93,8 @@ class TAP_Destination_Spots {
     public static function register() {
         self::register_cpt();
         self::register_taxonomy();
+        add_action('save_post', [__CLASS__, 'clear_map_cache']);
+        add_action('deleted_post', [__CLASS__, 'clear_map_cache']);
 
         add_filter('manage_tap_spot_posts_columns', [__CLASS__, 'admin_columns']);
         add_action('manage_tap_spot_posts_custom_column', [__CLASS__, 'admin_column'], 10, 2);
@@ -227,6 +229,15 @@ class TAP_Destination_Spots {
             'order'          => 'ASC',
         ], $args);
 
+        // Cache the full result set (no args = all spots) for 5 minutes.
+        $ver = (int) get_option('tap_map_cache_version', 1);
+        $cache_key = 'tap_map_data_' . $ver . '_' . md5(wp_json_encode($args));
+        $cached = get_transient($cache_key);
+        if (is_array($cached)) {
+            return $cached;
+        }
+
+
         if (!empty($args['type'])) {
             $args['tax_query'] = [[
                 'taxonomy' => self::TAX,
@@ -276,6 +287,7 @@ class TAP_Destination_Spots {
                 'website'  => (string) get_post_meta($post->ID, '_tap_spot_website', true),
             ];
         }
+        set_transient($cache_key, $data, 5 * MINUTE_IN_SECONDS);
         return $data;
     }
 
@@ -325,6 +337,13 @@ class TAP_Destination_Spots {
         $types = array_values(array_filter($types, 'post_type_exists'));
         if (!$types) {
             return [];
+        }
+
+        $ver = (int) get_option('tap_map_cache_version', 1);
+        $cache_key = 'tap_services_map_data_' . $ver . '_' . md5(wp_json_encode($args));
+        $cached = get_transient($cache_key);
+        if (is_array($cached)) {
+            return $cached;
         }
 
         $excluded = class_exists('TAP_Approval') ? TAP_Approval::excluded_listing_ids() : [];
@@ -405,6 +424,7 @@ class TAP_Destination_Spots {
                 'ratingCount' => (int) $rating['count'],
             ];
         }
+        set_transient($cache_key, $data, 5 * MINUTE_IN_SECONDS);
         return $data;
     }
 
@@ -2730,4 +2750,10 @@ class TAP_Destination_Spots {
         }
         return $spots;
     }
+    /** Clear cached map data (call on post save). */
+    public static function clear_map_cache() {
+        $ver = (int) get_option('tap_map_cache_version', 1);
+        update_option('tap_map_cache_version', $ver + 1);
+    }
+
 }
