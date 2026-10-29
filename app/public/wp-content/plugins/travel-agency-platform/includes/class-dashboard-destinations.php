@@ -97,6 +97,12 @@ class TAP_Dashboard_Destinations {
             <h1><?php esc_html_e('Destinations', 'travel-agency-platform'); ?></h1>
             <p class="description"><?php esc_html_e('Reordena, recoloca y agrega destinos. El nivel (país, provincia, cantón, distrito, lugar) se deriva de la posición en el árbol.', 'travel-agency-platform'); ?></p>
 
+            <datalist id="tap-dest-parents">
+                <option value="<?php echo esc_attr__('— Root —', 'travel-agency-platform'); ?>" data-id="0"></option>
+                <?php foreach ($by_id as $pid => $p) : ?>
+                    <option value="<?php echo esc_attr($p->name); ?>" data-id="<?php echo esc_attr($pid); ?>"></option>
+                <?php endforeach; ?>
+            </datalist>
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
                 <?php wp_nonce_field('tap_destinations_save', 'tap_destinations_nonce'); ?>
                 <input type="hidden" name="action" value="tap_destinations_save">
@@ -113,7 +119,7 @@ class TAP_Dashboard_Destinations {
                     <?php foreach ($rows as $row) : ?>
 						<?php $t = $row['term']; ?>
 						<?php $tid = (int) $t->term_id; ?>
-                        <?php $blocked = self::descendants($terms, $tid); ?>
+                        <?php $current_parent_name = (int) $t->parent > 0 && isset($by_id[(int) $t->parent]) ? $by_id[(int) $t->parent]->name : __('— Root —', 'travel-agency-platform'); ?>
                         <tr>
                             <td>
                                 <?php echo esc_html(str_repeat('— ', $row['depth'])); ?>
@@ -127,13 +133,8 @@ class TAP_Dashboard_Destinations {
                                 <input type="number" name="order[<?php echo esc_attr($tid); ?>]" value="<?php echo esc_attr((int) get_term_meta($tid, 'tap_dest_order', true)); ?>" min="0" style="width:80px;">
                             </td>
                             <td>
-                                <select name="parent[<?php echo esc_attr($tid); ?>]">
-                                    <option value="0"><?php esc_html_e('— Root —', 'travel-agency-platform'); ?></option>
-                                    <?php foreach ($by_id as $pid => $p) : ?>
-                                        <?php if ($pid === $tid || in_array($pid, $blocked, true)) continue; ?>
-                                        <option value="<?php echo esc_attr($pid); ?>"<?php echo((int) $t->parent === $pid) ? ' selected="selected"' : ''; ?>><?php echo esc_html($p->name); ?></option>
-                                    <?php endforeach; ?>
-                                </select>
+                                <input type="text" class="tap-dest-parent-input regular-text" list="tap-dest-parents" data-hidden="tap-dest-parent-<?php echo esc_attr($tid); ?>" value="<?php echo esc_attr($current_parent_name); ?>" autocomplete="off" style="width:220px;">
+                                <input type="hidden" name="parent[<?php echo esc_attr($tid); ?>]" id="tap-dest-parent-<?php echo esc_attr($tid); ?>" value="<?php echo esc_attr((int) $t->parent); ?>">
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -141,6 +142,32 @@ class TAP_Dashboard_Destinations {
                 </table>
                 <?php submit_button(); ?>
             </form>
+            <script>
+            (function(){
+                var map = {};
+                var dl = document.getElementById('tap-dest-parents');
+                if (dl) {
+                    Array.prototype.forEach.call(dl.options, function(o){
+                        map[o.value] = o.getAttribute('data-id') || '0';
+                    });
+                }
+                document.querySelectorAll('.tap-dest-parent-input').forEach(function(inp){
+                    inp.addEventListener('change', function(){
+                        var v = inp.value;
+                        var id = (v === '' || v.indexOf('Root') === 0) ? '0' : (map[v] || '0');
+                        var h = document.getElementById(inp.getAttribute('data-hidden'));
+                        if (h) h.value = id;
+                    });
+                    inp.addEventListener('input', function(){
+                        var v = inp.value;
+                        if (Object.prototype.hasOwnProperty.call(map, v)) {
+                            var h = document.getElementById(inp.getAttribute('data-hidden'));
+                            if (h) h.value = map[v];
+                        }
+                    });
+                });
+            })();
+            </script>
 
             <h2><?php esc_html_e('Add destination', 'travel-agency-platform'); ?></h2>
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
