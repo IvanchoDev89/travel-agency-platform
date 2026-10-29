@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [Unreleased] — 2026-10-28
+
+### Added
+
+- **Panel admin "Herramientas de mercado"** (`tap-market`): waitlist filtrable, grupos de shuttle, importador iCal con protección SSRF, y tabla de pólizas de seguro emitidas.
+- **Moderación unificada**: la cola ahora incluye reseñas, leads, posts del foro y preguntas Q&A, con acciones approve/block/delete para todos los tipos.
+- **Editor de Destinos optimizado**: de 2.3 MB a 159 KB de HTML (datalist compartido), soporta ~120 términos sin degradación.
+- **Documentación de headers de seguridad** (`docs/SEGURIDAD-HEADERS.md`): Apache, Nginx y Cloudflare.
+- **Plan de mejoras de seguridad** (`docs/PLAN-MEJORAS-SEGURIDAD.md`): 5 fases, todas completadas.
+
+### Changed
+
+- **`error_log` de PayPal y email** ahora registra solo código + hash del mensaje, sin texto completo (evita fuga de tokens/datos).
+- **Reserva sobre noche bloqueada** devuelve `dates_blocked` en lugar de `dates_full` (mayor claridad para el cliente).
+- **Cache estático** en `spot_for_term()` se invalida al vincular/desvincular un destino.
+
+### Security
+
+- **SSRF guard** en importación iCal: solo hosts públicos (http/https), bloqueo de IPs privadas/reservadas y localhost, sin seguir redirects.
+- **Rate limiting** por IP en `/shuttle/join`, `/itinerary/vote` y `/itinerary/comment` (transients, 10-20 req/min).
+- **Headers de seguridad** documentados para configuración a nivel de servidor.
+
+### Fixed
+
+- Warning `foreach` sobre `null` en `am_cleanup_temp` (suite_agency_manage).
+- `foreach` defensivo sobre `get_results` en dashboard-settings, dashboard-money e installer.
+
+---
+
 ## [1.5.52] — 2026-10-27
 
 Destinations are now one page: an educational ficha that also lists the services published there.

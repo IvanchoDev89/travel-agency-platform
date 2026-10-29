@@ -489,6 +489,25 @@ Deterministic, multilingual (ES/EN) rules engine in `includes/class-chatbot.php`
 - Logging: `{prefix}tap_chat_events` stores only `intent`, `lang`, `created_at` aggregates (no PII; `fallback` is never logged).
 - Widget: `[tap_chatbot]` renders `.tap-chat` markup (bufferized return), styled in `assets/css/public.css`, wired in `assets/js/public.js` (`Chat` module: toggle, focus management, chips, AJAX send with DOM-safe rendering — no user input flows through `innerHTML`). UI labels live in the `tapI18n` bundle (`chatLabel`, `chatOpen`, `chatPlaceholder`, `chatSend`, `chatIntro`, `chatThinking`, `chatError`).
 
+### Destination Spots (`TAP_Destination_Spots`)
+
+In `includes/class-destination-spots.php`. Unifies `tap_spot` fichas with `tap_location` terms:
+
+- `location_term_id($spot_id)` / `location_term($spot_id)` — spot → term.
+- `spot_for_term($term_id)` — term → spot (cached, invalidated on `set_location_term`).
+- `set_location_term($spot_id, $term_id)` — link/unlink, stores `_tap_spot_location` + `tap_spot_id` term meta; unlinking stores `0`.
+- `link_locations()` — one-off auto-link by exact slug, guarded by `tap_spot_link_version` option (`LINK_VERSION = 1`).
+- `redirect_linked_terms()` — 301 from a linked term page to its ficha.
+- `services_for_spot($spot_id)` — published services in the linked location.
+
+### Market tools (`TAP_Dashboard_Market`)
+
+In `includes/class-dashboard-market.php`. Admin page (`tap-market`) with:
+- Waitlist table (filter by status, notify/cancel actions).
+- Shuttle groups table (occupancy, dynamic price).
+- iCal import form (room + feed URL) with SSRF guard.
+- Travel insurance policies table + plan reference.
+
 ### Fase 4 — Moderation (`TAP_Moderation`)
 
 In `includes/class-moderation.php`. `TAP_Moderation::assess($text, $kind)` classifies every visitor-generated item as `ok` / `review` / `block` with a short reason code (`abuse|pii|spam|links|gibberish`):

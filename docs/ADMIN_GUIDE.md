@@ -66,6 +66,8 @@ Todos los submenús cuelgan del ítem **Travel Platform** (posición 25 del admi
 | Promotions | `tap-promotions` | `manage_options` |
 | Settings | `tap-settings` | `tap_manage_settings` |
 | Privacidad | `tap-privacy` | `tap_manage_settings` |
+| Destinations | `tap-destinations` | `manage_options` |
+| Market tools | `tap-market` | `manage_options` |
 
 Página adicional fuera del menú Travel Platform:
 
@@ -140,7 +142,7 @@ Acciones:
 
 **Ruta:** Travel Platform → Moderation (`tap-moderation`, cap `manage_options`).
 
-Cola de moderación de **reseñas y leads (mensajes de contacto)** cuyo `mod_status != ok`.
+Cola de moderación unificada de **reseñas, leads (mensajes de contacto), posts del foro y preguntas Q&A** cuyo `mod_status != ok` (o `is_approved = 0` para Q&A).
 
 Motivos detectados por el motor (`TAP_Moderation::assess`):
 
@@ -154,6 +156,43 @@ Motivos detectados por el motor (`TAP_Moderation::assess`):
 | `gibberish` (texto sin sentido) | **REVIEW** (`gibberish`) | **REVIEW** (`gibberish`) |
 
 Acciones del admin: **Aprobar**, **Bloquear**, **Eliminar** (nonces `tap_mod_{action}_{kind}_{id}`). Desde el panel puede ver el contenido íntegro de los leads señalados (la página pública de la agencia los muestra enmascarados mientras la atribución esté bloqueada).
+
+---
+
+## Destinations (Destinos)
+
+**Ruta:** Travel Platform → Destinations (`tap-destinations`, cap `manage_options`).
+
+Editor de árbol de la jerarquía de destinos (país → provincia → cantón → distrito → lugar):
+
+- Reordenar, reubicar y agregar destinos en un solo lugar.
+- El nivel (`tap_dest_level`) se deriva de la profundidad en el árbol.
+- Cada fila permite cambiar el padre (con protección contra ciclos) y el orden.
+- Formulario para agregar un nuevo destino con padre y orden.
+
+> La página está optimizada (datalist compartido) para manejar ~120 términos sin generar HTML excesivo.
+
+## Market tools (Herramientas de mercado)
+
+**Ruta:** Travel Platform → Market tools (`tap-market`, cap `manage_options`).
+
+Cuatro herramientas en una sola pantalla:
+
+### Waitlist
+- Tabla filtrable por estado (En espera / Notificados / Cancelados).
+- Acciones: **Notificar** (marca como notificado) y **Cancelar**.
+
+### Shuttle groups
+- Tabla de grupos de shuttle: servicio, ruta, fecha, ocupación (booked/max), precio dinámico por asiento, estado.
+
+### Importar iCal
+- Formulario: seleccionar habitación + URL del feed `.ics`.
+- Descarga el feed, parsea los eventos y bloquea las fechas en `tap_daily_pricing`.
+- Protección SSRF: solo hosts públicos (http/https), sin IPs privadas/reservadas ni localhost, sin redirects.
+
+### Seguros de viaje
+- Tabla de pólizas emitidas: reserva, plan, prima, comisión, póliza, estado.
+- Referencia de planes disponibles (Básico/Estándar/Premium) con % y cobertura.
 
 ---
 
