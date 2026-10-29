@@ -740,7 +740,11 @@ class TAP_Destination_Spots {
     const LINK_OPTION        = 'tap_spot_link_version';
     const LINK_VERSION       = 1;
 
-    /** @var array<int,int> term_id => spot_id cache for spot_for_term() */
+    /**
+     * Spot-for-term cache (term_id => spot_id).
+     *
+     * @var array<int,int>
+     */
     private static $spot_for_term_cache = [];
 
     /** Linked `tap_location` term id, or 0. Validated on read. */
