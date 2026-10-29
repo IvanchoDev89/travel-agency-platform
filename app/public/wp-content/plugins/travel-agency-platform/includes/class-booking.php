@@ -290,10 +290,21 @@ class TAP_Booking {
                 if (intval($overlap) >= $inventory) {
                     $create_error = new WP_Error('room_unavailable', __('The room is not available for the selected dates.', 'travel-agency-platform'));
                 } else {
-                    $avail = TAP_Booking_Pricing::get_room_availability(intval($data['room_id']), $room_check_in, $room_check_out);
-                    if (!$avail['available']) {
-                        $create_error = new WP_Error('dates_full', __('No hay disponibilidad para las fechas seleccionadas.', 'travel-agency-platform'));
+                    // Blocked nights (tap_daily_pricing) take precedence over the
+                    // generic "no availability" message: a range that touches a
+                    // blocked date is rejected explicitly as dates_blocked.
+                    $blocked_nights = (int) $wpdb->get_var($wpdb->prepare(
+                        "SELECT COUNT(*) FROM {$wpdb->prefix}tap_daily_pricing
+                         WHERE room_id = %d AND date >= %s AND date < %s AND is_blocked = 1",
+                        intval($data['room_id']), $room_check_in, $room_check_out
+                    ));
+                    if ($blocked_nights > 0) {
+                        $create_error = new WP_Error('dates_blocked', __('Alguna de las fechas seleccionadas no está disponible para reservar.', 'travel-agency-platform'));
                     } else {
+                        $avail = TAP_Booking_Pricing::get_room_availability(intval($data['room_id']), $room_check_in, $room_check_out);
+                        if (!$avail['available']) {
+                            $create_error = new WP_Error('dates_full', __('No hay disponibilidad para las fechas seleccionadas.', 'travel-agency-platform'));
+                        } else {
                         $room_id = intval($data['room_id']);
 
                         // Occupancy limits (0/empty meta = unlimited, mirroring
@@ -324,6 +335,7 @@ class TAP_Booking {
                             }
                         }
                     }
+                    }  // close blocked_nights else
                 }
             }
 
