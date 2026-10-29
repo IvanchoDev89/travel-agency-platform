@@ -115,6 +115,8 @@ final class TravelAgencyPlatform {
         add_action('admin_post_tap_sign_waiver', ['TAP_Waiver', 'handle_sign']);
         add_action('admin_post_nopriv_tap_sign_waiver', ['TAP_Waiver', 'handle_sign']);
         add_action('init', ['TAP_Email_Campaigns', 'init'], 14);
+        add_action('init', ['TAP_Installer', 'migrate_experiences_to_tours'], 25);
+        add_action('template_redirect', ['TAP_Post_Types', 'redirect_experience_to_tour']);
         add_action('init', ['TAP_Translations', 'init'], 15);
         add_shortcode('tap_lang_selector', ['TAP_Translations', 'render_selector']);
         add_shortcode('tap_push_subscribe', ['TAP_Push', 'render_subscribe_button']);

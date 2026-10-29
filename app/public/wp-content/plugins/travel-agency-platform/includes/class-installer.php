@@ -1021,4 +1021,91 @@ class TAP_Installer {
             TAP_Privacy::ensure_privacy_page();
         }
     }
+
+    /**
+     * One-shot migration: tap_experience -> tap_tour.
+     * Idempotent, guarded by option tap_experience_migrated.
+     */
+    public static function migrate_experiences_to_tours() {
+        if (get_option('tap_experience_migrated')) {
+            return;
+        }
+        global $wpdb;
+        $exp_ids = $wpdb->get_col("SELECT ID FROM {$wpdb->posts} WHERE post_type = 'tap_experience'");
+        if (empty($exp_ids)) {
+            update_option('tap_experience_migrated', '1');
+            return;
+        }
+        $meta_map = [
+            '_tap_exp_agency_id'     => '_tap_tour_agency_id',
+            '_tap_exp_type'          => '_tap_tour_category',
+            '_tap_exp_duration'      => '_tap_tour_duration',
+            '_tap_exp_price_adult'   => '_tap_tour_price_adult',
+            '_tap_exp_price_child'   => '_tap_tour_price_child',
+            '_tap_exp_currency'      => '_tap_tour_currency',
+            '_tap_exp_max_people'    => '_tap_tour_max_people',
+            '_tap_exp_min_age'       => '_tap_tour_min_age',
+            '_tap_exp_start_time'    => '_tap_tour_start_time',
+            '_tap_exp_end_time'      => '_tap_tour_end_time',
+            '_tap_exp_meeting_point' => '_tap_tour_meeting_point',
+            '_tap_exp_includes'      => '_tap_tour_includes',
+            '_tap_exp_excludes'      => '_tap_tour_excludes',
+            '_tap_exp_what_bring'    => '_tap_tour_what_bring',
+            '_tap_exp_lat'           => '_tap_tour_lat',
+            '_tap_exp_lng'           => '_tap_tour_lng',
+            '_tap_exp_is_active'     => '_tap_tour_is_active',
+            '_tap_exp_capacity'      => '_tap_tour_capacity',
+            '_tap_exp_min_people'    => '_tap_tour_min_people',
+            '_tap_exp_max_per_booking' => '_tap_tour_max_per_booking',
+            '_tap_exp_private'       => '_tap_tour_private',
+            '_tap_exp_private_price' => '_tap_tour_private_price',
+            '_tap_exp_price_senior'  => '_tap_tour_price_senior',
+            '_tap_exp_price_student' => '_tap_tour_price_student',
+            '_tap_exp_child_age'     => '_tap_tour_child_age',
+            '_tap_exp_equipment'     => '_tap_tour_equipment',
+            '_tap_exp_equipment_rental' => '_tap_tour_equipment_rental',
+            '_tap_exp_leave_no_trace' => '_tap_tour_leave_no_trace',
+            '_tap_exp_carbon_offset' => '_tap_tour_carbon_offset',
+            '_tap_exp_local_community' => '_tap_tour_local_community',
+            '_tap_exp_wildlife'      => '_tap_tour_wildlife',
+            '_tap_exp_terms'         => '_tap_tour_terms',
+            '_tap_exp_privacy'       => '_tap_tour_privacy',
+            '_tap_exp_waiver'        => '_tap_tour_waiver',
+            '_tap_exp_waiver_required' => '_tap_tour_waiver_required',
+            '_tap_exp_waiver_min_age' => '_tap_tour_waiver_min_age',
+            '_tap_seo_title'         => '_tap_seo_title',
+            '_tap_seo_description'   => '_tap_seo_description',
+        ];
+        foreach ($exp_ids as $eid) {
+            $eid = (int) $eid;
+            // Copy meta.
+            foreach ($meta_map as $from => $to) {
+                $val = get_post_meta($eid, $from, true);
+                if ($val !== '' && $val !== null && $val !== false) {
+                    update_post_meta($eid, $to, $val);
+                }
+            }
+            // Change post type.
+            $wpdb->update($wpdb->posts, ['post_type' => 'tap_tour'], ['ID' => $eid], ['%s'], ['%d']);
+            clean_post_cache($eid);
+            // Migrate availability rows.
+            $wpdb->query($wpdb->prepare(
+                "UPDATE {$wpdb->prefix}tap_daily_pricing SET service_type='tap_tour', service_id=%d WHERE service_type='tap_experience' AND service_id=%d",
+                $eid, $eid
+            ));
+            // Migrate extras.
+            $wpdb->query($wpdb->prepare(
+                "UPDATE {$wpdb->prefix}tap_service_extras SET service_type='tap_tour', service_id=%d WHERE service_type='tap_experience' AND service_id=%d",
+                $eid, $eid
+            ));
+            // Migrate waivers.
+            $wpdb->query($wpdb->prepare(
+                "UPDATE {$wpdb->prefix}tap_waivers SET service_type='tap_tour', service_id=%d WHERE service_type='tap_experience' AND service_id=%d",
+                $eid, $eid
+            ));
+        }
+        // Flush rewrite rules.
+        flush_rewrite_rules();
+        update_option('tap_experience_migrated', '1');
+    }
 }

@@ -378,7 +378,7 @@ class TAP_Metaboxes {
             '_tap_tour_is_active'   => ['type' => 'checkbox', 'label' => __('Active', 'travel-agency-platform'), 'default' => '1'],
             '_tap_tour_capacity'    => ['type' => 'number', 'label' => __('Cupos por fecha (capacidad)', 'travel-agency-platform')],
             /* ---- categorización ---- */
-            '_tap_tour_category'    => ['type' => 'select', 'label' => __('Categoría', 'travel-agency-platform'), 'options' => ['yoga' => 'Yoga / Wellness', 'kayak' => 'Kayak', 'senderismo' => 'Senderismo', 'snorkel' => 'Snorkel', 'birdwatching' => 'Birdwatching', 'cultural' => 'Cultural', 'aventura' => 'Aventura', 'wellness' => 'Wellness', 'otro' => 'Otro']],
+            '_tap_tour_category'    => ['type' => 'select', 'label' => __('Categoría', 'travel-agency-platform'), 'options' => ['yoga' => 'Yoga / Wellness', 'kayak' => 'Kayak', 'senderismo' => 'Senderismo', 'snorkel' => 'Snorkel', 'birdwatching' => 'Birdwatching', 'cultural' => 'Cultural', 'aventura' => 'Aventura', 'wellness' => 'Wellness', 'workshop' => 'Workshop', 'class' => 'Class', 'tasting' => 'Tasting', 'art' => 'Art', 'nature' => 'Nature', 'otro' => 'Otro']],
             '_tap_tour_tags'        => ['type' => 'text', 'label' => __('Etiquetas (comma-separated)', 'travel-agency-platform')],
             '_tap_tour_fitness'     => ['type' => 'select', 'label' => __('Nivel físico', 'travel-agency-platform'), 'options' => ['none' => 'Ninguno', 'light' => 'Ligero', 'moderate' => 'Moderado', 'athletic' => 'Atlético']],
             '_tap_tour_max_age'     => ['type' => 'number', 'label' => __('Edad máxima', 'travel-agency-platform')],

@@ -464,4 +464,21 @@ class TAP_Post_Types {
 
         return [$found_lat, $found_lng];
     }
+
+    /**
+     * 301 redirect /experience/{slug}/ -> /tour/{slug}/ (unification).
+     */
+    public static function redirect_experience_to_tour() {
+        if (is_admin()) return;
+        if (!is_singular('tap_experience')) return;
+        $post = get_queried_object();
+        if (!$post instanceof WP_Post) return;
+        $url = get_permalink($post->ID);
+        // Rewrite slug in URL from experience to tour.
+        $tour_url = str_replace('/experience/', '/tour/', $url);
+        if ($tour_url && $tour_url !== $url) {
+            wp_safe_redirect($tour_url, 301);
+            exit;
+        }
+    }
 }
