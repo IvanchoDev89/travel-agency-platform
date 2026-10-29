@@ -71,7 +71,7 @@ class TAP_Analytics {
         $rows = $wpdb->get_results(
             'SELECT listing_id, COALESCE(SUM(views),0) views
              FROM ' . self::views_table() . " WHERE {$where}
-             GROUP BY listing_id // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+             GROUP BY listing_id
              LIMIT 1000",
             OBJECT_K
         );
