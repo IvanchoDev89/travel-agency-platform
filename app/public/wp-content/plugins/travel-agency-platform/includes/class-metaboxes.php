@@ -310,6 +310,39 @@ class TAP_Metaboxes {
             '_tap_tour_lng'         => ['type' => 'text', 'label' => __('Longitude', 'travel-agency-platform')],
             '_tap_tour_is_active'   => ['type' => 'checkbox', 'label' => __('Active', 'travel-agency-platform'), 'default' => '1'],
             '_tap_tour_capacity'    => ['type' => 'number', 'label' => __('Cupos por fecha (capacidad)', 'travel-agency-platform')],
+            /* ---- categorización ---- */
+            '_tap_tour_category'    => ['type' => 'select', 'label' => __('Categoría', 'travel-agency-platform'), 'options' => ['yoga' => 'Yoga / Wellness', 'kayak' => 'Kayak', 'senderismo' => 'Senderismo', 'snorkel' => 'Snorkel', 'birdwatching' => 'Birdwatching', 'cultural' => 'Cultural', 'aventura' => 'Aventura', 'wellness' => 'Wellness', 'otro' => 'Otro']],
+            '_tap_tour_tags'        => ['type' => 'text', 'label' => __('Etiquetas (comma-separated)', 'travel-agency-platform')],
+            '_tap_tour_fitness'     => ['type' => 'select', 'label' => __('Nivel físico', 'travel-agency-platform'), 'options' => ['none' => 'Ninguno', 'light' => 'Ligero', 'moderate' => 'Moderado', 'athletic' => 'Atlético']],
+            '_tap_tour_max_age'     => ['type' => 'number', 'label' => __('Edad máxima', 'travel-agency-platform')],
+            /* ---- logística ---- */
+            '_tap_tour_pickup'      => ['type' => 'checkbox', 'label' => __('Incluye traslado/recogida', 'travel-agency-platform')],
+            '_tap_tour_pickup_locations' => ['type' => 'textarea', 'label' => __('Puntos de recogida', 'travel-agency-platform')],
+            /* ---- grupo ---- */
+            '_tap_tour_min_people'  => ['type' => 'number', 'label' => __('Mínimo de personas para operar', 'travel-agency-platform')],
+            '_tap_tour_max_per_booking' => ['type' => 'number', 'label' => __('Máximo por reserva', 'travel-agency-platform')],
+            '_tap_tour_private'     => ['type' => 'checkbox', 'label' => __('Disponible como tour privado', 'travel-agency-platform')],
+            '_tap_tour_private_price' => ['type' => 'number', 'label' => __('Precio tour privado ($)', 'travel-agency-platform'), 'step' => '0.01'],
+            /* ---- tarifas ---- */
+            '_tap_tour_price_senior' => ['type' => 'number', 'label' => __('Precio Senior ($)', 'travel-agency-platform'), 'step' => '0.01'],
+            '_tap_tour_price_student' => ['type' => 'number', 'label' => __('Precio Estudiante ($)', 'travel-agency-platform'), 'step' => '0.01'],
+            '_tap_tour_child_age'   => ['type' => 'text', 'label' => __('Rango de edad niño', 'travel-agency-platform'), 'placeholder' => 'e.g. 5-12'],
+            /* ---- inclusiones ---- */
+            '_tap_tour_equipment'   => ['type' => 'textarea', 'label' => __('Equipo provisto', 'travel-agency-platform')],
+            '_tap_tour_equipment_rental' => ['type' => 'checkbox', 'label' => __('Alquiler de equipo disponible', 'travel-agency-platform')],
+            /* ---- ecoturismo ---- */
+            '_tap_tour_leave_no_trace' => ['type' => 'checkbox', 'label' => __('Sigue principios Leave No Trace', 'travel-agency-platform'), 'default' => '1'],
+            '_tap_tour_carbon_offset' => ['type' => 'checkbox', 'label' => __('Compensación de carbono incluida', 'travel-agency-platform')],
+            '_tap_tour_local_community' => ['type' => 'checkbox', 'label' => __('Beneficia a comunidad local', 'travel-agency-platform')],
+            '_tap_tour_wildlife'    => ['type' => 'checkbox', 'label' => __('Incluye observación de fauna', 'travel-agency-platform')],
+            '_tap_tour_trail'       => ['type' => 'select', 'label' => __('Condición del sendero', 'travel-agency-platform'), 'options' => ['paved' => 'Pavimentado', 'dirt' => 'Tierra', 'rocky' => 'Rocoso', 'muddy' => 'Lodoso', 'mixed' => 'Mixto']],
+            '_tap_tour_elevation'   => ['type' => 'number', 'label' => __('Desnivel (metros)', 'travel-agency-platform')],
+            /* ---- legales ---- */
+            '_tap_tour_terms'       => ['type' => 'textarea', 'label' => __('Términos y condiciones', 'travel-agency-platform')],
+            '_tap_tour_privacy'     => ['type' => 'textarea', 'label' => __('Política de privacidad', 'travel-agency-platform')],
+            '_tap_tour_waiver'      => ['type' => 'textarea', 'label' => __('Texto del waiver (descargo)', 'travel-agency-platform')],
+            '_tap_tour_waiver_required' => ['type' => 'checkbox', 'label' => __('Waiver obligatorio antes de reservar', 'travel-agency-platform')],
+            '_tap_tour_waiver_min_age' => ['type' => 'number', 'label' => __('Edad mínima para firmar waiver', 'travel-agency-platform')],
             '_tap_seo_title'        => ['type' => 'text', 'label' => __('SEO Title', 'travel-agency-platform'), 'placeholder' => __('Falls back to post title', 'travel-agency-platform')],
             '_tap_seo_description'  => ['type' => 'textarea', 'label' => __('Meta Description (SEO)', 'travel-agency-platform')],
         ];
@@ -354,6 +387,37 @@ class TAP_Metaboxes {
             '_tap_exp_lng'           => ['type' => 'text', 'label' => __('Longitude', 'travel-agency-platform')],
             '_tap_exp_is_active'     => ['type' => 'checkbox', 'label' => __('Active', 'travel-agency-platform'), 'default' => '1'],
             '_tap_exp_capacity'      => ['type' => 'number', 'label' => __('Cupos por fecha (capacidad)', 'travel-agency-platform')],
+            /* ---- categorización ---- */
+            '_tap_exp_category'      => ['type' => 'select', 'label' => __('Categoría', 'travel-agency-platform'), 'options' => ['workshop' => 'Workshop', 'class' => 'Class', 'tasting' => 'Tasting', 'art' => 'Art', 'nature' => 'Nature', 'wellness' => 'Wellness', 'yoga' => 'Yoga', 'meditation' => 'Meditación', 'otro' => 'Otro']],
+            '_tap_exp_tags'          => ['type' => 'text', 'label' => __('Etiquetas (comma-separated)', 'travel-agency-platform')],
+            '_tap_exp_fitness'       => ['type' => 'select', 'label' => __('Nivel físico', 'travel-agency-platform'), 'options' => ['none' => 'Ninguno', 'light' => 'Ligero', 'moderate' => 'Moderado', 'athletic' => 'Atlético']],
+            '_tap_exp_max_age'       => ['type' => 'number', 'label' => __('Edad máxima', 'travel-agency-platform')],
+            /* ---- logística ---- */
+            '_tap_exp_pickup'        => ['type' => 'checkbox', 'label' => __('Incluye traslado/recogida', 'travel-agency-platform')],
+            '_tap_exp_pickup_locations' => ['type' => 'textarea', 'label' => __('Puntos de recogida', 'travel-agency-platform')],
+            /* ---- grupo ---- */
+            '_tap_exp_min_people'    => ['type' => 'number', 'label' => __('Mínimo de personas para operar', 'travel-agency-platform')],
+            '_tap_exp_max_per_booking' => ['type' => 'number', 'label' => __('Máximo por reserva', 'travel-agency-platform')],
+            '_tap_exp_private'       => ['type' => 'checkbox', 'label' => __('Disponible como experiencia privada', 'travel-agency-platform')],
+            '_tap_exp_private_price' => ['type' => 'number', 'label' => __('Precio privado ($)', 'travel-agency-platform'), 'step' => '0.01'],
+            /* ---- tarifas ---- */
+            '_tap_exp_price_senior'  => ['type' => 'number', 'label' => __('Precio Senior ($)', 'travel-agency-platform'), 'step' => '0.01'],
+            '_tap_exp_price_student' => ['type' => 'number', 'label' => __('Precio Estudiante ($)', 'travel-agency-platform'), 'step' => '0.01'],
+            '_tap_exp_child_age'     => ['type' => 'text', 'label' => __('Rango de edad niño', 'travel-agency-platform'), 'placeholder' => 'e.g. 5-12'],
+            /* ---- inclusiones ---- */
+            '_tap_exp_equipment'     => ['type' => 'textarea', 'label' => __('Equipo provisto', 'travel-agency-platform')],
+            '_tap_exp_equipment_rental' => ['type' => 'checkbox', 'label' => __('Alquiler de equipo disponible', 'travel-agency-platform')],
+            /* ---- bienestar / ecoturismo ---- */
+            '_tap_exp_leave_no_trace' => ['type' => 'checkbox', 'label' => __('Sigue principios Leave No Trace', 'travel-agency-platform'), 'default' => '1'],
+            '_tap_exp_carbon_offset' => ['type' => 'checkbox', 'label' => __('Compensación de carbono incluida', 'travel-agency-platform')],
+            '_tap_exp_local_community' => ['type' => 'checkbox', 'label' => __('Beneficia a comunidad local', 'travel-agency-platform')],
+            '_tap_exp_wildlife'      => ['type' => 'checkbox', 'label' => __('Incluye observación de fauna', 'travel-agency-platform')],
+            /* ---- legales ---- */
+            '_tap_exp_terms'         => ['type' => 'textarea', 'label' => __('Términos y condiciones', 'travel-agency-platform')],
+            '_tap_exp_privacy'       => ['type' => 'textarea', 'label' => __('Política de privacidad', 'travel-agency-platform')],
+            '_tap_exp_waiver'        => ['type' => 'textarea', 'label' => __('Texto del waiver (descargo)', 'travel-agency-platform')],
+            '_tap_exp_waiver_required' => ['type' => 'checkbox', 'label' => __('Waiver obligatorio antes de reservar', 'travel-agency-platform')],
+            '_tap_exp_waiver_min_age' => ['type' => 'number', 'label' => __('Edad mínima para firmar waiver', 'travel-agency-platform')],
             '_tap_seo_title'         => ['type' => 'text', 'label' => __('SEO Title', 'travel-agency-platform'), 'placeholder' => __('Falls back to post title', 'travel-agency-platform')],
             '_tap_seo_description'   => ['type' => 'textarea', 'label' => __('Meta Description (SEO)', 'travel-agency-platform')],
         ];
