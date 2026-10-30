@@ -353,6 +353,12 @@ class TAP_Installer {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_booking_items ADD COLUMN room_id bigint(20) DEFAULT NULL AFTER service_id");
         }
 
+        // slot_id for tour/experience availability (Fase A).
+        $cols_bk = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
+        if (!in_array('slot_id', $cols_bk, true)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN slot_id bigint(20) DEFAULT 0 AFTER room_id");
+        }
+
         // Extend tap_daily_pricing for tours/experiences availability (Fase 2).
         $cols_dp = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_daily_pricing");
         if (!in_array('service_type', $cols_dp, true)) {

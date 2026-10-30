@@ -16,7 +16,7 @@ defined('ABSPATH') || exit;
 
 class TAP_Booking_Pricing {
 
-    public static function calculate_price($service_type, $service_id, $check_in = '', $check_out = '', $adults = 1, $children = 0, $room_id = 0) {
+    public static function calculate_price($service_type, $service_id, $check_in = '', $check_out = '', $adults = 1, $children = 0, $room_id = 0, $slot_id = 0) {
         $price_keys = [
             'tap_accommodation' => '_tap_acc_price_per_night',
             'tap_tour'          => '_tap_tour_price_adult',
@@ -74,6 +74,14 @@ class TAP_Booking_Pricing {
 
         $unit_price = floatval(get_post_meta($service_id, $price_key, true));
         if ($unit_price <= 0) return 0;
+
+        // Slot-based price override for tours/experiences.
+        if ($slot_id && class_exists('TAP_Tour_Availability') && in_array($service_type, ['tap_tour', 'tap_experience'], true)) {
+            $slot = TAP_Tour_Availability::get_slot($slot_id);
+            if ($slot && $slot->price !== null) {
+                $unit_price = (float) $slot->price;
+            }
+        }
 
         $result = null;
 

@@ -51,6 +51,7 @@ class TAP_Ajax {
         }
 
         $room_id  = !empty($_POST['room_id']) ? intval($_POST['room_id']) : 0;
+        $slot_id  = !empty($_POST['slot_id']) ? intval($_POST['slot_id']) : 0;
         $check_in = sanitize_text_field(wp_unslash($_POST['check_in'] ?? ''));
         $check_out = sanitize_text_field(wp_unslash($_POST['check_out'] ?? ''));
         $adults   = intval($_POST['adults'] ?? 1);
@@ -59,13 +60,15 @@ class TAP_Ajax {
         $total = TAP_Booking_Pricing::calculate_price(
             sanitize_text_field(wp_unslash($_POST['service_type'])),
             intval($_POST['service_id']),
-            $check_in, $check_out, $adults, $children, $room_id
+            $check_in, $check_out, $adults, $children, $room_id,
+            $slot_id
         );
 
         $data = [
             'service_type' => sanitize_text_field(wp_unslash($_POST['service_type'])),
             'service_id'   => intval($_POST['service_id']),
             'room_id'      => $room_id,
+            'slot_id'      => $slot_id,
             'check_in'     => $check_in,
             'check_out'    => $check_out,
             'adults'       => $adults,
