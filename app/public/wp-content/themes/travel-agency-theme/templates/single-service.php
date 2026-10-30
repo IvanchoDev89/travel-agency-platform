@@ -403,6 +403,7 @@ if ($deepest && class_exists('TAP_Destinations')) {
                 if (slotId) slotId.value = slotSel.value;
                 if (checkIn) checkIn.value = dateSel.value;
                 if (checkOut) checkOut.value = dateSel.value;
+                $('#bw-adults').trigger('change');
             });
         })();
         </script>
@@ -566,6 +567,7 @@ jQuery(document).ready(function($) {
   function calculateTotal() {
     var checkIn = $('#bw-check-in').val() || '';
     var checkOut = $('#bw-check-out').val() || '';
+    var slotId = $('#bw-slot-id').val() || 0;
     $.post(tap_ajax.ajax_url, {
       action: 'tap_calculate_booking_total',
       nonce: tap_ajax.nonce,
@@ -574,7 +576,8 @@ jQuery(document).ready(function($) {
       check_in: checkIn,
       check_out: checkOut,
       adults: parseInt($('#bw-adults').val() || '1', 10),
-      children: parseInt($('#bw-children').val() || '0', 10)
+      children: parseInt($('#bw-children').val() || '0', 10),
+      slot_id: slotId
     }).done(function(res) {
       if (res && res.success) {
         $('#bw-total').show();
