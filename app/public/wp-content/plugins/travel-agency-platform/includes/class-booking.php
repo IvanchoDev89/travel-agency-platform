@@ -272,6 +272,7 @@ class TAP_Booking {
 
         $create_error = null;
         $booking_id   = 0;
+        $tour_slot_id = 0;
 
         try {
             if (!empty($data['room_id']) && $room_check_in && $room_check_out) {
@@ -339,16 +340,59 @@ class TAP_Booking {
                 }
             }
 
-            if (!$create_error && sanitize_text_field($data['service_type']) === 'tap_tour') {
+            $is_tour = in_array(sanitize_text_field($data['service_type']), ['tap_tour', 'tap_experience'], true);
+            $is_request_mode = (self::booking_mode($data['service_type'], $data['service_id']) === 'request');
+            if (!$create_error && $is_tour && !$is_request_mode) {
+                $service_type = sanitize_text_field($data['service_type']);
+                $service_id = intval($data['service_id']);
                 $check_date = !empty($data['check_in']) ? sanitize_text_field($data['check_in']) : '';
-                $guests = $adults + $children;
-                $slots = self::tour_slots(intval($data['service_id']), $check_date);
-                if ($slots['booked'] + $guests > $slots['capacity']) {
-                    $create_error = new WP_Error(
-                        'tour_full',
-                        /* translators: 1: cupos disponibles, 2: cupos solicitados */
-                        sprintf(__('El tour está completo para la fecha seleccionada. Quedan %1$d cupos y solicitaste %2$d.', 'travel-agency-platform'), $slots['remaining'], $guests)
-                    );
+                // Resolve slot: prefer client-supplied slot_id, else first slot of the date.
+                if (!empty($data['slot_id'])) {
+                    $tour_slot_id = (int) $data['slot_id'];
+                } elseif ($check_date && class_exists('TAP_Tour_Availability')) {
+                    $day_slots = TAP_Tour_Availability::slots_for($service_type, $service_id, $check_date, $check_date);
+                    foreach ($day_slots as $sl) {
+                        if (!(int) $sl->is_blocked) {
+                            $tour_slot_id = (int) $sl->id;
+                            break;
+                        }
+                    }
+                }
+
+                // Validate min_people / max_per_booking / min_age.
+                $min_people = (int) get_post_meta($service_id, $service_type === 'tap_experience' ? '_tap_exp_min_people' : '_tap_tour_min_people', true);
+                $max_per_booking = (int) get_post_meta($service_id, $service_type === 'tap_experience' ? '_tap_exp_max_per_booking' : '_tap_tour_max_per_booking', true);
+                $min_age = (int) get_post_meta($service_id, $service_type === 'tap_experience' ? '_tap_exp_min_age' : '_tap_tour_min_age', true);
+                $max_people = (int) get_post_meta($service_id, $service_type === 'tap_experience' ? '_tap_exp_max_people' : '_tap_tour_max_people', true);
+
+                if ($min_people > 0 && $adults < $min_people) {
+                    $create_error = new WP_Error('min_people', sprintf(__('Este tour requiere un mínimo de %d personas.', 'travel-agency-platform'), $min_people));
+                } elseif ($max_per_booking > 0 && ($adults + $children) > $max_per_booking) {
+                    $create_error = new WP_Error('max_per_booking', sprintf(__('Máximo %d personas por reserva.', 'travel-agency-platform'), $max_per_booking));
+                } elseif ($max_people > 0 && ($adults + $children) > $max_people) {
+                    $create_error = new WP_Error('max_people', sprintf(__('La capacidad máxima del tour es %d personas.', 'travel-agency-platform'), $max_people));
+                } elseif ($tour_slot_id && class_exists('TAP_Tour_Availability')) {
+                    if (!TAP_Tour_Availability::is_available($tour_slot_id, $adults + $children)) {
+                        $slot = TAP_Tour_Availability::get_slot($tour_slot_id);
+                        if ($slot && (int) $slot->is_blocked) {
+                            $create_error = new WP_Error('slot_blocked', __('Esta fecha está bloqueada.', 'travel-agency-platform'));
+                        } else {
+                            $create_error = new WP_Error('tour_full', __('El tour está completo para esta fecha/horario. Elige otra fecha.', 'travel-agency-platform'));
+                        }
+                    }
+                } elseif (!$tour_slot_id && class_exists('TAP_Tour_Availability')) {
+                    // No slot found: check if any slots exist for this date.
+                    $day_slots = TAP_Tour_Availability::slots_for($service_type, $service_id, $check_date, $check_date);
+                    if (empty($day_slots)) {
+                        // No availability defined: fall back to legacy tour_slots check.
+                        $slots = self::tour_slots($service_id, $check_date);
+                        $guests = $adults + $children;
+                        if ($slots['booked'] + $guests > $slots['capacity']) {
+                            $create_error = new WP_Error('tour_full', sprintf(__('El tour está completo para la fecha seleccionada. Quedan %d cupos y solicitaste %d.', 'travel-agency-platform'), $slots['remaining'], $guests));
+                        }
+                    } else {
+                        $create_error = new WP_Error('no_slot', __('No hay horarios disponibles para esta fecha.', 'travel-agency-platform'));
+                    }
                 }
             }
 
@@ -362,6 +406,7 @@ class TAP_Booking {
                     'service_type'      => sanitize_text_field($data['service_type']),
                     'service_id'        => intval($data['service_id']),
                     'room_id'           => !empty($data['room_id']) ? intval($data['room_id']) : null,
+                    'slot_id'           => !empty($tour_slot_id) ? (int) $tour_slot_id : 0,
                     'package_id'        => !empty($data['package_id']) ? intval($data['package_id']) : null,
                     'check_in'          => !empty($data['check_in']) ? sanitize_text_field($data['check_in']) : null,
                     'check_out'         => !empty($data['check_out']) ? sanitize_text_field($data['check_out']) : null,
@@ -387,6 +432,11 @@ class TAP_Booking {
                 } else {
                     $booking_id = $wpdb->insert_id;
 
+                    // Book the tour slot (increment capacity).
+                    if ($booking_id && !empty($tour_slot_id) && class_exists('TAP_Tour_Availability')) {
+                        TAP_Tour_Availability::book_slot($tour_slot_id, $adults + $children);
+                    }
+
                     // Line items are NOT written from client input: a booking
                     // covers a single service whose authoritative amount is the
                     // server-computed total_amount/subtotal above, and there is
@@ -402,6 +452,10 @@ class TAP_Booking {
             }
         }
 
+        if ($create_error && !empty($tour_slot_id) && class_exists('TAP_Tour_Availability')) {
+            // Release any partially booked slot on failure.
+            TAP_Tour_Availability::release_slot($tour_slot_id, $adults + $children);
+        }
         if ($create_error) {
             return $create_error;
         }
@@ -537,6 +591,12 @@ class TAP_Booking {
      */
     private static function apply_cancellation($booking_id, $booking, $cancelled_by, $target_status = 'cancelled', $reason = '') {
         global $wpdb;
+        // Release tour slot on cancellation.
+        $slot_id = (int) ($booking->slot_id ?? 0);
+        if ($slot_id && class_exists('TAP_Tour_Availability')) {
+            $adults = (int) ($booking->adults ?? 1) + (int) ($booking->children ?? 0);
+            TAP_Tour_Availability::release_slot($slot_id, max(1, $adults));
+        }
 
         $prev_status = $booking->status;
 
@@ -801,6 +861,15 @@ class TAP_Booking {
         $data = ['status' => $status];
         if (in_array($status, ['cancelled', 'refunded'], true) && $reason !== '') {
             $data['cancel_reason'] = $reason;
+        }
+        // Release tour slot on cancellation (unpaid bookings; paid ones are
+        // released in apply_cancellation()).
+        if (in_array($status, ['cancelled', 'refunded'], true) && 'paid' !== $booking->payment_status) {
+            $slot_id = (int) ($booking->slot_id ?? 0);
+            if ($slot_id && class_exists('TAP_Tour_Availability')) {
+                $adults = (int) ($booking->adults ?? 1) + (int) ($booking->children ?? 0);
+                TAP_Tour_Availability::release_slot($slot_id, max(1, $adults));
+            }
         }
         $wpdb->update(
             $wpdb->prefix . 'tap_bookings',

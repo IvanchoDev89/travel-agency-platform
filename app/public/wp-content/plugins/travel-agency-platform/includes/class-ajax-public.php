@@ -194,6 +194,7 @@ class TAP_Ajax_Public {
         $check_out    = sanitize_text_field(wp_unslash($_POST['check_out'] ?? ''));
         $adults       = intval($_POST['adults'] ?? 1);
         $children     = intval($_POST['children'] ?? 0);
+        $slot_id      = intval($_POST['slot_id'] ?? 0);
 
         if (!$service_id || !$service_type) {
             wp_send_json_error(['message' => __('Invalid request', 'travel-agency-platform')]);
@@ -232,12 +233,47 @@ class TAP_Ajax_Public {
                 $price_breakdown = $range_result['prices'];
             }
             $min_stay = TAP_Pricing::get_max_min_stay_for_range($room_id, $check_in, $check_out);
-        } else {
-            $total      = TAP_Booking_Pricing::calculate_price($service_type, $service_id, $check_in, $check_out, $adults, $children, $room_id);
-            $base_total = $total;
-        }
+        } elseif (in_array($service_type, ['tap_tour', 'tap_experience'], true) && $slot_id && class_exists('TAP_Tour_Availability')) {
+                $slot = TAP_Tour_Availability::get_slot($slot_id);
+                if ($slot) {
+                    $unit = TAP_Tour_Availability::slot_price($slot);
+                    $prefix = $service_type === 'tap_experience' ? '_tap_exp' : '_tap_tour';
+                    $child_price = floatval(get_post_meta($service_id, $prefix . '_price_child', true));
+                    if ($child_price <= 0) $child_price = $unit * 0.7;
+                    // Add extras if provided.
+                    $extras_total = 0;
+                    if (!empty($_POST['extras']) && is_array($_POST['extras']) && class_exists('TAP_Service_Extras')) {
+                        $extras_total = TAP_Service_Extras::total_for(array_map('intval', (array) $_POST['extras']), $adults, $children);
+                    }
+                    $total = ($unit * $adults) + ($child_price * $children) + $extras_total;
+                    $base_total = $total;
+                } else {
+                    $total      = TAP_Booking_Pricing::calculate_price($service_type, $service_id, $check_in, $check_out, $adults, $children, $room_id);
+                    $base_total = $total;
+                }
+            } else {
+                $total      = TAP_Booking_Pricing::calculate_price($service_type, $service_id, $check_in, $check_out, $adults, $children, $room_id);
+                $base_total = $total;
+            }
 
         $fee = TAP_Booking::get_booking_fee($total);
+
+        // Capacity response for tours.
+        $capacity_response = null;
+        if ($service_type === 'tap_tour') {
+            if ($slot_id && class_exists('TAP_Tour_Availability')) {
+                $s = TAP_Tour_Availability::get_slot($slot_id);
+                if ($s) {
+                    $capacity_response = [
+                        'capacity'  => (int) $s->capacity,
+                        'booked'    => (int) $s->booked,
+                        'remaining' => max(0, (int) $s->capacity - (int) $s->booked),
+                    ];
+                }
+            } elseif ($check_in) {
+                $capacity_response = TAP_Booking::tour_slots($service_id, $check_in);
+            }
+        }
 
         wp_send_json_success([
             'total'            => round($total + $fee, 2),
@@ -249,7 +285,7 @@ class TAP_Ajax_Public {
             'nights'           => $nights,
             'min_stay'         => $min_stay,
             'price_breakdown'  => $price_breakdown,
-            'capacity'         => $service_type === 'tap_tour' && $check_in ? TAP_Booking::tour_slots($service_id, $check_in) : null,
+            'capacity'         => $capacity_response,
         ]);
     }
 
