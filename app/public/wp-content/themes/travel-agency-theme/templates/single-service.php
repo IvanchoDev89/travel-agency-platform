@@ -361,6 +361,53 @@ if ($deepest && class_exists('TAP_Destinations')) {
         </style>
         <?php endif; // tap_tour ?>
 
+        <?php if ('tap_tour' === $pt): ?>
+        <?php
+        $_tour_slots_list = class_exists('TAP_Tour_Availability') ? TAP_Tour_Availability::slots_for('tap_tour', $id) : [];
+        $_by_date = [];
+        foreach ($_tour_slots_list as $_tsl) {
+            if ($_tsl->is_blocked) continue;
+            $_by_date[$_tsl->date][] = $_tsl;
+        }
+        ?>
+        <script>
+        (function(){
+            var slotsData = <?php echo wp_json_encode($_by_date, JSON_UNESCAPED_UNICODE); ?>;
+            var dateSel = document.getElementById('bw-tour-date');
+            var slotSel = document.getElementById('bw-tour-slot');
+            var slotId = document.getElementById('bw-slot-id');
+            var checkIn = document.getElementById('bw-check-in');
+            var checkOut = document.getElementById('bw-check-out');
+            if (!dateSel || !slotSel) return;
+            dateSel.addEventListener('change', function(){
+                var d = dateSel.value;
+                slotSel.innerHTML = '<option value=""><?php echo esc_js(__('— Selecciona horario —', 'travel-agency-platform')); ?></option>';
+                slotSel.disabled = true;
+                if (slotsData[d]) {
+                    slotsData[d].forEach(function(sl){
+                        var opt = document.createElement('option');
+                        opt.value = sl.id;
+                        var label = (sl.time_slot ? sl.time_slot.substring(0,5) : '') + (sl.label ? ' - ' + sl.label : '') + ' (' + sl.booked + '/' + (sl.capacity || '∞') + ')';
+                        if (sl.is_blocked) label += ' BLOQUEADO';
+                        opt.textContent = label;
+                        opt.disabled = !!sl.is_blocked;
+                        opt.dataset.price = sl.price || 0;
+                        slotSel.appendChild(opt);
+                    });
+                    slotSel.disabled = false;
+                }
+                if (checkIn) checkIn.value = d;
+                if (checkOut) checkOut.value = d;
+            });
+            slotSel.addEventListener('change', function(){
+                if (slotId) slotId.value = slotSel.value;
+                if (checkIn) checkIn.value = dateSel.value;
+                if (checkOut) checkOut.value = dateSel.value;
+            });
+        })();
+        </script>
+        <?php endif; ?>
+
         <?php get_template_part('templates/partials/service-reviews'); ?>
         <?php get_template_part('templates/partials/service-reviews'); ?>
       </div>
@@ -382,6 +429,33 @@ if ($deepest && class_exists('TAP_Destinations')) {
             <input type="hidden" name="service_id" value="<?php echo esc_attr($id); ?>">
 
             <?php if ($needs_date): ?>
+            <?php if ('tap_tour' === $pt): ?>
+            <input type="hidden" name="slot_id" id="bw-slot-id" value="">
+            <div class="tap-bw-field">
+              <label><?php esc_html_e('Fecha del tour', 'travel-agency-platform'); ?></label>
+              <select name="bw_tour_date" id="bw-tour-date" class="tap-input" required>
+                <option value=""><?php esc_html_e('— Selecciona fecha —', 'travel-agency-platform'); ?></option>
+                <?php
+                $tour_slots_list = class_exists('TAP_Tour_Availability') ? TAP_Tour_Availability::slots_for('tap_tour', $id) : [];
+                $by_date = [];
+                foreach ($tour_slots_list as $tsl) {
+                    if ($tsl->is_blocked) continue;
+                    $by_date[$tsl->date][] = $tsl;
+                }
+                foreach (array_keys($by_date) as $dt): ?>
+                    <option value="<?php echo esc_attr($dt); ?>"><?php echo esc_html($dt); ?> (<?php echo count($by_date[$dt]); ?> horarios)</option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+            <div class="tap-bw-field">
+              <label><?php esc_html_e('Horario', 'travel-agency-platform'); ?></label>
+              <select name="bw_tour_slot" id="bw-tour-slot" class="tap-input" required disabled>
+                <option value=""><?php esc_html_e('— Selecciona fecha primero —', 'travel-agency-platform'); ?></option>
+              </select>
+            </div>
+            <input type="hidden" name="check_in" id="bw-check-in" value="">
+            <input type="hidden" name="check_out" id="bw-check-out" value="">
+            <?php else: ?>
             <div class="tap-bw-dates <?php echo $needs_out ? '' : 'tap-bw-single'; ?>">
               <div class="tap-bw-field">
                 <label><?php echo 'tap_car_rental' === $pt ? __('Recogida', 'travel-agency-platform') : __('Fecha', 'travel-agency-platform'); ?></label>
@@ -394,6 +468,7 @@ if ($deepest && class_exists('TAP_Destinations')) {
               </div>
               <?php endif; ?>
             </div>
+            <?php endif; ?>
             <?php endif; ?>
 
             <?php if ($needs_guests): ?>
@@ -444,6 +519,16 @@ if ($deepest && class_exists('TAP_Destinations')) {
             </div>
 
             <div class="tap-bw-actions">
+            <?php if ('tap_tour' === $pt && class_exists('TAP_Service_Extras')): ?>
+            <div class="tap-bw-field tap-bw-field-full" style="margin-bottom:8px;">
+                <?php echo TAP_Service_Extras::render_selector('tap_tour', $id); ?>
+            </div>
+            <?php endif; ?>
+            <?php if ('tap_tour' === $pt && class_exists('TAP_Waiver') && TAP_Waiver::is_required('tap_tour', $id)): ?>
+            <div class="tap-bw-field tap-bw-field-full" style="margin-bottom:8px;">
+                <p style="font-size:12px;color:#6b7280;"><?php esc_html_e('Esta actividad requiere firmar un waiver. Se pedirá después de la reserva.', 'travel-agency-platform'); ?></p>
+            </div>
+            <?php endif; ?>
               <button type="submit" class="tap-btn tap-btn-primary tap-btn-block" id="bw-submit" disabled>
                 <?php echo TAP_Booking::booking_mode($pt, $id) === 'request' ? esc_html__('Solicitar reserva', 'travel-agency-platform') : esc_html__('Book Now', 'travel-agency-platform'); ?>
               </button>
