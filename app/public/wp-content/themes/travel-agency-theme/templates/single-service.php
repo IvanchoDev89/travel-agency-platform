@@ -250,7 +250,7 @@ if ($deepest && class_exists('TAP_Destinations')) {
         <?php endif; ?>
 
         <?php if ('tap_tour' === $pt): ?>
-        <!-- Availability calendar -->
+        <!-- Availability calendar (same design as accommodations) -->
         <?php
         $cal_month = isset($_GET['cal_month']) ? sanitize_text_field(wp_unslash($_GET['cal_month'])) : gmdate('Y-m');
         if (!preg_match('/^\d{4}-\d{2}$/', $cal_month)) $cal_month = gmdate('Y-m');
@@ -258,7 +258,7 @@ if ($deepest && class_exists('TAP_Destinations')) {
         $cal_y = (int) $cal_y; $cal_m = (int) $cal_m;
         $first_day = mktime(0, 0, 0, $cal_m, 1, $cal_y);
         $days_in_month = (int) date('t', $first_day);
-        $start_dow = (int) date('w', $first_day); // 0=Sun
+        $start_dow = (int) date('w', $first_day);
         $prev_month = date('Y-m', strtotime('-1 month', $first_day));
         $next_month = date('Y-m', strtotime('+1 month', $first_day));
         $month_label = date_i18n('F Y', $first_day);
@@ -266,66 +266,65 @@ if ($deepest && class_exists('TAP_Destinations')) {
         $from = sprintf('%04d-%02d-01', $cal_y, $cal_m);
         $to = sprintf('%04d-%02d-%02d', $cal_y, $cal_m, $days_in_month);
         $month_slots = TAP_Tour_Availability::slots_for('tap_tour', $id, $from, $to);
-        // group by date
         $slots_by_date = [];
         foreach ($month_slots as $sl) {
             $slots_by_date[$sl->date][] = $sl;
         }
         ?>
-        <div class="tap-acc-section tap-tour-calendar">
-          <h2><?php _e('Disponibilidad y reservas', 'travel-agency-platform'); ?></h2>
-          <div class="tap-tour-cal-nav">
-            <a href="<?php echo esc_url(add_query_arg('cal_month', $prev_month)); ?>" class="tap-btn tap-btn-sm">&larr; <?php echo esc_html(date_i18n('M', strtotime($prev_month.'-01'))); ?></a>
-            <strong class="tap-tour-cal-month"><?php echo esc_html($month_label); ?></strong>
-            <a href="<?php echo esc_url(add_query_arg('cal_month', $next_month)); ?>" class="tap-btn tap-btn-sm"><?php echo esc_html(date_i18n('M', strtotime($next_month.'-01'))); ?> &rarr;</a>
+        <div class="tap-acc-section tap-avcal-wrap" data-tour="<?php echo esc_attr($id); ?>">
+          <h2><?php _e('Availability & Prices', 'travel-agency-platform'); ?></h2>
+          <div class="tap-avcal-header">
+            <div class="tap-avcal-nav">
+              <a href="<?php echo esc_url(add_query_arg('cal_month', $prev_month)); ?>" class="tap-avcal-nav-btn" data-dir="-1">&larr;</a>
+              <span class="tap-avcal-label"><?php echo esc_html($month_label); ?></span>
+              <a href="<?php echo esc_url(add_query_arg('cal_month', $next_month)); ?>" class="tap-avcal-nav-btn" data-dir="1">&rarr;</a>
+            </div>
+            <div class="tap-avcal-legend">
+              <span><span class="tap-avcal-swatch available"></span> <?php echo esc_html__('Disponible', 'travel-agency-platform'); ?></span>
+              <span><span class="tap-avcal-swatch blocked"></span> <?php echo esc_html__('Bloqueado', 'travel-agency-platform'); ?></span>
+              <span><span class="tap-avcal-swatch full"></span> <?php echo esc_html__('Completo', 'travel-agency-platform'); ?></span>
+            </div>
           </div>
-          <div class="tap-tour-cal-legend">
-            <span><span class="tap-tour-cal-swatch tap-tour-cal-swatch--avail"></span> <?php esc_html_e('Disponible', 'travel-agency-platform'); ?></span>
-            <span><span class="tap-tour-cal-swatch tap-tour-cal-swatch--blocked"></span> <?php esc_html_e('Bloqueado', 'travel-agency-platform'); ?></span>
-            <span><span class="tap-tour-cal-swatch tap-tour-cal-swatch--full"></span> <?php esc_html_e('Completo', 'travel-agency-platform'); ?></span>
-          </div>
-          <div class="tap-tour-cal-grid">
+          <div class="tap-avcal-grid">
             <?php
             $weekdays = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-            foreach ($weekdays as $wd) echo '<div class="tap-tour-cal-wd">' . esc_html($wd) . '</div>';
-            for ($p = 0; $p < $start_dow; $p++) echo '<div class="tap-tour-cal-day tap-tour-cal-day--empty"></div>';
+            foreach ($weekdays as $wd) echo '<div class="tap-avcal-weekday">' . esc_html($wd) . '</div>';
+            for ($p = 0; $p < $start_dow; $p++) echo '<div class="tap-avcal-day disabled"></div>';
             for ($d = 1; $d <= $days_in_month; $d++) {
                 $date = sprintf('%04d-%02d-%02d', $cal_y, $cal_m, $d);
                 $day_slots = isset($slots_by_date[$date]) ? $slots_by_date[$date] : [];
-                $is_blocked = false;
-                $has_avail = false;
-                $total_cap = 0; $total_booked = 0;
+                $is_blocked = false; $has_avail = false; $total_cap = 0; $total_booked = 0;
                 foreach ($day_slots as $sl) {
                     if ($sl->is_blocked) $is_blocked = true;
                     else { $has_avail = true; $total_cap += (int)$sl->capacity ?: 999; $total_booked += (int)$sl->booked; }
                 }
-                $cls = 'tap-tour-cal-day';
-                if ($is_blocked && !$has_avail) $cls .= ' tap-tour-cal-day--blocked';
-                elseif ($has_avail && $total_booked >= $total_cap) $cls .= ' tap-tour-cal-day--full';
-                elseif ($has_avail) $cls .= ' tap-tour-cal-day--avail';
-                else $cls .= ' tap-tour-cal-day--none';
+                $cls = 'tap-avcal-day';
+                if ($is_blocked && !$has_avail) $cls .= ' blocked';
+                elseif ($has_avail && $total_booked >= $total_cap) $cls .= ' full';
+                elseif ($has_avail) $cls .= ' available';
+                else $cls .= ' disabled';
                 $today = gmdate('Y-m-d');
-                if ($date === $today) $cls .= ' tap-tour-cal-day--today';
+                if ($date === $today) $cls .= ' today';
+                $min_price = 0;
+                foreach ($day_slots as $sl) { if (!$sl->is_blocked && $sl->price !== null) { if ($min_price === 0 || (float)$sl->price < $min_price) $min_price = (float)$sl->price; } }
                 ?>
                 <div class="<?php echo esc_attr($cls); ?>" data-date="<?php echo esc_attr($date); ?>">
-                    <span class="tap-tour-cal-num"><?php echo (int) $d; ?></span>
+                    <span class="tap-avcal-num"><?php echo (int) $d; ?></span>
                     <?php if ($day_slots): ?>
-                        <div class="tap-tour-cal-slots">
-                            <?php foreach ($day_slots as $sl): ?>
-                                <div class="tap-tour-cal-slot <?php echo $sl->is_blocked ? 'is-blocked' : ''; ?>">
-                                    <?php if ($sl->time_slot): ?>
-                                        <span class="tap-tour-cal-time"><?php echo esc_html(substr($sl->time_slot, 0, 5)); ?></span>
-                                    <?php endif; ?>
-                                    <?php if ($sl->label): ?><span class="tap-tour-cal-label"><?php echo esc_html($sl->label); ?></span><?php endif; ?>
-                                    <?php if (!$sl->is_blocked): ?>
-                                        <span class="tap-tour-cal-cap"><?php echo (int)$sl->booked; ?>/<?php echo (int)$sl->capacity ?: '∞'; ?></span>
-                                    <?php else: ?>
-                                        <span class="tap-tour-cal-blocked">🚫</span>
-                                    <?php endif; ?>
-                                    <?php if ($sl->price !== null): ?><span class="tap-tour-cal-price"><?php echo esc_html(TAP_Currency::fmt((float)$sl->price)); ?></span><?php endif; ?>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
+                        <?php foreach ($day_slots as $sl): ?>
+                            <div class="tap-avcal-slot">
+                                <?php if ($sl->time_slot): ?><span class="tap-avcal-time"><?php echo esc_html(substr($sl->time_slot,0,5)); ?></span><?php endif; ?>
+                                <?php if ($sl->label): ?><span class="tap-avcal-slotlabel"><?php echo esc_html($sl->label); ?></span><?php endif; ?>
+                                <?php if (!$sl->is_blocked): ?>
+                                    <span class="tap-avcal-cap"><?php echo (int)$sl->booked; ?>/<?php echo (int)$sl->capacity ?: '∞'; ?></span>
+                                <?php else: ?>
+                                    <span class="tap-avcal-blocked">🚫</span>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                        <?php if ($min_price > 0): ?>
+                            <span class="tap-avcal-price"><?php echo esc_html(TAP_Currency::fmt0($min_price)); ?></span>
+                        <?php endif; ?>
                     <?php endif; ?>
                 </div>
             <?php } ?>
