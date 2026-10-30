@@ -236,7 +236,7 @@ class TAP_Listing_Editor {
                         <?php esc_html_e('Paso', 'travel-agency-platform'); ?> <strong id="tap-wiz-cur">1</strong> <?php esc_html_e('de', 'travel-agency-platform'); ?> <strong>4</strong>
                     </div>
                 </div>
-                <div class="tap-form-grid tap-wizard-step" data-step="1">
+                <div class="tap-wizard-step tap-wizard-grid" data-step="1">
                     <div class="tap-field tap-span-2">
                         <label><?php esc_html_e('Nombre *', 'travel-agency-platform'); ?></label>
                         <input type="text" name="title" required value="<?php echo esc_attr($listing ? $listing->post_title : ''); ?>">
@@ -264,7 +264,7 @@ class TAP_Listing_Editor {
                         ?>
                     </div>
                 </div>
-                <div class="tap-form-grid tap-wizard-step" data-step="2" style="display:none;">
+                <div class="tap-wizard-step tap-wizard-grid" data-step="2" style="display:none;">
                     <?php
                     // Group fields into sections for a clearer, shorter form.
                     $groups = [
@@ -372,7 +372,7 @@ class TAP_Listing_Editor {
                     }
                     ?>
                 </div>
-                <div class="tap-form-grid tap-wizard-step" data-step="3" style="display:none;">
+                <div class="tap-wizard-step tap-wizard-grid" data-step="3" style="display:none;">
                     <?php
                     // SEO section
                     $seo_fields = [];
@@ -417,7 +417,7 @@ class TAP_Listing_Editor {
                         </select>
                     </div>
                 </div>
-                <div class="tap-form-grid tap-wizard-step" data-step="4" style="display:none;">
+                <div class="tap-wizard-step tap-wizard-grid" data-step="4" style="display:none;">
                     <?php if ($is_edit): ?>
                     <div class="tap-field tap-span-2">
                         <?php $is_published = 'publish' === $listing->post_status; ?>
@@ -457,6 +457,26 @@ class TAP_Listing_Editor {
         .tap-wizard-step{animation:fadeIn .3s ease;}
         @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
         .tap-wizard-nav{display:flex;justify-content:space-between;align-items:center;margin-top:20px;padding-top:16px;border-top:1px solid var(--tap-border,#e5e7eb);gap:8px;}
+        .tap-wizard-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--tap-space-4,16px);}
+        @media (max-width:600px){.tap-wizard-grid{grid-template-columns:1fr;}}
+        .tap-wizard-bar{background:linear-gradient(135deg,#f0f9ff,#fff);border:1px solid #bfdbfe;border-radius:12px;padding:20px;margin-bottom:24px;}
+        .tap-wizard-steps{display:flex;gap:8px;flex-wrap:wrap;list-style:none;margin:0;padding:0;}
+        .tap-wizard-step-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.06);font-weight:700;font-size:13px;margin-right:4px;}
+        .tap-wizard-step.is-active .tap-wizard-step-num{background:rgba(255,255,255,.3);}
+        .tap-wizard-step.is-done .tap-wizard-step-num{background:#10b981;color:#fff;}
+        .tap-wizard-step{display:flex;align-items:center;padding:10px 14px;border:1px solid #d1d5db;border-radius:10px;background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:#4b5563;transition:all .25s;flex:1;min-width:130px;justify-content:center;}
+        .tap-wizard-step.is-active{background:#2563eb;color:#fff;border-color:#2563eb;box-shadow:0 4px 14px rgba(37,99,235,.35);}
+        .tap-wizard-step:hover:not(.is-active){background:#f8fafc;border-color:#9ca3af;transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08);}
+        .tap-wizard-step-label{margin-left:4px;}
+        .tap-wizard-counter{text-align:center;margin-top:10px;font-size:13px;color:#6b7280;}
+        .tap-wizard-counter strong{color:#2563eb;font-weight:700;}
+        .tap-wizard-progress-track{height:6px;background:#e5e7eb;border-radius:3px;overflow:hidden;margin-bottom:14px;}
+        .tap-wizard-progress-fill{height:100%;background:linear-gradient(90deg,#2563eb,#7c3aed);border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1);}
+        .tap-wizard-nav{display:flex;justify-content:space-between;align-items:center;margin-top:24px;padding-top:16px;border-top:1px solid #e5e7eb;gap:8px;}
+        .tap-wizard-prev,.tap-wizard-next,.tap-wizard-submit{min-width:130px;padding:10px 18px;border-radius:8px;font-weight:600;}
+        .tap-wizard-step{animation:fadeIn .35s ease;}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+        @media (max-width:600px){.tap-wizard-step{min-width:0;flex-basis:48%;font-size:12px;padding:8px 10px;}.tap-wizard-step-label{display:none;}.tap-wizard-bar{padding:14px;}}
         .tap-wizard-prev,.tap-wizard-next,.tap-wizard-submit{min-width:120px;}
         @media (max-width:600px){.tap-wizard-step{min-width:0;flex-basis:48%;font-size:12px;padding:8px 10px;}.tap-wizard-step-label{display:none;}}
         </style>
