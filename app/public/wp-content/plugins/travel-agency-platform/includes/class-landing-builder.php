@@ -18,7 +18,7 @@ class TAP_Landing_Builder {
 
     const OPTION = 'tap_landing_config';
     const CACHE  = 'tap_landing_rendered';
-    const VERSION = 1;
+    const VERSION = 2;
 
     /**
      * Default section types available in the builder.
@@ -26,14 +26,20 @@ class TAP_Landing_Builder {
     public static function section_types() {
         return [
             'hero'          => __('Hero', 'travel-agency-platform'),
-            'categories'    => __('Categorías', 'travel-agency-platform'),
-            'featured'      => __('Servicios destacados', 'travel-agency-platform'),
-            'destinations'  => __('Destinos', 'travel-agency-platform'),
-            'blog'          => __('Blog', 'travel-agency-platform'),
-            'newsletter'    => __('Newsletter', 'travel-agency-platform'),
-            'testimonials'  => __('Testimonios', 'travel-agency-platform'),
-            'cta'           => __('CTA final', 'travel-agency-platform'),
             'stats'         => __('Estadísticas', 'travel-agency-platform'),
+            'facts'         => __('Datos de Costa Rica', 'travel-agency-platform'),
+            'categories'    => __('Categorías', 'travel-agency-platform'),
+            'destinations'  => __('Destinos', 'travel-agency-platform'),
+            'featured'      => __('Servicios destacados', 'travel-agency-platform'),
+            'interests'     => __('Intereses (chips)', 'travel-agency-platform'),
+            'pillars'       => __('Pilares del blog', 'travel-agency-platform'),
+            'itinerary'     => __('CTA Itinerario', 'travel-agency-platform'),
+            'agencies'      => __('Agencias verificadas', 'travel-agency-platform'),
+            'testimonials'  => __('Testimonios', 'travel-agency-platform'),
+            'blog'          => __('Blog', 'travel-agency-platform'),
+            'faq'           => __('FAQ', 'travel-agency-platform'),
+            'newsletter'    => __('Newsletter', 'travel-agency-platform'),
+            'cta'           => __('CTA final', 'travel-agency-platform'),
             'video'         => __('Video', 'travel-agency-platform'),
             'text'          => __('Texto libre', 'travel-agency-platform'),
             'gallery'       => __('Galería', 'travel-agency-platform'),
@@ -48,12 +54,20 @@ class TAP_Landing_Builder {
             'version'  => self::VERSION,
             'sections' => [
                 ['type' => 'hero', 'enabled' => true, 'order' => 1, 'settings' => []],
-                ['type' => 'categories', 'enabled' => true, 'order' => 2, 'settings' => []],
-                ['type' => 'featured', 'enabled' => true, 'order' => 3, 'settings' => ['count' => 6, 'mode' => 'auto']],
-                ['type' => 'destinations', 'enabled' => true, 'order' => 4, 'settings' => ['show_map' => true]],
-                ['type' => 'blog', 'enabled' => true, 'order' => 5, 'settings' => ['count' => 3]],
-                ['type' => 'newsletter', 'enabled' => true, 'order' => 6, 'settings' => []],
-                ['type' => 'cta', 'enabled' => true, 'order' => 7, 'settings' => []],
+                ['type' => 'stats', 'enabled' => true, 'order' => 2, 'settings' => []],
+                ['type' => 'facts', 'enabled' => true, 'order' => 3, 'settings' => []],
+                ['type' => 'categories', 'enabled' => true, 'order' => 4, 'settings' => []],
+                ['type' => 'destinations', 'enabled' => true, 'order' => 5, 'settings' => ['show_map' => true]],
+                ['type' => 'featured', 'enabled' => true, 'order' => 6, 'settings' => ['count' => 6, 'mode' => 'auto']],
+                ['type' => 'interests', 'enabled' => true, 'order' => 7, 'settings' => []],
+                ['type' => 'pillars', 'enabled' => true, 'order' => 8, 'settings' => []],
+                ['type' => 'itinerary', 'enabled' => true, 'order' => 9, 'settings' => []],
+                ['type' => 'agencies', 'enabled' => true, 'order' => 10, 'settings' => []],
+                ['type' => 'testimonials', 'enabled' => true, 'order' => 11, 'settings' => []],
+                ['type' => 'blog', 'enabled' => true, 'order' => 12, 'settings' => ['count' => 3]],
+                ['type' => 'faq', 'enabled' => true, 'order' => 13, 'settings' => []],
+                ['type' => 'newsletter', 'enabled' => true, 'order' => 14, 'settings' => []],
+                ['type' => 'cta', 'enabled' => true, 'order' => 15, 'settings' => []],
             ],
         ];
     }
@@ -65,6 +79,17 @@ class TAP_Landing_Builder {
         $config = get_option(self::OPTION, null);
         if (!is_array($config) || empty($config['sections'])) {
             $config = self::default_config();
+            update_option(self::OPTION, $config, false);
+        }
+        // Merge new sections for upgrades.
+        if (($config['version'] ?? 0) < self::VERSION) {
+            $existing_types = array_column($config['sections'], 'type');
+            foreach (self::default_config()['sections'] as $def) {
+                if (!in_array($def['type'], $existing_types, true)) {
+                    $config['sections'][] = $def;
+                }
+            }
+            $config['version'] = self::VERSION;
             update_option(self::OPTION, $config, false);
         }
         // Ensure version.
