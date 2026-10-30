@@ -185,339 +185,300 @@ class TAP_Listing_Editor {
                 <?php wp_nonce_field('tap_agency_listing_nonce', 'nonce'); ?>
                 <input type="hidden" name="listing_id" value="<?php echo (int) $listing_id; ?>">
                 <input type="hidden" name="listing_type" value="<?php echo esc_attr($type); ?>">
-                <style>
-                .tap-wizard-bar{margin-bottom:24px;}
-                .tap-wizard-progress{position:relative;}
-                .tap-wizard-progress-track{height:4px;background:var(--tap-border);border-radius:2px;overflow:hidden;margin-bottom:16px;}
-                .tap-wizard-progress-fill{height:100%;background:linear-gradient(90deg,var(--tap-primary),var(--tap-primary-dark));border-radius:2px;transition:width .4s cubic-bezier(.4,0,.2,1);width:25%;}
-                .tap-wizard-steps{display:flex;gap:8px;flex-wrap:wrap;list-style:none;margin:0;padding:0;justify-content:space-between;}
-                .tap-wizard-step{flex:1 1 0;min-width:120px;padding:0;position:relative;}
-                .tap-wizard-step > span,.tap-wizard-step > button{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:10px 12px;border:1px solid var(--tap-neutral-300);border-radius:10px;background:#fff;color:var(--tap-neutral-600);font-size:13px;font-weight:600;cursor:pointer;height:100%;transition:all .25s;}
-                .tap-wizard-step.is-active > span,.tap-wizard-step.is-active > button{background:var(--tap-primary);color:#fff;border-color:var(--tap-primary);box-shadow:0 4px 12px rgba(13,148,136,.3);}
-                .tap-wizard-step.is-done > span,.tap-wizard-step.is-done > button{background:var(--tap-success-bg, #ecfdf5);color:var(--tap-success-dark, #047857);border-color:var(--tap-success-border, #a7f3d0);}
-                .tap-wizard-step:hover > span,.tap-wizard-step:hover > button{background:var(--tap-neutral-100);border-color:var(--tap-neutral-400);transform:translateY(-1px);}
-                .tap-wizard-step-num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.08);font-weight:700;font-size:12px;}
-                .tap-wizard-step.is-active .tap-wizard-step-num{background:rgba(255,255,255,.25);}
-                .tap-wizard-step.is-done .tap-wizard-step-num{background:var(--tap-success, #10b981);color:#fff;}
-                .tap-wizard-step-label{white-space:nowrap;}
-                .tap-wizard-counter{text-align:center;margin-top:8px;font-size:13px;color:var(--tap-neutral-500);}
-                .tap-wizard-counter strong{color:var(--tap-primary);}
-                .tap-wizard-step{animation:fadeIn .3s ease;}
-                @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-                .tap-wizard-nav{display:flex;justify-content:space-between;align-items:center;margin-top:20px;padding-top:16px;border-top:1px solid var(--tap-border);gap:8px;}
-                .tap-wizard-prev,.tap-wizard-next,.tap-wizard-submit{min-width:120px;}
-                @media (max-width:600px){.tap-wizard-step{min-width:0;flex-basis:48%;}.tap-wizard-step-label{display:none;}}
-                </style>
-                <div class="tap-wizard-bar">
-                    <div class="tap-wizard-progress">
-                        <div class="tap-wizard-progress-track">
-                            <div class="tap-wizard-progress-fill" id="tap-wiz-fill"></div>
-                        </div>
-                        <div class="tap-wizard-steps">
-                            <button type="button" class="tap-wizard-step is-active" data-step="1">
-                                <span class="tap-wizard-step-num">1</span>
-                                <span class="tap-wizard-step-label"><?php esc_html_e('Información', 'travel-agency-platform'); ?></span>
-                            </button>
-                            <button type="button" class="tap-wizard-step" data-step="2">
-                                <span class="tap-wizard-step-num">2</span>
-                                <span class="tap-wizard-step-label"><?php esc_html_e('Precios y ubicación', 'travel-agency-platform'); ?></span>
-                            </button>
-                            <button type="button" class="tap-wizard-step" data-step="3">
-                                <span class="tap-wizard-step-num">3</span>
-                                <span class="tap-wizard-step-label"><?php esc_html_e('Detalles', 'travel-agency-platform'); ?></span>
-                            </button>
-                            <button type="button" class="tap-wizard-step" data-step="4">
-                                <span class="tap-wizard-step-num">4</span>
-                                <span class="tap-wizard-step-label"><?php esc_html_e('SEO y publicación', 'travel-agency-platform'); ?></span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="tap-wizard-counter">
-                        <?php esc_html_e('Paso', 'travel-agency-platform'); ?> <strong id="tap-wiz-cur">1</strong> <?php esc_html_e('de', 'travel-agency-platform'); ?> <strong>4</strong>
-                    </div>
-                </div>
-                <div class="tap-wizard-step tap-wizard-grid" data-step="1">
-                    <div class="tap-field tap-span-2">
-                        <label><?php esc_html_e('Nombre *', 'travel-agency-platform'); ?></label>
-                        <input type="text" name="title" required value="<?php echo esc_attr($listing ? $listing->post_title : ''); ?>">
-                        <span class="tap-field-error" style="color:var(--tap-error);font-size:var(--tap-text-xs);min-height:1em;"></span>
-                    </div>
-                    <div class="tap-field tap-span-2">
-                        <label><?php esc_html_e('Descripción', 'travel-agency-platform'); ?></label>
-                        <textarea name="description" rows="4"><?php echo esc_textarea($listing ? $listing->post_content : ''); ?></textarea>
-                    </div>
-                    <div class="tap-field tap-span-2">
-                        <label><?php esc_html_e('Fotos', 'travel-agency-platform'); ?></label>
-                        <?php
-                        $main_id     = $is_edit ? (int) get_post_thumbnail_id($listing_id) : 0;
-                        $gallery_ids = $is_edit
-                            ? array_filter(array_map('trim', explode(',', (string) get_post_meta($listing_id, '_tap_' . $prefix . '_gallery', true))))
-                            : [];
-                        echo TAP_Acc_Wizard_Room_Form::render_image_uploader($listing_id, $main_id, $gallery_ids, [
-                            'main_id'      => 'featured_attachment_id',
-                            'gallery_ids'  => 'gallery_attachment_ids',
-                            'main_url'     => 'featured_image_url',
-                            'gallery_urls' => 'gallery_urls',
-                            'listing_id'   => $listing_id,
-                            'listing_type' => $type,
-                        ]);
-                        ?>
-                    </div>
-                </div>
-                <div class="tap-wizard-step tap-wizard-grid" data-step="2" style="display:none;">
-                    <?php
-                    // Group fields into sections for a clearer, shorter form.
-                    $groups = [
-                        'price'    => ['title' => __('Precios', 'travel-agency-platform'), 'fields' => []],
-                        'location' => ['title' => __('Ubicación', 'travel-agency-platform'), 'fields' => []],
-                        'details'  => ['title' => __('Detalles', 'travel-agency-platform'), 'fields' => []],
-                    ];
-                    foreach ($fields as $meta_key => $cfg) {
-                        if (strpos($meta_key, '_tap_' . $prefix . '_agency_id') !== false) {
-                            continue;
-                        }
-                        if ($meta_key === '_tap_seo_title' || $meta_key === '_tap_seo_description') {
-                            continue;
-                        }
-                        $key_lower = strtolower($meta_key);
-                        if (false !== strpos($key_lower, 'price') || false !== strpos($key_lower, 'deposit') || false !== strpos($key_lower, 'currency')) {
-                            $group = 'price';
-                        } elseif (false !== strpos($key_lower, 'lat') || false !== strpos($key_lower, 'lng') || false !== strpos($key_lower, 'city') || false !== strpos($key_lower, 'location') || false !== strpos($key_lower, 'meeting_point') || false !== strpos($key_lower, 'pickup') || false !== strpos($key_lower, 'departure') || false !== strpos($key_lower, 'delivery') || false !== strpos($key_lower, 'destination')) {
-                            $group = 'location';
-                        } else {
-                            $group = 'details';
-                        }
-                        $groups[$group]['fields'][$meta_key] = $cfg;
-                    }
+                <input type="hidden" name="slot_id" id="bw-slot-id" value="">
 
-                    $render_field = static function ($meta_key, $cfg, $is_edit, $listing_id) {
-                        $ftype  = isset($cfg['type']) ? $cfg['type'] : 'text';
-                        $label  = isset($cfg['label']) ? $cfg['label'] : $meta_key;
-                        $value  = $is_edit ? get_post_meta($listing_id, $meta_key, true) : (isset($cfg['default']) ? $cfg['default'] : '');
-                        $span   = ($ftype === 'textarea') ? ' tap-span-2' : '';
-                        echo '<div class="tap-field' . $span . '">';
-                        switch ($ftype) {
-                            case 'checkbox':
-                                echo '<label class="tap-check-label"><input type="checkbox" name="' . esc_attr($meta_key) . '" value="1" ' . checked('1', (string) $value, false) . '> ' . esc_html($label) . '</label>';
-                                break;
-                            case 'select':
-                                echo '<label>' . esc_html($label) . '</label><select name="' . esc_attr($meta_key) . '"><option value="">—</option>';
-                                foreach ($cfg['options'] as $k => $v) {
-                                    $sel = (string) $value !== '' && (string) $k === (string) $value ? ' selected' : '';
-                                    echo '<option value="' . esc_attr($k) . '"' . $sel . '>' . esc_html($v) . '</option>';
-                                }
-                                echo '</select>';
-                                break;
-                            case 'number':
-                                $step = isset($cfg['step']) ? ' step="' . esc_attr($cfg['step']) . '"' : '';
-                                $min = '';
-                                if (false !== stripos($meta_key, '_lat')) { $min = ' min="-90" max="90"'; }
-                                elseif (false !== stripos($meta_key, '_lng')) { $min = ' min="-180" max="180"'; }
-                                else { $min = ' min="0"'; }
-                                echo '<label>' . esc_html($label) . '</label><input type="number" name="' . esc_attr($meta_key) . '"' . $min . $step . ' value="' . esc_attr($value) . '">';
-                                break;
-                            case 'email':
-                                echo '<label>' . esc_html($label) . '</label><input type="email" name="' . esc_attr($meta_key) . '" value="' . esc_attr($value) . '">';
-                                break;
-                            case 'url':
-                                echo '<label>' . esc_html($label) . '</label><input type="url" name="' . esc_attr($meta_key) . '" value="' . esc_attr($value) . '">';
-                                break;
-                            case 'time':
-                                echo '<label>' . esc_html($label) . '</label><input type="time" name="' . esc_attr($meta_key) . '" value="' . esc_attr($value) . '">';
-                                break;
-                            case 'textarea':
-                                echo '<label>' . esc_html($label) . '</label><textarea name="' . esc_attr($meta_key) . '" rows="3">' . esc_textarea($value) . '</textarea>';
-                                break;
-                            default:
-                                echo '<label>' . esc_html($label) . '</label><input type="text" name="' . esc_attr($meta_key) . '" value="' . esc_attr($value) . '">';
-                        }
-                        echo '<span class="tap-field-error" style="color:var(--tap-error);font-size:var(--tap-text-xs);min-height:1em;"></span>';
-                        echo '</div>';
-                    };
-
-		foreach ($groups as $gkey => $gdata) {
-			if (empty($gdata['fields'])) {
-				continue;
-			}
-			echo '<div class="tap-field tap-span-2 tap-section-head" style="margin-top:var(--tap-space-4);"><strong>' . esc_html($gdata['title']) . '</strong></div>';
-			foreach ($gdata['fields'] as $mk => $cfg) {
-				$render_field($mk, $cfg, $is_edit, $listing_id);
-			}
-		}
-		?>
-                    <?php
-                    // Coordinate map picker (when lat/lng fields exist).
-                    $has_coords = false;
-                    foreach ($fields as $mk => $cfg) {
-                        if (false !== stripos($mk, '_lat') || false !== stripos($mk, '_lng')) { $has_coords = true;
-							break; }
-                    }
-                    if ($has_coords) {
-                        $lat_val = '';
-                        $lng_val = '';
-                        foreach ($fields as $mk => $cfg) {
-                            if (false !== stripos($mk, '_lat')) { $lat_val = $is_edit ? get_post_meta($listing_id, $mk, true) : ''; }
-                            if (false !== stripos($mk, '_lng')) { $lng_val = $is_edit ? get_post_meta($listing_id, $mk, true) : ''; }
-                        }
-                        if ('' === $lat_val) { $lat_val = '9.93'; }
-                        if ('' === $lng_val) { $lng_val = '-84.08'; }
-                        ?>
-                        <div class="tap-field tap-span-2" style="margin-top:var(--tap-space-3);">
-                            <label><?php esc_html_e('Ubicar en el mapa (arrastra el marcador)', 'travel-agency-platform'); ?></label>
-                            <div id="tap-listing-map" style="height:260px;border-radius:var(--tap-radius);overflow:hidden;border:1px solid var(--tap-border);"></div>
-                            <input type="hidden" id="tap-map-lat-init" value="<?php echo esc_attr($lat_val); ?>">
-                            <input type="hidden" id="tap-map-lng-init" value="<?php echo esc_attr($lng_val); ?>">
-                        </div>
-                        <?php
-                    }
-                    ?>
+                <!-- Progress bar -->
+                <div class="tap-wz">
+                    <div class="tap-wz-bar">
+                        <div class="tap-wz-fill" id="tap-wz-fill"></div>
+                    </div>
+                    <div class="tap-wz-steps">
+                        <button type="button" class="tap-wz-step is-active" data-step="1"><span class="tap-wz-num">1</span><span class="tap-wz-label">Información</span></button>
+                        <button type="button" class="tap-wz-step" data-step="2"><span class="tap-wz-num">2</span><span class="tap-wz-label">Precios</span></button>
+                        <button type="button" class="tap-wz-step" data-step="3"><span class="tap-wz-num">3</span><span class="tap-wz-label">Detalles</span></button>
+                        <button type="button" class="tap-wz-step" data-step="4"><span class="tap-wz-num">4</span><span class="tap-wz-label">Publicar</span></button>
+                    </div>
+                    <div class="tap-wz-counter">Paso <strong id="tap-wz-cur">1</strong> de <strong>4</strong></div>
                 </div>
-                <div class="tap-wizard-step tap-wizard-grid" data-step="3" style="display:none;">
-                    <?php
-                    // SEO section
-                    $seo_fields = [];
-                    foreach (['_tap_seo_title', '_tap_seo_description'] as $sk) {
-                        if (isset($fields[$sk])) {
-                            $seo_fields[$sk] = $fields[$sk];
-                        }
-                    }
-                    if ($seo_fields) {
-                        echo '<div class="tap-field tap-span-2 tap-section-head" style="margin-top:var(--tap-space-4);"><strong>' . esc_html__('SEO', 'travel-agency-platform') . '</strong></div>';
-                        foreach ($seo_fields as $mk => $cfg) {
-                            $render_field($mk, $cfg, $is_edit, $listing_id);
-                        }
-                    }
-                    ?>
-                    <div class="tap-field tap-span-2">
-                        <label><?php esc_html_e('Destino', 'travel-agency-platform'); ?></label>
-                        <?php
-                        $dest_sel = 0;
-                        if ($is_edit) {
-                            $dterms = get_the_terms($listing_id, 'tap_location');
-                            $highest_level = -1;
-                            if (is_array($dterms)) {
-                                foreach ($dterms as $dt) {
-                                    $dl = TAP_Destinations::term_level($dt->term_id);
-                                    $dl = $dl !== null ? $dl : TAP_Destinations::term_depth($dt->term_id);
-                                    if ($dl > $highest_level) {
-                                        $highest_level = $dl;
-                                        $dest_sel = (int) $dt->term_id;
-                                    }
+
+                <!-- Step 1: Información -->
+                <div class="tap-wz-panel" data-step="1">
+                    <div class="tap-wz-section">
+                        <h3 class="tap-wz-title">Información básica</h3>
+                        <div class="tap-wz-grid">
+                            <div class="tap-wz-field tap-wz-span2">
+                                <label>Nombre *</label>
+                                <input type="text" name="title" required value="<?php echo esc_attr($listing ? $listing->post_title : ''); ?>">
+                            </div>
+                            <div class="tap-wz-field tap-wz-span2">
+                                <label>Descripción</label>
+                                <textarea name="description" rows="4"><?php echo esc_textarea($listing ? $listing->post_content : ''); ?></textarea>
+                            </div>
+                            <div class="tap-wz-field tap-wz-span2">
+                                <label>Fotos</label>
+                                <?php
+                                $main_id     = $is_edit ? (int) get_post_thumbnail_id($listing_id) : 0;
+                                $gallery_ids = $is_edit
+                                    ? array_filter(array_map('trim', explode(',', (string) get_post_meta($listing_id, '_tap_' . $prefix . '_gallery', true))))
+                                    : [];
+                                echo TAP_Acc_Wizard_Room_Form::render_image_uploader($listing_id, $main_id, $gallery_ids, [
+                                    'main_id'      => 'featured_attachment_id',
+                                    'gallery_ids'  => 'gallery_attachment_ids',
+                                    'main_url'     => 'featured_image_url',
+                                    'gallery_urls' => 'gallery_urls',
+                                    'listing_id'   => $listing_id,
+                                    'listing_type' => $type,
+                                ]);
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tap-wz-nav">
+                        <span></span>
+                        <button type="button" class="tap-wz-next">Siguiente &rarr;</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Precios y ubicación -->
+                <div class="tap-wz-panel" data-step="2" style="display:none;">
+                    <div class="tap-wz-section">
+                        <h3 class="tap-wz-title">Precios y ubicación</h3>
+                        <div class="tap-wz-grid">
+                            <?php
+                            $price_fields = [];
+                            $loc_fields = [];
+                            foreach ($fields as $mk => $cfg) {
+                                if (strpos($mk, '_tap_' . $prefix . '_agency_id') !== false) continue;
+                                if ($mk === '_tap_seo_title' || $mk === '_tap_seo_description') continue;
+                                $kl = strtolower($mk);
+                                if (false !== strpos($kl, 'price') || false !== strpos($kl, 'deposit') || false !== strpos($kl, 'currency')) {
+                                    $price_fields[$mk] = $cfg;
+                                } elseif (false !== strpos($kl, 'lat') || false !== strpos($kl, 'lng') || false !== strpos($kl, 'city') || false !== strpos($kl, 'location') || false !== strpos($kl, 'meeting_point') || false !== strpos($kl, 'pickup') || false !== strpos($kl, 'destination')) {
+                                    $loc_fields[$mk] = $cfg;
                                 }
                             }
-                        }
-                        echo TAP_Destinations::render_picker($dest_sel, 'destination');
-                        ?>
+                            $render_field_simple = static function ($mk, $cfg, $is_edit, $listing_id) {
+                                $ftype = $cfg['type'] ?? 'text';
+                                $label = $cfg['label'] ?? $mk;
+                                $value = $is_edit ? get_post_meta($listing_id, $mk, true) : ($cfg['default'] ?? '');
+                                echo '<div class="tap-wz-field">';
+                                switch ($ftype) {
+                                    case 'checkbox':
+                                        echo '<label class="tap-wz-check"><input type="checkbox" name="' . esc_attr($mk) . '" value="1" ' . checked('1', (string) $value, false) . '> ' . esc_html($label) . '</label>';
+                                        break;
+                                    case 'select':
+                                        echo '<label>' . esc_html($label) . '</label><select name="' . esc_attr($mk) . '"><option value="">—</option>';
+                                        foreach ($cfg['options'] as $k => $v) {
+                                            $sel = (string) $value !== '' && (string) $k === (string) $value ? ' selected' : '';
+                                            echo '<option value="' . esc_attr($k) . '"' . $sel . '>' . esc_html($v) . '</option>';
+                                        }
+                                        echo '</select>';
+                                        break;
+                                    case 'number':
+                                        $step = isset($cfg['step']) ? ' step="' . esc_attr($cfg['step']) . '"' : '';
+                                        echo '<label>' . esc_html($label) . '</label><input type="number" name="' . esc_attr($mk) . '"' . $step . ' value="' . esc_attr($value) . '" min="0">';
+                                        break;
+                                    case 'time':
+                                        echo '<label>' . esc_html($label) . '</label><input type="time" name="' . esc_attr($mk) . '" value="' . esc_attr($value) . '">';
+                                        break;
+                                    case 'textarea':
+                                        echo '<label>' . esc_html($label) . '</label><textarea name="' . esc_attr($mk) . '" rows="3">' . esc_textarea($value) . '</textarea>';
+                                        break;
+                                    default:
+                                        echo '<label>' . esc_html($label) . '</label><input type="text" name="' . esc_attr($mk) . '" value="' . esc_attr($value) . '">';
+                                }
+                                echo '</div>';
+                            };
+                            if ($price_fields) {
+                                echo '<div class="tap-wz-group-title">Precios</div>';
+                                foreach ($price_fields as $mk => $cfg) $render_field_simple($mk, $cfg, $is_edit, $listing_id);
+                            }
+                            if ($loc_fields) {
+                                echo '<div class="tap-wz-group-title">Ubicación</div>';
+                                foreach ($loc_fields as $mk => $cfg) $render_field_simple($mk, $cfg, $is_edit, $listing_id);
+                            }
+                            // Map picker
+                            $has_coords = false;
+                            foreach ($fields as $mk => $cfg) {
+                                if (false !== stripos($mk, '_lat') || false !== stripos($mk, '_lng')) { $has_coords = true;
+break; }
+                            }
+                            if ($has_coords) {
+                                $lat_val = '';
+$lng_val = '';
+                                foreach ($fields as $mk => $cfg) {
+                                    if (false !== stripos($mk, '_lat')) $lat_val = $is_edit ? get_post_meta($listing_id, $mk, true) : '';
+                                    if (false !== stripos($mk, '_lng')) $lng_val = $is_edit ? get_post_meta($listing_id, $mk, true) : '';
+                                }
+                                if ('' === $lat_val) $lat_val = '9.93';
+                                if ('' === $lng_val) $lng_val = '-84.08';
+                                ?>
+                                <div class="tap-wz-field tap-wz-span2">
+                                    <label><?php esc_html_e('Ubicar en el mapa', 'travel-agency-platform'); ?></label>
+                                    <div id="tap-listing-map" style="height:220px;border-radius:8px;overflow:hidden;border:1px solid var(--tap-border,#e5e7eb);"></div>
+                                    <input type="hidden" id="tap-map-lat-init" value="<?php echo esc_attr($lat_val); ?>">
+                                    <input type="hidden" id="tap-map-lng-init" value="<?php echo esc_attr($lng_val); ?>">
+                                </div>
+                            <?php } ?>
+                        </div>
                     </div>
-                    <div class="tap-field">
-                        <label><?php esc_html_e('Modo de reserva', 'travel-agency-platform'); ?></label>
-                        <select name="booking_mode">
-                            <option value="instant" <?php selected(TAP_Booking::booking_mode($type, $listing_id), 'instant'); ?>><?php esc_html_e('Reserva directa (pago inmediato)', 'travel-agency-platform'); ?></option>
-                            <option value="request" <?php selected(TAP_Booking::booking_mode($type, $listing_id), 'request'); ?>><?php esc_html_e('Solicitud de reserva (la agencia confirma antes del pago)', 'travel-agency-platform'); ?></option>
-                        </select>
+                    <div class="tap-wz-nav">
+                        <button type="button" class="tap-wz-prev">&larr; Anterior</button>
+                        <button type="button" class="tap-wz-next">Siguiente &rarr;</button>
                     </div>
                 </div>
-                <div class="tap-wizard-step tap-wizard-grid" data-step="4" style="display:none;">
-                    <?php if ($is_edit): ?>
-                    <div class="tap-field tap-span-2">
-                        <?php $is_published = 'publish' === $listing->post_status; ?>
-                        <button type="button" class="tap-btn <?php echo $is_published ? 'tap-btn-danger' : 'tap-btn-primary'; ?>" data-publish="<?php echo $is_published ? '0' : '1'; ?>">
-                            <?php echo $is_published ? esc_html__('Despublicar', 'travel-agency-platform') : esc_html__('Publicar', 'travel-agency-platform'); ?>
-                        </button>
-                        <span class="tap-form-msg" style="margin-left:0;margin-top:6px;"><?php echo $is_published ? esc_html__('El servicio está visible para los viajeros.', 'travel-agency-platform') : esc_html__('El servicio está en borrador o en revisión.', 'travel-agency-platform'); ?></span>
+
+                <!-- Step 3: Detalles -->
+                <div class="tap-wz-panel" data-step="3" style="display:none;">
+                    <div class="tap-wz-section">
+                        <h3 class="tap-wz-title">Detalles del servicio</h3>
+                        <div class="tap-wz-grid">
+                            <?php
+                            $detail_fields = [];
+                            foreach ($fields as $mk => $cfg) {
+                                if (strpos($mk, '_tap_' . $prefix . '_agency_id') !== false) continue;
+                                if ($mk === '_tap_seo_title' || $mk === '_tap_seo_description') continue;
+                                $kl = strtolower($mk);
+                                if (false !== strpos($kl, 'price') || false !== strpos($kl, 'deposit') || false !== strpos($kl, 'currency')) continue;
+                                if (false !== strpos($kl, 'lat') || false !== strpos($kl, 'lng') || false !== strpos($kl, 'city') || false !== strpos($kl, 'location') || false !== strpos($kl, 'meeting_point') || false !== strpos($kl, 'pickup') || false !== strpos($kl, 'departure') || false !== strpos($kl, 'delivery') || false !== strpos($kl, 'destination')) continue;
+                                $detail_fields[$mk] = $cfg;
+                            }
+                            foreach ($detail_fields as $mk => $cfg) $render_field_simple($mk, $cfg, $is_edit, $listing_id);
+                            ?>
+                        </div>
                     </div>
-                    <?php endif; ?>
+                    <div class="tap-wz-nav">
+                        <button type="button" class="tap-wz-prev">&larr; Anterior</button>
+                        <button type="button" class="tap-wz-next">Siguiente &rarr;</button>
+                    </div>
                 </div>
-                <div class="tap-wizard-nav">
-                    <button type="button" class="tap-btn tap-wizard-prev" style="display:none;">&larr; <?php esc_html_e('Anterior', 'travel-agency-platform'); ?></button>
-                    <button type="button" class="tap-btn tap-btn-primary tap-wizard-next"><?php esc_html_e('Siguiente', 'travel-agency-platform'); ?> &rarr;</button>
-                    <button type="submit" class="tap-btn tap-btn-primary tap-wizard-submit" style="display:none;"><?php echo $is_edit ? esc_html__('Guardar cambios', 'travel-agency-platform') : esc_html__('Crear servicio', 'travel-agency-platform'); ?></button>
+
+                <!-- Step 4: SEO y publicación -->
+                <div class="tap-wz-panel" data-step="4" style="display:none;">
+                    <div class="tap-wz-section">
+                        <h3 class="tap-wz-title">SEO y publicación</h3>
+                        <div class="tap-wz-grid">
+                            <?php
+                            $seo_fields = [];
+                            foreach (['_tap_seo_title', '_tap_seo_description'] as $sk) {
+                                if (isset($fields[$sk])) $seo_fields[$sk] = $fields[$sk];
+                            }
+                            foreach ($seo_fields as $mk => $cfg) $render_field_simple($mk, $cfg, $is_edit, $listing_id);
+                            ?>
+                            <div class="tap-wz-field tap-wz-span2">
+                                <label><?php esc_html_e('Destino', 'travel-agency-platform'); ?></label>
+                                <?php
+                                $dest_sel = 0;
+                                if ($is_edit) {
+                                    $dterms = get_the_terms($listing_id, 'tap_location');
+                                    $highest_level = -1;
+                                    if (is_array($dterms)) {
+                                        foreach ($dterms as $dt) {
+                                            $dl = TAP_Destinations::term_level($dt->term_id);
+                                            $dl = $dl !== null ? $dl : TAP_Destinations::term_depth($dt->term_id);
+                                            if ($dl > $highest_level) { $highest_level = $dl;
+$dest_sel = (int) $dt->term_id; }
+                                        }
+                                    }
+                                }
+                                echo TAP_Destinations::render_picker($dest_sel, 'destination');
+                                ?>
+                            </div>
+                            <div class="tap-wz-field">
+                                <label><?php esc_html_e('Modo de reserva', 'travel-agency-platform'); ?></label>
+                                <select name="booking_mode">
+                                    <option value="instant" <?php selected(TAP_Booking::booking_mode($type, $listing_id), 'instant'); ?>><?php esc_html_e('Reserva directa', 'travel-agency-platform'); ?></option>
+                                    <option value="request" <?php selected(TAP_Booking::booking_mode($type, $listing_id), 'request'); ?>><?php esc_html_e('Solicitud de reserva', 'travel-agency-platform'); ?></option>
+                                </select>
+                            </div>
+                            <?php if ($is_edit): ?>
+                            <div class="tap-wz-field tap-wz-span2">
+                                <?php $is_published = 'publish' === $listing->post_status; ?>
+                                <button type="button" class="tap-btn <?php echo $is_published ? 'tap-btn-danger' : 'tap-btn-primary'; ?>" data-publish="<?php echo $is_published ? '0' : '1'; ?>">
+                                    <?php echo $is_published ? esc_html__('Despublicar', 'travel-agency-platform') : esc_html__('Publicar', 'travel-agency-platform'); ?>
+                                </button>
+                            </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <div class="tap-wz-nav">
+                        <button type="button" class="tap-wz-prev">&larr; Anterior</button>
+                        <button type="submit" class="tap-btn tap-btn-primary tap-wz-submit"><?php echo $is_edit ? esc_html__('Guardar cambios', 'travel-agency-platform') : esc_html__('Crear servicio', 'travel-agency-platform'); ?></button>
+                    </div>
                 </div>
-                <span class="tap-form-msg"></span>
             </form>
 
-        </div>
-
-        <style>
-        .tap-wizard-bar{margin-bottom:24px;}
-        .tap-wizard-progress{position:relative;}
-        .tap-wizard-progress-track{height:4px;background:var(--tap-border);border-radius:2px;overflow:hidden;margin-bottom:16px;}
-        .tap-wizard-progress-fill{height:100%;background:linear-gradient(90deg,var(--tap-primary),var(--tap-primary-dark));border-radius:2px;transition:width .4s cubic-bezier(.4,0,.2,1);width:25%;}
-        .tap-wizard-steps{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;}
-        .tap-wizard-step{display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid var(--tap-neutral-300);border-radius:10px;background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:var(--tap-neutral-600);transition:all .25s;flex:1;min-width:120px;justify-content:center;}
-        .tap-wizard-step.is-active{background:var(--tap-primary);color:#fff;border-color:var(--tap-primary);box-shadow:0 4px 12px rgba(13,148,136,.3);}
-        .tap-wizard-step:hover:not(.is-active){background:var(--tap-neutral-100);border-color:var(--tap-neutral-400);transform:translateY(-1px);}
-        .tap-wizard-step.is-done{background:var(--tap-success-bg, #ecfdf5);color:var(--tap-success-dark, #047857);border-color:var(--tap-success-border, #a7f3d0);}
-        .tap-wizard-step-num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.08);font-weight:700;font-size:12px;transition:all .25s;}
-        .tap-wizard-step.is-active .tap-wizard-step-num{background:rgba(255,255,255,.25);}
-        .tap-wizard-step.is-done .tap-wizard-step-num{background:var(--tap-success, #10b981);color:#fff;}
-        .tap-wizard-step-label{white-space:nowrap;}
-        .tap-wizard-counter{text-align:center;margin-top:8px;font-size:13px;color:var(--tap-neutral-500);}
-        .tap-wizard-counter strong{color:var(--tap-primary);}
-        .tap-wizard-step{animation:fadeIn .3s ease;}
-        @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-        .tap-wizard-nav{display:flex;justify-content:space-between;align-items:center;margin-top:20px;padding-top:16px;border-top:1px solid var(--tap-border,var(--tap-border));gap:8px;}
-        .tap-wizard-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--tap-space-4,16px);}
-        @media (max-width:600px){.tap-wizard-grid{grid-template-columns:1fr;}}
-        .tap-wizard-bar{background:linear-gradient(135deg,var(--tap-primary-bg),#fff);border:1px solid var(--tap-primary-border);border-radius:12px;padding:20px;margin-bottom:24px;}
-        .tap-wizard-steps{display:flex;gap:8px;flex-wrap:wrap;list-style:none;margin:0;padding:0;}
-        .tap-wizard-step-num{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,.06);font-weight:700;font-size:13px;margin-right:4px;}
-        .tap-wizard-step.is-active .tap-wizard-step-num{background:rgba(255,255,255,.3);}
-        .tap-wizard-step.is-done .tap-wizard-step-num{background:var(--tap-success, #10b981);color:#fff;}
-        .tap-wizard-step{display:flex;align-items:center;padding:10px 14px;border:1px solid var(--tap-neutral-300);border-radius:10px;background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:var(--tap-neutral-600);transition:all .25s;flex:1;min-width:130px;justify-content:center;}
-        .tap-wizard-step.is-active{background:var(--tap-primary);color:#fff;border-color:var(--tap-primary);box-shadow:0 4px 14px rgba(13,148,136,.35);}
-        .tap-wizard-step:hover:not(.is-active){background:var(--tap-neutral-50);border-color:var(--tap-neutral-400);transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.08);}
-        .tap-wizard-step-label{margin-left:4px;}
-        .tap-wizard-counter{text-align:center;margin-top:10px;font-size:13px;color:var(--tap-neutral-500);}
-        .tap-wizard-counter strong{color:var(--tap-primary);font-weight:700;}
-        .tap-wizard-progress-track{height:6px;background:var(--tap-border);border-radius:3px;overflow:hidden;margin-bottom:14px;}
-        .tap-wizard-progress-fill{height:100%;background:linear-gradient(90deg,var(--tap-primary),var(--tap-primary-light));border-radius:3px;transition:width .5s cubic-bezier(.4,0,.2,1);}
-        .tap-wizard-nav{display:flex;justify-content:space-between;align-items:center;margin-top:24px;padding-top:16px;border-top:1px solid var(--tap-border);gap:8px;}
-        .tap-wizard-prev,.tap-wizard-next,.tap-wizard-submit{min-width:130px;padding:10px 18px;border-radius:8px;font-weight:600;}
-        .tap-wizard-step{animation:fadeIn .35s ease;}
-        @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-        @media (max-width:600px){.tap-wizard-step{min-width:0;flex-basis:48%;font-size:12px;padding:8px 10px;}.tap-wizard-step-label{display:none;}.tap-wizard-bar{padding:14px;}}
-        .tap-wizard-prev,.tap-wizard-next,.tap-wizard-submit{min-width:120px;}
-        @media (max-width:600px){.tap-wizard-step{min-width:0;flex-basis:48%;font-size:12px;padding:8px 10px;}.tap-wizard-step-label{display:none;}}
-        </style>
-        <script>
-        (function(){
-            var form = document.getElementById('tap-listing-form');
-            if (!form) return;
-            var steps = form.querySelectorAll('.tap-wizard-step');
-            var btns = form.querySelectorAll('.tap-wizard-step');
-            var nextBtn = form.querySelector('.tap-wizard-next');
-            var prevBtn = form.querySelector('.tap-wizard-prev');
-            var submitBtn = form.querySelector('.tap-wizard-submit');
-            var fill = document.getElementById('tap-wiz-fill');
-            var counter = document.getElementById('tap-wiz-cur');
-            var current = 1;
-            var total = steps.length;
-            function show(n){
-                if (n < 1) n = 1;
-                if (n > total) n = total;
-                current = n;
-                steps.forEach(function(s){ s.style.display = (parseInt(s.dataset.step,10)===n) ? '' : 'none'; });
-                btns.forEach(function(b, idx){
-                    b.classList.toggle('is-active', parseInt(b.dataset.step,10)===n);
-                    if (parseInt(b.dataset.step,10) < n) b.classList.add('is-done');
-                    else b.classList.remove('is-done');
-                });
-                if (prevBtn) prevBtn.style.display = (n>1) ? '' : 'none';
-                if (nextBtn) nextBtn.style.display = (n<total) ? '' : 'none';
-                if (submitBtn) submitBtn.style.display = (n===total) ? '' : 'none';
-                if (fill) fill.style.width = (n/total*100) + '%';
-                if (counter) counter.textContent = n;
-                // scroll to top of form
-                var top = form.getBoundingClientRect().top + window.scrollY - 20;
-                if (window.scrollY > top) window.scrollTo({top: top, behavior:'smooth'});
-            }
-            btns.forEach(function(b){ b.addEventListener('click', function(){ show(parseInt(b.dataset.step,10)); }); });
-            if (nextBtn) nextBtn.addEventListener('click', function(){ show(current+1); });
-            if (prevBtn) prevBtn.addEventListener('click', function(){ show(current-1); });
-            show(1);
-        })();
-        </script>
+            <style>
+            .tap-wz{font-family:inherit;}
+            .tap-wz-bar{background:var(--tap-primary-bg);border:1px solid var(--tap-primary-border);border-radius:var(--tap-radius-xl);padding:20px;margin-bottom:24px;}
+            .tap-wz-progress{margin-bottom:14px;}
+            .tap-wz-progress-track{height:6px;background:var(--tap-neutral-200);border-radius:3px;overflow:hidden;}
+            .tap-wz-progress-fill{height:100%;background:linear-gradient(90deg,var(--tap-primary),var(--tap-primary-dark));border-radius:3px;transition:width .4s cubic-bezier(.4,0,.2,1);width:25%;}
+            .tap-wz-steps{display:flex;gap:8px;flex-wrap:wrap;list-style:none;margin:0;padding:0;}
+            .tap-wz-step{flex:1 1 0;min-width:120px;padding:0;position:relative;}
+            .tap-wz-step > button{display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid var(--tap-neutral-300);border-radius:10px;background:#fff;color:var(--tap-neutral-600);font-size:13px;font-weight:600;cursor:pointer;height:100%;transition:all .25s;width:100%;}
+            .tap-wz-step.is-active > button{background:var(--tap-primary);color:#fff;border-color:var(--tap-primary);box-shadow:0 4px 14px rgba(13,148,136,.35);}
+            .tap-wz-step.is-done > button{background:var(--tap-success-bg,#ecfdf5);color:var(--tap-success-dark,#047857);border-color:var(--tap-success-border,#a7f3d0);}
+            .tap-wz-step > button:hover:not(.is-active){background:var(--tap-neutral-50);border-color:var(--tap-neutral-400);transform:translateY(-2px);}
+            .tap-wz-num{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:rgba(0,0,0,.06);font-weight:700;font-size:12px;}
+            .tap-wz-step.is-active .tap-wz-num{background:rgba(255,255,255,.25);}
+            .tap-wz-step.is-done .tap-wz-num{background:var(--tap-success,#10b981);color:#fff;}
+            .tap-wz-label{white-space:nowrap;}
+            .tap-wz-counter{text-align:center;margin-top:8px;font-size:13px;color:var(--tap-neutral-500);}
+            .tap-wz-counter strong{color:var(--tap-primary);font-weight:700;}
+            .tap-wz-panel{animation:fadeIn .3s ease;}
+            @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+            .tap-wz-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--tap-space-4,16px);}
+            .tap-wz-field{display:flex;flex-direction:column;gap:4px;}
+            .tap-wz-field label{font-size:13px;font-weight:600;color:var(--tap-neutral-700);}
+            .tap-wz-field input,.tap-wz-field select,.tap-wz-field textarea{padding:8px 10px;border:1px solid var(--tap-neutral-300);border-radius:var(--tap-radius-md,6px);font-size:14px;font-family:inherit;}
+            .tap-wz-field input:focus,.tap-wz-field select:focus,.tap-wz-field textarea:focus{outline:none;border-color:var(--tap-primary);box-shadow:0 0 0 3px rgba(13,148,136,.15);}
+            .tap-wz-span2{grid-column:1/-1;}
+            .tap-wz-section{margin-bottom:16px;}
+            .tap-wz-title{margin:0 0 12px;font-size:1.1rem;color:var(--tap-neutral-800);}
+            .tap-wz-group-title{grid-column:1/-1;font-weight:700;font-size:13px;color:var(--tap-neutral-600);margin-top:8px;padding-bottom:4px;border-bottom:1px solid var(--tap-neutral-200);}
+            .tap-wz-nav{display:flex;justify-content:space-between;align-items:center;margin-top:20px;padding-top:16px;border-top:1px solid var(--tap-neutral-200);gap:8px;}
+            .tap-wz-prev,.tap-wz-next,.tap-wz-submit{min-width:120px;padding:10px 18px;border-radius:8px;font-weight:600;border:1px solid var(--tap-neutral-300);background:#fff;color:var(--tap-neutral-700);cursor:pointer;transition:all .2s;}
+            .tap-wz-next,.tap-wz-submit{background:var(--tap-primary);color:#fff;border-color:var(--tap-primary);}
+            .tap-wz-next:hover,.tap-wz-submit:hover{background:var(--tap-primary-dark);transform:translateY(-1px);}
+            .tap-wz-prev:hover{background:var(--tap-neutral-100);}
+            .tap-wz-check{display:flex;align-items:center;gap:6px;font-weight:400;}
+            @media (max-width:600px){.tap-wz-grid{grid-template-columns:1fr;}.tap-wz-step{min-width:0;flex-basis:48%;}.tap-wz-step span:last-child{display:none;}}
+            </style>
+            <script>
+            (function(){
+                var form = document.getElementById('tap-listing-form');
+                if (!form) return;
+                var steps = form.querySelectorAll('.tap-wz-panel');
+                var btns = form.querySelectorAll('.tap-wz-step');
+                var nextBtns = form.querySelectorAll('.tap-wz-next');
+                var prevBtns = form.querySelectorAll('.tap-wz-prev');
+                var submitBtn = form.querySelector('.tap-wz-submit');
+                var fill = document.getElementById('tap-wz-fill');
+                var counter = document.getElementById('tap-wz-cur');
+                var current = 1;
+                var total = steps.length;
+                function show(n){
+                    if (n < 1) n = 1;
+                    if (n > total) n = total;
+                    current = n;
+                    steps.forEach(function(s){ s.style.display = (parseInt(s.dataset.step,10)===n) ? '' : 'none'; });
+                    btns.forEach(function(b){ 
+                        var bs = parseInt(b.dataset.step,10);
+                        b.classList.toggle('is-active', bs===n);
+                        b.classList.toggle('is-done', bs<n);
+                    });
+                    if (fill) fill.style.width = (n/total*100) + '%';
+                    if (counter) counter.textContent = n;
+                    var top = form.getBoundingClientRect().top + window.scrollY - 20;
+                    if (window.scrollY > top) window.scrollTo({top: top, behavior:'smooth'});
+                }
+                btns.forEach(function(b){ b.addEventListener('click', function(){ show(parseInt(b.dataset.step,10)); }); });
+                nextBtns.forEach(function(b){ b.addEventListener('click', function(){ show(current+1); }); });
+                prevBtns.forEach(function(b){ b.addEventListener('click', function(){ show(current-1); }); });
+                show(1);
+            })();
+            </script>
         <?php
         // Reuse the shared wizard bundle: it provides the Media Library uploader,
         // toasts, publish toggle and form submission. The generic editor has no
