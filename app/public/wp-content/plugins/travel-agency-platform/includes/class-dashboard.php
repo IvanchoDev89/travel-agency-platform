@@ -9,6 +9,7 @@ class TAP_Dashboard {
         add_action('admin_post_tap_destinations_save', [TAP_Dashboard_Destinations::class, 'handle_save']);
         add_action('admin_post_tap_destinations_add', [TAP_Dashboard_Destinations::class, 'handle_add']);
         add_action('admin_post_tap_landing_save', [TAP_Landing_Builder::class, 'handle_save']);
+        add_action('wp_ajax_tap_landing_save_ajax', [TAP_Landing_Builder::class, 'ajax_save']);
         TAP_Dashboard_Market::init();
         add_filter('manage_tap_accommodation_posts_columns', [TAP_Dashboard_Content::class, 'add_agency_column']);
         add_action('manage_tap_accommodation_posts_custom_column', [TAP_Dashboard_Content::class, 'render_agency_column'], 10, 2);

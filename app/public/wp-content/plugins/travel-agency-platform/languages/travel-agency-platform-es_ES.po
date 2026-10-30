@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-10-30T22:06:11+00:00\n"
+"POT-Creation-Date: 2026-10-30T22:28:56+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -52,7 +52,8 @@ msgstr "%s / noche"
 #. translators: %s: price
 #: includes/class-acc-wizard-room-form.php:47
 #: includes/class-dashboard-content.php:363
-#: includes/class-landing-builder.php:222
+#: includes/class-landing-builder.php:239
+#: includes/class-landing-builder.php:304
 msgid "Activa"
 msgstr "Activa"
 
@@ -62,7 +63,9 @@ msgid "Inactiva"
 msgstr "Inactiva"
 
 #: includes/class-acc-wizard-room-form.php:52
-#: includes/class-email-campaigns.php:263 includes/class-listing-editor.php:143
+#: includes/class-email-campaigns.php:263
+#: includes/class-landing-builder.php:241
+#: includes/class-landing-builder.php:305 includes/class-listing-editor.php:143
 msgid "Editar"
 msgstr "Editar"
 
@@ -168,6 +171,7 @@ msgstr "Tipo de cama"
 #: includes/class-acc-wizard-room-form.php:144
 #: includes/class-acc-wizard-steps.php:487 includes/class-acc-wizard.php:37
 #: includes/class-dashboard-insights.php:270
+#: includes/class-landing-builder.php:395
 msgid "Cantidad"
 msgstr "Cantidad"
 
@@ -193,8 +197,10 @@ msgstr "Unidad activa"
 #: includes/class-dashboard-content.php:376
 #: includes/class-email-campaigns.php:267
 #: includes/class-front-dash-client.php:468
-#: includes/class-listing-editor.php:505 includes/class-metaboxes.php:110
-#: includes/class-metaboxes.php:130 includes/class-metaboxes.php:264
+#: includes/class-landing-builder.php:242
+#: includes/class-landing-builder.php:306 includes/class-listing-editor.php:505
+#: includes/class-metaboxes.php:110 includes/class-metaboxes.php:130
+#: includes/class-metaboxes.php:264
 msgid "Eliminar"
 msgstr "Eliminar"
 
@@ -834,6 +840,7 @@ msgid "Error"
 msgstr "Error"
 
 #: includes/class-acc-wizard-steps.php:403
+#: includes/class-landing-builder.php:351
 msgid "Error de conexión."
 msgstr "Error de conexión."
 
@@ -1067,8 +1074,9 @@ msgstr "p.ej. Hotel Aurora – Habitación Vista Mar"
 
 #: includes/class-acc-wizard-steps.php:651
 #: includes/class-acc-wizard-steps.php:922 includes/class-front-dash.php:992
-#: includes/class-listing-editor.php:241 includes/class-metaboxes.php:91
-#: includes/class-shortcode-booking.php:770
+#: includes/class-landing-builder.php:409
+#: includes/class-landing-builder.php:419 includes/class-listing-editor.php:241
+#: includes/class-metaboxes.php:91 includes/class-shortcode-booking.php:770
 msgid "Descripción"
 msgstr "Descripción"
 
@@ -1325,7 +1333,8 @@ msgstr "Confirmar"
 #: includes/class-dashboard-money.php:451
 #: includes/class-dashboard-money.php:488
 #: includes/class-front-dash-client.php:290 includes/class-front-dash.php:484
-#: includes/class-front-dash.php:540 includes/class-listing-editor.php:492
+#: includes/class-front-dash.php:540 includes/class-landing-builder.php:259
+#: includes/class-listing-editor.php:492
 #: includes/class-shortcode-booking.php:303
 #: includes/class-shortcode-booking.php:323
 #: includes/class-shortcode-booking.php:325
@@ -2868,7 +2877,12 @@ msgstr "Pago"
 msgid "Email"
 msgstr "Correo"
 
-#: includes/class-dashboard-bookings.php:176 includes/class-privacy.php:459
+#: includes/class-dashboard-bookings.php:176
+#: includes/class-landing-builder.php:384
+#: includes/class-landing-builder.php:393
+#: includes/class-landing-builder.php:401
+#: includes/class-landing-builder.php:407
+#: includes/class-landing-builder.php:417 includes/class-privacy.php:459
 msgid "Título"
 msgstr "Título"
 
@@ -2916,8 +2930,8 @@ msgstr "Creado"
 
 #: includes/class-dashboard-bookings.php:238
 #: includes/class-dashboard-insights.php:52
-#: includes/class-dashboard-money.php:397 includes/class-dashboard.php:42
-#: includes/class-dashboard.php:43
+#: includes/class-dashboard-money.php:397 includes/class-dashboard.php:43
+#: includes/class-dashboard.php:44
 #: includes/class-shortcode-agency-panel.php:204
 #: includes/class-shortcode-agency-panel.php:547
 msgid "Bookings"
@@ -3014,8 +3028,8 @@ msgstr "No se encontraron reservas."
 msgid "Cambiar estado"
 msgstr "Cambiar estado"
 
-#: includes/class-dashboard-content.php:59 includes/class-dashboard.php:60
-#: includes/class-dashboard.php:61 includes/class-privacy.php:454
+#: includes/class-dashboard-content.php:59 includes/class-dashboard.php:61
+#: includes/class-dashboard.php:62 includes/class-privacy.php:454
 msgid "Reviews"
 msgstr "Reseñas"
 
@@ -3171,8 +3185,8 @@ msgstr "Pregunta"
 msgid "Mensaje"
 msgstr "Mensaje"
 
-#: includes/class-dashboard-content.php:257 includes/class-dashboard.php:87
-#: includes/class-dashboard.php:88 includes/class-post-types.php:20
+#: includes/class-dashboard-content.php:257 includes/class-dashboard.php:88
+#: includes/class-dashboard.php:89 includes/class-post-types.php:20
 msgid "Agencies"
 msgstr "Agencias"
 
@@ -3294,7 +3308,7 @@ msgid "No se pudo guardar el destino."
 msgstr "No se pudo guardar el destino."
 
 #: includes/class-dashboard-destinations.php:97
-#: includes/class-dashboard.php:168 includes/class-dashboard.php:169
+#: includes/class-dashboard.php:169 includes/class-dashboard.php:170
 #: includes/class-taxonomies.php:18 includes/class-taxonomies.php:28
 msgid "Destinations"
 msgstr "Destinos"
@@ -3355,8 +3369,8 @@ msgstr "No tienes permiso para agregar destinos."
 msgid "No tienes permisos para acceder."
 msgstr "No tienes permisos para acceder."
 
-#: includes/class-dashboard-insights.php:40 includes/class-dashboard.php:96
-#: includes/class-dashboard.php:97
+#: includes/class-dashboard-insights.php:40 includes/class-dashboard.php:97
+#: includes/class-dashboard.php:98
 msgid "Reports"
 msgstr "Reportes"
 
@@ -3421,8 +3435,8 @@ msgstr "Reserva"
 msgid "Sin reserva vinculada"
 msgstr "Sin reserva vinculada"
 
-#: includes/class-dashboard-insights.php:240 includes/class-dashboard.php:105
-#: includes/class-dashboard.php:106 includes/class-front-dash.php:1568
+#: includes/class-dashboard-insights.php:240 includes/class-dashboard.php:106
+#: includes/class-dashboard.php:107 includes/class-front-dash.php:1568
 msgid "Analytics"
 msgstr "Analíticas"
 
@@ -4297,58 +4311,58 @@ msgstr ""
 "Genera las claves en https://vapidkeys.com/ o con web-push. Sin ellas, las "
 "notificaciones caen a email."
 
-#: includes/class-dashboard.php:31 includes/class-dashboard.php:32
+#: includes/class-dashboard.php:32 includes/class-dashboard.php:33
 msgid "Travel Platform"
 msgstr "Plataforma de viajes"
 
-#: includes/class-dashboard.php:51 includes/class-dashboard.php:52
+#: includes/class-dashboard.php:52 includes/class-dashboard.php:53
 msgid "Commissions"
 msgstr "Comisiones"
 
-#: includes/class-dashboard.php:69 includes/class-dashboard.php:70
+#: includes/class-dashboard.php:70 includes/class-dashboard.php:71
 msgid "Moderation"
 msgstr "Moderación"
 
-#: includes/class-dashboard.php:78 includes/class-dashboard.php:79
+#: includes/class-dashboard.php:79 includes/class-dashboard.php:80
 msgid "Disputes"
 msgstr "Disputas"
 
-#: includes/class-dashboard.php:114 includes/class-dashboard.php:115
+#: includes/class-dashboard.php:115 includes/class-dashboard.php:116
 msgid "Invoices"
 msgstr "Facturas"
 
-#: includes/class-dashboard.php:123 includes/class-dashboard.php:124
+#: includes/class-dashboard.php:124 includes/class-dashboard.php:125
 msgid "Email campaigns"
 msgstr "Campañas de email"
 
-#: includes/class-dashboard.php:132 includes/class-dashboard.php:133
+#: includes/class-dashboard.php:133 includes/class-dashboard.php:134
 msgid "Plans"
 msgstr "Planes"
 
-#: includes/class-dashboard.php:141 includes/class-dashboard.php:142
+#: includes/class-dashboard.php:142 includes/class-dashboard.php:143
 msgid "Subscriptions"
 msgstr "Suscripciones"
 
-#: includes/class-dashboard.php:150 includes/class-dashboard.php:151
+#: includes/class-dashboard.php:151 includes/class-dashboard.php:152
 msgid "Promotions"
 msgstr "Promociones"
 
-#: includes/class-dashboard.php:159 includes/class-dashboard.php:160
+#: includes/class-dashboard.php:160 includes/class-dashboard.php:161
 msgid "Settings"
 msgstr "Configuración"
 
-#: includes/class-dashboard.php:177 includes/class-dashboard.php:178
-#: includes/class-landing-builder.php:325
-#: includes/class-landing-builder.php:326
+#: includes/class-dashboard.php:178 includes/class-dashboard.php:179
+#: includes/class-landing-builder.php:504
+#: includes/class-landing-builder.php:505
 msgid "Landing Page"
 msgstr "Landing Page"
 
-#: includes/class-dashboard.php:186 includes/class-dashboard.php:187
+#: includes/class-dashboard.php:187 includes/class-dashboard.php:188
 msgid "Market tools"
 msgstr "Herramientas de mercado"
 
 #. translators: %d: número total de elementos paginados
-#: includes/class-dashboard.php:217
+#: includes/class-dashboard.php:218
 #, php-format
 msgid "%d items"
 msgstr "%d elementos"
@@ -10495,7 +10509,7 @@ msgstr "Email del usuario"
 msgid "usuario@ejemplo.com"
 msgstr "usuario@ejemplo.com"
 
-#: includes/class-front-dash.php:1079 includes/class-landing-builder.php:254
+#: includes/class-front-dash.php:1079 includes/class-landing-builder.php:258
 msgid "Agregar"
 msgstr "Agregar"
 
@@ -11028,39 +11042,98 @@ msgid "Galería"
 msgstr "Galería"
 
 #: includes/class-landing-builder.php:204
-#: includes/class-landing-builder.php:278
+#: includes/class-landing-builder.php:435
+#: includes/class-landing-builder.php:457
 msgid "No tienes permiso."
 msgstr "No tienes permiso."
 
-#: includes/class-landing-builder.php:210
+#: includes/class-landing-builder.php:212
 msgid "Landing Page Builder"
 msgstr "Landing Page Builder"
 
-#: includes/class-landing-builder.php:211
+#: includes/class-landing-builder.php:213
 msgid ""
-"Activa, desactiva y reordena las secciones de la landing page. Los cambios "
-"se reflejan inmediatamente."
-msgstr "Activa, desactiva y reordena las secciones de la landing page. Los cambios se reflejan inmediatamente."
+"Arrastra las secciones para reordenarlas. Activa/desactiva con el toggle. "
+"Haz clic en \"Editar\" para configurar cada sección."
+msgstr "Arrastra las secciones para reordenarlas. Activa/desactiva con el toggle. Haz clic en "Editar" para configurar cada sección."
 
-#: includes/class-landing-builder.php:220
-msgid "Orden"
-msgstr "Orden"
+#: includes/class-landing-builder.php:216
+msgid "Configuración guardada."
+msgstr "Configuración guardada."
 
-#: includes/class-landing-builder.php:221
-msgid "Sección"
-msgstr "Sección"
+#: includes/class-landing-builder.php:219
+#: includes/class-landing-builder.php:448
+msgid "Error al guardar."
+msgstr "Error al guardar."
 
-#: includes/class-landing-builder.php:244
-msgid "Agregar sección"
-msgstr "Agregar sección"
+#: includes/class-landing-builder.php:223 includes/class-listing-editor.php:411
+msgid "Guardar cambios"
+msgstr "Guardar cambios"
 
-#: includes/class-landing-builder.php:248
+#: includes/class-landing-builder.php:224
+msgid "+ Agregar sección"
+msgstr "+ Agregar sección"
+
+#: includes/class-landing-builder.php:252
 msgid "Tipo de sección:"
 msgstr "Tipo de sección:"
 
-#: includes/class-landing-builder.php:257
-msgid "Guardar configuración"
-msgstr "Guardar configuración"
+#: includes/class-landing-builder.php:283
+msgid "¿Eliminar esta sección?"
+msgstr "¿Eliminar esta sección?"
+
+#: includes/class-landing-builder.php:317
+msgid "Guardando..."
+msgstr "Guardando..."
+
+#: includes/class-landing-builder.php:343
+#: includes/class-landing-builder.php:446
+msgid "Guardado."
+msgstr "Guardado."
+
+#: includes/class-landing-builder.php:346
+msgid "Error."
+msgstr "Error."
+
+#: includes/class-landing-builder.php:386
+msgid "Subtítulo"
+msgstr "Subtítulo"
+
+#: includes/class-landing-builder.php:388
+msgid "Imagen de fondo (URL)"
+msgstr "Imagen de fondo (URL)"
+
+#: includes/class-landing-builder.php:390
+msgid "Mostrar buscador"
+msgstr "Mostrar buscador"
+
+#: includes/class-landing-builder.php:397
+msgid "Modo"
+msgstr "Modo"
+
+#: includes/class-landing-builder.php:403
+msgid "Cantidad de posts"
+msgstr "Cantidad de posts"
+
+#: includes/class-landing-builder.php:411
+msgid "Texto del botón"
+msgstr "Texto del botón"
+
+#: includes/class-landing-builder.php:413
+msgid "URL del botón"
+msgstr "URL del botón"
+
+#: includes/class-landing-builder.php:423
+msgid "Mostrar mapa"
+msgstr "Mostrar mapa"
+
+#: includes/class-landing-builder.php:426
+msgid "Sin opciones adicionales."
+msgstr "Sin opciones adicionales."
+
+#: includes/class-landing-builder.php:442
+msgid "Configuración inválida."
+msgstr "Configuración inválida."
 
 #: includes/class-leads.php:32
 msgid "Por favor ingresa tu nombre."
@@ -11219,10 +11292,6 @@ msgstr "Detalles del servicio"
 #: includes/class-listing-editor.php:361
 msgid "SEO y publicación"
 msgstr "SEO y publicación"
-
-#: includes/class-listing-editor.php:411
-msgid "Guardar cambios"
-msgstr "Guardar cambios"
 
 #: includes/class-listing-editor.php:411
 msgid "Crear servicio"
@@ -15056,7 +15125,8 @@ msgstr "Explora destinos"
 #: templates/landing/hero.php:5
 msgid ""
 "Explora alojamientos, tours y experiencias de agencias locales de confianza."
-msgstr "Explora alojamientos, tours y experiencias de agencias locales de confianza."
+msgstr ""
+"Explora alojamientos, tours y experiencias de agencias locales de confianza."
 
 #: templates/landing/newsletter.php:4
 msgid "Recibe ofertas y novedades"
@@ -15195,6 +15265,25 @@ msgstr "Pensando…"
 #: travel-agency-platform.php:309
 msgid "Hubo un problema. Inténtalo de nuevo."
 msgstr "Hubo un problema. Inténtalo de nuevo."
+
+msgid ""
+"Activa, desactiva y reordena las secciones de la landing page. Los cambios "
+"se reflejan inmediatamente."
+msgstr ""
+"Activa, desactiva y reordena las secciones de la landing page. Los cambios "
+"se reflejan inmediatamente."
+
+msgid "Orden"
+msgstr "Orden"
+
+msgid "Sección"
+msgstr "Sección"
+
+msgid "Agregar sección"
+msgstr "Agregar sección"
+
+msgid "Guardar configuración"
+msgstr "Guardar configuración"
 
 msgid "Mis servicios"
 msgstr "Mis servicios"

@@ -197,7 +197,7 @@ class TAP_Landing_Builder {
     }
 
     /**
-     * Admin page: tap-landing.
+     * Admin page: tap-landing (visual editor with drag & drop).
      */
     public static function admin_page() {
         if (!current_user_can('manage_options')) {
@@ -205,69 +205,248 @@ class TAP_Landing_Builder {
         }
         $config = self::load();
         $types = self::section_types();
+        $saved = isset($_GET['saved']);
+        $error = isset($_GET['error']);
         ?>
-        <div class="wrap">
+        <div class="wrap tap-landing-builder-admin">
             <h1><?php esc_html_e('Landing Page Builder', 'travel-agency-platform'); ?></h1>
-            <p class="description"><?php esc_html_e('Activa, desactiva y reordena las secciones de la landing page. Los cambios se reflejan inmediatamente.', 'travel-agency-platform'); ?></p>
+            <p class="description"><?php esc_html_e('Arrastra las secciones para reordenarlas. Activa/desactiva con el toggle. Haz clic en "Editar" para configurar cada sección.', 'travel-agency-platform'); ?></p>
 
-            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
-                <?php wp_nonce_field('tap_landing_save', 'tap_landing_nonce'); ?>
-                <input type="hidden" name="action" value="tap_landing_save">
+            <?php if ($saved): ?>
+                <div class="notice notice-success is-dismissible"><p><?php esc_html_e('Configuración guardada.', 'travel-agency-platform'); ?></p></div>
+            <?php endif; ?>
+            <?php if ($error): ?>
+                <div class="notice notice-error"><p><?php esc_html_e('Error al guardar.', 'travel-agency-platform'); ?></p></div>
+            <?php endif; ?>
 
-                <table class="wp-list-table widefat fixed striped tap-landing-sections">
-                    <thead>
-                        <tr>
-                            <th style="width:40px;"><?php esc_html_e('Orden', 'travel-agency-platform'); ?></th>
-                            <th><?php esc_html_e('Sección', 'travel-agency-platform'); ?></th>
-                            <th style="width:80px;"><?php esc_html_e('Activa', 'travel-agency-platform'); ?></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($config['sections'] as $i => $sec): ?>
-                            <tr>
-                                <td>
-                                    <input type="number" name="landing_order[<?php echo (int) $i; ?>]" value="<?php echo (int) $sec['order']; ?>" min="1" style="width:50px;">
-                                </td>
-                                <td>
-                                    <strong><?php echo esc_html($types[$sec['type']] ?? $sec['type']); ?></strong>
-                                    <input type="hidden" name="landing_type[<?php echo (int) $i; ?>]" value="<?php echo esc_attr($sec['type']); ?>">
-                                </td>
-                                <td>
-                                    <input type="checkbox" name="landing_enabled[<?php echo (int) $i; ?>]" value="1" <?php checked(!empty($sec['enabled'])); ?>>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+            <div class="tap-landing-toolbar">
+                <button type="button" class="button button-primary" id="tap-lb-save"><?php esc_html_e('Guardar cambios', 'travel-agency-platform'); ?></button>
+                <button type="button" class="button" id="tap-lb-add"><?php esc_html_e('+ Agregar sección', 'travel-agency-platform'); ?></button>
+                <span id="tap-lb-status" style="margin-left:12px;color:#666;"></span>
+            </div>
 
-                <p style="margin-top:12px;">
-                    <button type="button" class="button" id="tap-landing-add-section"><?php esc_html_e('Agregar sección', 'travel-agency-platform'); ?></button>
-                </p>
+            <div id="tap-lb-sections" class="tap-lb-sections">
+                <?php foreach ($config['sections'] as $i => $sec): ?>
+                    <div class="tap-lb-section" data-type="<?php echo esc_attr($sec['type']); ?>" data-index="<?php echo (int) $i; ?>">
+                        <div class="tap-lb-handle">☰</div>
+                        <div class="tap-lb-info">
+                            <strong><?php echo esc_html($types[$sec['type']] ?? $sec['type']); ?></strong>
+                            <span class="tap-lb-type"><?php echo esc_html($sec['type']); ?></span>
+                        </div>
+                        <div class="tap-lb-actions">
+                            <label class="tap-lb-toggle">
+                                <input type="checkbox" class="tap-lb-enabled" <?php checked(!empty($sec['enabled'])); ?>>
+                                <?php esc_html_e('Activa', 'travel-agency-platform'); ?>
+                            </label>
+                            <button type="button" class="button button-small tap-lb-edit"><?php esc_html_e('Editar', 'travel-agency-platform'); ?></button>
+                            <button type="button" class="button button-small tap-lb-remove"><?php esc_html_e('Eliminar', 'travel-agency-platform'); ?></button>
+                        </div>
+                        <div class="tap-lb-settings" style="display:none;">
+                            <?php self::render_section_settings($sec['type'], $sec['settings'] ?? []); ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
 
-                <div id="tap-landing-add-panel" style="display:none;margin-top:12px;padding:12px;border:1px solid #ddd;border-radius:6px;background:#f9f9f9;">
-                    <label><?php esc_html_e('Tipo de sección:', 'travel-agency-platform'); ?></label>
-                    <select name="new_section_type" id="tap-landing-new-type">
-                        <?php foreach ($types as $key => $label): ?>
-                            <option value="<?php echo esc_attr($key); ?>"><?php echo esc_html($label); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <button type="button" class="button" id="tap-landing-confirm-add"><?php esc_html_e('Agregar', 'travel-agency-platform'); ?></button>
-                </div>
-
-                <?php submit_button(__('Guardar configuración', 'travel-agency-platform')); ?>
-            </form>
-
-            <script>
-            (function(){
-                var addBtn = document.getElementById('tap-landing-add-section');
-                var panel = document.getElementById('tap-landing-add-panel');
-                if (addBtn && panel) {
-                    addBtn.addEventListener('click', function(){ panel.style.display = panel.style.display === 'none' ? 'block' : 'none'; });
-                }
-            })();
-            </script>
+            <div id="tap-lb-add-panel" style="display:none;margin-top:16px;padding:16px;border:1px solid #ddd;border-radius:8px;background:#f9f9f9;">
+                <label><?php esc_html_e('Tipo de sección:', 'travel-agency-platform'); ?></label>
+                <select id="tap-lb-new-type">
+                    <?php foreach ($types as $key => $label): ?>
+                        <option value="<?php echo esc_attr($key); ?>"><?php echo esc_html($label); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <button type="button" class="button" id="tap-lb-confirm-add"><?php esc_html_e('Agregar', 'travel-agency-platform'); ?></button>
+                <button type="button" class="button" id="tap-lb-cancel-add"><?php esc_html_e('Cancelar', 'travel-agency-platform'); ?></button>
+            </div>
         </div>
+
+        <!-- SortableJS -->
+        <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+        <script>
+        (function(){
+            var list = document.getElementById('tap-lb-sections');
+            if (!list) return;
+            var sortable = new Sortable(list, {
+                handle: '.tap-lb-handle',
+                animation: 150,
+                ghostClass: 'tap-lb-ghost',
+            });
+
+            // Toggle settings panel.
+            list.addEventListener('click', function(e){
+                if (e.target.classList.contains('tap-lb-edit')) {
+                    var sec = e.target.closest('.tap-lb-section');
+                    var panel = sec.querySelector('.tap-lb-settings');
+                    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+                }
+                if (e.target.classList.contains('tap-lb-remove')) {
+                    if (confirm('<?php echo esc_js(__('¿Eliminar esta sección?', 'travel-agency-platform')); ?>')) {
+                        e.target.closest('.tap-lb-section').remove();
+                    }
+                }
+            });
+
+            // Add section.
+            var addBtn = document.getElementById('tap-lb-add');
+            var addPanel = document.getElementById('tap-lb-add-panel');
+            if (addBtn && addPanel) {
+                addBtn.addEventListener('click', function(){ addPanel.style.display = 'block'; });
+                document.getElementById('tap-lb-cancel-add').addEventListener('click', function(){ addPanel.style.display = 'none'; });
+                document.getElementById('tap-lb-confirm-add').addEventListener('click', function(){
+                    var type = document.getElementById('tap-lb-new-type').value;
+                    var label = document.getElementById('tap-lb-new-type').selectedOptions[0].text;
+                    var div = document.createElement('div');
+                    div.className = 'tap-lb-section';
+                    div.setAttribute('data-type', type);
+                    div.innerHTML = '<div class="tap-lb-handle">☰</div>'
+                        + '<div class="tap-lb-info"><strong>' + label + '</strong><span class="tap-lb-type">' + type + '</span></div>'
+                        + '<div class="tap-lb-actions">'
+                        + '<label class="tap-lb-toggle"><input type="checkbox" class="tap-lb-enabled" checked> <?php echo esc_js(__('Activa', 'travel-agency-platform')); ?></label>'
+                        + '<button type="button" class="button button-small tap-lb-edit"><?php echo esc_js(__('Editar', 'travel-agency-platform')); ?></button>'
+                        + '<button type="button" class="button button-small tap-lb-remove"><?php echo esc_js(__('Eliminar', 'travel-agency-platform')); ?></button>'
+                        + '</div>'
+                        + '<div class="tap-lb-settings" style="display:none;"></div>';
+                    list.appendChild(div);
+                    addPanel.style.display = 'none';
+                });
+            }
+
+            // Save via AJAX.
+            document.getElementById('tap-lb-save').addEventListener('click', function(){
+                var status = document.getElementById('tap-lb-status');
+                status.textContent = '<?php echo esc_js(__('Guardando...', 'travel-agency-platform')); ?>';
+                var sections = [];
+                list.querySelectorAll('.tap-lb-section').forEach(function(sec, i){
+                    var settings = {};
+                    sec.querySelectorAll('.tap-lb-settings input, .tap-lb-settings select, .tap-lb-settings textarea').forEach(function(inp){
+                        if (inp.name) {
+                            if (inp.type === 'checkbox') settings[inp.name] = inp.checked ? '1' : '0';
+                            else settings[inp.name] = inp.value;
+                        }
+                    });
+                    sections.push({
+                        type: sec.getAttribute('data-type'),
+                        enabled: sec.querySelector('.tap-lb-enabled').checked,
+                        order: i + 1,
+                        settings: settings,
+                    });
+                });
+                var data = new FormData();
+                data.append('action', 'tap_landing_save_ajax');
+                data.append('nonce', '<?php echo wp_create_nonce('tap_landing_save_ajax'); ?>');
+                data.append('config', JSON.stringify({version: <?php echo (int) self::VERSION; ?>, sections: sections}));
+
+                fetch('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {method:'POST', body:data, credentials:'same-origin'})
+                    .then(function(r){ return r.json(); })
+                    .then(function(res){
+                        if (res.success) {
+                            status.textContent = '<?php echo esc_js(__('Guardado.', 'travel-agency-platform')); ?>';
+                            status.style.color = 'green';
+                        } else {
+                            status.textContent = res.data && res.data.message ? res.data.message : '<?php echo esc_js(__('Error.', 'travel-agency-platform')); ?>';
+                            status.style.color = 'red';
+                        }
+                    })
+                    .catch(function(){
+                        status.textContent = '<?php echo esc_js(__('Error de conexión.', 'travel-agency-platform')); ?>';
+                        status.style.color = 'red';
+                    });
+            });
+        })();
+        </script>
+
+        <style>
+        .tap-lb-sections { margin-top: 16px; }
+        .tap-lb-section { display: flex; align-items: center; gap: 12px; padding: 12px 16px; margin-bottom: 8px; background: #fff; border: 1px solid #ddd; border-radius: 8px; cursor: move; transition: box-shadow .2s; }
+        .tap-lb-section:hover { box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+        .tap-lb-ghost { opacity: .4; background: #f0f0f0; }
+        .tap-lb-handle { cursor: grab; font-size: 18px; color: #999; padding: 4px; }
+        .tap-lb-handle:active { cursor: grabbing; }
+        .tap-lb-info { flex: 1; }
+        .tap-lb-info strong { display: block; font-size: 14px; }
+        .tap-lb-type { font-size: 12px; color: #888; }
+        .tap-lb-actions { display: flex; align-items: center; gap: 8px; }
+        .tap-lb-toggle { display: flex; align-items: center; gap: 4px; font-size: 13px; }
+        .tap-lb-settings { flex-basis: 100%; margin-top: 12px; padding: 12px; border-top: 1px solid #eee; }
+        .tap-lb-settings label { display: block; margin-bottom: 8px; font-size: 13px; }
+        .tap-lb-settings input, .tap-lb-settings select, .tap-lb-settings textarea { width: 100%; padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .tap-lb-toolbar { margin: 16px 0; display: flex; align-items: center; gap: 8px; }
+        </style>
         <?php
+    }
+
+    /**
+     * Render settings fields for a section type.
+     */
+    public static function render_section_settings($type, $settings) {
+        switch ($type) {
+            case 'hero':
+                echo '<label>' . esc_html__('Título', 'travel-agency-platform') . '</label>';
+                echo '<input type="text" name="title" value="' . esc_attr($settings['title'] ?? '') . '">';
+                echo '<label>' . esc_html__('Subtítulo', 'travel-agency-platform') . '</label>';
+                echo '<textarea name="subtitle" rows="2">' . esc_textarea($settings['subtitle'] ?? '') . '</textarea>';
+                echo '<label>' . esc_html__('Imagen de fondo (URL)', 'travel-agency-platform') . '</label>';
+                echo '<input type="url" name="background" value="' . esc_attr($settings['background'] ?? '') . '">';
+                echo '<label><input type="checkbox" name="show_search" value="1" ' . checked(1, $settings['show_search'] ?? 1, false) . '> ' . esc_html__('Mostrar buscador', 'travel-agency-platform') . '</label>';
+                break;
+            case 'featured':
+                echo '<label>' . esc_html__('Título', 'travel-agency-platform') . '</label>';
+                echo '<input type="text" name="title" value="' . esc_attr($settings['title'] ?? '') . '">';
+                echo '<label>' . esc_html__('Cantidad', 'travel-agency-platform') . '</label>';
+                echo '<input type="number" name="count" value="' . esc_attr($settings['count'] ?? 6) . '" min="3" max="12">';
+                echo '<label>' . esc_html__('Modo', 'travel-agency-platform') . '</label>';
+                echo '<select name="mode"><option value="auto"' . selected('auto', $settings['mode'] ?? 'auto', false) . '>Automático (por rating)</option><option value="manual"' . selected('manual', $settings['mode'] ?? 'auto', false) . '>Manual</option></select>';
+                break;
+            case 'blog':
+                echo '<label>' . esc_html__('Título', 'travel-agency-platform') . '</label>';
+                echo '<input type="text" name="title" value="' . esc_attr($settings['title'] ?? '') . '">';
+                echo '<label>' . esc_html__('Cantidad de posts', 'travel-agency-platform') . '</label>';
+                echo '<input type="number" name="count" value="' . esc_attr($settings['count'] ?? 3) . '" min="1" max="6">';
+                break;
+            case 'cta':
+                echo '<label>' . esc_html__('Título', 'travel-agency-platform') . '</label>';
+                echo '<input type="text" name="title" value="' . esc_attr($settings['title'] ?? '') . '">';
+                echo '<label>' . esc_html__('Descripción', 'travel-agency-platform') . '</label>';
+                echo '<textarea name="description" rows="2">' . esc_textarea($settings['description'] ?? '') . '</textarea>';
+                echo '<label>' . esc_html__('Texto del botón', 'travel-agency-platform') . '</label>';
+                echo '<input type="text" name="button_text" value="' . esc_attr($settings['button_text'] ?? '') . '">';
+                echo '<label>' . esc_html__('URL del botón', 'travel-agency-platform') . '</label>';
+                echo '<input type="url" name="button_url" value="' . esc_attr($settings['button_url'] ?? '') . '">';
+                break;
+            case 'newsletter':
+                echo '<label>' . esc_html__('Título', 'travel-agency-platform') . '</label>';
+                echo '<input type="text" name="title" value="' . esc_attr($settings['title'] ?? '') . '">';
+                echo '<label>' . esc_html__('Descripción', 'travel-agency-platform') . '</label>';
+                echo '<textarea name="description" rows="2">' . esc_textarea($settings['description'] ?? '') . '</textarea>';
+                break;
+            case 'destinations':
+                echo '<label><input type="checkbox" name="show_map" value="1" ' . checked(1, $settings['show_map'] ?? 1, false) . '> ' . esc_html__('Mostrar mapa', 'travel-agency-platform') . '</label>';
+                break;
+            default:
+                echo '<p class="description">' . esc_html__('Sin opciones adicionales.', 'travel-agency-platform') . '</p>';
+        }
+    }
+
+    /**
+     * AJAX handler for saving landing config (drag & drop).
+     */
+    public static function ajax_save() {
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('No tienes permiso.', 'travel-agency-platform')]);
+        }
+        check_ajax_referer('tap_landing_save_ajax', 'nonce');
+
+        $raw = isset($_POST['config']) ? wp_unslash($_POST['config']) : '';
+        $config = json_decode($raw, true);
+        if (!is_array($config) || empty($config['sections'])) {
+            wp_send_json_error(['message' => __('Configuración inválida.', 'travel-agency-platform')]);
+        }
+
+        if (self::save($config)) {
+            wp_send_json_success(['message' => __('Guardado.', 'travel-agency-platform')]);
+        } else {
+            wp_send_json_error(['message' => __('Error al guardar.', 'travel-agency-platform')]);
+        }
     }
 
     /**
