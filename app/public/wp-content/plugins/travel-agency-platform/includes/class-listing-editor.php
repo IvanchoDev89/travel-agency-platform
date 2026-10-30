@@ -185,35 +185,35 @@ class TAP_Listing_Editor {
                 <?php wp_nonce_field('tap_agency_listing_nonce', 'nonce'); ?>
                 <input type="hidden" name="listing_id" value="<?php echo (int) $listing_id; ?>">
                 <input type="hidden" name="listing_type" value="<?php echo esc_attr($type); ?>">
-                <div class="tap-tour-wizard-bar">
-                    <div class="tap-tour-wizard-progress">
-                        <div class="tap-tour-wizard-progress-track">
-                            <div class="tap-tour-wizard-progress-fill" id="tap-wiz-fill"></div>
+                <div class="tap-wizard-bar">
+                    <div class="tap-wizard-progress">
+                        <div class="tap-wizard-progress-track">
+                            <div class="tap-wizard-progress-fill" id="tap-wiz-fill"></div>
                         </div>
-                        <div class="tap-tour-wizard-steps">
-                            <button type="button" class="tap-tour-wizard-stepbtn is-active" data-step="1">
-                                <span class="tap-tour-wizard-stepnum">1</span>
-                                <span class="tap-tour-wizard-steplabel"><?php esc_html_e('Información', 'travel-agency-platform'); ?></span>
+                        <div class="tap-wizard-steps">
+                            <button type="button" class="tap-wizard-step is-active" data-step="1">
+                                <span class="tap-wizard-step-num">1</span>
+                                <span class="tap-wizard-step-label"><?php esc_html_e('Información', 'travel-agency-platform'); ?></span>
                             </button>
-                            <button type="button" class="tap-tour-wizard-stepbtn" data-step="2">
-                                <span class="tap-tour-wizard-stepnum">2</span>
-                                <span class="tap-tour-wizard-steplabel"><?php esc_html_e('Precios y ubicación', 'travel-agency-platform'); ?></span>
+                            <button type="button" class="tap-wizard-step" data-step="2">
+                                <span class="tap-wizard-step-num">2</span>
+                                <span class="tap-wizard-step-label"><?php esc_html_e('Precios y ubicación', 'travel-agency-platform'); ?></span>
                             </button>
-                            <button type="button" class="tap-tour-wizard-stepbtn" data-step="3">
-                                <span class="tap-tour-wizard-stepnum">3</span>
-                                <span class="tap-tour-wizard-steplabel"><?php esc_html_e('Detalles', 'travel-agency-platform'); ?></span>
+                            <button type="button" class="tap-wizard-step" data-step="3">
+                                <span class="tap-wizard-step-num">3</span>
+                                <span class="tap-wizard-step-label"><?php esc_html_e('Detalles', 'travel-agency-platform'); ?></span>
                             </button>
-                            <button type="button" class="tap-tour-wizard-stepbtn" data-step="4">
-                                <span class="tap-tour-wizard-stepnum">4</span>
-                                <span class="tap-tour-wizard-steplabel"><?php esc_html_e('SEO y publicación', 'travel-agency-platform'); ?></span>
+                            <button type="button" class="tap-wizard-step" data-step="4">
+                                <span class="tap-wizard-step-num">4</span>
+                                <span class="tap-wizard-step-label"><?php esc_html_e('SEO y publicación', 'travel-agency-platform'); ?></span>
                             </button>
                         </div>
                     </div>
-                    <div class="tap-tour-wizard-counter">
+                    <div class="tap-wizard-counter">
                         <?php esc_html_e('Paso', 'travel-agency-platform'); ?> <strong id="tap-wiz-cur">1</strong> <?php esc_html_e('de', 'travel-agency-platform'); ?> <strong>4</strong>
                     </div>
                 </div>
-                <div class="tap-form-grid tap-tour-wizard-step" data-step="1">
+                <div class="tap-form-grid tap-wizard-step" data-step="1">
                     <div class="tap-field tap-span-2">
                         <label><?php esc_html_e('Nombre *', 'travel-agency-platform'); ?></label>
                         <input type="text" name="title" required value="<?php echo esc_attr($listing ? $listing->post_title : ''); ?>">
@@ -241,7 +241,7 @@ class TAP_Listing_Editor {
                         ?>
                     </div>
                 </div>
-                <div class="tap-form-grid tap-tour-wizard-step" data-step="2" style="display:none;">
+                <div class="tap-form-grid tap-wizard-step" data-step="2" style="display:none;">
                     <?php
                     // Group fields into sections for a clearer, shorter form.
                     $groups = [
@@ -349,7 +349,7 @@ class TAP_Listing_Editor {
                     }
                     ?>
                 </div>
-                <div class="tap-form-grid tap-tour-wizard-step" data-step="3" style="display:none;">
+                <div class="tap-form-grid tap-wizard-step" data-step="3" style="display:none;">
                     <?php
                     // SEO section
                     $seo_fields = [];
@@ -394,7 +394,7 @@ class TAP_Listing_Editor {
                         </select>
                     </div>
                 </div>
-                <div class="tap-form-grid tap-tour-wizard-step" data-step="4" style="display:none;">
+                <div class="tap-form-grid tap-wizard-step" data-step="4" style="display:none;">
                     <?php if ($is_edit): ?>
                     <div class="tap-field tap-span-2">
                         <?php $is_published = 'publish' === $listing->post_status; ?>
@@ -405,10 +405,10 @@ class TAP_Listing_Editor {
                     </div>
                     <?php endif; ?>
                 </div>
-                <div class="tap-tour-wizard-nav">
-                    <button type="button" class="tap-btn tap-tour-wizard-prev" style="display:none;">&larr; <?php esc_html_e('Anterior', 'travel-agency-platform'); ?></button>
-                    <button type="button" class="tap-btn tap-btn-primary tap-tour-wizard-next"><?php esc_html_e('Siguiente', 'travel-agency-platform'); ?> &rarr;</button>
-                    <button type="submit" class="tap-btn tap-btn-primary tap-tour-wizard-submit" style="display:none;"><?php echo $is_edit ? esc_html__('Guardar cambios', 'travel-agency-platform') : esc_html__('Crear servicio', 'travel-agency-platform'); ?></button>
+                <div class="tap-wizard-nav">
+                    <button type="button" class="tap-btn tap-wizard-prev" style="display:none;">&larr; <?php esc_html_e('Anterior', 'travel-agency-platform'); ?></button>
+                    <button type="button" class="tap-btn tap-btn-primary tap-wizard-next"><?php esc_html_e('Siguiente', 'travel-agency-platform'); ?> &rarr;</button>
+                    <button type="submit" class="tap-btn tap-btn-primary tap-wizard-submit" style="display:none;"><?php echo $is_edit ? esc_html__('Guardar cambios', 'travel-agency-platform') : esc_html__('Crear servicio', 'travel-agency-platform'); ?></button>
                 </div>
                 <span class="tap-form-msg"></span>
             </form>
@@ -416,36 +416,36 @@ class TAP_Listing_Editor {
         </div>
 
         <style>
-        .tap-tour-wizard-bar{margin-bottom:24px;}
-        .tap-tour-wizard-progress{position:relative;}
-        .tap-tour-wizard-progress-track{height:4px;background:#e5e7eb;border-radius:2px;overflow:hidden;margin-bottom:16px;}
-        .tap-tour-wizard-progress-fill{height:100%;background:linear-gradient(90deg,#2563eb,#1e40af);border-radius:2px;transition:width .4s cubic-bezier(.4,0,.2,1);width:25%;}
-        .tap-tour-wizard-steps{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;}
-        .tap-tour-wizard-stepbtn{display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid #d1d5db;border-radius:10px;background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:#4b5563;transition:all .25s;flex:1;min-width:120px;justify-content:center;}
-        .tap-tour-wizard-stepbtn.is-active{background:#2563eb;color:#fff;border-color:#2563eb;box-shadow:0 4px 12px rgba(37,99,235,.3);}
-        .tap-tour-wizard-stepbtn:hover:not(.is-active){background:#f3f4f6;border-color:#9ca3af;transform:translateY(-1px);}
-        .tap-tour-wizard-stepbtn.is-done{background:#ecfdf5;color:#047857;border-color:#a7f3d0;}
-        .tap-tour-wizard-stepnum{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.08);font-weight:700;font-size:12px;transition:all .25s;}
-        .tap-tour-wizard-stepbtn.is-active .tap-tour-wizard-stepnum{background:rgba(255,255,255,.25);}
-        .tap-tour-wizard-stepbtn.is-done .tap-tour-wizard-stepnum{background:#10b981;color:#fff;}
-        .tap-tour-wizard-steplabel{white-space:nowrap;}
-        .tap-tour-wizard-counter{text-align:center;margin-top:8px;font-size:13px;color:#6b7280;}
-        .tap-tour-wizard-counter strong{color:#2563eb;}
-        .tap-tour-wizard-step{animation:fadeIn .3s ease;}
+        .tap-wizard-bar{margin-bottom:24px;}
+        .tap-wizard-progress{position:relative;}
+        .tap-wizard-progress-track{height:4px;background:#e5e7eb;border-radius:2px;overflow:hidden;margin-bottom:16px;}
+        .tap-wizard-progress-fill{height:100%;background:linear-gradient(90deg,#2563eb,#1e40af);border-radius:2px;transition:width .4s cubic-bezier(.4,0,.2,1);width:25%;}
+        .tap-wizard-steps{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;}
+        .tap-wizard-step{display:flex;align-items:center;gap:8px;padding:10px 14px;border:1px solid #d1d5db;border-radius:10px;background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:#4b5563;transition:all .25s;flex:1;min-width:120px;justify-content:center;}
+        .tap-wizard-step.is-active{background:#2563eb;color:#fff;border-color:#2563eb;box-shadow:0 4px 12px rgba(37,99,235,.3);}
+        .tap-wizard-step:hover:not(.is-active){background:#f3f4f6;border-color:#9ca3af;transform:translateY(-1px);}
+        .tap-wizard-step.is-done{background:#ecfdf5;color:#047857;border-color:#a7f3d0;}
+        .tap-wizard-step-num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.08);font-weight:700;font-size:12px;transition:all .25s;}
+        .tap-wizard-step.is-active .tap-wizard-step-num{background:rgba(255,255,255,.25);}
+        .tap-wizard-step.is-done .tap-wizard-step-num{background:#10b981;color:#fff;}
+        .tap-wizard-step-label{white-space:nowrap;}
+        .tap-wizard-counter{text-align:center;margin-top:8px;font-size:13px;color:#6b7280;}
+        .tap-wizard-counter strong{color:#2563eb;}
+        .tap-wizard-step{animation:fadeIn .3s ease;}
         @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-        .tap-tour-wizard-nav{display:flex;justify-content:space-between;align-items:center;margin-top:20px;padding-top:16px;border-top:1px solid var(--tap-border,#e5e7eb);gap:8px;}
-        .tap-tour-wizard-prev,.tap-tour-wizard-next,.tap-tour-wizard-submit{min-width:120px;}
-        @media (max-width:600px){.tap-tour-wizard-stepbtn{min-width:0;flex-basis:48%;font-size:12px;padding:8px 10px;}.tap-tour-wizard-steplabel{display:none;}}
+        .tap-wizard-nav{display:flex;justify-content:space-between;align-items:center;margin-top:20px;padding-top:16px;border-top:1px solid var(--tap-border,#e5e7eb);gap:8px;}
+        .tap-wizard-prev,.tap-wizard-next,.tap-wizard-submit{min-width:120px;}
+        @media (max-width:600px){.tap-wizard-step{min-width:0;flex-basis:48%;font-size:12px;padding:8px 10px;}.tap-wizard-step-label{display:none;}}
         </style>
         <script>
         (function(){
             var form = document.getElementById('tap-listing-form');
             if (!form) return;
-            var steps = form.querySelectorAll('.tap-tour-wizard-step');
-            var btns = form.querySelectorAll('.tap-tour-wizard-stepbtn');
-            var nextBtn = form.querySelector('.tap-tour-wizard-next');
-            var prevBtn = form.querySelector('.tap-tour-wizard-prev');
-            var submitBtn = form.querySelector('.tap-tour-wizard-submit');
+            var steps = form.querySelectorAll('.tap-wizard-step');
+            var btns = form.querySelectorAll('.tap-wizard-step');
+            var nextBtn = form.querySelector('.tap-wizard-next');
+            var prevBtn = form.querySelector('.tap-wizard-prev');
+            var submitBtn = form.querySelector('.tap-wizard-submit');
             var fill = document.getElementById('tap-wiz-fill');
             var counter = document.getElementById('tap-wiz-cur');
             var current = 1;
@@ -480,6 +480,7 @@ class TAP_Listing_Editor {
         // toasts, publish toggle and form submission. The generic editor has no
         // steps, so cfg.genericEditor makes submitListing jump straight to the
         // edit URL instead of step 2.
+        wp_enqueue_style('tap-agency-calendar', TAP_PLUGIN_URL . 'assets/css/agency-calendar.css', [], TAP_VERSION);
         wp_enqueue_script('tap-agency-wizard', TAP_PLUGIN_URL . 'assets/js/agency-wizard.js', [], TAP_VERSION, true);
         wp_localize_script('tap-agency-wizard', 'tapAgencyWizard', [
             'ajaxUrl'         => admin_url('admin-ajax.php'),
