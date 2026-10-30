@@ -185,6 +185,29 @@ class TAP_Listing_Editor {
                 <?php wp_nonce_field('tap_agency_listing_nonce', 'nonce'); ?>
                 <input type="hidden" name="listing_id" value="<?php echo (int) $listing_id; ?>">
                 <input type="hidden" name="listing_type" value="<?php echo esc_attr($type); ?>">
+                <style>
+                .tap-wizard-bar{margin-bottom:24px;}
+                .tap-wizard-progress{position:relative;}
+                .tap-wizard-progress-track{height:4px;background:#e5e7eb;border-radius:2px;overflow:hidden;margin-bottom:16px;}
+                .tap-wizard-progress-fill{height:100%;background:linear-gradient(90deg,#2563eb,#1e40af);border-radius:2px;transition:width .4s cubic-bezier(.4,0,.2,1);width:25%;}
+                .tap-wizard-steps{display:flex;gap:8px;flex-wrap:wrap;list-style:none;margin:0;padding:0;justify-content:space-between;}
+                .tap-wizard-step{flex:1 1 0;min-width:120px;padding:0;position:relative;}
+                .tap-wizard-step > span,.tap-wizard-step > button{display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:10px 12px;border:1px solid #d1d5db;border-radius:10px;background:#fff;color:#4b5563;font-size:13px;font-weight:600;cursor:pointer;height:100%;transition:all .25s;}
+                .tap-wizard-step.is-active > span,.tap-wizard-step.is-active > button{background:#2563eb;color:#fff;border-color:#2563eb;box-shadow:0 4px 12px rgba(37,99,235,.3);}
+                .tap-wizard-step.is-done > span,.tap-wizard-step.is-done > button{background:#ecfdf5;color:#047857;border-color:#a7f3d0;}
+                .tap-wizard-step:hover > span,.tap-wizard-step:hover > button{background:#f3f4f6;border-color:#9ca3af;transform:translateY(-1px);}
+                .tap-wizard-step-num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.08);font-weight:700;font-size:12px;}
+                .tap-wizard-step.is-active .tap-wizard-step-num{background:rgba(255,255,255,.25);}
+                .tap-wizard-step.is-done .tap-wizard-step-num{background:#10b981;color:#fff;}
+                .tap-wizard-step-label{white-space:nowrap;}
+                .tap-wizard-counter{text-align:center;margin-top:8px;font-size:13px;color:#6b7280;}
+                .tap-wizard-counter strong{color:#2563eb;}
+                .tap-wizard-step{animation:fadeIn .3s ease;}
+                @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+                .tap-wizard-nav{display:flex;justify-content:space-between;align-items:center;margin-top:20px;padding-top:16px;border-top:1px solid #e5e7eb;gap:8px;}
+                .tap-wizard-prev,.tap-wizard-next,.tap-wizard-submit{min-width:120px;}
+                @media (max-width:600px){.tap-wizard-step{min-width:0;flex-basis:48%;}.tap-wizard-step-label{display:none;}}
+                </style>
                 <div class="tap-wizard-bar">
                     <div class="tap-wizard-progress">
                         <div class="tap-wizard-progress-track">
