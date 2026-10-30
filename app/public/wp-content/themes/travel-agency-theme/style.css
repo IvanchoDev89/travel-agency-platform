@@ -1109,6 +1109,38 @@ img { max-width: 100%; height: auto; }
 .tap-post-related-meta { font-size: 0.78rem; color: var(--tap-neutral-500, #64748b); padding: 0 16px 14px; }
 .tap-post-back { margin: var(--tap-space-6) 0 var(--tap-space-5); font-size: 0.9rem; }
 .tap-post-back a { color: var(--tap-primary-dark, #0f766e); font-weight: 600; text-decoration: none; }
+/* Reading progress bar */
+.tap-reading-progress { position: fixed; top: 0; left: 0; height: 3px; background: var(--tap-primary, #0d9488); width: 0%; z-index: 9999; transition: width .1s linear; }
+/* Comments */
+.tap-post-comments { max-width: 760px; margin: var(--tap-space-6) auto 0; padding-top: var(--tap-space-5); border-top: 1px solid var(--tap-border, #e2e8f0); }
+.tap-post-comments-title { font-size: 1.2rem; margin: 0 0 var(--tap-space-4); color: var(--tap-neutral-900, #0f172a); }
+.tap-post-comment-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 16px; }
+.tap-post-comment { display: flex; gap: 12px; padding: 16px; background: var(--tap-surface-muted, #f8fafc); border-radius: 12px; }
+.tap-comment-avatar img { border-radius: 50%; flex-shrink: 0; }
+.tap-comment-body { flex: 1; min-width: 0; }
+.tap-comment-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; font-size: 0.85rem; }
+.tap-comment-author { color: var(--tap-neutral-900, #0f172a); }
+.tap-comment-badge { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; background: var(--tap-primary, #0d9488); color: #fff; padding: 2px 8px; border-radius: 999px; }
+.tap-comment-date { color: var(--tap-neutral-500, #64748b); }
+.tap-comment-content { color: var(--tap-neutral-700, #334155); line-height: 1.6; font-size: 0.95rem; }
+.tap-comment-content p { margin: 0 0 8px; }
+.tap-comment-actions { margin-top: 8px; font-size: 0.85rem; }
+.tap-comment-actions a { color: var(--tap-primary, #0d9488); font-weight: 600; text-decoration: none; }
+.tap-post-comment-nav { display: flex; justify-content: space-between; margin-top: 16px; font-size: 0.9rem; }
+.tap-post-comment-nav a { color: var(--tap-primary-dark, #0f766e); font-weight: 600; text-decoration: none; }
+.tap-post-comments-closed { text-align: center; color: var(--tap-neutral-500, #64748b); font-style: italic; padding: 24px; }
+.tap-post-comment-form-wrap { margin-top: 24px; padding: 24px; background: #fff; border: 1px solid var(--tap-border, #e2e8f0); border-radius: 16px; }
+.tap-post-comment-form-wrap h3 { margin: 0 0 16px; font-size: 1.1rem; color: var(--tap-neutral-900, #0f172a); }
+.tap-comment-form .tap-comment-field { margin-bottom: 14px; }
+.tap-comment-form .tap-comment-field label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--tap-neutral-700, #334155); margin-bottom: 4px; }
+.tap-comment-form .tap-comment-field input, .tap-comment-form .tap-comment-field textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--tap-border, #e2e8f0); border-radius: 8px; font-size: 14px; font-family: inherit; }
+.tap-comment-form .tap-comment-field input:focus, .tap-comment-form .tap-comment-field textarea:focus { outline: none; border-color: var(--tap-primary, #0d9488); box-shadow: 0 0 0 3px rgba(13,148,136,.15); }
+.tap-comment-form .required { color: #ef4444; }
+.tap-comment-form .tap-btn { margin-top: 8px; }
+@media (max-width: 600px) {
+    .tap-post-comment { flex-direction: column; }
+    .tap-comment-avatar { align-self: center; }
+}
 .tap-post-author { max-width: 760px; margin: var(--tap-space-6) auto 0; padding: var(--tap-space-5); background: var(--tap-surface-muted, #f8fafc); border-radius: 16px; display: flex; gap: 16px; align-items: flex-start; }
 .tap-post-author-avatar img { border-radius: 50%; }
 .tap-post-author-info strong { display: block; font-size: 1rem; margin-bottom: 4px; color: var(--tap-neutral-900, #0f172a); }

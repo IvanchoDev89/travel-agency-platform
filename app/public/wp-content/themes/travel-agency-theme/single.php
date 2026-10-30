@@ -1,5 +1,7 @@
 <?php get_header(); ?>
 
+<div class="tap-reading-progress" id="tap-reading-progress"></div>
+
 <?php while (have_posts()): the_post(); ?>
     <?php $post_type = get_post_type(); ?>
     <?php if (in_array($post_type, ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'])): ?>
@@ -79,6 +81,11 @@
                 </div>
             </article>
 
+            <!-- Comments -->
+            <div class="tap-post-comments-wrap">
+                <?php comments_template(); ?>
+            </div>
+
             <!-- Author box -->
             <div class="tap-post-author">
                 <div class="tap-post-author-avatar"><?php echo get_avatar(get_the_author_meta('ID'), 64); ?></div>
@@ -147,4 +154,18 @@
     <?php endif; ?>
 <?php endwhile; ?>
 
+<script>
+(function(){
+    var bar = document.getElementById('tap-reading-progress');
+    if (!bar) return;
+    function update() {
+        var scrollTop = window.scrollY || document.documentElement.scrollTop;
+        var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+        bar.style.width = Math.min(100, Math.max(0, progress)) + '%';
+    }
+    window.addEventListener('scroll', update, {passive: true});
+    update();
+})();
+</script>
 <?php get_footer(); ?>
