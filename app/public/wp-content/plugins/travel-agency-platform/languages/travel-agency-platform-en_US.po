@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-10-30T20:01:32+00:00\n"
+"POT-Creation-Date: 2026-10-30T22:06:11+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -52,6 +52,7 @@ msgstr "%s / night"
 #. translators: %s: price
 #: includes/class-acc-wizard-room-form.php:47
 #: includes/class-dashboard-content.php:363
+#: includes/class-landing-builder.php:222
 msgid "Activa"
 msgstr "Activate"
 
@@ -191,7 +192,7 @@ msgstr "Active unit"
 #: includes/class-dashboard-content.php:376
 #: includes/class-email-campaigns.php:267
 #: includes/class-front-dash-client.php:468
-#: includes/class-listing-editor.php:502 includes/class-metaboxes.php:110
+#: includes/class-listing-editor.php:505 includes/class-metaboxes.php:110
 #: includes/class-metaboxes.php:130 includes/class-metaboxes.php:264
 msgid "Eliminar"
 msgstr "Delete"
@@ -341,7 +342,7 @@ msgstr "Days with special price"
 
 #: includes/class-acc-wizard-steps.php:99
 #: includes/class-acc-wizard-steps.php:741
-#: includes/class-listing-editor.php:389
+#: includes/class-listing-editor.php:392
 msgid "Modo de reserva"
 msgstr "Booking mode"
 
@@ -448,7 +449,7 @@ msgstr ""
 "All set. Publish whenever you want: it will appear in search instantly."
 
 #: includes/class-acc-wizard-steps.php:184 includes/class-acc-wizard.php:53
-#: includes/class-listing-editor.php:399
+#: includes/class-listing-editor.php:402
 msgid "Despublicar"
 msgstr "Unpublish"
 
@@ -715,7 +716,7 @@ msgid "Guardar"
 msgstr "Save"
 
 #: includes/class-acc-wizard-steps.php:380 includes/class-acc-wizard.php:28
-#: includes/class-front-dash.php:139 includes/class-listing-editor.php:486
+#: includes/class-front-dash.php:139 includes/class-listing-editor.php:489
 #: includes/class-pricing.php:473
 msgid "Guardado"
 msgstr "Saved"
@@ -1084,7 +1085,7 @@ msgstr ""
 
 #: includes/class-acc-wizard-steps.php:730
 #: includes/class-acc-wizard-steps.php:929 includes/class-ajax-public.php:412
-#: includes/class-listing-editor.php:371
+#: includes/class-listing-editor.php:373
 msgid "Destino"
 msgstr "Destination"
 
@@ -1093,12 +1094,12 @@ msgid "Elige el lugar más específico (ciudad o distrito)."
 msgstr "Choose the most specific place (city or district)."
 
 #: includes/class-acc-wizard-steps.php:743
-#: includes/class-listing-editor.php:391
+#: includes/class-listing-editor.php:394
 msgid "Reserva directa (pago inmediato)"
 msgstr "Direct booking (immediate payment)"
 
 #: includes/class-acc-wizard-steps.php:744
-#: includes/class-listing-editor.php:392
+#: includes/class-listing-editor.php:395
 msgid "Solicitud de reserva (la agencia confirma antes del pago)"
 msgstr "Request to book (the agency confirms before payment)"
 
@@ -1305,12 +1306,12 @@ msgstr "Accommodation published"
 msgid "Publica cuando todo esté listo"
 msgstr "Publish when everything is ready"
 
-#: includes/class-acc-wizard.php:29 includes/class-listing-editor.php:487
+#: includes/class-acc-wizard.php:29 includes/class-listing-editor.php:490
 msgid "Ha ocurrido un error"
 msgstr "An error occurred"
 
 #: includes/class-acc-wizard.php:30 includes/class-front-dash.php:482
-#: includes/class-front-dash.php:531 includes/class-listing-editor.php:488
+#: includes/class-front-dash.php:531 includes/class-listing-editor.php:491
 msgid "Confirmar"
 msgstr "Confirm"
 
@@ -1319,57 +1320,57 @@ msgstr "Confirm"
 #: includes/class-dashboard-money.php:451
 #: includes/class-dashboard-money.php:488
 #: includes/class-front-dash-client.php:290 includes/class-front-dash.php:484
-#: includes/class-front-dash.php:540 includes/class-listing-editor.php:489
+#: includes/class-front-dash.php:540 includes/class-listing-editor.php:492
 #: includes/class-shortcode-booking.php:303
 #: includes/class-shortcode-booking.php:323
 #: includes/class-shortcode-booking.php:325
 msgid "Cancelar"
 msgstr "Cancel"
 
-#: includes/class-acc-wizard.php:32 includes/class-listing-editor.php:490
+#: includes/class-acc-wizard.php:32 includes/class-listing-editor.php:493
 #: includes/class-shortcode-search.php:1390
 msgid "Cerrar"
 msgstr "Close"
 
-#: includes/class-acc-wizard.php:33 includes/class-listing-editor.php:491
+#: includes/class-acc-wizard.php:33 includes/class-listing-editor.php:494
 msgid "Principal"
 msgstr "Main"
 
-#: includes/class-acc-wizard.php:34 includes/class-listing-editor.php:492
+#: includes/class-acc-wizard.php:34 includes/class-listing-editor.php:495
 msgid "Usar como foto principal"
 msgstr "Use as main photo"
 
-#: includes/class-acc-wizard.php:35 includes/class-listing-editor.php:493
+#: includes/class-acc-wizard.php:35 includes/class-listing-editor.php:496
 msgid "Quitar imagen"
 msgstr "Remove image"
 
 #: includes/class-acc-wizard.php:39 includes/class-acc-wizard.php:40
-#: includes/class-listing-editor.php:494 includes/class-listing-editor.php:495
+#: includes/class-listing-editor.php:497 includes/class-listing-editor.php:498
 msgid "Subiendo"
 msgstr "Uploading"
 
-#: includes/class-acc-wizard.php:41 includes/class-listing-editor.php:496
+#: includes/class-acc-wizard.php:41 includes/class-listing-editor.php:499
 msgid "Subidas"
 msgstr "Uploaded"
 
-#: includes/class-acc-wizard.php:42 includes/class-listing-editor.php:497
+#: includes/class-acc-wizard.php:42 includes/class-listing-editor.php:500
 msgid "Imágenes subidas."
 msgstr "Images uploaded."
 
 #: includes/class-acc-wizard.php:43 includes/class-agency-media.php:52
-#: includes/class-listing-editor.php:498
+#: includes/class-listing-editor.php:501
 msgid "No se pudo subir la imagen."
 msgstr "The image could not be uploaded."
 
-#: includes/class-acc-wizard.php:44 includes/class-listing-editor.php:499
+#: includes/class-acc-wizard.php:44 includes/class-listing-editor.php:502
 msgid "solo se permiten imágenes."
 msgstr "only images are allowed."
 
-#: includes/class-acc-wizard.php:45 includes/class-listing-editor.php:500
+#: includes/class-acc-wizard.php:45 includes/class-listing-editor.php:503
 msgid "la imagen supera el tamaño máximo."
 msgstr "the image exceeds the maximum size."
 
-#: includes/class-acc-wizard.php:46 includes/class-listing-editor.php:501
+#: includes/class-acc-wizard.php:46 includes/class-listing-editor.php:504
 msgid "Imagen añadida."
 msgstr "Image added."
 
@@ -1388,7 +1389,7 @@ msgstr ""
 "The unit and all its prices will be deleted. This action cannot be undone."
 
 #: includes/class-acc-wizard.php:51 includes/class-acc-wizard.php:83
-#: includes/class-forum.php:128 includes/class-listing-editor.php:399
+#: includes/class-forum.php:128 includes/class-listing-editor.php:402
 msgid "Publicar"
 msgstr "Publish"
 
@@ -1400,7 +1401,7 @@ msgstr "It will become visible to travelers."
 msgid "Dejará de aparecer en el buscador hasta que lo publiques de nuevo."
 msgstr "It will stop appearing in search until you publish it again."
 
-#: includes/class-acc-wizard.php:55 includes/class-listing-editor.php:503
+#: includes/class-acc-wizard.php:55 includes/class-listing-editor.php:506
 msgid "Error de conexión. Revisa tu red e inténtalo de nuevo."
 msgstr "Connection error. Check your network and try again."
 
@@ -2731,7 +2732,7 @@ msgstr "accumulated"
 #: includes/class-dashboard-bookings.php:64
 #: includes/class-email-campaigns.php:22 includes/class-seo.php:43
 #: includes/class-seo.php:121 includes/class-seo.php:322
-#: includes/class-seo.php:398
+#: includes/class-seo.php:398 templates/landing/stats.php:17
 msgid "Agencias"
 msgstr "Agencies"
 
@@ -2906,8 +2907,8 @@ msgstr "Created"
 
 #: includes/class-dashboard-bookings.php:238
 #: includes/class-dashboard-insights.php:52
-#: includes/class-dashboard-money.php:397 includes/class-dashboard.php:41
-#: includes/class-dashboard.php:42
+#: includes/class-dashboard-money.php:397 includes/class-dashboard.php:42
+#: includes/class-dashboard.php:43
 #: includes/class-shortcode-agency-panel.php:204
 #: includes/class-shortcode-agency-panel.php:547
 msgid "Bookings"
@@ -3004,8 +3005,8 @@ msgstr "No bookings found."
 msgid "Cambiar estado"
 msgstr "Change status"
 
-#: includes/class-dashboard-content.php:59 includes/class-dashboard.php:59
-#: includes/class-dashboard.php:60 includes/class-privacy.php:454
+#: includes/class-dashboard-content.php:59 includes/class-dashboard.php:60
+#: includes/class-dashboard.php:61 includes/class-privacy.php:454
 msgid "Reviews"
 msgstr "Reviews"
 
@@ -3161,8 +3162,8 @@ msgstr "Question"
 msgid "Mensaje"
 msgstr "Message"
 
-#: includes/class-dashboard-content.php:257 includes/class-dashboard.php:86
-#: includes/class-dashboard.php:87 includes/class-post-types.php:20
+#: includes/class-dashboard-content.php:257 includes/class-dashboard.php:87
+#: includes/class-dashboard.php:88 includes/class-post-types.php:20
 msgid "Agencies"
 msgstr "Agencies"
 
@@ -3284,7 +3285,7 @@ msgid "No se pudo guardar el destino."
 msgstr "The destination could not be saved."
 
 #: includes/class-dashboard-destinations.php:97
-#: includes/class-dashboard.php:167 includes/class-dashboard.php:168
+#: includes/class-dashboard.php:168 includes/class-dashboard.php:169
 #: includes/class-taxonomies.php:18 includes/class-taxonomies.php:28
 msgid "Destinations"
 msgstr "Destinations"
@@ -3345,8 +3346,8 @@ msgstr "You do not have permission to add destinations."
 msgid "No tienes permisos para acceder."
 msgstr "You do not have permission to access this page."
 
-#: includes/class-dashboard-insights.php:40 includes/class-dashboard.php:95
-#: includes/class-dashboard.php:96
+#: includes/class-dashboard-insights.php:40 includes/class-dashboard.php:96
+#: includes/class-dashboard.php:97
 msgid "Reports"
 msgstr "Reports"
 
@@ -3411,8 +3412,8 @@ msgstr "Booking"
 msgid "Sin reserva vinculada"
 msgstr "No linked booking"
 
-#: includes/class-dashboard-insights.php:240 includes/class-dashboard.php:104
-#: includes/class-dashboard.php:105 includes/class-front-dash.php:1568
+#: includes/class-dashboard-insights.php:240 includes/class-dashboard.php:105
+#: includes/class-dashboard.php:106 includes/class-front-dash.php:1568
 msgid "Analytics"
 msgstr "Analytics"
 
@@ -4282,52 +4283,58 @@ msgstr ""
 "Generate keys at https://vapidkeys.com/ or with web-push. Without them, "
 "notifications fall back to email."
 
-#: includes/class-dashboard.php:30 includes/class-dashboard.php:31
+#: includes/class-dashboard.php:31 includes/class-dashboard.php:32
 msgid "Travel Platform"
 msgstr "Travel Platform"
 
-#: includes/class-dashboard.php:50 includes/class-dashboard.php:51
+#: includes/class-dashboard.php:51 includes/class-dashboard.php:52
 msgid "Commissions"
 msgstr "Commissions"
 
-#: includes/class-dashboard.php:68 includes/class-dashboard.php:69
+#: includes/class-dashboard.php:69 includes/class-dashboard.php:70
 msgid "Moderation"
 msgstr "Moderation"
 
-#: includes/class-dashboard.php:77 includes/class-dashboard.php:78
+#: includes/class-dashboard.php:78 includes/class-dashboard.php:79
 msgid "Disputes"
 msgstr "Disputes"
 
-#: includes/class-dashboard.php:113 includes/class-dashboard.php:114
+#: includes/class-dashboard.php:114 includes/class-dashboard.php:115
 msgid "Invoices"
 msgstr "Invoices"
 
-#: includes/class-dashboard.php:122 includes/class-dashboard.php:123
+#: includes/class-dashboard.php:123 includes/class-dashboard.php:124
 msgid "Email campaigns"
 msgstr "Email campaigns"
 
-#: includes/class-dashboard.php:131 includes/class-dashboard.php:132
+#: includes/class-dashboard.php:132 includes/class-dashboard.php:133
 msgid "Plans"
 msgstr "Plans"
 
-#: includes/class-dashboard.php:140 includes/class-dashboard.php:141
+#: includes/class-dashboard.php:141 includes/class-dashboard.php:142
 msgid "Subscriptions"
 msgstr "Subscriptions"
 
-#: includes/class-dashboard.php:149 includes/class-dashboard.php:150
+#: includes/class-dashboard.php:150 includes/class-dashboard.php:151
 msgid "Promotions"
 msgstr "Promotions"
 
-#: includes/class-dashboard.php:158 includes/class-dashboard.php:159
+#: includes/class-dashboard.php:159 includes/class-dashboard.php:160
 msgid "Settings"
 msgstr "Settings"
 
-#: includes/class-dashboard.php:176 includes/class-dashboard.php:177
+#: includes/class-dashboard.php:177 includes/class-dashboard.php:178
+#: includes/class-landing-builder.php:325
+#: includes/class-landing-builder.php:326
+msgid "Landing Page"
+msgstr "Landing Page"
+
+#: includes/class-dashboard.php:186 includes/class-dashboard.php:187
 msgid "Market tools"
 msgstr "Market tools"
 
 #. translators: %d: número total de elementos paginados
-#: includes/class-dashboard.php:207
+#: includes/class-dashboard.php:217
 #, php-format
 msgid "%d items"
 msgstr "%d items"
@@ -4540,8 +4547,10 @@ msgstr "All destinations"
 #: includes/class-destination-spots.php:145
 #: includes/class-destination-spots.php:1100
 #: includes/class-destination-spots.php:1132
+#: includes/class-landing-builder.php:31
 #: includes/class-shortcode-search.php:1254
-#: includes/class-shortcode-search.php:1313
+#: includes/class-shortcode-search.php:1313 templates/landing/categories.php:11
+#: templates/landing/stats.php:14
 msgid "Destinos"
 msgstr "Destinations"
 
@@ -10443,7 +10452,7 @@ msgstr "User email"
 msgid "usuario@ejemplo.com"
 msgstr "user@example.com"
 
-#: includes/class-front-dash.php:1079
+#: includes/class-front-dash.php:1079 includes/class-landing-builder.php:254
 msgid "Agregar"
 msgstr "Add"
 
@@ -10471,7 +10480,7 @@ msgstr "Accommodations"
 #: includes/class-front-dash.php:1133 includes/class-front-dash.php:1296
 #: includes/class-post-types.php:104
 #: includes/class-shortcode-agency-panel.php:102
-#: includes/class-shortcode-search.php:216
+#: includes/class-shortcode-search.php:216 templates/landing/categories.php:6
 msgid "Tours"
 msgstr "Tours"
 
@@ -10484,12 +10493,13 @@ msgid "Alquiler de carros"
 msgstr "Car rentals"
 
 #: includes/class-front-dash.php:1136 includes/class-front-dash.php:1299
+#: templates/landing/categories.php:9
 msgid "Barcos"
 msgstr "Boats"
 
 #: includes/class-front-dash.php:1137 includes/class-front-dash.php:1300
 #: includes/class-itinerary.php:93 includes/class-shortcode-search.php:220
-#: includes/class-taxonomies.php:282
+#: includes/class-taxonomies.php:282 templates/landing/categories.php:10
 msgid "Paquetes"
 msgstr "Packages"
 
@@ -10926,6 +10936,87 @@ msgstr "Clear"
 msgid "La reserva final se hace directo con cada agencia."
 msgstr "Final booking is made directly with each agency."
 
+#: includes/class-landing-builder.php:28
+msgid "Hero"
+msgstr "Hero"
+
+#: includes/class-landing-builder.php:29
+#: includes/class-shortcode-account.php:191
+msgid "Categorías"
+msgstr "Categories"
+
+#: includes/class-landing-builder.php:30 templates/landing/featured.php:6
+msgid "Servicios destacados"
+msgstr "Featured services"
+
+#: includes/class-landing-builder.php:32
+msgid "Blog"
+msgstr "Blog"
+
+#: includes/class-landing-builder.php:33
+#: includes/class-shortcode-account.php:313
+msgid "Newsletter"
+msgstr "Newsletter"
+
+#: includes/class-landing-builder.php:34
+msgid "Testimonios"
+msgstr "Testimonials"
+
+#: includes/class-landing-builder.php:35
+msgid "CTA final"
+msgstr "Final CTA"
+
+#: includes/class-landing-builder.php:36
+msgid "Estadísticas"
+msgstr "Statistics"
+
+#: includes/class-landing-builder.php:37
+msgid "Video"
+msgstr "Video"
+
+#: includes/class-landing-builder.php:38
+msgid "Texto libre"
+msgstr "Free text"
+
+#: includes/class-landing-builder.php:39 templates/landing/gallery.php:5
+msgid "Galería"
+msgstr "Gallery"
+
+#: includes/class-landing-builder.php:204
+#: includes/class-landing-builder.php:278
+msgid "No tienes permiso."
+msgstr "You don't have permission."
+
+#: includes/class-landing-builder.php:210
+msgid "Landing Page Builder"
+msgstr "Landing Page Builder"
+
+#: includes/class-landing-builder.php:211
+msgid ""
+"Activa, desactiva y reordena las secciones de la landing page. Los cambios "
+"se reflejan inmediatamente."
+msgstr "Activate, deactivate and reorder the landing page sections. Changes are reflected immediately."
+
+#: includes/class-landing-builder.php:220
+msgid "Orden"
+msgstr "Order"
+
+#: includes/class-landing-builder.php:221
+msgid "Sección"
+msgstr "Section"
+
+#: includes/class-landing-builder.php:244
+msgid "Agregar sección"
+msgstr "Add section"
+
+#: includes/class-landing-builder.php:248
+msgid "Tipo de sección:"
+msgstr "Section type:"
+
+#: includes/class-landing-builder.php:257
+msgid "Guardar configuración"
+msgstr "Save configuration"
+
 #: includes/class-leads.php:32
 msgid "Por favor ingresa tu nombre."
 msgstr "Please enter your name."
@@ -11071,27 +11162,27 @@ msgstr "Name *"
 msgid "Precios y ubicación"
 msgstr "Pricing & location"
 
-#: includes/class-listing-editor.php:321
+#: includes/class-listing-editor.php:323
 msgid "Ubicar en el mapa (arrastra el marcador)"
 msgstr "Locate on map (drag the marker)"
 
-#: includes/class-listing-editor.php:335
+#: includes/class-listing-editor.php:337
 msgid "Detalles del servicio"
 msgstr "Service details"
 
-#: includes/class-listing-editor.php:359
+#: includes/class-listing-editor.php:361
 msgid "SEO y publicación"
 msgstr "SEO & publishing"
 
-#: includes/class-listing-editor.php:408
+#: includes/class-listing-editor.php:411
 msgid "Guardar cambios"
 msgstr "Save changes"
 
-#: includes/class-listing-editor.php:408
+#: includes/class-listing-editor.php:411
 msgid "Crear servicio"
 msgstr "Create service"
 
-#: includes/class-listing-editor.php:504
+#: includes/class-listing-editor.php:507
 msgid "Selecciona un destino para el servicio."
 msgstr "Select a destination for the service."
 
@@ -13119,13 +13210,9 @@ msgstr "Call"
 #: includes/class-shortcode-account.php:200
 #: includes/class-shortcode-account.php:211
 #: includes/class-shortcode-search.php:1258
-#: includes/class-shortcode-search.php:1317
+#: includes/class-shortcode-search.php:1317 templates/landing/stats.php:13
 msgid "Servicios"
 msgstr "Services"
-
-#: includes/class-shortcode-account.php:191
-msgid "Categorías"
-msgstr "Categories"
 
 #: includes/class-shortcode-account.php:192
 #: includes/class-shortcode-account.php:201
@@ -13166,27 +13253,23 @@ msgstr "Direct chat"
 msgid "Envía un mensaje a la agencia. Te responderán lo antes posible."
 msgstr "Send a message to the agency. They will reply as soon as possible."
 
-#: includes/class-shortcode-account.php:313
-msgid "Newsletter"
-msgstr "Newsletter"
-
 #: includes/class-shortcode-account.php:314
 msgid "Recibe ofertas y novedades de esta agencia."
 msgstr "Receive offers and news from this agency."
 
-#: includes/class-shortcode-account.php:318
+#: includes/class-shortcode-account.php:318 templates/landing/newsletter.php:13
 msgid "Tu email"
 msgstr "Your email"
 
-#: includes/class-shortcode-account.php:319
+#: includes/class-shortcode-account.php:319 templates/landing/newsletter.php:14
 msgid "Suscribirme"
 msgstr "Subscribe"
 
-#: includes/class-shortcode-account.php:327
+#: includes/class-shortcode-account.php:327 templates/landing/cta.php:4
 msgid "¿Listo para tu próximo viaje?"
 msgstr "Ready for your next trip?"
 
-#: includes/class-shortcode-account.php:328
+#: includes/class-shortcode-account.php:328 templates/landing/cta.php:5
 msgid "Contáctanos y te ayudamos a planificar una experiencia inolvidable."
 msgstr "Contact us and we will help you plan an unforgettable experience."
 
@@ -13995,7 +14078,7 @@ msgstr ""
 msgid "No se encontraron servicios favoritos."
 msgstr "No favorite services found."
 
-#: includes/class-shortcode-booking.php:1020
+#: includes/class-shortcode-booking.php:1020 templates/landing/categories.php:8
 msgid "Alquiler de autos"
 msgstr "Car rentals"
 
@@ -14874,6 +14957,59 @@ msgstr "Sign waiver"
 msgid "Reserva no especificada."
 msgstr "Booking not specified."
 
+#: templates/landing/blog.php:5
+msgid "Últimas guías de viaje"
+msgstr "Latest travel guides"
+
+#: templates/landing/blog.php:34
+msgid "Leer más"
+msgstr "Leer más"
+
+#: templates/landing/blog.php:42
+msgid "Ver todas las guías"
+msgstr "View all guides"
+
+#: templates/landing/categories.php:5
+msgid "Hoteles y Estancias"
+msgstr "Hotels & Stays"
+
+#: templates/landing/categories.php:7
+msgid "Transfers"
+msgstr "Transfers"
+
+#: templates/landing/categories.php:17
+msgid "¿Qué estás buscando?"
+msgstr "What are you looking for?"
+
+#: templates/landing/cta.php:6
+msgid "Contactar"
+msgstr "Contact"
+
+#: templates/landing/destinations.php:8
+msgid "Explora destinos"
+msgstr "Explore destinations"
+
+#: templates/landing/hero.php:5
+msgid ""
+"Explora alojamientos, tours y experiencias de agencias locales de confianza."
+msgstr "Explore accommodations, tours and experiences from trusted local agencies."
+
+#: templates/landing/newsletter.php:4
+msgid "Recibe ofertas y novedades"
+msgstr "Receive offers and news"
+
+#: templates/landing/newsletter.php:5
+msgid "Suscríbete para recibir las mejores ofertas de viaje."
+msgstr "Subscribe to receive the best travel offers."
+
+#: templates/landing/stats.php:4
+msgid "Números que nos respaldan"
+msgstr "Numbers that back us up"
+
+#: templates/landing/testimonials.php:5
+msgid "Lo que dicen nuestros viajeros"
+msgstr "What our travelers say"
+
 #: travel-agency-platform.php:55
 msgid ""
 "no se encontró el autoloader de Composer. Ejecuta \"composer dump-autoload -"
@@ -15587,9 +15723,6 @@ msgstr "Toggle submenu"
 msgid "Top Agencies"
 msgstr "Top Agencies"
 
-msgid "Transfers"
-msgstr "Transfers"
-
 msgid "Unavailable"
 msgstr "Unavailable"
 
@@ -15782,9 +15915,6 @@ msgstr "Arma tu viaje a tu medida"
 msgid "Aún no hay publicaciones."
 msgstr "Aún no hay publicaciones."
 
-msgid "Blog"
-msgstr "Blog"
-
 msgid "Combina tours, alojamientos y transportes en un itinerario propio."
 msgstr "Combina tours, alojamientos y transportes en un itinerario propio."
 
@@ -15796,9 +15926,6 @@ msgstr "Descubre otros rincones de la zona"
 
 msgid "Experiencias en %s"
 msgstr "Experiencias en %s"
-
-msgid "Leer más"
-msgstr "Leer más"
 
 msgid "Siguientes →"
 msgstr "Siguientes →"

@@ -1,6 +1,12 @@
 <?php get_header(); ?>
 
 <?php
+// Landing builder config (sections on/off + order).
+$tap_landing_enabled = function_exists('TAP_Landing_Builder::is_enabled') ? true : false;
+function tap_lp_enabled($type) {
+    return class_exists('TAP_Landing_Builder') ? TAP_Landing_Builder::is_enabled($type) : true;
+}
+
 /**
  * Travel landing — modern, light, bilingual (ES/EN), mobile-first.
  * Every section degrades gracefully when there is no content yet.
@@ -262,6 +268,7 @@ foreach ($pillarDefs as $pDef) {
     ];
 }
 ?>
+<?php if (tap_lp_enabled('hero')): ?>
 <section class="tap-hero tap-landing-hero" id="home">
   <?php if (!empty($hero_video)): ?>
     <video class="tap-landing-hero-video" autoplay muted loop playsinline preload="metadata"<?php if (!empty($hero_poster)) echo ' poster="' . esc_url($hero_poster) . '"'; ?> aria-hidden="true">
@@ -334,7 +341,9 @@ foreach ($pillarDefs as $pDef) {
   </div>
 </section>
 
-<?php if (($statServices + $statAgencies + $statDestinos) > 0): ?>
+<?php endif; // hero ?>
+
+<?php if (($statServices + $statAgencies + $statDestinos) > 0 && tap_lp_enabled('stats')): ?>
 <section class="tap-section tap-landing-stats">
   <div class="tap-container">
     <div class="tap-landing-stats-grid">
@@ -359,6 +368,7 @@ foreach ($pillarDefs as $pDef) {
 </section>
 <?php endif; ?>
 
+<?php if (tap_lp_enabled('facts')): ?>
 <section class="tap-landing-facts" aria-label="<?php esc_attr_e('Costa Rica en datos', 'travel-agency-platform'); ?>">
   <div class="tap-container">
     <ul class="tap-landing-facts-grid">
@@ -370,7 +380,7 @@ foreach ($pillarDefs as $pDef) {
   </div>
 </section>
 
-<?php if (!empty($spots)): ?>
+<?php if (!empty($spots) && tap_lp_enabled('destinations')): ?>
 <section class="tap-section tap-landing-destinations" id="destinos">
   <div class="tap-container">
     <div class="tap-landing-head">
@@ -405,7 +415,9 @@ foreach ($pillarDefs as $pDef) {
 </section>
 <?php endif; ?>
 
-<?php if (!empty($interests)): ?>
+<?php endif; // facts ?>
+
+<?php if (!empty($interests) && tap_lp_enabled('categories')): ?>
 <section class="tap-section tap-landing-interests">
   <div class="tap-container">
     <div class="tap-landing-head">
@@ -426,7 +438,7 @@ foreach ($pillarDefs as $pDef) {
 </section>
 <?php endif; ?>
 
-<?php if (!empty($experiences)): ?>
+<?php if (!empty($experiences) && tap_lp_enabled('featured')): ?>
 <section class="tap-section tap-section-alt tap-landing-experiences">
   <div class="tap-container">
     <div class="tap-landing-head">
@@ -469,7 +481,7 @@ foreach ($pillarDefs as $pDef) {
 </section>
 <?php endif; ?>
 
-<?php if (!empty($pillars)): ?>
+<?php if (!empty($pillars) && tap_lp_enabled('blog')): ?>
 <section class="tap-section tap-landing-pillars">
   <div class="tap-container">
     <div class="tap-landing-head">
@@ -494,6 +506,7 @@ foreach ($pillarDefs as $pDef) {
 </section>
 <?php endif; ?>
 
+<?php if (tap_lp_enabled('itinerary')): ?>
 <section class="tap-section tap-landing-itinerary">
   <div class="tap-container">
     <div class="tap-landing-itinerary-card">
@@ -519,7 +532,9 @@ foreach ($pillarDefs as $pDef) {
   </div>
 </section>
 
-<?php if (!empty($agenciesClean)): ?>
+<?php endif; // itinerary ?>
+
+<?php if (!empty($agenciesClean) && tap_lp_enabled('destinations')): ?>
 <section class="tap-section tap-landing-agencies">
   <div class="tap-container">
     <div class="tap-landing-head">
@@ -550,7 +565,7 @@ foreach ($pillarDefs as $pDef) {
 </section>
 <?php endif; ?>
 
-<?php if (!empty($testimonials)): ?>
+<?php if (!empty($testimonials) && tap_lp_enabled('testimonials')): ?>
 <section class="tap-section tap-section-alt tap-landing-reviews">
   <div class="tap-container">
     <div class="tap-landing-head">
@@ -572,7 +587,7 @@ foreach ($pillarDefs as $pDef) {
 </section>
 <?php endif; ?>
 
-<?php if (!empty($articles)): ?>
+<?php if (!empty($articles) && tap_lp_enabled('blog')): ?>
 <section class="tap-section tap-section-alt tap-landing-articles">
   <div class="tap-container">
     <div class="tap-landing-head">
@@ -607,7 +622,7 @@ foreach ($pillarDefs as $pDef) {
 </section>
 <?php endif; ?>
 
-<?php if (!empty($faqItems)): ?>
+<?php if (!empty($faqItems) && tap_lp_enabled('text')): ?>
 <section class="tap-section tap-landing-faq" id="preguntas">
   <div class="tap-container tap-landing-faq-wrap">
     <div class="tap-landing-head">
@@ -633,6 +648,7 @@ foreach ($pillarDefs as $pDef) {
 </section>
 <?php endif; ?>
 
+<?php if (tap_lp_enabled('cta')): ?>
 <section class="tap-section tap-landing-cta">
   <div class="tap-container">
     <div class="tap-landing-cta-card">
@@ -645,5 +661,7 @@ foreach ($pillarDefs as $pDef) {
     </div>
   </div>
 </section>
+
+<?php endif; // cta ?>
 
 <?php get_footer(); ?>
