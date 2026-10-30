@@ -968,7 +968,19 @@ img { max-width: 100%; height: auto; }
 .tap-dest-cta .tap-btn { background: #fff; color: #0f766e; border: none; font-weight: 700; }
 
 /* T5 — Blog index (home.php) */
-.tap-blog-hero { }
+/* Blog hero with video background */
+.tap-blog-hero { position: relative; overflow: hidden; min-height: 320px; display: flex; align-items: center; }
+.tap-blog-hero .tap-hero-bg, .tap-blog-hero .tap-hero-overlay { position: absolute; inset: 0; }
+.tap-blog-hero .tap-hero-bg img { width: 100%; height: 100%; object-fit: cover; }
+.tap-blog-hero .tap-hero-overlay { background: linear-gradient(180deg, rgba(0,0,0,.35) 0%, rgba(0,0,0,.55) 100%); }
+.tap-blog-hero--video .tap-blog-hero-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+.tap-blog-hero--video .tap-blog-hero-overlay { z-index: 1; }
+.tap-blog-hero .tap-hero-content { position: relative; z-index: 2; width: 100%; }
+.tap-blog-hero h1 { color: #fff; text-shadow: 0 2px 8px rgba(0,0,0,.4); }
+.tap-blog-hero p { color: rgba(255,255,255,.9); }
+@media (prefers-reduced-motion: reduce) {
+    .tap-blog-hero--video .tap-blog-hero-video { display: none; }
+}
 .tap-blog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; margin: var(--tap-space-4) 0; }
 .tap-blog-featured { display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin: 0 0 32px; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(15,23,42,.1); transition: transform .2s ease, box-shadow .2s ease; }
 .tap-blog-featured:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(15,23,42,.16); }
