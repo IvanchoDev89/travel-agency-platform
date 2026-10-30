@@ -222,7 +222,406 @@ class TAP_Listing_Editor {
                 };
                 ?>
 
-                <div class="tap-agency-panel tap-manage-wrap tap-wizard" data-wizard-step="1" data-listing="<?php echo (int) $listing_id; ?>">
+                <style>
+            /* TAP agency back-office wizard + pricing/availability calendar. */
+
+            /* ── shell ───────────────────────────────────────────────────────── */
+
+            .tap-wizard {
+                --tap-wizard-rail: 268px;
+                max-width: 1280px;
+                margin: 0 auto;
+                width: 100%;
+            }
+
+
+            .tap-wizard-head {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: var(--tap-space-5);
+                flex-wrap: wrap;
+                padding-bottom: var(--tap-space-4);
+                border-bottom: 1px solid var(--tap-border);
+            }
+
+
+            .tap-wizard-head-main { min-width: 0; }
+
+
+            .tap-wizard-back {
+                display: inline-flex;
+                align-items: center;
+                gap: var(--tap-space-1);
+                margin-bottom: var(--tap-space-2);
+                color: var(--tap-neutral-500);
+                font-size: var(--tap-text-sm);
+                font-weight: 600;
+                text-decoration: none;
+            }
+
+            .tap-wizard-back:hover { color: var(--tap-primary); }
+
+
+            .tap-wizard-head .tap-panel-title { margin: 0; }
+
+            .tap-wizard-head-meta {
+                margin: var(--tap-space-1) 0 0;
+                color: var(--tap-neutral-500);
+                font-size: var(--tap-text-sm);
+            }
+
+            .tap-wizard-head-type { font-weight: 600; color: var(--tap-neutral-700); }
+
+            .tap-wizard-head-sep { margin: 0 var(--tap-space-1); }
+
+
+            .tap-wizard-head-side {
+                display: flex;
+                align-items: center;
+                gap: var(--tap-space-2);
+                flex-wrap: wrap;
+            }
+
+
+            .tap-chip-progress {
+                display: inline-flex;
+                align-items: center;
+                gap: var(--tap-space-2);
+                background: var(--tap-surface-muted);
+                cursor: default;
+                font-variant-numeric: tabular-nums;
+            }
+
+            .tap-chip-progress-bar {
+                display: block;
+                width: 72px;
+                height: 6px;
+                border-radius: var(--tap-radius-full);
+                background: var(--tap-neutral-200);
+                overflow: hidden;
+            }
+
+            .tap-chip-progress-bar > span {
+                display: block;
+                height: 100%;
+                border-radius: inherit;
+                background: var(--tap-primary);
+                transition: width var(--tap-transition-slow);
+            }
+
+
+            /* ── stepper ─────────────────────────────────────────────────────── */
+
+            .tap-wizard-nav { margin: var(--tap-space-5) 0 0; }
+
+
+            .tap-wizard-steps {
+                display: flex;
+                gap: var(--tap-space-2);
+                flex-wrap: wrap;
+                list-style: none;
+                margin: 0;
+                padding: 0;
+            }
+
+
+            .tap-wizard-step {
+                flex: 1 1 0;
+                min-width: 120px;
+                padding: 0;
+                position: relative;
+            }
+
+
+            .tap-wizard-step a,
+            .tap-wizard-step > span {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: var(--tap-space-2);
+                padding: var(--tap-space-3);
+                border: 1px solid var(--tap-border);
+                border-radius: var(--tap-radius-lg);
+                background: var(--tap-surface);
+                color: var(--tap-neutral-600);
+                font-size: var(--tap-text-sm);
+                font-weight: 600;
+                text-decoration: none;
+                height: 100%;
+                transition: border-color var(--tap-transition), background var(--tap-transition), box-shadow var(--tap-transition);
+                overflow-wrap: anywhere;
+                word-break: break-word;
+            }
+
+            .tap-wizard-step > span { cursor: default; }
+
+
+            .tap-wizard-step a:hover {
+                border-color: var(--tap-primary);
+                box-shadow: var(--tap-shadow-md);
+            }
+
+
+            .tap-wizard-step .tap-wizard-step-num {
+                flex: 0 0 36px;
+                width: 36px;
+                height: 36px;
+                margin-bottom: var(--tap-space-1);
+                border-radius: var(--tap-radius-full);
+                background: var(--tap-neutral-200);
+                color: var(--tap-neutral-600);
+                font-size: var(--tap-text-sm);
+                font-weight: 700;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                line-height: 1;
+            }
+
+
+            .tap-wizard-step-label {
+                display: block;
+                font-weight: 700;
+                line-height: 1.3;
+                overflow-wrap: anywhere;
+                word-break: break-word;
+            }
+
+            .tap-wizard-step-hint {
+                display: block;
+                font-weight: 400;
+                font-size: var(--tap-text-xs);
+                color: var(--tap-neutral-400);
+                line-height: 1.35;
+                overflow-wrap: anywhere;
+                word-break: break-word;
+            }
+
+            .tap-wizard-step a .tap-wizard-step-hint { color: var(--tap-neutral-500); }
+
+
+            .tap-wizard-step.complete .tap-wizard-step-num {
+                background: var(--tap-success);
+                color: #fff;
+            }
+
+            .tap-wizard-step.complete .tap-wizard-step-label { color: var(--tap-neutral-700); }
+
+
+            .tap-wizard-step.active a,
+            .tap-wizard-step.active > span {
+                border-color: var(--tap-primary);
+                background: var(--tap-primary-bg);
+                color: var(--tap-primary-dark);
+                box-shadow: var(--tap-shadow-primary);
+            }
+
+            .tap-wizard-step.active .tap-wizard-step-num { background: var(--tap-primary); color: #fff; }
+
+            .tap-wizard-step.active .tap-wizard-step-hint { color: var(--tap-primary-dark); }
+
+
+            .tap-wizard-step.locked { opacity: 0.55; }
+
+
+            /* ── layout ──────────────────────────────────────────────────────── */
+
+            .tap-wizard-layout {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) var(--tap-wizard-rail);
+                gap: var(--tap-space-6);
+                align-items: start;
+                margin: var(--tap-space-6) 0 0;
+            }
+
+
+            .tap-wizard-body { min-width: 0; }
+
+            .tap-wizard-section { display: grid; gap: var(--tap-space-4); }
+
+
+            .tap-wizard-callout {
+                display: flex;
+                align-items: center;
+                gap: var(--tap-space-4);
+                flex-wrap: wrap;
+                padding: var(--tap-space-5);
+                border: 1px dashed var(--tap-border-strong);
+                border-radius: var(--tap-radius-lg);
+                background: var(--tap-surface-muted);
+                color: var(--tap-neutral-600);
+            }
+
+            .tap-wizard-callout p { margin: 0; }
+
+
+            /* ── rail ────────────────────────────────────────────────────────── */
+
+            .tap-wizard-rail { display: grid; gap: var(--tap-space-4); position: sticky; top: var(--tap-space-5); }
+
+
+            .tap-rail-card {
+                border: 1px solid var(--tap-border);
+                border-radius: var(--tap-radius-xl);
+                background: var(--tap-surface);
+                padding: var(--tap-space-5);
+                box-shadow: var(--tap-shadow-md);
+            }
+
+            .tap-rail-card-head {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: var(--tap-space-2);
+                margin-bottom: var(--tap-space-2);
+                font-size: var(--tap-text-base);
+            }
+
+            .tap-rail-count {
+                font-size: var(--tap-text-xs);
+                font-weight: 700;
+                color: var(--tap-primary-dark);
+                background: var(--tap-primary-bg);
+                border-radius: var(--tap-radius-full);
+                padding: 2px var(--tap-space-2);
+                font-variant-numeric: tabular-nums;
+            }
+
+            .tap-rail-lead {
+                margin: 0 0 var(--tap-space-4);
+                color: var(--tap-neutral-500);
+                font-size: var(--tap-text-xs);
+                line-height: 1.55;
+            }
+
+            .tap-rail-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--tap-space-1); }
+
+
+            .tap-rail-item {
+                display: flex;
+                align-items: flex-start;
+                gap: var(--tap-space-3);
+                padding: var(--tap-space-2);
+                border-radius: var(--tap-radius-md);
+            }
+
+            .tap-rail-item:hover { background: var(--tap-surface-muted); }
+
+
+            .tap-rail-dot {
+                flex: 0 0 18px;
+                width: 18px;
+                height: 18px;
+                margin-top: 1px;
+                border-radius: var(--tap-radius-full);
+                border: 1.5px solid var(--tap-neutral-300);
+                background: var(--tap-surface);
+                color: #fff;
+                font-size: 11px;
+                font-weight: 700;
+                line-height: 15px;
+                text-align: center;
+            }
+
+            .tap-rail-item.is-done .tap-rail-dot { border-color: var(--tap-success); background: var(--tap-success); }
+
+
+            .tap-rail-body { flex: 1 1 auto; min-width: 0; }
+
+            .tap-rail-label { display: block; font-size: var(--tap-text-sm); font-weight: 600; line-height: 1.35; }
+
+            .tap-rail-item.is-done .tap-rail-label { color: var(--tap-neutral-500); }
+
+            .tap-rail-detail {
+                display: block;
+                font-size: var(--tap-text-xs);
+                color: var(--tap-warning-text);
+                line-height: 1.35;
+            }
+
+            .tap-rail-item.is-done .tap-rail-detail { color: var(--tap-neutral-400); }
+
+            .tap-rail-link {
+                flex: 0 0 auto;
+                color: var(--tap-neutral-400);
+                text-decoration: none;
+                font-weight: 700;
+                align-self: center;
+            }
+
+            .tap-rail-link:hover { color: var(--tap-primary); }
+
+
+            .tap-rail-card-help .tap-btn { margin-top: var(--tap-space-3); }
+
+
+            /* ── sticky footer ──────────────────────────────────────────────── */
+
+            .tap-wizard-foot {
+                position: sticky;
+                bottom: 0;
+                z-index: 20;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: var(--tap-space-4);
+                margin-top: var(--tap-space-6);
+                padding: var(--tap-space-4) var(--tap-space-5);
+                border: 1px solid var(--tap-border);
+                border-radius: var(--tap-radius-xl);
+                background: var(--tap-surface);
+                box-shadow: var(--tap-shadow-lg);
+            }
+
+            .tap-wizard-foot-hint {
+                flex: 1 1 auto;
+                text-align: center;
+                color: var(--tap-neutral-400);
+                font-size: var(--tap-text-xs);
+            }
+
+            .tap-wizard-next { min-width: 190px; justify-content: center; }
+
+
+            .tap-chip {
+                display: inline-flex;
+                align-items: center;
+                padding: 2px var(--tap-space-2);
+                border-radius: var(--tap-radius-full);
+                font-size: var(--tap-text-xs);
+                font-weight: 600;
+                line-height: 1.6;
+                white-space: nowrap;
+            }
+
+            .tap-chip-muted { background: var(--tap-neutral-100); color: var(--tap-neutral-600); }
+
+            .tap-chip-success { background: var(--tap-success-bg); color: var(--tap-success-dark); }
+
+                .tap-wizard-layout { grid-template-columns: minmax(0, 1fr); }
+
+                .tap-wizard-rail { position: static; }
+
+                .tap-wizard-step { flex: 1 1 calc(50% - var(--tap-space-2)); min-width: 0; }
+
+                .tap-wizard-foot { flex-wrap: wrap; }
+
+                .tap-wizard-foot-hint { order: 3; flex: 1 1 100%; }
+
+                .tap-wizard-next { flex: 1 1 auto; min-width: 0; }
+            @media (max-width: 1024px) {
+                .tap-wizard-layout { grid-template-columns: minmax(0, 1fr); }
+                .tap-wizard-rail { position: static; }
+            }
+            @media (max-width: 640px) {
+                .tap-wizard-step { flex: 1 1 calc(50% - var(--tap-space-2)); min-width: 0; }
+                .tap-wizard-foot { flex-wrap: wrap; }
+                .tap-wizard-foot-hint { order: 3; flex: 1 1 100%; }
+                .tap-wizard-next { flex: 1 1 auto; min-width: 0; }
+            }
+            </style>
+            <div class="tap-agency-panel tap-manage-wrap tap-wizard" data-wizard-step="1" data-listing="<?php echo (int) $listing_id; ?>">
                     <header class="tap-wizard-head">
                         <div class="tap-wizard-head-main">
                             <a class="tap-wizard-back" href="<?php echo esc_url(home_url('/manage-listing/')); ?>">
