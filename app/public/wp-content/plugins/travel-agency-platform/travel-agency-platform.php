@@ -225,6 +225,11 @@ final class TravelAgencyPlatform {
             TAP_Installer::create_tables();
             update_option('tap_version', TAP_VERSION);
         }
+        // Flush rewrite rules when the rewrite version changes (new CPTs, slugs).
+        if (get_option('tap_rewrite_version') !== TAP_VERSION) {
+            flush_rewrite_rules();
+            update_option('tap_rewrite_version', TAP_VERSION);
+        }
     }
 
     public function load_textdomain() {
