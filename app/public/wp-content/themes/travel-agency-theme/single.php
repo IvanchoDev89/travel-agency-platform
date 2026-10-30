@@ -79,6 +79,39 @@
                 </div>
             </article>
 
+            <!-- Author box -->
+            <div class="tap-post-author">
+                <div class="tap-post-author-avatar"><?php echo get_avatar(get_the_author_meta('ID'), 64); ?></div>
+                <div class="tap-post-author-info">
+                    <strong><?php echo esc_html(get_the_author()); ?></strong>
+                    <?php if (get_the_author_meta('description')): ?>
+                        <p><?php echo esc_html(get_the_author_meta('description')); ?></p>
+                    <?php else: ?>
+                        <p><?php esc_html_e('Autor de guías de viaje en Travel Agency Platform.', 'travel-agency-platform'); ?></p>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Sharing -->
+            <div class="tap-post-share">
+                <span><?php esc_html_e('Compartir:', 'travel-agency-platform'); ?></span>
+                <a href="https://twitter.com/intent/tweet?url=<?php echo urlencode(get_permalink()); ?>&text=<?php echo urlencode(get_the_title()); ?>" target="_blank" rel="noopener" class="tap-post-share-btn">X</a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo urlencode(get_permalink()); ?>" target="_blank" rel="noopener" class="tap-post-share-btn">Facebook</a>
+                <a href="https://wa.me/?text=<?php echo urlencode(get_the_title() . ' ' . get_permalink()); ?>" target="_blank" rel="noopener" class="tap-post-share-btn">WhatsApp</a>
+                <button type="button" class="tap-post-share-btn" onclick="navigator.clipboard.writeText('<?php echo esc_js(get_permalink()); ?>');this.textContent='<?php echo esc_js(__('Copiado!', 'travel-agency-platform')); ?>';"><?php esc_html_e('Copiar link', 'travel-agency-platform'); ?></button>
+            </div>
+
+            <!-- Newsletter CTA -->
+            <div class="tap-post-newsletter">
+                <h3><?php esc_html_e('Recibe guías de viaje en tu email', 'travel-agency-platform'); ?></h3>
+                <p><?php esc_html_e('Suscríbete para recibir las mejores guías, tips y ofertas de viaje.', 'travel-agency-platform'); ?></p>
+                <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" class="tap-post-newsletter-form">
+                    <input type="hidden" name="action" value="tap_lead_form">
+                    <input type="email" name="email" placeholder="<?php esc_attr_e('Tu email', 'travel-agency-platform'); ?>" required>
+                    <button type="submit" class="tap-btn tap-btn-primary tap-btn-sm"><?php esc_html_e('Suscribirme', 'travel-agency-platform'); ?></button>
+                </form>
+            </div>
+
             <?php if ($relatedQ->have_posts()): ?>
             <aside class="tap-post-related">
                 <h2><?php esc_html_e('Seguí explorando', 'travel-agency-platform'); ?></h2>
