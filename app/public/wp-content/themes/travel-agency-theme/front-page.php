@@ -534,7 +534,7 @@ foreach ($pillarDefs as $pDef) {
 
 <?php endif; // itinerary ?>
 
-<?php if (!empty($agenciesClean) && tap_lp_enabled('destinations')): ?>
+<?php if (!empty($agenciesClean) && tap_lp_enabled('agencies')): ?>
 <section class="tap-section tap-landing-agencies">
   <div class="tap-container">
     <div class="tap-landing-head">
@@ -622,7 +622,7 @@ foreach ($pillarDefs as $pDef) {
 </section>
 <?php endif; ?>
 
-<?php if (!empty($faqItems) && tap_lp_enabled('text')): ?>
+<?php if (!empty($faqItems) && tap_lp_enabled('faq')): ?>
 <section class="tap-section tap-landing-faq" id="preguntas">
   <div class="tap-container tap-landing-faq-wrap">
     <div class="tap-landing-head">

@@ -262,5 +262,104 @@ function tat_customize_register($wp_customize) {
         'type'    => 'textarea',
         'rows'    => 2,
     ]);
+
+// ---------- Apariencia: colores ----------
+$wp_customize->add_section('tap_colors', [
+    'title'    => __('Colores', 'travel-agency-platform'),
+    'panel'    => 'tap_landing',
+    'priority' => 5,
+]);
+
+$color_settings = [
+    'tap_color_primary'      => ['default' => '#0d9488', 'label' => __('Color primario', 'travel-agency-platform')],
+    'tap_color_primary_dark' => ['default' => '#0f766e', 'label' => __('Color primario oscuro', 'travel-agency-platform')],
+    'tap_color_primary_bg'   => ['default' => '#f0fdfa', 'label' => __('Fondo primario', 'travel-agency-platform')],
+    'tap_color_primary_border' => ['default' => '#99f6e4', 'label' => __('Borde primario', 'travel-agency-platform')],
+    'tap_color_text'         => ['default' => '#0f172a', 'label' => __('Color de texto', 'travel-agency-platform')],
+    'tap_color_text_muted'   => ['default' => '#64748b', 'label' => __('Color de texto secundario', 'travel-agency-platform')],
+    'tap_color_background'   => ['default' => '#ffffff', 'label' => __('Color de fondo', 'travel-agency-platform')],
+    'tap_color_border'       => ['default' => '#e2e8f0', 'label' => __('Color de borde', 'travel-agency-platform')],
+];
+foreach ($color_settings as $key => $cfg) {
+    $wp_customize->add_setting($key, [
+        'default'           => $cfg['default'],
+        'sanitize_callback' => 'sanitize_hex_color',
+        'transport'         => 'refresh',
+    ]);
+    $wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, $key, [
+        'label'   => $cfg['label'],
+        'section' => 'tap_colors',
+    ]));
+}
+
+// ---------- Apariencia: tipografía ----------
+$wp_customize->add_section('tap_typography', [
+    'title'    => __('Tipografía', 'travel-agency-platform'),
+    'panel'    => 'tap_landing',
+    'priority' => 6,
+]);
+
+$wp_customize->add_setting('tap_font_family', [
+    'default'           => 'system',
+    'sanitize_callback' => 'sanitize_text_field',
+    'transport'         => 'refresh',
+]);
+$wp_customize->add_control('tap_font_family', [
+    'label'   => __('Familia de fuente', 'travel-agency-platform'),
+    'section' => 'tap_typography',
+    'type'    => 'select',
+    'choices' => [
+        'system'  => __('Sistema (por defecto)', 'travel-agency-platform'),
+        'inter'   => 'Inter',
+        'roboto'  => 'Roboto',
+        'lato'    => 'Lato',
+        'poppins' => 'Poppins',
+        'montserrat' => 'Montserrat',
+    ],
+]);
+
+$wp_customize->add_setting('tap_font_size_base', [
+    'default'           => 16,
+    'sanitize_callback' => 'absint',
+    'transport'         => 'refresh',
+]);
+$wp_customize->add_control('tap_font_size_base', [
+    'label'       => __('Tamaño base de fuente (px)', 'travel-agency-platform'),
+    'section'     => 'tap_typography',
+    'type'        => 'range',
+    'input_attrs' => ['min' => 14, 'max' => 20, 'step' => 1],
+]);
+
+// ---------- Apariencia: espaciado ----------
+$wp_customize->add_section('tap_spacing', [
+    'title'    => __('Espaciado', 'travel-agency-platform'),
+    'panel'    => 'tap_landing',
+    'priority' => 7,
+]);
+
+$wp_customize->add_setting('tap_container_max', [
+    'default'           => 1200,
+    'sanitize_callback' => 'absint',
+    'transport'         => 'refresh',
+]);
+$wp_customize->add_control('tap_container_max', [
+    'label'       => __('Ancho máximo del contenedor (px)', 'travel-agency-platform'),
+    'section'     => 'tap_spacing',
+    'type'        => 'range',
+    'input_attrs' => ['min' => 960, 'max' => 1440, 'step' => 20],
+]);
+
+$wp_customize->add_setting('tap_section_padding', [
+    'default'           => 64,
+    'sanitize_callback' => 'absint',
+    'transport'         => 'refresh',
+]);
+$wp_customize->add_control('tap_section_padding', [
+    'label'       => __('Padding vertical de secciones (px)', 'travel-agency-platform'),
+    'section'     => 'tap_spacing',
+    'type'        => 'range',
+    'input_attrs' => ['min' => 32, 'max' => 128, 'step' => 8],
+]);
+
 }
 add_action('customize_register', 'tat_customize_register');

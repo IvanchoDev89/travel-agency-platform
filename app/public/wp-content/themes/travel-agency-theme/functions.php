@@ -35,6 +35,51 @@ function travel_agency_theme_assets() {
         'nonce'    => wp_create_nonce('tap_nonce'),
     ]);
 }
+
+function tap_customizer_css() {
+    $primary      = get_theme_mod('tap_color_primary', '#0d9488');
+    $primary_dark = get_theme_mod('tap_color_primary_dark', '#0f766e');
+    $primary_bg   = get_theme_mod('tap_color_primary_bg', '#f0fdfa');
+    $primary_border = get_theme_mod('tap_color_primary_border', '#99f6e4');
+    $text         = get_theme_mod('tap_color_text', '#0f172a');
+    $text_muted   = get_theme_mod('tap_color_text_muted', '#64748b');
+    $bg           = get_theme_mod('tap_color_background', '#ffffff');
+    $border       = get_theme_mod('tap_color_border', '#e2e8f0');
+    $font_family  = get_theme_mod('tap_font_family', 'system');
+    $font_size    = (int) get_theme_mod('tap_font_size_base', 16);
+    $container    = (int) get_theme_mod('tap_container_max', 1200);
+    $padding      = (int) get_theme_mod('tap_section_padding', 64);
+
+    $fonts = [
+        'system'     => "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+        'inter'      => "'Inter', sans-serif",
+        'roboto'     => "'Roboto', sans-serif",
+        'lato'       => "'Lato', sans-serif",
+        'poppins'    => "'Poppins', sans-serif",
+        'montserrat' => "'Montserrat', sans-serif",
+    ];
+    $font_stack = $fonts[$font_family] ?? $fonts['system'];
+
+    $css = ':root {';
+    $css .= '--tap-primary: ' . esc_attr($primary) . ';';
+    $css .= '--tap-primary-dark: ' . esc_attr($primary_dark) . ';';
+    $css .= '--tap-primary-bg: ' . esc_attr($primary_bg) . ';';
+    $css .= '--tap-primary-border: ' . esc_attr($primary_border) . ';';
+    $css .= '--tap-neutral-900: ' . esc_attr($text) . ';';
+    $css .= '--tap-neutral-500: ' . esc_attr($text_muted) . ';';
+    $css .= '--tap-border: ' . esc_attr($border) . ';';
+    $css .= '--tap-font-sans: ' . $font_stack . ';';
+    $css .= '--tap-text-base: ' . $font_size . 'px;';
+    $css .= '--tap-container-max: ' . $container . 'px;';
+    $css .= '--tap-section-padding: ' . $padding . 'px;';
+    $css .= '}';
+    if ($bg !== '#ffffff') {
+        $css .= 'body { background-color: ' . esc_attr($bg) . '; }';
+    }
+    echo '<style id="tap-customizer-css">' . $css . '</style>';
+}
+add_action('wp_head', 'tap_customizer_css', 5);
+
 add_action('wp_enqueue_scripts', 'travel_agency_theme_assets');
 
 /**
