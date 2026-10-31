@@ -285,6 +285,13 @@ class TAP_Landing_Builder {
             </div>
         </div>
 
+        <!-- Preview panel -->
+        <div class="tap-lb-preview-wrap" style="margin-top:24px;">
+            <h2><?php esc_html_e('Vista previa', 'travel-agency-platform'); ?></h2>
+            <p class="description"><?php esc_html_e('La vista previa se actualiza al guardar los cambios.', 'travel-agency-platform'); ?></p>
+            <iframe id="tap-lb-preview" src="<?php echo esc_url(home_url('/')); ?>" style="width:100%;height:600px;border:1px solid #ddd;border-radius:8px;background:#fff;"></iframe>
+        </div>
+
         <!-- SortableJS -->
         <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
         <script>
@@ -367,6 +374,9 @@ class TAP_Landing_Builder {
                         if (res.success) {
                             status.textContent = '<?php echo esc_js(__('Guardado.', 'travel-agency-platform')); ?>';
                             status.style.color = 'green';
+                            // Reload preview.
+                            var iframe = document.getElementById('tap-lb-preview');
+                            if (iframe) iframe.src = iframe.src;
                         } else {
                             status.textContent = res.data && res.data.message ? res.data.message : '<?php echo esc_js(__('Error.', 'travel-agency-platform')); ?>';
                             status.style.color = 'red';

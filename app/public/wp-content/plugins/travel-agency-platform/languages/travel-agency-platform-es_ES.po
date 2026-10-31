@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-10-30T23:17:28+00:00\n"
+"POT-Creation-Date: 2026-10-31T17:48:34+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -53,7 +53,7 @@ msgstr "%s / noche"
 #: includes/class-acc-wizard-room-form.php:47
 #: includes/class-dashboard-content.php:363
 #: includes/class-landing-builder.php:264
-#: includes/class-landing-builder.php:329
+#: includes/class-landing-builder.php:336
 msgid "Activa"
 msgstr "Activa"
 
@@ -65,7 +65,7 @@ msgstr "Inactiva"
 #: includes/class-acc-wizard-room-form.php:52
 #: includes/class-email-campaigns.php:263
 #: includes/class-landing-builder.php:266
-#: includes/class-landing-builder.php:330 includes/class-listing-editor.php:143
+#: includes/class-landing-builder.php:337 includes/class-listing-editor.php:143
 msgid "Editar"
 msgstr "Editar"
 
@@ -171,7 +171,7 @@ msgstr "Tipo de cama"
 #: includes/class-acc-wizard-room-form.php:144
 #: includes/class-acc-wizard-steps.php:487 includes/class-acc-wizard.php:37
 #: includes/class-dashboard-insights.php:270
-#: includes/class-landing-builder.php:420
+#: includes/class-landing-builder.php:430
 msgid "Cantidad"
 msgstr "Cantidad"
 
@@ -198,7 +198,7 @@ msgstr "Unidad activa"
 #: includes/class-email-campaigns.php:267
 #: includes/class-front-dash-client.php:468
 #: includes/class-landing-builder.php:267
-#: includes/class-landing-builder.php:331 includes/class-listing-editor.php:505
+#: includes/class-landing-builder.php:338 includes/class-listing-editor.php:505
 #: includes/class-metaboxes.php:110 includes/class-metaboxes.php:130
 #: includes/class-metaboxes.php:264
 msgid "Eliminar"
@@ -543,6 +543,7 @@ msgid "Separa cada regla con un punto y coma o una línea nueva."
 msgstr "Separa cada regla con un punto y coma o una línea nueva."
 
 #: includes/class-acc-wizard-steps.php:286
+#: includes/class-landing-builder.php:290
 msgid "Vista previa"
 msgstr "Vista previa"
 
@@ -840,7 +841,7 @@ msgid "Error"
 msgstr "Error"
 
 #: includes/class-acc-wizard-steps.php:403
-#: includes/class-landing-builder.php:376
+#: includes/class-landing-builder.php:386
 msgid "Error de conexión."
 msgstr "Error de conexión."
 
@@ -1074,8 +1075,8 @@ msgstr "p.ej. Hotel Aurora – Habitación Vista Mar"
 
 #: includes/class-acc-wizard-steps.php:651
 #: includes/class-acc-wizard-steps.php:922 includes/class-front-dash.php:992
-#: includes/class-landing-builder.php:434
-#: includes/class-landing-builder.php:444 includes/class-listing-editor.php:241
+#: includes/class-landing-builder.php:444
+#: includes/class-landing-builder.php:454 includes/class-listing-editor.php:241
 #: includes/class-metaboxes.php:91 includes/class-shortcode-booking.php:770
 msgid "Descripción"
 msgstr "Descripción"
@@ -2878,11 +2879,11 @@ msgid "Email"
 msgstr "Correo"
 
 #: includes/class-dashboard-bookings.php:176
-#: includes/class-landing-builder.php:409
-#: includes/class-landing-builder.php:418
-#: includes/class-landing-builder.php:426
-#: includes/class-landing-builder.php:432
-#: includes/class-landing-builder.php:442 includes/class-privacy.php:459
+#: includes/class-landing-builder.php:419
+#: includes/class-landing-builder.php:428
+#: includes/class-landing-builder.php:436
+#: includes/class-landing-builder.php:442
+#: includes/class-landing-builder.php:452 includes/class-privacy.php:459
 msgid "Título"
 msgstr "Título"
 
@@ -4352,8 +4353,8 @@ msgid "Settings"
 msgstr "Configuración"
 
 #: includes/class-dashboard.php:178 includes/class-dashboard.php:179
-#: includes/class-landing-builder.php:529
-#: includes/class-landing-builder.php:530
+#: includes/class-landing-builder.php:539
+#: includes/class-landing-builder.php:540
 msgid "Landing Page"
 msgstr "Landing Page"
 
@@ -11066,8 +11067,8 @@ msgid "Galería"
 msgstr "Galería"
 
 #: includes/class-landing-builder.php:229
-#: includes/class-landing-builder.php:460
-#: includes/class-landing-builder.php:482
+#: includes/class-landing-builder.php:470
+#: includes/class-landing-builder.php:492
 msgid "No tienes permiso."
 msgstr "No tienes permiso."
 
@@ -11088,7 +11089,7 @@ msgid "Configuración guardada."
 msgstr "Configuración guardada."
 
 #: includes/class-landing-builder.php:244
-#: includes/class-landing-builder.php:473
+#: includes/class-landing-builder.php:483
 msgid "Error al guardar."
 msgstr "Error al guardar."
 
@@ -11104,60 +11105,64 @@ msgstr "+ Agregar sección"
 msgid "Tipo de sección:"
 msgstr "Tipo de sección:"
 
-#: includes/class-landing-builder.php:308
+#: includes/class-landing-builder.php:291
+msgid "La vista previa se actualiza al guardar los cambios."
+msgstr "La vista previa se actualiza al guardar los cambios."
+
+#: includes/class-landing-builder.php:315
 msgid "¿Eliminar esta sección?"
 msgstr "¿Eliminar esta sección?"
 
-#: includes/class-landing-builder.php:342
+#: includes/class-landing-builder.php:349
 msgid "Guardando..."
 msgstr "Guardando..."
 
-#: includes/class-landing-builder.php:368
-#: includes/class-landing-builder.php:471
+#: includes/class-landing-builder.php:375
+#: includes/class-landing-builder.php:481
 msgid "Guardado."
 msgstr "Guardado."
 
-#: includes/class-landing-builder.php:371
+#: includes/class-landing-builder.php:381
 msgid "Error."
 msgstr "Error."
 
-#: includes/class-landing-builder.php:411
+#: includes/class-landing-builder.php:421
 msgid "Subtítulo"
 msgstr "Subtítulo"
 
-#: includes/class-landing-builder.php:413
+#: includes/class-landing-builder.php:423
 msgid "Imagen de fondo (URL)"
 msgstr "Imagen de fondo (URL)"
 
-#: includes/class-landing-builder.php:415
+#: includes/class-landing-builder.php:425
 msgid "Mostrar buscador"
 msgstr "Mostrar buscador"
 
-#: includes/class-landing-builder.php:422
+#: includes/class-landing-builder.php:432
 msgid "Modo"
 msgstr "Modo"
 
-#: includes/class-landing-builder.php:428
+#: includes/class-landing-builder.php:438
 msgid "Cantidad de posts"
 msgstr "Cantidad de posts"
 
-#: includes/class-landing-builder.php:436
+#: includes/class-landing-builder.php:446
 msgid "Texto del botón"
 msgstr "Texto del botón"
 
-#: includes/class-landing-builder.php:438
+#: includes/class-landing-builder.php:448
 msgid "URL del botón"
 msgstr "URL del botón"
 
-#: includes/class-landing-builder.php:448
+#: includes/class-landing-builder.php:458
 msgid "Mostrar mapa"
 msgstr "Mostrar mapa"
 
-#: includes/class-landing-builder.php:451
+#: includes/class-landing-builder.php:461
 msgid "Sin opciones adicionales."
 msgstr "Sin opciones adicionales."
 
-#: includes/class-landing-builder.php:467
+#: includes/class-landing-builder.php:477
 msgid "Configuración inválida."
 msgstr "Configuración inválida."
 
