@@ -2,8 +2,6 @@
 defined('ABSPATH') || exit;
 
 class TAP_Pricing {
-    private static $table;
-
     /**
      * Per-request memo for room/range price lookups. A single availability or
      * quote request asks for the same range several times (quote + breakdown +
@@ -13,8 +11,6 @@ class TAP_Pricing {
 
     public static function init() {
         global $wpdb;
-        self::$table = $wpdb->prefix . 'tap_daily_pricing';
-
         add_action('add_meta_boxes', [__CLASS__, 'add_metabox']);
         add_action('wp_ajax_tap_save_pricing', [__CLASS__, 'ajax_save_pricing']);
         add_action('wp_ajax_tap_get_pricing', [__CLASS__, 'ajax_get_pricing']);
