@@ -1,5 +1,8 @@
 <?php get_header(); ?>
 
+<a href="#main-content" class="tap-skip-link"><?php esc_html_e('Saltar al contenido', 'travel-agency-platform'); ?></a>
+<div id="main-content"></div>
+
 <?php
 // Landing builder config (sections on/off + order).
 $tap_landing_enabled = function_exists('TAP_Landing_Builder::is_enabled') ? true : false;
@@ -664,4 +667,33 @@ foreach ($pillarDefs as $pDef) {
 
 <?php endif; // cta ?>
 
+<style>
+/* Entrance animations */
+.tap-landing-animate { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+.tap-landing-animate.is-visible { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+    .tap-landing-animate { opacity: 1; transform: none; transition: none; }
+}
+/* Focus visible */
+.tap-skip-link { position: absolute; left: -9999px; top: 0; z-index: 10000; padding: 8px 16px; background: var(--tap-primary, #0d9488); color: #fff; text-decoration: none; border-radius: 0 0 8px 0; }
+.tap-skip-link:focus { left: 0; }
+*:focus-visible { outline: 2px solid var(--tap-primary, #0d9488); outline-offset: 2px; }
+.tap-btn:focus-visible, .tap-landing-chip:focus-visible, .tap-blog-pillar:focus-visible { outline: 2px solid var(--tap-primary, #0d9488); outline-offset: 2px; }
+</style>
+<script>
+(function(){
+    if (!('IntersectionObserver' in window)) return;
+    var els = document.querySelectorAll('.tap-section, .tap-landing-dest-card, .tap-landing-card, .tap-landing-article-card, .tap-landing-pillar-card, .tap-landing-review-card, .tap-landing-agency-card, .tap-stat-card');
+    els.forEach(function(el){ el.classList.add('tap-landing-animate'); });
+    var obs = new IntersectionObserver(function(entries){
+        entries.forEach(function(en){
+            if (en.isIntersecting) {
+                en.target.classList.add('is-visible');
+                obs.unobserve(en.target);
+            }
+        });
+    }, {threshold: 0.1, rootMargin: '0px 0px -40px 0px'});
+    els.forEach(function(el){ obs.observe(el); });
+})();
+</script>
 <?php get_footer(); ?>
