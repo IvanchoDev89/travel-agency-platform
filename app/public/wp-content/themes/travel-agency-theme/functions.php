@@ -28,6 +28,7 @@ function travel_agency_theme_assets() {
     wp_enqueue_style('tap-tokens', $plugin_url . 'assets/css/tokens.css', [], TAT_VERSION);
     wp_enqueue_style('tap-public', $plugin_url . 'assets/css/public.css', [], TAT_VERSION);
     wp_enqueue_style('travel-agency-theme-style', get_stylesheet_uri(), ['tap-public'], TAT_VERSION);
+    wp_enqueue_style('tap-agency-calendar', $plugin_url . 'assets/css/agency-calendar.css', ['tap-public'], TAT_VERSION);
 
     wp_enqueue_script('travel-agency-theme-main', $theme_uri . '/assets/js/main.js', ['jquery'], TAT_VERSION, true);
     wp_localize_script('travel-agency-theme-main', 'tat_ajax', [
