@@ -94,6 +94,7 @@ final class TravelAgencyPlatform {
         add_action('init', ['TAP_Destination_Spots', 'link_locations'], 11);
         add_action('init', ['TAP_Destination_Spots', 'ensure_page'], 30);
         add_action('template_redirect', ['TAP_Destination_Spots', 'redirect_linked_terms']);
+        add_action('wp', [$this, 'enqueue_wizard_assets']);
         add_action('init', ['TAP_Destinations', 'init'], 7);
         add_action('init', ['TAP_Taxonomies', 'migrate_tour_difficulty'], 8);
         add_action('init', ['TAP_Roles', 'setup'], 9);
@@ -218,6 +219,18 @@ final class TravelAgencyPlatform {
         // instead of a blank admin-post response.
         add_action('admin_post_nopriv_tap_export_leads', ['TAP_Leads', 'csv_download']);
         add_shortcode('tap_checkout', [TAP_Shortcode_Booking::class, 'checkout']);
+    }
+
+    /**
+     * Enqueue wizard CSS in the head (not during shortcode rendering).
+     */
+    public function enqueue_wizard_assets() {
+        if (is_admin()) return;
+        // Enqueue on manage-listing page or when editing a service.
+        $is_manage = is_page('manage-listing') || isset($_GET['id']) || isset($_GET['new']);
+        if (!$is_manage) return;
+        wp_enqueue_style('tap-agency-calendar', TAP_PLUGIN_URL . 'assets/css/agency-calendar.css', ['tap-public'], TAP_VERSION);
+        wp_enqueue_script('tap-agency-wizard', TAP_PLUGIN_URL . 'assets/js/agency-wizard.js', [], TAP_VERSION, true);
     }
 
     public function maybe_update_tables() {

@@ -575,19 +575,21 @@ class TAP_Tour_Wizard {
 
             <div class="tap-wizard-layout">
                 <main class="tap-wizard-body">
-                    <?php
-                    if ($step === 1) {
-                        echo TAP_Tour_Wizard_Steps::render_step_info($listing_id, $type);
-                    } elseif ($step === 2) {
-                        echo TAP_Tour_Wizard_Steps::render_step_logistics($listing_id, $type);
-                    } elseif ($step === 3) {
-                        echo TAP_Tour_Wizard_Steps::render_step_pricing($listing_id, $type);
-                    } elseif ($step === 4) {
-                        echo TAP_Tour_Wizard_Steps::render_step_details($listing_id, $type);
-                    } else {
-                        echo TAP_Tour_Wizard_Steps::render_step_publish($listing_id, $type);
-                    }
-                    ?>
+                    <div class="tap-wizard-panel" data-step="1">
+                        <?php echo TAP_Tour_Wizard_Steps::render_step_info($listing_id, $type); ?>
+                    </div>
+                    <div class="tap-wizard-panel" data-step="2" style="display:none;">
+                        <?php echo TAP_Tour_Wizard_Steps::render_step_logistics($listing_id, $type); ?>
+                    </div>
+                    <div class="tap-wizard-panel" data-step="3" style="display:none;">
+                        <?php echo TAP_Tour_Wizard_Steps::render_step_pricing($listing_id, $type); ?>
+                    </div>
+                    <div class="tap-wizard-panel" data-step="4" style="display:none;">
+                        <?php echo TAP_Tour_Wizard_Steps::render_step_details($listing_id, $type); ?>
+                    </div>
+                    <div class="tap-wizard-panel" data-step="5" style="display:none;">
+                        <?php echo TAP_Tour_Wizard_Steps::render_step_publish($listing_id, $type); ?>
+                    </div>
                 </main>
 
                 <aside class="tap-wizard-rail" aria-label="<?php esc_attr_e('Resumen del alta', 'travel-agency-platform'); ?>">
@@ -632,29 +634,68 @@ class TAP_Tour_Wizard {
             $next_url = $step < 5 ? $edit_base . '&step=' . ($step + 1) : '';
             ?>
             <footer class="tap-wizard-foot">
-                <a class="tap-btn tap-btn-sm" href="<?php echo esc_url($prev_url); ?>">
-                    <?php echo $step > 1 ? esc_html__('Atrás', 'travel-agency-platform') : esc_html__('Cancelar', 'travel-agency-platform'); ?>
-                </a>
-                <div class="tap-wizard-foot-hint">
-                    <?php echo esc_html__('Guarda los cambios antes de continuar.', 'travel-agency-platform'); ?>
-                </div>
-                <?php if (1 === $step): ?>
-                    <button type="submit" form="tap-listing-form" class="tap-btn tap-btn-primary tap-wizard-next">
-                        <?php echo $is_edit ? esc_html__('Guardar y continuar', 'travel-agency-platform') : esc_html__('Crear y continuar', 'travel-agency-platform'); ?>
-                    </button>
-                <?php elseif (4 === $step): ?>
-                    <button type="submit" form="tap-tour-policies-form" class="tap-btn tap-btn-primary tap-wizard-next">
-                        <?php esc_html_e('Guardar y continuar', 'travel-agency-platform'); ?>
-                    </button>
-                <?php elseif ($next_url): ?>
-                    <a class="tap-btn tap-btn-primary tap-wizard-next" href="<?php echo esc_url($next_url); ?>">
-                        <?php esc_html_e('Continuar', 'travel-agency-platform'); ?>
-                    </a>
-                <?php else: ?>
-                    <a class="tap-btn tap-btn-sm" href="<?php echo esc_url($edit_base . '&step=1'); ?>"><?php esc_html_e('Seguir editando', 'travel-agency-platform'); ?></a>
-                <?php endif; ?>
+                <button type="button" class="tap-btn tap-btn-sm tap-wizard-prev" style="display:none;"><?php esc_html_e('Atrás', 'travel-agency-platform'); ?></button>
+                <div class="tap-wizard-foot-hint"><?php esc_html_e('Completa todos los campos y guarda al final.', 'travel-agency-platform'); ?></div>
+                <button type="button" class="tap-btn tap-btn-primary tap-wizard-next"><?php esc_html_e('Siguiente', 'travel-agency-platform'); ?></button>
+                <button type="submit" class="tap-btn tap-btn-primary tap-wizard-submit" style="display:none;"><?php echo $is_edit ? esc_html__('Guardar cambios', 'travel-agency-platform') : esc_html__('Crear servicio', 'travel-agency-platform'); ?></button>
             </footer>
         </div>
+        <script>
+        (function(){
+            var w = document.querySelector('.tap-wizard');
+            if (!w) return;
+            var panels = w.querySelectorAll('.tap-wizard-panel');
+            var steps = w.querySelectorAll('.tap-wizard-nav .tap-wizard-step');
+            var prevBtn = w.querySelector('.tap-wizard-prev, .tap-wizard-foot .tap-btn:first-child');
+            var nextBtns = w.querySelectorAll('.tap-wizard-next');
+            var submitBtn = w.querySelector('.tap-wizard-submit');
+            var current = <?php echo (int) $step; ?>;
+            var total = panels.length || 5;
+
+            // For client-side mode, show only current step.
+            function showStep(n) {
+                if (n < 1) n = 1;
+                if (n > total) n = total;
+                current = n;
+                panels.forEach(function(p) {
+                    p.style.display = (parseInt(p.dataset.step,10) === n) ? '' : 'none';
+                });
+                steps.forEach(function(s) {
+                    var sn = parseInt(s.dataset.step,10);
+                    s.classList.toggle('is-active', sn === n);
+                    s.classList.toggle('is-done', sn < n);
+                });
+                // Update header meta
+                var hint = w.querySelector('#tap-wizard-step-hint');
+                var hints = ['Información básica','Logística','Tarifas y disponibilidad','Detalles y legales','Revisa y publica'];
+                if (hint && hints[n-1]) {
+                    hint.textContent = 'Paso ' + n + ' de ' + total + ' — ' + hints[n-1];
+                }
+                var top = w.getBoundingClientRect().top + window.scrollY - 20;
+                if (window.scrollY > top) window.scrollTo({top: top, behavior:'smooth'});
+            }
+
+            // Save and advance (for step 1 and 4).
+            nextBtns.forEach(function(btn) {
+                if (btn.type === 'submit') return; // handled by agency-wizard.js
+                btn.addEventListener('click', function() {
+                    showStep(current + 1);
+                });
+            });
+
+            // Stepper clicks.
+            steps.forEach(function(s) {
+                s.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var target = parseInt(s.dataset.step,10);
+                    if (target <= current + 1) showStep(target);
+                });
+            });
+
+            // Initialize: show current step.
+            showStep(current);
+        })();
+        </script>
         <?php
         echo self::render_tour_wizard_script($listing_id);
         return ob_get_clean();
