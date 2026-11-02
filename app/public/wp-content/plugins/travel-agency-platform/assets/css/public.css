@@ -3112,3 +3112,37 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
     outline: 2px solid #fff;
     outline-offset: 2px;
 }
+
+/* ── Tour single: hero + polish ─────────────────────────────────────── */
+.tap-tour-single { max-width: var(--tap-container-max); margin: 0 auto; }
+.tap-tour-hero { position: relative; margin-bottom: var(--tap-space-8); border-radius: var(--tap-radius-xl); overflow: hidden; box-shadow: var(--tap-shadow-lg); }
+.tap-tour-hero-media { position: relative; min-height: 420px; max-height: 520px; overflow: hidden; }
+.tap-tour-hero-img { width: 100%; height: 100%; min-height: 420px; max-height: 520px; object-fit: cover; display: block; }
+.tap-tour-hero-placeholder { background: linear-gradient(135deg, var(--tap-primary), var(--tap-accent, #10b981)); }
+.tap-tour-hero-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.15) 40%, rgba(0,0,0,0.75) 100%); }
+.tap-tour-hero-content { position: absolute; left: 0; right: 0; bottom: 0; padding: var(--tap-space-8) var(--tap-space-8) var(--tap-space-6); color: #fff; }
+.tap-tour-hero-badges { display: flex; flex-wrap: wrap; gap: var(--tap-space-2); margin-bottom: var(--tap-space-3); }
+.tap-tour-hero-badges .tap-badge { background: rgba(255,255,255,0.18); backdrop-filter: blur(6px); color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+.tap-tour-hero-badges .tap-badge-primary { background: var(--tap-primary); border-color: var(--tap-primary); }
+.tap-tour-hero-badges .tap-badge-eco { background: rgba(16,185,129,0.85); border-color: rgba(16,185,129,0.9); }
+.tap-tour-hero-title { font-size: clamp(1.75rem, 3vw, 2.5rem); font-weight: 800; line-height: 1.15; margin: 0 0 var(--tap-space-3); color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,0.4); }
+.tap-tour-hero-meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--tap-space-4); font-size: var(--tap-text-sm); color: rgba(255,255,255,0.92); }
+.tap-tour-hero-meta-item { display: inline-flex; align-items: center; gap: var(--tap-space-1); }
+.tap-tour-hero-meta-item svg { flex-shrink: 0; opacity: 0.9; }
+.tap-tour-hero-rating { font-weight: 600; }
+.tap-tour-hero-rating small { opacity: 0.8; font-weight: 400; }
+.tap-tour-hero .tap-fav-hero { margin-left: auto; }
+.tap-tour-hero-thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap: var(--tap-space-2); padding: var(--tap-space-3); background: var(--tap-neutral-50, #f9fafb); }
+.tap-tour-hero-thumb { position: relative; overflow: hidden; border-radius: var(--tap-radius-md); aspect-ratio: 4/3; cursor: pointer; }
+.tap-tour-hero-thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s ease; }
+.tap-tour-hero-thumb:hover img { transform: scale(1.08); }
+.tap-tour-hero-thumb-more { display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5); color: #fff; font-weight: 700; font-size: 1.25rem; }
+.tap-tour-breadcrumb { padding: var(--tap-space-3) 0; background: var(--tap-neutral-50, #f9fafb); margin-bottom: var(--tap-space-6); }
+.tap-tour-breadcrumb .tap-breadcrumb { font-size: var(--tap-text-sm); color: var(--tap-neutral-500); }
+.tap-tour-hero + .tap-tour-breadcrumb { margin-top: -1px; }
+@media (max-width: 768px) {
+    .tap-tour-hero-media, .tap-tour-hero-img { min-height: 300px; max-height: 400px; }
+    .tap-tour-hero-content { padding: var(--tap-space-5) var(--tap-space-4) var(--tap-space-4); }
+    .tap-tour-hero-title { font-size: 1.5rem; }
+    .tap-tour-hero-thumbs { grid-template-columns: repeat(4, 1fr); }
+}
