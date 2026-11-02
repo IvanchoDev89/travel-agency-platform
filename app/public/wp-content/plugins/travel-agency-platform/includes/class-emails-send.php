@@ -86,31 +86,39 @@ class TAP_Emails_Send {
         if (!$email) return;
 
         $ctx = self::build_context($booking);
+        $cal_html = self::calendar_links_html($booking);
+        $ics = self::calendar_ics($booking);
+        $ics_file = self::write_ics_temp($booking->booking_code, $ics);
+
         if ($booking->status === 'request') {
             /* translators: %s: código de la reserva */
             $subject = sprintf(__('Solicitud de reserva %s recibida', 'travel-agency-platform'), $booking->booking_code);
+            $intro = __('La agencia revisará tu solicitud y te avisaremos por correo cuando sea aceptada. No se realizará ningún cobro hasta entonces.', 'travel-agency-platform') . $cal_html;
             $body = self::template(
                 /* translators: %s: nombre del cliente */
                 sprintf(__('¡Gracias %s! Hemos recibido tu solicitud.', 'travel-agency-platform'), $name),
-                __('La agencia revisará tu solicitud y te avisaremos por correo cuando sea aceptada. No se realizará ningún cobro hasta entonces.', 'travel-agency-platform'),
+                $intro,
                 $ctx,
                 'request'
             );
-            self::send($email, $subject, $body);
+            self::send($email, $subject, $body, $ics_file ? [$ics_file] : []);
+            if ($ics_file) { @unlink($ics_file); }
             return;
         }
 
         /* translators: %s: código de la reserva */
         $subject = sprintf(__('Reserva %s recibida', 'travel-agency-platform'), $booking->booking_code);
+        $intro = __('Estamos procesando tu solicitud. En breve recibirás la confirmación una vez el pago sea verificado.', 'travel-agency-platform') . $cal_html;
         $body = self::template(
             /* translators: %s: nombre del cliente */
             sprintf(__('¡Gracias %s! Tu reserva ha sido recibida.', 'travel-agency-platform'), $name),
-            __('Estamos procesando tu solicitud. En breve recibirás la confirmación una vez el pago sea verificado.', 'travel-agency-platform'),
+            $intro,
             $ctx,
             'pending'
         );
 
-        self::send($email, $subject, $body);
+        self::send($email, $subject, $body, $ics_file ? [$ics_file] : []);
+        if ($ics_file) { @unlink($ics_file); }
     }
 
 
@@ -166,9 +174,18 @@ class TAP_Emails_Send {
 
         /* translators: 1: código de la reserva, 2: nuevo estado de la reserva */
         $subject = sprintf(__('Actualización de reserva %s: %s', 'travel-agency-platform'), $booking->booking_code, $label);
+        $attachments = [];
+        if ($status === 'confirmed') {
+            $intro .= self::calendar_links_html($booking);
+            $ics = self::calendar_ics($booking);
+            $ics_file = self::write_ics_temp($booking->booking_code, $ics);
+            if ($ics_file) { $attachments[] = $ics_file; }
+        }
+
         $body = self::template($headline, $intro, $ctx, $status);
 
-        self::send($email, $subject, $body);
+        self::send($email, $subject, $body, $attachments);
+        foreach ($attachments as $f) { @unlink($f); }
     }
 
 
@@ -408,9 +425,13 @@ class TAP_Emails_Send {
     }
 
 
-    public static function send($to, $subject, $body) {
+    public static function send($to, $subject, $body, $attachments = []) {
         $body .= TAP_Privacy::email_footer();
-        return (bool) wp_mail($to, $subject, $body);
+        $headers = [];
+        if (function_exists('TAP_Emails::set_html_content_type')) {
+            $headers[] = 'Content-Type: text/html; charset=UTF-8';
+        }
+        return (bool) wp_mail($to, $subject, $body, $headers, $attachments);
     }
 
 
@@ -471,9 +492,172 @@ class TAP_Emails_Send {
     }
 
 
+    private static function write_ics_temp($code, $content) {
+        $dir = get_temp_dir();
+        if (!is_writable($dir)) {
+            $dir = sys_get_temp_dir();
+        }
+        $file = rtrim($dir, '/\\') . '/booking-' . preg_replace('/[^A-Za-z0-9_-]/', '', (string) $code) . '.ics';
+        if (false === file_put_contents($file, $content)) {
+            return '';
+        }
+        return $file;
+    }
+
     private static function format_date($date) {
         if (!$date) return '—';
         return date_i18n(get_option('date_format'), strtotime($date));
+    }
+
+    /**
+     * Build calendar event data for a booking (title, start/end datetimes,
+     * location and description). Used by the .ics generator and the
+     * Google/Outlook deep links.
+     *
+     * @param object $booking Booking row.
+     * @return array<string,mixed>
+     */
+    public static function calendar_event_data($booking) {
+        $title = self::get_service_name($booking) ?: __('Reserva', 'travel-agency-platform');
+
+        $start_ts = $booking->check_in ? strtotime($booking->check_in) : time();
+        // Try to refine the start time from the tour slot.
+        $slot = null;
+        if (!empty($booking->slot_id) && class_exists('TAP_Tour_Availability')) {
+            $slot = TAP_Tour_Availability::get_slot((int) $booking->slot_id);
+        }
+        if ($slot && !empty($slot->time_slot)) {
+            $t = substr((string) $slot->time_slot, 0, 5);
+            $parts = explode(':', $t);
+            if (count($parts) === 2) {
+                $start_ts = strtotime($booking->check_in . ' ' . $t . ':00');
+            }
+        } elseif ($booking->service_type === 'tap_tour') {
+            $start_ts = strtotime($booking->check_in . ' 08:00:00');
+        }
+
+        $is_tour = in_array($booking->service_type, ['tap_tour', 'tap_experience'], true);
+        $is_acc  = ($booking->service_type === 'tap_accommodation');
+
+        if ($is_tour) {
+            $end_ts = $slot && !empty($slot->time_end)
+                ? strtotime($booking->check_in . ' ' . substr((string) $slot->time_end, 0, 5) . ':00')
+                : $start_ts + (8 * 3600);
+        } elseif ($is_acc) {
+            $end_ts = $booking->check_out ? strtotime($booking->check_out . ' 11:00:00') : $start_ts + (24 * 3600);
+        } else {
+            $end_ts = $start_ts + (2 * 3600);
+        }
+        if ($end_ts <= $start_ts) {
+            $end_ts = $start_ts + 3600;
+        }
+
+        $location = '';
+        if ($booking->service_type === 'tap_tour') {
+            $location = (string) get_post_meta((int) $booking->service_id, '_tap_tour_meeting_point', true);
+            if ('' === $location) {
+                $location = (string) get_post_meta((int) $booking->service_id, '_tap_tour_departure_city', true);
+            }
+        } elseif ($booking->service_type === 'tap_accommodation') {
+            $location = (string) get_post_meta((int) $booking->service_id, '_tap_acc_address', true);
+        }
+
+        $desc = sprintf(
+            /* translators: 1: booking code, 2: number of guests */
+            __("Reserva %1\$s\nHuéspedes: %2\$d", 'travel-agency-platform'),
+            $booking->booking_code,
+            (int) $booking->adults + (int) $booking->children
+        );
+        if ($booking->agency_id) {
+            $agency = get_post($booking->agency_id);
+            if ($agency) {
+                $desc .= '\n' . sprintf(__('Operada por: %s', 'travel-agency-platform'), $agency->post_title);
+            }
+        }
+
+        return [
+            'title'       => $title,
+            'start'       => gmdate('Ymd\THis\Z', $start_ts),
+            'start_local' => wp_date('Y-m-d\TH:i:s', $start_ts),
+            'end'         => gmdate('Ymd\THis\Z', $end_ts),
+            'end_local'   => wp_date('Y-m-d\TH:i:s', $end_ts),
+            'start_ts'    => $start_ts,
+            'end_ts'      => $end_ts,
+            'location'    => $location,
+            'description' => $desc,
+        ];
+    }
+
+    /**
+     * Generate an iCalendar (.ics) file body for a booking.
+     *
+     * @param object $booking Booking row.
+     * @return string
+     */
+    public static function calendar_ics($booking) {
+        $ev = self::calendar_event_data($booking);
+        $uid = $booking->booking_code . '@travel-agency-platform';
+        $lines = [
+            'BEGIN:VCALENDAR',
+            'VERSION:2.0',
+            'PRODID:-//Travel Agency Platform//Booking//ES',
+            'CALSCALE:GREGORIAN',
+            'METHOD:PUBLISH',
+            'BEGIN:VEVENT',
+            'UID:' . $uid,
+            'DTSTAMP:' . gmdate('Ymd\THis\Z'),
+            'DTSTART:' . $ev['start'],
+            'DTEND:' . $ev['end'],
+            'SUMMARY:' . self::ics_escape($ev['title']),
+            'DESCRIPTION:' . self::ics_escape($ev['description']),
+            'LOCATION:' . self::ics_escape($ev['location']),
+            'STATUS:CONFIRMED',
+            'END:VEVENT',
+            'END:VCALENDAR',
+        ];
+        return implode("\r\n", $lines) . "\r\n";
+    }
+
+    private static function ics_escape($text) {
+        $text = str_replace(["\\", ";", ",", "\n"], ["\\\\", "\;", "\,", "\\n"], (string) $text);
+        return $text;
+    }
+
+    /**
+     * HTML block with "Add to calendar" links (Google, Outlook, .ics download).
+     *
+     * @param object $booking Booking row.
+     * @param string $download_url URL to download the .ics file (optional).
+     * @return string
+     */
+    public static function calendar_links_html($booking, $download_url = '') {
+        $ev = self::calendar_event_data($booking);
+        $title = rawurlencode($ev['title']);
+        $details = rawurlencode($ev['description']);
+        $location = rawurlencode($ev['location']);
+        $start = $ev['start'];
+        $end = $ev['end'];
+
+        $google = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' . $title
+            . '&dates=' . $start . '/' . $end
+            . '&details=' . $details
+            . '&location=' . $location;
+        $outlook = 'https://outlook.live.com/calendar/0/deeplink/compose?subject=' . $title
+            . '&startdt=' . rawurlencode($ev['start_local'])
+            . '&enddt=' . rawurlencode($ev['end_local'])
+            . '&body=' . $details
+            . '&location=' . $location;
+
+        $html = '<div style="margin:16px 0;padding:12px 16px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;">';
+        $html .= '<div style="font-size:13px;font-weight:700;color:#0f172a;margin-bottom:8px;">' . esc_html__('Añadir a tu calendario', 'travel-agency-platform') . '</div>';
+        $html .= '<div style="display:flex;flex-wrap:wrap;gap:8px;">';
+        $html .= '<a href="' . esc_url($google) . '" target="_blank" rel="noopener" style="display:inline-block;padding:8px 14px;border-radius:8px;background:#0d9488;color:#fff;text-decoration:none;font-size:13px;font-weight:600;">' . esc_html__('Google Calendar', 'travel-agency-platform') . '</a>';
+        $html .= '<a href="' . esc_url($outlook) . '" target="_blank" rel="noopener" style="display:inline-block;padding:8px 14px;border-radius:8px;background:#0078d4;color:#fff;text-decoration:none;font-size:13px;font-weight:600;">' . esc_html__('Outlook', 'travel-agency-platform') . '</a>';
+        if ($download_url) {
+            $html .= '<a href="' . esc_url($download_url) . '" style="display:inline-block;padding:8px 14px;border-radius:8px;background:#475569;color:#fff;text-decoration:none;font-size:13px;font-weight:600;">' . esc_html__('Descargar .ics (Apple/otros)', 'travel-agency-platform') . '</a>';
+        }
+        $html .= '</div></div>';
+        return $html;
     }
 
 

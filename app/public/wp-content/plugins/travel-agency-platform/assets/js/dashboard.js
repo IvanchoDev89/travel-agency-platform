@@ -7,6 +7,53 @@
 
     var cfg = window.tapDash || {};
 
+    function tapToast(msg, type) {
+        var el = document.querySelector('.tap-dash-toast');
+        if (!el) {
+            el = document.createElement('div');
+            el.className = 'tap-dash-toast';
+            document.body.appendChild(el);
+        }
+        el.className = 'tap-dash-toast' + (type ? ' tap-dash-toast-' + type : '');
+        el.textContent = msg || '';
+        void el.offsetWidth;
+        el.classList.add('show');
+        clearTimeout(el._t);
+        el._t = setTimeout(function(){ el.classList.remove('show'); }, type === 'error' ? 5000 : 3000);
+    }
+
+    /* ── Save client profile ──────────────────────────────────────── */
+    $(document).on('submit', '.tap-dash-profile-form', function (e) {
+        e.preventDefault();
+        var $form = $(this);
+        var $btn  = $form.find('button[type="submit"]');
+        var $msg  = $form.find('.tap-form-msg');
+
+        $btn.prop('disabled', true);
+        $msg.removeClass('is-error').text('');
+
+        $.post(cfg.ajax_url, {
+            action:     'tap_dash_client_profile_save',
+            nonce:      cfg.nonce,
+            name:             $form.find('[name="name"]').val(),
+            email:            $form.find('[name="email"]').val(),
+            current_password: $form.find('[name="current_password"]').val(),
+            password:         $form.find('[name="password"]').val(),
+            password2:        $form.find('[name="password2"]').val()
+        }).done(function (res) {
+            if (res && res.success) {
+                $msg.text(res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.saved));
+                $form.find('[name="password"], [name="password2"]').val('');
+            } else {
+                $msg.addClass('is-error').text(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error));
+            }
+        }).fail(function () {
+            $msg.addClass('is-error').text(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error');
+        }).always(function () {
+            $btn.prop('disabled', false);
+        });
+    });
+
     /* ── Cancel booking ───────────────────────────────────────────── */
     $(document).on('click', '.tap-dash-cancel', function () {
         var $btn = $(this);
@@ -30,11 +77,11 @@
                     $(this).remove();
                 });
             } else {
-                alert(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error));
+                tapToast(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error), 'error');
                 $btn.prop('disabled', false).text(originalLabel);
             }
         }).fail(function () {
-            alert(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error');
+            tapToast(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error', 'error');
             $btn.prop('disabled', false).text(originalLabel);
         });
     });
@@ -56,11 +103,11 @@
                     $(this).remove();
                 });
             } else {
-                alert(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error));
+                tapToast(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error), 'error');
                 $btn.prop('disabled', false);
             }
         }).fail(function () {
-            alert(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error');
+            tapToast(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error', 'error');
             $btn.prop('disabled', false);
         });
     });
@@ -86,11 +133,11 @@
                     $(this).remove();
                 });
             } else {
-                alert(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error));
+                tapToast(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error), 'error');
                 $btn.prop('disabled', false);
             }
         }).fail(function () {
-            alert(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error');
+            tapToast(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error', 'error');
             $btn.prop('disabled', false);
         });
     });
@@ -132,11 +179,11 @@
             if (res && res.success) {
                 location.reload();
             } else {
-                alert(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error));
+                tapToast(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error), 'error');
                 $btn.prop('disabled', false).text(originalLabel);
             }
         }).fail(function () {
-            alert(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error');
+            tapToast(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error', 'error');
             $btn.prop('disabled', false).text(originalLabel);
         });
     });
@@ -186,7 +233,7 @@
             booking_id: id
         }).done(function (res) {
             if (!res || !res.success) {
-                alert(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error));
+                tapToast(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error), 'error');
                 return;
             }
             var $thread = $row.find('.tap-chat-thread');
@@ -199,7 +246,7 @@
             }
             tapChatFocusInput($row);
         }).fail(function () {
-            alert(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error');
+            tapToast(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error', 'error');
         });
     });
 
@@ -227,10 +274,74 @@
                 var $row = $form.closest('.tap-chat-row');
                 $row.data('count', ($thread.find('.tap-chat-msg').length));
             } else {
-                alert(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error));
+                tapToast(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error), 'error');
             }
         }).fail(function () {
-            alert(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error');
+            tapToast(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error', 'error');
+        }).always(function () {
+            $btn.prop('disabled', false);
+        });
+    });
+
+    /* ── Client chat with agency ──────────────────────────────────── */
+    $(document).on('click', '.tap-client-chat-toggle', function () {
+        var $btn = $(this);
+        var id   = $btn.data('id');
+        var $row = $('.tap-client-chat-row[data-id="' + id + '"]');
+        if (!$row.length) { return; }
+        if ($row.is(':visible')) {
+            $row.hide();
+            return;
+        }
+        if ($row.data('loaded')) {
+            $row.show();
+            $btn.find('.tap-chat-badge').remove();
+            return;
+        }
+        $.post(cfg.ajax_url, {
+            action:     'tap_dash_client_chat_thread',
+            nonce:      cfg.nonce,
+            booking_id: id
+        }).done(function (res) {
+            if (!res || !res.success) {
+                tapToast(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error), 'error');
+                return;
+            }
+            var $thread = $row.find('.tap-chat-thread');
+            $thread.html(res.data.html || '<p class="tap-empty">' + (cfg.i18n && cfg.i18n.no_messages || '') + '</p>');
+            $row.data('loaded', 1).data('count', parseInt(res.data.count, 10) || 0).show();
+            $btn.find('.tap-chat-badge').remove();
+            var $tail = $thread.find('.tap-chat-msg:last');
+            if ($tail.length) { $tail[0].scrollIntoView({ block: 'nearest' }); }
+        }).fail(function () {
+            tapToast(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error', 'error');
+        });
+    });
+
+    $(document).on('submit', '.tap-client-chat-form', function (e) {
+        e.preventDefault();
+        var $form = $(this);
+        var $ta   = $form.find('textarea[name="message"]');
+        var msg   = $.trim($ta.val());
+        if (!msg) { return; }
+        var $btn = $form.find('button[type="submit"]').prop('disabled', true);
+        $.post(cfg.ajax_url, {
+            action:     'tap_dash_client_chat_send',
+            nonce:      cfg.nonce,
+            booking_id: $form.data('booking-id'),
+            message:    msg
+        }).done(function (res) {
+            if (res && res.success) {
+                var $wrap   = $form.closest('.tap-chat-wrap');
+                var $thread = $wrap.find('.tap-chat-thread');
+                $thread.find('.tap-empty').remove();
+                $thread.append(res.data.row);
+                $ta.val('');
+            } else {
+                tapToast(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error), 'error');
+            }
+        }).fail(function () {
+            tapToast(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error', 'error');
         }).always(function () {
             $btn.prop('disabled', false);
         });
@@ -354,11 +465,11 @@
             if (res && res.success) {
                 location.reload();
             } else {
-                alert(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error));
+                tapToast(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error), 'error');
                 $btn.prop('disabled', false);
             }
         }).fail(function () {
-            alert(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error');
+            tapToast(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error', 'error');
             $btn.prop('disabled', false);
         });
     });
@@ -378,11 +489,11 @@
             if (res && res.success) {
                 location.reload();
             } else {
-                alert(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error));
+                tapToast(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error), 'error');
                 $btn.prop('disabled', false);
             }
         }).fail(function () {
-            alert(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error');
+            tapToast(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error', 'error');
             $btn.prop('disabled', false);
         });
     });
@@ -406,11 +517,11 @@
             if (res && res.success) {
                 location.reload();
             } else {
-                alert(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error));
+                tapToast(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error), 'error');
                 $btn.prop('disabled', false);
             }
         }).fail(function () {
-            alert(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error');
+            tapToast(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error', 'error');
             $btn.prop('disabled', false);
         });
     });
@@ -430,11 +541,11 @@
             if (res && res.success) {
                 location.reload();
             } else {
-                alert(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error));
+                tapToast(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error), 'error');
                 $btn.prop('disabled', false);
             }
         }).fail(function () {
-            alert(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error');
+            tapToast(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error', 'error');
             $btn.prop('disabled', false);
         });
     });
@@ -470,10 +581,10 @@
                         paypal_order_id:  data.orderID
                     }).then(function (res) {
                         if (res && res.success) {
-                            alert(res.data.message);
+                            tapToast(res.data.message, 'success');
                             location.reload();
                         } else {
-                            alert(res && res.data && res.data.message ? res.data.message : 'Error');
+                            tapToast(res && res.data && res.data.message ? res.data.message : 'Error', 'error');
                         }
                     });
                 }

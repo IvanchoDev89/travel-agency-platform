@@ -885,6 +885,395 @@
         });
     }
 
+    /* ── tour wizard ─────────────────────────────────────────────────── */
+
+    /**
+     * Client-side validation for the tour step forms. Mirrors the generic
+     * validation used by submitListing() but also clears stale messages as the
+     * user fixes a field, which matters in a wizard where errors are inline.
+     */
+    function validateTourForm(form) {
+        var invalid = false;
+        var first = null;
+
+        qsa('input, select, textarea', form).forEach(function (inp) {
+            if (inp.type === 'hidden' || inp.disabled) { return; }
+
+            var field = inp.closest ? inp.closest('.tap-field') : null;
+            var errorEl = field ? qs('.tap-field-error', field) : null;
+            var value = (inp.value || '').trim();
+            var msg = '';
+
+            if (inp.hasAttribute('required') && '' === value) {
+                msg = t('fieldRequired', 'Completa este campo.');
+            } else if (inp.type === 'number' && '' !== value) {
+                var num = Number(value);
+                var mn = inp.getAttribute('min');
+                var mx = inp.getAttribute('max');
+                if (isNaN(num)) {
+                    msg = t('fieldNumber', 'Introduce un número válido.');
+                } else if (mn !== null && '' !== mn && num < Number(mn)) {
+                    msg = t('fieldMin', 'El valor mínimo es %s.').replace('%s', mn);
+                } else if (mx !== null && '' !== mx && num > Number(mx)) {
+                    msg = t('fieldMax', 'El valor máximo es %s.').replace('%s', mx);
+                }
+            }
+
+            if (msg) {
+                invalid = true;
+                if (!first) { first = inp; }
+                inp.classList.add('is-invalid');
+            } else {
+                inp.classList.remove('is-invalid');
+            }
+            if (errorEl) { errorEl.textContent = msg; }
+        });
+
+        if (first) { first.focus(); }
+        return !invalid;
+    }
+
+    /**
+     * Persist one tour step and continue to the next one. The footer button
+     * lives outside the form, so the target step travels in data-next-step.
+     */
+    function submitTourStep(form, submitter) {
+        var button = formSubmitter(form, submitter);
+        qsa('.tap-itin-builder', form).forEach(serializeItinerary);
+
+        if (!validateTourForm(form)) {
+            toast(t('checkFields', 'Revisa los campos marcados.'), 'error');
+            return false;
+        }
+
+        setBusy(button, true);
+        formMessage(form, '');
+
+        return post('tap_agency_save_listing', new FormData(form), cfg.listingNonce)
+            .then(function (json) {
+                setBusy(button, false);
+                if (!json || !json.success) {
+                    var message = (json && json.data && json.data.message) || t('error', 'Error');
+                    formMessage(form, message, true);
+                    toast(message, 'error');
+                    return false;
+                }
+
+                toast(json.data.message || t('saved', 'Guardado.'), 'success');
+
+                var nextStep = parseInt(form.dataset.nextStep || '0', 10);
+                var editUrl = json.data.edit_url || '';
+                var target;
+                if (nextStep > 0 && editUrl) {
+                    target = cfg.stepUrl ? cfg.stepUrl + nextStep : editUrl + '&step=' + nextStep;
+                } else {
+                    target = editUrl;
+                }
+                if (target) {
+                    navigate(target);
+                } else {
+                    window.location.reload();
+                }
+                return true;
+            })
+            .catch(function () {
+                setBusy(button, false);
+                formMessage(form, t('networkError', 'Error de conexión.'), true);
+                toast(t('networkError', 'Error de conexión.'), 'error');
+                return false;
+            });
+    }
+
+    /* Itinerary builder: rows are serialized to the plain-text format the
+     * server reads, so wp-admin keeps showing an editable textarea. */
+
+    function itinRowHtml(row) {
+        var data = row || {};
+        var day = parseInt(data.day, 10) || 1;
+        return '<div class="tap-itin-row">' +
+            '<input type="number" class="tap-itin-day" min="1" step="1" value="' + day + '" aria-label="' + escapeHtml(t('day', 'Día')) + '">' +
+            '<input type="time" class="tap-itin-time" value="' + escapeHtml(data.time || '') + '" aria-label="' + escapeHtml(t('time', 'Hora')) + '">' +
+            '<input type="text" class="tap-itin-title" value="' + escapeHtml(data.title || '') + '" placeholder="' + escapeHtml(t('stopTitleHint', 'Ej.: Mirador del volcán')) + '" aria-label="' + escapeHtml(t('stopTitle', 'Parada')) + '">' +
+            '<input type="text" class="tap-itin-desc" value="' + escapeHtml(data.desc || '') + '" placeholder="' + escapeHtml(t('stopDescHint', 'Qué ocurre en esta parada')) + '" aria-label="' + escapeHtml(t('stopDesc', 'Descripción')) + '">' +
+            '<button type="button" class="tap-itin-remove" aria-label="' + escapeHtml(t('removeStop', 'Eliminar parada')) + '">&times;</button>' +
+        '</div>';
+    }
+
+    function nextItinDay(builder) {
+        var max = 1;
+        qsa('.tap-itin-day', builder).forEach(function (input) {
+            var value = parseInt(input.value, 10);
+            if (value > max) { max = value; }
+        });
+        return max;
+    }
+
+    function serializeItinerary(builder) {
+        var target = qs('.tap-itin-value', builder);
+        if (!target) { return; }
+
+        var lines = [];
+        qsa('.tap-itin-row', builder).forEach(function (row) {
+            var day = parseInt(qs('.tap-itin-day', row).value, 10) || 1;
+            var time = (qs('.tap-itin-time', row).value || '').trim();
+            var title = (qs('.tap-itin-title', row).value || '').trim();
+            var desc = (qs('.tap-itin-desc', row).value || '').trim();
+            if ('' === title && '' === desc) { return; }
+            lines.push(t('day', 'Día') + ' ' + day + (time ? ' · ' + time : '') + ' | ' + title + ' | ' + desc);
+        });
+        target.value = lines.join('\n');
+    }
+
+    function initItineraryBuilders() {
+        qsa('.tap-itin-builder').forEach(function (builder) {
+            var rowsEl = qs('.tap-itin-rows', builder);
+            if (!rowsEl) { return; }
+
+            var rows = [];
+            var seed = qs('.tap-itin-seed', builder);
+            if (seed) {
+                try {
+                    rows = JSON.parse(seed.textContent) || [];
+                } catch (err) {
+                    rows = [];
+                }
+            }
+            if (!rows.length) { rows = [{ day: 1 }]; }
+            rowsEl.innerHTML = rows.map(itinRowHtml).join('');
+            serializeItinerary(builder);
+
+            on(builder, 'input', function () { serializeItinerary(builder); });
+
+            on(builder, 'click', function (ev) {
+                var target = ev.target;
+                if (!target || !target.closest) { return; }
+
+                var remove = target.closest('.tap-itin-remove');
+                if (remove) {
+                    var row = remove.closest('.tap-itin-row');
+                    if (row) { row.parentNode.removeChild(row); }
+                    if (!qs('.tap-itin-row', rowsEl)) {
+                        rowsEl.insertAdjacentHTML('beforeend', itinRowHtml({ day: 1 }));
+                    }
+                    serializeItinerary(builder);
+                    return;
+                }
+
+                var add = target.closest('.tap-itin-add');
+                if (add) {
+                    rowsEl.insertAdjacentHTML('beforeend', itinRowHtml({ day: nextItinDay(builder) }));
+                    serializeItinerary(builder);
+                    var last = qs('.tap-itin-row:last-child .tap-itin-title', rowsEl);
+                    if (last) { last.focus(); }
+                }
+            });
+        });
+    }
+
+    /* Tour availability: recurring departures and per-slot actions. */
+
+    function slotItemHtml(slot) {
+        var classes = 'tap-sched-item';
+        if (slot.is_blocked) { classes += ' is-blocked'; }
+        else if (slot.full) { classes += ' is-full'; }
+
+        var places = t('places', '%1$s/%2$s reservados')
+            .replace('%1$s', String(slot.booked || 0))
+            .replace('%2$s', slot.capacity > 0 ? String(slot.capacity) : '∞');
+        var time = slot.time_slot ? String(slot.time_slot).slice(0, 5) : t('allDay', 'Todo el día');
+
+        return '<li class="' + classes + '" data-slot="' + (parseInt(slot.id, 10) || 0) + '">' +
+            '<span class="tap-sched-date">' + escapeHtml(slot.date_label || slot.date || '') + '</span>' +
+            '<span class="tap-sched-time">' + escapeHtml(time) + '</span>' +
+            '<span class="tap-sched-places">' + escapeHtml(places) + '</span>' +
+            (slot.price_label ? '<span class="tap-sched-price">' + escapeHtml(slot.price_label) + '</span>' : '') +
+            (slot.label ? '<span class="tap-sched-tag">' + escapeHtml(slot.label) + '</span>' : '') +
+            '<span class="tap-sched-item-actions">' +
+                '<button type="button" class="tap-btn tap-btn-sm tap-sched-op" data-op="' + (slot.is_blocked ? 'unblock' : 'block') + '">' +
+                    escapeHtml(slot.is_blocked ? t('unblock', 'Desbloquear') : t('block', 'Bloquear')) +
+                '</button>' +
+                '<button type="button" class="tap-btn tap-btn-sm tap-btn-danger tap-sched-op" data-op="delete"' +
+                    ((parseInt(slot.booked, 10) || 0) > 0 ? ' disabled' : '') + '>' +
+                    escapeHtml(t('delete', 'Eliminar')) +
+                '</button>' +
+            '</span>' +
+        '</li>';
+    }
+
+    function initTourSchedules() {
+        qsa('.tap-tour-sched').forEach(function (panel) {
+            var serviceId = panel.dataset.service;
+            var list = qs('.tap-sched-list', panel);
+            var empty = qs('.tap-sched-empty', panel);
+            var count = qs('.tap-sched-count', panel);
+            var status = qs('.tap-sched-msg', panel);
+            var generate = qs('.tap-sched-generate', panel);
+
+            function setStatus(message, isError) {
+                if (!status) { return; }
+                status.textContent = message || '';
+                status.classList.toggle('is-error', !!isError);
+            }
+
+            function render(slots) {
+                slots = slots || [];
+                if (list) {
+                    list.innerHTML = slots.map(slotItemHtml).join('');
+                }
+                if (empty) { empty.hidden = slots.length > 0; }
+                if (count) { count.textContent = slots.length ? String(slots.length) : ''; }
+            }
+
+            on(generate, 'click', function () {
+                var start = (qs('.tap-sched-start', panel).value || '').trim();
+                var end = (qs('.tap-sched-end', panel).value || '').trim();
+                var times = (qs('.tap-sched-times', panel).value || '').split(',').map(function (value) {
+                    return value.trim();
+                }).filter(function (value) {
+                    return /^\d{1,2}:\d{2}$/.test(value);
+                });
+                var days = qsa('.tap-sched-day-input', panel).filter(function (input) {
+                    return input.checked;
+                }).map(function (input) {
+                    return input.value;
+                });
+
+                setStatus('');
+                if ('' === start || '' === end) {
+                    setStatus(t('schedBadRange', 'Revisa el rango de fechas.'), true);
+                    return;
+                }
+                if (!days.length) {
+                    setStatus(t('schedNeedDays', 'Selecciona al menos un día de la semana.'), true);
+                    return;
+                }
+                if (!times.length) {
+                    setStatus(t('schedNeedTimes', 'Indica al menos un horario válido (HH:MM).'), true);
+                    return;
+                }
+
+                var fd = new FormData();
+                fd.append('service_id', serviceId);
+                fd.append('start_date', start);
+                fd.append('end_date', end);
+                days.forEach(function (day) { fd.append('days[]', day); });
+                fd.append('times', JSON.stringify(times));
+                fd.append('capacity', (qs('.tap-sched-capacity', panel).value || '').trim());
+                fd.append('price', (qs('.tap-sched-price', panel).value || '').trim());
+                fd.append('label', (qs('.tap-sched-label', panel).value || '').trim());
+
+                setBusy(generate, true);
+                setStatus(t('schedWorking', 'Generando horarios…'));
+
+                post('tap_agency_tour_schedule', fd, cfg.listingNonce)
+                    .then(function (json) {
+                        setBusy(generate, false);
+                        if (!json || !json.success) {
+                            var message = (json && json.data && json.data.message) || t('error', 'Error');
+                            setStatus(message, true);
+                            toast(message, 'error');
+                            return;
+                        }
+                        render(json.data.slots);
+                        setStatus(json.data.message || t('schedDone', 'Horarios actualizados.'));
+                        toast(json.data.message || t('schedDone', 'Horarios actualizados.'), 'success');
+                    })
+                    .catch(function () {
+                        setBusy(generate, false);
+                        setStatus(t('networkError', 'Error de conexión.'), true);
+                        toast(t('networkError', 'Error de conexión.'), 'error');
+                    });
+            });
+
+            on(list, 'click', function (ev) {
+                var button = ev.target && ev.target.closest ? ev.target.closest('.tap-sched-op') : null;
+                if (!button || button.disabled) { return; }
+
+                var item = button.closest('.tap-sched-item');
+                if (!item) { return; }
+
+                var op = button.dataset.op;
+                var slotId = item.dataset.slot;
+
+                var run = function (okBtn) {
+                    setBusy(okBtn || button, true);
+                    var fd = new FormData();
+                    fd.append('service_id', serviceId);
+                    fd.append('slot_id', slotId);
+                    fd.append('op', op);
+
+                    return post('tap_agency_tour_slot', fd, cfg.listingNonce)
+                        .then(function (json) {
+                            setBusy(okBtn || button, false);
+                            if (!json || !json.success) {
+                                var message = (json && json.data && json.data.message) || t('error', 'Error');
+                                toast(message, 'error');
+                                return false;
+                            }
+                            render(json.data.slots);
+                            toast(json.data.message || t('saved', 'Guardado.'), 'success');
+                            return true;
+                        })
+                        .catch(function () {
+                            setBusy(okBtn || button, false);
+                            toast(t('networkError', 'Error de conexión.'), 'error');
+                            return false;
+                        });
+                };
+
+                if ('delete' === op) {
+                    confirmDialog({
+                        title: t('deleteSlot', 'Eliminar horario'),
+                        subtitle: t('deleteSlotSub', 'Se borrará esta salida. Esta acción no se puede deshacer.'),
+                        okText: t('delete', 'Eliminar'),
+                        danger: true,
+                        onConfirm: run
+                    });
+                    return;
+                }
+                run(null);
+            });
+        });
+    }
+
+    /* Meeting-point map for the tour logistics step. */
+    function initTourMap() {
+        var el = document.getElementById('tap-tour-map');
+        if (!el || el.dataset.ready === '1') { return; }
+        if (typeof window.L === 'undefined') {
+            window.setTimeout(initTourMap, 150);
+            return;
+        }
+        el.dataset.ready = '1';
+
+        var latInput = qs('input[name="_tap_tour_lat"]');
+        var lngInput = qs('input[name="_tap_tour_lng"]');
+        var lat = parseFloat(latInput && latInput.value) || 9.93;
+        var lng = parseFloat(lngInput && lngInput.value) || -84.08;
+
+        var map = window.L.map(el).setView([lat, lng], latInput && latInput.value ? 14 : 10);
+        window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap',
+            maxZoom: 19
+        }).addTo(map);
+
+        var marker = window.L.marker([lat, lng], { draggable: true }).addTo(map);
+
+        function sync(position) {
+            if (latInput) { latInput.value = position.lat.toFixed(6); }
+            if (lngInput) { lngInput.value = position.lng.toFixed(6); }
+        }
+
+        marker.on('dragend', function (ev) {
+            sync(ev.target.getLatLng());
+        });
+        map.on('click', function (ev) {
+            marker.setLatLng(ev.latlng);
+            sync(ev.latlng);
+        });
+        window.setTimeout(function () { map.invalidateSize(); }, 120);
+    }
+
     /* ── boot ────────────────────────────────────────────────────────── */
 
     function init() {
@@ -903,6 +1292,17 @@
                 submitPolicies(policies, ev.submitter);
             });
         }
+
+        /* Tour wizard: one form per URL step. */
+        qsa('.tap-tour-step-form').forEach(function (form) {
+            on(form, 'submit', function (ev) {
+                ev.preventDefault();
+                submitTourStep(form, ev.submitter);
+            });
+        });
+        initItineraryBuilders();
+        initTourSchedules();
+        initTourMap();
 
         qsa('.tap-room-form').forEach(function (form) {
             bindBedBuilder(form);

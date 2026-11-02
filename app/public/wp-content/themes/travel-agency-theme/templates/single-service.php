@@ -96,8 +96,7 @@ if ($deepest && class_exists('TAP_Destinations')) {
 }
 ?>
 
-<div class="tap-container">
-  <div class="tap-acc-layout">
+<div class="tap-container" id="main-content">
     <div class="tap-acc-main">
       <?php if (has_post_thumbnail()): ?>
         <div class="tap-acc-gallery">
@@ -113,9 +112,21 @@ if ($deepest && class_exists('TAP_Destinations')) {
         <?php
         $specs = [];
         if ('tap_tour' === $pt) {
-            foreach (['_tap_tour_duration' => __('Duración', 'travel-agency-platform'), '_tap_tour_departure_city' => __('Salida', 'travel-agency-platform'), '_tap_tour_meeting_point' => __('Punto de encuentro', 'travel-agency-platform')] as $k => $l) {
+            $tour_duration = class_exists('TAP_Tour_Info')
+                ? TAP_Tour_Info::duration_label($id)
+                : (string) get_post_meta($id, '_tap_tour_duration', true);
+            if ('' !== trim((string) $tour_duration)) {
+                $specs[] = [__('Duración', 'travel-agency-platform'), $tour_duration];
+            }
+            foreach (['_tap_tour_departure_city' => __('Salida', 'travel-agency-platform'), '_tap_tour_meeting_point' => __('Punto de encuentro', 'travel-agency-platform')] as $k => $l) {
                 $v = get_post_meta($id, $k, true);
                 if ($v) $specs[] = [$l, $v];
+            }
+            if (class_exists('TAP_Tour_Info')) {
+                $tour_languages = TAP_Tour_Info::languages($id);
+                if ($tour_languages) {
+                    $specs[] = [__('Idiomas', 'travel-agency-platform'), implode(', ', $tour_languages)];
+                }
             }
         }
         if ('tap_transport' === $pt) {
@@ -146,6 +157,56 @@ if ($deepest && class_exists('TAP_Destinations')) {
         <?php endif; ?>
 
         <?php if ('tap_tour' === $pt): ?>
+        <?php
+        $tour_highlights = array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', (string) get_post_meta($id, '_tap_tour_highlights', true))));
+        if ($tour_highlights):
+        ?>
+        <div class="tap-acc-section tap-tour-highlights">
+          <h2><?php esc_html_e('Puntos destacados', 'travel-agency-platform'); ?></h2>
+          <ul class="tap-tour-highlight-list">
+            <?php foreach ($tour_highlights as $highlight): ?>
+              <li><?php echo esc_html($highlight); ?></li>
+            <?php endforeach; ?>
+          </ul>
+        </div>
+        <?php endif; ?>
+
+        <?php
+        $tour_itinerary = class_exists('TAP_Tour_Info') ? TAP_Tour_Info::itinerary_rows($id) : [];
+        if ($tour_itinerary):
+            $days = [];
+            foreach ($tour_itinerary as $stop) {
+                $days[(int) $stop['day']][] = $stop;
+            }
+            ksort($days);
+        ?>
+        <div class="tap-acc-section tap-tour-itinerary">
+          <h2><?php esc_html_e('Itinerario', 'travel-agency-platform'); ?></h2>
+          <?php foreach ($days as $day_number => $stops): ?>
+            <section class="tap-tour-day">
+              <h3 class="tap-tour-day-title">
+                <?php
+                /* translators: %d: día del itinerario */
+                printf(esc_html__('Día %d', 'travel-agency-platform'), (int) $day_number);
+                ?>
+              </h3>
+              <ol class="tap-tour-stops">
+                <?php foreach ($stops as $stop): ?>
+                  <li class="tap-tour-stop">
+                    <span class="tap-tour-stop-time"><?php echo '' !== $stop['time'] ? esc_html($stop['time']) : '—'; ?></span>
+                    <div class="tap-tour-stop-body">
+                      <?php if ('' !== $stop['title']): ?><strong><?php echo esc_html($stop['title']); ?></strong><?php endif; ?>
+                      <?php if ('' !== $stop['desc']): ?><p><?php echo esc_html($stop['desc']); ?></p><?php endif; ?>
+                    </div>
+                  </li>
+                <?php endforeach; ?>
+              </ol>
+            </section>
+          <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+        <?php endif; ?>
+
         <!-- Ecotourism badges -->
         <?php
         $eco_badges = [];
@@ -175,8 +236,8 @@ if ($deepest && class_exists('TAP_Destinations')) {
           <?php if ($meeting): ?><p><?php echo esc_html($meeting); ?></p><?php endif; ?>
           <?php if ($tlat && $tlng): ?>
           <div id="tap-tour-map" style="height:320px;border-radius:8px;overflow:hidden;margin-top:12px;"></div>
-          <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-          <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+          <link rel="stylesheet" href="<?php echo esc_url(TAP_PLUGIN_URL . 'assets/leaflet/leaflet.css'); ?>">
+          <script src="<?php echo esc_url(TAP_PLUGIN_URL . 'assets/leaflet/leaflet.js'); ?>"></script>
           <script>
           (function(){
             var map = L.map('tap-tour-map').setView([<?php echo (float)$tlat; ?>, <?php echo (float)$tlng; ?>], 14);
@@ -214,6 +275,30 @@ if ($deepest && class_exists('TAP_Destinations')) {
           <p><strong><?php _e('Alquiler de equipo disponible.', 'travel-agency-platform'); ?></strong></p>
           <?php endif; ?>
         </div>
+        <?php endif; ?>
+
+        <?php if ('tap_tour' === $pt): ?>
+        <?php
+        $tour_requirements = (string) get_post_meta($id, '_tap_tour_requirements', true);
+        $tour_accessibility = (string) get_post_meta($id, '_tap_tour_accessibility', true);
+        if ('' !== trim($tour_requirements) || '' !== trim($tour_accessibility)):
+        ?>
+        <div class="tap-acc-section tap-tour-requirements">
+          <h2><?php esc_html_e('Antes de reservar', 'travel-agency-platform'); ?></h2>
+          <?php if ('' !== trim($tour_requirements)): ?>
+            <div class="tap-tour-inc">
+              <h3><?php esc_html_e('Requisitos', 'travel-agency-platform'); ?></h3>
+              <p><?php echo nl2br(esc_html($tour_requirements)); ?></p>
+            </div>
+          <?php endif; ?>
+          <?php if ('' !== trim($tour_accessibility)): ?>
+            <div class="tap-tour-inc">
+              <h3><?php esc_html_e('Accesibilidad', 'travel-agency-platform'); ?></h3>
+              <p><?php echo nl2br(esc_html($tour_accessibility)); ?></p>
+            </div>
+          <?php endif; ?>
+        </div>
+        <?php endif; ?>
         <?php endif; ?>
 
         <!-- Extras -->
@@ -331,35 +416,6 @@ if ($deepest && class_exists('TAP_Destinations')) {
           </div>
         </div>
         <?php endif; // tap_tour ?>
-        <style>
-        .tap-tour-cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px;}
-        .tap-tour-cal-month{font-size:1.1rem;color:var(--tap-neutral-800,#1f2937);}
-        .tap-tour-cal-legend{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px;font-size:12px;color:var(--tap-neutral-500,#6b7280);}
-        .tap-tour-cal-swatch{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:middle;}
-        .tap-tour-cal-swatch--avail{background:#10b981;}
-        .tap-tour-cal-swatch--blocked{background:#ef4444;}
-        .tap-tour-cal-swatch--full{background:#f59e0b;}
-        .tap-tour-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
-        .tap-tour-cal-wd{text-align:center;font-size:11px;font-weight:700;color:var(--tap-neutral-500,#6b7280);padding:4px 0;}
-        .tap-tour-cal-day{min-height:70px;border:1px solid var(--tap-border,#e5e7eb);border-radius:6px;padding:4px;font-size:11px;background:#fff;}
-        .tap-tour-cal-day--empty{border:none;background:transparent;}
-        .tap-tour-cal-day--avail{border-color:#10b981;background:#f0fdf4;}
-        .tap-tour-cal-day--blocked{border-color:#ef4444;background:#fef2f2;}
-        .tap-tour-cal-day--full{border-color:#f59e0b;background:#fffbeb;}
-        .tap-tour-cal-day--none{background:#f9fafb;}
-        .tap-tour-cal-day--today{box-shadow:0 0 0 2px #2563eb;}
-        .tap-tour-cal-num{display:block;font-weight:700;font-size:13px;margin-bottom:2px;}
-        .tap-tour-cal-slots{display:flex;flex-direction:column;gap:2px;}
-        .tap-tour-cal-slot{display:flex;flex-wrap:wrap;gap:3px;align-items:center;font-size:10px;padding:2px 4px;background:rgba(0,0,0,.04);border-radius:3px;}
-        .tap-tour-cal-slot.is-blocked{background:#fee2e2;text-decoration:line-through;}
-        .tap-tour-cal-time{font-weight:600;}
-        .tap-tour-cal-label{color:var(--tap-neutral-500,#6b7280);}
-        .tap-tour-cal-cap{margin-left:auto;font-weight:600;}
-        .tap-tour-cal-price{color:#047857;font-weight:700;}
-        .tap-tour-cal-blocked{margin-left:auto;}
-        @media (max-width:600px){.tap-tour-cal-day{min-height:50px;font-size:10px;}.tap-tour-cal-slot{font-size:9px;}}
-        </style>
-        <?php endif; // tap_tour ?>
 
         <?php if ('tap_tour' === $pt): ?>
         <?php
@@ -387,11 +443,14 @@ if ($deepest && class_exists('TAP_Destinations')) {
                     slotsData[d].forEach(function(sl){
                         var opt = document.createElement('option');
                         opt.value = sl.id;
-                        var label = (sl.time_slot ? sl.time_slot.substring(0,5) : '') + (sl.label ? ' - ' + sl.label : '') + ' (' + sl.booked + '/' + (sl.capacity || '∞') + ')';
-                        if (sl.is_blocked) label += ' BLOQUEADO';
+                        var time = sl.time_slot ? sl.time_slot.substring(0,5) : '';
+                        var avail = (sl.capacity || 0) > 0 ? Math.max(0, (sl.capacity || 0) - (sl.booked || 0)) : (sl.capacity || '∞');
+                        var label = (time || '<?php echo esc_js(__('Todo el día', 'travel-agency-platform')); ?>') + (sl.label ? ' · ' + sl.label : '') + ' — ' + avail + ' ' + (avail === 1 ? '<?php echo esc_js(__('plaza', 'travel-agency-platform')); ?>' : '<?php echo esc_js(__('plazas', 'travel-agency-platform')); ?>');
                         opt.textContent = label;
-                        opt.disabled = !!sl.is_blocked;
+                        opt.disabled = !!sl.is_blocked || ((sl.capacity || 0) > 0 && (sl.booked || 0) >= (sl.capacity || 0));
                         opt.dataset.price = sl.price || 0;
+                        opt.dataset.avail = avail;
+                        if (opt.disabled) { opt.style.color = '#94a3b8'; }
                         slotSel.appendChild(opt);
                     });
                     slotSel.disabled = false;
@@ -399,17 +458,39 @@ if ($deepest && class_exists('TAP_Destinations')) {
                 if (checkIn) checkIn.value = d;
                 if (checkOut) checkOut.value = d;
             });
+            function updatePriceSummary() {
+                var opt = slotSel.options[slotSel.selectedIndex];
+                var price = opt ? parseFloat(opt.dataset.price || 0) : 0;
+                var basePrice = price > 0 ? price : <?php echo (float) $price; ?>;
+                var adults = parseInt($('#bw-adults').val() || 1, 10);
+                var children = parseInt($('#bw-children').val() || 0, 10);
+                var summary = document.getElementById('bw-price-summary');
+                if (!summary) return;
+                if (!slotSel.value) { summary.style.display = 'none'; return; }
+                summary.style.display = 'block';
+                var adultTotal = adults * basePrice;
+                var childPrice = <?php echo (float) $child_price; ?>;
+                var childTotal = children * (childPrice > 0 ? childPrice : basePrice * 0.5);
+                document.getElementById('bw-sum-adults').textContent = adults + ' × ' + basePrice.toFixed(2);
+                document.getElementById('bw-sum-children').textContent = children > 0 ? (children + ' × ' + (childPrice > 0 ? childPrice : basePrice * 0.5).toFixed(2)) : '—';
+                document.getElementById('bw-sum-total').textContent = (adultTotal + childTotal).toFixed(2) + ' <?php echo esc_js(TAP_Currency::code()); ?>';
+            }
             slotSel.addEventListener('change', function(){
                 if (slotId) slotId.value = slotSel.value;
                 if (checkIn) checkIn.value = dateSel.value;
                 if (checkOut) checkOut.value = dateSel.value;
-                $('#bw-adults').trigger('change');
+                updatePriceSummary();
             });
+            var adultsInput = document.getElementById('bw-adults');
+            var childrenInput = document.getElementById('bw-children');
+            if (adultsInput) adultsInput.addEventListener('change', updatePriceSummary);
+            if (childrenInput) childrenInput.addEventListener('change', updatePriceSummary);
+            if (adultsInput) adultsInput.addEventListener('input', updatePriceSummary);
+            if (childrenInput) childrenInput.addEventListener('input', updatePriceSummary);
         })();
         </script>
         <?php endif; ?>
 
-        <?php get_template_part('templates/partials/service-reviews'); ?>
         <?php get_template_part('templates/partials/service-reviews'); ?>
       </div>
     </div>
@@ -419,6 +500,19 @@ if ($deepest && class_exists('TAP_Destinations')) {
         <div class="tap-bw-header">
           <span class="tap-bw-price-amount"><?php echo esc_html(TAP_Currency::fmt0($price)); ?></span>
           <span class="tap-bw-price-label"><?php echo esc_html($unit_label[$pt] ?? ''); ?></span>
+          <?php if ('tap_tour' === $pt): ?>
+            <?php $tour_deposit = (int) get_post_meta($id, '_tap_tour_deposit_pct', true); ?>
+            <?php if ($tour_deposit > 0 && $tour_deposit <= 100): ?>
+              <p class="tap-bw-deposit"><?php printf(esc_html__('Reserva hoy con un %s%% de depósito; el resto se paga después.', 'travel-agency-platform'), number_format_i18n($tour_deposit)); ?></p>
+            <?php endif; ?>
+            <?php
+            $tour_policy = TAP_Refunds::cancellation_policy('tap_tour', $id);
+            $tour_policies = TAP_Refunds::cancellation_policies();
+            if (isset($tour_policies[$tour_policy])):
+            ?>
+              <p class="tap-bw-policy"><?php echo esc_html__('Cancelación:', 'travel-agency-platform') . ' ' . esc_html($tour_policies[$tour_policy]); ?></p>
+            <?php endif; ?>
+          <?php endif; ?>
         </div>
 
         <div class="tap-bw-body">
@@ -444,7 +538,14 @@ if ($deepest && class_exists('TAP_Destinations')) {
                     $by_date[$tsl->date][] = $tsl;
                 }
                 foreach (array_keys($by_date) as $dt): ?>
-                    <option value="<?php echo esc_attr($dt); ?>"><?php echo esc_html($dt); ?> (<?php echo count($by_date[$dt]); ?> horarios)</option>
+                    <?php
+                    $slot_count = count($by_date[$dt]);
+                    $avail = 0;
+                    foreach ($by_date[$dt] as $_s) { if (!$_s->is_blocked) $avail++; }
+                    ?>
+                    <option value="<?php echo esc_attr($dt); ?>">
+                        <?php echo esc_html(date_i18n('D d M Y', strtotime($dt))); ?> · <?php echo (int) $avail; ?> <?php echo esc_html(_n('horario', 'horarios', $avail, 'travel-agency-platform')); ?>
+                    </option>
                 <?php endforeach; ?>
               </select>
             </div>
@@ -530,6 +631,11 @@ if ($deepest && class_exists('TAP_Destinations')) {
                 <p style="font-size:12px;color:#6b7280;"><?php esc_html_e('Esta actividad requiere firmar un waiver. Se pedirá después de la reserva.', 'travel-agency-platform'); ?></p>
             </div>
             <?php endif; ?>
+            <div id="bw-price-summary" class="tap-bw-price-summary" style="display:none;">
+                <div class="tap-bw-price-row"><span><?php esc_html_e('Adultos', 'travel-agency-platform'); ?></span><span id="bw-sum-adults">0</span></div>
+                <div class="tap-bw-price-row"><span><?php esc_html_e('Niños', 'travel-agency-platform'); ?></span><span id="bw-sum-children">0</span></div>
+                <div class="tap-bw-price-row tap-bw-price-total"><span><?php esc_html_e('Total estimado', 'travel-agency-platform'); ?></span><span id="bw-sum-total">—</span></div>
+            </div>
               <button type="submit" class="tap-btn tap-btn-primary tap-btn-block" id="bw-submit" disabled>
                 <?php echo TAP_Booking::booking_mode($pt, $id) === 'request' ? esc_html__('Solicitar reserva', 'travel-agency-platform') : esc_html__('Book Now', 'travel-agency-platform'); ?>
               </button>

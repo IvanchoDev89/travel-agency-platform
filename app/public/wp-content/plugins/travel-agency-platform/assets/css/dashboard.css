@@ -893,3 +893,73 @@
 @media (max-width: 640px) {
     .tap-profile-grid { grid-template-columns: 1fr; }
 }
+
+/* Client profile feedback */
+.tap-form-msg { font-size: 0.875rem; font-weight: 600; margin-left: 0.5rem; }
+.tap-form-msg.is-error { color: var(--tap-danger-dark, #b91c1c); }
+.tap-form-msg:not(.is-error):not(:empty) { color: var(--tap-success-dark, #047857); }
+
+/* Bookings pagination */
+.tap-dash-pagination {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+}
+.tap-dash-page {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    height: 2rem;
+    padding: 0 0.6rem;
+    border: 1px solid var(--tap-border, #e2e8f0);
+    border-radius: 8px;
+    background: var(--tap-surface, #fff);
+    color: var(--tap-neutral-700, #334155);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+.tap-dash-page:hover { background: var(--tap-surface-muted, #f1f5f9); border-color: var(--tap-border-strong, #cbd5e1); }
+.tap-dash-page.is-active {
+    background: var(--tap-primary, #0d9488);
+    border-color: var(--tap-primary, #0d9488);
+    color: var(--tap-surface, #fff);
+    pointer-events: none;
+}
+
+/* Loyalty points coloring */
+.tap-loyalty-points { font-weight: 700; }
+.tap-loyalty-points.is-plus { color: var(--tap-success-dark, #047857); }
+.tap-loyalty-points.is-minus { color: var(--tap-danger-dark, #b91c1c); }
+
+/* Dashboard toast */
+.tap-dash-toast {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(1rem);
+    background: var(--tap-neutral-900, #0f172a);
+    color: #fff;
+    padding: 0.75rem 1.25rem;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.25);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 9999;
+    max-width: 90vw;
+    text-align: center;
+}
+.tap-dash-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+}
+.tap-dash-toast-error { background: var(--tap-danger, #dc2626); }
+.tap-dash-toast-success { background: var(--tap-success, #10b981); }

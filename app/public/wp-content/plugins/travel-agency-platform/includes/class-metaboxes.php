@@ -373,6 +373,10 @@ class TAP_Metaboxes {
             '_tap_tour_agency_id'   => ['type' => 'select_post', 'label' => __('Agency', 'travel-agency-platform'), 'post_type' => 'tap_agency'],
             '_tap_tour_type'        => ['type' => 'select', 'label' => __('Tour Type', 'travel-agency-platform'), 'options' => self::tour_type_options()],
             '_tap_tour_duration'    => ['type' => 'text', 'label' => __('Duration', 'travel-agency-platform'), 'placeholder' => 'e.g. 3 days / 2 nights'],
+            '_tap_tour_duration_days'  => ['type' => 'number', 'label' => __('Duración en días', 'travel-agency-platform')],
+            '_tap_tour_duration_hours' => ['type' => 'number', 'label' => __('Horas adicionales', 'travel-agency-platform')],
+            '_tap_tour_highlights'  => ['type' => 'textarea', 'label' => __('Puntos destacados', 'travel-agency-platform')],
+            '_tap_tour_itinerary'   => ['type' => 'textarea', 'label' => __('Itinerario', 'travel-agency-platform')],
             '_tap_tour_difficulty'  => ['type' => 'select', 'label' => __('Difficulty', 'travel-agency-platform'), 'options' => ['easy' => 'Easy', 'moderate' => 'Moderate', 'hard' => 'Hard', 'extreme' => 'Extreme']],
             '_tap_tour_price_adult' => ['type' => 'number', 'label' => __('Price per Adult ($)', 'travel-agency-platform'), 'step' => '0.01'],
             '_tap_tour_price_child' => ['type' => 'number', 'label' => __('Price per Child ($)', 'travel-agency-platform'), 'step' => '0.01'],
@@ -382,6 +386,7 @@ class TAP_Metaboxes {
             '_tap_tour_start_time'  => ['type' => 'time', 'label' => __('Start Time', 'travel-agency-platform')],
             '_tap_tour_end_time'    => ['type' => 'time', 'label' => __('End Time', 'travel-agency-platform')],
             '_tap_tour_meeting_point' => ['type' => 'text', 'label' => __('Meeting Point', 'travel-agency-platform')],
+            '_tap_tour_departure_city' => ['type' => 'text', 'label' => __('Ciudad de salida', 'travel-agency-platform')],
             '_tap_tour_includes'    => ['type' => 'textarea', 'label' => __('What\'s Included', 'travel-agency-platform')],
             '_tap_tour_excludes'    => ['type' => 'textarea', 'label' => __('What\'s Not Included', 'travel-agency-platform')],
             '_tap_tour_what_bring'  => ['type' => 'textarea', 'label' => __('What to Bring', 'travel-agency-platform')],
@@ -405,6 +410,8 @@ class TAP_Metaboxes {
             /* ---- tarifas ---- */
             '_tap_tour_price_senior' => ['type' => 'number', 'label' => __('Precio Senior ($)', 'travel-agency-platform'), 'step' => '0.01'],
             '_tap_tour_price_student' => ['type' => 'number', 'label' => __('Precio Estudiante ($)', 'travel-agency-platform'), 'step' => '0.01'],
+            '_tap_tour_deposit_pct' => ['type' => 'number', 'label' => __('Depósito (%)', 'travel-agency-platform')],
+            '_tap_tour_booking_cutoff' => ['type' => 'number', 'label' => __('Cierre de reservas (horas antes)', 'travel-agency-platform')],
             '_tap_tour_child_age'   => ['type' => 'text', 'label' => __('Rango de edad niño', 'travel-agency-platform'), 'placeholder' => 'e.g. 5-12'],
             /* ---- inclusiones ---- */
             '_tap_tour_equipment'   => ['type' => 'textarea', 'label' => __('Equipo provisto', 'travel-agency-platform')],
@@ -417,6 +424,9 @@ class TAP_Metaboxes {
             '_tap_tour_trail'       => ['type' => 'select', 'label' => __('Condición del sendero', 'travel-agency-platform'), 'options' => ['paved' => 'Pavimentado', 'dirt' => 'Tierra', 'rocky' => 'Rocoso', 'muddy' => 'Lodoso', 'mixed' => 'Mixto']],
             '_tap_tour_elevation'   => ['type' => 'number', 'label' => __('Desnivel (metros)', 'travel-agency-platform')],
             /* ---- legales ---- */
+            '_tap_cancellation_policy' => ['type' => 'select', 'label' => __('Política de cancelación', 'travel-agency-platform'), 'options' => class_exists('TAP_Refunds') ? TAP_Refunds::cancellation_policies() : []],
+            '_tap_tour_requirements' => ['type' => 'textarea', 'label' => __('Requisitos para participar', 'travel-agency-platform')],
+            '_tap_tour_accessibility' => ['type' => 'textarea', 'label' => __('Accesibilidad', 'travel-agency-platform')],
             '_tap_tour_terms'       => ['type' => 'textarea', 'label' => __('Términos y condiciones', 'travel-agency-platform')],
             '_tap_tour_privacy'     => ['type' => 'textarea', 'label' => __('Política de privacidad', 'travel-agency-platform')],
             '_tap_tour_waiver'      => ['type' => 'textarea', 'label' => __('Texto del waiver (descargo)', 'travel-agency-platform')],

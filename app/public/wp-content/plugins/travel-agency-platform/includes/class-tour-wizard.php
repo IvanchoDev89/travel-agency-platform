@@ -2,17 +2,25 @@
 defined('ABSPATH') || exit;
 
 /**
- * Tour/experience wizard: URL-based multi-step flow (consistent with TAP_Acc_Wizard).
- * Steps: 1. Información, 2. Logística, 3. Tarifas y disponibilidad, 4. Detalles y legales, 5. Publicar.
+ * Tour wizard shell.
+ *
+ * URL-based, one form per step (like TAP_Acc_Wizard). Each step persists
+ * through the shared tap_agency_save_listing endpoint and then advances to the
+ * next step, so a tour operator never loses work between steps.
  */
 class TAP_Tour_Wizard {
 
+    /**
+     * Localized configuration for assets.agency-wizard.js.
+     *
+     * @param int $listing_id Tour id (0 when creating).
+     * @return string
+     */
     public static function render_tour_wizard_script($listing_id) {
-        $is_edit = (bool) $listing_id;
+        $is_edit  = (bool) $listing_id;
         $edit_url = $is_edit ? home_url('/manage-listing/?id=' . (int) $listing_id) : '';
 
         wp_enqueue_script('tap-agency-wizard', TAP_PLUGIN_URL . 'assets/js/agency-wizard.js', [], TAP_VERSION, true);
-        wp_enqueue_style('tap-agency-calendar', TAP_PLUGIN_URL . 'assets/css/agency-calendar.css', ['tap-public'], TAP_VERSION);
         wp_localize_script('tap-agency-wizard', 'tapAgencyWizard', [
             'ajaxUrl'         => admin_url('admin-ajax.php'),
             'uploadNonce'     => wp_create_nonce('tap_front_dash_nonce'),
@@ -46,15 +54,41 @@ class TAP_Tour_Wizard {
                 'unpublish'     => __('Despublicar', 'travel-agency-platform'),
                 'unpublishSub'  => __('Dejará de aparecer en el buscador hasta que lo publiques de nuevo.', 'travel-agency-platform'),
                 'networkError'  => __('Error de conexión. Revisa tu red e inténtalo de nuevo.', 'travel-agency-platform'),
+                'fieldRequired' => __('Completa este campo.', 'travel-agency-platform'),
+                'checkFields'   => __('Revisa los campos marcados.', 'travel-agency-platform'),
+                'schedNeedDays' => __('Selecciona al menos un día de la semana.', 'travel-agency-platform'),
+                'schedNeedTimes'=> __('Indica al menos un horario válido (HH:MM).', 'travel-agency-platform'),
+                'schedBadRange' => __('Revisa el rango de fechas.', 'travel-agency-platform'),
+                'schedWorking'  => __('Generando horarios…', 'travel-agency-platform'),
+                'schedDone'     => __('Horarios actualizados.', 'travel-agency-platform'),
+                'slotDeleted'   => __('Horario eliminado.', 'travel-agency-platform'),
+                'slotBlocked'   => __('Horario bloqueado.', 'travel-agency-platform'),
+                'slotFree'      => __('Horario disponible de nuevo.', 'travel-agency-platform'),
+                'noSlots'       => __('Todavía no hay salidas. Genera la primera temporada arriba.', 'travel-agency-platform'),
+                'allDay'        => __('Todo el día', 'travel-agency-platform'),
+                'places'        => __('%1$s/%2$s reservados', 'travel-agency-platform'),
+                'block'         => __('Bloquear', 'travel-agency-platform'),
+                'unblock'       => __('Desbloquear', 'travel-agency-platform'),
+                'removeStop'    => __('Eliminar parada', 'travel-agency-platform'),
+                'day'           => __('Día', 'travel-agency-platform'),
+                'time'          => __('Hora', 'travel-agency-platform'),
+                'stopTitle'     => __('Parada', 'travel-agency-platform'),
+                'stopDesc'      => __('Descripción', 'travel-agency-platform'),
             ],
         ]);
 
         return '';
     }
 
-    public static function render_tour_wizard($listing_id, $type) {
-        $is_edit   = (bool) $listing_id;
-        $listing   = $is_edit ? get_post($listing_id) : null;
+    /**
+     * Render the wizard shell for the current step.
+     *
+     * @param int    $listing_id Tour id (0 when creating).
+     * @return string
+     */
+    public static function render_tour_wizard($listing_id, $type = 'tap_tour') {
+        $listing_id = (int) $listing_id;
+        $is_edit    = (bool) $listing_id;
         $type_label = TAP_Post_Types::get_service_types()[$type] ?? ucfirst($type);
 
         $step = isset($_GET['step']) ? (int) $_GET['step'] : 1;
@@ -65,21 +99,21 @@ class TAP_Tour_Wizard {
             $step = 1;
         }
 
-        $edit_base = home_url('/manage-listing/?id=' . (int) $listing_id);
+        $edit_base = home_url('/manage-listing/?id=' . $listing_id);
         $new_url   = home_url('/manage-listing/?new=' . rawurlencode($type));
         $steps     = [
-            1 => ['label' => __('Información', 'travel-agency-platform'), 'hint' => __('Nombre, fotos y datos principales', 'travel-agency-platform')],
-            2 => ['label' => __('Logística', 'travel-agency-platform'), 'hint' => __('Duración, horarios y punto de encuentro', 'travel-agency-platform')],
-            3 => ['label' => __('Tarifas', 'travel-agency-platform'), 'hint' => __('Precios, capacidad y disponibilidad', 'travel-agency-platform')],
-            4 => ['label' => __('Detalles y legales', 'travel-agency-platform'), 'hint' => __('Inclusiones, ecoturismo, T&C y waiver', 'travel-agency-platform')],
-            5 => ['label' => __('Publicar', 'travel-agency-platform'), 'hint' => __('Revisa y publica tu tour', 'travel-agency-platform')],
+            1 => ['label' => __('Información', 'travel-agency-platform'), 'hint' => __('Nombre, fotos, duración e idiomas', 'travel-agency-platform')],
+            2 => ['label' => __('Itinerario', 'travel-agency-platform'), 'hint' => __('Punto de encuentro, paradas e inclusiones', 'travel-agency-platform')],
+            3 => ['label' => __('Precios y fechas', 'travel-agency-platform'), 'hint' => __('Tarifas, grupo, cancelación y salidas', 'travel-agency-platform')],
+            4 => ['label' => __('Políticas', 'travel-agency-platform'), 'hint' => __('Requisitos, waiver, ecoturismo y extras', 'travel-agency-platform')],
+            5 => ['label' => __('Publicar', 'travel-agency-platform'), 'hint' => __('Revisa, completa el SEO y publica', 'travel-agency-platform')],
         ];
 
-        $progress = TAP_Tour_Wizard_Steps::tour_wizard_progress($listing_id, $type);
+        $progress = TAP_Tour_Wizard_Steps::tour_wizard_progress($listing_id);
         $status   = $is_edit ? get_post_status($listing_id) : 'draft';
         $is_live  = 'publish' === $status && '1' === get_post_meta($listing_id, '_tap_tour_is_active', true);
 
-        // UX pre-check: block entry when plan limit reached.
+        // UX pre-check: block entry when the plan limit is already reached.
         if (!$is_edit && !current_user_can('manage_options') && class_exists('TAP_Subscriptions')) {
             $limit_agency = TAP_Booking::get_agency_for_user();
             if ($limit_agency) {
@@ -90,7 +124,12 @@ class TAP_Tour_Wizard {
                     <div class="tap-agency-panel tap-manage-wrap">
                         <div class="tap-dash-login-card">
                             <h2 class="tap-panel-title"><?php esc_html_e('Límite de listados alcanzado', 'travel-agency-platform'); ?></h2>
-                            <p><?php printf(esc_html__('Your plan allows a maximum of %d listings. Upgrading your plan unlocks more.', 'travel-agency-platform'), (int) $limit); ?></p>
+                            <p>
+                                <?php
+                                /* translators: %d: número máximo de listados permitidos por el plan */
+                                printf(esc_html__('Your plan allows a maximum of %d listings. Upgrading your plan unlocks more.', 'travel-agency-platform'), (int) $limit);
+                                ?>
+                            </p>
                             <a class="tap-btn tap-btn-primary" href="<?php echo esc_url(home_url('/planes/')); ?>"><?php esc_html_e('Ver planes', 'travel-agency-platform'); ?></a>
                         </div>
                     </div>
@@ -100,11 +139,11 @@ class TAP_Tour_Wizard {
             }
         }
 
-        wp_enqueue_style('tap-agency-calendar', TAP_PLUGIN_URL . 'assets/css/agency-calendar.css', ['tap-public'], TAP_VERSION);
-
+        // The stylesheet is enqueued in the head by the theme for the
+        // manage-listing template; enqueuing it here (after wp_head) would be
+        // too late to print.
         ob_start();
         ?>
-
         <div class="tap-agency-panel tap-manage-wrap tap-wizard" data-wizard-step="<?php echo (int) $step; ?>" data-listing="<?php echo (int) $listing_id; ?>">
             <header class="tap-wizard-head">
                 <div class="tap-wizard-head-main">
@@ -116,14 +155,16 @@ class TAP_Tour_Wizard {
                         <span class="tap-wizard-head-type"><?php echo esc_html($type_label); ?></span>
                         <span class="tap-wizard-head-sep" aria-hidden="true">&middot;</span>
                         <span>
-                        <?php
-                        printf(
-                            esc_html__('Paso %1$d de %2$d', 'travel-agency-platform'),
-                            (int) $step,
-                            5
-                        );
-                        ?>
-                        — <?php echo esc_html($steps[$step]['hint']); ?></span>
+                            <?php
+                            printf(
+                                /* translators: 1: current step number, 2: total steps */
+                                esc_html__('Paso %1$d de %2$d', 'travel-agency-platform'),
+                                (int) $step,
+                                5
+                            );
+                            ?>
+                            — <?php echo esc_html($steps[$step]['hint']); ?>
+                        </span>
                     </p>
                 </div>
                 <div class="tap-wizard-head-side">
@@ -147,9 +188,14 @@ class TAP_Tour_Wizard {
                         $locked    = !$is_edit && $n > 1;
                         $is_active = $n === $step;
                         $cls       = '';
-                        if ($is_active) $cls .= ' active';
-                        if ($locked) $cls .= ' locked';
-                        elseif ($step_done && $n < 5) $cls .= ' complete';
+                        if ($is_active) {
+                            $cls .= ' active';
+                        }
+                        if ($locked) {
+                            $cls .= ' locked';
+                        } elseif ($step_done && $n < 5) {
+                            $cls .= ' complete';
+                        }
                         $href = $n === 1
                             ? ($is_edit ? $edit_base . '&step=1' : $new_url)
                             : $edit_base . '&step=' . $n;
@@ -177,21 +223,19 @@ class TAP_Tour_Wizard {
 
             <div class="tap-wizard-layout">
                 <main class="tap-wizard-body">
-                    <div class="tap-wizard-panel" data-step="1">
-                        <?php echo TAP_Tour_Wizard_Steps::render_step_info($listing_id, $type); ?>
-                    </div>
-                    <div class="tap-wizard-panel" data-step="2" style="display:none;">
-                        <?php echo TAP_Tour_Wizard_Steps::render_step_logistics($listing_id, $type); ?>
-                    </div>
-                    <div class="tap-wizard-panel" data-step="3" style="display:none;">
-                        <?php echo TAP_Tour_Wizard_Steps::render_step_pricing($listing_id, $type); ?>
-                    </div>
-                    <div class="tap-wizard-panel" data-step="4" style="display:none;">
-                        <?php echo TAP_Tour_Wizard_Steps::render_step_details($listing_id, $type); ?>
-                    </div>
-                    <div class="tap-wizard-panel" data-step="5" style="display:none;">
-                        <?php echo TAP_Tour_Wizard_Steps::render_step_publish($listing_id, $type); ?>
-                    </div>
+                    <?php
+                    if (1 === $step) {
+                        echo TAP_Tour_Wizard_Steps::render_step_info($listing_id);
+                    } elseif (2 === $step) {
+                        echo TAP_Tour_Wizard_Steps::render_step_logistics($listing_id);
+                    } elseif (3 === $step) {
+                        echo TAP_Tour_Wizard_Steps::render_step_pricing($listing_id);
+                    } elseif (4 === $step) {
+                        echo TAP_Tour_Wizard_Steps::render_step_details($listing_id);
+                    } else {
+                        echo TAP_Tour_Wizard_Steps::render_step_publish($listing_id);
+                    }
+                    ?>
                 </main>
 
                 <aside class="tap-wizard-rail" aria-label="<?php esc_attr_e('Resumen del alta', 'travel-agency-platform'); ?>">
@@ -204,7 +248,6 @@ class TAP_Tour_Wizard {
                         <ul class="tap-rail-list">
                             <?php
                             foreach ($progress['items'] as $item):
-                                if (5 === $item['step']) { continue; }
                                 $item_locked = !$is_edit && $item['step'] > 1;
                                 ?>
                                 <li class="tap-rail-item<?php echo $item['done'] ? ' is-done' : ''; ?>">
@@ -222,82 +265,43 @@ class TAP_Tour_Wizard {
                                             : $edit_base . '&step=' . (int) $item['step'];
                                         ?>
                                         <a class="tap-rail-link" href="<?php echo esc_url($item_url); ?>"
-                                            aria-label="<?php echo esc_attr(sprintf(__('Ir a: %s', 'travel-agency-platform'), $item['label'])); ?>">&rarr;</a>
+                                            aria-label="<?php echo esc_attr(sprintf(/* translators: %s: item label */ __('Ir a: %s', 'travel-agency-platform'), $item['label'])); ?>">&rarr;</a>
                                     <?php endif; ?>
                                 </li>
                             <?php endforeach; ?>
                         </ul>
                     </div>
+
+                    <?php if (3 === $step): ?>
+                        <div class="tap-rail-card tap-rail-card-help">
+                            <strong><?php esc_html_e('Cómo funciona la disponibilidad', 'travel-agency-platform'); ?></strong>
+                            <p class="tap-rail-lead"><?php esc_html_e('Cada salida es una fecha + hora con su propia capacidad. Si no generas salidas, el tour no aparecerá como reservable.', 'travel-agency-platform'); ?></p>
+                        </div>
+                    <?php elseif (5 === $step): ?>
+                        <div class="tap-rail-card tap-rail-card-help">
+                            <strong><?php esc_html_e('¿Necesitas ayuda?', 'travel-agency-platform'); ?></strong>
+                            <p class="tap-rail-lead"><?php esc_html_e('Si un revisor rechaza tu tour, verás aquí el motivo y podrás corregirlo sin empezar de nuevo.', 'travel-agency-platform'); ?></p>
+                            <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(home_url('/manage-listing/')); ?>"><?php esc_html_e('Volver al panel', 'travel-agency-platform'); ?></a>
+                        </div>
+                    <?php endif; ?>
                 </aside>
             </div>
 
             <?php
             $prev_url = $step > 1 ? $edit_base . '&step=' . ($step - 1) : home_url('/manage-listing/');
-            $next_url = $step < 5 ? $edit_base . '&step=' . ($step + 1) : '';
             ?>
             <footer class="tap-wizard-foot">
-                <button type="button" class="tap-btn tap-btn-sm tap-wizard-prev" style="display:none;"><?php esc_html_e('Atrás', 'travel-agency-platform'); ?></button>
-                <div class="tap-wizard-foot-hint"><?php esc_html_e('Completa todos los campos y guarda al final.', 'travel-agency-platform'); ?></div>
-                <button type="button" class="tap-btn tap-btn-primary tap-wizard-next"><?php esc_html_e('Siguiente', 'travel-agency-platform'); ?></button>
-                <button type="submit" class="tap-btn tap-btn-primary tap-wizard-submit" style="display:none;"><?php echo $is_edit ? esc_html__('Guardar cambios', 'travel-agency-platform') : esc_html__('Crear servicio', 'travel-agency-platform'); ?></button>
+                <a class="tap-btn tap-btn-sm" href="<?php echo esc_url($prev_url); ?>">
+                    <?php echo $step > 1 ? esc_html__('Atrás', 'travel-agency-platform') : esc_html__('Cancelar', 'travel-agency-platform'); ?>
+                </a>
+                <div class="tap-wizard-foot-hint">
+                    <?php echo 5 === $step ? esc_html__('Guarda los cambios o publica cuando esté listo.', 'travel-agency-platform') : esc_html__('Guarda este paso para continuar.', 'travel-agency-platform'); ?>
+                </div>
+                <button type="submit" form="tap-tour-form" class="tap-btn tap-btn-primary tap-wizard-next">
+                    <?php echo 5 === $step ? esc_html__('Guardar cambios', 'travel-agency-platform') : esc_html__('Guardar y continuar', 'travel-agency-platform'); ?>
+                </button>
             </footer>
         </div>
-        <script>
-        (function(){
-            var w = document.querySelector('.tap-wizard');
-            if (!w) return;
-            var panels = w.querySelectorAll('.tap-wizard-panel');
-            var steps = w.querySelectorAll('.tap-wizard-nav .tap-wizard-step');
-            var prevBtn = w.querySelector('.tap-wizard-prev, .tap-wizard-foot .tap-btn:first-child');
-            var nextBtns = w.querySelectorAll('.tap-wizard-next');
-            var submitBtn = w.querySelector('.tap-wizard-submit');
-            var current = <?php echo (int) $step; ?>;
-            var total = panels.length || 5;
-
-            // For client-side mode, show only current step.
-            function showStep(n) {
-                if (n < 1) n = 1;
-                if (n > total) n = total;
-                current = n;
-                panels.forEach(function(p) {
-                    p.style.display = (parseInt(p.dataset.step,10) === n) ? '' : 'none';
-                });
-                steps.forEach(function(s) {
-                    var sn = parseInt(s.dataset.step,10);
-                    s.classList.toggle('is-active', sn === n);
-                    s.classList.toggle('is-done', sn < n);
-                });
-                // Update header meta
-                var hint = w.querySelector('#tap-wizard-step-hint');
-                var hints = ['Información básica','Logística','Tarifas y disponibilidad','Detalles y legales','Revisa y publica'];
-                if (hint && hints[n-1]) {
-                    hint.textContent = 'Paso ' + n + ' de ' + total + ' — ' + hints[n-1];
-                }
-                var top = w.getBoundingClientRect().top + window.scrollY - 20;
-                if (window.scrollY > top) window.scrollTo({top: top, behavior:'smooth'});
-            }
-
-            // Save and advance (for step 1 and 4).
-            nextBtns.forEach(function(btn) {
-                if (btn.type === 'submit') return; // handled by agency-wizard.js
-                btn.addEventListener('click', function() {
-                    showStep(current + 1);
-                });
-            });
-
-            // Stepper clicks.
-            steps.forEach(function(s) {
-                s.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    var target = parseInt(s.dataset.step,10);
-                    if (target <= current + 1) showStep(target);
-                });
-            });
-
-            // Initialize: show current step.
-            showStep(current);
-        })();
-        </script>
         <?php
         echo self::render_tour_wizard_script($listing_id);
         return ob_get_clean();

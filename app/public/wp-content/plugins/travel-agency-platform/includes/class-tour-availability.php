@@ -178,21 +178,202 @@ $formats[] = '%d'; }
             $dow = (int) $cur->format('N'); // 1=Mon..7=Sun
             if (in_array($dow, $days_of_week, true)) {
                 $date = $cur->format('Y-m-d');
-                self::create_slot([
-                    'service_type' => $service_type,
-                    'service_id'   => $service_id,
-                    'date'         => $date,
-                    'time_slot'    => $time_slot,
-                    'time_end'     => $time_end,
-                    'capacity'     => $capacity,
-                    'price'        => $price,
-                    'label'        => $label,
-                ]);
-                ++$count;
+                // Running the generator twice must not duplicate slots.
+                if (!self::slot_exists($service_type, $service_id, $date, $time_slot)) {
+                    self::create_slot([
+                        'service_type' => $service_type,
+                        'service_id'   => $service_id,
+                        'date'         => $date,
+                        'time_slot'    => $time_slot,
+                        'time_end'     => $time_end,
+                        'capacity'     => $capacity,
+                        'price'        => $price,
+                        'label'        => $label,
+                    ]);
+                    ++$count;
+                }
             }
             $cur->modify('+1 day');
         }
         return $count;
+    }
+
+    /** Whether a slot already exists for a date + time. */
+    public static function slot_exists($service_type, $service_id, $date, $time_slot = '') {
+        global $wpdb;
+        $t = self::table();
+        $time_slot = (string) $time_slot;
+        if ('' === $time_slot) {
+            return (bool) $wpdb->get_var($wpdb->prepare(
+                "SELECT id FROM {$t} WHERE service_type = %s AND service_id = %d AND date = %s AND (time_slot IS NULL OR time_slot = '') LIMIT 1",
+                $service_type,
+                (int) $service_id,
+                $date
+            ));
+        }
+        return (bool) $wpdb->get_var($wpdb->prepare(
+            "SELECT id FROM {$t} WHERE service_type = %s AND service_id = %d AND date = %s AND time_slot = %s LIMIT 1",
+            $service_type,
+            (int) $service_id,
+            $date,
+            $time_slot
+        ));
+    }
+
+    /** True when the current user may manage a tour's slots. */
+    public static function can_manage($service_id) {
+        $service_id = (int) $service_id;
+        if (!$service_id || !is_user_logged_in()) {
+            return false;
+        }
+        if (current_user_can('manage_options')) {
+            return true;
+        }
+        return class_exists('TAP_Listing_Access') && TAP_Listing_Access::agency_owns_listing($service_id, 'tap_tour');
+    }
+
+    /**
+     * Upcoming slots as a JSON-friendly payload, shared by the wizard initial
+     * render and the AJAX refresh.
+     *
+     * @param int $service_id Tour id.
+     * @param int $limit      Max rows.
+     * @return array<int,array<string,mixed>>
+     */
+    public static function slots_payload($service_id, $limit = 60) {
+        $slots = self::slots_for('tap_tour', (int) $service_id, gmdate('Y-m-d'));
+        $out   = [];
+        foreach (array_slice($slots, 0, max(1, (int) $limit)) as $slot) {
+            $out[] = self::slot_payload($slot);
+        }
+        return $out;
+    }
+
+    /**
+     * Format one slot for the wizard list.
+     *
+     * @param object $slot Row from tap_daily_pricing.
+     * @return array<string,mixed>
+     */
+    public static function slot_payload($slot) {
+        $capacity = (int) $slot->capacity;
+        $booked   = (int) $slot->booked;
+        return [
+            'id'          => (int) $slot->id,
+            'date'        => (string) $slot->date,
+            'date_label'  => date_i18n(get_option('date_format'), strtotime((string) $slot->date)),
+            'time_slot'   => (string) ($slot->time_slot ?? ''),
+            'time_end'    => (string) ($slot->time_end ?? ''),
+            'capacity'    => $capacity,
+            'booked'      => $booked,
+            'price'       => null !== $slot->price ? (float) $slot->price : null,
+            'price_label' => null !== $slot->price ? TAP_Currency::fmt((float) $slot->price) : '',
+            'is_blocked'  => (int) $slot->is_blocked,
+            'label'       => (string) ($slot->label ?? ''),
+            'full'        => $capacity > 0 && $booked >= $capacity,
+        ];
+    }
+
+    /** AJAX: generate recurring slots for a tour. */
+    public static function ajax_schedule() {
+        check_ajax_referer('tap_agency_listing_nonce', 'nonce');
+        $service_id = isset($_POST['service_id']) ? absint($_POST['service_id']) : 0;
+        if (!self::can_manage($service_id)) {
+            wp_send_json_error(['message' => __('No tienes permiso para gestionar este tour.', 'travel-agency-platform')], 403);
+        }
+
+        $start = isset($_POST['start_date']) ? sanitize_text_field(wp_unslash($_POST['start_date'])) : '';
+        $end   = isset($_POST['end_date']) ? sanitize_text_field(wp_unslash($_POST['end_date'])) : '';
+        $days  = isset($_POST['days']) ? array_map('intval', (array) $_POST['days']) : [];
+        $days  = array_values(array_filter($days, static function ($d) {
+            return $d >= 1 && $d <= 7;
+        }));
+
+        $times = isset($_POST['times']) ? json_decode(wp_unslash((string) $_POST['times']), true) : [];
+        $times = is_array($times) ? $times : [];
+        $times = array_values(array_unique(array_filter(array_map(static function ($time) {
+            $time = trim((string) $time);
+            return preg_match('/^\d{2}:\d{2}$/', $time) ? $time : '';
+        }, $times))));
+
+        if (!$start || !$end || !$days || !$times) {
+            wp_send_json_error(['message' => __('Indica el rango de fechas, los días y al menos un horario.', 'travel-agency-platform')]);
+        }
+
+        try {
+            $from = new DateTime($start);
+            $to   = new DateTime($end);
+        } catch (Exception $e) {
+            wp_send_json_error(['message' => __('Las fechas no son válidas.', 'travel-agency-platform')]);
+            return;
+        }
+        if ($to < $from) {
+            wp_send_json_error(['message' => __('La fecha final debe ser posterior a la inicial.', 'travel-agency-platform')]);
+        }
+        $max_days = 366;
+        if ((int) $from->diff($to)->days > $max_days) {
+            wp_send_json_error(['message' => __('Genera como máximo un año de disponibilidad por vez.', 'travel-agency-platform')]);
+        }
+
+        $capacity = isset($_POST['capacity']) ? max(0, absint($_POST['capacity'])) : 0;
+        $price    = isset($_POST['price']) && '' !== $_POST['price'] ? (float) $_POST['price'] : null;
+        $label    = isset($_POST['label']) ? sanitize_text_field(wp_unslash($_POST['label'])) : '';
+        $time_end = isset($_POST['time_end']) ? sanitize_text_field(wp_unslash($_POST['time_end'])) : '';
+
+        $created = 0;
+        foreach ($times as $time) {
+            $created += self::generate_recurring('tap_tour', $service_id, [
+                'start_date' => $start,
+                'end_date'   => $end,
+                'days'       => $days,
+                'time_slot'  => $time,
+                'time_end'   => $time_end,
+                'capacity'   => $capacity,
+                'price'      => null === $price ? '' : $price,
+                'label'      => $label,
+            ]);
+        }
+
+        wp_send_json_success([
+            'message' => $created > 0
+                /* translators: %d: number of slots created */
+                ? sprintf(__('Se crearon %d horarios.', 'travel-agency-platform'), $created)
+                : __('No había horarios nuevos que crear.', 'travel-agency-platform'),
+            'created' => $created,
+            'slots'   => self::slots_payload($service_id),
+        ]);
+    }
+
+    /** AJAX: block, unblock or delete a single slot. */
+    public static function ajax_slot() {
+        check_ajax_referer('tap_agency_listing_nonce', 'nonce');
+        $service_id = isset($_POST['service_id']) ? absint($_POST['service_id']) : 0;
+        $slot_id    = isset($_POST['slot_id']) ? absint($_POST['slot_id']) : 0;
+        $op         = isset($_POST['op']) ? sanitize_key(wp_unslash($_POST['op'])) : '';
+        $slot       = self::get_slot($slot_id);
+
+        if (!$slot || (int) $slot->service_id !== $service_id || 'tap_tour' !== $slot->service_type || !self::can_manage($service_id)) {
+            wp_send_json_error(['message' => __('Horario no encontrado.', 'travel-agency-platform')], 404);
+        }
+
+        if ('delete' === $op) {
+            if (!self::delete_slot($slot_id)) {
+                wp_send_json_error(['message' => __('No se puede eliminar un horario con reservas.', 'travel-agency-platform')]);
+            }
+            $message = __('Horario eliminado.', 'travel-agency-platform');
+        } elseif ('block' === $op || 'unblock' === $op) {
+            self::update_slot($slot_id, ['is_blocked' => 'block' === $op ? 1 : 0]);
+            $message = 'block' === $op
+                ? __('Horario bloqueado.', 'travel-agency-platform')
+                : __('Horario disponible de nuevo.', 'travel-agency-platform');
+        } else {
+            wp_send_json_error(['message' => __('Acción no válida.', 'travel-agency-platform')]);
+        }
+
+        wp_send_json_success([
+            'message' => $message,
+            'slots'   => self::slots_payload($service_id),
+        ]);
     }
 
     /** Get price for a slot (override or service base). */

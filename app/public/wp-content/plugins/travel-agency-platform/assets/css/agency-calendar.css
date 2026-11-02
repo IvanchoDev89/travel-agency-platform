@@ -763,3 +763,311 @@
 .tap-ac-msg { font-size: var(--tap-text-xs); font-style: italic; color: var(--tap-success-dark); }
 .tap-ac-msg.is-error { color: var(--tap-danger-dark); font-style: normal; font-weight: 600; }
 .tap-ac-hint { font-size: var(--tap-text-xs); color: var(--tap-neutral-500); margin: 0; }
+
+/* ===== Tour wizard ===== */
+
+.tap-tour-step-form .tap-field-error:not(:empty) {
+    display: block;
+    margin-top: 2px;
+    color: var(--tap-danger-dark);
+    font-size: var(--tap-text-xs);
+    font-weight: 600;
+}
+.tap-tour-step-form .is-invalid {
+    border-color: var(--tap-danger);
+    box-shadow: 0 0 0 2px var(--tap-danger-bg);
+}
+.tap-tour-step-form .tap-check-label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--tap-space-2);
+    font-weight: 600;
+    color: var(--tap-neutral-700);
+    cursor: pointer;
+}
+
+/* Languages: checkbox chips */
+.tap-chips { display: flex; flex-wrap: wrap; gap: var(--tap-space-2); }
+.tap-lang-chips .tap-chip {
+    border: 1px solid var(--tap-border);
+    background: var(--tap-surface-muted);
+    color: var(--tap-neutral-600);
+    padding: var(--tap-space-1) var(--tap-space-3);
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease, color .15s ease;
+}
+.tap-lang-chips .tap-chip input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+}
+.tap-lang-chips .tap-chip:has(input:checked) {
+    border-color: var(--tap-primary);
+    background: var(--tap-primary-bg);
+    color: var(--tap-primary-dark);
+}
+.tap-lang-chips .tap-chip:focus-within {
+    outline: 2px solid var(--tap-primary);
+    outline-offset: 2px;
+}
+
+/* Itinerary builder */
+.tap-itin-builder { display: grid; gap: var(--tap-space-3); }
+.tap-itin-head,
+.tap-itin-row {
+    display: grid;
+    grid-template-columns: 68px 108px minmax(0, 1fr) minmax(0, 1.4fr) 36px;
+    gap: var(--tap-space-2);
+    align-items: center;
+}
+.tap-itin-head {
+    padding: 0 var(--tap-space-1);
+    font-size: var(--tap-text-xs);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: var(--tap-neutral-500);
+}
+.tap-itin-rows { display: grid; gap: var(--tap-space-2); }
+.tap-itin-row {
+    padding: var(--tap-space-2);
+    border: 1px solid var(--tap-border);
+    border-radius: var(--tap-radius-lg);
+    background: var(--tap-surface-muted);
+}
+.tap-itin-row input {
+    width: 100%;
+    min-width: 0;
+    padding: var(--tap-space-2);
+    border: 1px solid var(--tap-border);
+    border-radius: var(--tap-radius-md);
+    background: var(--tap-surface);
+    color: var(--tap-neutral-900);
+    font: inherit;
+    font-size: var(--tap-text-sm);
+}
+.tap-itin-row input:focus {
+    outline: none;
+    border-color: var(--tap-primary);
+    box-shadow: var(--tap-shadow-primary);
+}
+.tap-itin-remove {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--tap-border);
+    border-radius: var(--tap-radius-full);
+    background: var(--tap-surface);
+    color: var(--tap-neutral-500);
+    font-size: 1.15rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: border-color .15s ease, color .15s ease, background .15s ease;
+}
+.tap-itin-remove:hover {
+    border-color: var(--tap-danger-border);
+    background: var(--tap-danger-bg);
+    color: var(--tap-danger-dark);
+}
+.tap-itin-add { justify-self: start; }
+.tap-itin-builder .tap-field-hint { margin: 0; }
+
+/* Availability panel */
+.tap-tour-sched {
+    margin: var(--tap-space-4) 0 0;
+    display: grid;
+    gap: var(--tap-space-4);
+}
+.tap-tour-sched .tap-block-head { margin: 0; }
+.tap-sched-form {
+    display: grid;
+    gap: var(--tap-space-4);
+    padding: var(--tap-space-5);
+    border: 1px solid var(--tap-border);
+    border-radius: var(--tap-radius-xl);
+    background: var(--tap-surface);
+    box-shadow: var(--tap-shadow-md);
+}
+.tap-sched-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--tap-space-3);
+}
+.tap-sched-field { display: grid; gap: 4px; min-width: 0; }
+.tap-sched-field > span {
+    font-size: var(--tap-text-xs);
+    font-weight: 700;
+    color: var(--tap-neutral-600);
+}
+.tap-sched-field small { font-size: var(--tap-text-xs); color: var(--tap-neutral-500); }
+.tap-sched-field input {
+    width: 100%;
+    min-width: 0;
+    padding: var(--tap-space-2) var(--tap-space-3);
+    border: 1px solid var(--tap-border);
+    border-radius: var(--tap-radius-md);
+    background: var(--tap-surface);
+    color: var(--tap-neutral-900);
+    font: inherit;
+    font-size: var(--tap-text-sm);
+}
+.tap-sched-field input:focus {
+    outline: none;
+    border-color: var(--tap-primary);
+    box-shadow: var(--tap-shadow-primary);
+}
+.tap-sched-days {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tap-space-2);
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+.tap-sched-days legend {
+    padding: 0 0 var(--tap-space-2);
+    font-size: var(--tap-text-xs);
+    font-weight: 700;
+    color: var(--tap-neutral-600);
+}
+.tap-sched-day {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--tap-space-1);
+    padding: var(--tap-space-1) var(--tap-space-3);
+    border: 1px solid var(--tap-border);
+    border-radius: var(--tap-radius-full);
+    background: var(--tap-surface-muted);
+    font-size: var(--tap-text-xs);
+    font-weight: 600;
+    color: var(--tap-neutral-600);
+    cursor: pointer;
+}
+.tap-sched-day:has(input:checked) {
+    border-color: var(--tap-primary);
+    background: var(--tap-primary-bg);
+    color: var(--tap-primary-dark);
+}
+.tap-sched-day input { margin: 0; }
+.tap-sched-actions { display: flex; align-items: center; gap: var(--tap-space-3); flex-wrap: wrap; }
+.tap-sched-msg { font-size: var(--tap-text-xs); color: var(--tap-success-dark); }
+.tap-sched-msg:empty { display: none; }
+.tap-sched-msg.is-error { color: var(--tap-danger-dark); font-weight: 600; }
+
+.tap-sched-list-wrap {
+    border: 1px solid var(--tap-border);
+    border-radius: var(--tap-radius-xl);
+    background: var(--tap-surface);
+    overflow: hidden;
+}
+.tap-sched-list-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--tap-space-3);
+    padding: var(--tap-space-3) var(--tap-space-4);
+    border-bottom: 1px solid var(--tap-border);
+    background: var(--tap-surface-muted);
+    font-size: var(--tap-text-sm);
+    color: var(--tap-neutral-700);
+}
+.tap-sched-count {
+    font-size: var(--tap-text-xs);
+    font-weight: 700;
+    color: var(--tap-neutral-500);
+}
+.tap-sched-count:not(:empty)::after { content: ' '; }
+.tap-sched-list { list-style: none; margin: 0; padding: 0; }
+.tap-sched-item {
+    display: grid;
+    grid-template-columns: minmax(120px, 1.1fr) 80px minmax(110px, .9fr) auto auto minmax(0, auto);
+    gap: var(--tap-space-3);
+    align-items: center;
+    padding: var(--tap-space-3) var(--tap-space-4);
+    border-bottom: 1px solid var(--tap-border);
+    font-size: var(--tap-text-sm);
+}
+.tap-sched-item:last-child { border-bottom: 0; }
+.tap-sched-item.is-blocked { background: var(--tap-neutral-50); color: var(--tap-neutral-500); }
+.tap-sched-item.is-blocked .tap-sched-date { text-decoration: line-through; }
+.tap-sched-item.is-full .tap-sched-places { color: var(--tap-danger-dark); font-weight: 600; }
+.tap-sched-date { font-weight: 600; color: var(--tap-neutral-900); }
+.tap-sched-time {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--tap-primary-dark);
+}
+.tap-sched-places { color: var(--tap-neutral-500); font-size: var(--tap-text-xs); }
+.tap-sched-price { font-weight: 600; color: var(--tap-neutral-900); }
+.tap-sched-tag {
+    justify-self: start;
+    padding: 2px var(--tap-space-2);
+    border-radius: var(--tap-radius-full);
+    background: var(--tap-primary-bg);
+    color: var(--tap-primary-dark);
+    font-size: var(--tap-text-xs);
+    font-weight: 600;
+}
+.tap-sched-item-actions {
+    display: flex;
+    gap: var(--tap-space-1);
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+.tap-sched-empty {
+    margin: 0;
+    padding: var(--tap-space-5) var(--tap-space-4);
+    text-align: center;
+    color: var(--tap-neutral-500);
+    font-size: var(--tap-text-sm);
+}
+
+/* Meeting point map */
+.tap-tour-map {
+    width: 100%;
+    border: 1px solid var(--tap-border);
+    border-radius: var(--tap-radius-lg);
+    overflow: hidden;
+    background: var(--tap-neutral-100);
+    z-index: 0;
+}
+
+/* Extras summary in the details step */
+.tap-tour-extras-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--tap-space-2); }
+.tap-tour-extras-list li {
+    display: flex;
+    align-items: center;
+    gap: var(--tap-space-3);
+    flex-wrap: wrap;
+    padding: var(--tap-space-2) var(--tap-space-3);
+    border: 1px solid var(--tap-border);
+    border-radius: var(--tap-radius-md);
+    background: var(--tap-surface-muted);
+    font-size: var(--tap-text-sm);
+}
+.tap-tour-extras-list li strong { color: var(--tap-neutral-900); }
+.tap-tour-extras-list li > span { color: var(--tap-neutral-500); }
+.tap-tour-extras-list .tap-chip { margin-left: auto; }
+
+@media (max-width: 860px) {
+    .tap-itin-head { display: none; }
+    .tap-itin-row {
+        grid-template-columns: 68px 108px;
+        grid-template-areas:
+            'day time'
+            'title title'
+            'desc desc';
+    }
+    .tap-itin-day { grid-area: day; }
+    .tap-itin-time { grid-area: time; }
+    .tap-itin-title { grid-area: title; }
+    .tap-itin-desc { grid-area: desc; }
+    .tap-itin-remove { grid-column: 1 / -1; justify-self: end; }
+    .tap-sched-item { grid-template-columns: 1fr 1fr; }
+    .tap-sched-item-actions { grid-column: 1 / -1; justify-content: flex-start; }
+}
+

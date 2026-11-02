@@ -27,7 +27,7 @@ class TAP_Front_Dash_Client {
 
         ob_start();
         ?>
-        <div class="tap-dash">
+        <div class="tap-dash" id="main-content">
             <?php TAP_Front_Dash::render_sidebar($user, $sections, $section); ?>
             <main class="tap-dash-main">
                 <?php echo $content; ?>
@@ -45,6 +45,7 @@ class TAP_Front_Dash_Client {
             ['key' => 'favorites', 'label' => __('Favoritos', 'travel-agency-platform'), 'icon' => 'heart', 'url' => add_query_arg('seccion', 'favorites', $base)],
             ['key' => 'reviews', 'label' => __('Mis reseñas', 'travel-agency-platform'), 'icon' => 'star', 'url' => add_query_arg('seccion', 'reviews', $base)],
             ['key' => 'loyalty', 'label' => __('Fidelidad', 'travel-agency-platform'), 'icon' => 'star', 'url' => add_query_arg('seccion', 'loyalty', $base)],
+            ['key' => 'profile', 'label' => __('Mi perfil', 'travel-agency-platform'), 'icon' => 'user', 'url' => add_query_arg('seccion', 'profile', $base)],
         ];
     }
 
@@ -58,6 +59,8 @@ class TAP_Front_Dash_Client {
                 return self::client_reviews($user);
             case 'loyalty':
                 return self::client_loyalty($user);
+            case 'profile':
+                return self::client_profile($user);
             default:
                 return self::client_overview($user);
         }
@@ -172,7 +175,7 @@ class TAP_Front_Dash_Client {
                                 <tr>
                                     <td class="tap-dash-code"><?php echo esc_html($b->booking_code); ?></td>
                                     <td><?php echo $svc ? esc_html($svc->post_title) : '—'; ?></td>
-                                    <td><?php echo esc_html($b->check_in . ($b->check_out ? ' → ' . $b->check_out : '')); ?></td>
+                                    <td><?php echo esc_html($b->check_in . ($b->check_out && $b->check_out !== $b->check_in ? ' → ' . $b->check_out : '')); ?></td>
                                     <td class="tap-dash-amount"><?php echo esc_html(TAP_Currency::fmt($b->total_amount)); ?></td>
                                     <td><span class="tap-status tap-status-<?php echo esc_attr($b->status); ?>"><?php echo esc_html(TAP_Emails_Send::status_label($b->status)); ?></span></td>
                                 </tr>
@@ -185,7 +188,7 @@ class TAP_Front_Dash_Client {
 
         <?php
         // Quick links
-        $services = get_posts(['post_type' => ['tap_tour', 'tap_accommodation'], 'post_status' => 'publish', 'posts_per_page' => 3, 'orderby' => 'rand']);
+        $services = get_posts(['post_type' => ['tap_tour', 'tap_accommodation'], 'post_status' => 'publish', 'posts_per_page' => 3, 'orderby' => 'date', 'order' => 'DESC']);
         if ($services) :
 			?>
             <div class="tap-dash-section">
@@ -224,6 +227,13 @@ class TAP_Front_Dash_Client {
         TAP_Front_Dash::prime_titles(array_map(static fn($b) => (int) $b->service_id, $bookings));
         $reviewed = TAP_Booking::reviewed_markers($user->ID);
 
+        $per_page = 10;
+        $page     = max(1, (int) ($_GET['bkpage'] ?? 1));
+        $total    = count($bookings);
+        $pages    = max(1, (int) ceil($total / $per_page));
+        if ($page > $pages) { $page = $pages; }
+        $bookings_page = array_slice($bookings, ($page - 1) * $per_page, $per_page);
+
         ob_start();
         ?>
         <div class="tap-dash-header">
@@ -241,7 +251,7 @@ class TAP_Front_Dash_Client {
         <?php else : ?>
             <div class="tap-dash-bookings-list">
                 <?php
-                foreach ($bookings as $b) :
+                foreach ($bookings_page as $b) :
                     $svc   = get_post($b->service_id);
                     $img   = $svc ? get_the_post_thumbnail_url($svc->ID, 'thumbnail') : '';
                     $can_rev = TAP_Booking::can_review_booking($b, $reviewed);
@@ -280,6 +290,7 @@ class TAP_Front_Dash_Client {
                             </div>
                             <div class="tap-dash-booking-actions">
                                 <a href="<?php echo esc_url(home_url('/booking-detail/?code=' . $b->booking_code)); ?>" class="tap-btn tap-btn-outline tap-btn-sm"><?php esc_html_e('Ver detalles', 'travel-agency-platform'); ?></a>
+                                <a href="<?php echo esc_url(add_query_arg(['action' => 'tap_calendar_download', 'code' => $b->booking_code, 'nonce' => wp_create_nonce('tap_front_dash_nonce')], admin_url('admin-ajax.php'))); ?>" class="tap-btn tap-btn-outline tap-btn-sm" download><?php esc_html_e('Añadir a calendario', 'travel-agency-platform'); ?></a>
                                 <?php if ($can_pay) : ?>
                                     <a href="<?php echo esc_url(home_url('/checkout?code=' . $b->booking_code)); ?>" class="tap-btn tap-btn-primary tap-btn-sm"><?php esc_html_e('Pagar ahora', 'travel-agency-platform'); ?></a>
                                 <?php endif; ?>
@@ -290,10 +301,40 @@ class TAP_Front_Dash_Client {
                                     <button type="button" class="tap-btn tap-btn-outline tap-btn-sm tap-btn-danger tap-dash-cancel" data-id="<?php echo (int) $b->id; ?>" data-code="<?php echo esc_attr($b->booking_code); ?>"><?php esc_html_e('Cancelar', 'travel-agency-platform'); ?></button>
                                 <?php endif; ?>
                             </div>
+                            <div class="tap-dash-booking-chat">
+                                <button type="button" class="tap-btn tap-btn-outline tap-btn-sm tap-client-chat-toggle" data-id="<?php echo (int) $b->id; ?>">
+                                    <?php esc_html_e('Chat con la agencia', 'travel-agency-platform'); ?>
+                                    <?php $c_unread = TAP_Chat::unread_for($b->id, 'client'); if ($c_unread) : ?>
+                                        <span class="tap-chat-badge"><?php echo (int) $c_unread; ?></span>
+                                    <?php endif; ?>
+                                </button>
+                                <div class="tap-client-chat-row" data-id="<?php echo (int) $b->id; ?>" style="display:none;">
+                                    <div class="tap-chat-wrap">
+                                        <div class="tap-chat-thread"><p class="tap-empty"><?php esc_html_e('Cargando conversación...', 'travel-agency-platform'); ?></p></div>
+                                        <form class="tap-client-chat-form" data-booking-id="<?php echo (int) $b->id; ?>">
+                                            <div class="tap-chat-input">
+                                                <textarea name="message" rows="2" placeholder="<?php esc_attr_e('Escribe un mensaje...', 'travel-agency-platform'); ?>"></textarea>
+                                                <button type="submit" class="tap-btn tap-btn-primary tap-btn-sm"><?php esc_html_e('Enviar', 'travel-agency-platform'); ?></button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 <?php endforeach; ?>
             </div>
+            <?php if ($pages > 1) : ?>
+                <nav class="tap-dash-pagination" aria-label="<?php esc_attr_e('Paginación de reservas', 'travel-agency-platform'); ?>">
+                    <?php for ($i = 1; $i <= $pages; $i++) : ?>
+                        <?php if ($i === $page) : ?>
+                            <span class="tap-dash-page is-active" aria-current="page"><?php echo (int) $i; ?></span>
+                        <?php else : ?>
+                            <a class="tap-dash-page" href="<?php echo esc_url(add_query_arg(['seccion' => 'bookings', 'bkpage' => $i], home_url('/mi-cuenta/'))); ?>"><?php echo (int) $i; ?></a>
+                        <?php endif; ?>
+                    <?php endfor; ?>
+                </nav>
+            <?php endif; ?>
 			<?php
         endif;
 
@@ -305,6 +346,18 @@ class TAP_Front_Dash_Client {
     private static function client_favorites($user) {
         $favorites = get_user_meta($user->ID, 'tap_favorites', true);
         $favorites = is_array($favorites) ? array_filter(array_map('absint', $favorites)) : [];
+        // Drop references to deleted/unpublished listings so the panel stays clean.
+        $clean = [];
+        foreach ($favorites as $fav_id) {
+            $p = get_post($fav_id);
+            if ($p && 'publish' === $p->post_status) {
+                $clean[] = (int) $fav_id;
+            }
+        }
+        if (count($clean) !== count($favorites)) {
+            update_user_meta($user->ID, 'tap_favorites', $clean);
+        }
+        $favorites = $clean;
         TAP_Front_Dash::prime_titles($favorites);
 
         ob_start();
@@ -405,7 +458,7 @@ class TAP_Front_Dash_Client {
                 <?php foreach ($hist as $h): ?>
                     <tr>
                         <td><?php echo esc_html($h->created_at); ?></td>
-                        <td style="color:<?php echo $h->points >= 0 ? '#047857' : '#b91c1c'; ?>;font-weight:700;"><?php echo ($h->points >= 0 ? '+' : '') . (int) $h->points; ?></td>
+                        <td class="tap-loyalty-points <?php echo $h->points >= 0 ? 'is-plus' : 'is-minus'; ?>"><?php echo ($h->points >= 0 ? '+' : '') . (int) $h->points; ?></td>
                         <td><?php echo esc_html($h->source); ?></td>
                     </tr>
                 <?php endforeach; ?>
@@ -473,6 +526,53 @@ class TAP_Front_Dash_Client {
 			<?php
         endif;
 
+        return ob_get_clean();
+    }
+
+    /* ── client: profile ───────────────────────────────────────────── */
+
+    private static function client_profile($user) {
+        ob_start();
+        ?>
+        <div class="tap-dash-header">
+            <h1><?php esc_html_e('Mi perfil', 'travel-agency-platform'); ?></h1>
+            <p><?php esc_html_e('Actualiza tus datos personales y tu contraseña.', 'travel-agency-platform'); ?></p>
+        </div>
+
+        <div class="tap-dash-section">
+            <div class="tap-dash-card" style="margin-top:16px;">
+                <form class="tap-dash-profile-form">
+                    <div class="tap-profile-grid">
+                        <div class="tap-profile-field">
+                            <label for="tap-profile-name"><?php esc_html_e('Nombre', 'travel-agency-platform'); ?></label>
+                            <input type="text" id="tap-profile-name" name="name" value="<?php echo esc_attr($user->display_name); ?>" required>
+                        </div>
+                        <div class="tap-profile-field">
+                            <label for="tap-profile-email"><?php esc_html_e('Correo electrónico', 'travel-agency-platform'); ?></label>
+                            <input type="email" id="tap-profile-email" name="email" value="<?php echo esc_attr($user->user_email); ?>" required>
+                        </div>
+                        <div class="tap-profile-field tap-profile-field--full">
+                            <label for="tap-profile-current"><?php esc_html_e('Contraseña actual', 'travel-agency-platform'); ?></label>
+                            <input type="password" id="tap-profile-current" name="current_password" autocomplete="current-password" placeholder="<?php esc_attr_e('Requerida para cambiar la contraseña', 'travel-agency-platform'); ?>">
+                        </div>
+                        <div class="tap-profile-field tap-profile-field--full">
+                            <label for="tap-profile-pass"><?php esc_html_e('Nueva contraseña', 'travel-agency-platform'); ?></label>
+                            <input type="password" id="tap-profile-pass" name="password" autocomplete="new-password" placeholder="<?php esc_attr_e('Dejar vacío para no cambiar', 'travel-agency-platform'); ?>">
+                            <span class="tap-field-hint"><?php esc_html_e('Mínimo 8 caracteres. Deja vacío si no quieres cambiarla.', 'travel-agency-platform'); ?></span>
+                        </div>
+                        <div class="tap-profile-field tap-profile-field--full">
+                            <label for="tap-profile-pass2"><?php esc_html_e('Confirmar contraseña', 'travel-agency-platform'); ?></label>
+                            <input type="password" id="tap-profile-pass2" name="password2" autocomplete="new-password">
+                        </div>
+                    </div>
+                    <div class="tap-profile-actions">
+                        <button type="submit" class="tap-btn tap-btn-primary"><?php esc_html_e('Guardar cambios', 'travel-agency-platform'); ?></button>
+                        <span class="tap-form-msg" style="margin-left:8px;"></span>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <?php
         return ob_get_clean();
     }
 }

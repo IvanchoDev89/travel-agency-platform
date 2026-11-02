@@ -170,7 +170,7 @@ class TAP_Listing_Editor {
         if ('tap_accommodation' === $type) {
             return TAP_Acc_Wizard::render_acc_wizard($listing_id, $type);
         }
-        if (in_array($type, ['tap_tour', 'tap_experience'], true)) {
+        if ('tap_tour' === $type) {
             return TAP_Tour_Wizard::render_tour_wizard($listing_id, $type);
         }
 

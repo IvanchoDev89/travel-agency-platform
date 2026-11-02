@@ -285,6 +285,17 @@ class TAP_Ajax_Listing {
             update_post_meta($new_id, $meta_key, $value);
         }
 
+        // Tour languages arrive as an array of native names. They live outside
+        // the generic field map because the map cannot represent multi-value
+        // fields, so they are sanitized and flattened here.
+        if ('tap_tour' === $listing_type && isset($input['_tap_tour_languages_present'])) {
+            $langs = isset($input['_tap_tour_languages']) ? (array) $input['_tap_tour_languages'] : [];
+            $langs = array_filter(array_map(static function ($lang) {
+                return sanitize_text_field(wp_unslash((string) $lang));
+            }, $langs));
+            update_post_meta($new_id, '_tap_tour_languages', implode(', ', array_unique($langs)));
+        }
+
         $GLOBALS['_tap_saved_listing'] = (int) $new_id;
 
         if (isset($input['destination'])) {

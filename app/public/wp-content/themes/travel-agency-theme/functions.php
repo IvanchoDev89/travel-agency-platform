@@ -21,6 +21,19 @@ function travel_agency_theme_setup() {
 }
 add_action('after_setup_theme', 'travel_agency_theme_setup');
 
+/**
+ * Whether the current request renders the agency listing manager.
+ *
+ * The wizard stylesheet is only needed there (accommodation and tour
+ * wizards). Loading it site-wide cost a request and ~25KB on every page.
+ */
+function travel_agency_is_manage_listing() {
+    if (!is_page()) {
+        return false;
+    }
+    return is_page_template('templates/manage-listing.php') || is_page('manage-listing');
+}
+
 function travel_agency_theme_assets() {
     $plugin_url = content_url('plugins/travel-agency-platform/');
     $theme_uri  = get_template_directory_uri();
@@ -28,7 +41,10 @@ function travel_agency_theme_assets() {
     wp_enqueue_style('tap-tokens', $plugin_url . 'assets/css/tokens.css', [], TAT_VERSION);
     wp_enqueue_style('tap-public', $plugin_url . 'assets/css/public.css', [], TAT_VERSION);
     wp_enqueue_style('travel-agency-theme-style', get_stylesheet_uri(), ['tap-public'], TAT_VERSION);
-    wp_enqueue_style('tap-agency-calendar', $plugin_url . 'assets/css/agency-calendar.css', ['tap-public'], TAT_VERSION);
+    if (travel_agency_is_manage_listing()) {
+        wp_enqueue_style('tap-agency-calendar', $plugin_url . 'assets/css/agency-calendar.css', ['tap-public'], TAT_VERSION);
+    }
+
 
     wp_enqueue_script('travel-agency-theme-main', $theme_uri . '/assets/js/main.js', ['jquery'], TAT_VERSION, true);
     wp_localize_script('travel-agency-theme-main', 'tat_ajax', [

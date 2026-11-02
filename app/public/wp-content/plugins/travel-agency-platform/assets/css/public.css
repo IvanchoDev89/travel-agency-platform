@@ -3031,3 +3031,84 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
 }
+
+/* Tour booking widget price summary */
+.tap-bw-price-summary {
+    margin: 10px 0;
+    padding: 10px 12px;
+    border: 1px solid var(--tap-border, #e2e8f0);
+    border-radius: 8px;
+    background: var(--tap-surface-muted, #f8fafc);
+    font-size: 0.85rem;
+}
+.tap-bw-price-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 0;
+    color: var(--tap-neutral-600, #475569);
+}
+.tap-bw-price-total {
+    margin-top: 4px;
+    padding-top: 6px;
+    border-top: 1px solid var(--tap-border, #e2e8f0);
+    font-weight: 700;
+    color: var(--tap-neutral-900, #0f172a);
+}
+
+/* Checkout stepper */
+.tap-checkout-steps {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+}
+.tap-checkout-step {
+    flex: 1 1 0;
+    min-width: 90px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--tap-border, #e2e8f0);
+    border-radius: 8px;
+    background: var(--tap-surface-muted, #f8fafc);
+    color: var(--tap-neutral-500, #64748b);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+.tap-checkout-step span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    background: var(--tap-neutral-200, #e2e8f0);
+    color: var(--tap-neutral-600, #475569);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+.tap-checkout-step.is-done { color: var(--tap-success-dark, #047857); border-color: var(--tap-success, #10b981); }
+.tap-checkout-step.is-done span { background: var(--tap-success, #10b981); color: #fff; }
+.tap-checkout-step.is-active { color: var(--tap-primary, #0d9488); border-color: var(--tap-primary, #0d9488); background: var(--tap-primary-bg, #f0fdfa); }
+.tap-checkout-step.is-active span { background: var(--tap-primary, #0d9488); color: #fff; }
+
+/* Skip link */
+.tap-skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 10000;
+    padding: 8px 16px;
+    background: var(--tap-primary, #0d9488);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 0 0 8px 0;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+.tap-skip-link:focus {
+    left: 0;
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}

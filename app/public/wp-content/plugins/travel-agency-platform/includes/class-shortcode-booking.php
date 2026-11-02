@@ -435,6 +435,11 @@ class TAP_Shortcode_Booking {
                 </div>
             <?php endif; ?>
 
+            <div class="tap-checkout-steps">
+                <div class="tap-checkout-step is-done"><span>1</span> <?php esc_html_e('Datos', 'travel-agency-platform'); ?></div>
+                <div class="tap-checkout-step is-active"><span>2</span> <?php esc_html_e('Pago', 'travel-agency-platform'); ?></div>
+                <div class="tap-checkout-step"><span>3</span> <?php esc_html_e('Confirmación', 'travel-agency-platform'); ?></div>
+            </div>
             <div class="tap-checkout-summary">
                 <h3><?php esc_html_e('Booking Summary', 'travel-agency-platform'); ?></h3>
                 <table class="tap-table">
@@ -712,6 +717,7 @@ class TAP_Shortcode_Booking {
             <div class="tap-voucher-tools">
                 <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(home_url('/my-bookings/')); ?>">&larr; <?php esc_html_e('Mis reservas', 'travel-agency-platform'); ?></a>
                 <button type="button" class="tap-btn tap-btn-sm" onclick="window.print()">🖨 <?php esc_html_e('Imprimir voucher', 'travel-agency-platform'); ?></button>
+                <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(add_query_arg(['action' => 'tap_calendar_download', 'code' => $booking->booking_code, 'nonce' => wp_create_nonce('tap_front_dash_nonce'), 'email' => !$uid ? $booking->guest_email : ''], admin_url('admin-ajax.php'))); ?>" download><?php esc_html_e('Añadir a calendario', 'travel-agency-platform'); ?></a>
                 <?php if ((int) $booking->client_id === $uid && in_array($booking->status, ['pending', 'confirmed', 'request'], true) && (!$booking->check_in || $booking->check_in >= current_time('Y-m-d'))): ?>
                     <button type="button" class="tap-btn tap-btn-sm tap-btn-danger tap-cancel-booking-btn" data-booking-id="<?php echo (int) $booking->id; ?>" data-confirm="<?php echo esc_attr($booking->booking_code); ?>" data-guest-email="<?php echo !$uid ? esc_attr($booking->guest_email) : ''; ?>"><?php esc_html_e('Cancelar reserva', 'travel-agency-platform'); ?></button>
                 <?php endif; ?>

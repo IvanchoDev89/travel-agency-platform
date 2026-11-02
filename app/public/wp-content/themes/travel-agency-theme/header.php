@@ -7,6 +7,7 @@
 </head>
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
+<a href="#main-content" class="tap-skip-link"><?php esc_html_e('Saltar al contenido principal', 'travel-agency-platform'); ?></a>
 
 <header class="site-header" id="site-header" data-touch="">
     <div class="header-inner">

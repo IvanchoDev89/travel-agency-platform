@@ -29,6 +29,7 @@ class TAP_Front_Dash {
         // AJAX handlers (client actions)
         add_action('wp_ajax_tap_dash_cancel_booking', ['TAP_Ajax_Dash', 'ajax_cancel_booking']);
         add_action('wp_ajax_tap_dash_toggle_favorite', ['TAP_Ajax_Dash', 'ajax_toggle_favorite']);
+        add_action('wp_ajax_tap_dash_client_profile_save', ['TAP_Ajax_Dash', 'ajax_client_profile_save']);
         add_action('wp_ajax_tap_dash_delete_review', ['TAP_Ajax_Dash', 'ajax_delete_review']);
 
         // AJAX handlers (agency back-office, Fase 16)
@@ -38,6 +39,10 @@ class TAP_Front_Dash {
         add_action('wp_ajax_tap_dash_agency_payout', ['TAP_Ajax_Dash', 'ajax_agency_payout']);
         add_action('wp_ajax_tap_dash_chat_thread', ['TAP_Ajax_Dash', 'ajax_chat_thread']);
         add_action('wp_ajax_tap_dash_chat_send', ['TAP_Ajax_Dash', 'ajax_chat_send']);
+        add_action('wp_ajax_tap_dash_client_chat_thread', ['TAP_Ajax_Dash', 'ajax_client_chat_thread']);
+        add_action('wp_ajax_tap_dash_client_chat_send', ['TAP_Ajax_Dash', 'ajax_client_chat_send']);
+        add_action('wp_ajax_tap_calendar_download', ['TAP_Ajax_Dash', 'ajax_calendar_download']);
+        add_action('wp_ajax_nopriv_tap_calendar_download', ['TAP_Ajax_Dash', 'ajax_calendar_download']);
         add_action('wp_ajax_tap_dash_chat_unread', ['TAP_Ajax_Dash', 'ajax_chat_unread']);
         add_action('wp_ajax_tap_dash_team_add', ['TAP_Ajax_Dash', 'ajax_team_add']);
         add_action('wp_ajax_tap_dash_team_remove', ['TAP_Ajax_Dash', 'ajax_team_remove']);
@@ -261,7 +266,7 @@ class TAP_Front_Dash {
 
         ob_start();
         ?>
-        <div class="tap-dash tap-dash-agency">
+        <div class="tap-dash tap-dash-agency" id="main-content">
             <?php self::render_sidebar($user, $sections, $section); ?>
             <main class="tap-dash-main">
                 <?php
@@ -1620,7 +1625,7 @@ endif;
                 foreach ($sections as $s) :
                     $is_active = ($s['key'] === $active_section);
                     ?>
-                    <a href="<?php echo esc_url($s['url']); ?>" class="tap-dash-nav-item <?php echo $is_active ? 'tap-dash-nav-active' : ''; ?>">
+                    <a href="<?php echo esc_url($s['url']); ?>" class="tap-dash-nav-item <?php echo $is_active ? 'tap-dash-nav-active' : ''; ?>"<?php echo $is_active ? ' aria-current="page"' : ''; ?>>
                         <?php self::render_nav_icon($s['icon']); ?>
                         <span><?php echo esc_html($s['label']); ?></span>
                         <?php if (isset($s['badge'])): ?>
