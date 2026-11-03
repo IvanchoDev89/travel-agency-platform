@@ -14,6 +14,95 @@ class TAP_Customer_Referrals {
     public static function init() {
         add_action('init', [__CLASS__, 'maybe_track_click'], 5);
         add_action('tap_payment_completed', [__CLASS__, 'on_payment_completed'], 25, 1);
+        add_action('admin_menu', [__CLASS__, 'add_settings_page']);
+        add_action('admin_init', [__CLASS__, 'register_settings']);
+    }
+
+    public static function add_settings_page() {
+        add_options_page(
+            __('Referidos y puntos', 'travel-agency-platform'),
+            __('Referidos', 'travel-agency-platform'),
+            'manage_options',
+            'tap-referrals',
+            [__CLASS__, 'render_settings_page']
+        );
+    }
+
+    public static function register_settings() {
+        register_setting('tap_referral_group', 'tap_referral_discount_pct', [
+            'type' => 'number',
+            'sanitize_callback' => [__CLASS__, 'sanitize_discount'],
+            'default' => 10,
+        ]);
+        register_setting('tap_referral_group', 'tap_referral_points_rate', [
+            'type' => 'number',
+            'sanitize_callback' => [__CLASS__, 'sanitize_rate'],
+            'default' => 0.05,
+        ]);
+    }
+
+    public static function sanitize_discount($value) {
+        $value = (float) $value;
+        if ($value < 0) $value = 0;
+        if ($value > 50) $value = 50;
+        return $value;
+    }
+
+    public static function sanitize_rate($value) {
+        $value = (float) $value;
+        if ($value < 0) $value = 0;
+        if ($value > 0.5) $value = 0.5;
+        return $value;
+    }
+
+    public static function render_settings_page() {
+        if (!current_user_can('manage_options')) {
+            return;
+        }
+        $discount = (float) get_option('tap_referral_discount_pct', 10);
+        $rate = (float) get_option('tap_referral_points_rate', 0.05);
+        ?>
+        <div class="wrap">
+            <h1><?php esc_html_e('Programa de referidos y puntos', 'travel-agency-platform'); ?></h1>
+            <p><?php esc_html_e('Configura el descuento que recibe el invitado y la tasa de puntos que gana el referidor. Los niveles de afiliado (Bronce/Plata/Oro) añaden bonos automáticamente.', 'travel-agency-platform'); ?></p>
+            <form method="post" action="options.php">
+                <?php settings_fields('tap_referral_group'); ?>
+                <table class="form-table" role="presentation">
+                    <tr>
+                        <th scope="row"><label for="tap_referral_discount_pct"><?php esc_html_e('Descuento para el invitado (%)', 'travel-agency-platform'); ?></label></th>
+                        <td>
+                            <input type="number" id="tap_referral_discount_pct" name="tap_referral_discount_pct" value="<?php echo esc_attr($discount); ?>" min="0" max="50" step="0.5" class="small-text">
+                            <p class="description"><?php esc_html_e('Porcentaje de descuento aplicado a la primera reserva del invitado. Tope 50%.', 'travel-agency-platform'); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="tap_referral_points_rate"><?php esc_html_e('Tasa de puntos para el referidor', 'travel-agency-platform'); ?></label></th>
+                        <td>
+                            <input type="number" id="tap_referral_points_rate" name="tap_referral_points_rate" value="<?php echo esc_attr($rate); ?>" min="0" max="0.5" step="0.01" class="small-text">
+                            <p class="description"><?php esc_html_e('Fracción del total de la reserva que se convierte en puntos para el referidor (ej. 0.05 = 5%). Tope 50%.', 'travel-agency-platform'); ?></p>
+                        </td>
+                    </tr>
+                </table>
+                <?php submit_button(); ?>
+            </form>
+            <hr>
+            <h2><?php esc_html_e('Niveles de afiliado', 'travel-agency-platform'); ?></h2>
+            <table class="widefat striped">
+                <thead><tr><th><?php esc_html_e('Nivel', 'travel-agency-platform'); ?></th><th><?php esc_html_e('Referidos completados', 'travel-agency-platform'); ?></th><th><?php esc_html_e('Bono descuento invitado', 'travel-agency-platform'); ?></th><th><?php esc_html_e('Tasa de puntos', 'travel-agency-platform'); ?></th></tr></thead>
+                <tbody>
+                    <?php foreach (self::tiers() as $key => $info): ?>
+                        <tr>
+                            <td><?php echo esc_html($info['label']); ?></td>
+                            <td><?php echo (int) $info['min']; ?>+</td>
+                            <td>+<?php echo (int) $info['discount']; ?>%</td>
+                            <td><?php echo (int) ($info['points_rate'] * 100); ?>%</td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            <p class="description"><?php esc_html_e('Los bonos se suman automáticamente al nivel base según el número de referidos completados (reservas pagadas).', 'travel-agency-platform'); ?></p>
+        </div>
+        <?php
     }
 
     public static function table() {
@@ -302,6 +391,16 @@ class TAP_Customer_Referrals {
             $count = self::rewarded_count($user_id);
             ?>
             <p><?php printf(esc_html__('Nivel de afiliado: %s (%d referidos completados).', 'travel-agency-platform'), esc_html($tiers[$tier]['label']), $count); ?></p>
+            <div class="tap-referral-rules">
+                <h4><?php esc_html_e('Cómo funciona', 'travel-agency-platform'); ?></h4>
+                <ul>
+                    <li><?php esc_html_e('Comparte tu código o enlace con amigos y familia.', 'travel-agency-platform'); ?></li>
+                    <li><?php esc_html_e('Tu invitado reserva usando tu código y recibe un descuento inmediato.', 'travel-agency-platform'); ?></li>
+                    <li><?php esc_html_e('Cuando la reserva se paga y completa, tú ganas puntos canjeables.', 'travel-agency-platform'); ?></li>
+                    <li><?php esc_html_e('Los puntos caducan a los 12 meses. Los auto-referidos no cuentan.', 'travel-agency-platform'); ?></li>
+                    <li><?php esc_html_e('Más referidos completados = mayor nivel y mejores bonos.', 'travel-agency-platform'); ?></li>
+                </ul>
+            </div>
             <?php if ($rows): ?>
                 <h3><?php esc_html_e('Tus referidos', 'travel-agency-platform'); ?></h3>
                 <ul class="tap-referral-list">

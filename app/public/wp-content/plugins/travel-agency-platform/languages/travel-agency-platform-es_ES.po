@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-03T05:32:52+00:00\n"
+"POT-Creation-Date: 2026-11-03T05:41:01+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -2745,27 +2745,101 @@ msgstr ""
 msgid "Here are a few services from the platform right now:"
 msgstr "Aquí tienes algunos servicios de la plataforma en este momento:"
 
-#: includes/class-customer-referrals.php:87 includes/class-loyalty.php:38
+#: includes/class-customer-referrals.php:23
+msgid "Referidos y puntos"
+msgstr "Referidos y puntos"
+
+#: includes/class-customer-referrals.php:24 includes/class-front-dash.php:800
+#: includes/class-front-dash.php:1582
+msgid "Referidos"
+msgstr "Referidos"
+
+#: includes/class-customer-referrals.php:66
+msgid "Programa de referidos y puntos"
+msgstr "Programa de referidos y puntos"
+
+#: includes/class-customer-referrals.php:67
+msgid ""
+"Configura el descuento que recibe el invitado y la tasa de puntos que gana "
+"el referidor. Los niveles de afiliado (Bronce/Plata/Oro) añaden bonos "
+"automáticamente."
+msgstr ""
+"Configura el descuento que recibe el invitado y la tasa de puntos que gana "
+"el referidor. Los niveles de afiliado (Bronce/Plata/Oro) añaden bonos "
+"automáticamente."
+
+#: includes/class-customer-referrals.php:72
+msgid "Descuento para el invitado (%)"
+msgstr "Descuento para el invitado (%)"
+
+#: includes/class-customer-referrals.php:75
+msgid ""
+"Porcentaje de descuento aplicado a la primera reserva del invitado. Tope 50%."
+msgstr ""
+"Porcentaje de descuento aplicado a la primera reserva del invitado. Tope 50%."
+
+#: includes/class-customer-referrals.php:79
+msgid "Tasa de puntos para el referidor"
+msgstr "Tasa de puntos para el referidor"
+
+#: includes/class-customer-referrals.php:82
+msgid ""
+"Fracción del total de la reserva que se convierte en puntos para el "
+"referidor (ej. 0.05 = 5%). Tope 50%."
+msgstr ""
+"Fracción del total de la reserva que se convierte en puntos para el "
+"referidor (ej. 0.05 = 5%). Tope 50%."
+
+#: includes/class-customer-referrals.php:89
+msgid "Niveles de afiliado"
+msgstr "Niveles de afiliado"
+
+#: includes/class-customer-referrals.php:91
+#: includes/class-front-dash-client.php:434
+msgid "Nivel"
+msgstr "Nivel"
+
+#: includes/class-customer-referrals.php:91
+msgid "Referidos completados"
+msgstr "Referidos completados"
+
+#: includes/class-customer-referrals.php:91
+msgid "Bono descuento invitado"
+msgstr "Bono descuento invitado"
+
+#: includes/class-customer-referrals.php:91
+msgid "Tasa de puntos"
+msgstr "Tasa de puntos"
+
+#: includes/class-customer-referrals.php:103
+msgid ""
+"Los bonos se suman automáticamente al nivel base según el número de "
+"referidos completados (reservas pagadas)."
+msgstr ""
+"Los bonos se suman automáticamente al nivel base según el número de "
+"referidos completados (reservas pagadas)."
+
+#: includes/class-customer-referrals.php:176 includes/class-loyalty.php:38
 msgid "Bronce"
 msgstr "Bronce"
 
-#: includes/class-customer-referrals.php:88 includes/class-loyalty.php:39
+#: includes/class-customer-referrals.php:177 includes/class-loyalty.php:39
 msgid "Plata"
 msgstr "Plata"
 
-#: includes/class-customer-referrals.php:89 includes/class-loyalty.php:40
+#: includes/class-customer-referrals.php:178 includes/class-loyalty.php:40
 msgid "Oro"
 msgstr "Oro"
 
-#: includes/class-customer-referrals.php:273
+#: includes/class-customer-referrals.php:362
 msgid "Inicia sesión para ver tu programa de referidos."
 msgstr "Inicia sesión para ver tu programa de referidos."
 
-#: includes/class-customer-referrals.php:287
+#: includes/class-customer-referrals.php:376
 msgid "Invita y gana"
 msgstr "Invita y gana"
 
-#: includes/class-customer-referrals.php:288
+#: includes/class-customer-referrals.php:377
 msgid ""
 "Comparte tu código con amigos y familia. Cuando reserven y paguen, ganarás "
 "puntos canjeables."
@@ -2773,37 +2847,61 @@ msgstr ""
 "Comparte tu código con amigos y familia. Cuando reserven y paguen, ganarás "
 "puntos canjeables."
 
-#: includes/class-customer-referrals.php:290
+#: includes/class-customer-referrals.php:379
 msgid "Tu código"
 msgstr "Tu código"
 
-#: includes/class-customer-referrals.php:292
+#: includes/class-customer-referrals.php:381
 msgid "Tu enlace"
 msgstr "Tu enlace"
 
-#: includes/class-customer-referrals.php:295
+#: includes/class-customer-referrals.php:384
 msgid "Código QR de tu enlace de referido"
 msgstr "Código QR de tu enlace de referido"
 
-#: includes/class-customer-referrals.php:298
+#: includes/class-customer-referrals.php:387
 #, php-format
 msgid "Descuento para tu invitado: %s%%. Tus puntos actuales: %s."
 msgstr "Descuento para tu invitado: %s%%. Tus puntos actuales: %s."
 
-#: includes/class-customer-referrals.php:304
+#: includes/class-customer-referrals.php:393
 #, php-format
 msgid "Nivel de afiliado: %s (%d referidos completados)."
 msgstr "Nivel de afiliado: %s (%d referidos completados)."
 
-#: includes/class-customer-referrals.php:306
+#: includes/class-customer-referrals.php:395
+msgid "Cómo funciona"
+msgstr "Cómo funciona"
+
+#: includes/class-customer-referrals.php:397
+msgid "Comparte tu código o enlace con amigos y familia."
+msgstr "Comparte tu código o enlace con amigos y familia."
+
+#: includes/class-customer-referrals.php:398
+msgid "Tu invitado reserva usando tu código y recibe un descuento inmediato."
+msgstr "Tu invitado reserva usando tu código y recibe un descuento inmediato."
+
+#: includes/class-customer-referrals.php:399
+msgid "Cuando la reserva se paga y completa, tú ganas puntos canjeables."
+msgstr "Cuando la reserva se paga y completa, tú ganas puntos canjeables."
+
+#: includes/class-customer-referrals.php:400
+msgid "Los puntos caducan a los 12 meses. Los auto-referidos no cuentan."
+msgstr "Los puntos caducan a los 12 meses. Los auto-referidos no cuentan."
+
+#: includes/class-customer-referrals.php:401
+msgid "Más referidos completados = mayor nivel y mejores bonos."
+msgstr "Más referidos completados = mayor nivel y mejores bonos."
+
+#: includes/class-customer-referrals.php:405
 msgid "Tus referidos"
 msgstr "Tus referidos"
 
-#: includes/class-customer-referrals.php:313
+#: includes/class-customer-referrals.php:412
 msgid "pts"
 msgstr "pts"
 
-#: includes/class-customer-referrals.php:319
+#: includes/class-customer-referrals.php:418
 msgid "Aún no tienes referidos. ¡Comparte tu enlace!"
 msgstr "Aún no tienes referidos. ¡Comparte tu enlace!"
 
@@ -10245,10 +10343,6 @@ msgstr "Mi fidelidad"
 msgid "Puntos disponibles"
 msgstr "Puntos disponibles"
 
-#: includes/class-front-dash-client.php:434
-msgid "Nivel"
-msgstr "Nivel"
-
 #: includes/class-front-dash-client.php:438
 msgid "Descuento por nivel"
 msgstr "Descuento por nivel"
@@ -10649,10 +10743,6 @@ msgstr "Registros"
 #: includes/class-front-dash.php:796
 msgid "Conversiones"
 msgstr "Conversiones"
-
-#: includes/class-front-dash.php:800 includes/class-front-dash.php:1582
-msgid "Referidos"
-msgstr "Referidos"
 
 #: includes/class-front-dash.php:803
 msgid "Aún no tienes referidos. Comparte tu enlace para empezar."
