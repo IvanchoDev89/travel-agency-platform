@@ -11,6 +11,14 @@ class TAP_Loyalty {
         add_action('tap_booking_status_updated', [__CLASS__, 'on_status_updated'], 10, 3);
     }
 
+    /** Remove expired point rows. Called by daily cron. */
+    public static function expire_points() {
+        global $wpdb;
+        $t = self::table();
+        $wpdb->query("DELETE FROM {$t} WHERE expires_at IS NOT NULL AND expires_at <= NOW() AND points > 0");
+        return true;
+    }
+
     public static function on_status_updated($booking_id, $new_status, $prev_status) {
         if ('completed' === $new_status && 'completed' !== $prev_status) {
             self::on_booking_completed($booking_id);
