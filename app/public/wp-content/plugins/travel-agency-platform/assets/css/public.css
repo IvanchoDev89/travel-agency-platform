@@ -3152,3 +3152,12 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 .tap-avcal-day.available, .tap-avcal-day.full { transition: transform .12s ease, box-shadow .12s ease; }
 .tap-avcal-day.available:hover, .tap-avcal-day.full:hover { transform: translateY(-2px); box-shadow: var(--tap-shadow-md); }
 .tap-avcal-day.today { outline: 2px solid var(--tap-primary); outline-offset: -2px; }
+
+/* Referral dashboard */
+.tap-referral-dashboard { max-width: 640px; margin: var(--tap-space-6) auto; padding: var(--tap-space-6); background: #fff; border: 1px solid var(--tap-neutral-200); border-radius: var(--tap-radius-xl); box-shadow: var(--tap-shadow-md); }
+.tap-referral-code-box { display: flex; flex-direction: column; gap: var(--tap-space-2); margin: var(--tap-space-4) 0; padding: var(--tap-space-4); background: var(--tap-neutral-50); border-radius: var(--tap-radius-lg); }
+.tap-referral-code { font-size: 1.5rem; font-weight: 800; letter-spacing: 0.1em; color: var(--tap-primary); text-align: center; padding: var(--tap-space-2); background: #fff; border-radius: var(--tap-radius-md); }
+.tap-referral-qr { display: flex; justify-content: center; margin-top: var(--tap-space-3); }
+.tap-referral-qr img { border-radius: var(--tap-radius-md); border: 1px solid var(--tap-neutral-200); }
+.tap-referral-list { list-style: none; padding: 0; margin: 0; }
+.tap-referral-list li { display: flex; justify-content: space-between; gap: var(--tap-space-3); padding: var(--tap-space-2) 0; border-bottom: 1px solid var(--tap-neutral-100); font-size: var(--tap-text-sm); }

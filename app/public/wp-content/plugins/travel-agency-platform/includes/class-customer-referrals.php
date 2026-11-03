@@ -236,6 +236,9 @@ class TAP_Customer_Referrals {
                 <div class="tap-referral-code"><?php echo esc_html($code); ?></div>
                 <label><?php esc_html_e('Tu enlace', 'travel-agency-platform'); ?></label>
                 <input type="text" readonly value="<?php echo esc_attr($url); ?>" class="tap-input" onclick="this.select();">
+                <div class="tap-referral-qr">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&amp;data=<?php echo urlencode($url); ?>" alt="<?php esc_attr_e('Código QR de tu enlace de referido', 'travel-agency-platform'); ?>" width="160" height="160" loading="lazy">
+                </div>
             </div>
             <p><?php printf(esc_html__('Descuento para tu invitado: %s%%. Tus puntos actuales: %s.', 'travel-agency-platform'), number_format_i18n(self::discount_pct()), number_format_i18n($balance)); ?></p>
             <?php if ($rows): ?>
