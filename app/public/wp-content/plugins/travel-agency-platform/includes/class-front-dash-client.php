@@ -44,7 +44,7 @@ class TAP_Front_Dash_Client {
             ['key' => 'bookings', 'label' => __('Mis reservas', 'travel-agency-platform'), 'icon' => 'calendar', 'url' => add_query_arg('seccion', 'bookings', $base)],
             ['key' => 'favorites', 'label' => __('Favoritos', 'travel-agency-platform'), 'icon' => 'heart', 'url' => add_query_arg('seccion', 'favorites', $base)],
             ['key' => 'reviews', 'label' => __('Mis reseñas', 'travel-agency-platform'), 'icon' => 'star', 'url' => add_query_arg('seccion', 'reviews', $base)],
-            ['key' => 'loyalty', 'label' => __('Fidelidad', 'travel-agency-platform'), 'icon' => 'star', 'url' => add_query_arg('seccion', 'loyalty', $base)],
+            ['key' => 'loyalty', 'label' => __('Puntos y referidos', 'travel-agency-platform'), 'icon' => 'star', 'url' => add_query_arg('seccion', 'loyalty', $base)],
             ['key' => 'profile', 'label' => __('Mi perfil', 'travel-agency-platform'), 'icon' => 'user', 'url' => add_query_arg('seccion', 'profile', $base)],
         ];
     }

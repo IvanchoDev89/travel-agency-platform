@@ -1590,7 +1590,7 @@ endif;
             $nav[] = ['key' => 'bo-audit', 'label' => __('Actividad', 'travel-agency-platform'), 'icon' => 'list', 'url' => add_query_arg('seccion', 'bo-audit', $base)];
         }
         $nav[] = ['key' => 'bo-listings', 'label' => __('Listados', 'travel-agency-platform'), 'icon' => 'grid', 'url' => add_query_arg('seccion', 'bo-listings', $base)];
-        $nav[] = ['key' => 'loyalty', 'label' => __('Fidelidad', 'travel-agency-platform'), 'icon' => 'star', 'url' => add_query_arg('seccion', 'loyalty', $base)];
+        $nav[] = ['key' => 'loyalty', 'label' => __('Mis puntos', 'travel-agency-platform'), 'icon' => 'star', 'url' => add_query_arg('seccion', 'loyalty', $base)];
         if ($is_team_admin) {
             $nav[] = ['key' => 'bo-profile', 'label' => __('Perfil', 'travel-agency-platform'), 'icon' => 'user', 'url' => add_query_arg('seccion', 'bo-profile', $base)];
         }
