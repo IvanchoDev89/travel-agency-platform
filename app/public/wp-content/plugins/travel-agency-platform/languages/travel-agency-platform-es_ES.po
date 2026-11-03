@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-03T05:53:48+00:00\n"
+"POT-Creation-Date: 2026-11-03T06:12:06+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -865,7 +865,7 @@ msgstr ""
 #: includes/class-shortcode-booking.php:921
 #: includes/class-shortcode-booking.php:923
 #: includes/class-shortcode-booking.php:946
-#: includes/class-shortcode-booking.php:949 travel-agency-platform.php:313
+#: includes/class-shortcode-booking.php:949 travel-agency-platform.php:318
 msgid "Error"
 msgstr "Error"
 
@@ -902,13 +902,15 @@ msgstr "Fijar rango"
 #: includes/class-acc-wizard-steps.php:448
 #: includes/class-dashboard-insights.php:244 includes/class-discounts.php:109
 #: includes/class-front-dash.php:471 includes/class-front-dash.php:853
+#: includes/class-referral-reports.php:105
 #: includes/class-tour-wizard-steps.php:416
 msgid "Desde"
 msgstr "Desde"
 
 #: includes/class-acc-wizard-steps.php:449
 #: includes/class-dashboard-insights.php:245 includes/class-front-dash.php:472
-#: includes/class-front-dash.php:856 includes/class-tour-wizard-steps.php:420
+#: includes/class-front-dash.php:856 includes/class-referral-reports.php:106
+#: includes/class-tour-wizard-steps.php:420
 msgid "Hasta"
 msgstr "Hasta"
 
@@ -2750,7 +2752,7 @@ msgid "Referidos y puntos"
 msgstr "Referidos y puntos"
 
 #: includes/class-customer-referrals.php:24 includes/class-front-dash.php:800
-#: includes/class-front-dash.php:1582
+#: includes/class-front-dash.php:1582 includes/class-referral-reports.php:126
 msgid "Referidos"
 msgstr "Referidos"
 
@@ -2796,6 +2798,7 @@ msgstr "Niveles de afiliado"
 
 #: includes/class-customer-referrals.php:91
 #: includes/class-front-dash-client.php:434
+#: includes/class-referral-reports.php:125
 msgid "Nivel"
 msgstr "Nivel"
 
@@ -2819,15 +2822,15 @@ msgstr ""
 "Los bonos se suman automáticamente al nivel base según el número de "
 "referidos completados (reservas pagadas)."
 
-#: includes/class-customer-referrals.php:176 includes/class-loyalty.php:38
+#: includes/class-customer-referrals.php:176 includes/class-loyalty.php:46
 msgid "Bronce"
 msgstr "Bronce"
 
-#: includes/class-customer-referrals.php:177 includes/class-loyalty.php:39
+#: includes/class-customer-referrals.php:177 includes/class-loyalty.php:47
 msgid "Plata"
 msgstr "Plata"
 
-#: includes/class-customer-referrals.php:178 includes/class-loyalty.php:40
+#: includes/class-customer-referrals.php:178 includes/class-loyalty.php:48
 msgid "Oro"
 msgstr "Oro"
 
@@ -2972,7 +2975,7 @@ msgid "Resumen general de tu plataforma."
 msgstr "Resumen general de tu plataforma."
 
 #: includes/class-dashboard-bookings.php:49 includes/class-front-dash.php:1403
-#: includes/class-front-dash.php:1452
+#: includes/class-front-dash.php:1452 includes/class-referral-reports.php:128
 msgid "Ingresos"
 msgstr "Ingresos"
 
@@ -3212,12 +3215,14 @@ msgstr "Todas las agencias"
 
 #: includes/class-dashboard-bookings.php:260
 #: includes/class-dashboard-insights.php:246
+#: includes/class-referral-reports.php:107
 #: includes/class-shortcode-search.php:789
 msgid "Filtrar"
 msgstr "Filtrar"
 
 #: includes/class-dashboard-bookings.php:261 includes/class-front-dash.php:453
 #: includes/class-front-dash.php:673 includes/class-front-dash.php:1511
+#: includes/class-referral-reports.php:108
 #: includes/class-shortcode-agency-panel.php:347
 msgid "Exportar CSV"
 msgstr "Exportar CSV"
@@ -3329,7 +3334,7 @@ msgid "Reseña"
 msgstr "Reseña"
 
 #: includes/class-dashboard-content.php:78 includes/class-front-dash.php:932
-#: includes/class-front-dash.php:1620
+#: includes/class-front-dash.php:1620 includes/class-referral-reports.php:124
 msgid "Usuario"
 msgstr "Usuario"
 
@@ -3476,6 +3481,7 @@ msgstr "Listados"
 
 #: includes/class-dashboard-content.php:280
 #: includes/class-dashboard-insights.php:46 includes/class-front-dash.php:864
+#: includes/class-referral-reports.php:113
 msgid "Reservas"
 msgstr "Reservas"
 
@@ -9125,7 +9131,7 @@ msgstr "¿Enviar ahora?"
 #: includes/class-email-campaigns.php:265
 #: includes/class-front-dash-client.php:317 includes/class-front-dash.php:558
 #: includes/class-shortcode-account.php:811
-#: includes/class-shortcode-booking.php:900 travel-agency-platform.php:322
+#: includes/class-shortcode-booking.php:900 travel-agency-platform.php:327
 msgid "Enviar"
 msgstr "Enviar"
 
@@ -10365,6 +10371,7 @@ msgid "Aún no tienes movimientos de puntos."
 msgstr "Aún no tienes movimientos de puntos."
 
 #: includes/class-front-dash-client.php:454
+#: includes/class-referral-reports.php:129
 msgid "Puntos"
 msgstr "Puntos"
 
@@ -13470,6 +13477,52 @@ msgstr "Las notificaciones push no están configuradas."
 msgid "Activar notificaciones"
 msgstr "Activar notificaciones"
 
+#: includes/class-referral-reports.php:18
+#: includes/class-referral-reports.php:102
+msgid "Reportes de referidos"
+msgstr "Reportes de referidos"
+
+#: includes/class-referral-reports.php:19
+msgid "Referidos – Reportes"
+msgstr "Referidos – Reportes"
+
+#: includes/class-referral-reports.php:112
+msgid "Clics"
+msgstr "Clics"
+
+#: includes/class-referral-reports.php:113
+msgid "de clics"
+msgstr "de clics"
+
+#: includes/class-referral-reports.php:114
+#: includes/class-referral-reports.php:127
+msgid "Completados"
+msgstr "Completados"
+
+#: includes/class-referral-reports.php:114
+msgid "de reservas"
+msgstr "de reservas"
+
+#: includes/class-referral-reports.php:115
+msgid "Ingresos atribuidos"
+msgstr "Ingresos atribuidos"
+
+#: includes/class-referral-reports.php:116
+msgid "Puntos otorgados"
+msgstr "Puntos otorgados"
+
+#: includes/class-referral-reports.php:117
+msgid "Puntos canjeados"
+msgstr "Puntos canjeados"
+
+#: includes/class-referral-reports.php:120
+msgid "Top referidores"
+msgstr "Top referidores"
+
+#: includes/class-referral-reports.php:146
+msgid "Sin datos en el rango seleccionado."
+msgstr "Sin datos en el rango seleccionado."
+
 #. translators: %s: nombre de la política de cancelación
 #: includes/class-refunds.php:14
 #, php-format
@@ -13980,11 +14033,11 @@ msgid "Network error. Please try again."
 msgstr "Error de red. Inténtalo de nuevo."
 
 #: includes/class-shortcode-account.php:795
-#: includes/class-shortcode-account.php:797 travel-agency-platform.php:318
+#: includes/class-shortcode-account.php:797 travel-agency-platform.php:323
 msgid "Asistente de viajes"
 msgstr "Asistente de viajes"
 
-#: includes/class-shortcode-account.php:801 travel-agency-platform.php:323
+#: includes/class-shortcode-account.php:801 travel-agency-platform.php:328
 msgid ""
 "¡Hola! Soy el asistente de viajes. Pregunta por alojamientos, tours, bonos o "
 "agencias, o toca una sugerencia."
@@ -13993,7 +14046,7 @@ msgstr ""
 "agencias, o toca una sugerencia."
 
 #: includes/class-shortcode-account.php:809
-#: includes/class-shortcode-account.php:810 travel-agency-platform.php:321
+#: includes/class-shortcode-account.php:810 travel-agency-platform.php:326
 msgid "Escribe tu pregunta…"
 msgstr "Escribe tu pregunta…"
 
@@ -14166,7 +14219,7 @@ msgid "Solicitar reserva"
 msgstr "Solicitar reserva"
 
 #: includes/class-shortcode-booking.php:46
-#: includes/class-shortcode-booking.php:124 travel-agency-platform.php:312
+#: includes/class-shortcode-booking.php:124 travel-agency-platform.php:317
 msgid "Book Now"
 msgstr "Reservar ahora"
 
@@ -16363,117 +16416,117 @@ msgstr ""
 "no se encontró el autoloader de Composer. Ejecuta \"composer dump-autoload -"
 "o\"."
 
-#: travel-agency-platform.php:290
+#: travel-agency-platform.php:295
 msgid "results found"
 msgstr "resultados encontrados"
 
-#: travel-agency-platform.php:291
+#: travel-agency-platform.php:296
 msgid "No results found"
 msgstr "No se encontraron resultados"
 
-#: travel-agency-platform.php:292
+#: travel-agency-platform.php:297
 msgid "Guardado en favoritos"
 msgstr "Guardado en favoritos"
 
-#: travel-agency-platform.php:293
+#: travel-agency-platform.php:298
 msgid "Quitado de favoritos"
 msgstr "Quitado de favoritos"
 
-#: travel-agency-platform.php:294
+#: travel-agency-platform.php:299
 msgid "Aún no hay reseñas."
 msgstr "Aún no hay reseñas."
 
-#: travel-agency-platform.php:295
+#: travel-agency-platform.php:300
 msgid "Aún no hay reseñas. Sé el primero en compartir tu experiencia."
 msgstr "Aún no hay reseñas. Sé el primero en compartir tu experiencia."
 
-#: travel-agency-platform.php:296
+#: travel-agency-platform.php:301
 msgid "reseña"
 msgstr "reseña"
 
-#: travel-agency-platform.php:297
+#: travel-agency-platform.php:302
 msgid "reseñas"
 msgstr "reseñas"
 
-#: travel-agency-platform.php:298
+#: travel-agency-platform.php:303
 msgid "Anónimo"
 msgstr "Anónimo"
 
-#: travel-agency-platform.php:299
+#: travel-agency-platform.php:304
 msgid "Enviando..."
 msgstr "Enviando..."
 
-#: travel-agency-platform.php:300
+#: travel-agency-platform.php:305
 msgid "¡Reseña enviada! Pendiente de aprobación."
 msgstr "¡Reseña enviada! Pendiente de aprobación."
 
-#: travel-agency-platform.php:301
+#: travel-agency-platform.php:306
 msgid "Error al enviar"
 msgstr "Error al enviar"
 
-#: travel-agency-platform.php:302
+#: travel-agency-platform.php:307
 msgid "Review submitted"
 msgstr "Reseña enviada"
 
-#: travel-agency-platform.php:303
+#: travel-agency-platform.php:308
 msgid "Error al enviar la reseña"
 msgstr "Error al enviar la reseña"
 
 #. translators: %s: nombre del servicio
-#: travel-agency-platform.php:305
+#: travel-agency-platform.php:310
 #, php-format
 msgid "Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!"
 msgstr "Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!"
 
-#: travel-agency-platform.php:306
+#: travel-agency-platform.php:311
 msgid "Reseña verificada"
 msgstr "Reseña verificada"
 
 #. translators: 1: cupos disponibles, 2: cupos totales
-#: travel-agency-platform.php:308
+#: travel-agency-platform.php:313
 #, php-format
 msgid "Cupos disponibles: %s de %s"
 msgstr "Cupos disponibles: %s de %s"
 
 #. translators: 1: cupos ocupados, 2: cupos totales
-#: travel-agency-platform.php:310
+#: travel-agency-platform.php:315
 #, php-format
 msgid "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
 msgstr "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
 
-#: travel-agency-platform.php:311
+#: travel-agency-platform.php:316
 msgid "El tour está completo para esta fecha."
 msgstr "El tour está completo para esta fecha."
 
-#: travel-agency-platform.php:314
+#: travel-agency-platform.php:319
 msgid "Image gallery"
 msgstr "Galería de imágenes"
 
-#: travel-agency-platform.php:315
+#: travel-agency-platform.php:320
 msgid "Close image gallery"
 msgstr "Cerrar galería de imágenes"
 
-#: travel-agency-platform.php:316
+#: travel-agency-platform.php:321
 msgid "Previous image"
 msgstr "Imagen anterior"
 
-#: travel-agency-platform.php:317
+#: travel-agency-platform.php:322
 msgid "Next image"
 msgstr "Imagen siguiente"
 
-#: travel-agency-platform.php:319
+#: travel-agency-platform.php:324
 msgid "Abrir asistente"
 msgstr "Abrir asistente"
 
-#: travel-agency-platform.php:320
+#: travel-agency-platform.php:325
 msgid "Cerrar asistente"
 msgstr "Cerrar asistente"
 
-#: travel-agency-platform.php:324
+#: travel-agency-platform.php:329
 msgid "Pensando…"
 msgstr "Pensando…"
 
-#: travel-agency-platform.php:325
+#: travel-agency-platform.php:330
 msgid "Hubo un problema. Inténtalo de nuevo."
 msgstr "Hubo un problema. Inténtalo de nuevo."
 

@@ -127,6 +127,7 @@ final class TravelAgencyPlatform {
         add_action('init', ['TAP_Itinerary', 'init'], 14);
         add_action('init', ['TAP_Front_Dash', 'init'], 15);
         add_action('init', ['TAP_Customer_Referrals', 'init'], 15);
+        add_action('init', ['TAP_Referral_Reports', 'init'], 15);
         add_action('plugins_loaded', [$this, 'maybe_update_tables'], 5);
         add_action('pre_get_posts', ['TAP_Archive_Query', 'filter_archive_query'], 10);
         add_filter('posts_clauses', ['TAP_Archive_Query', 'rating_sort_clauses'], 10, 2);
