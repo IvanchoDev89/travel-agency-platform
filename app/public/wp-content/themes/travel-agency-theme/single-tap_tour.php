@@ -406,6 +406,8 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
         foreach ($month_slots as $sl) {
             $slots_by_date[$sl->date][] = $sl;
         }
+        $service_capacity = max(1, (int) get_post_meta($id, '_tap_tour_capacity', true));
+        $base_price = (float) get_post_meta($id, '_tap_tour_price_adult', true);
         ?>
         <div class="tap-acc-section tap-avcal-wrap" data-tour="<?php echo esc_attr($id); ?>">
           <h2><?php _e('Availability & Prices', 'travel-agency-platform'); ?></h2>
@@ -433,7 +435,7 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
                 $is_blocked = false; $has_avail = false; $total_cap = 0; $total_booked = 0;
                 foreach ($day_slots as $sl) {
                     if ($sl->is_blocked) $is_blocked = true;
-                    else { $has_avail = true; $total_cap += (int)$sl->capacity ?: 999; $total_booked += (int)$sl->booked; }
+                    else { $has_avail = true; $cap = (int) $sl->capacity > 0 ? (int) $sl->capacity : $service_capacity; $total_cap += $cap; $total_booked += (int)$sl->booked; }
                 }
                 $cls = 'tap-avcal-day';
                 if ($is_blocked && !$has_avail) $cls .= ' blocked';
@@ -443,7 +445,11 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
                 $today = gmdate('Y-m-d');
                 if ($date === $today) $cls .= ' today';
                 $min_price = 0;
-                foreach ($day_slots as $sl) { if (!$sl->is_blocked && $sl->price !== null) { if ($min_price === 0 || (float)$sl->price < $min_price) $min_price = (float)$sl->price; } }
+                foreach ($day_slots as $sl) {
+                    if ($sl->is_blocked) continue;
+                    $p = ($sl->price !== null) ? (float) $sl->price : $base_price;
+                    if ($p > 0 && ($min_price === 0 || $p < $min_price)) $min_price = $p;
+                }
                 ?>
                 <div class="<?php echo esc_attr($cls); ?>" data-date="<?php echo esc_attr($date); ?>">
                     <span class="tap-avcal-num"><?php echo (int) $d; ?></span>

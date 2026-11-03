@@ -135,9 +135,17 @@ $formats[] = '%d'; }
         if (!$slot || (int) $slot->is_blocked === 1) return false;
         if (!self::is_available($slot_id, $adults)) return false;
 
+        $capacity = (int) $slot->capacity;
+        if ($capacity <= 0) {
+            $meta_key = $slot->service_type === 'tap_experience' ? '_tap_exp_capacity' : '_tap_tour_capacity';
+            $capacity = (int) get_post_meta((int) $slot->service_id, $meta_key, true);
+            if ($capacity <= 0) {
+                $capacity = 999;
+            }
+        }
         $wpdb->query($wpdb->prepare(
-            "UPDATE {$t} SET booked = booked + %d WHERE id = %d AND booked + %d <= capacity OR (capacity = 0)",
-            $adults, $slot_id, $adults
+            "UPDATE {$t} SET booked = booked + %d WHERE id = %d AND (capacity > 0 AND booked + %d <= capacity) OR (capacity = 0 AND booked + %d <= %d)",
+            $adults, $slot_id, $adults, $adults, $capacity
         ));
         // Simpler, safer: re-check after update.
         $updated = self::get_slot($slot_id);
