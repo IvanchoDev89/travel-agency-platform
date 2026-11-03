@@ -81,37 +81,89 @@ class TAP_Customer_Referrals {
         ]);
     }
 
-    /** Discount percent granted to the invitee. */
-    public static function discount_pct() {
-        $pct = (float) get_option('tap_referral_discount_pct', 10);
-        if ($pct < 0) {
-            $pct = 0;
-        }
-        if ($pct > 50) {
-            $pct = 50;
-        }
-        return $pct;
+    /** Affiliate tiers for referrers (based on rewarded referrals). */
+    public static function tiers() {
+        return [
+            'bronze' => ['min' => 0, 'discount' => 0, 'points_rate' => 0.05, 'label' => __('Bronce', 'travel-agency-platform')],
+            'silver' => ['min' => 5, 'discount' => 2, 'points_rate' => 0.07, 'label' => __('Plata', 'travel-agency-platform')],
+            'gold'   => ['min' => 20, 'discount' => 5, 'points_rate' => 0.10, 'label' => __('Oro', 'travel-agency-platform')],
+        ];
     }
 
-    /** Points rate awarded to the referrer (fraction of booking total). */
-    public static function points_rate() {
-        $rate = (float) get_option('tap_referral_points_rate', 0.05);
-        if ($rate < 0) {
-            $rate = 0;
+    /** Number of rewarded referrals for a user. */
+    public static function rewarded_count($user_id) {
+        global $wpdb;
+        $user_id = (int) $user_id;
+        if (!$user_id) {
+            return 0;
         }
-        if ($rate > 0.5) {
-            $rate = 0.5;
+        return (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM " . self::table() . " WHERE referrer_user_id = %d AND status = 'rewarded'",
+            $user_id
+        ));
+    }
+
+    /** Tier key for a referrer. */
+    public static function tier($user_id) {
+        $count = self::rewarded_count($user_id);
+        $tier = 'bronze';
+        foreach (self::tiers() as $key => $info) {
+            if ($count >= $info['min']) {
+                $tier = $key;
+            }
         }
-        return $rate;
+        return $tier;
+    }
+
+    /** Discount percent granted to the invitee (base + tier bonus). */
+    public static function discount_pct($referrer_user_id = 0) {
+        $base = (float) get_option('tap_referral_discount_pct', 10);
+        if ($base < 0) {
+            $base = 0;
+        }
+        if ($base > 50) {
+            $base = 50;
+        }
+        $bonus = 0;
+        if ($referrer_user_id) {
+            $tiers = self::tiers();
+            $tier = self::tier($referrer_user_id);
+            $bonus = (float) ($tiers[$tier]['discount'] ?? 0);
+        }
+        $total = $base + $bonus;
+        if ($total > 50) {
+            $total = 50;
+        }
+        return $total;
+    }
+
+    /** Points rate awarded to the referrer (base + tier bonus). */
+    public static function points_rate($referrer_user_id = 0) {
+        $base = (float) get_option('tap_referral_points_rate', 0.05);
+        if ($base < 0) {
+            $base = 0;
+        }
+        if ($base > 0.5) {
+            $base = 0.5;
+        }
+        if ($referrer_user_id) {
+            $tiers = self::tiers();
+            $tier = self::tier($referrer_user_id);
+            $base = (float) ($tiers[$tier]['points_rate'] ?? $base);
+        }
+        if ($base > 0.5) {
+            $base = 0.5;
+        }
+        return $base;
     }
 
     /** Compute the discount amount for a booking total. */
-    public static function discount_for_total($total) {
+    public static function discount_for_total($total, $referrer_user_id = 0) {
         $total = (float) $total;
         if ($total <= 0) {
             return 0.0;
         }
-        return round($total * (self::discount_pct() / 100), 2);
+        return round($total * (self::discount_pct($referrer_user_id) / 100), 2);
     }
 
     /** Resolve the active referral code for the current request. */
@@ -145,7 +197,7 @@ class TAP_Customer_Referrals {
         if ($client_id && (int) $client_id === (int) $referrer) {
             return ['', 0, 0.0];
         }
-        $discount = self::discount_for_total($total);
+        $discount = self::discount_for_total($total, $referrer);
         return [$code, $referrer, $discount];
     }
 
@@ -190,9 +242,12 @@ class TAP_Customer_Referrals {
             return;
         }
         $total = (float) ($booking->total_amount ?? 0);
-        $points = (int) round($total * self::points_rate());
+        $points = (int) round($total * self::points_rate($referrer));
         if (class_exists('TAP_Loyalty') && $points > 0) {
             TAP_Loyalty::award($referrer, $points, 'referral', $booking_id);
+        }
+        if (class_exists('TAP_Emails_Send') && $points > 0) {
+            TAP_Emails_Send::send_referral_reward($referrer, $points, $booking_id);
         }
         if ($row) {
             $wpdb->update(self::table(), [
@@ -240,7 +295,13 @@ class TAP_Customer_Referrals {
                     <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&amp;data=<?php echo urlencode($url); ?>" alt="<?php esc_attr_e('Código QR de tu enlace de referido', 'travel-agency-platform'); ?>" width="160" height="160" loading="lazy">
                 </div>
             </div>
-            <p><?php printf(esc_html__('Descuento para tu invitado: %s%%. Tus puntos actuales: %s.', 'travel-agency-platform'), number_format_i18n(self::discount_pct()), number_format_i18n($balance)); ?></p>
+            <p><?php printf(esc_html__('Descuento para tu invitado: %s%%. Tus puntos actuales: %s.', 'travel-agency-platform'), number_format_i18n(self::discount_pct($user_id)), number_format_i18n($balance)); ?></p>
+            <?php
+            $tier = self::tier($user_id);
+            $tiers = self::tiers();
+            $count = self::rewarded_count($user_id);
+            ?>
+            <p><?php printf(esc_html__('Nivel de afiliado: %s (%d referidos completados).', 'travel-agency-platform'), esc_html($tiers[$tier]['label']), $count); ?></p>
             <?php if ($rows): ?>
                 <h3><?php esc_html_e('Tus referidos', 'travel-agency-platform'); ?></h3>
                 <ul class="tap-referral-list">

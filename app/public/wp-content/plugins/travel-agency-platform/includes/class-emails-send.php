@@ -210,6 +210,32 @@ class TAP_Emails_Send {
         self::send($email, $subject, $body);
     }
 
+    /** Notify a referrer that they earned points. */
+    public static function send_referral_reward($referrer_user_id, $points, $booking_id) {
+        $referrer_user_id = (int) $referrer_user_id;
+        $user = get_userdata($referrer_user_id);
+        if (!$user || !is_email($user->user_email)) {
+            return false;
+        }
+        $booking = TAP_Booking::get_booking($booking_id);
+        $code = $booking ? (string) get_post_meta($booking_id, '_tap_referral_code', true) : '';
+        /* translators: %d: puntos ganados */
+        $subject = sprintf(__('¡Ganaste %d puntos por referir un viaje!', 'travel-agency-platform'), (int) $points);
+        $body = '<p>' . sprintf(
+            /* translators: %s: nombre del usuario */
+            esc_html__('Hola %s,', 'travel-agency-platform'),
+            esc_html($user->display_name)
+        ) . '</p>'
+        . '<p>' . sprintf(
+            /* translators: 1: puntos, 2: código de reserva */
+            esc_html__('Has ganado %1$d puntos porque un amigo reservó usando tu código de referido (reserva %2$s). Puedes canjearlos en tu próxima reserva.', 'travel-agency-platform'),
+            (int) $points,
+            $booking ? esc_html($booking->booking_code) : ''
+        ) . '</p>'
+        . '<p><a href="' . esc_url(home_url('/invita-y-gana/')) . '">' . esc_html__('Ver mi panel de referidos', 'travel-agency-platform') . '</a></p>';
+        return self::send($user->user_email, $subject, $body);
+    }
+
 
     public static function send_admin_notification($booking_id) {
         $admin_email = get_option('admin_email');
