@@ -312,6 +312,9 @@ class TAP_Front_Dash {
                     case 'bo-referrals':
                         echo self::agency_referrals($user);
                         break;
+                    case 'loyalty':
+                        echo self::agency_personal_loyalty($user);
+                        break;
                     case 'bo-team':
                         echo self::agency_team($user);
                         break;
@@ -821,6 +824,19 @@ class TAP_Front_Dash {
             <?php endif; ?>
         </div>
         <?php
+        return ob_get_clean();
+    }
+
+    private static function agency_personal_loyalty($user) {
+        ob_start();
+        if (class_exists('TAP_Loyalty')) {
+            echo TAP_Front_Dash_Client::render_loyalty_panel($user);
+        } else {
+            echo '<p class="tap-empty">' . esc_html__('Módulo de fidelidad no disponible.', 'travel-agency-platform') . '</p>';
+        }
+        if (class_exists('TAP_Customer_Referrals')) {
+            echo do_shortcode('[tap_referral_dashboard]');
+        }
         return ob_get_clean();
     }
 

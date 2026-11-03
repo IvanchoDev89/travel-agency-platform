@@ -410,6 +410,10 @@ class TAP_Front_Dash_Client {
 
     /* ── client: reviews ───────────────────────────────────────────── */
 
+    public static function render_loyalty_panel($user) {
+        return self::client_loyalty($user);
+    }
+
     private static function client_loyalty($user) {
         if (!class_exists('TAP_Loyalty')) {
             return '<p class="tap-empty">' . esc_html__('Módulo de fidelidad no disponible.', 'travel-agency-platform') . '</p>';
