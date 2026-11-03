@@ -29,6 +29,7 @@ class TAP_Shortcode_Account {
                 <a href="<?php echo esc_url(home_url('/my-bookings')); ?>" class="tap-btn"><?php esc_html_e('My Bookings', 'travel-agency-platform'); ?></a>
                 <a href="<?php echo esc_url(home_url('/agency-profile')); ?>" class="tap-btn"><?php esc_html_e('Agency Profile', 'travel-agency-platform'); ?></a>
             </div>
+            <?php echo do_shortcode('[tap_referral_dashboard]'); ?>
         </div>
         <?php
         return ob_get_clean();

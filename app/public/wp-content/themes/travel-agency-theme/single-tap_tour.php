@@ -599,6 +599,7 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
             </div>
             <input type="hidden" name="service_type" value="<?php echo esc_attr($pt); ?>">
             <input type="hidden" name="service_id" value="<?php echo esc_attr($id); ?>">
+            <input type="hidden" name="referral_code" value="<?php echo esc_attr(class_exists('TAP_Customer_Referrals') ? TAP_Customer_Referrals::active_code() : ''); ?>">
 
             <?php if ($needs_date): ?>
             <?php if ('tap_tour' === $pt): ?>
