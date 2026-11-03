@@ -153,6 +153,7 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
 <?php endif; ?>
 
 <div class="tap-container" id="main-content">
+    <div class="tap-acc-layout">
     <div class="tap-acc-main">
       <div class="tap-acc-content">
         <h2><?php esc_html_e('About this experience', 'travel-agency-platform'); ?></h2>
@@ -702,6 +703,7 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
       </div>
     </div>
   </div>
+</div>
 </div>
 
 <script>
