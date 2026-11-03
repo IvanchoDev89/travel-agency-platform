@@ -213,6 +213,21 @@ class TAP_Booking {
         $total = round($subtotal + $booking_fee, 2);
         $commission_amount = round($subtotal * ($commission_percent / 100), 2);
 
+        // Referral discount (B2C growth loop).
+        $referral_code = '';
+        $referral_referrer = 0;
+        $referral_discount = 0.0;
+        $client_id_for_referral = (int) get_current_user_id();
+        if (class_exists('TAP_Customer_Referrals')) {
+            list($referral_code, $referral_referrer, $referral_discount) = TAP_Customer_Referrals::resolve_for_booking($client_id_for_referral, $total);
+            if ($referral_discount > 0) {
+                $total = round($total - $referral_discount, 2);
+                if ($total < 0) {
+                    $total = 0;
+                }
+            }
+        }
+
         $nights = 0;
         if (!empty($data['check_in']) && !empty($data['check_out'])) {
             $d1 = new DateTime($data['check_in']);
@@ -435,6 +450,11 @@ class TAP_Booking {
                     // Book the tour slot (increment capacity).
                     if ($booking_id && !empty($tour_slot_id) && class_exists('TAP_Tour_Availability')) {
                         TAP_Tour_Availability::book_slot($tour_slot_id, $adults + $children);
+                    }
+
+                    // Referral attribution (B2C growth loop).
+                    if ($booking_id && class_exists('TAP_Customer_Referrals') && $referral_code && $referral_referrer) {
+                        TAP_Customer_Referrals::on_booking_created($booking_id, $client_id_for_referral, $referral_code, $referral_referrer, $referral_discount);
                     }
 
                     // Line items are NOT written from client input: a booking

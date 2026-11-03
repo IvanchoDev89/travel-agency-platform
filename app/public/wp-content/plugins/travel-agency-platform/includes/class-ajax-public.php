@@ -258,6 +258,14 @@ class TAP_Ajax_Public {
 
         $fee = TAP_Booking::get_booking_fee($total);
 
+        // Referral discount (B2C growth loop).
+        $referral_code = '';
+        $referral_discount = 0.0;
+        if (class_exists('TAP_Customer_Referrals')) {
+            $client_id = get_current_user_id();
+            list($referral_code, $referrer, $referral_discount) = TAP_Customer_Referrals::resolve_for_booking($client_id, $total + $fee);
+        }
+
         // Capacity response for tours.
         $capacity_response = null;
         if ($service_type === 'tap_tour') {
@@ -275,10 +283,16 @@ class TAP_Ajax_Public {
             }
         }
 
+        $final_total = round($total + $fee - $referral_discount, 2);
+        if ($final_total < 0) {
+            $final_total = 0;
+        }
         wp_send_json_success([
-            'total'            => round($total + $fee, 2),
-            'subtotal'         => round($total, 2),
-            'fee'              => $fee,
+            'total'             => $final_total,
+            'subtotal'          => round($total, 2),
+            'fee'               => $fee,
+            'referral_code'     => $referral_code,
+            'referral_discount' => $referral_discount,
             'base_total'       => $base_total,
             'savings'          => $savings,
             'discounts'        => $discounts,

@@ -197,6 +197,25 @@ class TAP_Installer {
                 KEY expires (expires_at)
             ) $charset;",
 
+            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_customer_referrals (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                referrer_user_id bigint(20) NOT NULL,
+                referred_user_id bigint(20) DEFAULT NULL,
+                referral_code varchar(32) NOT NULL,
+                booking_id bigint(20) DEFAULT NULL,
+                status varchar(20) NOT NULL DEFAULT 'clicked',
+                discount_amount decimal(15,2) NOT NULL DEFAULT 0.00,
+                points_awarded int(11) NOT NULL DEFAULT 0,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY referrer (referrer_user_id),
+                KEY referred (referred_user_id),
+                KEY code (referral_code),
+                KEY booking (booking_id),
+                KEY status (status)
+            ) $charset;",
+
             "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_email_campaigns (
                 id bigint(20) NOT NULL AUTO_INCREMENT,
                 name varchar(120) NOT NULL,

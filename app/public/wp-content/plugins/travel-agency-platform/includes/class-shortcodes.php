@@ -24,6 +24,7 @@ class TAP_Shortcodes {
             'tap_chatbot'       => [TAP_Shortcode_Account::class, 'chatbot'],
             'tap_destinations_map' => [TAP_Shortcode_Search::class, 'destinations_map'],
             'tap_waiver_form'      => [TAP_Waiver::class, 'shortcode'],
+            'tap_referral_dashboard' => [TAP_Customer_Referrals::class, 'shortcode_dashboard'],
         ];
 
         foreach ($shortcodes as $tag => $callback) {
