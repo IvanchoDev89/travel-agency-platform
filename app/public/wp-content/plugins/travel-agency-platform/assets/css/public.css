@@ -3146,3 +3146,9 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
     .tap-tour-hero-title { font-size: 1.5rem; }
     .tap-tour-hero-thumbs { grid-template-columns: repeat(4, 1fr); }
 }
+
+/* Tour calendar: interactive days */
+.tap-avcal-help { font-size: var(--tap-text-sm); color: var(--tap-neutral-500); margin: 0 0 var(--tap-space-4); }
+.tap-avcal-day.available, .tap-avcal-day.full { transition: transform .12s ease, box-shadow .12s ease; }
+.tap-avcal-day.available:hover, .tap-avcal-day.full:hover { transform: translateY(-2px); box-shadow: var(--tap-shadow-md); }
+.tap-avcal-day.today { outline: 2px solid var(--tap-primary); outline-offset: -2px; }

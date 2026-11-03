@@ -409,6 +409,7 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
         ?>
         <div class="tap-acc-section tap-avcal-wrap" data-tour="<?php echo esc_attr($id); ?>">
           <h2><?php _e('Availability & Prices', 'travel-agency-platform'); ?></h2>
+          <p class="tap-avcal-help"><?php esc_html_e('Los días en verde tienen salidas disponibles. Haz clic en un día para seleccionarlo en el widget de reserva.', 'travel-agency-platform'); ?></p>
           <div class="tap-avcal-header">
             <div class="tap-avcal-nav">
               <a href="<?php echo esc_url(add_query_arg('cal_month', $prev_month)); ?>" class="tap-avcal-nav-btn" data-dir="-1">&larr;</a>
@@ -466,6 +467,25 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
             <?php } ?>
           </div>
         </div>
+        <script>
+        (function(){
+            var days = document.querySelectorAll('.tap-avcal-day.available, .tap-avcal-day.full');
+            days.forEach(function(day){
+                day.style.cursor = 'pointer';
+                day.addEventListener('click', function(){
+                    var date = day.getAttribute('data-date');
+                    if (!date) return;
+                    var sel = document.getElementById('bw-tour-date');
+                    if (sel) {
+                        sel.value = date;
+                        sel.dispatchEvent(new Event('change'));
+                        var widget = document.getElementById('tap-booking-widget');
+                        if (widget) widget.scrollIntoView({behavior:'smooth', block:'start'});
+                    }
+                });
+            });
+        })();
+        </script>
         <?php endif; // tap_tour ?>
 
         <?php if ('tap_tour' === $pt): ?>
