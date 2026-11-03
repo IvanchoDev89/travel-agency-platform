@@ -213,7 +213,8 @@ class TAP_Installer {
                 KEY referred (referred_user_id),
                 KEY code (referral_code),
                 KEY booking (booking_id),
-                KEY status (status)
+                KEY status (status),
+                UNIQUE KEY booking_unique (booking_id)
             ) $charset;",
 
             "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_email_campaigns (
@@ -343,6 +344,9 @@ class TAP_Installer {
 
         // Backfill service_type/service_id for legacy room rows (idempotent).
         $wpdb->query("UPDATE {$wpdb->prefix}tap_daily_pricing SET service_type='tap_accommodation', service_id=room_id WHERE (service_type IS NULL OR service_type='' OR (service_type='tap_accommodation' AND service_id=0)) AND room_id > 0");
+
+        // Unique constraint: one referral row per booking (idempotency).
+        $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_customer_referrals ADD UNIQUE KEY booking_unique (booking_id)");
 
         self::migrate();
     }

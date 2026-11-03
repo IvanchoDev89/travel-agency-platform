@@ -160,7 +160,23 @@ class TAP_Customer_Referrals {
         if (!$referrer) {
             return;
         }
-        setcookie('tap_referral_code', $code, time() + (30 * DAY_IN_SECONDS), COOKIEPATH, COOKIE_DOMAIN);
+        // Rate limit click tracking per IP to prevent row spam.
+        $ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : 'unknown';
+        $rl_key = 'tap_ref_rl_' . md5($ip);
+        $rl = (int) get_transient($rl_key);
+        if ($rl >= 10) {
+            return;
+        }
+        set_transient($rl_key, $rl + 1, HOUR_IN_SECONDS);
+
+        setcookie('tap_referral_code', $code, [
+            'expires'  => time() + (30 * DAY_IN_SECONDS),
+            'path'     => COOKIEPATH,
+            'domain'   => COOKIE_DOMAIN,
+            'secure'   => is_ssl(),
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
         global $wpdb;
         $wpdb->insert(self::table(), [
             'referrer_user_id' => $referrer,
@@ -277,7 +293,7 @@ class TAP_Customer_Referrals {
     }
 
     /** Apply a referral to a booking: returns [code, referrer_id, discount]. */
-    public static function resolve_for_booking($client_id, $total, $preferred_code = '') {
+    public static function resolve_for_booking($client_id, $total, $preferred_code = '', $guest_email = '') {
         $code = self::active_code($preferred_code);
         if ('' === $code) {
             return ['', 0, 0.0];
@@ -286,9 +302,17 @@ class TAP_Customer_Referrals {
         if (!$referrer) {
             return ['', 0, 0.0];
         }
-        // Anti-self-referral.
+        // Anti-self-referral (logged-in user).
         if ($client_id && (int) $client_id === (int) $referrer) {
             return ['', 0, 0.0];
+        }
+        // Anti-self-referral (guest checkout using the referrer's own email).
+        $guest_email = sanitize_email((string) $guest_email);
+        if ($guest_email && is_email($guest_email)) {
+            $referrer_user = get_userdata((int) $referrer);
+            if ($referrer_user && strtolower($referrer_user->user_email) === strtolower($guest_email)) {
+                return ['', 0, 0.0];
+            }
         }
         $discount = self::discount_for_total($total, $referrer);
         return [$code, $referrer, $discount];
@@ -301,6 +325,11 @@ class TAP_Customer_Referrals {
             return 0;
         }
         global $wpdb;
+        // Idempotency: do not duplicate a referral row for the same booking.
+        $existing = (int) $wpdb->get_var($wpdb->prepare("SELECT id FROM " . self::table() . " WHERE booking_id = %d", $booking_id));
+        if ($existing) {
+            return $existing;
+        }
         $wpdb->insert(self::table(), [
             'referrer_user_id' => (int) $referrer,
             'referred_user_id' => $client_id ? (int) $client_id : null,

@@ -263,7 +263,8 @@ class TAP_Ajax_Public {
         $referral_discount = 0.0;
         if (class_exists('TAP_Customer_Referrals')) {
             $client_id = get_current_user_id();
-            list($referral_code, $referrer, $referral_discount) = TAP_Customer_Referrals::resolve_for_booking($client_id, $total + $fee);
+            $guest_email = isset($_POST['guest_email']) ? sanitize_email(wp_unslash($_POST['guest_email'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            list($referral_code, $referrer, $referral_discount) = TAP_Customer_Referrals::resolve_for_booking($client_id, $total + $fee, isset($_POST['referral_code']) ? sanitize_text_field(wp_unslash($_POST['referral_code'])) : '', $guest_email); // phpcs:ignore WordPress.Security.NonceVerification.Missing
         }
 
         // Capacity response for tours.
