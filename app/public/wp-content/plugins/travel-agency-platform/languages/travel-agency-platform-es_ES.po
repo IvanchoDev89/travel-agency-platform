@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-03T19:23:10+00:00\n"
+"POT-Creation-Date: 2026-11-03T19:26:10+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -762,7 +762,9 @@ msgid "Guardado"
 msgstr "Guardado"
 
 #: includes/class-acc-wizard-steps.php:381
-#: includes/class-acc-wizard-steps.php:506 includes/class-front-dash.php:791
+#: includes/class-acc-wizard-steps.php:506
+#: includes/class-customer-referrals.php:449
+#: includes/class-customer-referrals.php:497 includes/class-front-dash.php:791
 msgid "Copiar"
 msgstr "Copiar"
 
@@ -2803,6 +2805,7 @@ msgid "Nivel"
 msgstr "Nivel"
 
 #: includes/class-customer-referrals.php:91
+#: includes/class-customer-referrals.php:414
 msgid "Referidos completados"
 msgstr "Referidos completados"
 
@@ -2811,6 +2814,7 @@ msgid "Bono descuento invitado"
 msgstr "Bono descuento invitado"
 
 #: includes/class-customer-referrals.php:91
+#: includes/class-customer-referrals.php:422
 msgid "Tasa de puntos"
 msgstr "Tasa de puntos"
 
@@ -2838,11 +2842,15 @@ msgstr "Oro"
 msgid "Inicia sesión para ver tu programa de referidos."
 msgstr "Inicia sesión para ver tu programa de referidos."
 
-#: includes/class-customer-referrals.php:380
+#: includes/class-customer-referrals.php:397 includes/class-front-dash.php:784
+msgid "Programa de referidos"
+msgstr "Programa de referidos"
+
+#: includes/class-customer-referrals.php:398
 msgid "Invita y gana"
 msgstr "Invita y gana"
 
-#: includes/class-customer-referrals.php:381
+#: includes/class-customer-referrals.php:399
 msgid ""
 "Comparte tu código con amigos y familia. Cuando reserven y paguen, ganarás "
 "puntos canjeables."
@@ -2850,63 +2858,79 @@ msgstr ""
 "Comparte tu código con amigos y familia. Cuando reserven y paguen, ganarás "
 "puntos canjeables."
 
-#: includes/class-customer-referrals.php:383
+#: includes/class-customer-referrals.php:403
+msgid "Nivel actual"
+msgstr "Nivel actual"
+
+#: includes/class-customer-referrals.php:410
+#: includes/class-front-dash-client.php:440
+msgid "Puntos disponibles"
+msgstr "Puntos disponibles"
+
+#: includes/class-customer-referrals.php:418
+msgid "Descuento invitado"
+msgstr "Descuento invitado"
+
+#: includes/class-customer-referrals.php:429
+#, php-format
+msgid "Progreso a %s"
+msgstr "Progreso a %s"
+
+#: includes/class-customer-referrals.php:439
 msgid "Tu código"
 msgstr "Tu código"
 
-#: includes/class-customer-referrals.php:385
-msgid "Tu enlace"
-msgstr "Tu enlace"
-
-#: includes/class-customer-referrals.php:388
+#: includes/class-customer-referrals.php:443
 msgid "Código QR de tu enlace de referido"
 msgstr "Código QR de tu enlace de referido"
 
-#: includes/class-customer-referrals.php:391
-#, php-format
-msgid "Descuento para tu invitado: %s%%. Tus puntos actuales: %s."
-msgstr "Descuento para tu invitado: %s%%. Tus puntos actuales: %s."
+#: includes/class-customer-referrals.php:446
+msgid "Tu enlace"
+msgstr "Tu enlace"
 
-#: includes/class-customer-referrals.php:397
-#, php-format
-msgid "Nivel de afiliado: %s (%d referidos completados)."
-msgstr "Nivel de afiliado: %s (%d referidos completados)."
+#: includes/class-customer-referrals.php:453
+msgid "Mira este viaje"
+msgstr "Mira este viaje"
 
-#: includes/class-customer-referrals.php:399
+#: includes/class-customer-referrals.php:458
 msgid "Cómo funciona"
 msgstr "Cómo funciona"
 
-#: includes/class-customer-referrals.php:401
+#: includes/class-customer-referrals.php:460
 msgid "Comparte tu código o enlace con amigos y familia."
 msgstr "Comparte tu código o enlace con amigos y familia."
 
-#: includes/class-customer-referrals.php:402
+#: includes/class-customer-referrals.php:461
 msgid "Tu invitado reserva usando tu código y recibe un descuento inmediato."
 msgstr "Tu invitado reserva usando tu código y recibe un descuento inmediato."
 
-#: includes/class-customer-referrals.php:403
+#: includes/class-customer-referrals.php:462
 msgid "Cuando la reserva se paga y completa, tú ganas puntos canjeables."
 msgstr "Cuando la reserva se paga y completa, tú ganas puntos canjeables."
 
-#: includes/class-customer-referrals.php:404
+#: includes/class-customer-referrals.php:463
 msgid "Los puntos caducan a los 12 meses. Los auto-referidos no cuentan."
 msgstr "Los puntos caducan a los 12 meses. Los auto-referidos no cuentan."
 
-#: includes/class-customer-referrals.php:405
+#: includes/class-customer-referrals.php:464
 msgid "Más referidos completados = mayor nivel y mejores bonos."
 msgstr "Más referidos completados = mayor nivel y mejores bonos."
 
-#: includes/class-customer-referrals.php:409
+#: includes/class-customer-referrals.php:469
 msgid "Tus referidos"
 msgstr "Tus referidos"
 
-#: includes/class-customer-referrals.php:416
+#: includes/class-customer-referrals.php:479
 msgid "pts"
 msgstr "pts"
 
-#: includes/class-customer-referrals.php:422
+#: includes/class-customer-referrals.php:485
 msgid "Aún no tienes referidos. ¡Comparte tu enlace!"
 msgstr "Aún no tienes referidos. ¡Comparte tu enlace!"
+
+#: includes/class-customer-referrals.php:496
+msgid "Copiado"
+msgstr "Copiado"
 
 #: includes/class-dashboard-bookings.php:24
 #: includes/class-shortcode-agency-panel.php:189
@@ -10345,10 +10369,6 @@ msgstr "Módulo de fidelidad no disponible."
 msgid "Mi fidelidad"
 msgstr "Mi fidelidad"
 
-#: includes/class-front-dash-client.php:440
-msgid "Puntos disponibles"
-msgstr "Puntos disponibles"
-
 #: includes/class-front-dash-client.php:448
 msgid "Descuento por nivel"
 msgstr "Descuento por nivel"
@@ -10716,10 +10736,6 @@ msgstr "Solo el administrador de la agencia gestiona los referidos."
 #: includes/class-front-dash.php:772
 msgid "Módulo de referidos no disponible."
 msgstr "Módulo de referidos no disponible."
-
-#: includes/class-front-dash.php:784
-msgid "Programa de referidos"
-msgstr "Programa de referidos"
 
 #: includes/class-front-dash.php:787
 msgid "Tu enlace de referido"
@@ -16533,6 +16549,14 @@ msgstr "Pensando…"
 #: travel-agency-platform.php:330
 msgid "Hubo un problema. Inténtalo de nuevo."
 msgstr "Hubo un problema. Inténtalo de nuevo."
+
+#, php-format
+msgid "Descuento para tu invitado: %s%%. Tus puntos actuales: %s."
+msgstr "Descuento para tu invitado: %s%%. Tus puntos actuales: %s."
+
+#, php-format
+msgid "Nivel de afiliado: %s (%d referidos completados)."
+msgstr "Nivel de afiliado: %s (%d referidos completados)."
 
 msgid "Fidelidad"
 msgstr "Fidelidad"

@@ -374,29 +374,88 @@ class TAP_Customer_Referrals {
         $t = self::table();
         $rows = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$t} WHERE referrer_user_id = %d ORDER BY id DESC LIMIT 20", $user_id)) ?: [];
 
+        $tier = self::tier($user_id);
+        $tiers = self::tiers();
+        $count = self::rewarded_count($user_id);
+        // Progress to next tier.
+        $next_tier = null;
+        $next_min = null;
+        foreach ($tiers as $key => $info) {
+            if ($info['min'] > $count) {
+                $next_tier = $key;
+                $next_min = $info['min'];
+                break;
+            }
+        }
+        $progress_pct = $next_min ? min(100, round(($count / $next_min) * 100)) : 100;
+
         ob_start();
         ?>
-        <div class="tap-referral-dashboard">
-            <h2><?php esc_html_e('Invita y gana', 'travel-agency-platform'); ?></h2>
-            <p><?php esc_html_e('Comparte tu código con amigos y familia. Cuando reserven y paguen, ganarás puntos canjeables.', 'travel-agency-platform'); ?></p>
-            <div class="tap-referral-code-box">
-                <label><?php esc_html_e('Tu código', 'travel-agency-platform'); ?></label>
-                <div class="tap-referral-code"><?php echo esc_html($code); ?></div>
-                <label><?php esc_html_e('Tu enlace', 'travel-agency-platform'); ?></label>
-                <input type="text" readonly value="<?php echo esc_attr($url); ?>" class="tap-input" onclick="this.select();">
-                <div class="tap-referral-qr">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&amp;data=<?php echo urlencode($url); ?>" alt="<?php esc_attr_e('Código QR de tu enlace de referido', 'travel-agency-platform'); ?>" width="160" height="160" loading="lazy">
+        <div class="tap-referral-dashboard tap-referral-dashboard--cool">
+            <div class="tap-referral-hero">
+                <div class="tap-referral-hero-text">
+                    <span class="tap-referral-eyebrow"><?php esc_html_e('Programa de referidos', 'travel-agency-platform'); ?></span>
+                    <h2><?php esc_html_e('Invita y gana', 'travel-agency-platform'); ?></h2>
+                    <p><?php esc_html_e('Comparte tu código con amigos y familia. Cuando reserven y paguen, ganarás puntos canjeables.', 'travel-agency-platform'); ?></p>
+                </div>
+                <div class="tap-referral-tier-badge tap-referral-tier-<?php echo esc_attr($tier); ?>">
+                    <span class="tap-referral-tier-label"><?php echo esc_html($tiers[$tier]['label']); ?></span>
+                    <span class="tap-referral-tier-sub"><?php esc_html_e('Nivel actual', 'travel-agency-platform'); ?></span>
                 </div>
             </div>
-            <p><?php printf(esc_html__('Descuento para tu invitado: %s%%. Tus puntos actuales: %s.', 'travel-agency-platform'), number_format_i18n(self::discount_pct($user_id)), number_format_i18n($balance)); ?></p>
-            <?php
-            $tier = self::tier($user_id);
-            $tiers = self::tiers();
-            $count = self::rewarded_count($user_id);
-            ?>
-            <p><?php printf(esc_html__('Nivel de afiliado: %s (%d referidos completados).', 'travel-agency-platform'), esc_html($tiers[$tier]['label']), $count); ?></p>
-            <div class="tap-referral-rules">
-                <h4><?php esc_html_e('Cómo funciona', 'travel-agency-platform'); ?></h4>
+
+            <div class="tap-referral-stats">
+                <div class="tap-referral-stat">
+                    <span class="tap-referral-stat-value"><?php echo (int) $balance; ?></span>
+                    <span class="tap-referral-stat-label"><?php esc_html_e('Puntos disponibles', 'travel-agency-platform'); ?></span>
+                </div>
+                <div class="tap-referral-stat">
+                    <span class="tap-referral-stat-value"><?php echo (int) $count; ?></span>
+                    <span class="tap-referral-stat-label"><?php esc_html_e('Referidos completados', 'travel-agency-platform'); ?></span>
+                </div>
+                <div class="tap-referral-stat">
+                    <span class="tap-referral-stat-value"><?php echo number_format_i18n(self::discount_pct($user_id)); ?>%</span>
+                    <span class="tap-referral-stat-label"><?php esc_html_e('Descuento invitado', 'travel-agency-platform'); ?></span>
+                </div>
+                <div class="tap-referral-stat">
+                    <span class="tap-referral-stat-value"><?php echo (int) ($tiers[$tier]['points_rate'] * 100); ?>%</span>
+                    <span class="tap-referral-stat-label"><?php esc_html_e('Tasa de puntos', 'travel-agency-platform'); ?></span>
+                </div>
+            </div>
+
+            <?php if ($next_tier): ?>
+            <div class="tap-referral-progress">
+                <div class="tap-referral-progress-head">
+                    <span><?php printf(esc_html__('Progreso a %s', 'travel-agency-platform'), esc_html($tiers[$next_tier]['label'])); ?></span>
+                    <span><?php echo (int) $count; ?> / <?php echo (int) $next_min; ?></span>
+                </div>
+                <div class="tap-referral-progress-bar"><div class="tap-referral-progress-fill" style="width: <?php echo (int) $progress_pct; ?>%;"></div></div>
+            </div>
+            <?php endif; ?>
+
+            <div class="tap-referral-code-box">
+                <div class="tap-referral-code-row">
+                    <div>
+                        <label><?php esc_html_e('Tu código', 'travel-agency-platform'); ?></label>
+                        <div class="tap-referral-code"><?php echo esc_html($code); ?></div>
+                    </div>
+                    <div class="tap-referral-qr">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&amp;data=<?php echo urlencode($url); ?>" alt="<?php esc_attr_e('Código QR de tu enlace de referido', 'travel-agency-platform'); ?>" width="150" height="150" loading="lazy">
+                    </div>
+                </div>
+                <label><?php esc_html_e('Tu enlace', 'travel-agency-platform'); ?></label>
+                <div class="tap-referral-link-row">
+                    <input type="text" readonly value="<?php echo esc_attr($url); ?>" class="tap-input tap-referral-link-input" onclick="this.select();">
+                    <button type="button" class="tap-btn tap-btn-primary tap-referral-copy" data-copy="<?php echo esc_attr($url); ?>"><?php esc_html_e('Copiar', 'travel-agency-platform'); ?></button>
+                </div>
+                <div class="tap-referral-share">
+                    <a class="tap-referral-share-btn tap-referral-share-wa" href="https://wa.me/?text=<?php echo urlencode($url); ?>" target="_blank" rel="noopener">WhatsApp</a>
+                    <a class="tap-referral-share-btn tap-referral-share-mail" href="mailto:?subject=<?php echo urlencode(__('Mira este viaje', 'travel-agency-platform')); ?>&body=<?php echo urlencode($url); ?>">Email</a>
+                </div>
+            </div>
+
+            <details class="tap-referral-rules">
+                <summary><?php esc_html_e('Cómo funciona', 'travel-agency-platform'); ?></summary>
                 <ul>
                     <li><?php esc_html_e('Comparte tu código o enlace con amigos y familia.', 'travel-agency-platform'); ?></li>
                     <li><?php esc_html_e('Tu invitado reserva usando tu código y recibe un descuento inmediato.', 'travel-agency-platform'); ?></li>
@@ -404,24 +463,46 @@ class TAP_Customer_Referrals {
                     <li><?php esc_html_e('Los puntos caducan a los 12 meses. Los auto-referidos no cuentan.', 'travel-agency-platform'); ?></li>
                     <li><?php esc_html_e('Más referidos completados = mayor nivel y mejores bonos.', 'travel-agency-platform'); ?></li>
                 </ul>
-            </div>
-            <?php if ($rows): ?>
+            </details>
+
+            <div class="tap-referral-list-wrap">
                 <h3><?php esc_html_e('Tus referidos', 'travel-agency-platform'); ?></h3>
-                <ul class="tap-referral-list">
-                    <?php foreach ($rows as $r): ?>
-                        <li>
-                            <span>#<?php echo (int) $r->booking_id; ?></span>
-                            <span><?php echo esc_html($r->status); ?></span>
-                            <?php if ((int) $r->points_awarded > 0): ?>
-                                <span>+<?php echo (int) $r->points_awarded; ?> <?php esc_html_e('pts', 'travel-agency-platform'); ?></span>
-                            <?php endif; ?>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-            <?php else: ?>
-                <p class="tap-empty"><?php esc_html_e('Aún no tienes referidos. ¡Comparte tu enlace!', 'travel-agency-platform'); ?></p>
-            <?php endif; ?>
+                <?php if ($rows): ?>
+                    <ul class="tap-referral-list">
+                        <?php foreach ($rows as $r): ?>
+                            <li>
+                                <div class="tap-referral-list-main">
+                                    <span class="tap-referral-list-id">#<?php echo (int) $r->booking_id; ?></span>
+                                    <span class="tap-referral-list-status tap-referral-status-<?php echo esc_attr($r->status); ?>"><?php echo esc_html($r->status); ?></span>
+                                </div>
+                                <?php if ((int) $r->points_awarded > 0): ?>
+                                    <span class="tap-referral-list-points">+<?php echo (int) $r->points_awarded; ?> <?php esc_html_e('pts', 'travel-agency-platform'); ?></span>
+                                <?php endif; ?>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php else: ?>
+                    <p class="tap-empty"><?php esc_html_e('Aún no tienes referidos. ¡Comparte tu enlace!', 'travel-agency-platform'); ?></p>
+                <?php endif; ?>
+            </div>
         </div>
+        <script>
+        (function(){
+            document.querySelectorAll('.tap-referral-copy').forEach(function(btn){
+                btn.addEventListener('click', function(){
+                    var txt = btn.getAttribute('data-copy') || '';
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(txt);
+                        btn.textContent = '<?php echo esc_js(__('Copiado', 'travel-agency-platform')); ?>';
+                        setTimeout(function(){ btn.textContent = '<?php echo esc_js(__('Copiar', 'travel-agency-platform')); ?>'; }, 1500);
+                    } else {
+                        var inp = btn.previousElementSibling;
+                        if (inp) { inp.select(); document.execCommand('copy'); }
+                    }
+                });
+            });
+        })();
+        </script>
         <?php
         return ob_get_clean();
     }
