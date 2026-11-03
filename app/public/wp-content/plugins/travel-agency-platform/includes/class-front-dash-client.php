@@ -217,6 +217,12 @@ class TAP_Front_Dash_Client {
 			<?php
         endif;
 
+        if (class_exists('TAP_Customer_Referrals')) {
+            echo '<div style="margin-top:24px;">';
+            echo do_shortcode('[tap_referral_dashboard]');
+            echo '</div>';
+        }
+
         return ob_get_clean();
     }
 
