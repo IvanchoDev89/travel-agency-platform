@@ -256,7 +256,11 @@ class TAP_Customer_Referrals {
     }
 
     /** Resolve the active referral code for the current request. */
-    public static function active_code() {
+    public static function active_code($preferred = '') {
+        $preferred = sanitize_text_field((string) $preferred);
+        if ('' !== $preferred && self::referrer_by_code($preferred)) {
+            return $preferred;
+        }
         if (!empty($_POST['referral_code'])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
             $code = sanitize_text_field(wp_unslash($_POST['referral_code'])); // phpcs:ignore WordPress.Security.NonceVerification.Missing
             if (self::referrer_by_code($code)) {
@@ -273,8 +277,8 @@ class TAP_Customer_Referrals {
     }
 
     /** Apply a referral to a booking: returns [code, referrer_id, discount]. */
-    public static function resolve_for_booking($client_id, $total) {
-        $code = self::active_code();
+    public static function resolve_for_booking($client_id, $total, $preferred_code = '') {
+        $code = self::active_code($preferred_code);
         if ('' === $code) {
             return ['', 0, 0.0];
         }

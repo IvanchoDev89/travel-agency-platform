@@ -219,7 +219,8 @@ class TAP_Booking {
         $referral_discount = 0.0;
         $client_id_for_referral = (int) get_current_user_id();
         if (class_exists('TAP_Customer_Referrals')) {
-            list($referral_code, $referral_referrer, $referral_discount) = TAP_Customer_Referrals::resolve_for_booking($client_id_for_referral, $total);
+            $preferred_referral_code = isset($data['referral_code']) ? sanitize_text_field($data['referral_code']) : '';
+            list($referral_code, $referral_referrer, $referral_discount) = TAP_Customer_Referrals::resolve_for_booking($client_id_for_referral, $total, $preferred_referral_code);
             if ($referral_discount > 0) {
                 $total = round($total - $referral_discount, 2);
                 if ($total < 0) {

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-03T05:41:01+00:00\n"
+"POT-Creation-Date: 2026-11-03T05:53:48+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -1795,7 +1795,7 @@ msgstr "Pedido de PayPal inválido"
 
 #: includes/class-ajax-commerce.php:309 includes/class-ajax-commerce.php:317
 #: includes/class-ajax-commerce.php:375 includes/class-ajax-commerce.php:382
-#: includes/class-api.php:354 includes/class-booking.php:814
+#: includes/class-api.php:354 includes/class-booking.php:815
 #: includes/class-payment.php:45 includes/class-paypal.php:79
 msgid "Booking not found"
 msgstr "Reserva no encontrada"
@@ -1861,10 +1861,10 @@ msgstr "Solicitud de liquidación enviada al administrador."
 #: includes/class-ajax-dash.php:42 includes/class-ajax-dash.php:92
 #: includes/class-ajax-dash.php:494 includes/class-ajax-dash.php:525
 #: includes/class-ajax-dash.php:557 includes/class-ajax.php:144
-#: includes/class-ajax.php:187 includes/class-booking.php:560
-#: includes/class-booking.php:574 includes/class-booking.php:580
-#: includes/class-booking.php:724 includes/class-booking.php:1071
-#: includes/class-booking.php:1104 includes/class-invoices.php:38
+#: includes/class-ajax.php:187 includes/class-booking.php:561
+#: includes/class-booking.php:575 includes/class-booking.php:581
+#: includes/class-booking.php:725 includes/class-booking.php:1072
+#: includes/class-booking.php:1105 includes/class-invoices.php:38
 #: includes/class-refunds.php:40 includes/class-travel-insurance.php:37
 #: includes/class-waiver.php:72 includes/class-waiver.php:115
 msgid "Reserva no encontrada."
@@ -1873,8 +1873,8 @@ msgstr "Reserva no encontrada."
 #: includes/class-ajax-dash.php:45 includes/class-ajax-dash.php:51
 #: includes/class-ajax-dash.php:95 includes/class-ajax-dash.php:101
 #: includes/class-ajax-dash.php:498 includes/class-ajax-dash.php:529
-#: includes/class-ajax.php:193 includes/class-booking.php:736
-#: includes/class-booking.php:754
+#: includes/class-ajax.php:193 includes/class-booking.php:737
+#: includes/class-booking.php:755
 msgid "No tienes permiso sobre esta reserva."
 msgstr "No tienes permiso sobre esta reserva."
 
@@ -2082,8 +2082,8 @@ msgstr "¡Alojamiento publicado! Ya está visible para los viajeros."
 msgid "Enviado a revisión. Un administrador lo aprobará y quedará visible."
 msgstr "Enviado a revisión. Un administrador lo aprobará y quedará visible."
 
-#: includes/class-ajax-listing.php:541 includes/class-booking.php:584
-#: includes/class-booking.php:719
+#: includes/class-ajax-listing.php:541 includes/class-booking.php:585
+#: includes/class-booking.php:720
 msgid "Debes iniciar sesión."
 msgstr "Debes iniciar sesión."
 
@@ -2248,7 +2248,7 @@ msgstr "No hay una agencia vinculada a tu cuenta."
 msgid "You can only manage bookings from your own agency."
 msgstr "Solo puedes gestionar reservas de tu propia agencia."
 
-#: includes/class-ajax.php:244 includes/class-booking.php:788
+#: includes/class-ajax.php:244 includes/class-booking.php:789
 msgid "Solo los administradores pueden cancelar reservas pagadas."
 msgstr "Solo los administradores pueden cancelar reservas pagadas."
 
@@ -2509,7 +2509,7 @@ msgstr "Paquete"
 msgid "Equipo"
 msgstr "Equipo"
 
-#: includes/class-booking.php:150 includes/class-booking.php:501
+#: includes/class-booking.php:150 includes/class-booking.php:502
 msgid "Booking created successfully"
 msgstr "Reserva creada correctamente"
 
@@ -2529,19 +2529,19 @@ msgstr "El número de huéspedes no es válido."
 msgid "La habitación seleccionada no pertenece a este alojamiento."
 msgstr "La habitación seleccionada no pertenece a este alojamiento."
 
-#: includes/class-booking.php:243
+#: includes/class-booking.php:244
 msgid "No puedes reservar para una fecha pasada. Revisa la fecha de inicio."
 msgstr "No puedes reservar para una fecha pasada. Revisa la fecha de inicio."
 
-#: includes/class-booking.php:246
+#: includes/class-booking.php:247
 msgid "La fecha de salida debe ser posterior a la de entrada."
 msgstr "La fecha de salida debe ser posterior a la de entrada."
 
-#: includes/class-booking.php:257
+#: includes/class-booking.php:258
 msgid "Debes indicar un correo electrónico válido para completar la reserva."
 msgstr "Debes indicar un correo electrónico válido para completar la reserva."
 
-#: includes/class-booking.php:285 includes/class-booking.php:867
+#: includes/class-booking.php:286 includes/class-booking.php:868
 msgid ""
 "No pudimos procesar la reserva en este momento. Intenta nuevamente en unos "
 "segundos."
@@ -2549,52 +2549,52 @@ msgstr ""
 "No pudimos procesar la reserva en este momento. Intenta nuevamente en unos "
 "segundos."
 
-#: includes/class-booking.php:307
+#: includes/class-booking.php:308
 msgid "The room is not available for the selected dates."
 msgstr "La habitación no está disponible para las fechas seleccionadas."
 
-#: includes/class-booking.php:318 includes/class-booking.php:341
+#: includes/class-booking.php:319 includes/class-booking.php:342
 msgid "Alguna de las fechas seleccionadas no está disponible para reservar."
 msgstr "Alguna de las fechas seleccionadas no está disponible para reservar."
 
-#: includes/class-booking.php:322
+#: includes/class-booking.php:323
 msgid "No hay disponibilidad para las fechas seleccionadas."
 msgstr "No hay disponibilidad para las fechas seleccionadas."
 
-#: includes/class-booking.php:334
+#: includes/class-booking.php:335
 msgid "El número de huéspedes supera la capacidad de la habitación."
 msgstr "El número de huéspedes supera la capacidad de la habitación."
 
 #. translators: %d: número mínimo de noches
-#: includes/class-booking.php:348
+#: includes/class-booking.php:349
 #, php-format
 msgid "Esta habitación requiere una estadía mínima de %d noches."
 msgstr "Esta habitación requiere una estadía mínima de %d noches."
 
-#: includes/class-booking.php:384
+#: includes/class-booking.php:385
 #, php-format
 msgid "Este tour requiere un mínimo de %d personas."
 msgstr "Este tour requiere un mínimo de %d personas."
 
-#: includes/class-booking.php:386
+#: includes/class-booking.php:387
 #, php-format
 msgid "Máximo %d personas por reserva."
 msgstr "Máximo %d personas por reserva."
 
-#: includes/class-booking.php:388
+#: includes/class-booking.php:389
 #, php-format
 msgid "La capacidad máxima del tour es %d personas."
 msgstr "La capacidad máxima del tour es %d personas."
 
-#: includes/class-booking.php:393
+#: includes/class-booking.php:394
 msgid "Esta fecha está bloqueada."
 msgstr "Esta fecha está bloqueada."
 
-#: includes/class-booking.php:395
+#: includes/class-booking.php:396
 msgid "El tour está completo para esta fecha/horario. Elige otra fecha."
 msgstr "El tour está completo para esta fecha/horario. Elige otra fecha."
 
-#: includes/class-booking.php:406
+#: includes/class-booking.php:407
 #, php-format
 msgid ""
 "El tour está completo para la fecha seleccionada. Quedan %d cupos y "
@@ -2603,69 +2603,69 @@ msgstr ""
 "El tour está completo para la fecha seleccionada. Quedan %d cupos y "
 "solicitaste %d."
 
-#: includes/class-booking.php:409
+#: includes/class-booking.php:410
 msgid "No hay horarios disponibles para esta fecha."
 msgstr "No hay horarios disponibles para esta fecha."
 
-#: includes/class-booking.php:446
+#: includes/class-booking.php:447
 msgid "Could not create booking"
 msgstr "No se pudo crear la reserva"
 
-#: includes/class-booking.php:524
-msgid ""
-"La agencia no respondió a tu solicitud dentro del plazo y se canceló "
-"automáticamente."
-msgstr ""
-"La agencia no respondió a tu solicitud dentro del plazo y se canceló "
-"automáticamente."
-
 #: includes/class-booking.php:525
 msgid ""
+"La agencia no respondió a tu solicitud dentro del plazo y se canceló "
+"automáticamente."
+msgstr ""
+"La agencia no respondió a tu solicitud dentro del plazo y se canceló "
+"automáticamente."
+
+#: includes/class-booking.php:526
+msgid ""
 "La reserva se canceló automáticamente por no confirmarse dentro del plazo."
 msgstr ""
 "La reserva se canceló automáticamente por no confirmarse dentro del plazo."
 
-#: includes/class-booking.php:563
+#: includes/class-booking.php:564
 msgid "No tienes permiso para cancelar esta reserva."
 msgstr "No tienes permiso para cancelar esta reserva."
 
-#: includes/class-booking.php:587
+#: includes/class-booking.php:588
 msgid "Debes verificar el correo de la reserva para cancelarla."
 msgstr "Debes verificar el correo de la reserva para cancelarla."
 
-#: includes/class-booking.php:592 includes/class-booking.php:633
-#: includes/class-booking.php:781
+#: includes/class-booking.php:593 includes/class-booking.php:634
+#: includes/class-booking.php:782
 msgid "Esta reserva ya no puede cancelarse."
 msgstr "Esta reserva ya no puede cancelarse."
 
-#: includes/class-booking.php:595 includes/class-booking.php:791
+#: includes/class-booking.php:596 includes/class-booking.php:792
 msgid "La reserva ya comenzó."
 msgstr "La reserva ya comenzó."
 
-#: includes/class-booking.php:733
+#: includes/class-booking.php:734
 msgid "Solo cuentas de agencia pueden operar reservas."
 msgstr "Solo cuentas de agencia pueden operar reservas."
 
-#: includes/class-booking.php:757 includes/class-booking.php:808
+#: includes/class-booking.php:758 includes/class-booking.php:809
 msgid "Invalid status"
 msgstr "Estado inválido"
 
-#: includes/class-booking.php:760 includes/class-booking.php:772
-#: includes/class-booking.php:1067
+#: includes/class-booking.php:761 includes/class-booking.php:773
+#: includes/class-booking.php:1068
 msgid "Invalid payment status"
 msgstr "Estado de pago inválido"
 
-#: includes/class-booking.php:799
+#: includes/class-booking.php:800
 msgid "Operación inválida."
 msgstr "Operación inválida."
 
 #. translators: 1: estado actual de la reserva, 2: estado solicitado
-#: includes/class-booking.php:828
+#: includes/class-booking.php:829
 #, php-format
 msgid "No se puede pasar el estado de \"%1$s\" a \"%2$s\"."
 msgstr "No se puede pasar el estado de \"%1$s\" a \"%2$s\"."
 
-#: includes/class-booking.php:839
+#: includes/class-booking.php:840
 msgid ""
 "Una reserva pagada y completada no puede cancelarse: debe reembolsarse "
 "(estado \"refunded\")."
@@ -2674,7 +2674,7 @@ msgstr ""
 "(estado \"refunded\")."
 
 #. translators: 1: cupos ocupados, 2: capacidad del tour
-#: includes/class-booking.php:876
+#: includes/class-booking.php:877
 #, php-format
 msgid ""
 "El tour ya no tiene cupos disponibles para la fecha seleccionada (%1$d de "
@@ -2683,11 +2683,11 @@ msgstr ""
 "El tour ya no tiene cupos disponibles para la fecha seleccionada (%1$d de "
 "%2$d ocupados)."
 
-#: includes/class-booking.php:1080
+#: includes/class-booking.php:1081
 msgid "No se pudo actualizar el estado del pago."
 msgstr "No se pudo actualizar el estado del pago."
 
-#: includes/class-booking.php:1115
+#: includes/class-booking.php:1116
 msgid ""
 "La reserva fue cancelada antes de procesar la captura; el pago fue "
 "reembolsado automáticamente."
@@ -2695,15 +2695,15 @@ msgstr ""
 "La reserva fue cancelada antes de procesar la captura; el pago fue "
 "reembolsado automáticamente."
 
-#: includes/class-booking.php:1118
+#: includes/class-booking.php:1119
 msgid "La reserva ya no existe: el pago fue reembolsado automáticamente."
 msgstr "La reserva ya no existe: el pago fue reembolsado automáticamente."
 
-#: includes/class-booking.php:1122
+#: includes/class-booking.php:1123
 msgid "Esta reserva ya tiene un pago registrado."
 msgstr "Esta reserva ya tiene un pago registrado."
 
-#: includes/class-booking.php:1139
+#: includes/class-booking.php:1140
 msgid ""
 "La moneda del pago capturado no coincide con la moneda configurada; el pago "
 "fue reembolsado automáticamente."
@@ -2711,17 +2711,17 @@ msgstr ""
 "La moneda del pago capturado no coincide con la moneda configurada; el pago "
 "fue reembolsado automáticamente."
 
-#: includes/class-booking.php:1143
+#: includes/class-booking.php:1144
 msgid ""
 "La moneda del pago no coincide; el pago fue reembolsado automáticamente."
 msgstr ""
 "La moneda del pago no coincide; el pago fue reembolsado automáticamente."
 
-#: includes/class-booking.php:1158 includes/class-booking.php:1193
+#: includes/class-booking.php:1159 includes/class-booking.php:1194
 msgid "El pago se registró en otra petición."
 msgstr "El pago se registró en otra petición."
 
-#: includes/class-booking.php:1183
+#: includes/class-booking.php:1184
 msgid "Pago parcial recibido; la reserva aún no está pagada por completo."
 msgstr "Pago parcial recibido; la reserva aún no está pagada por completo."
 
@@ -2831,15 +2831,15 @@ msgstr "Plata"
 msgid "Oro"
 msgstr "Oro"
 
-#: includes/class-customer-referrals.php:362
+#: includes/class-customer-referrals.php:366
 msgid "Inicia sesión para ver tu programa de referidos."
 msgstr "Inicia sesión para ver tu programa de referidos."
 
-#: includes/class-customer-referrals.php:376
+#: includes/class-customer-referrals.php:380
 msgid "Invita y gana"
 msgstr "Invita y gana"
 
-#: includes/class-customer-referrals.php:377
+#: includes/class-customer-referrals.php:381
 msgid ""
 "Comparte tu código con amigos y familia. Cuando reserven y paguen, ganarás "
 "puntos canjeables."
@@ -2847,61 +2847,61 @@ msgstr ""
 "Comparte tu código con amigos y familia. Cuando reserven y paguen, ganarás "
 "puntos canjeables."
 
-#: includes/class-customer-referrals.php:379
+#: includes/class-customer-referrals.php:383
 msgid "Tu código"
 msgstr "Tu código"
 
-#: includes/class-customer-referrals.php:381
+#: includes/class-customer-referrals.php:385
 msgid "Tu enlace"
 msgstr "Tu enlace"
 
-#: includes/class-customer-referrals.php:384
+#: includes/class-customer-referrals.php:388
 msgid "Código QR de tu enlace de referido"
 msgstr "Código QR de tu enlace de referido"
 
-#: includes/class-customer-referrals.php:387
+#: includes/class-customer-referrals.php:391
 #, php-format
 msgid "Descuento para tu invitado: %s%%. Tus puntos actuales: %s."
 msgstr "Descuento para tu invitado: %s%%. Tus puntos actuales: %s."
 
-#: includes/class-customer-referrals.php:393
+#: includes/class-customer-referrals.php:397
 #, php-format
 msgid "Nivel de afiliado: %s (%d referidos completados)."
 msgstr "Nivel de afiliado: %s (%d referidos completados)."
 
-#: includes/class-customer-referrals.php:395
+#: includes/class-customer-referrals.php:399
 msgid "Cómo funciona"
 msgstr "Cómo funciona"
 
-#: includes/class-customer-referrals.php:397
+#: includes/class-customer-referrals.php:401
 msgid "Comparte tu código o enlace con amigos y familia."
 msgstr "Comparte tu código o enlace con amigos y familia."
 
-#: includes/class-customer-referrals.php:398
+#: includes/class-customer-referrals.php:402
 msgid "Tu invitado reserva usando tu código y recibe un descuento inmediato."
 msgstr "Tu invitado reserva usando tu código y recibe un descuento inmediato."
 
-#: includes/class-customer-referrals.php:399
+#: includes/class-customer-referrals.php:403
 msgid "Cuando la reserva se paga y completa, tú ganas puntos canjeables."
 msgstr "Cuando la reserva se paga y completa, tú ganas puntos canjeables."
 
-#: includes/class-customer-referrals.php:400
+#: includes/class-customer-referrals.php:404
 msgid "Los puntos caducan a los 12 meses. Los auto-referidos no cuentan."
 msgstr "Los puntos caducan a los 12 meses. Los auto-referidos no cuentan."
 
-#: includes/class-customer-referrals.php:401
+#: includes/class-customer-referrals.php:405
 msgid "Más referidos completados = mayor nivel y mejores bonos."
 msgstr "Más referidos completados = mayor nivel y mejores bonos."
 
-#: includes/class-customer-referrals.php:405
+#: includes/class-customer-referrals.php:409
 msgid "Tus referidos"
 msgstr "Tus referidos"
 
-#: includes/class-customer-referrals.php:412
+#: includes/class-customer-referrals.php:416
 msgid "pts"
 msgstr "pts"
 
-#: includes/class-customer-referrals.php:418
+#: includes/class-customer-referrals.php:422
 msgid "Aún no tienes referidos. ¡Comparte tu enlace!"
 msgstr "Aún no tienes referidos. ¡Comparte tu enlace!"
 

@@ -684,6 +684,10 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
                 <span><?php esc_html_e('Tarifa de servicio', 'travel-agency-platform'); ?></span>
                 <span id="bw-fee-amount">$0</span>
               </div>
+              <div class="tap-bw-total-row tap-bw-referral-row" id="bw-referral" style="display:none;">
+                <span><?php esc_html_e('Descuento referido', 'travel-agency-platform'); ?></span>
+                <span id="bw-referral-amount">$0</span>
+              </div>
               <div class="tap-bw-total-row tap-bw-total-final">
                 <span><?php esc_html_e('Total', 'travel-agency-platform'); ?></span>
                 <span id="bw-total-amount">$0</span>
@@ -762,7 +766,8 @@ jQuery(document).ready(function($) {
       check_out: checkOut,
       adults: parseInt($('#bw-adults').val() || '1', 10),
       children: parseInt($('#bw-children').val() || '0', 10),
-      slot_id: slotId
+      slot_id: slotId,
+      referral_code: $('input[name="referral_code"]').val() || ''
     }).done(function(res) {
       if (res && res.success) {
         $('#bw-total').show();
@@ -772,6 +777,13 @@ jQuery(document).ready(function($) {
           $('#bw-fee').show();
         } else {
           $('#bw-fee').hide();
+        }
+        var referralDiscount = Number(res.data.referral_discount || 0);
+        if (referralDiscount > 0) {
+          $('#bw-referral-amount').text('-' + tapSym + referralDiscount.toFixed(tapDecimals));
+          $('#bw-referral').show();
+        } else {
+          $('#bw-referral').hide();
         }
         $('#bw-total-amount').text(tapSym + res.data.total.toFixed(tapDecimals));
         tapFull = false;
