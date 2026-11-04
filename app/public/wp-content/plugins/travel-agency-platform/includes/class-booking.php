@@ -207,7 +207,15 @@ class TAP_Booking {
             !empty($data['room_id']) ? intval($data['room_id']) : 0
         );
 
-        $subtotal = $total;
+        // Extras (upsells) selected by the client. Added to the subtotal so
+        // the agency earns commission on them too.
+        $extras_total = 0.0;
+        if (!empty($data['extras']) && is_array($data['extras']) && class_exists('TAP_Service_Extras')) {
+            $adults_for_extras = $adults;
+            $children_for_extras = $children;
+            $extras_total = TAP_Service_Extras::total_for(array_map('intval', (array) $data['extras']), $adults_for_extras, $children_for_extras);
+        }
+        $subtotal = round($total + $extras_total, 2);
         $booking_fee = self::get_booking_fee($subtotal);
         $booking_fee = round(max(0, $booking_fee), 2);
         $total = round($subtotal + $booking_fee, 2);
@@ -457,6 +465,11 @@ class TAP_Booking {
                     // Referral attribution (B2C growth loop).
                     if ($booking_id && class_exists('TAP_Customer_Referrals') && $referral_code && $referral_referrer) {
                         TAP_Customer_Referrals::on_booking_created($booking_id, $client_id_for_referral, $referral_code, $referral_referrer, $referral_discount);
+                    }
+
+                    // Persist selected extras (upsells) on the booking.
+                    if ($booking_id && !empty($data['extras']) && is_array($data['extras'])) {
+                        update_post_meta($booking_id, '_tap_booking_extras', implode(',', array_map('intval', (array) $data['extras'])));
                     }
 
                     // Line items are NOT written from client input: a booking
