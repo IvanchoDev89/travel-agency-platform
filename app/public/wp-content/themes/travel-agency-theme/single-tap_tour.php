@@ -550,6 +550,8 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
                 var adultTotal = adults * basePrice;
                 var childPrice = <?php echo (float) $child_price; ?>;
                 var childTotal = children * (childPrice > 0 ? childPrice : basePrice * 0.5);
+                var privateUpgrade = document.getElementById('bw-private-upgrade') && document.getElementById('bw-private-upgrade').checked;
+                var privatePrice = privateUpgrade ? parseFloat(document.getElementById('bw-private-upgrade').getAttribute('data-price') || '0') : 0;
                 // Extras selected in the widget.
                 var extrasTotal = 0;
                 document.querySelectorAll('#tap-booking-form input[name="extras[]"]:checked').forEach(function(cb){
@@ -565,7 +567,8 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
                 }
                 document.getElementById('bw-sum-adults').textContent = adults + ' × ' + basePrice.toFixed(2);
                 document.getElementById('bw-sum-children').textContent = children > 0 ? (children + ' × ' + (childPrice > 0 ? childPrice : basePrice * 0.5).toFixed(2)) : '—';
-                document.getElementById('bw-sum-total').textContent = (adultTotal + childTotal + extrasTotal).toFixed(2) + ' <?php echo esc_js(TAP_Currency::code()); ?>';
+                var estimatedTotal = privateUpgrade ? (privatePrice + extrasTotal) : (adultTotal + childTotal + extrasTotal);
+                document.getElementById('bw-sum-total').textContent = estimatedTotal.toFixed(2) + ' <?php echo esc_js(TAP_Currency::code()); ?>';
             }
             slotSel.addEventListener('change', function(){
                 if (slotId) slotId.value = slotSel.value;
@@ -582,6 +585,8 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
             document.querySelectorAll('#tap-booking-form input[name="extras[]"]').forEach(function(cb){
                 cb.addEventListener('change', updatePriceSummary);
             });
+            var privateCb = document.getElementById('bw-private-upgrade');
+            if (privateCb) privateCb.addEventListener('change', updatePriceSummary);
         })();
         </script>
         <?php endif; ?>
@@ -726,6 +731,19 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
                 <?php echo TAP_Service_Extras::render_selector('tap_tour', $id); ?>
             </div>
             <?php endif; ?>
+            <?php
+            $private_price = (float) get_post_meta($id, '_tap_tour_private_price', true);
+            $private_enabled = get_post_meta($id, '_tap_tour_private', true);
+            if ('tap_tour' === $pt && $private_enabled && $private_price > 0):
+            ?>
+            <div class="tap-bw-field tap-bw-field-full" style="margin-bottom:8px;">
+                <label class="tap-check-label">
+                    <input type="checkbox" name="private_upgrade" value="1" id="bw-private-upgrade" data-price="<?php echo esc_attr($private_price); ?>">
+                    <?php printf(esc_html__('Convertir a tour privado (%s)', 'travel-agency-platform'), esc_html(TAP_Currency::fmt($private_price))); ?>
+                </label>
+                <span class="tap-field-hint"><?php esc_html_e('Precio total del grupo, no por persona.', 'travel-agency-platform'); ?></span>
+            </div>
+            <?php endif; ?>
             <?php if ('tap_tour' === $pt && class_exists('TAP_Waiver') && TAP_Waiver::is_required('tap_tour', $id)): ?>
             <div class="tap-bw-field tap-bw-field-full" style="margin-bottom:8px;">
                 <p style="font-size:12px;color:#6b7280;"><?php esc_html_e('Esta actividad requiere firmar un waiver. Se pedirá después de la reserva.', 'travel-agency-platform'); ?></p>
@@ -786,6 +804,7 @@ jQuery(document).ready(function($) {
       adults: parseInt($('#bw-adults').val() || '1', 10),
       children: parseInt($('#bw-children').val() || '0', 10),
       slot_id: slotId,
+      private_upgrade: $('#bw-private-upgrade').is(':checked') ? 1 : 0,
       referral_code: $('input[name="referral_code"]').val() || ''
     }).done(function(res) {
       if (res && res.success) {

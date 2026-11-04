@@ -207,6 +207,14 @@ class TAP_Booking {
             !empty($data['room_id']) ? intval($data['room_id']) : 0
         );
 
+        // Private tour upgrade (upsell): flat price for the whole group.
+        if (!empty($data['private_upgrade']) && 'tap_tour' === sanitize_text_field($data['service_type'])) {
+            $private_price = (float) get_post_meta((int) $data['service_id'], '_tap_tour_private_price', true);
+            if ($private_price > 0) {
+                $total = $private_price;
+            }
+        }
+
         // Extras (upsells) selected by the client. Added to the subtotal so
         // the agency earns commission on them too.
         $extras_total = 0.0;

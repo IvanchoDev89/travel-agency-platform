@@ -245,7 +245,13 @@ class TAP_Ajax_Public {
                     if (!empty($_POST['extras']) && is_array($_POST['extras']) && class_exists('TAP_Service_Extras')) {
                         $extras_total = TAP_Service_Extras::total_for(array_map('intval', (array) $_POST['extras']), $adults, $children);
                     }
-                    $total = ($unit * $adults) + ($child_price * $children) + $extras_total;
+                    $private_upgrade = !empty($_POST['private_upgrade']);
+                    $private_price = (float) get_post_meta($service_id, '_tap_tour_private_price', true);
+                    if ($private_upgrade && $private_price > 0) {
+                        $total = $private_price + $extras_total;
+                    } else {
+                        $total = ($unit * $adults) + ($child_price * $children) + $extras_total;
+                    }
                     $base_total = $total;
                 } else {
                     $total      = TAP_Booking_Pricing::calculate_price($service_type, $service_id, $check_in, $check_out, $adults, $children, $room_id);

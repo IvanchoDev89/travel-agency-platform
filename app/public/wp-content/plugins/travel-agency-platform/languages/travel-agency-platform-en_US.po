@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-04T15:40:43+00:00\n"
+"POT-Creation-Date: 2026-11-04T15:51:22+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -1131,7 +1131,7 @@ msgstr ""
 "if you can."
 
 #: includes/class-acc-wizard-steps.php:730
-#: includes/class-acc-wizard-steps.php:929 includes/class-ajax-public.php:463
+#: includes/class-acc-wizard-steps.php:929 includes/class-ajax-public.php:469
 #: includes/class-listing-editor.php:377
 #: includes/class-tour-wizard-steps.php:735
 msgid "Destino"
@@ -1641,7 +1641,7 @@ msgid "No puedes adjuntar imágenes a esa unidad."
 msgstr "You cannot attach images to that unit."
 
 #: includes/class-agency-media.php:38 includes/class-agency-media.php:70
-#: includes/class-ajax-public.php:398
+#: includes/class-ajax-public.php:404
 msgid "No se recibió ningún archivo."
 msgstr "No file was received."
 
@@ -1794,7 +1794,7 @@ msgstr "Invalid PayPal order"
 
 #: includes/class-ajax-commerce.php:309 includes/class-ajax-commerce.php:317
 #: includes/class-ajax-commerce.php:375 includes/class-ajax-commerce.php:382
-#: includes/class-api.php:354 includes/class-booking.php:816
+#: includes/class-api.php:354 includes/class-booking.php:837
 #: includes/class-payment.php:45 includes/class-paypal.php:79
 msgid "Booking not found"
 msgstr "Booking not found"
@@ -1860,10 +1860,10 @@ msgstr "Payout request sent to the administrator."
 #: includes/class-ajax-dash.php:42 includes/class-ajax-dash.php:92
 #: includes/class-ajax-dash.php:494 includes/class-ajax-dash.php:525
 #: includes/class-ajax-dash.php:557 includes/class-ajax.php:149
-#: includes/class-ajax.php:192 includes/class-booking.php:562
-#: includes/class-booking.php:576 includes/class-booking.php:582
-#: includes/class-booking.php:726 includes/class-booking.php:1073
-#: includes/class-booking.php:1106 includes/class-invoices.php:38
+#: includes/class-ajax.php:192 includes/class-booking.php:583
+#: includes/class-booking.php:597 includes/class-booking.php:603
+#: includes/class-booking.php:747 includes/class-booking.php:1094
+#: includes/class-booking.php:1127 includes/class-invoices.php:38
 #: includes/class-refunds.php:40 includes/class-travel-insurance.php:37
 #: includes/class-waiver.php:72 includes/class-waiver.php:115
 msgid "Reserva no encontrada."
@@ -1872,8 +1872,8 @@ msgstr "Booking not found."
 #: includes/class-ajax-dash.php:45 includes/class-ajax-dash.php:51
 #: includes/class-ajax-dash.php:95 includes/class-ajax-dash.php:101
 #: includes/class-ajax-dash.php:498 includes/class-ajax-dash.php:529
-#: includes/class-ajax.php:198 includes/class-booking.php:738
-#: includes/class-booking.php:756
+#: includes/class-ajax.php:198 includes/class-booking.php:759
+#: includes/class-booking.php:777
 msgid "No tienes permiso sobre esta reserva."
 msgstr "You do not have permission over this booking."
 
@@ -2083,8 +2083,8 @@ msgstr ""
 "Submitted for review. An administrator will approve it and it will become "
 "visible."
 
-#: includes/class-ajax-listing.php:541 includes/class-ajax-public.php:394
-#: includes/class-booking.php:586 includes/class-booking.php:721
+#: includes/class-ajax-listing.php:541 includes/class-ajax-public.php:400
+#: includes/class-booking.php:607 includes/class-booking.php:742
 msgid "Debes iniciar sesión."
 msgstr "You must log in."
 
@@ -2173,22 +2173,22 @@ msgstr "Too many requests. Please wait a few minutes and try again."
 msgid "Invalid request"
 msgstr "Invalid request"
 
-#: includes/class-ajax-public.php:323
+#: includes/class-ajax-public.php:329
 msgid "Parámetros inválidos"
 msgstr "Invalid parameters"
 
-#: includes/class-ajax-public.php:403
+#: includes/class-ajax-public.php:409
 msgid "Formato no permitido."
 msgstr "Format not allowed."
 
-#: includes/class-ajax-public.php:446 includes/class-booking.php:62
+#: includes/class-ajax-public.php:452 includes/class-booking.php:62
 #: includes/class-emails-send.php:720 includes/class-itinerary.php:31
 #: includes/class-itinerary.php:88 includes/class-shortcode-booking.php:1024
 #: includes/class-taxonomies.php:278
 msgid "Alojamiento"
 msgstr "Accommodation"
 
-#: includes/class-ajax-public.php:501
+#: includes/class-ajax-public.php:507
 msgid "Invalid accommodation"
 msgstr "Invalid accommodation"
 
@@ -2256,7 +2256,7 @@ msgstr "No agency linked to your account."
 msgid "You can only manage bookings from your own agency."
 msgstr "You can only manage bookings from your own agency."
 
-#: includes/class-ajax.php:249 includes/class-booking.php:790
+#: includes/class-ajax.php:249 includes/class-booking.php:811
 msgid "Solo los administradores pueden cancelar reservas pagadas."
 msgstr "Only administrators can cancel paid bookings."
 
@@ -2514,7 +2514,7 @@ msgstr "Package"
 msgid "Equipo"
 msgstr "Equipment"
 
-#: includes/class-booking.php:150 includes/class-booking.php:503
+#: includes/class-booking.php:150 includes/class-booking.php:524
 msgid "Booking created successfully"
 msgstr "Booking created successfully"
 
@@ -2534,19 +2534,19 @@ msgstr "The number of guests is not valid."
 msgid "La habitación seleccionada no pertenece a este alojamiento."
 msgstr "The selected room does not belong to this accommodation."
 
-#: includes/class-booking.php:245
+#: includes/class-booking.php:261
 msgid "No puedes reservar para una fecha pasada. Revisa la fecha de inicio."
 msgstr "You cannot book for a past date. Check the start date."
 
-#: includes/class-booking.php:248
+#: includes/class-booking.php:264
 msgid "La fecha de salida debe ser posterior a la de entrada."
 msgstr "The check-out date must be after the check-in date."
 
-#: includes/class-booking.php:259
+#: includes/class-booking.php:275
 msgid "Debes indicar un correo electrónico válido para completar la reserva."
 msgstr "You must provide a valid email to complete the booking."
 
-#: includes/class-booking.php:287 includes/class-booking.php:869
+#: includes/class-booking.php:303 includes/class-booking.php:890
 msgid ""
 "No pudimos procesar la reserva en este momento. Intenta nuevamente en unos "
 "segundos."
@@ -2554,52 +2554,52 @@ msgstr ""
 "We could not process the booking right now. Please try again in a few "
 "seconds."
 
-#: includes/class-booking.php:309
+#: includes/class-booking.php:325
 msgid "The room is not available for the selected dates."
 msgstr "The room is not available for the selected dates."
 
-#: includes/class-booking.php:320 includes/class-booking.php:343
+#: includes/class-booking.php:336 includes/class-booking.php:359
 msgid "Alguna de las fechas seleccionadas no está disponible para reservar."
 msgstr "One of the selected dates is not available to book."
 
-#: includes/class-booking.php:324
+#: includes/class-booking.php:340
 msgid "No hay disponibilidad para las fechas seleccionadas."
 msgstr "There is no availability for the selected dates."
 
-#: includes/class-booking.php:336
+#: includes/class-booking.php:352
 msgid "El número de huéspedes supera la capacidad de la habitación."
 msgstr "The number of guests exceeds the room capacity."
 
 #. translators: %d: número mínimo de noches
-#: includes/class-booking.php:350
+#: includes/class-booking.php:366
 #, php-format
 msgid "Esta habitación requiere una estadía mínima de %d noches."
 msgstr "This room requires a minimum stay of %d nights."
 
-#: includes/class-booking.php:386
+#: includes/class-booking.php:402
 #, php-format
 msgid "Este tour requiere un mínimo de %d personas."
 msgstr "This tour requires a minimum of %d people."
 
-#: includes/class-booking.php:388
+#: includes/class-booking.php:404
 #, php-format
 msgid "Máximo %d personas por reserva."
 msgstr "Maximum %d people per booking."
 
-#: includes/class-booking.php:390
+#: includes/class-booking.php:406
 #, php-format
 msgid "La capacidad máxima del tour es %d personas."
 msgstr "The tour maximum capacity is %d people."
 
-#: includes/class-booking.php:395
+#: includes/class-booking.php:411
 msgid "Esta fecha está bloqueada."
 msgstr "This date is blocked."
 
-#: includes/class-booking.php:397
+#: includes/class-booking.php:413
 msgid "El tour está completo para esta fecha/horario. Elige otra fecha."
 msgstr "The tour is full for this date/time. Choose another date."
 
-#: includes/class-booking.php:408
+#: includes/class-booking.php:424
 #, php-format
 msgid ""
 "El tour está completo para la fecha seleccionada. Quedan %d cupos y "
@@ -2607,15 +2607,15 @@ msgid ""
 msgstr ""
 "The tour is full for the selected date. %d spots left, you requested %d."
 
-#: includes/class-booking.php:411
+#: includes/class-booking.php:427
 msgid "No hay horarios disponibles para esta fecha."
 msgstr "No time slots available for this date."
 
-#: includes/class-booking.php:448
+#: includes/class-booking.php:464
 msgid "Could not create booking"
 msgstr "Could not create booking"
 
-#: includes/class-booking.php:526
+#: includes/class-booking.php:547
 msgid ""
 "La agencia no respondió a tu solicitud dentro del plazo y se canceló "
 "automáticamente."
@@ -2623,53 +2623,53 @@ msgstr ""
 "The agency did not respond to your request in time and it was cancelled "
 "automatically."
 
-#: includes/class-booking.php:527
+#: includes/class-booking.php:548
 msgid ""
 "La reserva se canceló automáticamente por no confirmarse dentro del plazo."
 msgstr ""
 "The booking was cancelled automatically because it was not confirmed in time."
 
-#: includes/class-booking.php:565
+#: includes/class-booking.php:586
 msgid "No tienes permiso para cancelar esta reserva."
 msgstr "You do not have permission to cancel this booking."
 
-#: includes/class-booking.php:589
+#: includes/class-booking.php:610
 msgid "Debes verificar el correo de la reserva para cancelarla."
 msgstr "You must verify the booking email to cancel it."
 
-#: includes/class-booking.php:594 includes/class-booking.php:635
-#: includes/class-booking.php:783
+#: includes/class-booking.php:615 includes/class-booking.php:656
+#: includes/class-booking.php:804
 msgid "Esta reserva ya no puede cancelarse."
 msgstr "This booking can no longer be cancelled."
 
-#: includes/class-booking.php:597 includes/class-booking.php:793
+#: includes/class-booking.php:618 includes/class-booking.php:814
 msgid "La reserva ya comenzó."
 msgstr "The booking has already started."
 
-#: includes/class-booking.php:735
+#: includes/class-booking.php:756
 msgid "Solo cuentas de agencia pueden operar reservas."
 msgstr "Only agency accounts can operate bookings."
 
-#: includes/class-booking.php:759 includes/class-booking.php:810
+#: includes/class-booking.php:780 includes/class-booking.php:831
 msgid "Invalid status"
 msgstr "Invalid status"
 
-#: includes/class-booking.php:762 includes/class-booking.php:774
-#: includes/class-booking.php:1069
+#: includes/class-booking.php:783 includes/class-booking.php:795
+#: includes/class-booking.php:1090
 msgid "Invalid payment status"
 msgstr "Invalid payment status"
 
-#: includes/class-booking.php:801
+#: includes/class-booking.php:822
 msgid "Operación inválida."
 msgstr "Invalid operation."
 
 #. translators: 1: estado actual de la reserva, 2: estado solicitado
-#: includes/class-booking.php:830
+#: includes/class-booking.php:851
 #, php-format
 msgid "No se puede pasar el estado de \"%1$s\" a \"%2$s\"."
 msgstr "Cannot change the status from \"%1$s\" to \"%2$s\"."
 
-#: includes/class-booking.php:841
+#: includes/class-booking.php:862
 msgid ""
 "Una reserva pagada y completada no puede cancelarse: debe reembolsarse "
 "(estado \"refunded\")."
@@ -2678,7 +2678,7 @@ msgstr ""
 "(status \"refunded\")."
 
 #. translators: 1: cupos ocupados, 2: capacidad del tour
-#: includes/class-booking.php:878
+#: includes/class-booking.php:899
 #, php-format
 msgid ""
 "El tour ya no tiene cupos disponibles para la fecha seleccionada (%1$d de "
@@ -2687,11 +2687,11 @@ msgstr ""
 "The tour no longer has seats available for the selected date (%1$d of %2$d "
 "booked)."
 
-#: includes/class-booking.php:1082
+#: includes/class-booking.php:1103
 msgid "No se pudo actualizar el estado del pago."
 msgstr "The payment status could not be updated."
 
-#: includes/class-booking.php:1117
+#: includes/class-booking.php:1138
 msgid ""
 "La reserva fue cancelada antes de procesar la captura; el pago fue "
 "reembolsado automáticamente."
@@ -2699,15 +2699,15 @@ msgstr ""
 "The booking was cancelled before processing the capture; the payment was "
 "refunded automatically."
 
-#: includes/class-booking.php:1120
+#: includes/class-booking.php:1141
 msgid "La reserva ya no existe: el pago fue reembolsado automáticamente."
 msgstr "The booking no longer exists: the payment was refunded automatically."
 
-#: includes/class-booking.php:1124
+#: includes/class-booking.php:1145
 msgid "Esta reserva ya tiene un pago registrado."
 msgstr "This booking already has a recorded payment."
 
-#: includes/class-booking.php:1141
+#: includes/class-booking.php:1162
 msgid ""
 "La moneda del pago capturado no coincide con la moneda configurada; el pago "
 "fue reembolsado automáticamente."
@@ -2715,17 +2715,17 @@ msgstr ""
 "The captured payment currency does not match the configured currency; the "
 "payment was refunded automatically."
 
-#: includes/class-booking.php:1145
+#: includes/class-booking.php:1166
 msgid ""
 "La moneda del pago no coincide; el pago fue reembolsado automáticamente."
 msgstr ""
 "The payment currency does not match; the payment was refunded automatically."
 
-#: includes/class-booking.php:1160 includes/class-booking.php:1195
+#: includes/class-booking.php:1181 includes/class-booking.php:1216
 msgid "El pago se registró en otra petición."
 msgstr "The payment was recorded in another request."
 
-#: includes/class-booking.php:1185
+#: includes/class-booking.php:1206
 msgid "Pago parcial recibido; la reserva aún no está pagada por completo."
 msgstr "Partial payment received; the booking is not fully paid yet."
 
