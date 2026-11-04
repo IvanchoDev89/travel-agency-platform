@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-04T00:44:06+00:00\n"
+"POT-Creation-Date: 2026-11-04T01:01:09+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -867,7 +867,7 @@ msgstr ""
 #: includes/class-shortcode-booking.php:921
 #: includes/class-shortcode-booking.php:923
 #: includes/class-shortcode-booking.php:946
-#: includes/class-shortcode-booking.php:949 travel-agency-platform.php:330
+#: includes/class-shortcode-booking.php:949 travel-agency-platform.php:320
 msgid "Error"
 msgstr "Error"
 
@@ -9159,7 +9159,7 @@ msgstr "¿Enviar ahora?"
 #: includes/class-email-campaigns.php:265
 #: includes/class-front-dash-client.php:323 includes/class-front-dash.php:561
 #: includes/class-shortcode-account.php:811
-#: includes/class-shortcode-booking.php:900 travel-agency-platform.php:339
+#: includes/class-shortcode-booking.php:900 travel-agency-platform.php:329
 msgid "Enviar"
 msgstr "Enviar"
 
@@ -13643,6 +13643,59 @@ msgstr "Administrador de agencia"
 msgid "Agency Employee"
 msgstr "Empleado de agencia"
 
+#: includes/class-security-headers.php:53
+#: includes/class-security-headers.php:54
+msgid "Seguridad HTTP"
+msgstr "Seguridad HTTP"
+
+#: includes/class-security-headers.php:97
+msgid "Seguridad HTTP (HSTS / CSP)"
+msgstr "Seguridad HTTP (HSTS / CSP)"
+
+#: includes/class-security-headers.php:98
+msgid ""
+"Configura headers de seguridad. Empieza en modo \"Solo reporte\" para no "
+"romper el sitio."
+msgstr ""
+"Configura headers de seguridad. Empieza en modo \"Solo reporte\" para no "
+"romper el sitio."
+
+#: includes/class-security-headers.php:103
+msgid "HSTS (solo HTTPS)"
+msgstr "HSTS (solo HTTPS)"
+
+#: includes/class-security-headers.php:105
+msgid "Activar HSTS"
+msgstr "Activar HSTS"
+
+#: includes/class-security-headers.php:106
+msgid "Solo se envía si el sitio está en HTTPS."
+msgstr "Solo se envía si el sitio está en HTTPS."
+
+#: includes/class-security-headers.php:110
+msgid "Modo CSP"
+msgstr "Modo CSP"
+
+#: includes/class-security-headers.php:113
+msgid "Desactivado"
+msgstr "Desactivado"
+
+#: includes/class-security-headers.php:114
+msgid "Solo reporte (recomendado al inicio)"
+msgstr "Solo reporte (recomendado al inicio)"
+
+#: includes/class-security-headers.php:115
+msgid "Aplicar (puede romper el sitio)"
+msgstr "Aplicar (puede romper el sitio)"
+
+#: includes/class-security-headers.php:120
+msgid "Política CSP"
+msgstr "Política CSP"
+
+#: includes/class-security-headers.php:123
+msgid "Lista blanca de recursos. Ajusta según tus CDNs."
+msgstr "Lista blanca de recursos. Ajusta según tus CDNs."
+
 #: includes/class-seo.php:43
 msgid "Agencias de viaje y operadores turísticos verificados en la plataforma."
 msgstr ""
@@ -14057,11 +14110,11 @@ msgid "Network error. Please try again."
 msgstr "Error de red. Inténtalo de nuevo."
 
 #: includes/class-shortcode-account.php:795
-#: includes/class-shortcode-account.php:797 travel-agency-platform.php:335
+#: includes/class-shortcode-account.php:797 travel-agency-platform.php:325
 msgid "Asistente de viajes"
 msgstr "Asistente de viajes"
 
-#: includes/class-shortcode-account.php:801 travel-agency-platform.php:340
+#: includes/class-shortcode-account.php:801 travel-agency-platform.php:330
 msgid ""
 "¡Hola! Soy el asistente de viajes. Pregunta por alojamientos, tours, bonos o "
 "agencias, o toca una sugerencia."
@@ -14070,7 +14123,7 @@ msgstr ""
 "agencias, o toca una sugerencia."
 
 #: includes/class-shortcode-account.php:809
-#: includes/class-shortcode-account.php:810 travel-agency-platform.php:338
+#: includes/class-shortcode-account.php:810 travel-agency-platform.php:328
 msgid "Escribe tu pregunta…"
 msgstr "Escribe tu pregunta…"
 
@@ -14243,7 +14296,7 @@ msgid "Solicitar reserva"
 msgstr "Solicitar reserva"
 
 #: includes/class-shortcode-booking.php:46
-#: includes/class-shortcode-booking.php:124 travel-agency-platform.php:329
+#: includes/class-shortcode-booking.php:124 travel-agency-platform.php:319
 msgid "Book Now"
 msgstr "Reservar ahora"
 
@@ -16440,117 +16493,117 @@ msgstr ""
 "no se encontró el autoloader de Composer. Ejecuta \"composer dump-autoload -"
 "o\"."
 
-#: travel-agency-platform.php:307
+#: travel-agency-platform.php:297
 msgid "results found"
 msgstr "resultados encontrados"
 
-#: travel-agency-platform.php:308
+#: travel-agency-platform.php:298
 msgid "No results found"
 msgstr "No se encontraron resultados"
 
-#: travel-agency-platform.php:309
+#: travel-agency-platform.php:299
 msgid "Guardado en favoritos"
 msgstr "Guardado en favoritos"
 
-#: travel-agency-platform.php:310
+#: travel-agency-platform.php:300
 msgid "Quitado de favoritos"
 msgstr "Quitado de favoritos"
 
-#: travel-agency-platform.php:311
+#: travel-agency-platform.php:301
 msgid "Aún no hay reseñas."
 msgstr "Aún no hay reseñas."
 
-#: travel-agency-platform.php:312
+#: travel-agency-platform.php:302
 msgid "Aún no hay reseñas. Sé el primero en compartir tu experiencia."
 msgstr "Aún no hay reseñas. Sé el primero en compartir tu experiencia."
 
-#: travel-agency-platform.php:313
+#: travel-agency-platform.php:303
 msgid "reseña"
 msgstr "reseña"
 
-#: travel-agency-platform.php:314
+#: travel-agency-platform.php:304
 msgid "reseñas"
 msgstr "reseñas"
 
-#: travel-agency-platform.php:315
+#: travel-agency-platform.php:305
 msgid "Anónimo"
 msgstr "Anónimo"
 
-#: travel-agency-platform.php:316
+#: travel-agency-platform.php:306
 msgid "Enviando..."
 msgstr "Enviando..."
 
-#: travel-agency-platform.php:317
+#: travel-agency-platform.php:307
 msgid "¡Reseña enviada! Pendiente de aprobación."
 msgstr "¡Reseña enviada! Pendiente de aprobación."
 
-#: travel-agency-platform.php:318
+#: travel-agency-platform.php:308
 msgid "Error al enviar"
 msgstr "Error al enviar"
 
-#: travel-agency-platform.php:319
+#: travel-agency-platform.php:309
 msgid "Review submitted"
 msgstr "Reseña enviada"
 
-#: travel-agency-platform.php:320
+#: travel-agency-platform.php:310
 msgid "Error al enviar la reseña"
 msgstr "Error al enviar la reseña"
 
 #. translators: %s: nombre del servicio
-#: travel-agency-platform.php:322
+#: travel-agency-platform.php:312
 #, php-format
 msgid "Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!"
 msgstr "Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!"
 
-#: travel-agency-platform.php:323
+#: travel-agency-platform.php:313
 msgid "Reseña verificada"
 msgstr "Reseña verificada"
 
 #. translators: 1: cupos disponibles, 2: cupos totales
-#: travel-agency-platform.php:325
+#: travel-agency-platform.php:315
 #, php-format
 msgid "Cupos disponibles: %s de %s"
 msgstr "Cupos disponibles: %s de %s"
 
 #. translators: 1: cupos ocupados, 2: cupos totales
-#: travel-agency-platform.php:327
+#: travel-agency-platform.php:317
 #, php-format
 msgid "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
 msgstr "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
 
-#: travel-agency-platform.php:328
+#: travel-agency-platform.php:318
 msgid "El tour está completo para esta fecha."
 msgstr "El tour está completo para esta fecha."
 
-#: travel-agency-platform.php:331
+#: travel-agency-platform.php:321
 msgid "Image gallery"
 msgstr "Galería de imágenes"
 
-#: travel-agency-platform.php:332
+#: travel-agency-platform.php:322
 msgid "Close image gallery"
 msgstr "Cerrar galería de imágenes"
 
-#: travel-agency-platform.php:333
+#: travel-agency-platform.php:323
 msgid "Previous image"
 msgstr "Imagen anterior"
 
-#: travel-agency-platform.php:334
+#: travel-agency-platform.php:324
 msgid "Next image"
 msgstr "Imagen siguiente"
 
-#: travel-agency-platform.php:336
+#: travel-agency-platform.php:326
 msgid "Abrir asistente"
 msgstr "Abrir asistente"
 
-#: travel-agency-platform.php:337
+#: travel-agency-platform.php:327
 msgid "Cerrar asistente"
 msgstr "Cerrar asistente"
 
-#: travel-agency-platform.php:341
+#: travel-agency-platform.php:331
 msgid "Pensando…"
 msgstr "Pensando…"
 
-#: travel-agency-platform.php:342
+#: travel-agency-platform.php:332
 msgid "Hubo un problema. Inténtalo de nuevo."
 msgstr "Hubo un problema. Inténtalo de nuevo."
 

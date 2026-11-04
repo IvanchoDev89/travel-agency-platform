@@ -128,6 +128,7 @@ final class TravelAgencyPlatform {
         add_action('init', ['TAP_Front_Dash', 'init'], 15);
         add_action('init', ['TAP_Customer_Referrals', 'init'], 15);
         add_action('init', ['TAP_Referral_Reports', 'init'], 15);
+        add_action('init', ['TAP_Security_Headers', 'init'], 15);
         add_action('plugins_loaded', [$this, 'maybe_update_tables'], 5);
         add_action('pre_get_posts', ['TAP_Archive_Query', 'filter_archive_query'], 10);
         add_filter('posts_clauses', ['TAP_Archive_Query', 'rating_sort_clauses'], 10, 2);
@@ -156,7 +157,7 @@ final class TravelAgencyPlatform {
         add_action('rest_api_init', ['TAP_API', 'register_routes']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_public_assets']);
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
-        add_action('send_headers', [$this, 'send_security_headers']);
+        add_action('send_headers', ['TAP_Security_Headers', 'send']);
         add_action('wp_ajax_tap_booking_create', ['TAP_Ajax', 'create_booking']);
         add_action('wp_ajax_nopriv_tap_booking_create', ['TAP_Ajax', 'create_booking']);
         add_action('wp_ajax_tap_cancel_booking', ['TAP_Ajax', 'cancel_booking']);
@@ -252,17 +253,6 @@ final class TravelAgencyPlatform {
             flush_rewrite_rules();
             update_option('tap_rewrite_version', TAP_VERSION);
         }
-    }
-
-    /** Send baseline security headers. */
-    public function send_security_headers() {
-        if (headers_sent()) {
-            return;
-        }
-        header('X-Content-Type-Options: nosniff');
-        header('X-Frame-Options: SAMEORIGIN');
-        header('Referrer-Policy: strict-origin-when-cross-origin');
-        header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
     }
 
     public function load_textdomain() {
