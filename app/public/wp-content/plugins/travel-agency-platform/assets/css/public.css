@@ -3290,3 +3290,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 /* Skip link already in theme */
 .tap-skip-link { position: absolute; left: -9999px; top: 0; background: #0f766e; color: #fff; padding: 8px 12px; z-index: 10000; border-radius: 0 0 8px 0; }
 .tap-skip-link:focus { left: 0; }
+
+/* Onboarding help */
+.tap-onboarding-help { background: #fff; border: 1px solid var(--tap-neutral-200); border-radius: 14px; padding: 16px 20px; margin-bottom: 20px; }
+.tap-onboarding-help h4 { margin: 0 0 8px; font-size: 15px; font-weight: 700; color: var(--tap-neutral-800); }
+.tap-onboarding-help ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.tap-onboarding-help li a { display: inline-block; padding: 6px 12px; background: var(--tap-neutral-50); border-radius: 8px; font-size: 13px; color: var(--tap-primary); text-decoration: none; border: 1px solid var(--tap-neutral-200); transition: background .15s ease; }
+.tap-onboarding-help li a:hover { background: var(--tap-primary); color: #fff; }

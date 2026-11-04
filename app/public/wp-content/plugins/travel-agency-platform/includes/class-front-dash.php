@@ -1466,6 +1466,17 @@ endif;
             </div>
             <?php endif; ?>
 
+            <?php if ($agency_id) : ?>
+            <div class="tap-onboarding-help">
+                <h4><?php esc_html_e('Recursos para empezar', 'travel-agency-platform'); ?></h4>
+                <ul>
+                    <li><a href="<?php echo esc_url(home_url('/manage-listing/?new=tap_tour')); ?>"><?php esc_html_e('Crear tu primer tour', 'travel-agency-platform'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/manage-listing/')); ?>"><?php esc_html_e('Gestionar listados', 'travel-agency-platform'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/planes/')); ?>"><?php esc_html_e('Ver planes y límites', 'travel-agency-platform'); ?></a></li>
+                </ul>
+            </div>
+            <?php endif; ?>
+
             <div class="tap-stats-grid">
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html($stats['total']); ?></span><span class="tap-stat-label"><?php esc_html_e('Reservas totales', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b45309;"><?php echo esc_html($stats['request'] ?? 0); ?></span><span class="tap-stat-label"><?php esc_html_e('Solicitudes', 'travel-agency-platform'); ?></span></div>
