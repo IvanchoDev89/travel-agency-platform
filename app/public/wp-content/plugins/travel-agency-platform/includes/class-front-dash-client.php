@@ -97,15 +97,65 @@ class TAP_Front_Dash_Client {
 
         ob_start();
         ?>
+        <?php
+        // Lightweight notification center (derived from existing data).
+        $notif_items = [];
+        $notif_count = 0;
+        foreach ($bookings as $b) {
+            $u = TAP_Chat::unread_for($b->id, 'client');
+            if ($u > 0) {
+                $notif_count += $u;
+                $notif_items[] = ['type' => 'chat', 'text' => sprintf(__('Tienes %d mensaje(s) nuevo(s) en la reserva %s', 'travel-agency-platform'), $u, $b->booking_code), 'url' => home_url('/mi-cuenta/?seccion=bookings')];
+            }
+        }
+        if (class_exists('TAP_Customer_Referrals')) {
+            global $wpdb;
+            $recent_rewards = $wpdb->get_results($wpdb->prepare(
+                "SELECT booking_id, points_awarded FROM " . TAP_Customer_Referrals::table() . " WHERE referrer_user_id = %d AND status = 'rewarded' AND updated_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) ORDER BY updated_at DESC LIMIT 5",
+                $user->ID
+            ));
+            foreach ($recent_rewards as $rr) {
+                $notif_count++;
+                $notif_items[] = ['type' => 'referral', 'text' => sprintf(__('Ganaste %d puntos por un referido.', 'travel-agency-platform'), (int) $rr->points_awarded), 'url' => home_url('/mi-cuenta/?seccion=loyalty')];
+            }
+        }
+        ?>
         <div class="tap-dash-header">
             <div class="tap-dash-header-text">
                 <h1><?php printf(/* translators: %s: nombre del usuario */ esc_html__('Hola, %s', 'travel-agency-platform'), esc_html($user->display_name)); ?></h1>
                 <p><?php esc_html_e('Bienvenido a tu panel personal. Desde aquí puedes gestionar todo tu viaje.', 'travel-agency-platform'); ?></p>
             </div>
-            <div class="tap-dash-header-avatar">
+            <div class="tap-dash-header-avatar" style="display:flex;align-items:center;gap:12px;">
+                <div class="tap-notif-wrap">
+                    <button type="button" class="tap-notif-bell" id="tap-notif-bell" aria-label="<?php esc_attr_e('Notificaciones', 'travel-agency-platform'); ?>">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                        <?php if ($notif_count > 0): ?><span class="tap-notif-badge"><?php echo (int) $notif_count; ?></span><?php endif; ?>
+                    </button>
+                    <div class="tap-notif-dropdown" id="tap-notif-dropdown" style="display:none;">
+                        <?php if ($notif_items): ?>
+                            <ul class="tap-notif-list">
+                                <?php foreach ($notif_items as $ni): ?>
+                                    <li><a href="<?php echo esc_url($ni['url']); ?>"><?php echo esc_html($ni['text']); ?></a></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php else: ?>
+                            <p class="tap-empty" style="padding:12px;"><?php esc_html_e('Sin notificaciones nuevas.', 'travel-agency-platform'); ?></p>
+                        <?php endif; ?>
+                    </div>
+                </div>
                 <?php echo get_avatar($user->ID, 72); ?>
             </div>
         </div>
+        <script>
+        (function(){
+            var bell = document.getElementById('tap-notif-bell');
+            var dd = document.getElementById('tap-notif-dropdown');
+            if (bell && dd) {
+                bell.addEventListener('click', function(e){ e.stopPropagation(); dd.style.display = dd.style.display === 'none' ? 'block' : 'none'; });
+                document.addEventListener('click', function(){ dd.style.display = 'none'; });
+            }
+        })();
+        </script>
 
         <div class="tap-dash-stats">
             <div class="tap-dash-stat-card">

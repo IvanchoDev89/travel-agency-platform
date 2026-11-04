@@ -420,7 +420,7 @@ class TAP_API {
 
         $reviews = $wpdb->get_results($wpdb->prepare(
             "SELECT r.id, r.service_type, r.service_id, r.user_id,
-                    r.rating, r.title, r.content,
+                    r.rating, r.title, r.content, r.images,
                     r.reply, r.reply_author, r.reply_at,
                     r.is_verified, r.created_at,
                     u.display_name as user_name
@@ -434,6 +434,16 @@ class TAP_API {
             100
         ));
 
+        foreach ($reviews as $rev) {
+            $urls = [];
+            if (!empty($rev->images)) {
+                foreach (array_filter(array_map('absint', explode(',', (string) $rev->images))) as $aid) {
+                    $u = wp_get_attachment_url($aid);
+                    if ($u) $urls[] = $u;
+                }
+            }
+            $rev->image_urls = $urls;
+        }
         return rest_ensure_response($reviews);
     }
 

@@ -46,6 +46,10 @@ $rev_id   = get_the_ID();
         <label for="tap-review-content"><?php _e('Your review', 'travel-agency-platform'); ?></label>
         <textarea id="tap-review-content" name="content" class="tap-input" rows="4" required placeholder="<?php esc_attr_e('Tell others about your experience...', 'travel-agency-platform'); ?>"></textarea>
       </div>
+      <div class="tap-review-field">
+        <label for="tap-review-images"><?php _e('Photos (optional)', 'travel-agency-platform'); ?></label>
+        <input type="file" id="tap-review-images" name="review_images[]" class="tap-input" accept="image/*" multiple>
+      </div>
       <button type="submit" class="tap-btn tap-btn-primary"><?php _e('Submit Review', 'travel-agency-platform'); ?></button>
       <span class="tap-review-msg"></span>
     </form>
@@ -96,6 +100,11 @@ jQuery(document).ready(function($) {
       var body = $('<div class="tap-review-body">');
       if (r.title) body.append($('<div class="tap-review-title">').text(r.title));
       body.append($('<p class="tap-review-text">').text(r.content));
+      if (r.image_urls && r.image_urls.length) {
+        var gal = $('<div class="tap-review-images">');
+        r.image_urls.forEach(function(u){ gal.append($('<img>').attr('src', u).attr('loading','lazy').attr('decoding','async')); });
+        body.append(gal);
+      }
       var meta = $('<div class="tap-review-meta">').text(r.user_name + ' · ' + new Date(r.created_at).toLocaleDateString());
       if (parseInt(r.is_verified, 10) === 1) meta.append('<span class="tap-review-verified">' + (tapI18n.reviewVerified || 'Reseña verificada') + '</span>');
       body.append(meta);
@@ -120,29 +129,48 @@ jQuery(document).ready(function($) {
       var btn = $form.find('button[type=submit]');
       btn.prop('disabled', true);
       var rating = $form.find('input[name=rating]:checked').val();
-      var data = {
-        service_type: $form.find('input[name=service_type]').val(),
-        service_id: $form.find('input[name=service_id]').val(),
-        rating: rating,
-        title: $form.find('input[name=title]').val(),
-        content: $form.find('textarea[name=content]').val(),
-      };
-      $.ajax({
-        url: restBase + '/review',
-        method: 'POST',
-        data: JSON.stringify(data),
-        contentType: 'application/json',
-        dataType: 'json',
-        headers: { 'X-WP-Nonce': tap_ajax.rest_nonce },
-      }).done(function(res) {
-        $msg.addClass('tap-error').removeClass('tap-success').hide();
-        $msg.removeClass('tap-error').addClass('tap-success').text(res.message || (tapI18n.reviewSubmitted || 'Review submitted')).show();
-        $form.find('textarea[name=content]').val('');
-        $form.find('input[name=title]').val('');
-      }).fail(function(x) {
-        var msg = x.responseJSON && x.responseJSON.message ? x.responseJSON.message : (tapI18n.reviewError2 || 'Error al enviar la reseña');
-        $msg.removeClass('tap-success').addClass('tap-error').text(msg).show();
-      }).always(function() { btn.prop('disabled', false); });
+      var files = $form.find('input[name="review_images[]"]')[0] ? $form.find('input[name="review_images[]"]')[0].files : [];
+      var uploadPromises = [];
+      Array.prototype.forEach.call(files, function(f){
+        var fd = new FormData();
+        fd.append('file', f);
+        fd.append('nonce', tap_ajax.nonce);
+        fd.append('action', 'tap_upload_review_image');
+        uploadPromises.push($.ajax({ url: tap_ajax.ajax_url, method: 'POST', data: fd, processData: false, contentType: false, dataType: 'json' }));
+      });
+      $.when.apply($, uploadPromises).done(function(){
+        var ids = [];
+        var ress = uploadPromises.length === 1 ? [arguments[0]] : Array.prototype.slice.call(arguments);
+        ress.forEach(function(r){ if (r && r.success && r.data && r.data.attachment_id) ids.push(r.data.attachment_id); });
+        var data = {
+          service_type: $form.find('input[name=service_type]').val(),
+          service_id: $form.find('input[name=service_id]').val(),
+          rating: rating,
+          title: $form.find('input[name=title]').val(),
+          content: $form.find('textarea[name=content]').val(),
+          images: ids,
+        };
+        $.ajax({
+          url: restBase + '/review',
+          method: 'POST',
+          data: JSON.stringify(data),
+          contentType: 'application/json',
+          dataType: 'json',
+          headers: { 'X-WP-Nonce': tap_ajax.rest_nonce },
+        }).done(function(res) {
+          $msg.addClass('tap-error').removeClass('tap-success').hide();
+          $msg.removeClass('tap-error').addClass('tap-success').text(res.message || (tapI18n.reviewSubmitted || 'Review submitted')).show();
+          $form.find('textarea[name=content]').val('');
+          $form.find('input[name=title]').val('');
+          $form.find('input[name="review_images[]"]').val('');
+        }).fail(function(x) {
+          var msg = x.responseJSON && x.responseJSON.message ? x.responseJSON.message : (tapI18n.reviewError2 || 'Error al enviar la reseña');
+          $msg.removeClass('tap-success').addClass('tap-error').text(msg).show();
+        }).always(function() { btn.prop('disabled', false); });
+      }).fail(function(){
+        btn.prop('disabled', false);
+        $msg.removeClass('tap-success').addClass('tap-error').text(tapI18n.reviewError2 || 'Error al enviar la reseña').show();
+      });
     });
   }
 

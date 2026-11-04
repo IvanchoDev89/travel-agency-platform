@@ -388,6 +388,42 @@ class TAP_Ajax_Public {
     }
 
 
+    public static function upload_review_image() {
+        check_ajax_referer('tap_nonce', 'nonce');
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => __('Debes iniciar sesión.', 'travel-agency-platform')], 403);
+        }
+        $user_id = get_current_user_id();
+        if (empty($_FILES['file'])) {
+            wp_send_json_error(['message' => __('No se recibió ningún archivo.', 'travel-agency-platform')]);
+        }
+        $file = $_FILES['file'];
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true)) {
+            wp_send_json_error(['message' => __('Formato no permitido.', 'travel-agency-platform')]);
+        }
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+        require_once ABSPATH . 'wp-admin/includes/media.php';
+        require_once ABSPATH . 'wp-admin/includes/image.php';
+        $overrides = ['test_form' => false];
+        $handled = wp_handle_upload($file, $overrides);
+        if (isset($handled['error'])) {
+            wp_send_json_error(['message' => $handled['error']]);
+        }
+        $att_id = wp_insert_attachment([
+            'post_mime_type' => $handled['type'],
+            'post_title'     => sanitize_file_name(pathinfo($handled['file'], PATHINFO_FILENAME)),
+            'post_content'   => '',
+            'post_status'    => 'inherit',
+            'post_author'    => $user_id,
+        ], $handled['file']);
+        if (is_wp_error($att_id)) {
+            wp_send_json_error(['message' => $att_id->get_error_message()]);
+        }
+        wp_update_attachment_metadata($att_id, wp_generate_attachment_metadata($att_id, $handled['file']));
+        wp_send_json_success(['attachment_id' => (int) $att_id, 'url' => wp_get_attachment_url($att_id)]);
+    }
+
     public static function search_suggestions() {
         check_ajax_referer('tap_nonce', 'nonce');
         self::throttle('search', 60);

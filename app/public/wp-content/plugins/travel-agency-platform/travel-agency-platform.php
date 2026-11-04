@@ -186,6 +186,7 @@ final class TravelAgencyPlatform {
         add_action('wp_ajax_nopriv_tap_get_public_pricing', ['TAP_Ajax_Public', 'get_public_pricing']);
         add_action('wp_ajax_tap_search_suggestions', ['TAP_Ajax_Public', 'search_suggestions']);
         add_action('wp_ajax_nopriv_tap_search_suggestions', ['TAP_Ajax_Public', 'search_suggestions']);
+        add_action('wp_ajax_tap_upload_review_image', ['TAP_Ajax_Public', 'upload_review_image']);
         add_action('wp_ajax_tap_update_booking_status', ['TAP_Ajax', 'update_booking_status']);
         add_action('wp_ajax_tap_agency_register', ['TAP_Ajax', 'agency_register']);
         add_action('wp_ajax_nopriv_tap_agency_register', ['TAP_Ajax', 'agency_register']);
