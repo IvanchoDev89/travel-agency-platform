@@ -7,6 +7,9 @@ class TAP_Emails {
         add_action('tap_booking_status_updated', [__CLASS__, 'on_status_updated'], 10, 3);
         add_action('tap_payment_completed', [__CLASS__, 'on_payment_completed'], 10, 3);
         add_action('tap_agency_registered', [__CLASS__, 'on_agency_registered'], 10, 2);
+        add_action('tap_agency_onboarding_day1', [__CLASS__, 'onboarding_day1'], 10, 2);
+        add_action('tap_agency_onboarding_day3', [__CLASS__, 'onboarding_day3'], 10, 2);
+        add_action('tap_agency_onboarding_day7', [__CLASS__, 'onboarding_day7'], 10, 2);
         add_action('tap_agency_approved', [__CLASS__, 'on_agency_approved'], 10, 1);
         add_action('tap_agency_rejected', [__CLASS__, 'on_agency_rejected'], 10, 1);
         add_action('tap_subscription_paid', [__CLASS__, 'on_subscription_paid'], 10, 3);
@@ -80,6 +83,20 @@ class TAP_Emails {
         );
         TAP_Emails_Send::send($agency_email, __('Tu agencia está en revisión', 'travel-agency-platform'), TAP_Emails_Send::info_template($welcome_headline, $welcome_intro));
 
+        // Schedule onboarding email drip (day 1, 3, 7).
+        if (!wp_next_scheduled('tap_agency_onboarding_day1', [$user_id, $agency_id])) {
+            wp_schedule_single_event(time() + DAY_IN_SECONDS, 'tap_agency_onboarding_day1', [$user_id, $agency_id]);
+        }
+        if (!wp_next_scheduled('tap_agency_onboarding_day3', [$user_id, $agency_id])) {
+            wp_schedule_single_event(time() + (3 * DAY_IN_SECONDS), 'tap_agency_onboarding_day3', [$user_id, $agency_id]);
+        }
+        if (!wp_next_scheduled('tap_agency_onboarding_day7', [$user_id, $agency_id])) {
+            wp_schedule_single_event(time() + (7 * DAY_IN_SECONDS), 'tap_agency_onboarding_day7', [$user_id, $agency_id]);
+        }
+
+        // Onboarding email handlers.
+        // (methods defined below)
+
         $admin_email = get_option('admin_email');
         if ($admin_email) {
             $kyc = TAP_Approval::kyc($agency_id);
@@ -101,6 +118,42 @@ class TAP_Emails {
                 )
             );
         }
+    }
+
+    public static function onboarding_day1($user_id, $agency_id) {
+        $user = get_userdata($user_id);
+        $agency = get_post($agency_id);
+        if (!$user || !$agency) return;
+        $email = get_post_meta($agency_id, '_tap_agency_email', true);
+        if (!is_email($email)) $email = $user->user_email;
+        $headline = __('Primer paso: crea tu primer tour', 'travel-agency-platform');
+        $intro = sprintf(
+            __('Hola %s, ya puedes empezar a preparar tus listados. Crea tu primer tour desde tu panel y añade fotos, precios y disponibilidad. Cuando tu agencia sea aprobada, estará listo para publicar.', 'travel-agency-platform'),
+            esc_html($user->display_name)
+        );
+        TAP_Emails_Send::send($email, $headline, TAP_Emails_Send::info_template($headline, $intro));
+    }
+
+    public static function onboarding_day3($user_id, $agency_id) {
+        $user = get_userdata($user_id);
+        $agency = get_post($agency_id);
+        if (!$user || !$agency) return;
+        $email = get_post_meta($agency_id, '_tap_agency_email', true);
+        if (!is_email($email)) $email = $user->user_email;
+        $headline = __('Configura tus precios y disponibilidad', 'travel-agency-platform');
+        $intro = __('Recuerda definir precios por persona, capacidad y salidas recurrentes. Sin fechas disponibles, tu tour no podrá recibir reservas.', 'travel-agency-platform');
+        TAP_Emails_Send::send($email, $headline, TAP_Emails_Send::info_template($headline, $intro));
+    }
+
+    public static function onboarding_day7($user_id, $agency_id) {
+        $user = get_userdata($user_id);
+        $agency = get_post($agency_id);
+        if (!$user || !$agency) return;
+        $email = get_post_meta($agency_id, '_tap_agency_email', true);
+        if (!is_email($email)) $email = $user->user_email;
+        $headline = __('¿Necesitas ayuda?', 'travel-agency-platform');
+        $intro = __('Si tienes dudas sobre cómo publicar tu primer tour, responde a este correo o visita tu panel. Estamos aquí para ayudarte.', 'travel-agency-platform');
+        TAP_Emails_Send::send($email, $headline, TAP_Emails_Send::info_template($headline, $intro));
     }
 
     public static function on_agency_approved($agency_id) {
