@@ -53,7 +53,7 @@ jQuery(document).ready(function($) {
         toast: function(msg) {
             var $t = $('.tap-toast');
             if (!$t.length) {
-                $t = $('<div class="tap-toast"></div>').appendTo('body');
+                $t = $('<div class="tap-toast" role="status" aria-live="polite" aria-atomic="true"></div>').appendTo('body');
             }
             $t.text(msg).addClass('show');
             clearTimeout(this._t);

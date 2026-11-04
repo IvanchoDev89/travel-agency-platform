@@ -451,7 +451,7 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
                     if ($p > 0 && ($min_price === 0 || $p < $min_price)) $min_price = $p;
                 }
                 ?>
-                <div class="<?php echo esc_attr($cls); ?>" data-date="<?php echo esc_attr($date); ?>">
+                <div class="<?php echo esc_attr($cls); ?>" data-date="<?php echo esc_attr($date); ?>" <?php if (strpos($cls, 'available') !== false || strpos($cls, 'full') !== false): ?>tabindex="0" role="button" aria-label="<?php echo esc_attr(sprintf(__('Ver salidas del %s', 'travel-agency-platform'), $date)); ?>"<?php endif; ?>>
                     <span class="tap-avcal-num"><?php echo (int) $d; ?></span>
                     <?php if ($day_slots): ?>
                         <?php foreach ($day_slots as $sl): ?>
@@ -476,19 +476,26 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
         <script>
         (function(){
             var days = document.querySelectorAll('.tap-avcal-day.available, .tap-avcal-day.full');
+            function selectDay(day) {
+                var date = day.getAttribute('data-date');
+                if (!date) return;
+                days.forEach(function(d){ d.classList.remove('is-selected'); });
+                day.classList.add('is-selected');
+                var sel = document.getElementById('bw-tour-date');
+                if (sel) {
+                    sel.value = date;
+                    sel.dispatchEvent(new Event('change'));
+                    var widget = document.getElementById('tap-booking-widget');
+                    if (widget) widget.scrollIntoView({behavior:'smooth', block:'start'});
+                }
+            }
             days.forEach(function(day){
                 day.style.cursor = 'pointer';
-                day.addEventListener('click', function(){
-                    var date = day.getAttribute('data-date');
-                    if (!date) return;
-                    days.forEach(function(d){ d.classList.remove('is-selected'); });
-                    day.classList.add('is-selected');
-                    var sel = document.getElementById('bw-tour-date');
-                    if (sel) {
-                        sel.value = date;
-                        sel.dispatchEvent(new Event('change'));
-                        var widget = document.getElementById('tap-booking-widget');
-                        if (widget) widget.scrollIntoView({behavior:'smooth', block:'start'});
+                day.addEventListener('click', function(){ selectDay(day); });
+                day.addEventListener('keydown', function(e){
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        selectDay(day);
                     }
                 });
             });
