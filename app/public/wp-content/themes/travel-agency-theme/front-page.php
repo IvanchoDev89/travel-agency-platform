@@ -441,6 +441,44 @@ foreach ($pillarDefs as $pDef) {
 </section>
 <?php endif; ?>
 
+<?php
+$featured_tour_ids = class_exists('TAP_Promotions') ? TAP_Promotions::featured_ids(['tap_tour']) : [];
+$featured_tours = [];
+if ($featured_tour_ids) {
+    foreach ($featured_tour_ids as $fid) {
+        $fp = get_post($fid);
+        if (!$fp || 'publish' !== $fp->post_status) continue;
+        if (preg_match($fixtureRx, $fp->post_title)) continue;
+        $featured_tours[] = $fp;
+        if (count($featured_tours) >= 6) break;
+    }
+}
+?>
+<?php if (!empty($featured_tours)): ?>
+<section class="tap-section tap-featured-tours">
+  <div class="tap-container">
+    <div class="tap-landing-head">
+      <p class="tap-landing-eyebrow"><?php esc_html_e('Patrocinado', 'travel-agency-platform'); ?></p>
+      <h2><?php esc_html_e('Tours destacados', 'travel-agency-platform'); ?></h2>
+      <p class="tap-landing-sub"><?php esc_html_e('Servicios promocionados por agencias verificadas.', 'travel-agency-platform'); ?></p>
+    </div>
+    <div class="tap-landing-xp-grid">
+      <?php foreach ($featured_tours as $ft): ?>
+        <a class="tap-landing-card" href="<?php echo esc_url(get_permalink($ft->ID)); ?>">
+          <div class="tap-landing-card-media">
+            <?php echo get_the_post_thumbnail($ft->ID, 'medium_large', ['loading' => 'lazy', 'decoding' => 'async']); ?>
+            <span class="tap-featured-badge"><?php esc_html_e('Destacado', 'travel-agency-platform'); ?></span>
+          </div>
+          <div class="tap-landing-card-body">
+            <h3 class="tap-landing-card-title"><?php echo esc_html($ft->post_title); ?></h3>
+          </div>
+        </a>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</section>
+<?php endif; ?>
+
 <?php if (!empty($experiences) && tap_lp_enabled('featured')): ?>
 <section class="tap-section tap-section-alt tap-landing-experiences">
   <div class="tap-container">
