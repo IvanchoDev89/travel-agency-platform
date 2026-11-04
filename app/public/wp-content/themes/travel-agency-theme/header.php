@@ -12,7 +12,30 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('<?php echo esc_url(get_template_directory_uri() . '/assets/sw.js'); ?>').catch(function(){});
     });
 }
+var tapDeferredPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    tapDeferredPrompt = e;
+    var bar = document.getElementById('tap-install-bar');
+    if (bar) bar.style.display = 'flex';
+});
+function tapInstallApp() {
+    if (!tapDeferredPrompt) return;
+    tapDeferredPrompt.prompt();
+    tapDeferredPrompt.userChoice.then(function() {
+        tapDeferredPrompt = null;
+        var bar = document.getElementById('tap-install-bar');
+        if (bar) bar.style.display = 'none';
+    });
+}
 </script>
+<div id="tap-install-bar" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#0f766e;color:#fff;padding:12px 16px;align-items:center;justify-content:space-between;gap:12px;">
+    <span style="font-size:14px;font-weight:600;"><?php esc_html_e('Instala la app para acceso rápido', 'travel-agency-platform'); ?></span>
+    <div style="display:flex;gap:8px;">
+        <button type="button" class="tap-btn tap-btn-sm" style="background:#fff;color:#0f766e;" onclick="tapInstallApp()"><?php esc_html_e('Instalar', 'travel-agency-platform'); ?></button>
+        <button type="button" class="tap-btn tap-btn-sm" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.4);" onclick="document.getElementById('tap-install-bar').style.display='none'"><?php esc_html_e('Cerrar', 'travel-agency-platform'); ?></button>
+    </div>
+</div>
 </head>
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>

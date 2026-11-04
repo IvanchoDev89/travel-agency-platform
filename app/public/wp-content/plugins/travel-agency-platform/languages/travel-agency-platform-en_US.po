@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-04T19:13:23+00:00\n"
+"POT-Creation-Date: 2026-11-04T20:06:18+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -195,7 +195,7 @@ msgstr "Active unit"
 #: includes/class-dashboard-content.php:196
 #: includes/class-dashboard-content.php:376
 #: includes/class-email-campaigns.php:267
-#: includes/class-front-dash-client.php:581
+#: includes/class-front-dash-client.php:582
 #: includes/class-landing-builder.php:267
 #: includes/class-landing-builder.php:338 includes/class-listing-editor.php:524
 #: includes/class-metaboxes.php:110 includes/class-metaboxes.php:130
@@ -336,7 +336,7 @@ msgstr "No main photo"
 #: includes/class-dashboard-insights.php:104
 #: includes/class-email-campaigns.php:245
 #: includes/class-email-campaigns.php:289
-#: includes/class-front-dash-client.php:607 includes/class-front-dash.php:1183
+#: includes/class-front-dash-client.php:608 includes/class-front-dash.php:1183
 #: includes/class-front-dash.php:1680 includes/class-leads.php:223
 #: includes/class-metaboxes.php:90 includes/class-privacy.php:410
 #: includes/class-privacy.php:569 includes/class-shortcode-agency-panel.php:360
@@ -1374,7 +1374,7 @@ msgstr "Confirm"
 #: includes/class-dashboard-market.php:92
 #: includes/class-dashboard-money.php:451
 #: includes/class-dashboard-money.php:488
-#: includes/class-front-dash-client.php:357 includes/class-front-dash.php:492
+#: includes/class-front-dash-client.php:358 includes/class-front-dash.php:492
 #: includes/class-front-dash.php:548 includes/class-landing-builder.php:284
 #: includes/class-listing-editor.php:511
 #: includes/class-shortcode-booking.php:304
@@ -2798,7 +2798,7 @@ msgid "Niveles de afiliado"
 msgstr "Affiliate tiers"
 
 #: includes/class-customer-referrals.php:91
-#: includes/class-front-dash-client.php:494
+#: includes/class-front-dash-client.php:495
 #: includes/class-referral-reports.php:125
 msgid "Nivel"
 msgstr "Level"
@@ -2862,7 +2862,7 @@ msgid "Nivel actual"
 msgstr "Current level"
 
 #: includes/class-customer-referrals.php:439
-#: includes/class-front-dash-client.php:490
+#: includes/class-front-dash-client.php:491
 msgid "Puntos disponibles"
 msgstr "Available points"
 
@@ -3007,7 +3007,7 @@ msgid "reservas efectivas"
 msgstr "actual bookings"
 
 #: includes/class-dashboard-bookings.php:54
-#: includes/class-front-dash-client.php:167 includes/class-front-dash.php:1555
+#: includes/class-front-dash-client.php:168 includes/class-front-dash.php:1555
 msgid "Reservas totales"
 msgstr "Total bookings"
 
@@ -3054,7 +3054,7 @@ msgid "Reservas por servicio"
 msgstr "Bookings by service"
 
 #: includes/class-dashboard-bookings.php:86
-#: includes/class-front-dash-client.php:206 includes/class-front-dash.php:1630
+#: includes/class-front-dash-client.php:207 includes/class-front-dash.php:1630
 msgid "Reservas recientes"
 msgstr "Recent bookings"
 
@@ -3064,7 +3064,7 @@ msgstr "There are no bookings yet."
 
 #: includes/class-dashboard-bookings.php:93
 #: includes/class-dashboard-bookings.php:176 includes/class-emails-send.php:745
-#: includes/class-front-dash-client.php:213 includes/class-front-dash.php:506
+#: includes/class-front-dash-client.php:214 includes/class-front-dash.php:506
 #: includes/class-front-dash.php:1638 includes/class-privacy.php:383
 msgid "Código"
 msgstr "Code"
@@ -3080,7 +3080,7 @@ msgstr "Client"
 #: includes/class-dashboard-content.php:77
 #: includes/class-dashboard-market.php:68
 #: includes/class-dashboard-market.php:110 includes/class-emails-send.php:746
-#: includes/class-emails.php:690 includes/class-front-dash-client.php:214
+#: includes/class-emails.php:690 includes/class-front-dash-client.php:215
 #: includes/class-front-dash.php:507 includes/class-front-dash.php:977
 #: includes/class-front-dash.php:1639 includes/class-front-dash.php:1682
 #: includes/class-invoices.php:122 includes/class-privacy.php:386
@@ -3094,7 +3094,7 @@ msgstr "Service"
 #: includes/class-dashboard-insights.php:110
 #: includes/class-dashboard-insights.php:331
 #: includes/class-dashboard-money.php:299 includes/class-emails-send.php:752
-#: includes/class-front-dash-client.php:216 includes/class-front-dash.php:510
+#: includes/class-front-dash-client.php:217 includes/class-front-dash.php:510
 #: includes/class-front-dash.php:1641 includes/class-invoices.php:123
 #: includes/class-invoices.php:132 includes/class-privacy.php:389
 #: includes/class-shortcode-agency-panel.php:233
@@ -3116,7 +3116,7 @@ msgstr "Total"
 #: includes/class-dashboard-money.php:399
 #: includes/class-dashboard-money.php:589
 #: includes/class-email-campaigns.php:247
-#: includes/class-front-dash-client.php:217 includes/class-front-dash.php:512
+#: includes/class-front-dash-client.php:218 includes/class-front-dash.php:512
 #: includes/class-front-dash.php:801 includes/class-front-dash.php:874
 #: includes/class-front-dash.php:1278 includes/class-front-dash.php:1642
 #: includes/class-invoices.php:177 includes/class-privacy.php:384
@@ -3134,7 +3134,7 @@ msgstr "Status"
 #: includes/class-dashboard-market.php:112
 #: includes/class-dashboard-money.php:400
 #: includes/class-dashboard-money.php:590
-#: includes/class-front-dash-client.php:513 includes/class-front-dash.php:802
+#: includes/class-front-dash-client.php:514 includes/class-front-dash.php:802
 #: includes/class-front-dash.php:875 includes/class-front-dash.php:1019
 #: includes/class-front-dash.php:1683 includes/class-invoices.php:179
 #: includes/class-privacy.php:414 includes/class-privacy.php:436
@@ -3867,7 +3867,7 @@ msgid "Cancelados"
 msgstr "Cancelled"
 
 #: includes/class-dashboard-market.php:69
-#: includes/class-front-dash-client.php:215 includes/class-front-dash.php:508
+#: includes/class-front-dash-client.php:216 includes/class-front-dash.php:508
 #: includes/class-front-dash.php:1640
 msgid "Fechas"
 msgstr "Dates"
@@ -4118,7 +4118,7 @@ msgid "Método"
 msgstr "Method"
 
 #: includes/class-dashboard-money.php:396
-#: includes/class-front-dash-client.php:515 includes/class-front-dash.php:799
+#: includes/class-front-dash-client.php:516 includes/class-front-dash.php:799
 msgid "Origen"
 msgstr "Source"
 
@@ -9127,7 +9127,7 @@ msgid "¿Enviar ahora?"
 msgstr "Send now?"
 
 #: includes/class-email-campaigns.php:265
-#: includes/class-front-dash-client.php:373 includes/class-front-dash.php:561
+#: includes/class-front-dash-client.php:374 includes/class-front-dash.php:561
 #: includes/class-shortcode-account.php:811
 #: includes/class-shortcode-booking.php:900 travel-agency-platform.php:331
 msgid "Enviar"
@@ -10240,19 +10240,19 @@ msgid "Publicación enviada."
 msgstr "Post submitted."
 
 #: includes/class-front-dash-client.php:44
-#: includes/class-front-dash-client.php:296
+#: includes/class-front-dash-client.php:297
 #: includes/class-shortcode-booking.php:719
 msgid "Mis reservas"
 msgstr "My bookings"
 
 #: includes/class-front-dash-client.php:45
-#: includes/class-front-dash-client.php:194
-#: includes/class-front-dash-client.php:422
+#: includes/class-front-dash-client.php:195
+#: includes/class-front-dash-client.php:423
 msgid "Favoritos"
 msgstr "Favorites"
 
 #: includes/class-front-dash-client.php:46
-#: includes/class-front-dash-client.php:544
+#: includes/class-front-dash-client.php:545
 msgid "Mis reseñas"
 msgstr "My Reviews"
 
@@ -10261,7 +10261,7 @@ msgid "Puntos y referidos"
 msgstr "Points and referrals"
 
 #: includes/class-front-dash-client.php:48
-#: includes/class-front-dash-client.php:598
+#: includes/class-front-dash-client.php:599
 msgid "Mi perfil"
 msgstr "My profile"
 
@@ -10297,181 +10297,181 @@ msgstr "Notifications"
 msgid "Sin notificaciones nuevas."
 msgstr "No new notifications."
 
-#: includes/class-front-dash-client.php:176
+#: includes/class-front-dash-client.php:177
 msgid "Próximas"
 msgstr "Upcoming"
 
-#: includes/class-front-dash-client.php:185
+#: includes/class-front-dash-client.php:186
 msgid "Total invertido"
 msgstr "Total Spent"
 
-#: includes/class-front-dash-client.php:207
+#: includes/class-front-dash-client.php:208
 msgid "Ver todas"
 msgstr "View All"
 
-#: includes/class-front-dash-client.php:245
+#: includes/class-front-dash-client.php:246
 msgid "Explora experiencias"
 msgstr "Explore Experiences"
 
-#: includes/class-front-dash-client.php:297
+#: includes/class-front-dash-client.php:298
 msgid "Gestiona tus reservas activas, pasadas y pendientes de pago."
 msgstr "Manage your active, past, and pending bookings."
 
-#: includes/class-front-dash-client.php:303
+#: includes/class-front-dash-client.php:304
 msgid "Sin reservas aún"
 msgstr "No bookings yet"
 
-#: includes/class-front-dash-client.php:304
+#: includes/class-front-dash-client.php:305
 msgid "Explora nuestros tours y alojamientos para planear tu próximo viaje."
 msgstr "Explore our tours and accommodations to plan your next trip."
 
-#: includes/class-front-dash-client.php:305
-#: includes/class-front-dash-client.php:431
+#: includes/class-front-dash-client.php:306
+#: includes/class-front-dash-client.php:432
 msgid "Explorar tours"
 msgstr "Explore Tours"
 
-#: includes/class-front-dash-client.php:348 includes/class-itinerary.php:375
+#: includes/class-front-dash-client.php:349 includes/class-itinerary.php:375
 #: includes/class-shortcode-booking.php:1055
 #: includes/class-shortcode-search.php:319
 #: includes/class-shortcode-search.php:1235
 msgid "Ver detalles"
 msgstr "View details"
 
-#: includes/class-front-dash-client.php:349
+#: includes/class-front-dash-client.php:350
 #: includes/class-shortcode-booking.php:721
 msgid "Añadir a calendario"
 msgstr "Add to calendar"
 
-#: includes/class-front-dash-client.php:351
+#: includes/class-front-dash-client.php:352
 #: includes/class-shortcode-booking.php:296
 #: includes/class-shortcode-booking.php:726
 msgid "Pagar ahora"
 msgstr "Pay now"
 
-#: includes/class-front-dash-client.php:354
+#: includes/class-front-dash-client.php:355
 msgid "Reseña ★"
 msgstr "Review ★"
 
-#: includes/class-front-dash-client.php:362
+#: includes/class-front-dash-client.php:363
 msgid "Chat con la agencia"
 msgstr "Chat with the agency"
 
-#: includes/class-front-dash-client.php:369 includes/class-front-dash.php:557
+#: includes/class-front-dash-client.php:370 includes/class-front-dash.php:557
 msgid "Cargando conversación..."
 msgstr "Loading conversation..."
 
-#: includes/class-front-dash-client.php:372
+#: includes/class-front-dash-client.php:373
 msgid "Escribe un mensaje..."
 msgstr "Write a message..."
 
-#: includes/class-front-dash-client.php:384
+#: includes/class-front-dash-client.php:385
 msgid "Paginación de reservas"
 msgstr "Booking pagination"
 
-#: includes/class-front-dash-client.php:423
+#: includes/class-front-dash-client.php:424
 msgid "Los servicios que guardaste para tu próximo viaje."
 msgstr "The services you saved for your next trip."
 
-#: includes/class-front-dash-client.php:429
+#: includes/class-front-dash-client.php:430
 msgid "Sin favoritos"
 msgstr "No favorites yet"
 
-#: includes/class-front-dash-client.php:430
+#: includes/class-front-dash-client.php:431
 msgid ""
 "Guarda servicios haciendo clic en el corazón para encontrarlos fácilmente "
 "después."
 msgstr "Save services by clicking the heart to find them easily later."
 
-#: includes/class-front-dash-client.php:454
+#: includes/class-front-dash-client.php:455
 #: includes/class-shortcode-booking.php:1056
 msgid "Quitar de favoritos"
 msgstr "Remove from favorites"
 
-#: includes/class-front-dash-client.php:475 includes/class-front-dash.php:898
+#: includes/class-front-dash-client.php:476 includes/class-front-dash.php:898
 msgid "Módulo de fidelidad no disponible."
 msgstr "Loyalty module not available."
 
-#: includes/class-front-dash-client.php:485
+#: includes/class-front-dash-client.php:486
 msgid "Mi fidelidad"
 msgstr "My loyalty"
 
-#: includes/class-front-dash-client.php:498
+#: includes/class-front-dash-client.php:499
 msgid "Descuento por nivel"
 msgstr "Level discount"
 
-#: includes/class-front-dash-client.php:502
+#: includes/class-front-dash-client.php:503
 #, php-format
 msgid ""
 "Ganas %s punto(s) por cada unidad de moneda gastada. 100 puntos = 1 de "
 "descuento."
 msgstr "You earn %s point(s) per currency unit spent. 100 points = 1 discount."
 
-#: includes/class-front-dash-client.php:506
+#: includes/class-front-dash-client.php:507
 msgid "Historial de puntos"
 msgstr "Points history"
 
-#: includes/class-front-dash-client.php:509
+#: includes/class-front-dash-client.php:510
 msgid "Aún no tienes movimientos de puntos."
 msgstr "No point movements yet."
 
-#: includes/class-front-dash-client.php:514
+#: includes/class-front-dash-client.php:515
 #: includes/class-referral-reports.php:129
 msgid "Puntos"
 msgstr "Points"
 
-#: includes/class-front-dash-client.php:545
+#: includes/class-front-dash-client.php:546
 msgid "Reseñas que publicaste sobre tus experiencias."
 msgstr "Reviews you posted about your experiences."
 
-#: includes/class-front-dash-client.php:551
+#: includes/class-front-dash-client.php:552
 msgid "Sin reseñas"
 msgstr "No reviews yet"
 
-#: includes/class-front-dash-client.php:552
+#: includes/class-front-dash-client.php:553
 msgid ""
 "Después de completar una reserva, podrás dejar tu reseña para ayudar a otros "
 "viajeros."
 msgstr ""
 "After completing a booking, you can leave a review to help other travelers."
 
-#: includes/class-front-dash-client.php:576
+#: includes/class-front-dash-client.php:577
 #: includes/class-shortcode-search.php:622
 msgid "Respuesta:"
 msgstr "Reply:"
 
-#: includes/class-front-dash-client.php:599
+#: includes/class-front-dash-client.php:600
 msgid "Actualiza tus datos personales y tu contraseña."
 msgstr "Update your personal details and password."
 
-#: includes/class-front-dash-client.php:611 includes/class-privacy.php:152
+#: includes/class-front-dash-client.php:612 includes/class-privacy.php:152
 msgid "Correo electrónico"
 msgstr "Email"
 
-#: includes/class-front-dash-client.php:615
+#: includes/class-front-dash-client.php:616
 msgid "Contraseña actual"
 msgstr "Current password"
 
-#: includes/class-front-dash-client.php:616
+#: includes/class-front-dash-client.php:617
 msgid "Requerida para cambiar la contraseña"
 msgstr "Required to change the password"
 
-#: includes/class-front-dash-client.php:619
+#: includes/class-front-dash-client.php:620
 msgid "Nueva contraseña"
 msgstr "New password"
 
-#: includes/class-front-dash-client.php:620
+#: includes/class-front-dash-client.php:621
 msgid "Dejar vacío para no cambiar"
 msgstr "Leave empty to keep unchanged"
 
-#: includes/class-front-dash-client.php:621
+#: includes/class-front-dash-client.php:622
 msgid "Mínimo 8 caracteres. Deja vacío si no quieres cambiarla."
 msgstr "Minimum 8 characters. Leave empty if you do not want to change it."
 
-#: includes/class-front-dash-client.php:624
+#: includes/class-front-dash-client.php:625
 msgid "Confirmar contraseña"
 msgstr "Confirm password"
 
-#: includes/class-front-dash-client.php:629
+#: includes/class-front-dash-client.php:630
 #: includes/class-landing-builder.php:248 includes/class-listing-editor.php:419
 #: includes/class-tour-wizard.php:301
 msgid "Guardar cambios"
