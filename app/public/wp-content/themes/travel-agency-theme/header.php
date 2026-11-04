@@ -42,6 +42,11 @@ function tapInstallApp() {
 <a href="#main-content" class="tap-skip-link"><?php esc_html_e('Saltar al contenido principal', 'travel-agency-platform'); ?></a>
 
 <header class="site-header" id="site-header" data-touch="">
+<?php if (function_exists('pll_the_languages')): ?>
+<div class="tap-lang-selector" style="position:absolute;right:16px;top:12px;z-index:10;">
+    <?php pll_the_languages(['show_flags' => 1, 'show_names' => 1, 'dropdown' => 1]); ?>
+</div>
+<?php endif; ?>
     <div class="header-inner">
         <div class="site-branding">
             <?php if (function_exists('the_custom_logo') && has_custom_logo()): ?>
