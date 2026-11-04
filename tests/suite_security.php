@@ -142,4 +142,56 @@ delete_transient($rl_key);
 delete_transient(TAP_Rate_Limit::key($rl_other));
 unset($_SERVER['REMOTE_ADDR']);
 
+// ===== I. Referral security hardening ======================================
+$ref_src = $src('includes/class-customer-referrals.php');
+tap_t_assert(
+    false !== strpos($ref_src, "httponly' => true"),
+    'referral cookie is HttpOnly'
+);
+tap_t_assert(
+    false !== strpos($ref_src, "'samesite' => 'Lax'"),
+    'referral cookie uses SameSite'
+);
+tap_t_assert(
+    false !== strpos($ref_src, 'tap_ref_rl_'),
+    'referral click tracking is rate limited'
+);
+tap_t_assert(
+    false !== strpos($ref_src, 'Anti-self-referral (guest checkout'),
+    'guest self-referral is blocked'
+);
+
+// ===== J. Security headers ==================================================
+$sec_src = $src('includes/class-security-headers.php');
+tap_t_assert(
+    false !== strpos($sec_src, "X-Content-Type-Options: nosniff"),
+    'nosniff header is sent'
+);
+tap_t_assert(
+    false !== strpos($sec_src, "X-Frame-Options: SAMEORIGIN"),
+    'frame-options header is sent'
+);
+tap_t_assert(
+    false !== strpos($sec_src, "Strict-Transport-Security"),
+    'HSTS is configured (HTTPS only)'
+);
+
+// ===== K. Booking rate limit ===============================================
+$ajax_src = $src('includes/class-ajax.php');
+tap_t_assert(
+    false !== strpos($ajax_src, "too_many('booking_create'"),
+    'booking creation is rate limited'
+);
+
+// ===== L. Referral idempotency =============================================
+$installer_src = (string) file_get_contents($plugin . '../travel-agency-platform/includes/class-installer.php');
+// fallback path
+if (!file_exists($plugin . '../travel-agency-platform/includes/class-installer.php')) {
+    $installer_src = (string) file_get_contents('/home/marcelo/Local Sites/travel-agency/app/public/wp-content/plugins/travel-agency-platform/includes/class-installer.php');
+}
+tap_t_assert(
+    false !== strpos($installer_src, 'UNIQUE KEY booking_unique'),
+    'referral table has unique constraint on booking_id'
+);
+
 tap_t_finish();

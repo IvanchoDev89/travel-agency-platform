@@ -32,6 +32,11 @@ class TAP_Security_Headers {
         if (headers_sent()) {
             return;
         }
+        header('X-Content-Type-Options: nosniff');
+        header('X-Frame-Options: SAMEORIGIN');
+        header('Referrer-Policy: strict-origin-when-cross-origin');
+        header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
+
         // HSTS: only over HTTPS.
         if (is_ssl()) {
             $hsts = (bool) get_option('tap_hsts_enabled', true);
