@@ -151,8 +151,9 @@ class TAP_Front_Dash_Client {
             var bell = document.getElementById('tap-notif-bell');
             var dd = document.getElementById('tap-notif-dropdown');
             if (bell && dd) {
-                bell.addEventListener('click', function(e){ e.stopPropagation(); dd.style.display = dd.style.display === 'none' ? 'block' : 'none'; });
-                document.addEventListener('click', function(){ dd.style.display = 'none'; });
+                bell.addEventListener('click', function(e){ e.stopPropagation(); var open = dd.style.display !== 'block'; dd.style.display = open ? 'block' : 'none'; if (open) { var first = dd.querySelector('a, button'); if (first) first.focus(); } else { bell.focus(); } });
+                document.addEventListener('click', function(){ if (dd.style.display === 'block') { dd.style.display = 'none'; } });
+                document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && dd.style.display === 'block') { dd.style.display = 'none'; bell.focus(); } });
             }
         })();
         </script>
