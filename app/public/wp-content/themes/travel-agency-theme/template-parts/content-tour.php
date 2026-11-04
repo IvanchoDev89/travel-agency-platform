@@ -3,6 +3,9 @@
         <?php if (has_post_thumbnail()): ?>
             <a href="<?php the_permalink(); ?>"><?php the_post_thumbnail('medium'); ?></a>
         <?php endif; ?>
+        <?php if (class_exists('TAP_Promotions') && TAP_Promotions::is_featured(get_the_ID())): ?>
+            <span class="tap-featured-badge"><?php esc_html_e('Destacado', 'travel-agency-platform'); ?></span>
+        <?php endif; ?>
         <?php echo tap_fav_button(); ?>
     </div>
     <div class="tap-service-card-body">
