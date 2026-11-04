@@ -3297,3 +3297,8 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .tap-onboarding-help ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .tap-onboarding-help li a { display: inline-block; padding: 6px 12px; background: var(--tap-neutral-50); border-radius: 8px; font-size: 13px; color: var(--tap-primary); text-decoration: none; border: 1px solid var(--tap-neutral-200); transition: background .15s ease; }
 .tap-onboarding-help li a:hover { background: var(--tap-primary); color: #fff; }
+
+/* Accessibility: reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
