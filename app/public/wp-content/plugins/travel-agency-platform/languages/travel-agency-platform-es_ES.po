@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-04T01:01:09+00:00\n"
+"POT-Creation-Date: 2026-11-04T02:27:48+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -13643,16 +13643,16 @@ msgstr "Administrador de agencia"
 msgid "Agency Employee"
 msgstr "Empleado de agencia"
 
-#: includes/class-security-headers.php:53
-#: includes/class-security-headers.php:54
+#: includes/class-security-headers.php:58
+#: includes/class-security-headers.php:59
 msgid "Seguridad HTTP"
 msgstr "Seguridad HTTP"
 
-#: includes/class-security-headers.php:97
+#: includes/class-security-headers.php:102
 msgid "Seguridad HTTP (HSTS / CSP)"
 msgstr "Seguridad HTTP (HSTS / CSP)"
 
-#: includes/class-security-headers.php:98
+#: includes/class-security-headers.php:103
 msgid ""
 "Configura headers de seguridad. Empieza en modo \"Solo reporte\" para no "
 "romper el sitio."
@@ -13660,39 +13660,39 @@ msgstr ""
 "Configura headers de seguridad. Empieza en modo \"Solo reporte\" para no "
 "romper el sitio."
 
-#: includes/class-security-headers.php:103
+#: includes/class-security-headers.php:108
 msgid "HSTS (solo HTTPS)"
 msgstr "HSTS (solo HTTPS)"
 
-#: includes/class-security-headers.php:105
+#: includes/class-security-headers.php:110
 msgid "Activar HSTS"
 msgstr "Activar HSTS"
 
-#: includes/class-security-headers.php:106
+#: includes/class-security-headers.php:111
 msgid "Solo se envía si el sitio está en HTTPS."
 msgstr "Solo se envía si el sitio está en HTTPS."
 
-#: includes/class-security-headers.php:110
+#: includes/class-security-headers.php:115
 msgid "Modo CSP"
 msgstr "Modo CSP"
 
-#: includes/class-security-headers.php:113
+#: includes/class-security-headers.php:118
 msgid "Desactivado"
 msgstr "Desactivado"
 
-#: includes/class-security-headers.php:114
+#: includes/class-security-headers.php:119
 msgid "Solo reporte (recomendado al inicio)"
 msgstr "Solo reporte (recomendado al inicio)"
 
-#: includes/class-security-headers.php:115
+#: includes/class-security-headers.php:120
 msgid "Aplicar (puede romper el sitio)"
 msgstr "Aplicar (puede romper el sitio)"
 
-#: includes/class-security-headers.php:120
+#: includes/class-security-headers.php:125
 msgid "Política CSP"
 msgstr "Política CSP"
 
-#: includes/class-security-headers.php:123
+#: includes/class-security-headers.php:128
 msgid "Lista blanca de recursos. Ajusta según tus CDNs."
 msgstr "Lista blanca de recursos. Ajusta según tus CDNs."
 

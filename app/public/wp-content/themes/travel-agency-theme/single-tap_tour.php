@@ -894,4 +894,24 @@ if ($agency) {
 echo wp_json_encode($ld, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 ?></script>
 <?php endif; ?>
+<div class="tap-bw-mobile-bar" id="tap-bw-mobile-bar">
+    <div class="tap-bw-mobile-price">
+        <span class="tap-bw-mobile-amount"><?php echo esc_html(TAP_Currency::fmt0($price)); ?></span>
+        <small><?php esc_html_e('por adulto', 'travel-agency-platform'); ?></small>
+    </div>
+    <button type="button" class="tap-btn tap-btn-primary tap-bw-mobile-cta" id="tap-bw-mobile-cta"><?php esc_html_e('Reservar', 'travel-agency-platform'); ?></button>
+</div>
+<script>
+(function(){
+    var cta = document.getElementById('tap-bw-mobile-cta');
+    var widget = document.getElementById('tap-booking-widget');
+    if (cta && widget) {
+        cta.addEventListener('click', function(){
+            widget.scrollIntoView({behavior:'smooth', block:'start'});
+            var first = widget.querySelector('select, input');
+            if (first) first.focus();
+        });
+    }
+})();
+</script>
 <?php get_footer(); ?>

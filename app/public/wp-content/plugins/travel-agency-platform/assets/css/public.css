@@ -3217,3 +3217,19 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 
 /* Tour calendar selected day */
 .tap-avcal-day.is-selected { outline: 3px solid var(--tap-primary); outline-offset: -3px; transform: scale(1.02); box-shadow: 0 6px 18px rgba(0,0,0,0.12); z-index: 2; }
+
+/* Mobile booking bar */
+.tap-bw-mobile-bar { display: none; }
+@media (max-width: 768px) {
+    .tap-bw-mobile-bar {
+        position: fixed; left: 0; right: 0; bottom: 0; z-index: 999;
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        padding: 12px 16px; background: #fff; border-top: 1px solid var(--tap-neutral-200);
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.12);
+    }
+    .tap-bw-mobile-price { display: flex; flex-direction: column; line-height: 1.1; }
+    .tap-bw-mobile-amount { font-size: 18px; font-weight: 800; color: var(--tap-primary); }
+    .tap-bw-mobile-price small { font-size: 11px; color: var(--tap-neutral-500); }
+    .tap-bw-mobile-cta { flex: 1; max-width: 180px; }
+    body { padding-bottom: 76px; }
+}
