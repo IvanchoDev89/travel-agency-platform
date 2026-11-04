@@ -903,6 +903,15 @@ class TAP_Front_Dash {
         return ob_get_clean();
     }
 
+    public static function mark_onboarding_tour_seen() {
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => __('No autorizado.', 'travel-agency-platform')], 403);
+        }
+        update_user_meta(get_current_user_id(), '_tap_onboarding_tour_seen', 1);
+        wp_send_json_success();
+    }
+
     private static function agency_analytics($user) {
         if (TAP_Roles::is_agency_employee($user)) {
             return '<p class="tap-empty">' . esc_html__('Solo el administrador de la agencia ve los analytics.', 'travel-agency-platform') . '</p>';
@@ -1401,6 +1410,8 @@ class TAP_Front_Dash {
 
         $base = home_url('/mi-cuenta/');
 
+        $show_onboarding_tour = empty($listings) && !get_user_meta($user->ID, '_tap_onboarding_tour_seen', true);
+
         // Onboarding checklist for agencies.
         $onboarding = [
             'create_listing' => !empty($listings),
@@ -1492,7 +1503,7 @@ class TAP_Front_Dash {
                 $tap_limit   = TAP_Subscriptions::listing_limit($agency_id);
                 $tap_used    = TAP_Subscriptions::listing_count($agency_id);
 				?>
-            <div class="tap-plan-summary">
+            <div class="tap-plan-summary" data-onboarding="plan">
                 <span><?php esc_html_e('Plan', 'travel-agency-platform'); ?>: <strong><?php echo esc_html($tap_plan->name); ?></strong></span>
                 <?php if (!empty($tap_plan->paid_until)): ?>
                     <span><?php esc_html_e('Válido hasta', 'travel-agency-platform'); ?>: <strong><?php echo esc_html($tap_plan->paid_until); ?></strong></span>
@@ -1515,7 +1526,7 @@ endif;
 			?>
 
             <?php if ($agency_id && $onboarding_done < 5) : ?>
-            <div class="tap-onboarding-checklist">
+            <div class="tap-onboarding-checklist" data-onboarding="checklist">
                 <h3><?php esc_html_e('Primeros pasos', 'travel-agency-platform'); ?></h3>
                 <p><?php esc_html_e('Completa estos pasos para empezar a recibir reservas.', 'travel-agency-platform'); ?></p>
                 <ul>
@@ -1691,6 +1702,66 @@ endif;
             </div>
             <?php endif; ?>
         </div>
+        <?php
+        if (!empty($show_onboarding_tour)) :
+        ?>
+        <script>
+        (function(){
+            var steps = [
+                { sel: '[data-onboarding="new-listing"]', text: 'Usa "Nuevo" para crear tu primer servicio (tour, alojamiento, etc.).' },
+                { sel: '[data-onboarding="checklist"]', text: 'Este checklist te guía paso a paso para publicar tu primer servicio.' },
+                { sel: '[data-onboarding="plan"]', text: 'Aquí ves tu plan, límites y comisión.' },
+            ];
+            var idx = 0;
+            var overlay = document.createElement('div');
+            overlay.className = 'tap-onboarding-overlay';
+            document.body.appendChild(overlay);
+            var tooltip = document.createElement('div');
+            tooltip.className = 'tap-onboarding-tooltip';
+            document.body.appendChild(tooltip);
+
+            function show(i) {
+                if (i >= steps.length) { finish(); return; }
+                idx = i;
+                var step = steps[i];
+                var el = document.querySelector(step.sel);
+                if (!el) { show(i+1); return; }
+                var rect = el.getBoundingClientRect();
+                tooltip.innerHTML = '<p>' + step.text + '</p><div class="tap-onboarding-actions"><button type="button" class="tap-btn tap-btn-sm" data-prev>Anterior</button><button type="button" class="tap-btn tap-btn-primary tap-btn-sm" data-next>Siguiente</button><button type="button" class="tap-btn tap-btn-sm" data-skip>Saltar</button></div>';
+                tooltip.style.top = (rect.bottom + 12 + window.scrollY) + 'px';
+                tooltip.style.left = (rect.left + window.scrollX) + 'px';
+                // highlight
+                el.style.outline = '3px solid #0f766e';
+                el.style.outlineOffset = '4px';
+                el.scrollIntoView({behavior:'smooth', block:'center'});
+            }
+            function clearHighlight() {
+                steps.forEach(function(s){ var e=document.querySelector(s.sel); if(e){ e.style.outline=''; e.style.outlineOffset=''; } });
+            }
+            function finish() {
+                clearHighlight();
+                overlay.remove();
+                tooltip.remove();
+                if (typeof tap_ajax !== 'undefined') {
+                    jQuery.post(tap_ajax.ajax_url, { action: 'tap_onboarding_tour_done', nonce: tap_ajax.nonce });
+                }
+            }
+            tooltip.addEventListener('click', function(e){
+                if (e.target.getAttribute('data-next') !== null) { clearHighlight(); show(idx+1); }
+                else if (e.target.getAttribute('data-prev') !== null) { clearHighlight(); if (idx>0) show(idx-1); }
+                else if (e.target.getAttribute('data-skip') !== null) { finish(); }
+            });
+            overlay.addEventListener('click', finish);
+            show(0);
+        })();
+        </script>
+        <style>
+        .tap-onboarding-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 9998; }
+        .tap-onboarding-tooltip { position: absolute; z-index: 9999; background: #fff; border-radius: 12px; padding: 14px 16px; max-width: 320px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); }
+        .tap-onboarding-tooltip p { margin: 0 0 10px; font-size: 14px; color: #1e293b; }
+        .tap-onboarding-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+        </style>
+        <?php endif; ?>
         <?php
         return ob_get_clean();
     }
