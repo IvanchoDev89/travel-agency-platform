@@ -52,6 +52,9 @@ class TAP_Installer {
                 payment_method varchar(50) DEFAULT NULL,
                 notes text,
                 cancel_reason text,
+                utm_source varchar(100) DEFAULT NULL,
+                utm_medium varchar(100) DEFAULT NULL,
+                utm_campaign varchar(100) DEFAULT NULL,
                 created_at datetime DEFAULT CURRENT_TIMESTAMP,
                 updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 PRIMARY KEY (id),
@@ -344,6 +347,14 @@ class TAP_Installer {
 
         // Backfill service_type/service_id for legacy room rows (idempotent).
         $wpdb->query("UPDATE {$wpdb->prefix}tap_daily_pricing SET service_type='tap_accommodation', service_id=room_id WHERE (service_type IS NULL OR service_type='' OR (service_type='tap_accommodation' AND service_id=0)) AND room_id > 0");
+
+        // UTM tracking columns (idempotent).
+        foreach (['utm_source', 'utm_medium', 'utm_campaign'] as $col) {
+            $exists = $wpdb->get_var($wpdb->prepare("SHOW COLUMNS FROM {$wpdb->prefix}tap_bookings LIKE %s", $col));
+            if (!$exists) {
+                $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN {$col} varchar(100) DEFAULT NULL");
+            }
+        }
 
         // Unique constraint: one referral row per booking (idempotency).
         $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_customer_referrals ADD UNIQUE KEY booking_unique (booking_id)");

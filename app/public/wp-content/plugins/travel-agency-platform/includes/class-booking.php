@@ -456,6 +456,9 @@ class TAP_Booking {
                     'guest_name'        => !empty($data['guest_name']) ? sanitize_text_field($data['guest_name']) : null,
                     'guest_email'       => !empty($data['guest_email']) ? sanitize_email($data['guest_email']) : null,
                     'guest_phone'       => !empty($data['guest_phone']) ? sanitize_text_field($data['guest_phone']) : null,
+                    'utm_source'        => !empty($data['utm_source']) ? sanitize_text_field($data['utm_source']) : (isset($_GET['utm_source']) ? sanitize_text_field(wp_unslash($_GET['utm_source'])) : null),
+                    'utm_medium'        => !empty($data['utm_medium']) ? sanitize_text_field($data['utm_medium']) : (isset($_GET['utm_medium']) ? sanitize_text_field(wp_unslash($_GET['utm_medium'])) : null),
+                    'utm_campaign'      => !empty($data['utm_campaign']) ? sanitize_text_field($data['utm_campaign']) : (isset($_GET['utm_campaign']) ? sanitize_text_field(wp_unslash($_GET['utm_campaign'])) : null),
                     'created_at'        => current_time('mysql'),
                 ]
 				);
