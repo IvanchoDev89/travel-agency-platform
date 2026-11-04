@@ -4,6 +4,15 @@
     <meta charset="<?php bloginfo('charset'); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <?php wp_head(); ?>
+<link rel="manifest" href="<?php echo esc_url(get_template_directory_uri() . '/assets/manifest.json'); ?>">
+<meta name="theme-color" content="#0f766e">
+<script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        navigator.serviceWorker.register('<?php echo esc_url(get_template_directory_uri() . '/assets/sw.js'); ?>').catch(function(){});
+    });
+}
+</script>
 </head>
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>

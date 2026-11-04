@@ -1,0 +1,13 @@
+{
+  "name": "Travel Agency Platform",
+  "short_name": "TravelAgency",
+  "description": "Reserva tours, alojamientos y experiencias.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0f766e",
+  "icons": [
+    { "src": "/wp-content/plugins/travel-agency-platform/assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/wp-content/plugins/travel-agency-platform/assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
