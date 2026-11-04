@@ -354,6 +354,33 @@ class TAP_Dashboard_Insights {
                 . '<td>' . esc_html(number_format($conv, 2) . '%') . '</td><td>' . esc_html(TAP_Currency::fmt($l->gmv)) . '</td></tr>';
         }
         echo '</tbody></table>';
+
+        // Cohort retention.
+        if (class_exists('TAP_Analytics')) {
+            $cohorts = TAP_Analytics::cohort_retention(6);
+            if ($cohorts) {
+                echo '<h2>' . esc_html__('Cohortes de retención (usuarios)', 'travel-agency-platform') . '</h2>';
+                echo '<table class="wp-list-table widefat fixed striped" style="max-width:720px;margin-bottom:24px;"><thead><tr>';
+                echo '<th>' . esc_html__('Cohorte', 'travel-agency-platform') . '</th>';
+                echo '<th>' . esc_html__('Tamaño', 'travel-agency-platform') . '</th>';
+                foreach (array_keys($cohorts[0]['returns']) as $m) {
+                    echo '<th>' . esc_html($m) . '</th>';
+                }
+                echo '</tr></thead><tbody>';
+                foreach ($cohorts as $c) {
+                    echo '<tr>';
+                    echo '<td>' . esc_html($c['cohort']) . '</td>';
+                    echo '<td>' . esc_html($c['size']) . '</td>';
+                    foreach ($c['returns'] as $v) {
+                        $pct = $c['size'] > 0 ? round(($v / $c['size']) * 100) : 0;
+                        echo '<td>' . esc_html($v . ' (' . $pct . '%)') . '</td>';
+                    }
+                    echo '</tr>';
+                }
+                echo '</tbody></table>';
+            }
+        }
+
         echo '</div>';
     }
 

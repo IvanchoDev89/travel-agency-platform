@@ -182,6 +182,61 @@ class TAP_Analytics {
         return ['views' => $views, 'bookings' => $bookings, 'revenue' => $revenue, 'top_services' => $top];
     }
 
+    /**
+     * Cohort retention: for each registration month, how many users returned.
+     *
+     * @param int $months Number of months to look back.
+     * @return array<int,array<string,mixed>>
+     */
+    public static function cohort_retention($months = 6) {
+        global $wpdb;
+        $b = $wpdb->prefix . 'tap_bookings';
+        $months = max(2, min(12, (int) $months));
+        $base = new DateTime('first day of this month');
+        $base->modify('-' . ($months - 1) . ' months');
+        $from = $base->format('Y-m-d');
+
+        // First booking month per client.
+        $first = $wpdb->get_results($wpdb->prepare(
+            "SELECT client_id, MIN(DATE_FORMAT(created_at, '%%Y-%%m')) AS cohort
+             FROM {$b}
+             WHERE client_id > 0 AND created_at >= %s
+             GROUP BY client_id",
+            $from
+        ));
+        $cohorts = [];
+        foreach ($first as $row) {
+            $cohorts[$row->cohort][] = (int) $row->client_id;
+        }
+
+        // For each cohort, count returns per subsequent month.
+        $result = [];
+        foreach ($cohorts as $cohort => $users) {
+            $user_ids = implode(',', array_map('intval', $users));
+            if ('' === $user_ids) {
+                continue;
+            }
+            $returns = [];
+            for ($i = 1; $i < $months; $i++) {
+                $m = new DateTime($cohort . '-01');
+                $m->modify("+{$i} months");
+                $label = $m->format('Y-m');
+                $cnt = (int) $wpdb->get_var(
+                    "SELECT COUNT(DISTINCT client_id) FROM {$b}
+                     WHERE client_id IN ({$user_ids})
+                       AND DATE_FORMAT(created_at, '%Y-%m') = '{$label}'"
+                );
+                $returns[$label] = $cnt;
+            }
+            $result[] = [
+                'cohort' => $cohort,
+                'size'   => count($users),
+                'returns' => $returns,
+            ];
+        }
+        return $result;
+    }
+
     private static function date_where($from, $to) {
         global $wpdb;
         if ($from && !preg_match('/^\d{4}-\d{2}$/', $from)) $from = '';
