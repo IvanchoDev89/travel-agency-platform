@@ -17,6 +17,11 @@ class TAP_Ajax {
             wp_send_json_success(['fake' => true]);
         }
 
+        // Rate limit booking creation per IP to deter abuse.
+        if (TAP_Rate_Limit::too_many('booking_create', 10, MINUTE_IN_SECONDS)) {
+            wp_send_json_error(['message' => __('Demasiadas solicitudes. Intenta nuevamente en un minuto.', 'travel-agency-platform')], 429);
+        }
+
         // Guest checkout: logged-out visitors book with client_id = 0 and their
         // contact data in the guest_* columns. Emails are spam-guarded by a
         // per-IP+email rate limit, then a short-lived token allows paying on /checkout.
