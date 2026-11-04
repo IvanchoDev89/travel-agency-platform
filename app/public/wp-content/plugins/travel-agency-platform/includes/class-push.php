@@ -215,6 +215,7 @@ class TAP_Push {
 
     /** Init: register REST endpoints. */
     public static function init() {
+        self::ensure_keys();
         add_action('rest_api_init', function () {
             register_rest_route('tap/v1', '/push/subscribe', [
                 'methods'             => 'POST',
@@ -229,6 +230,68 @@ class TAP_Push {
 					return is_user_logged_in(); },
             ]);
         });
+        add_action('tap_booking_created', [__CLASS__, 'on_booking_created'], 10, 2);
+        add_action('tap_payment_completed', [__CLASS__, 'on_payment_completed'], 20, 1);
+    }
+
+    /** Generate VAPID keys if missing. */
+    public static function ensure_keys() {
+        if (self::is_ready()) {
+            return;
+        }
+        if (!function_exists('openssl_pkey_new')) {
+            return;
+        }
+        $key = openssl_pkey_new(['curve_name' => 'prime256v1', 'private_key_type' => OPENSSL_KEYTYPE_EC]);
+        if (!$key) {
+            return;
+        }
+        $details = openssl_pkey_get_details($key);
+        if (empty($details['ec']['x']) || empty($details['ec']['y']) || empty($details['ec']['d'])) {
+            return;
+        }
+        $pub = "\x04" . $details['ec']['x'] . $details['ec']['y'];
+        $priv = $details['ec']['d'];
+        update_option('tap_vapid_public', self::b64url($pub));
+        update_option('tap_vapid_private', self::b64url($priv));
+    }
+
+    /** Notify agency of new booking. */
+    public static function on_booking_created($booking_id, $data) {
+        $booking_id = (int) $booking_id;
+        if (!$booking_id) {
+            return;
+        }
+        global $wpdb;
+        $booking = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_bookings WHERE id = %d", $booking_id));
+        if (!$booking) {
+            return;
+        }
+        $agency_id = (int) $booking->agency_id;
+        $agency_user = (int) get_post_meta($agency_id, '_tap_agency_user_id', true);
+        if ($agency_user) {
+            self::send($agency_user, __('Nueva reserva', 'travel-agency-platform'), sprintf(__('Reserva %s creada.', 'travel-agency-platform'), $booking->booking_code), home_url('/mi-cuenta/?seccion=bo-operations'));
+        }
+    }
+
+    /** Notify client and agency of payment. */
+    public static function on_payment_completed($booking_id) {
+        $booking_id = (int) $booking_id;
+        if (!$booking_id) {
+            return;
+        }
+        global $wpdb;
+        $booking = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_bookings WHERE id = %d", $booking_id));
+        if (!$booking) {
+            return;
+        }
+        if (!empty($booking->client_id)) {
+            self::send((int) $booking->client_id, __('Pago recibido', 'travel-agency-platform'), sprintf(__('Tu pago para la reserva %s fue recibido.', 'travel-agency-platform'), $booking->booking_code), home_url('/mi-cuenta/?seccion=bookings'));
+        }
+        $agency_user = (int) get_post_meta((int) $booking->agency_id, '_tap_agency_user_id', true);
+        if ($agency_user) {
+            self::send($agency_user, __('Pago recibido', 'travel-agency-platform'), sprintf(__('Pago recibido para la reserva %s.', 'travel-agency-platform'), $booking->booking_code), home_url('/mi-cuenta/?seccion=bo-operations'));
+        }
     }
 
     public static function rest_subscribe($request) {

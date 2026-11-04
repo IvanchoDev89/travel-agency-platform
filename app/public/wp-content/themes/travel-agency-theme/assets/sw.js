@@ -34,4 +34,23 @@ self.addEventListener('fetch', function(e) {
     })
   );
 });
+
+self.addEventListener('push', function(e) {
+  var data = {};
+  try { data = e.data ? e.data.json() : {}; } catch (err) { data = { title: 'Notificación', body: e.data ? e.data.text() : '' }; }
+  var title = data.title || 'Travel Agency';
+  var options = {
+    body: data.body || '',
+    icon: '/wp-content/plugins/travel-agency-platform/assets/icons/icon-192.png',
+    badge: '/wp-content/plugins/travel-agency-platform/assets/icons/icon-192.png',
+    data: { url: data.url || '/' }
+  };
+  e.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', function(e) {
+  e.notification.close();
+  var url = (e.notification.data && e.notification.data.url) ? e.notification.data.url : '/';
+  e.waitUntil(clients.openWindow(url));
+});
 PY

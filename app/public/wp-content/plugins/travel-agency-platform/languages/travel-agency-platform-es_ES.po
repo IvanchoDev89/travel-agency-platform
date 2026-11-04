@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-04T20:06:18+00:00\n"
+"POT-Creation-Date: 2026-11-04T21:25:59+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -13614,19 +13614,42 @@ msgstr "Confirmada el %s por el administrador"
 msgid "Ver más"
 msgstr "Ver más"
 
-#: includes/class-push.php:240
+#: includes/class-push.php:273
+msgid "Nueva reserva"
+msgstr "Nueva reserva"
+
+#: includes/class-push.php:273
+#, php-format
+msgid "Reserva %s creada."
+msgstr "Reserva %s creada."
+
+#: includes/class-push.php:289 includes/class-push.php:293
+msgid "Pago recibido"
+msgstr "Pago recibido"
+
+#: includes/class-push.php:289
+#, php-format
+msgid "Tu pago para la reserva %s fue recibido."
+msgstr "Tu pago para la reserva %s fue recibido."
+
+#: includes/class-push.php:293
+#, php-format
+msgid "Pago recibido para la reserva %s."
+msgstr "Pago recibido para la reserva %s."
+
+#: includes/class-push.php:303
 msgid "Datos de suscripción inválidos."
 msgstr "Datos de suscripción inválidos."
 
-#: includes/class-push.php:250
+#: includes/class-push.php:313
 msgid "Endpoint requerido."
 msgstr "Endpoint requerido."
 
-#: includes/class-push.php:258
+#: includes/class-push.php:321
 msgid "Las notificaciones push no están configuradas."
 msgstr "Las notificaciones push no están configuradas."
 
-#: includes/class-push.php:262
+#: includes/class-push.php:325
 msgid "Activar notificaciones"
 msgstr "Activar notificaciones"
 
