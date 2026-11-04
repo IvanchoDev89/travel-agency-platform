@@ -521,3 +521,15 @@ jQuery(document).ready(function($) {
         Chat.init();
     }
 });
+
+/* Global toast helper */
+window.tapToast = function(msg, type) {
+    var $t = jQuery('.tap-toast');
+    if (!$t.length) {
+        $t = jQuery('<div class="tap-toast"></div>').appendTo('body');
+    }
+    $t.removeClass('is-success is-error').addClass(type === 'error' ? 'is-error' : (type === 'success' ? 'is-success' : ''));
+    $t.text(msg).addClass('show');
+    clearTimeout(window._tapToastTimer);
+    window._tapToastTimer = setTimeout(function() { $t.removeClass('show'); }, 2200);
+};
