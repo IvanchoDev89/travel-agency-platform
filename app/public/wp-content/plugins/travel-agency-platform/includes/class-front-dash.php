@@ -667,6 +667,32 @@ class TAP_Front_Dash {
             $agency
         ));
 
+        // Monthly revenue for the last 6 months (for the chart).
+        $monthly = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $monthly[gmdate('Y-m', strtotime("-{$i} months"))] = 0.0;
+        }
+        $mrows = $wpdb->get_results($wpdb->prepare(
+            "SELECT DATE_FORMAT(created_at, '%Y-%m') ym, COALESCE(SUM(commission_amount),0) amt
+             FROM {$wpdb->prefix}tap_bookings
+             WHERE agency_id = %d AND payment_status = 'paid'
+               AND commission_amount > 0
+               AND created_at >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+             GROUP BY ym",
+            $agency
+        ));
+        foreach ($mrows as $mr) {
+            if (isset($monthly[$mr->ym])) {
+                $monthly[$mr->ym] = (float) $mr->amt;
+            }
+        }
+        $chart_labels = array_keys($monthly);
+        $chart_data   = array_values($monthly);
+        // Simple projection: average of last 3 months * 3.
+        $last3 = array_slice($chart_data, -3);
+        $avg3 = count($last3) ? array_sum($last3) / count($last3) : 0;
+        $projection = round($avg3 * 3, 2);
+
         ob_start();
         ?>
         <div class="tap-dash-section">
@@ -721,6 +747,43 @@ class TAP_Front_Dash {
             <?php elseif (!$tap_pending_blocked) : ?>
                 <p class="tap-agency-meta"><?php esc_html_e('No tienes comisiones por cobrar disponibles para liquidar.', 'travel-agency-platform'); ?></p>
             <?php endif; ?>
+
+            <div class="tap-panel-section" style="margin-top:24px;">
+                <div class="tap-section-head">
+                    <h3><?php esc_html_e('Comisiones por mes', 'travel-agency-platform'); ?></h3>
+                </div>
+                <div style="position:relative;height:220px;">
+                    <canvas id="tap-finances-chart"></canvas>
+                </div>
+                <script src="<?php echo esc_url(TAP_PLUGIN_URL); ?>assets/js/chart.umd.min.js"></script>
+                <script>
+                (function(){
+                    var ctx = document.getElementById('tap-finances-chart');
+                    if (!ctx || typeof Chart === 'undefined') return;
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: <?php echo wp_json_encode($chart_labels); ?>,
+                            datasets: [{
+                                label: <?php echo wp_json_encode(__('Comisiones', 'travel-agency-platform')); ?>,
+                                data: <?php echo wp_json_encode($chart_data); ?>,
+                                backgroundColor: 'rgba(13,148,136,.7)',
+                                borderColor: 'rgba(13,148,136,1)',
+                                borderWidth: 1,
+                                borderRadius: 6,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: { y: { beginAtZero: true } }
+                        }
+                    });
+                })();
+                </script>
+                <p class="tap-agency-meta" style="margin-top:8px;"><?php printf(esc_html__('Proyección próximos 3 meses: %s (basado en promedio de los últimos 3 meses).', 'travel-agency-platform'), esc_html(TAP_Currency::fmt($projection))); ?></p>
+            </div>
 
             <div class="tap-dash-section-header" style="margin-top:24px;">
                 <h3><?php esc_html_e('Historial de liquidaciones', 'travel-agency-platform'); ?></h3>
