@@ -1061,6 +1061,60 @@ class TAP_Shortcode_Booking {
             <?php endforeach; ?>
         </div>
         <?php
+        $share_url = home_url('/?favs=' . implode(',', $ids));
+        ?>
+        <div style="margin-top:16px;text-align:center;">
+            <button type="button" class="tap-btn tap-btn-sm" onclick="navigator.clipboard && navigator.clipboard.writeText('<?php echo esc_js($share_url); ?>'); this.textContent='<?php echo esc_js(__('Copiado', 'travel-agency-platform')); ?>';"><?php esc_html_e('Compartir mi lista', 'travel-agency-platform'); ?></button>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    public static function shared_favorites($atts = []) {
+        $ids = [];
+        if (!empty($atts['ids'])) {
+            $ids = array_map('absint', array_filter(explode(',', (string) $atts['ids'])));
+        } elseif (isset($_GET['favs'])) {
+            $ids = array_map('absint', array_filter(explode(',', sanitize_text_field(wp_unslash($_GET['favs'])))));
+        }
+        $ids = array_values(array_unique($ids));
+        if (empty($ids)) {
+            return '<p class="tap-empty">' . esc_html__('No se especificaron favoritos.', 'travel-agency-platform') . '</p>';
+        }
+
+        $posts = get_posts([
+            'post_type'      => ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'],
+            'post__in'       => $ids,
+            'post_status'    => 'publish',
+            'posts_per_page' => 50,
+            'orderby'        => 'post__in',
+        ]);
+        if (empty($posts)) {
+            return '<p class="tap-empty">' . esc_html__('No se encontraron servicios.', 'travel-agency-platform') . '</p>';
+        }
+
+        ob_start();
+        ?>
+        <div class="tap-fav-grid">
+            <?php foreach ($posts as $post):
+                $type = $post->post_type;
+                $price = floatval(get_post_meta($post->ID, TAP_API::get_price_key($type) ?: '', true));
+            ?>
+                <article class="tap-service-card">
+                    <?php if (has_post_thumbnail($post->ID)): ?>
+                        <a href="<?php echo esc_url(get_permalink($post->ID)); ?>" class="tap-fav-thumb"><?php echo get_the_post_thumbnail($post->ID, 'medium', ['loading' => 'lazy']); ?></a>
+                    <?php endif; ?>
+                    <div class="tap-service-card-body">
+                        <h3><a href="<?php echo esc_url(get_permalink($post->ID)); ?>"><?php echo esc_html($post->post_title); ?></a></h3>
+                        <?php if ($price): ?>
+                            <p class="tap-price"><?php echo esc_html(TAP_Currency::fmt($price)); ?></p>
+                        <?php endif; ?>
+                        <a href="<?php echo esc_url(get_permalink($post->ID)); ?>" class="tap-btn tap-btn-outline"><?php esc_html_e('Ver detalles', 'travel-agency-platform'); ?></a>
+                    </div>
+                </article>
+            <?php endforeach; ?>
+        </div>
+        <?php
         return ob_get_clean();
     }
 

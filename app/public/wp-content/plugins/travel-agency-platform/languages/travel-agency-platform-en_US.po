@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-04T21:31:07+00:00\n"
+"POT-Creation-Date: 2026-11-04T21:34:34+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -2928,6 +2928,7 @@ msgid "Aún no tienes referidos. ¡Comparte tu enlace!"
 msgstr "You have no referrals yet. Share your link!"
 
 #: includes/class-customer-referrals.php:525
+#: includes/class-shortcode-booking.php:1067
 msgid "Copiado"
 msgstr "Copied"
 
@@ -10336,6 +10337,7 @@ msgstr "Explore Tours"
 
 #: includes/class-front-dash-client.php:356 includes/class-itinerary.php:375
 #: includes/class-shortcode-booking.php:1055
+#: includes/class-shortcode-booking.php:1112
 #: includes/class-shortcode-search.php:319
 #: includes/class-shortcode-search.php:1235
 msgid "Ver detalles"
@@ -14891,6 +14893,18 @@ msgstr "Car rentals"
 #: includes/class-shortcode-booking.php:1028
 msgid "Paseo en bote"
 msgstr "Boat ride"
+
+#: includes/class-shortcode-booking.php:1067
+msgid "Compartir mi lista"
+msgstr "Share my list"
+
+#: includes/class-shortcode-booking.php:1082
+msgid "No se especificaron favoritos."
+msgstr "No favorites specified."
+
+#: includes/class-shortcode-booking.php:1093
+msgid "No se encontraron servicios."
+msgstr "No services found."
 
 #: includes/class-shortcode-search.php:24
 msgid "Where do you want to go?"

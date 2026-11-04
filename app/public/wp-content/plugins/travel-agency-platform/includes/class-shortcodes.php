@@ -19,6 +19,7 @@ class TAP_Shortcodes {
             'tap_agency_manage'  => [TAP_Listing_Editor::class, 'agency_manage'],
             'tap_booking_detail' => [TAP_Shortcode_Booking::class, 'booking_detail'],
             'tap_favorites'      => [TAP_Shortcode_Booking::class, 'favorites'],
+            'tap_shared_favorites' => [TAP_Shortcode_Booking::class, 'shared_favorites'],
             'tap_plans'         => [TAP_Shortcode_Account::class, 'plans'],
             'tap_search_results' => [TAP_Shortcode_Search::class, 'search_results'],
             'tap_chatbot'       => [TAP_Shortcode_Account::class, 'chatbot'],
