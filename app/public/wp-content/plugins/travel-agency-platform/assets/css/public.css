@@ -3214,3 +3214,6 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
     .tap-referral-stats { grid-template-columns: repeat(2, 1fr); }
     .tap-referral-code-row { flex-direction: column; align-items: stretch; }
 }
+
+/* Tour calendar selected day */
+.tap-avcal-day.is-selected { outline: 3px solid var(--tap-primary); outline-offset: -3px; transform: scale(1.02); box-shadow: 0 6px 18px rgba(0,0,0,0.12); z-index: 2; }

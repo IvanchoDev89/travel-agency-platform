@@ -481,6 +481,8 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
                 day.addEventListener('click', function(){
                     var date = day.getAttribute('data-date');
                     if (!date) return;
+                    days.forEach(function(d){ d.classList.remove('is-selected'); });
+                    day.classList.add('is-selected');
                     var sel = document.getElementById('bw-tour-date');
                     if (sel) {
                         sel.value = date;
@@ -548,9 +550,22 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
                 var adultTotal = adults * basePrice;
                 var childPrice = <?php echo (float) $child_price; ?>;
                 var childTotal = children * (childPrice > 0 ? childPrice : basePrice * 0.5);
+                // Extras selected in the widget.
+                var extrasTotal = 0;
+                document.querySelectorAll('#tap-booking-form input[name="extras[]"]:checked').forEach(function(cb){
+                    var p = parseFloat(cb.getAttribute('data-price') || '0');
+                    var perPerson = cb.getAttribute('data-per-person') === '1';
+                    extrasTotal += perPerson ? p * (adults + children) : p;
+                });
+                if (extrasTotal > 0) {
+                    document.getElementById('bw-sum-extras').textContent = extrasTotal.toFixed(2);
+                    document.getElementById('bw-sum-extras-row').style.display = '';
+                } else {
+                    document.getElementById('bw-sum-extras-row').style.display = 'none';
+                }
                 document.getElementById('bw-sum-adults').textContent = adults + ' × ' + basePrice.toFixed(2);
                 document.getElementById('bw-sum-children').textContent = children > 0 ? (children + ' × ' + (childPrice > 0 ? childPrice : basePrice * 0.5).toFixed(2)) : '—';
-                document.getElementById('bw-sum-total').textContent = (adultTotal + childTotal).toFixed(2) + ' <?php echo esc_js(TAP_Currency::code()); ?>';
+                document.getElementById('bw-sum-total').textContent = (adultTotal + childTotal + extrasTotal).toFixed(2) + ' <?php echo esc_js(TAP_Currency::code()); ?>';
             }
             slotSel.addEventListener('change', function(){
                 if (slotId) slotId.value = slotSel.value;
@@ -564,6 +579,9 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
             if (childrenInput) childrenInput.addEventListener('change', updatePriceSummary);
             if (adultsInput) adultsInput.addEventListener('input', updatePriceSummary);
             if (childrenInput) childrenInput.addEventListener('input', updatePriceSummary);
+            document.querySelectorAll('#tap-booking-form input[name="extras[]"]').forEach(function(cb){
+                cb.addEventListener('change', updatePriceSummary);
+            });
         })();
         </script>
         <?php endif; ?>
@@ -716,6 +734,7 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
             <div id="bw-price-summary" class="tap-bw-price-summary" style="display:none;">
                 <div class="tap-bw-price-row"><span><?php esc_html_e('Adultos', 'travel-agency-platform'); ?></span><span id="bw-sum-adults">0</span></div>
                 <div class="tap-bw-price-row"><span><?php esc_html_e('Niños', 'travel-agency-platform'); ?></span><span id="bw-sum-children">0</span></div>
+                <div class="tap-bw-price-row" id="bw-sum-extras-row" style="display:none;"><span><?php esc_html_e('Extras', 'travel-agency-platform'); ?></span><span id="bw-sum-extras">0</span></div>
                 <div class="tap-bw-price-row tap-bw-price-total"><span><?php esc_html_e('Total estimado', 'travel-agency-platform'); ?></span><span id="bw-sum-total">—</span></div>
             </div>
               <button type="submit" class="tap-btn tap-btn-primary tap-btn-block" id="bw-submit" disabled>
