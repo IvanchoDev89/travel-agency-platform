@@ -63,6 +63,29 @@ class TAP_Push {
         return $wpdb->get_results("SELECT * FROM {$t}");
     }
 
+    /** Send 24h reminders for upcoming tours. */
+    public static function send_reminders() {
+        global $wpdb;
+        $tomorrow = gmdate('Y-m-d', strtotime('+1 day'));
+        $bookings = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}tap_bookings WHERE check_in = %s AND status IN ('pending','confirmed','request')",
+            $tomorrow
+        ));
+        foreach ($bookings as $b) {
+            if (get_post_meta($b->id, '_tap_reminder_sent', true)) {
+                continue;
+            }
+            if (!empty($b->client_id)) {
+                self::send((int) $b->client_id, __('Recordatorio de tu tour', 'travel-agency-platform'), sprintf(__('Tu tour es mañana. Reserva %s.', 'travel-agency-platform'), $b->booking_code), home_url('/mi-cuenta/?seccion=bookings'));
+            }
+            $agency_user = (int) get_post_meta((int) $b->agency_id, '_tap_agency_user_id', true);
+            if ($agency_user) {
+                self::send($agency_user, __('Recordatorio de tour', 'travel-agency-platform'), sprintf(__('Tienes un tour mañana: reserva %s.', 'travel-agency-platform'), $b->booking_code), home_url('/mi-cuenta/?seccion=bo-operations'));
+            }
+            update_post_meta($b->id, '_tap_reminder_sent', 1);
+        }
+    }
+
     /** Count subscriptions. */
     public static function count() {
         global $wpdb;

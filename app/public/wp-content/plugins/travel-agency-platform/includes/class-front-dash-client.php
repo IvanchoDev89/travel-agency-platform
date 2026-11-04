@@ -274,6 +274,13 @@ class TAP_Front_Dash_Client {
             echo '</div>';
         }
 
+        if (class_exists('TAP_Push') && TAP_Push::is_ready()) {
+            echo '<div class="tap-dash-section" style="margin-top:24px;">';
+            echo '<h3>' . esc_html__('Notificaciones push', 'travel-agency-platform') . '</h3>';
+            echo TAP_Push::render_subscribe_button([]);
+            echo '</div>';
+        }
+
         return ob_get_clean();
     }
 
