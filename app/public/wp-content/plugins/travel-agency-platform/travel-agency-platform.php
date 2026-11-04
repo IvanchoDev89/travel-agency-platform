@@ -127,6 +127,11 @@ final class TravelAgencyPlatform {
         add_action('init', ['TAP_Itinerary', 'init'], 14);
         add_action('init', ['TAP_Front_Dash', 'init'], 15);
         add_action('init', ['TAP_Customer_Referrals', 'init'], 15);
+        // Polylang integration: make our CPTs and taxonomies translatable.
+        if (function_exists('pll_get_post_types')) {
+            add_filter('pll_get_post_types', [$this, 'polylang_post_types'], 10, 2);
+            add_filter('pll_get_taxonomies', [$this, 'polylang_taxonomies'], 10, 2);
+        }
         add_action('init', ['TAP_Referral_Reports', 'init'], 15);
         add_action('init', ['TAP_Security_Headers', 'init'], 15);
         add_action('plugins_loaded', [$this, 'maybe_update_tables'], 5);
@@ -259,6 +264,26 @@ final class TravelAgencyPlatform {
             flush_rewrite_rules();
             update_option('tap_rewrite_version', TAP_VERSION);
         }
+    }
+
+    public function polylang_post_types($types, $is_settings) {
+        $ours = ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment', 'tap_agency', 'tap_room'];
+        foreach ($ours as $t) {
+            if (!in_array($t, $types, true)) {
+                $types[] = $t;
+            }
+        }
+        return $types;
+    }
+
+    public function polylang_taxonomies($taxonomies, $is_settings) {
+        $ours = ['tap_location', 'tap_service_cat', 'tap_property_type', 'tap_amenity', 'tap_tour_type', 'tap_vehicle_type', 'tap_boat_type', 'tap_tour_difficulty'];
+        foreach ($ours as $t) {
+            if (!in_array($t, $taxonomies, true)) {
+                $taxonomies[] = $t;
+            }
+        }
+        return $taxonomies;
     }
 
     public function load_textdomain() {
