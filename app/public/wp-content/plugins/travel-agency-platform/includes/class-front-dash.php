@@ -1338,6 +1338,47 @@ class TAP_Front_Dash {
 
         $base = home_url('/mi-cuenta/');
 
+        // Onboarding checklist for agencies.
+        $onboarding = [
+            'create_listing' => !empty($listings),
+            'add_photos'     => false,
+            'set_prices'     => false,
+            'set_availability' => false,
+            'publish'        => false,
+        ];
+        if ($agency_id) {
+            $any_published = false;
+            $any_photos = false;
+            $any_prices = false;
+            $any_slots = false;
+            foreach (array_keys($listing_labels) as $type) {
+                $ids = get_posts([
+                    'post_type' => $type,
+                    'post_status' => 'any',
+                    'posts_per_page' => -1,
+                    'meta_key' => TAP_Post_Types::agency_meta_key($type),
+                    'meta_value' => $agency_id,
+                    'fields' => 'ids',
+                ]);
+                foreach ($ids as $lid) {
+                    if ('publish' === get_post_status($lid)) $any_published = true;
+                    if (get_post_thumbnail_id($lid)) $any_photos = true;
+                    $price_meta_keys = ['_tap_acc_price_per_night', '_tap_tour_price_adult', '_tap_trans_price', '_tap_car_price_per_day', '_tap_boat_price_half', '_tap_pkg_price', '_tap_eq_price_day'];
+                    foreach ($price_meta_keys as $pmk) {
+                        if (get_post_meta($lid, $pmk, true)) { $any_prices = true; break; }
+                    }
+                }
+            }
+            global $wpdb;
+            $slot_count = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}tap_daily_pricing WHERE service_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ('tap_tour','tap_experience') AND post_author = %d)", $user->ID));
+            if ($slot_count > 0) $any_slots = true;
+            $onboarding['add_photos'] = $any_photos;
+            $onboarding['set_prices'] = $any_prices;
+            $onboarding['set_availability'] = $any_slots;
+            $onboarding['publish'] = $any_published;
+        }
+        $onboarding_done = count(array_filter($onboarding));
+
         // Monthly revenue for the last 6 months (for the chart).
         $monthly = [];
         for ($i = 5; $i >= 0; $i--) {
@@ -1409,6 +1450,21 @@ class TAP_Front_Dash {
             endif;
 endif;
 			?>
+
+            <?php if ($agency_id && $onboarding_done < 5) : ?>
+            <div class="tap-onboarding-checklist">
+                <h3><?php esc_html_e('Primeros pasos', 'travel-agency-platform'); ?></h3>
+                <p><?php esc_html_e('Completa estos pasos para empezar a recibir reservas.', 'travel-agency-platform'); ?></p>
+                <ul>
+                    <li class="<?php echo $onboarding['create_listing'] ? 'is-done' : ''; ?>"><?php esc_html_e('Crear tu primer servicio', 'travel-agency-platform'); ?></li>
+                    <li class="<?php echo $onboarding['add_photos'] ? 'is-done' : ''; ?>"><?php esc_html_e('Añadir fotos', 'travel-agency-platform'); ?></li>
+                    <li class="<?php echo $onboarding['set_prices'] ? 'is-done' : ''; ?>"><?php esc_html_e('Configurar precios', 'travel-agency-platform'); ?></li>
+                    <li class="<?php echo $onboarding['set_availability'] ? 'is-done' : ''; ?>"><?php esc_html_e('Configurar disponibilidad', 'travel-agency-platform'); ?></li>
+                    <li class="<?php echo $onboarding['publish'] ? 'is-done' : ''; ?>"><?php esc_html_e('Publicar tu primer servicio', 'travel-agency-platform'); ?></li>
+                </ul>
+                <p class="tap-onboarding-note"><?php esc_html_e('Tu agencia será revisada en 24-48h. Podrás preparar tus listados mientras tanto.', 'travel-agency-platform'); ?></p>
+            </div>
+            <?php endif; ?>
 
             <div class="tap-stats-grid">
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html($stats['total']); ?></span><span class="tap-stat-label"><?php esc_html_e('Reservas totales', 'travel-agency-platform'); ?></span></div>

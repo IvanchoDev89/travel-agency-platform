@@ -146,7 +146,12 @@ class TAP_Listing_Editor {
                     }
                 }
                 if ($empty) {
-                    echo '<p class="tap-empty">' . esc_html__('Todavía no tienes listados. Usa "Nuevo" para crear tu primer servicio.', 'travel-agency-platform') . '</p>';
+                    echo '<div class="tap-dash-empty">';
+                    echo '<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg>';
+                    echo '<h3>' . esc_html__('Aún no tienes listados', 'travel-agency-platform') . '</h3>';
+                    echo '<p>' . esc_html__('Crea tu primer servicio para empezar a recibir reservas.', 'travel-agency-platform') . '</p>';
+                    echo '<a href="' . esc_url(home_url('/manage-listing/?new=tap_tour')) . '" class="tap-btn tap-btn-primary">' . esc_html__('Crear tour', 'travel-agency-platform') . '</a>';
+                    echo '</div>';
                 }
                 ?>
             </div>
