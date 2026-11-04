@@ -1455,21 +1455,50 @@ class TAP_Booking {
     }
 
     public static function get_agency_commission($agency_id) {
+        $agency_id = (int) $agency_id;
         if (!$agency_id) return 10;
+
+        $base = null;
         if (class_exists('TAP_Subscriptions')) {
             $rate = TAP_Subscriptions::commission_rate_for_agency($agency_id);
             if ($rate !== null) {
-                return $rate;
+                $base = (float) $rate;
             }
         }
-        $commission = get_post_meta($agency_id, '_tap_agency_commission', true);
-        if ($commission) {
-            return floatval($commission);
+        if (null === $base) {
+            $commission = get_post_meta($agency_id, '_tap_agency_commission', true);
+            if ($commission) {
+                $base = floatval($commission);
+            } else {
+                $default = get_option('tap_commission_default', '');
+                $base = (is_numeric($default) && (float) $default >= 0) ? (float) $default : 10;
+            }
         }
-        // Falling back to the admin-configured default instead of a hardcoded
-        // rate: agencies registered before a settings change pick it up too.
-        $default = get_option('tap_commission_default', '');
-        return (is_numeric($default) && (float) $default >= 0) ? (float) $default : 10;
+
+        // Tiered commission by monthly paid booking volume.
+        $count = self::monthly_paid_bookings($agency_id);
+        $bonus = 0.0;
+        if ($count >= 31) {
+            $bonus = 5.0;
+        } elseif ($count >= 11) {
+            $bonus = 2.0;
+        }
+        $rate = $base + $bonus;
+        if ($rate > 25) {
+            $rate = 25;
+        }
+        return $rate;
+    }
+
+    /** Count paid bookings for an agency in the last 30 days. */
+    public static function monthly_paid_bookings($agency_id) {
+        global $wpdb;
+        $agency_id = (int) $agency_id;
+        if (!$agency_id) return 0;
+        return (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tap_bookings WHERE agency_id = %d AND payment_status = 'paid' AND created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)",
+            $agency_id
+        ));
     }
 
 
