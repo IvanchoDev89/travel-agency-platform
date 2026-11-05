@@ -3371,3 +3371,32 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     .tap-itin-share-card { flex-direction: column; }
     .tap-itin-share-card-media { width: 100%; height: 160px; }
 }
+
+/* Itinerary builder (modern) */
+.tap-itin { max-width: 1100px; margin: 0 auto; padding: 32px 16px; }
+.tap-itin-head { text-align: center; margin-bottom: 32px; }
+.tap-itin-layout { display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start; }
+@media (max-width: 900px) { .tap-itin-layout { grid-template-columns: 1fr; } }
+.tap-itin-form { background: #fff; border-radius: 20px; padding: 28px; box-shadow: 0 12px 40px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; }
+.tap-itin-step.is-active { animation: tap-fade-in .3s ease both; }
+.tap-itin-step h3 { font-size: 20px; font-weight: 800; color: #1e293b; margin: 0 0 6px; }
+.tap-itin-step p { color: #64748b; margin: 0 0 16px; font-size: 14px; }
+.tap-itin-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.tap-itin-chip { padding: 8px 14px; border-radius: 999px; border: 1px solid #e2e8f0; background: #fff; font-size: 13px; font-weight: 600; color: #334155; cursor: pointer; transition: all .15s ease; }
+.tap-itin-chip:hover { border-color: #0f766e; color: #0f766e; }
+.tap-itin-chip.is-on { background: #0f766e; color: #fff; border-color: #0f766e; }
+.tap-itin-dest { padding: 12px 14px; border-radius: 12px; border: 1px solid #e2e8f0; background: #fff; cursor: pointer; transition: all .15s ease; display: flex; flex-direction: column; gap: 2px; }
+.tap-itin-dest:hover { border-color: #0f766e; }
+.tap-itin-dest.is-on { background: rgba(15,118,110,0.08); border-color: #0f766e; }
+.tap-itin-dest strong { font-size: 14px; color: #1e293b; }
+.tap-itin-dest span { font-size: 12px; color: #64748b; }
+.tap-itin-dest-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+.tap-itin-nav { display: flex; gap: 8px; margin-top: 20px; flex-wrap: wrap; }
+.tap-itin-side-card { background: #fff; border-radius: 16px; padding: 20px; border: 1px solid #e2e8f0; box-shadow: 0 8px 24px rgba(0,0,0,0.06); position: sticky; top: 20px; }
+.tap-itin-side-card h3 { margin: 0 0 12px; font-size: 16px; font-weight: 700; color: #1e293b; }
+.tap-itin-side-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.tap-itin-side-list li { display: flex; justify-content: space-between; gap: 8px; padding: 8px 10px; background: #f8fafc; border-radius: 10px; font-size: 13px; }
+.tap-itin-side-total { display: flex; justify-content: space-between; margin-top: 12px; padding-top: 12px; border-top: 1px solid #e2e8f0; font-weight: 700; }
+.tap-itin-side-empty { color: #64748b; font-size: 13px; text-align: center; padding: 12px; }
+.tap-itin-results { margin-top: 20px; }
+.tap-itin-results .tap-service-card { margin-bottom: 12px; }
