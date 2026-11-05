@@ -3400,3 +3400,11 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .tap-itin-side-empty { color: #64748b; font-size: 13px; text-align: center; padding: 12px; }
 .tap-itin-results { margin-top: 20px; }
 .tap-itin-results .tap-service-card { margin-bottom: 12px; }
+
+/* Print styles */
+@media print {
+    .tap-dash-sidebar, .tap-dash-header, .tap-notif-wrap, .tap-print-bar, .tap-btn, nav, header, footer, .tap-chat-wrap { display: none !important; }
+    .tap-voucher, .tap-invoice { box-shadow: none !important; border: none !important; }
+    body { background: #fff !important; }
+    .tap-dash-main { width: 100% !important; margin: 0 !important; }
+}

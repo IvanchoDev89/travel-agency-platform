@@ -994,6 +994,9 @@ class TAP_Shortcode_Booking {
             }
         })(jQuery);
         </script>
+        <div class="tap-print-bar" style="margin-bottom:16px;">
+            <button type="button" class="tap-btn tap-btn-outline" onclick="window.print()"><?php esc_html_e('Imprimir voucher', 'travel-agency-platform'); ?></button>
+        </div>
         <?php
         // Internal notes (agency/admin only).
         $uid = get_current_user_id();

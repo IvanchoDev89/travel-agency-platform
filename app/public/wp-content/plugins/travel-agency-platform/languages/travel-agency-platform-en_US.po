@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-05T21:54:44+00:00\n"
+"POT-Creation-Date: 2026-11-05T21:59:57+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -1890,7 +1890,7 @@ msgstr "You do not have permission over this booking."
 #: includes/class-dashboard-content.php:277
 #: includes/class-dashboard-insights.php:106
 #: includes/class-dashboard-money.php:592 includes/class-front-dash.php:1818
-#: includes/class-invoices.php:111 includes/class-shortcode-booking.php:822
+#: includes/class-invoices.php:114 includes/class-shortcode-booking.php:822
 msgid "Agencia"
 msgstr "Agency"
 
@@ -2195,7 +2195,7 @@ msgstr "The image exceeds the maximum allowed size (5 MB)."
 
 #: includes/class-ajax-public.php:483 includes/class-booking.php:62
 #: includes/class-emails-send.php:747 includes/class-itinerary.php:31
-#: includes/class-itinerary.php:88 includes/class-shortcode-booking.php:1066
+#: includes/class-itinerary.php:88 includes/class-shortcode-booking.php:1069
 #: includes/class-taxonomies.php:278
 msgid "Alojamiento"
 msgstr "Accommodation"
@@ -2497,7 +2497,7 @@ msgstr "Futon"
 #: includes/class-booking.php:63 includes/class-dashboard-bookings.php:29
 #: includes/class-emails-send.php:749 includes/class-itinerary.php:32
 #: includes/class-post-types.php:105 includes/class-post-types.php:304
-#: includes/class-shortcode-booking.php:1067
+#: includes/class-shortcode-booking.php:1070
 msgid "Tour"
 msgstr "Tour"
 
@@ -2508,7 +2508,7 @@ msgstr "Experience"
 
 #: includes/class-booking.php:65 includes/class-emails-send.php:750
 #: includes/class-itinerary.php:33 includes/class-itinerary.php:90
-#: includes/class-seo.php:67 includes/class-shortcode-booking.php:1068
+#: includes/class-seo.php:67 includes/class-shortcode-booking.php:1071
 #: includes/class-shortcode-search.php:217
 msgid "Transporte"
 msgstr "Transport"
@@ -2523,7 +2523,7 @@ msgid "Barco"
 msgstr "Boat"
 
 #: includes/class-booking.php:68 includes/class-emails-send.php:753
-#: includes/class-itinerary.php:36 includes/class-shortcode-booking.php:1071
+#: includes/class-itinerary.php:36 includes/class-shortcode-booking.php:1074
 msgid "Paquete"
 msgstr "Package"
 
@@ -2947,7 +2947,7 @@ msgid "Aún no tienes referidos. ¡Comparte tu enlace!"
 msgstr "You have no referrals yet. Share your link!"
 
 #: includes/class-customer-referrals.php:525 includes/class-itinerary.php:413
-#: includes/class-shortcode-booking.php:1109
+#: includes/class-shortcode-booking.php:1112
 msgid "Copiado"
 msgstr "Copied"
 
@@ -2964,7 +2964,7 @@ msgstr "Copied"
 #: includes/class-email-campaigns.php:192
 #: includes/class-email-campaigns.php:201
 #: includes/class-email-campaigns.php:216 includes/class-front-dash.php:1940
-#: includes/class-front-dash.php:1982 includes/class-invoices.php:165
+#: includes/class-front-dash.php:1982 includes/class-invoices.php:168
 #: includes/class-leads.php:163
 msgid "Acceso denegado."
 msgstr "Access denied."
@@ -3109,7 +3109,7 @@ msgstr "Code"
 
 #: includes/class-dashboard-bookings.php:97
 #: includes/class-dashboard-bookings.php:179 includes/class-emails-send.php:737
-#: includes/class-emails-send.php:782 includes/class-invoices.php:115
+#: includes/class-emails-send.php:782 includes/class-invoices.php:118
 msgid "Cliente"
 msgstr "Client"
 
@@ -3121,7 +3121,7 @@ msgstr "Client"
 #: includes/class-emails.php:694 includes/class-front-dash-client.php:215
 #: includes/class-front-dash.php:507 includes/class-front-dash.php:977
 #: includes/class-front-dash.php:1639 includes/class-front-dash.php:1682
-#: includes/class-invoices.php:122 includes/class-privacy.php:386
+#: includes/class-invoices.php:125 includes/class-privacy.php:386
 #: includes/class-privacy.php:457 includes/class-shortcode-agency-panel.php:362
 msgid "Servicio"
 msgstr "Service"
@@ -3133,8 +3133,8 @@ msgstr "Service"
 #: includes/class-dashboard-insights.php:331
 #: includes/class-dashboard-money.php:302 includes/class-emails-send.php:779
 #: includes/class-front-dash-client.php:217 includes/class-front-dash.php:510
-#: includes/class-front-dash.php:1641 includes/class-invoices.php:123
-#: includes/class-invoices.php:132 includes/class-privacy.php:389
+#: includes/class-front-dash.php:1641 includes/class-invoices.php:126
+#: includes/class-invoices.php:135 includes/class-privacy.php:389
 #: includes/class-shortcode-agency-panel.php:233
 #: includes/class-shortcode-agency-panel.php:634
 #: includes/class-shortcode-booking.php:266
@@ -3157,7 +3157,7 @@ msgstr "Total"
 #: includes/class-front-dash-client.php:218 includes/class-front-dash.php:512
 #: includes/class-front-dash.php:801 includes/class-front-dash.php:874
 #: includes/class-front-dash.php:1278 includes/class-front-dash.php:1642
-#: includes/class-invoices.php:177 includes/class-privacy.php:384
+#: includes/class-invoices.php:180 includes/class-privacy.php:384
 #: includes/class-privacy.php:572 includes/class-shortcode-agency-panel.php:477
 #: includes/class-shortcode-agency-panel.php:549
 #: includes/class-shortcode-agency-panel.php:597
@@ -3174,7 +3174,7 @@ msgstr "Status"
 #: includes/class-dashboard-money.php:596
 #: includes/class-front-dash-client.php:521 includes/class-front-dash.php:802
 #: includes/class-front-dash.php:875 includes/class-front-dash.php:1019
-#: includes/class-front-dash.php:1683 includes/class-invoices.php:179
+#: includes/class-front-dash.php:1683 includes/class-invoices.php:182
 #: includes/class-privacy.php:414 includes/class-privacy.php:436
 #: includes/class-privacy.php:461 includes/class-privacy.php:567
 #: includes/class-privacy.php:614 includes/class-shortcode-agency-panel.php:364
@@ -3425,7 +3425,7 @@ msgstr "User"
 #: includes/class-dashboard-money.php:404
 #: includes/class-email-campaigns.php:250
 #: includes/class-email-templates.php:145 includes/class-front-dash.php:513
-#: includes/class-front-dash.php:1185 includes/class-invoices.php:180
+#: includes/class-front-dash.php:1185 includes/class-invoices.php:183
 msgid "Acciones"
 msgstr "Actions"
 
@@ -3770,7 +3770,7 @@ msgstr "Email"
 #: includes/class-dashboard-insights.php:108
 #: includes/class-dashboard-market.php:175
 #: includes/class-dashboard-money.php:591 includes/class-emails-send.php:574
-#: includes/class-invoices.php:175
+#: includes/class-invoices.php:178
 #: includes/class-shortcode-agency-panel.php:595
 msgid "Reserva"
 msgstr "Booking"
@@ -4171,7 +4171,7 @@ msgid "ID"
 msgstr "ID"
 
 #: includes/class-dashboard-money.php:397 includes/class-front-dash.php:797
-#: includes/class-invoices.php:176
+#: includes/class-invoices.php:179
 #: includes/class-shortcode-agency-panel.php:545
 msgid "Monto"
 msgstr "Amount"
@@ -10453,8 +10453,8 @@ msgid "Explorar tours"
 msgstr "Explore Tours"
 
 #: includes/class-front-dash-client.php:356 includes/class-itinerary.php:395
-#: includes/class-shortcode-booking.php:1097
-#: includes/class-shortcode-booking.php:1154
+#: includes/class-shortcode-booking.php:1100
+#: includes/class-shortcode-booking.php:1157
 #: includes/class-shortcode-search.php:319
 #: includes/class-shortcode-search.php:1235
 msgid "Ver detalles"
@@ -10506,7 +10506,7 @@ msgid ""
 msgstr "Save services by clicking the heart to find them easily later."
 
 #: includes/class-front-dash-client.php:462
-#: includes/class-shortcode-booking.php:1098
+#: includes/class-shortcode-booking.php:1101
 msgid "Quitar de favoritos"
 msgstr "Remove from favorites"
 
@@ -10743,7 +10743,7 @@ msgid "Seleccionar"
 msgstr "Select"
 
 #: includes/class-front-dash.php:520 includes/class-front-dash.php:1648
-#: includes/class-invoices.php:127
+#: includes/class-invoices.php:130
 msgid "Listado eliminado"
 msgstr "Listing deleted"
 
@@ -11055,7 +11055,7 @@ msgstr "Team members"
 msgid "Aún no hay empleados en el equipo."
 msgstr "There are no employees on the team yet."
 
-#: includes/class-front-dash.php:1193 includes/class-shortcode-booking.php:1099
+#: includes/class-front-dash.php:1193 includes/class-shortcode-booking.php:1102
 msgid "Quitar"
 msgstr "Remove"
 
@@ -11319,35 +11319,39 @@ msgstr "URL and room_id required."
 msgid "Servicio no encontrado."
 msgstr "Service not found."
 
-#: includes/class-invoices.php:106
+#: includes/class-invoices.php:107
+msgid "Imprimir factura"
+msgstr "Print invoice"
+
+#: includes/class-invoices.php:109
 msgid "Factura"
 msgstr "Invoice"
 
-#: includes/class-invoices.php:136
+#: includes/class-invoices.php:139
 msgid "Gracias por tu reserva."
 msgstr "Thank you for your booking."
 
-#: includes/class-invoices.php:151
+#: includes/class-invoices.php:154
 msgid "Tu factura"
 msgstr "Your invoice"
 
-#: includes/class-invoices.php:171
+#: includes/class-invoices.php:174
 msgid "Facturas"
 msgstr "Invoices"
 
-#: includes/class-invoices.php:174
+#: includes/class-invoices.php:177
 msgid "Número"
 msgstr "Number"
 
-#: includes/class-invoices.php:178
+#: includes/class-invoices.php:181
 msgid "Hacienda"
 msgstr "Hacienda"
 
-#: includes/class-invoices.php:184
+#: includes/class-invoices.php:187
 msgid "Sin facturas."
 msgstr "No invoices."
 
-#: includes/class-invoices.php:194
+#: includes/class-invoices.php:197
 msgid "Ver"
 msgstr "View"
 
@@ -14898,6 +14902,7 @@ msgid "Fallido"
 msgstr "Failed"
 
 #: includes/class-shortcode-booking.php:720
+#: includes/class-shortcode-booking.php:998
 msgid "Imprimir voucher"
 msgstr "Print voucher"
 
@@ -15015,46 +15020,46 @@ msgstr ""
 msgid "Escribe un mensaje para la agencia..."
 msgstr "Write a message to the agency..."
 
-#: includes/class-shortcode-booking.php:1012
+#: includes/class-shortcode-booking.php:1015
 msgid "Notas internas"
 msgstr "Internal notes"
 
-#: includes/class-shortcode-booking.php:1014
+#: includes/class-shortcode-booking.php:1017
 msgid "Guardar nota"
 msgstr "Save note"
 
-#: includes/class-shortcode-booking.php:1045
+#: includes/class-shortcode-booking.php:1048
 msgid "Inicia sesión para ver tus favoritos."
 msgstr "Log in to view your favorites."
 
-#: includes/class-shortcode-booking.php:1050
+#: includes/class-shortcode-booking.php:1053
 msgid ""
 "Aún no tienes favoritos. Toca el corazón ♥ en cualquier servicio para "
 "guardarlo aquí."
 msgstr ""
 "You have no favorites yet. Tap the heart ♥ on any service to save it here."
 
-#: includes/class-shortcode-booking.php:1062
+#: includes/class-shortcode-booking.php:1065
 msgid "No se encontraron servicios favoritos."
 msgstr "No favorite services found."
 
-#: includes/class-shortcode-booking.php:1069 templates/landing/categories.php:8
+#: includes/class-shortcode-booking.php:1072 templates/landing/categories.php:8
 msgid "Alquiler de autos"
 msgstr "Car rentals"
 
-#: includes/class-shortcode-booking.php:1070
+#: includes/class-shortcode-booking.php:1073
 msgid "Paseo en bote"
 msgstr "Boat ride"
 
-#: includes/class-shortcode-booking.php:1109
+#: includes/class-shortcode-booking.php:1112
 msgid "Compartir mi lista"
 msgstr "Share my list"
 
-#: includes/class-shortcode-booking.php:1124
+#: includes/class-shortcode-booking.php:1127
 msgid "No se especificaron favoritos."
 msgstr "No favorites specified."
 
-#: includes/class-shortcode-booking.php:1135
+#: includes/class-shortcode-booking.php:1138
 msgid "No se encontraron servicios."
 msgstr "No services found."
 

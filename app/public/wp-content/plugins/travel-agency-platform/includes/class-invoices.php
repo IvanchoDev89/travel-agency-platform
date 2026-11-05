@@ -103,6 +103,9 @@ class TAP_Invoices {
         ob_start();
         ?>
         <div class="tap-invoice" style="max-width:720px;margin:0 auto;padding:32px;font-family:sans-serif;">
+            <div class="tap-print-bar" style="margin-bottom:16px;">
+                <button type="button" class="tap-btn tap-btn-outline" onclick="window.print()"><?php esc_html_e('Imprimir factura', 'travel-agency-platform'); ?></button>
+            </div>
             <h1 style="margin:0 0 8px;"><?php esc_html_e('Factura', 'travel-agency-platform'); ?></h1>
             <p style="margin:0 0 16px;color:#64748b;"><?php echo esc_html($inv->invoice_number); ?> · <?php echo esc_html($inv->issued_at); ?></p>
             <hr style="border:0;border-top:1px solid #e2e8f0;margin:16px 0;">
