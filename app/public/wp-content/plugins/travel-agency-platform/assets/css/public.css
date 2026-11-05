@@ -3306,3 +3306,15 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 /* Featured badge */
 .tap-featured-badge { position: absolute; top: 10px; left: 10px; background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #1f2937; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; padding: 4px 10px; border-radius: 999px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 2; }
 .tap-card-thumb { position: relative; }
+
+/* Referral leaderboard */
+.tap-referral-leaderboard { max-width: 560px; margin: 24px auto; padding: 24px; background: #fff; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+.tap-leaderboard-list { list-style: none; padding: 0; margin: 16px 0 0; display: flex; flex-direction: column; gap: 8px; }
+.tap-leaderboard-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; transition: transform .15s ease; }
+.tap-leaderboard-item:hover { transform: translateX(4px); }
+.tap-leaderboard-rank { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; background: #e2e8f0; color: #475569; }
+.tap-leaderboard-rank-1 .tap-leaderboard-rank { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1f2937; }
+.tap-leaderboard-rank-2 .tap-leaderboard-rank { background: linear-gradient(135deg, #cbd5e1, #94a3b8); color: #1f2937; }
+.tap-leaderboard-rank-3 .tap-leaderboard-rank { background: linear-gradient(135deg, #d97706, #b45309); color: #fff; }
+.tap-leaderboard-name { flex: 1; font-weight: 600; color: #1e293b; }
+.tap-leaderboard-points { font-weight: 800; color: #0f766e; }

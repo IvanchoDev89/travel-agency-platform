@@ -133,6 +133,7 @@ final class TravelAgencyPlatform {
             add_filter('pll_get_taxonomies', [$this, 'polylang_taxonomies'], 10, 2);
         }
         add_action('init', ['TAP_Referral_Reports', 'init'], 15);
+        add_action('init', ['TAP_Referral_Leaderboard', 'init'], 15);
         add_action('init', ['TAP_Security_Headers', 'init'], 15);
         add_action('plugins_loaded', [$this, 'maybe_update_tables'], 5);
         add_action('pre_get_posts', ['TAP_Archive_Query', 'filter_archive_query'], 10);
