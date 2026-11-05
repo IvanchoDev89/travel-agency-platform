@@ -295,7 +295,7 @@ foreach ($pillarDefs as $pDef) {
 
       <?php if ($hero_search): ?>
       <div class="tap-hero-search tap-landing-search">
-        <form method="get" action="<?php echo esc_url(get_post_type_archive_link('tap_accommodation')); ?>" class="tap-hs-form tap-landing-hs">
+        <form method="get" action="<?php echo esc_url(home_url('/resultados-de-busqueda/')); ?>" class="tap-hs-form tap-landing-hs">
           <div class="tap-hs-field tap-hs-destino">
             <label for="hs-destino"><?php esc_html_e('Destino', 'travel-agency-platform'); ?></label>
             <div class="tap-hs-input-wrap">

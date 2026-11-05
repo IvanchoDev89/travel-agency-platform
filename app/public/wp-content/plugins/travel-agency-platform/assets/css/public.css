@@ -3318,3 +3318,23 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .tap-leaderboard-rank-3 .tap-leaderboard-rank { background: linear-gradient(135deg, #d97706, #b45309); color: #fff; }
 .tap-leaderboard-name { flex: 1; font-weight: 600; color: #1e293b; }
 .tap-leaderboard-points { font-weight: 800; color: #0f766e; }
+
+/* Hero search redesign */
+.tap-hero-search { max-width: 920px; margin: 0 auto; }
+.tap-hs-form { border-radius: 20px; box-shadow: 0 24px 80px rgba(0,0,0,0.25); backdrop-filter: blur(12px); background: rgba(255,255,255,0.97); }
+.tap-hs-field { padding: 14px 18px; }
+.tap-hs-field label { font-size: 10px; letter-spacing: 0.08em; color: #64748b; margin-bottom: 2px; }
+.tap-hs-input { font-size: 15px; font-weight: 500; }
+.tap-hs-input::placeholder { color: #94a3b8; }
+.tap-hs-btn { padding: 14px 28px; font-size: 15px; font-weight: 700; border-radius: 0 20px 20px 0; min-width: 120px; }
+.tap-hs-btn svg { margin-right: 6px; }
+.tap-hs-suggestions { border-radius: 16px; margin-top: 8px; box-shadow: 0 16px 48px rgba(0,0,0,0.18); }
+.tap-hs-suggestion-item { padding: 12px 16px; gap: 12px; }
+.tap-hs-suggestion-img { width: 48px; height: 48px; border-radius: 10px; }
+.tap-hs-suggestion-title { font-size: 14px; font-weight: 600; }
+.tap-hs-suggestion-type { font-size: 11px; color: #0f766e; font-weight: 500; }
+.tap-hs-suggestion-item.active { background: rgba(15,118,110,0.06); }
+@media (max-width: 768px) {
+    .tap-hs-form { border-radius: 16px; }
+    .tap-hs-btn { border-radius: 12px; }
+}
