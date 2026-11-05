@@ -195,6 +195,34 @@ class TAP_Dashboard_Bookings {
     public static function bookings_page() {
         global $wpdb;
 
+        // Bulk actions.
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tap_bulk_action'])) {
+            check_admin_referer('tap_bulk_bookings_nonce');
+            if (!current_user_can('tap_manage_bookings') && !current_user_can('manage_options')) {
+                wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform'));
+            }
+            $bulk_action = sanitize_key(wp_unslash($_POST['tap_bulk_action']));
+            $ids = array_map('intval', (array) ($_POST['booking_ids'] ?? []));
+            $ids = array_filter($ids);
+            $allowed = ['confirmed', 'completed', 'cancelled'];
+            if (in_array($bulk_action, $allowed, true) && $ids) {
+                $user_agency = (int) TAP_Booking::get_agency_for_user(get_current_user_id());
+                $is_admin = current_user_can('manage_options');
+                foreach ($ids as $bid) {
+                    $bk = TAP_Booking::get_booking($bid);
+                    if (!$bk) continue;
+                    if (!$is_admin && $user_agency && (int) $bk->agency_id !== $user_agency) continue;
+                    // Do not cancel paid bookings as non-admin.
+                    if (in_array($bulk_action, ['cancelled'], true) && !$is_admin && $bk->payment_status === 'paid') continue;
+                    TAP_Booking::update_status($bid, $bulk_action);
+                }
+            }
+            // Redirect to avoid resubmission.
+            $redirect = add_query_arg(['page' => 'tap-bookings', 'bulk_done' => '1'], admin_url('admin.php'));
+            wp_safe_redirect($redirect);
+            exit;
+        }
+
         $f_status = sanitize_key(wp_unslash($_GET['f_status'] ?? ''));
         $f_type   = sanitize_key(wp_unslash($_GET['f_type'] ?? ''));
         $f_agency = intval($_GET['f_agency'] ?? 0);
@@ -264,10 +292,25 @@ class TAP_Dashboard_Bookings {
                 <a class="button button-secondary" href="<?php echo esc_url($export_url); ?>"><?php esc_html_e('Exportar CSV', 'travel-agency-platform'); ?></a>
             </form>
 
+            <?php if (isset($_GET['bulk_done'])): ?>
+                <div class="notice notice-success is-dismissible"><p><?php esc_html_e('Acción masiva aplicada.', 'travel-agency-platform'); ?></p></div>
+            <?php endif; ?>
+            <form method="post" id="tap-bulk-form">
+                <?php wp_nonce_field('tap_bulk_bookings_nonce'); ?>
+                <div style="margin:8px 0;display:flex;gap:8px;align-items:center;">
+                    <select name="tap_bulk_action">
+                        <option value=""><?php esc_html_e('Acciones masivas', 'travel-agency-platform'); ?></option>
+                        <option value="confirmed"><?php esc_html_e('Confirmar', 'travel-agency-platform'); ?></option>
+                        <option value="completed"><?php esc_html_e('Completar', 'travel-agency-platform'); ?></option>
+                        <option value="cancelled"><?php esc_html_e('Cancelar', 'travel-agency-platform'); ?></option>
+                    </select>
+                    <button type="submit" class="button"><?php esc_html_e('Aplicar', 'travel-agency-platform'); ?></button>
+                </div>
             <?php echo TAP_Dashboard::paginate($total, $per_page, $paged); ?>
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
+                        <th style="width:30px;"><input type="checkbox" id="tap-bulk-check-all"></th>
                         <th><?php esc_html_e('Code', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Client', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Service', 'travel-agency-platform'); ?></th>
@@ -289,6 +332,7 @@ class TAP_Dashboard_Bookings {
                         $agency = get_post($b->agency_id);
 						?>
                     <tr>
+                        <td><input type="checkbox" name="booking_ids[]" value="<?php echo (int) $b->id; ?>"></td>
                         <td><a href="<?php echo esc_url(home_url('/booking-detail/?code=' . rawurlencode($b->booking_code))); ?>" target="_blank"><?php echo esc_html($b->booking_code); ?></a></td>
                         <td><?php echo $b->display_name ? esc_html($b->display_name) : 'N/A'; ?></td>
                         <td><?php echo $service ? esc_html($service->post_title) : esc_html($b->service_type); ?></td>
@@ -313,6 +357,17 @@ class TAP_Dashboard_Bookings {
                 </tbody>
             </table>
             <?php echo TAP_Dashboard::paginate($total, $per_page, $paged); ?>
+            </form>
+            <script>
+            (function(){
+                var all = document.getElementById('tap-bulk-check-all');
+                if (all) {
+                    all.addEventListener('change', function(){
+                        document.querySelectorAll('input[name="booking_ids[]"]').forEach(function(cb){ cb.checked = all.checked; });
+                    });
+                }
+            })();
+            </script>
         </div>
         <?php
     }
