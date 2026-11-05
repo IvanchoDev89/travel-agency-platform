@@ -29,22 +29,15 @@ function tapInstallApp() {
     });
 }
 </script>
-<div id="tap-install-bar" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#0f766e;color:#fff;padding:12px 16px;align-items:center;justify-content:space-between;gap:12px;">
-    <span style="font-size:14px;font-weight:600;"><?php esc_html_e('Instala la app para acceso rápido', 'travel-agency-platform'); ?></span>
-    <div style="display:flex;gap:8px;">
-        <button type="button" class="tap-btn tap-btn-sm" style="background:#fff;color:#0f766e;" onclick="tapInstallApp()"><?php esc_html_e('Instalar', 'travel-agency-platform'); ?></button>
-        <button type="button" class="tap-btn tap-btn-sm" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.4);" onclick="document.getElementById('tap-install-bar').style.display='none'"><?php esc_html_e('Cerrar', 'travel-agency-platform'); ?></button>
-    </div>
-</div>
 </head>
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
 <a href="#main-content" class="tap-skip-link"><?php esc_html_e('Saltar al contenido principal', 'travel-agency-platform'); ?></a>
 
 <header class="site-header" id="site-header" data-touch="">
-<?php if (function_exists('pll_the_languages')): ?>
+<?php if (class_exists('TAP_Localization')): ?>
 <div class="tap-lang-selector" style="position:absolute;right:16px;top:12px;z-index:10;">
-    <?php pll_the_languages(['show_flags' => 1, 'show_names' => 1, 'dropdown' => 1]); ?>
+    <?php echo TAP_Localization::switcher([]); ?>
 </div>
 <?php endif; ?>
     <div class="header-inner">
