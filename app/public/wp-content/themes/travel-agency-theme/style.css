@@ -1258,3 +1258,15 @@ img { max-width: 100%; height: auto; }
 @media (max-width: 480px) {
   .tap-reg-card { padding: 22px 18px; }
 }
+
+/* ===== Nav modernization (PWA-style) ===== */
+.site-header { backdrop-filter: blur(12px); background: rgba(255,255,255,0.85); border-bottom: 1px solid rgba(0,0,0,0.06); }
+.main-navigation .nav-menu a.nav-link { font-size: 14px; font-weight: 600; padding: 10px 14px; }
+.main-navigation .nav-menu a.nav-link:hover { background: rgba(15,118,110,0.08); }
+.main-navigation .nav-menu .current-menu-item > a.nav-link { color: #0f766e; }
+.tap-lang-selector a.tap-lang-link { padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; color: #475569; }
+.tap-lang-selector a.tap-lang-link.is-active { background: #0f766e; color: #fff; }
+@media (max-width: 768px) {
+  .site-header { padding: 8px 12px; }
+  .tap-mobile-toggle { width: 40px; height: 40px; }
+}
