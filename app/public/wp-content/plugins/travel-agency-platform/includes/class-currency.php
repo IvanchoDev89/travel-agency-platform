@@ -35,6 +35,15 @@ class TAP_Currency {
     ];
 
     public static function code() {
+        $lang = '';
+        if (isset($_GET['lang'])) {
+            $lang = sanitize_key(wp_unslash($_GET['lang']));
+        } elseif (isset($_COOKIE['tap_lang'])) {
+            $lang = sanitize_key(wp_unslash($_COOKIE['tap_lang'])); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+        }
+        if ('en' === $lang) {
+            return strtoupper(get_option('tap_currency_en', 'USD'));
+        }
         return strtoupper(get_option('tap_currency', 'USD'));
     }
 
