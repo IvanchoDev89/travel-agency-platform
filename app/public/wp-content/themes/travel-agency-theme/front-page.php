@@ -340,6 +340,10 @@ foreach ($pillarDefs as $pDef) {
         <li><?php esc_html_e('Pago seguro', 'travel-agency-platform'); ?></li>
         <li><?php esc_html_e('Soporte local', 'travel-agency-platform'); ?></li>
       </ul>
+
+      <div class="tap-landing-hero-cta-row">
+        <a class="tap-btn tap-btn-outline tap-btn-sm" href="<?php echo esc_url(home_url('/register/')); ?>"><?php esc_html_e('¿Tienes una agencia? Regístrate', 'travel-agency-platform'); ?></a>
+      </div>
     </div>
   </div>
 </section>
@@ -542,6 +546,37 @@ if ($featured_tour_ids) {
           </span>
         </a>
       <?php endforeach; ?>
+    </div>
+  </div>
+</section>
+<?php endif; ?>
+
+<?php if (tap_lp_enabled('referrals')): ?>
+<section class="tap-section tap-landing-referrals">
+  <div class="tap-container">
+    <div class="tap-landing-head">
+      <p class="tap-landing-eyebrow"><?php esc_html_e('Invita y gana', 'travel-agency-platform'); ?></p>
+      <h2><?php esc_html_e('Comparte tu viaje y gana puntos', 'travel-agency-platform'); ?></h2>
+      <p class="tap-landing-sub"><?php esc_html_e('Cada amigo que reserve con tu código te da puntos canjeables por descuentos. Sin límites.', 'travel-agency-platform'); ?></p>
+    </div>
+    <div style="text-align:center;margin-top:24px;">
+      <a class="tap-btn tap-btn-primary tap-btn-lg" href="<?php echo esc_url(home_url('/invita-y-gana/')); ?>"><?php esc_html_e('Ver mi código de referido', 'travel-agency-platform'); ?></a>
+    </div>
+  </div>
+</section>
+<?php endif; ?>
+
+<?php if (tap_lp_enabled('agencies_cta')): ?>
+<section class="tap-section tap-section-alt tap-landing-agencies-cta">
+  <div class="tap-container">
+    <div class="tap-landing-head">
+      <p class="tap-landing-eyebrow"><?php esc_html_e('Para agencias', 'travel-agency-platform'); ?></p>
+      <h2><?php esc_html_e('Publica tus tours y recibe reservas', 'travel-agency-platform'); ?></h2>
+      <p class="tap-landing-sub"><?php esc_html_e('Dashboard completo, comisiones escalonadas, referidos y destacados pagados.', 'travel-agency-platform'); ?></p>
+    </div>
+    <div style="text-align:center;margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+      <a class="tap-btn tap-btn-primary tap-btn-lg" href="<?php echo esc_url(home_url('/register/')); ?>"><?php esc_html_e('Registrar mi agencia', 'travel-agency-platform'); ?></a>
+      <a class="tap-btn tap-btn-outline tap-btn-lg" href="<?php echo esc_url(home_url('/planes/')); ?>"><?php esc_html_e('Ver planes', 'travel-agency-platform'); ?></a>
     </div>
   </div>
 </section>
