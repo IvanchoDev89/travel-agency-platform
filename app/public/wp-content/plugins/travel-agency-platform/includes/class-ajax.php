@@ -444,6 +444,28 @@ class TAP_Ajax {
         wp_send_json_success(['message' => __('Mensaje enviado. La agencia te contactará pronto.', 'travel-agency-platform')]);
     }
 
+    public static function save_internal_note() {
+        check_ajax_referer('tap_booking_nonce', 'nonce');
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => __('No autorizado.', 'travel-agency-platform')], 403);
+        }
+        $booking_id = intval($_POST['booking_id'] ?? 0);
+        $note = sanitize_textarea_field(wp_unslash($_POST['note'] ?? ''));
+        $booking = TAP_Booking::get_booking($booking_id);
+        if (!$booking) {
+            wp_send_json_error(['message' => __('Reserva no encontrada.', 'travel-agency-platform')], 404);
+        }
+        $uid = get_current_user_id();
+        $is_admin = current_user_can('manage_options');
+        $agency = TAP_Booking::get_agency_for_user($uid);
+        if (!$is_admin && (!$agency || (int) $agency !== (int) $booking->agency_id)) {
+            wp_send_json_error(['message' => __('Sin permiso.', 'travel-agency-platform')], 403);
+        }
+        global $wpdb;
+        $wpdb->update($wpdb->prefix . 'tap_bookings', ['internal_notes' => $note], ['id' => $booking_id], ['%s'], ['%d']);
+        wp_send_json_success(['message' => __('Nota guardada.', 'travel-agency-platform')]);
+    }
+
     public static function toggle_favorite() {
         check_ajax_referer('tap_nonce', 'nonce');
 

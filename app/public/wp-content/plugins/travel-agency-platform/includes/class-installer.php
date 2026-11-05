@@ -52,6 +52,7 @@ class TAP_Installer {
                 payment_method varchar(50) DEFAULT NULL,
                 notes text,
                 cancel_reason text,
+                internal_notes text,
                 utm_source varchar(100) DEFAULT NULL,
                 utm_medium varchar(100) DEFAULT NULL,
                 utm_campaign varchar(100) DEFAULT NULL,
@@ -370,6 +371,12 @@ class TAP_Installer {
         }
         if (!$wpdb->get_var("SHOW INDEX FROM {$wpdb->prefix}tap_chat_messages WHERE Key_name = 'idx_chat_booking_read'")) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_chat_messages ADD INDEX idx_chat_booking_read (booking_id, is_read)");
+        }
+
+        // Internal notes column (idempotent).
+        $has_notes = $wpdb->get_var("SHOW COLUMNS FROM {$wpdb->prefix}tap_bookings LIKE 'internal_notes'");
+        if (!$has_notes) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN internal_notes text");
         }
 
         // UTM tracking columns (idempotent).

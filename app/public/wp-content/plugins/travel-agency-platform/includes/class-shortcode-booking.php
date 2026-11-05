@@ -995,6 +995,48 @@ class TAP_Shortcode_Booking {
         })(jQuery);
         </script>
         <?php
+        // Internal notes (agency/admin only).
+        $uid = get_current_user_id();
+        $can_note = false;
+        if ($uid) {
+            if (current_user_can('manage_options')) $can_note = true;
+            elseif ($booking->agency_id) {
+                $ag = TAP_Booking::get_agency_for_user($uid);
+                if ($ag && (int) $ag === (int) $booking->agency_id) $can_note = true;
+            }
+        }
+        if ($can_note):
+            $internal = (string) ($booking->internal_notes ?? '');
+        ?>
+        <div class="tap-internal-notes" style="margin-top:24px;padding:16px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-lg);background:var(--tap-surface-muted);">
+            <h3><?php esc_html_e('Notas internas', 'travel-agency-platform'); ?></h3>
+            <textarea id="tap-internal-note" rows="3" class="tap-input" style="width:100%;"><?php echo esc_textarea($internal); ?></textarea>
+            <button type="button" class="tap-btn tap-btn-primary tap-btn-sm" id="tap-save-note" data-booking="<?php echo (int) $booking->id; ?>"><?php esc_html_e('Guardar nota', 'travel-agency-platform'); ?></button>
+            <span id="tap-note-status" class="tap-agency-meta" style="margin-left:8px;"></span>
+        </div>
+        <script>
+        (function(){
+            var btn = document.getElementById('tap-save-note');
+            if (!btn) return;
+            btn.addEventListener('click', function(){
+                var note = document.getElementById('tap-internal-note').value;
+                var fd = new FormData();
+                fd.append('action', 'tap_save_internal_note');
+                fd.append('booking_id', btn.getAttribute('data-booking'));
+                fd.append('note', note);
+                fd.append('nonce', (window.tap_ajax && window.tap_ajax.nonce) || '');
+                fetch((window.tap_ajax && window.tap_ajax.ajax_url) || '/wp-admin/admin-ajax.php', {method:'POST', body:fd, credentials:'same-origin'})
+                .then(function(r){ return r.json(); })
+                .then(function(res){
+                    var st = document.getElementById('tap-note-status');
+                    if (res && res.success) { st.textContent = (res.data && res.data.message) || 'Guardado.'; }
+                    else { st.textContent = (res.data && res.data.message) || 'Error.'; }
+                });
+            });
+        })();
+        </script>
+        <?php endif; ?>
+        <?php
         return ob_get_clean();
     }
 
