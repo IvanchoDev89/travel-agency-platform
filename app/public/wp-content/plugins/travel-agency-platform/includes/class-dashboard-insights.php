@@ -129,6 +129,32 @@ class TAP_Dashboard_Insights {
     }
 
 
+    /** Send daily admin alerts (bookings drop, negative reviews). */
+    public static function send_alerts() {
+        global $wpdb;
+        $admin_email = get_option('admin_email');
+        if (!is_email($admin_email)) {
+            return;
+        }
+
+        // Bookings drop: compare last 7 days vs previous 7 days.
+        $recent = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}tap_bookings WHERE created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)");
+        $previous = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}tap_bookings WHERE created_at >= DATE_SUB(NOW(), INTERVAL 14 DAY) AND created_at < DATE_SUB(NOW(), INTERVAL 7 DAY)");
+        if ($previous > 0 && $recent < ($previous * 0.8)) {
+            $subject = __('Alerta: caída de reservas', 'travel-agency-platform');
+            $body = sprintf(__('Las reservas de los últimos 7 días (%d) cayeron más del 20%% respecto a la semana anterior (%d).', 'travel-agency-platform'), $recent, $previous);
+            wp_mail($admin_email, $subject, $body);
+        }
+
+        // Negative reviews in last 24h.
+        $neg = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}tap_reviews WHERE rating <= 2 AND created_at >= DATE_SUB(NOW(), INTERVAL 1 DAY)");
+        if ($neg > 0) {
+            $subject = __('Alerta: reviews negativas', 'travel-agency-platform');
+            $body = sprintf(__('Se recibieron %d review(s) con 2 estrellas o menos en las últimas 24 horas. Revisa la moderación.', 'travel-agency-platform'), $neg);
+            wp_mail($admin_email, $subject, $body);
+        }
+    }
+
     public static function analytics_page() {
         if (!current_user_can('tap_view_reports')) {
             wp_die(__('No tienes permisos para acceder.', 'travel-agency-platform'));

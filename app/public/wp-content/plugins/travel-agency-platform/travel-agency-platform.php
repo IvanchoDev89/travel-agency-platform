@@ -153,12 +153,16 @@ final class TravelAgencyPlatform {
             if (!wp_next_scheduled('tap_push_reminders_hook')) {
                 wp_schedule_event(time() + HOUR_IN_SECONDS, 'daily', 'tap_push_reminders_hook');
             }
+            if (!wp_next_scheduled('tap_admin_alerts_hook')) {
+                wp_schedule_event(time() + HOUR_IN_SECONDS, 'daily', 'tap_admin_alerts_hook');
+            }
         });
         add_action('tap_maintenance_hook', ['TAP_Booking', 'cancel_stale_bookings']);
         add_action('tap_maintenance_hook', ['TAP_Booking', 'complete_past_bookings']);
         add_action('tap_refund_retry_hook', ['TAP_Booking', 'retry_pending_refunds']);
         add_action('tap_points_expiry_hook', ['TAP_Loyalty', 'expire_points']);
         add_action('tap_push_reminders_hook', ['TAP_Push', 'send_reminders']);
+        add_action('tap_admin_alerts_hook', ['TAP_Dashboard_Insights', 'send_alerts']);
         add_action('tap_payment_completed', ['TAP_Booking', 'mark_commission_owed'], 20, 1);
         add_action('add_meta_boxes', ['TAP_Metaboxes', 'register']);
         add_filter('default_hidden_meta_boxes', ['TAP_Metaboxes', 'unhide_tour_metabox'], 10, 2);

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-05T22:05:59+00:00\n"
+"POT-Creation-Date: 2026-11-05T22:10:01+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -136,7 +136,7 @@ msgid "Estadía mínima"
 msgstr "Estadía mínima"
 
 #: includes/class-acc-wizard-room-form.php:114
-#: includes/class-dashboard-insights.php:365
+#: includes/class-dashboard-insights.php:391
 msgid "Tamaño"
 msgstr "Tamaño"
 
@@ -174,7 +174,7 @@ msgstr "Tipo de cama"
 
 #: includes/class-acc-wizard-room-form.php:144
 #: includes/class-acc-wizard-steps.php:487 includes/class-acc-wizard.php:37
-#: includes/class-dashboard-insights.php:270
+#: includes/class-dashboard-insights.php:296
 #: includes/class-landing-builder.php:430
 msgid "Cantidad"
 msgstr "Cantidad"
@@ -872,7 +872,7 @@ msgstr ""
 #: includes/class-shortcode-booking.php:921
 #: includes/class-shortcode-booking.php:923
 #: includes/class-shortcode-booking.php:946
-#: includes/class-shortcode-booking.php:949 travel-agency-platform.php:354
+#: includes/class-shortcode-booking.php:949 travel-agency-platform.php:358
 msgid "Error"
 msgstr "Error"
 
@@ -907,7 +907,7 @@ msgid "Fijar rango"
 msgstr "Fijar rango"
 
 #: includes/class-acc-wizard-steps.php:448
-#: includes/class-dashboard-insights.php:244 includes/class-discounts.php:109
+#: includes/class-dashboard-insights.php:270 includes/class-discounts.php:109
 #: includes/class-front-dash.php:474 includes/class-front-dash.php:941
 #: includes/class-referral-reports.php:105
 #: includes/class-tour-wizard-steps.php:416
@@ -915,7 +915,7 @@ msgid "Desde"
 msgstr "Desde"
 
 #: includes/class-acc-wizard-steps.php:449
-#: includes/class-dashboard-insights.php:245 includes/class-front-dash.php:475
+#: includes/class-dashboard-insights.php:271 includes/class-front-dash.php:475
 #: includes/class-front-dash.php:944 includes/class-referral-reports.php:106
 #: includes/class-tour-wizard-steps.php:420
 msgid "Hasta"
@@ -3069,8 +3069,8 @@ msgid "solicitudes"
 msgstr "solicitudes"
 
 #: includes/class-dashboard-bookings.php:62
-#: includes/class-dashboard-insights.php:298
-#: includes/class-dashboard-insights.php:323 includes/class-front-dash.php:768
+#: includes/class-dashboard-insights.php:324
+#: includes/class-dashboard-insights.php:349 includes/class-front-dash.php:768
 #: includes/class-front-dash.php:1561
 msgid "Comisiones"
 msgstr "Comisiones"
@@ -3141,7 +3141,7 @@ msgstr "Servicio"
 #: includes/class-dashboard-bookings.php:183
 #: includes/class-dashboard-bookings.php:383
 #: includes/class-dashboard-insights.php:110
-#: includes/class-dashboard-insights.php:331
+#: includes/class-dashboard-insights.php:357
 #: includes/class-dashboard-money.php:302 includes/class-emails-send.php:779
 #: includes/class-front-dash-client.php:217 includes/class-front-dash.php:510
 #: includes/class-front-dash.php:1641 includes/class-invoices.php:126
@@ -3287,7 +3287,7 @@ msgid "Todas las agencias"
 msgstr "Todas las agencias"
 
 #: includes/class-dashboard-bookings.php:297
-#: includes/class-dashboard-insights.php:246
+#: includes/class-dashboard-insights.php:272
 #: includes/class-referral-reports.php:107
 #: includes/class-shortcode-search.php:789
 msgid "Filtrar"
@@ -3727,7 +3727,7 @@ msgid "No tienes permiso para agregar destinos."
 msgstr "No tienes permiso para agregar destinos."
 
 #: includes/class-dashboard-insights.php:13
-#: includes/class-dashboard-insights.php:134 includes/class-privacy.php:539
+#: includes/class-dashboard-insights.php:160 includes/class-privacy.php:539
 msgid "No tienes permisos para acceder."
 msgstr "No tienes permisos para acceder."
 
@@ -3798,117 +3798,143 @@ msgstr "Reserva"
 msgid "Sin reserva vinculada"
 msgstr "Sin reserva vinculada"
 
-#: includes/class-dashboard-insights.php:240 includes/class-dashboard.php:106
+#: includes/class-dashboard-insights.php:144
+msgid "Alerta: caída de reservas"
+msgstr "Alerta: caída de reservas"
+
+#: includes/class-dashboard-insights.php:145
+#, php-format
+msgid ""
+"Las reservas de los últimos 7 días (%d) cayeron más del 20%% respecto a la "
+"semana anterior (%d)."
+msgstr ""
+"Las reservas de los últimos 7 días (%d) cayeron más del 20%% respecto a la "
+"semana anterior (%d)."
+
+#: includes/class-dashboard-insights.php:152
+msgid "Alerta: reviews negativas"
+msgstr "Alerta: reviews negativas"
+
+#: includes/class-dashboard-insights.php:153
+#, php-format
+msgid ""
+"Se recibieron %d review(s) con 2 estrellas o menos en las últimas 24 horas. "
+"Revisa la moderación."
+msgstr ""
+"Se recibieron %d review(s) con 2 estrellas o menos en las últimas 24 horas. "
+"Revisa la moderación."
+
+#: includes/class-dashboard-insights.php:266 includes/class-dashboard.php:106
 #: includes/class-dashboard.php:107 includes/class-front-dash.php:1790
 msgid "Analytics"
 msgstr "Analíticas"
 
-#: includes/class-dashboard-insights.php:247
+#: includes/class-dashboard-insights.php:273
 msgid "Exportar reservas (CSV)"
 msgstr "Exportar reservas (CSV)"
 
-#: includes/class-dashboard-insights.php:248
+#: includes/class-dashboard-insights.php:274
 msgid "Exportar resumen (CSV)"
 msgstr "Exportar resumen (CSV)"
 
-#: includes/class-dashboard-insights.php:252
+#: includes/class-dashboard-insights.php:278
 msgid "Ingresos plataforma (12m)"
 msgstr "Ingresos plataforma (12m)"
 
-#: includes/class-dashboard-insights.php:253
+#: includes/class-dashboard-insights.php:279
 msgid "MRR suscripciones"
 msgstr "MRR suscripciones"
 
-#: includes/class-dashboard-insights.php:254
+#: includes/class-dashboard-insights.php:280
 msgid "GMV (filtro)"
 msgstr "GMV (filtro)"
 
-#: includes/class-dashboard-insights.php:255
+#: includes/class-dashboard-insights.php:281
 msgid "Destacados activos"
 msgstr "Destacados activos"
 
-#: includes/class-dashboard-insights.php:256
+#: includes/class-dashboard-insights.php:282
 msgid "Reservas vigentes"
 msgstr "Reservas vigentes"
 
-#: includes/class-dashboard-insights.php:257
+#: includes/class-dashboard-insights.php:283
 msgid "Ticket promedio"
 msgstr "Ticket promedio"
 
-#: includes/class-dashboard-insights.php:258
+#: includes/class-dashboard-insights.php:284
 msgid "Vistas (filtro)"
 msgstr "Vistas (filtro)"
 
-#: includes/class-dashboard-insights.php:259
+#: includes/class-dashboard-insights.php:285
 msgid "Conversión vistas→reserva"
 msgstr "Conversión vistas→reserva"
 
-#: includes/class-dashboard-insights.php:260
+#: includes/class-dashboard-insights.php:286
 msgid "Agencias activas"
 msgstr "Agencias activas"
 
-#: includes/class-dashboard-insights.php:261
+#: includes/class-dashboard-insights.php:287
 msgid "Listados publicados"
 msgstr "Listados publicados"
 
-#: includes/class-dashboard-insights.php:267
+#: includes/class-dashboard-insights.php:293
 msgid "Embudo de reservas"
 msgstr "Embudo de reservas"
 
-#: includes/class-dashboard-insights.php:269
+#: includes/class-dashboard-insights.php:295
 msgid "Etapa"
 msgstr "Etapa"
 
-#: includes/class-dashboard-insights.php:271
+#: includes/class-dashboard-insights.php:297
 msgid "Conversión de paso"
 msgstr "Conversión de paso"
 
-#: includes/class-dashboard-insights.php:272
+#: includes/class-dashboard-insights.php:298
 msgid "% del total"
 msgstr "% del total"
 
-#: includes/class-dashboard-insights.php:286
+#: includes/class-dashboard-insights.php:312
 msgid "Ingresos de la plataforma por mes (12 meses)"
 msgstr "Ingresos de la plataforma por mes (12 meses)"
 
-#: includes/class-dashboard-insights.php:298
 #: includes/class-dashboard-insights.php:324
+#: includes/class-dashboard-insights.php:350
 msgid "Booking fees"
 msgstr "Tarifas de reserva"
 
-#: includes/class-dashboard-insights.php:298
-#: includes/class-dashboard-insights.php:325
+#: includes/class-dashboard-insights.php:324
+#: includes/class-dashboard-insights.php:351
 msgid "Suscripciones"
 msgstr "Suscripciones"
 
-#: includes/class-dashboard-insights.php:298
-#: includes/class-dashboard-insights.php:326 includes/class-front-dash.php:1256
+#: includes/class-dashboard-insights.php:324
+#: includes/class-dashboard-insights.php:352 includes/class-front-dash.php:1256
 #: includes/class-front-dash.php:1799
 msgid "Destacados"
 msgstr "Destacados"
 
-#: includes/class-dashboard-insights.php:318
+#: includes/class-dashboard-insights.php:344
 msgid "Fuentes de ingreso (12 meses)"
 msgstr "Fuentes de ingreso (12 meses)"
 
-#: includes/class-dashboard-insights.php:334
+#: includes/class-dashboard-insights.php:360
 msgid "Top agencias"
 msgstr "Top agencias"
 
-#: includes/class-dashboard-insights.php:338
-#: includes/class-dashboard-insights.php:348
+#: includes/class-dashboard-insights.php:364
+#: includes/class-dashboard-insights.php:374
 msgid "Sin datos en el periodo."
 msgstr "Sin datos en el periodo."
 
-#: includes/class-dashboard-insights.php:344
+#: includes/class-dashboard-insights.php:370
 msgid "Top listados"
 msgstr "Top listados"
 
-#: includes/class-dashboard-insights.php:362
+#: includes/class-dashboard-insights.php:388
 msgid "Cohortes de retención (usuarios)"
 msgstr "Cohortes de retención (usuarios)"
 
-#: includes/class-dashboard-insights.php:364
+#: includes/class-dashboard-insights.php:390
 msgid "Cohorte"
 msgstr "Cohorte"
 
@@ -9229,7 +9255,7 @@ msgstr "¿Enviar ahora?"
 #: includes/class-email-campaigns.php:265
 #: includes/class-front-dash-client.php:381 includes/class-front-dash.php:561
 #: includes/class-shortcode-account.php:811
-#: includes/class-shortcode-booking.php:900 travel-agency-platform.php:363
+#: includes/class-shortcode-booking.php:900 travel-agency-platform.php:367
 msgid "Enviar"
 msgstr "Enviar"
 
@@ -14442,11 +14468,11 @@ msgid "Network error. Please try again."
 msgstr "Error de red. Inténtalo de nuevo."
 
 #: includes/class-shortcode-account.php:795
-#: includes/class-shortcode-account.php:797 travel-agency-platform.php:359
+#: includes/class-shortcode-account.php:797 travel-agency-platform.php:363
 msgid "Asistente de viajes"
 msgstr "Asistente de viajes"
 
-#: includes/class-shortcode-account.php:801 travel-agency-platform.php:364
+#: includes/class-shortcode-account.php:801 travel-agency-platform.php:368
 msgid ""
 "¡Hola! Soy el asistente de viajes. Pregunta por alojamientos, tours, bonos o "
 "agencias, o toca una sugerencia."
@@ -14455,7 +14481,7 @@ msgstr ""
 "agencias, o toca una sugerencia."
 
 #: includes/class-shortcode-account.php:809
-#: includes/class-shortcode-account.php:810 travel-agency-platform.php:362
+#: includes/class-shortcode-account.php:810 travel-agency-platform.php:366
 msgid "Escribe tu pregunta…"
 msgstr "Escribe tu pregunta…"
 
@@ -14628,7 +14654,7 @@ msgid "Solicitar reserva"
 msgstr "Solicitar reserva"
 
 #: includes/class-shortcode-booking.php:46
-#: includes/class-shortcode-booking.php:124 travel-agency-platform.php:353
+#: includes/class-shortcode-booking.php:124 travel-agency-platform.php:357
 msgid "Book Now"
 msgstr "Reservar ahora"
 
@@ -16842,117 +16868,117 @@ msgstr ""
 "no se encontró el autoloader de Composer. Ejecuta \"composer dump-autoload -"
 "o\"."
 
-#: travel-agency-platform.php:331
+#: travel-agency-platform.php:335
 msgid "results found"
 msgstr "resultados encontrados"
 
-#: travel-agency-platform.php:332
+#: travel-agency-platform.php:336
 msgid "No results found"
 msgstr "No se encontraron resultados"
 
-#: travel-agency-platform.php:333
+#: travel-agency-platform.php:337
 msgid "Guardado en favoritos"
 msgstr "Guardado en favoritos"
 
-#: travel-agency-platform.php:334
+#: travel-agency-platform.php:338
 msgid "Quitado de favoritos"
 msgstr "Quitado de favoritos"
 
-#: travel-agency-platform.php:335
+#: travel-agency-platform.php:339
 msgid "Aún no hay reseñas."
 msgstr "Aún no hay reseñas."
 
-#: travel-agency-platform.php:336
+#: travel-agency-platform.php:340
 msgid "Aún no hay reseñas. Sé el primero en compartir tu experiencia."
 msgstr "Aún no hay reseñas. Sé el primero en compartir tu experiencia."
 
-#: travel-agency-platform.php:337
+#: travel-agency-platform.php:341
 msgid "reseña"
 msgstr "reseña"
 
-#: travel-agency-platform.php:338
+#: travel-agency-platform.php:342
 msgid "reseñas"
 msgstr "reseñas"
 
-#: travel-agency-platform.php:339
+#: travel-agency-platform.php:343
 msgid "Anónimo"
 msgstr "Anónimo"
 
-#: travel-agency-platform.php:340
+#: travel-agency-platform.php:344
 msgid "Enviando..."
 msgstr "Enviando..."
 
-#: travel-agency-platform.php:341
+#: travel-agency-platform.php:345
 msgid "¡Reseña enviada! Pendiente de aprobación."
 msgstr "¡Reseña enviada! Pendiente de aprobación."
 
-#: travel-agency-platform.php:342
+#: travel-agency-platform.php:346
 msgid "Error al enviar"
 msgstr "Error al enviar"
 
-#: travel-agency-platform.php:343
+#: travel-agency-platform.php:347
 msgid "Review submitted"
 msgstr "Reseña enviada"
 
-#: travel-agency-platform.php:344
+#: travel-agency-platform.php:348
 msgid "Error al enviar la reseña"
 msgstr "Error al enviar la reseña"
 
 #. translators: %s: nombre del servicio
-#: travel-agency-platform.php:346
+#: travel-agency-platform.php:350
 #, php-format
 msgid "Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!"
 msgstr "Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!"
 
-#: travel-agency-platform.php:347
+#: travel-agency-platform.php:351
 msgid "Reseña verificada"
 msgstr "Reseña verificada"
 
 #. translators: 1: cupos disponibles, 2: cupos totales
-#: travel-agency-platform.php:349
+#: travel-agency-platform.php:353
 #, php-format
 msgid "Cupos disponibles: %s de %s"
 msgstr "Cupos disponibles: %s de %s"
 
 #. translators: 1: cupos ocupados, 2: cupos totales
-#: travel-agency-platform.php:351
+#: travel-agency-platform.php:355
 #, php-format
 msgid "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
 msgstr "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
 
-#: travel-agency-platform.php:352
+#: travel-agency-platform.php:356
 msgid "El tour está completo para esta fecha."
 msgstr "El tour está completo para esta fecha."
 
-#: travel-agency-platform.php:355
+#: travel-agency-platform.php:359
 msgid "Image gallery"
 msgstr "Galería de imágenes"
 
-#: travel-agency-platform.php:356
+#: travel-agency-platform.php:360
 msgid "Close image gallery"
 msgstr "Cerrar galería de imágenes"
 
-#: travel-agency-platform.php:357
+#: travel-agency-platform.php:361
 msgid "Previous image"
 msgstr "Imagen anterior"
 
-#: travel-agency-platform.php:358
+#: travel-agency-platform.php:362
 msgid "Next image"
 msgstr "Imagen siguiente"
 
-#: travel-agency-platform.php:360
+#: travel-agency-platform.php:364
 msgid "Abrir asistente"
 msgstr "Abrir asistente"
 
-#: travel-agency-platform.php:361
+#: travel-agency-platform.php:365
 msgid "Cerrar asistente"
 msgstr "Cerrar asistente"
 
-#: travel-agency-platform.php:365
+#: travel-agency-platform.php:369
 msgid "Pensando…"
 msgstr "Pensando…"
 
-#: travel-agency-platform.php:366
+#: travel-agency-platform.php:370
 msgid "Hubo un problema. Inténtalo de nuevo."
 msgstr "Hubo un problema. Inténtalo de nuevo."
 
