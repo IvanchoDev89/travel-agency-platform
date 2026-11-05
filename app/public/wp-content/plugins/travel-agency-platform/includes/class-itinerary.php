@@ -350,41 +350,68 @@ class TAP_Itinerary {
             $total += $price_key ? floatval(get_post_meta($p->ID, $price_key, true)) : 0;
         }
         ?>
-        <div class="tap-itin-share">
-            <div class="tap-itin-share-head">
-                <p class="tap-itin-eyebrow"><?php esc_html_e('Tu itinerario', 'travel-agency-platform'); ?></p>
-                <h2><?php esc_html_e('Así queda tu viaje', 'travel-agency-platform'); ?></h2>
-                <p class="tap-itin-share-sub"><?php esc_html_e('Servicios seleccionados según tus intereses, destinos y presupuesto.', 'travel-agency-platform'); ?></p>
+        <div class="tap-itin-share tap-itin-share--modern">
+            <div class="tap-itin-share-hero">
+                <div class="tap-itin-share-hero-text">
+                    <span class="tap-itin-eyebrow"><?php esc_html_e('Tu itinerario', 'travel-agency-platform'); ?></span>
+                    <h2><?php esc_html_e('Así queda tu viaje', 'travel-agency-platform'); ?></h2>
+                    <p class="tap-itin-share-sub"><?php esc_html_e('Servicios seleccionados según tus intereses, destinos y presupuesto.', 'travel-agency-platform'); ?></p>
+                </div>
+                <div class="tap-itin-share-hero-summary">
+                    <div class="tap-itin-share-stat">
+                        <span class="tap-itin-share-stat-value"><?php echo count($posts); ?></span>
+                        <span class="tap-itin-share-stat-label"><?php esc_html_e('Actividades', 'travel-agency-platform'); ?></span>
+                    </div>
+                    <div class="tap-itin-share-stat">
+                        <span class="tap-itin-share-stat-value"><?php echo esc_html(TAP_Currency::fmt($total)); ?></span>
+                        <span class="tap-itin-share-stat-label"><?php esc_html_e('Total estimado', 'travel-agency-platform'); ?></span>
+                    </div>
+                </div>
             </div>
-            <ul class="tap-itin-share-list">
-                <?php
-                foreach ($posts as $p): $meta = self::type_meta($p->post_type);
+
+            <div class="tap-itin-share-timeline">
+                <?php foreach ($posts as $i => $p):
+                    $meta = self::type_meta($p->post_type);
                     $price_key = TAP_API::get_price_key($p->post_type);
                     $price = $price_key ? floatval(get_post_meta($p->ID, $price_key, true)) : 0;
-                    ?>
-                    <li>
-                        <div class="tap-itin-share-item">
-                            <?php if (has_post_thumbnail($p->ID)): ?><?php echo get_the_post_thumbnail($p->ID, 'thumbnail'); ?><?php endif; ?>
-                            <div class="tap-itin-share-item-info">
-                                <span class="tap-itin-item-type"><?php echo esc_html($meta['label']); ?></span>
-                                <h3><?php echo esc_html($p->post_title); ?></h3>
-                                <?php if ($price > 0): ?>
-                                    <p><?php echo esc_html(TAP_Currency::fmt0($price)) . esc_html($meta['suffix']); ?></p>
-                                <?php endif; ?>
-                            </div>
-                            <a class="tap-btn tap-btn-outline tap-btn-sm" href="<?php echo esc_url(get_permalink($p->ID)); ?>"><?php esc_html_e('Ver detalles', 'travel-agency-platform'); ?></a>
+                    $img = get_the_post_thumbnail_url($p->ID, 'medium');
+                ?>
+                    <div class="tap-itin-share-card">
+                        <div class="tap-itin-share-card-media">
+                            <?php if ($img): ?>
+                                <img src="<?php echo esc_url($img); ?>" alt="<?php echo esc_attr($p->post_title); ?>" loading="lazy" decoding="async">
+                            <?php else: ?>
+                                <div class="tap-itin-share-card-ph"></div>
+                            <?php endif; ?>
+                            <span class="tap-itin-share-card-badge"><?php echo esc_html($meta['label']); ?></span>
                         </div>
-                    </li>
+                        <div class="tap-itin-share-card-body">
+                            <span class="tap-itin-share-card-day"><?php printf(esc_html__('Día %d', 'travel-agency-platform'), $i + 1); ?></span>
+                            <h3><?php echo esc_html($p->post_title); ?></h3>
+                            <?php if ($price > 0): ?>
+                                <p class="tap-itin-share-card-price"><?php echo esc_html(TAP_Currency::fmt0($price)) . esc_html($meta['suffix']); ?></p>
+                            <?php endif; ?>
+                            <div class="tap-itin-share-card-actions">
+                                <a class="tap-btn tap-btn-outline tap-btn-sm" href="<?php echo esc_url(get_permalink($p->ID)); ?>"><?php esc_html_e('Ver detalles', 'travel-agency-platform'); ?></a>
+                                <a class="tap-btn tap-btn-primary tap-btn-sm" href="<?php echo esc_url(get_permalink($p->ID)); ?>#tap-booking-widget"><?php esc_html_e('Reservar', 'travel-agency-platform'); ?></a>
+                            </div>
+                        </div>
+                    </div>
                 <?php endforeach; ?>
-            </ul>
-            <div class="tap-itin-share-foot">
-                <p><?php esc_html_e('Total estimado', 'travel-agency-platform'); ?></p>
-                <span class="tap-itin-share-total"><?php echo esc_html(TAP_Currency::fmt($total)); ?></span>
             </div>
-            <p class="tap-itin-share-note"><?php esc_html_e('Monto estimado según tarifas publicadas por persona/noche. La reserva y el pago se gestionan directo con cada agencia.', 'travel-agency-platform'); ?></p>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <button type="button" class="tap-btn tap-btn-secondary" onclick="window.print()"><?php esc_html_e('Imprimir itinerario', 'travel-agency-platform'); ?></button>
+
+            <div class="tap-itin-share-foot">
+                <div class="tap-itin-share-foot-row">
+                    <span><?php esc_html_e('Total estimado', 'travel-agency-platform'); ?></span>
+                    <span class="tap-itin-share-total"><?php echo esc_html(TAP_Currency::fmt($total)); ?></span>
+                </div>
+                <p class="tap-itin-share-note"><?php esc_html_e('Monto estimado según tarifas publicadas. La reserva y el pago se gestionan directo con cada agencia.', 'travel-agency-platform'); ?></p>
+            </div>
+
+            <div class="tap-itin-share-actions">
+                <button type="button" class="tap-btn tap-btn-secondary" onclick="window.print()"><?php esc_html_e('Imprimir', 'travel-agency-platform'); ?></button>
                 <button type="button" class="tap-btn tap-btn-primary" onclick="navigator.clipboard && navigator.clipboard.writeText(window.location.href); this.textContent='<?php echo esc_js(__('Copiado', 'travel-agency-platform')); ?>';"><?php esc_html_e('Copiar enlace', 'travel-agency-platform'); ?></button>
+                <a class="tap-btn tap-btn-outline" href="https://wa.me/?text=<?php echo urlencode(home_url('/armar-mi-viaje/?itin=' . implode(',', $ids))); ?>" target="_blank" rel="noopener">WhatsApp</a>
             </div>
         </div>
         <?php

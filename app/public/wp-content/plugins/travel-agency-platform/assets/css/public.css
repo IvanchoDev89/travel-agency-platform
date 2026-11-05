@@ -3338,3 +3338,36 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     .tap-hs-form { border-radius: 16px; }
     .tap-hs-btn { border-radius: 12px; }
 }
+
+/* Itinerary share modern */
+.tap-itin-share--modern { max-width: 820px; margin: 0 auto; }
+.tap-itin-share-hero { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 28px 32px; background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%); border-radius: 20px 20px 0 0; color: #fff; flex-wrap: wrap; }
+.tap-itin-share-hero-text h2 { margin: 0 0 6px; font-size: 28px; font-weight: 800; color: #fff; }
+.tap-itin-share-hero-text p { margin: 0; opacity: 0.9; font-size: 14px; }
+.tap-itin-eyebrow { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; opacity: 0.8; margin-bottom: 6px; }
+.tap-itin-share-hero-summary { display: flex; gap: 20px; }
+.tap-itin-share-stat { text-align: center; }
+.tap-itin-share-stat-value { display: block; font-size: 24px; font-weight: 800; line-height: 1; }
+.tap-itin-share-stat-label { font-size: 11px; opacity: 0.85; text-transform: uppercase; letter-spacing: 0.06em; }
+.tap-itin-share-timeline { display: flex; flex-direction: column; gap: 16px; padding: 24px; background: #fff; border-left: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; }
+.tap-itin-share-card { display: flex; gap: 16px; background: #f8fafc; border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0; transition: transform .15s ease, box-shadow .15s ease; }
+.tap-itin-share-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+.tap-itin-share-card-media { position: relative; width: 140px; min-height: 120px; flex-shrink: 0; }
+.tap-itin-share-card-media img { width: 100%; height: 100%; object-fit: cover; }
+.tap-itin-share-card-ph { width: 100%; height: 100%; background: linear-gradient(135deg, #0f766e, #14b8a6); }
+.tap-itin-share-card-badge { position: absolute; top: 8px; left: 8px; background: rgba(255,255,255,0.9); color: #0f766e; font-size: 10px; font-weight: 700; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
+.tap-itin-share-card-body { flex: 1; padding: 14px 16px; display: flex; flex-direction: column; gap: 4px; }
+.tap-itin-share-card-day { font-size: 11px; font-weight: 700; color: #0f766e; text-transform: uppercase; letter-spacing: 0.08em; }
+.tap-itin-share-card-body h3 { margin: 0; font-size: 16px; font-weight: 700; color: #1e293b; }
+.tap-itin-share-card-price { font-size: 14px; font-weight: 700; color: #0f766e; margin: 0; }
+.tap-itin-share-card-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.tap-itin-share-foot { padding: 16px 24px; background: #f8fafc; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 20px 20px; }
+.tap-itin-share-foot-row { display: flex; justify-content: space-between; align-items: center; font-size: 18px; font-weight: 700; color: #1e293b; }
+.tap-itin-share-total { color: #0f766e; font-size: 24px; }
+.tap-itin-share-note { font-size: 12px; color: #64748b; margin: 8px 0 0; }
+.tap-itin-share-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
+@media (max-width: 640px) {
+    .tap-itin-share-hero { flex-direction: column; text-align: center; }
+    .tap-itin-share-card { flex-direction: column; }
+    .tap-itin-share-card-media { width: 100%; height: 160px; }
+}
