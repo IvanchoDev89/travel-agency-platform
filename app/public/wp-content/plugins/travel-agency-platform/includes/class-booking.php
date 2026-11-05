@@ -483,6 +483,15 @@ class TAP_Booking {
                         update_post_meta($booking_id, '_tap_booking_extras', implode(',', array_map('intval', (array) $data['extras'])));
                     }
 
+                    // Affiliate attribution (external partners).
+                    if ($booking_id && class_exists('TAP_Affiliates')) {
+                        $aff_code = TAP_Affiliates::active_code();
+                        if ($aff_code) {
+                            TAP_Affiliates::on_booking_created($booking_id, $aff_code);
+                            update_post_meta($booking_id, '_tap_affiliate_code', $aff_code);
+                        }
+                    }
+
                     // Line items are NOT written from client input: a booking
                     // covers a single service whose authoritative amount is the
                     // server-computed total_amount/subtotal above, and there is

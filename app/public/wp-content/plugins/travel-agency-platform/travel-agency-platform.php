@@ -134,6 +134,7 @@ final class TravelAgencyPlatform {
         }
         add_action('init', ['TAP_Referral_Reports', 'init'], 15);
         add_action('init', ['TAP_Referral_Leaderboard', 'init'], 15);
+        add_action('init', ['TAP_Affiliates', 'init'], 15);
         add_action('init', ['TAP_Email_Templates', 'init'], 15);
         add_action('init', ['TAP_Security_Headers', 'init'], 15);
         add_action('plugins_loaded', [$this, 'maybe_update_tables'], 5);
@@ -155,6 +156,9 @@ final class TravelAgencyPlatform {
             }
             if (!wp_next_scheduled('tap_admin_alerts_hook')) {
                 wp_schedule_event(time() + HOUR_IN_SECONDS, 'daily', 'tap_admin_alerts_hook');
+            }
+            if (!wp_next_scheduled('tap_affiliate_release_hook')) {
+                wp_schedule_event(time() + HOUR_IN_SECONDS, 'daily', 'tap_affiliate_release_hook');
             }
         });
         add_action('tap_maintenance_hook', ['TAP_Booking', 'cancel_stale_bookings']);

@@ -227,6 +227,47 @@ class TAP_Installer {
                 KEY expires (expires_at)
             ) $charset;",
 
+            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_affiliates (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                name varchar(150) NOT NULL,
+                email varchar(200) NOT NULL,
+                code varchar(32) NOT NULL,
+                commission_pct decimal(5,2) NOT NULL DEFAULT 5.00,
+                cap_per_booking decimal(10,2) NOT NULL DEFAULT 30.00,
+                status varchar(20) NOT NULL DEFAULT 'pending',
+                tax_form varchar(20) DEFAULT NULL,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                UNIQUE KEY code (code),
+                KEY status (status)
+            ) $charset;",
+
+            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_affiliate_clicks (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                affiliate_id bigint(20) NOT NULL,
+                ip varchar(45) DEFAULT NULL,
+                user_agent varchar(255) DEFAULT NULL,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY affiliate (affiliate_id),
+                KEY created (created_at)
+            ) $charset;",
+
+            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_affiliate_conversions (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                affiliate_id bigint(20) NOT NULL,
+                booking_id bigint(20) NOT NULL,
+                commission_amount decimal(10,2) NOT NULL DEFAULT 0.00,
+                status varchar(20) NOT NULL DEFAULT 'pending_release',
+                release_at datetime DEFAULT NULL,
+                paid_at datetime DEFAULT NULL,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                UNIQUE KEY booking (booking_id),
+                KEY affiliate (affiliate_id),
+                KEY status (status)
+            ) $charset;",
+
             "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_customer_referrals (
                 id bigint(20) NOT NULL AUTO_INCREMENT,
                 referrer_user_id bigint(20) NOT NULL,
