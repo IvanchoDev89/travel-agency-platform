@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-05T16:56:55+00:00\n"
+"POT-Creation-Date: 2026-11-05T21:19:10+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -1136,7 +1136,7 @@ msgstr ""
 "if you can."
 
 #: includes/class-acc-wizard-steps.php:730
-#: includes/class-acc-wizard-steps.php:929 includes/class-ajax-public.php:469
+#: includes/class-acc-wizard-steps.php:929 includes/class-ajax-public.php:500
 #: includes/class-listing-editor.php:377
 #: includes/class-tour-wizard-steps.php:735
 msgid "Destino"
@@ -1647,7 +1647,7 @@ msgid "No puedes adjuntar imágenes a esa unidad."
 msgstr "You cannot attach images to that unit."
 
 #: includes/class-agency-media.php:38 includes/class-agency-media.php:70
-#: includes/class-ajax-public.php:404
+#: includes/class-ajax-public.php:414 includes/class-ajax-public.php:420
 msgid "No se recibió ningún archivo."
 msgstr "No file was received."
 
@@ -1679,7 +1679,7 @@ msgstr "Server error: the file could not be written."
 msgid "Una extensión de PHP bloqueó la subida."
 msgstr "A PHP extension blocked the upload."
 
-#: includes/class-agency-media.php:75
+#: includes/class-agency-media.php:75 includes/class-ajax-public.php:425
 msgid "Formato no permitido. Usa JPG, PNG, WEBP o GIF."
 msgstr "Format not allowed. Use JPG, PNG, WEBP or GIF."
 
@@ -1689,7 +1689,7 @@ msgstr "Format not allowed. Use JPG, PNG, WEBP or GIF."
 msgid "La imagen supera el tamaño máximo permitido (%s)."
 msgstr "The image exceeds the maximum allowed size (%s)."
 
-#: includes/class-agency-media.php:92
+#: includes/class-agency-media.php:92 includes/class-ajax-public.php:438
 msgid "El archivo no es una imagen válida."
 msgstr "The file is not a valid image."
 
@@ -2184,17 +2184,21 @@ msgid "Parámetros inválidos"
 msgstr "Invalid parameters"
 
 #: includes/class-ajax-public.php:409
-msgid "Formato no permitido."
-msgstr "Format not allowed."
+msgid "No puedes subir imágenes para esta reseña."
+msgstr "You cannot upload images for this review."
 
-#: includes/class-ajax-public.php:452 includes/class-booking.php:62
+#: includes/class-ajax-public.php:431
+msgid "La imagen supera el tamaño máximo permitido (5 MB)."
+msgstr "The image exceeds the maximum allowed size (5 MB)."
+
+#: includes/class-ajax-public.php:483 includes/class-booking.php:62
 #: includes/class-emails-send.php:747 includes/class-itinerary.php:31
 #: includes/class-itinerary.php:88 includes/class-shortcode-booking.php:1024
 #: includes/class-taxonomies.php:278
 msgid "Alojamiento"
 msgstr "Accommodation"
 
-#: includes/class-ajax-public.php:507
+#: includes/class-ajax-public.php:538
 msgid "Invalid accommodation"
 msgstr "Invalid accommodation"
 
@@ -15489,12 +15493,12 @@ msgstr "Awaiting manual payment confirmation"
 msgid "Could not start the subscription. Please try again."
 msgstr "Could not start the subscription. Please try again."
 
-#: includes/class-subscriptions.php:240
+#: includes/class-subscriptions.php:246
 msgid "Subscription not found."
 msgstr "Subscription not found."
 
 #. translators: 1: número de meses pagados, 2: fecha del pago
-#: includes/class-subscriptions.php:291
+#: includes/class-subscriptions.php:297
 #, php-format
 msgid "Paid %d month(s) on %s"
 msgstr "Paid %d month(s) on %s"
@@ -15811,57 +15815,57 @@ msgstr "Gastronomy"
 msgid "Traslados aeropuerto"
 msgstr "Airport transfers"
 
-#: includes/class-tour-availability.php:290
+#: includes/class-tour-availability.php:294
 msgid "No tienes permiso para gestionar este tour."
 msgstr "You do not have permission to manage this tour."
 
-#: includes/class-tour-availability.php:308
+#: includes/class-tour-availability.php:312
 msgid "Indica el rango de fechas, los días y al menos un horario."
 msgstr "Indicate the date range, the days and at least one time."
 
-#: includes/class-tour-availability.php:315
+#: includes/class-tour-availability.php:319
 msgid "Las fechas no son válidas."
 msgstr "The dates are not valid."
 
-#: includes/class-tour-availability.php:319
+#: includes/class-tour-availability.php:323
 msgid "La fecha final debe ser posterior a la inicial."
 msgstr "The end date must be after the start date."
 
-#: includes/class-tour-availability.php:323
+#: includes/class-tour-availability.php:327
 msgid "Genera como máximo un año de disponibilidad por vez."
 msgstr "Generate at most one year of availability at a time."
 
 #. translators: %d: number of slots created
-#: includes/class-tour-availability.php:348
+#: includes/class-tour-availability.php:352
 #, php-format
 msgid "Se crearon %d horarios."
 msgstr "%d schedules were created."
 
-#: includes/class-tour-availability.php:349
+#: includes/class-tour-availability.php:353
 msgid "No había horarios nuevos que crear."
 msgstr "There were no new schedules to create."
 
-#: includes/class-tour-availability.php:364
+#: includes/class-tour-availability.php:368
 msgid "Horario no encontrado."
 msgstr "Slot not found."
 
-#: includes/class-tour-availability.php:369
+#: includes/class-tour-availability.php:373
 msgid "No se puede eliminar un horario con reservas."
 msgstr "A slot with bookings cannot be deleted."
 
-#: includes/class-tour-availability.php:371 includes/class-tour-wizard.php:64
+#: includes/class-tour-availability.php:375 includes/class-tour-wizard.php:64
 msgid "Horario eliminado."
 msgstr "Slot deleted."
 
-#: includes/class-tour-availability.php:375 includes/class-tour-wizard.php:65
+#: includes/class-tour-availability.php:379 includes/class-tour-wizard.php:65
 msgid "Horario bloqueado."
 msgstr "Slot blocked."
 
-#: includes/class-tour-availability.php:376 includes/class-tour-wizard.php:66
+#: includes/class-tour-availability.php:380 includes/class-tour-wizard.php:66
 msgid "Horario disponible de nuevo."
 msgstr "Slot available again."
 
-#: includes/class-tour-availability.php:378
+#: includes/class-tour-availability.php:382
 msgid "Acción no válida."
 msgstr "Invalid action."
 
@@ -16842,6 +16846,9 @@ msgstr "Thinking…"
 #: travel-agency-platform.php:365
 msgid "Hubo un problema. Inténtalo de nuevo."
 msgstr "Something went wrong. Please try again."
+
+msgid "Formato no permitido."
+msgstr "Format not allowed."
 
 msgid ""
 "Monto estimado según tarifas publicadas por persona/noche. La reserva y el "

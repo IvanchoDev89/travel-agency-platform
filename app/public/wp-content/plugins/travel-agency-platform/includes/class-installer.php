@@ -277,19 +277,6 @@ class TAP_Installer {
                 PRIMARY KEY (code)
             ) $charset;",
 
-            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_loyalty_points (
-                id bigint(20) NOT NULL AUTO_INCREMENT,
-                user_id bigint(20) NOT NULL,
-                points int(11) NOT NULL DEFAULT 0,
-                source varchar(30) NOT NULL DEFAULT 'booking',
-                source_id bigint(20) DEFAULT NULL,
-                expires_at datetime DEFAULT NULL,
-                created_at datetime DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY (id),
-                KEY user_id (user_id),
-                KEY expires (expires_at)
-            ) $charset;",
-
             "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_chat_events (
                 id bigint(20) NOT NULL AUTO_INCREMENT,
                 intent varchar(40) NOT NULL,
@@ -374,6 +361,17 @@ class TAP_Installer {
         // Backfill service_type/service_id for legacy room rows (idempotent).
         $wpdb->query("UPDATE {$wpdb->prefix}tap_daily_pricing SET service_type='tap_accommodation', service_id=room_id WHERE (service_type IS NULL OR service_type='' OR (service_type='tap_accommodation' AND service_id=0)) AND room_id > 0");
 
+        // Indexes for performance (idempotent).
+        if (!$wpdb->get_var("SHOW INDEX FROM {$wpdb->prefix}tap_bookings WHERE Key_name = 'idx_bookings_service'")) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD INDEX idx_bookings_service (service_type, service_id)");
+        }
+        if (!$wpdb->get_var("SHOW INDEX FROM {$wpdb->prefix}tap_booking_items WHERE Key_name = 'idx_booking_items_service'")) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_booking_items ADD INDEX idx_booking_items_service (service_type, service_id)");
+        }
+        if (!$wpdb->get_var("SHOW INDEX FROM {$wpdb->prefix}tap_chat_messages WHERE Key_name = 'idx_chat_booking_read'")) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_chat_messages ADD INDEX idx_chat_booking_read (booking_id, is_read)");
+        }
+
         // UTM tracking columns (idempotent).
         foreach (['utm_source', 'utm_medium', 'utm_campaign'] as $col) {
             $exists = $wpdb->get_var($wpdb->prepare("SHOW COLUMNS FROM {$wpdb->prefix}tap_bookings LIKE %s", $col));
@@ -383,7 +381,10 @@ class TAP_Installer {
         }
 
         // Unique constraint: one referral row per booking (idempotency).
-        $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_customer_referrals ADD UNIQUE KEY booking_unique (booking_id)");
+        $has_unique = $wpdb->get_var("SHOW INDEX FROM {$wpdb->prefix}tap_customer_referrals WHERE Key_name = 'booking_unique'");
+        if (!$has_unique) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_customer_referrals ADD UNIQUE KEY booking_unique (booking_id)");
+        }
 
         self::migrate();
     }
@@ -618,22 +619,6 @@ class TAP_Installer {
             KEY user (user_id),
             KEY status (status),
             KEY type (post_type)
-        ) {$wpdb->get_charset_collate()}");
-
-        $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_travel_insurance (
-            id bigint(20) NOT NULL AUTO_INCREMENT,
-            booking_id bigint(20) NOT NULL,
-            plan varchar(40) NOT NULL DEFAULT 'basic',
-            provider varchar(60) NOT NULL DEFAULT 'internal',
-            premium decimal(10,2) NOT NULL DEFAULT 0,
-            commission decimal(10,2) NOT NULL DEFAULT 0,
-            status varchar(20) NOT NULL DEFAULT 'quoted',
-            policy_number varchar(60) DEFAULT NULL,
-            issued_at datetime DEFAULT NULL,
-            created_at datetime DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (id),
-            KEY booking (booking_id),
-            KEY status (status)
         ) {$wpdb->get_charset_collate()}");
 
         $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_travel_insurance (

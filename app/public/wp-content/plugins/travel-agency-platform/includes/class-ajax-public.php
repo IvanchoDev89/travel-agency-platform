@@ -400,17 +400,48 @@ class TAP_Ajax_Public {
             wp_send_json_error(['message' => __('Debes iniciar sesión.', 'travel-agency-platform')], 403);
         }
         $user_id = get_current_user_id();
+
+        // Verify the caller is allowed to review the given service.
+        $service_type = isset($_POST['service_type']) ? sanitize_key(wp_unslash($_POST['service_type'])) : '';
+        $service_id = isset($_POST['service_id']) ? absint($_POST['service_id']) : 0;
+        if ($service_type && $service_id && class_exists('TAP_Reviews')) {
+            if (!TAP_Reviews::can_review($user_id, $service_type, $service_id)) {
+                wp_send_json_error(['message' => __('No puedes subir imágenes para esta reseña.', 'travel-agency-platform')], 403);
+            }
+        }
+
         if (empty($_FILES['file'])) {
             wp_send_json_error(['message' => __('No se recibió ningún archivo.', 'travel-agency-platform')]);
         }
         $file = $_FILES['file'];
-        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true)) {
-            wp_send_json_error(['message' => __('Formato no permitido.', 'travel-agency-platform')]);
+        $name = sanitize_file_name((string) $file['name']);
+        $tmp = (string) $file['tmp_name'];
+        if ('' === $name || '' === $tmp || !file_exists($tmp)) {
+            wp_send_json_error(['message' => __('No se recibió ningún archivo.', 'travel-agency-platform')]);
         }
+
+        $ext = strtolower((string) pathinfo($name, PATHINFO_EXTENSION));
+        if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true)) {
+            wp_send_json_error(['message' => __('Formato no permitido. Usa JPG, PNG, WEBP o GIF.', 'travel-agency-platform')]);
+        }
+
+        $max = 5 * 1024 * 1024; // 5 MB
+        $bytes = isset($file['size']) && (int) $file['size'] > 0 ? (int) $file['size'] : (int) filesize($tmp);
+        if ($bytes > $max) {
+            wp_send_json_error(['message' => __('La imagen supera el tamaño máximo permitido (5 MB).', 'travel-agency-platform')]);
+        }
+
+        // Verify it really is an image.
+        $check = wp_check_filetype_and_ext($tmp, $name);
+        $mime = !empty($check['type']) ? $check['type'] : '';
+        if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp', 'image/gif'], true)) {
+            wp_send_json_error(['message' => __('El archivo no es una imagen válida.', 'travel-agency-platform')]);
+        }
+
         require_once ABSPATH . 'wp-admin/includes/file.php';
         require_once ABSPATH . 'wp-admin/includes/media.php';
         require_once ABSPATH . 'wp-admin/includes/image.php';
+
         $overrides = ['test_form' => false];
         $handled = wp_handle_upload($file, $overrides);
         if (isset($handled['error'])) {

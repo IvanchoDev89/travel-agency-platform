@@ -226,8 +226,14 @@ class TAP_Subscriptions {
         if (!$result) {
             return new WP_Error('subscribe_failed', __('Could not start the subscription. Please try again.', 'travel-agency-platform'));
         }
+        $new_id = (int) $wpdb->get_var($wpdb->prepare(
+            'SELECT id FROM ' . self::subs_table() . ' WHERE agency_id = %d AND plan_id = %d AND status = %s ORDER BY id DESC LIMIT 1',
+            (int) $agency_id,
+            (int) $plan_id,
+            'pending'
+        ));
         do_action('tap_subscription_requested', (int) $agency_id, (int) $plan_id);
-        return (int) $wpdb->insert_id;
+        return $new_id > 0 ? $new_id : (int) $wpdb->insert_id;
     }
 
     public static function mark_paid($sub_id, $admin_id = 0, $months = 1) {

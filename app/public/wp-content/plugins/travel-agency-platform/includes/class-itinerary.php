@@ -411,7 +411,7 @@ class TAP_Itinerary {
             <div class="tap-itin-share-actions">
                 <button type="button" class="tap-btn tap-btn-secondary" onclick="window.print()"><?php esc_html_e('Imprimir', 'travel-agency-platform'); ?></button>
                 <button type="button" class="tap-btn tap-btn-primary" onclick="navigator.clipboard && navigator.clipboard.writeText(window.location.href); this.textContent='<?php echo esc_js(__('Copiado', 'travel-agency-platform')); ?>';"><?php esc_html_e('Copiar enlace', 'travel-agency-platform'); ?></button>
-                <a class="tap-btn tap-btn-outline" href="https://wa.me/?text=<?php echo urlencode(home_url('/armar-mi-viaje/?itin=' . implode(',', $ids))); ?>" target="_blank" rel="noopener">WhatsApp</a>
+                <a class="tap-btn tap-btn-outline" href="https://wa.me/?text=<?php echo urlencode(home_url('/armar-mi-viaje/?itin=' . implode(',', array_map(function($p){return $p->ID;}, $posts)))); ?>" target="_blank" rel="noopener">WhatsApp</a>
             </div>
         </div>
         <?php

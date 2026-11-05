@@ -143,13 +143,17 @@ $formats[] = '%d'; }
                 $capacity = 999;
             }
         }
-        $wpdb->query($wpdb->prepare(
-            "UPDATE {$t} SET booked = booked + %d WHERE id = %d AND (capacity > 0 AND booked + %d <= capacity) OR (capacity = 0 AND booked + %d <= %d)",
+        // Apply overbooking % (same as is_available).
+        $over_pct = (int) get_post_meta((int) $slot->service_id, '_tap_tour_overbooking_pct', true);
+        if ($over_pct > 0) {
+            $capacity = (int) ceil($capacity * (1 + $over_pct / 100));
+        }
+
+        $affected = $wpdb->query($wpdb->prepare(
+            "UPDATE {$t} SET booked = booked + %d WHERE id = %d AND ((capacity > 0 AND booked + %d <= capacity) OR (capacity <= 0 AND booked + %d <= %d))",
             $adults, $slot_id, $adults, $adults, $capacity
         ));
-        // Simpler, safer: re-check after update.
-        $updated = self::get_slot($slot_id);
-        return $updated && (int) $updated->booked >= (int) $slot->booked + $adults;
+        return $affected > 0;
     }
 
     /** Release a slot (decrement booked) on cancellation. */
