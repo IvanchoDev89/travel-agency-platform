@@ -69,7 +69,7 @@ class TAP_Email_Templates {
     public static function get_template($key, $locale = null) {
         global $wpdb;
         $t = self::table();
-        if (!$locale) $locale = (function_exists('TAP_Localization') && method_exists('TAP_Localization', 'resolve_lang')) ? TAP_Localization::resolve_lang() : 'es_ES';
+        if (!$locale) $locale = (class_exists('TAP_Localization') && method_exists('TAP_Localization', 'wp_locale')) ? TAP_Localization::wp_locale() : 'es_ES';
         $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$t} WHERE template_key = %s AND locale = %s AND is_active = 1 LIMIT 1", $key, $locale));
         if (!$row && $locale !== 'es_ES') {
             $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$t} WHERE template_key = %s AND locale = 'es_ES' AND is_active = 1 LIMIT 1", $key));
