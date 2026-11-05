@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-05T02:02:02+00:00\n"
+"POT-Creation-Date: 2026-11-05T02:26:57+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -13649,46 +13649,64 @@ msgstr "Recordatorio de tour"
 msgid "Tienes un tour mañana: reserva %s."
 msgstr "Tienes un tour mañana: reserva %s."
 
-#: includes/class-push.php:119
+#: includes/class-push.php:99
+msgid "Nuevo mensaje de cliente"
+msgstr "Nuevo mensaje de cliente"
+
+#: includes/class-push.php:99
+#, php-format
+msgid "Tienes un mensaje nuevo en la reserva %s."
+msgstr "Tienes un mensaje nuevo en la reserva %s."
+
+#: includes/class-push.php:103
+msgid "Nuevo mensaje de la agencia"
+msgstr "Nuevo mensaje de la agencia"
+
+#: includes/class-push.php:103
+#, php-format
+msgid "La agencia respondió en la reserva %s."
+msgstr "La agencia respondió en la reserva %s."
+
+#: includes/class-push.php:138
 msgid "Ver más"
 msgstr "Ver más"
 
-#: includes/class-push.php:296
+#: includes/class-push.php:316
 msgid "Nueva reserva"
 msgstr "Nueva reserva"
 
-#: includes/class-push.php:296
+#: includes/class-push.php:316
 #, php-format
 msgid "Reserva %s creada."
 msgstr "Reserva %s creada."
 
-#: includes/class-push.php:312 includes/class-push.php:316
+#: includes/class-push.php:332 includes/class-push.php:336
 msgid "Pago recibido"
 msgstr "Pago recibido"
 
-#: includes/class-push.php:312
+#: includes/class-push.php:332
 #, php-format
 msgid "Tu pago para la reserva %s fue recibido."
 msgstr "Tu pago para la reserva %s fue recibido."
 
-#: includes/class-push.php:316
+#: includes/class-push.php:336
 #, php-format
 msgid "Pago recibido para la reserva %s."
 msgstr "Pago recibido para la reserva %s."
 
-#: includes/class-push.php:326
+#: includes/class-push.php:346
 msgid "Datos de suscripción inválidos."
 msgstr "Datos de suscripción inválidos."
 
-#: includes/class-push.php:336
+#: includes/class-push.php:356
 msgid "Endpoint requerido."
 msgstr "Endpoint requerido."
 
-#: includes/class-push.php:344
+#: includes/class-push.php:364
 msgid "Las notificaciones push no están configuradas."
 msgstr "Las notificaciones push no están configuradas."
 
-#: includes/class-push.php:348
+#: includes/class-push.php:368
 msgid "Activar notificaciones"
 msgstr "Activar notificaciones"
 

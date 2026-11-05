@@ -86,6 +86,25 @@ class TAP_Push {
         }
     }
 
+    /** Notify recipient of a new chat message. */
+    public static function on_chat_message($booking_id, $author_type, $message_id) {
+        global $wpdb;
+        $booking = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_bookings WHERE id = %d", (int) $booking_id));
+        if (!$booking) {
+            return;
+        }
+        if ('client' === $author_type) {
+            $agency_user = (int) get_post_meta((int) $booking->agency_id, '_tap_agency_user_id', true);
+            if ($agency_user) {
+                self::send($agency_user, __('Nuevo mensaje de cliente', 'travel-agency-platform'), sprintf(__('Tienes un mensaje nuevo en la reserva %s.', 'travel-agency-platform'), $booking->booking_code), home_url('/mi-cuenta/?seccion=bo-operations'));
+            }
+        } else {
+            if (!empty($booking->client_id)) {
+                self::send((int) $booking->client_id, __('Nuevo mensaje de la agencia', 'travel-agency-platform'), sprintf(__('La agencia respondió en la reserva %s.', 'travel-agency-platform'), $booking->booking_code), home_url('/mi-cuenta/?seccion=bookings'));
+            }
+        }
+    }
+
     /** Count subscriptions. */
     public static function count() {
         global $wpdb;
@@ -255,6 +274,7 @@ class TAP_Push {
         });
         add_action('tap_booking_created', [__CLASS__, 'on_booking_created'], 10, 2);
         add_action('tap_payment_completed', [__CLASS__, 'on_payment_completed'], 20, 1);
+        add_action('tap_chat_message_sent', [__CLASS__, 'on_chat_message'], 10, 3);
     }
 
     /** Generate VAPID keys if missing. */
