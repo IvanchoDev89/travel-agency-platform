@@ -212,6 +212,9 @@ class TAP_Dashboard_Money {
     }
 
     public static function commissions_page() {
+        if (!current_user_can('tap_manage_commissions') && !current_user_can('manage_options')) {
+            wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform'));
+        }
         self::handle_commissions_post();
 
         global $wpdb;
@@ -536,6 +539,9 @@ class TAP_Dashboard_Money {
     }
 
     public static function disputes_page() {
+        if (!current_user_can('tap_manage_disputes') && !current_user_can('manage_options')) {
+            wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform'));
+        }
         self::handle_disputes_post();
 
         global $wpdb;

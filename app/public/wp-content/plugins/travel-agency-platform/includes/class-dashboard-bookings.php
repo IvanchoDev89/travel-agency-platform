@@ -9,6 +9,9 @@ defined('ABSPATH') || exit;
 
 class TAP_Dashboard_Bookings {
     public static function dashboard_page() {
+        if (!current_user_can('tap_manage_bookings') && !current_user_can('manage_options')) {
+            wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform'));
+        }
         $stats = TAP_Booking_Stats::get_booking_stats();
         $monthly = TAP_Booking_Stats::get_monthly_series(12);
         $status = TAP_Booking_Stats::get_status_distribution();

@@ -88,6 +88,9 @@ class TAP_Dashboard_Settings {
      */
 
     public static function plans_page() {
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform'));
+        }
         global $wpdb;
         $t = $wpdb->prefix . 'tap_plans';
 
@@ -143,6 +146,9 @@ class TAP_Dashboard_Settings {
 
 
     public static function subscriptions_page() {
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform'));
+        }
         global $wpdb;
         $t_sub  = $wpdb->prefix . 'tap_agency_subscriptions';
         $t_plan = $wpdb->prefix . 'tap_plans';
@@ -219,6 +225,9 @@ class TAP_Dashboard_Settings {
 
 
     public static function promotions_page() {
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform'));
+        }
         global $wpdb;
         $t_promo = $wpdb->prefix . 'tap_promos';
         $t_age   = $wpdb->prefix . 'tap_agencies';
@@ -303,6 +312,9 @@ class TAP_Dashboard_Settings {
 
 
     public static function settings_page() {
+        if (!current_user_can('tap_manage_settings') && !current_user_can('manage_options')) {
+            wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform'));
+        }
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Travel Platform Settings', 'travel-agency-platform'); ?></h1>
