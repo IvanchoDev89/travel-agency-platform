@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-05T21:59:57+00:00\n"
+"POT-Creation-Date: 2026-11-05T22:05:59+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -1369,14 +1369,14 @@ msgstr "Publish when everything is ready"
 msgid "Ha ocurrido un error"
 msgstr "An error occurred"
 
-#: includes/class-acc-wizard.php:30 includes/class-dashboard-bookings.php:303
+#: includes/class-acc-wizard.php:30 includes/class-dashboard-bookings.php:368
 #: includes/class-front-dash.php:490 includes/class-front-dash.php:539
 #: includes/class-listing-editor.php:510 includes/class-tour-wizard.php:39
 msgid "Confirmar"
 msgstr "Confirm"
 
 #: includes/class-acc-wizard.php:31 includes/class-acc-wizard.php:269
-#: includes/class-dashboard-bookings.php:305
+#: includes/class-dashboard-bookings.php:370
 #: includes/class-dashboard-market.php:92
 #: includes/class-dashboard-money.php:454
 #: includes/class-dashboard-money.php:491
@@ -1886,7 +1886,7 @@ msgid "No tienes permiso sobre esta reserva."
 msgstr "You do not have permission over this booking."
 
 #: includes/class-ajax-dash.php:60 includes/class-chat.php:49
-#: includes/class-chat.php:186 includes/class-dashboard-bookings.php:179
+#: includes/class-chat.php:186 includes/class-dashboard-bookings.php:183
 #: includes/class-dashboard-content.php:277
 #: includes/class-dashboard-insights.php:106
 #: includes/class-dashboard-money.php:592 includes/class-front-dash.php:1818
@@ -2952,7 +2952,7 @@ msgid "Copiado"
 msgstr "Copied"
 
 #: includes/class-dashboard-bookings.php:13
-#: includes/class-dashboard-bookings.php:202
+#: includes/class-dashboard-bookings.php:208
 #: includes/class-dashboard-money.php:216
 #: includes/class-dashboard-money.php:543
 #: includes/class-dashboard-settings.php:92
@@ -3101,20 +3101,20 @@ msgid "Aún no hay reservas."
 msgstr "There are no bookings yet."
 
 #: includes/class-dashboard-bookings.php:96
-#: includes/class-dashboard-bookings.php:179 includes/class-emails-send.php:772
+#: includes/class-dashboard-bookings.php:183 includes/class-emails-send.php:772
 #: includes/class-front-dash-client.php:214 includes/class-front-dash.php:506
 #: includes/class-front-dash.php:1638 includes/class-privacy.php:383
 msgid "Código"
 msgstr "Code"
 
 #: includes/class-dashboard-bookings.php:97
-#: includes/class-dashboard-bookings.php:179 includes/class-emails-send.php:737
+#: includes/class-dashboard-bookings.php:183 includes/class-emails-send.php:737
 #: includes/class-emails-send.php:782 includes/class-invoices.php:118
 msgid "Cliente"
 msgstr "Client"
 
 #: includes/class-dashboard-bookings.php:98
-#: includes/class-dashboard-bookings.php:179
+#: includes/class-dashboard-bookings.php:183
 #: includes/class-dashboard-content.php:77
 #: includes/class-dashboard-market.php:68
 #: includes/class-dashboard-market.php:110 includes/class-emails-send.php:773
@@ -3127,8 +3127,8 @@ msgid "Servicio"
 msgstr "Service"
 
 #: includes/class-dashboard-bookings.php:99
-#: includes/class-dashboard-bookings.php:179
-#: includes/class-dashboard-bookings.php:318
+#: includes/class-dashboard-bookings.php:183
+#: includes/class-dashboard-bookings.php:383
 #: includes/class-dashboard-insights.php:110
 #: includes/class-dashboard-insights.php:331
 #: includes/class-dashboard-money.php:302 includes/class-emails-send.php:779
@@ -3144,7 +3144,7 @@ msgid "Total"
 msgstr "Total"
 
 #: includes/class-dashboard-bookings.php:100
-#: includes/class-dashboard-bookings.php:179
+#: includes/class-dashboard-bookings.php:183
 #: includes/class-dashboard-content.php:282
 #: includes/class-dashboard-insights.php:109
 #: includes/class-dashboard-market.php:72
@@ -3184,12 +3184,12 @@ msgstr "Status"
 msgid "Fecha"
 msgstr "Date"
 
-#: includes/class-dashboard-bookings.php:179 includes/class-front-dash.php:511
+#: includes/class-dashboard-bookings.php:183 includes/class-front-dash.php:511
 #: includes/class-privacy.php:385 includes/class-shortcode-booking.php:441
 msgid "Pago"
 msgstr "Payment"
 
-#: includes/class-dashboard-bookings.php:179 includes/class-emails-send.php:784
+#: includes/class-dashboard-bookings.php:183 includes/class-emails-send.php:784
 #: includes/class-front-dash.php:1089 includes/class-front-dash.php:1184
 #: includes/class-metaboxes.php:328 includes/class-shortcode-account.php:177
 #: includes/class-shortcode-account.php:292
@@ -3198,7 +3198,7 @@ msgstr "Payment"
 msgid "Email"
 msgstr "Email"
 
-#: includes/class-dashboard-bookings.php:179
+#: includes/class-dashboard-bookings.php:183
 #: includes/class-landing-builder.php:419
 #: includes/class-landing-builder.php:428
 #: includes/class-landing-builder.php:436
@@ -3207,32 +3207,32 @@ msgstr "Email"
 msgid "Título"
 msgstr "Title"
 
-#: includes/class-dashboard-bookings.php:179 includes/class-privacy.php:387
+#: includes/class-dashboard-bookings.php:183 includes/class-privacy.php:387
 msgid "Entrada"
 msgstr "Check-in"
 
-#: includes/class-dashboard-bookings.php:179 includes/class-privacy.php:388
+#: includes/class-dashboard-bookings.php:183 includes/class-privacy.php:388
 msgid "Salida"
 msgstr "Check-out"
 
-#: includes/class-dashboard-bookings.php:179
+#: includes/class-dashboard-bookings.php:183
 msgid "Adultos"
 msgstr "Adults"
 
-#: includes/class-dashboard-bookings.php:179
+#: includes/class-dashboard-bookings.php:183
 msgid "Niños"
 msgstr "Children"
 
-#: includes/class-dashboard-bookings.php:179 includes/class-emails-send.php:777
+#: includes/class-dashboard-bookings.php:183 includes/class-emails-send.php:777
 #: includes/class-shortcode-booking.php:765
 msgid "Noches"
 msgstr "Nights"
 
-#: includes/class-dashboard-bookings.php:179
+#: includes/class-dashboard-bookings.php:183
 msgid "Comisión %"
 msgstr "Commission %"
 
-#: includes/class-dashboard-bookings.php:179
+#: includes/class-dashboard-bookings.php:183
 #: includes/class-dashboard-content.php:281
 #: includes/class-dashboard-market.php:178 includes/class-front-dash.php:1489
 #: includes/class-front-dash.php:1512
@@ -3241,15 +3241,15 @@ msgstr "Commission %"
 msgid "Comisión"
 msgstr "Commission"
 
-#: includes/class-dashboard-bookings.php:179
+#: includes/class-dashboard-bookings.php:183
 msgid "Estado comisión"
 msgstr "Commission status"
 
-#: includes/class-dashboard-bookings.php:179
+#: includes/class-dashboard-bookings.php:183
 msgid "Creado"
 msgstr "Created"
 
-#: includes/class-dashboard-bookings.php:269
+#: includes/class-dashboard-bookings.php:275
 #: includes/class-dashboard-insights.php:52
 #: includes/class-dashboard-money.php:400 includes/class-dashboard.php:43
 #: includes/class-dashboard.php:44
@@ -3258,73 +3258,81 @@ msgstr "Created"
 msgid "Bookings"
 msgstr "Bookings"
 
-#: includes/class-dashboard-bookings.php:272
+#: includes/class-dashboard-bookings.php:278
 msgid "Código, cliente o email"
 msgstr "Code, client or email"
 
-#: includes/class-dashboard-bookings.php:274
+#: includes/class-dashboard-bookings.php:280
 msgid "Todos los estados"
 msgstr "All statuses"
 
-#: includes/class-dashboard-bookings.php:280
+#: includes/class-dashboard-bookings.php:286
 #: includes/class-destination-spots.php:166
 msgid "Todos los tipos"
 msgstr "All types"
 
-#: includes/class-dashboard-bookings.php:286
+#: includes/class-dashboard-bookings.php:292
 msgid "Todas las agencias"
 msgstr "All agencies"
 
-#: includes/class-dashboard-bookings.php:291
+#: includes/class-dashboard-bookings.php:297
 #: includes/class-dashboard-insights.php:246
 #: includes/class-referral-reports.php:107
 #: includes/class-shortcode-search.php:789
 msgid "Filtrar"
 msgstr "Filter"
 
-#: includes/class-dashboard-bookings.php:292 includes/class-front-dash.php:456
+#: includes/class-dashboard-bookings.php:298 includes/class-front-dash.php:456
 #: includes/class-front-dash.php:702 includes/class-front-dash.php:1668
 #: includes/class-referral-reports.php:108
 #: includes/class-shortcode-agency-panel.php:347
 msgid "Exportar CSV"
 msgstr "Export CSV"
 
-#: includes/class-dashboard-bookings.php:296
+#: includes/class-dashboard-bookings.php:302
 msgid "Acción masiva aplicada."
 msgstr "Bulk action applied."
 
-#: includes/class-dashboard-bookings.php:302
+#: includes/class-dashboard-bookings.php:305
+msgid "Calendario"
+msgstr "Calendar"
+
+#: includes/class-dashboard-bookings.php:306
+msgid "Lista"
+msgstr "List"
+
+#: includes/class-dashboard-bookings.php:367
 msgid "Acciones masivas"
 msgstr "Bulk actions"
 
-#: includes/class-dashboard-bookings.php:304 includes/class-front-dash.php:491
+#: includes/class-dashboard-bookings.php:369 includes/class-front-dash.php:491
 #: includes/class-front-dash.php:542
 msgid "Completar"
 msgstr "Complete"
 
-#: includes/class-dashboard-bookings.php:307 includes/class-front-dash.php:494
+#: includes/class-dashboard-bookings.php:372 includes/class-front-dash.php:494
 #: includes/class-front-dash.php:947 includes/class-shortcode-search.php:286
 msgid "Aplicar"
 msgstr "Apply"
 
-#: includes/class-dashboard-bookings.php:314
+#: includes/class-dashboard-bookings.php:379
 #: includes/class-shortcode-agency-panel.php:229
 #: includes/class-shortcode-booking.php:263
 msgid "Code"
 msgstr "Code"
 
-#: includes/class-dashboard-bookings.php:315 includes/class-metaboxes.php:1337
+#: includes/class-dashboard-bookings.php:380 includes/class-metaboxes.php:1337
 #: includes/class-roles.php:99
 msgid "Client"
 msgstr "Client"
 
-#: includes/class-dashboard-bookings.php:316 includes/class-metaboxes.php:1340
+#: includes/class-dashboard-bookings.php:381 includes/class-metaboxes.php:1340
 #: includes/class-shortcode-agency-panel.php:230
 #: includes/class-shortcode-booking.php:264
 msgid "Service"
 msgstr "Service"
 
-#: includes/class-dashboard-bookings.php:317
+#: includes/class-dashboard-bookings.php:382
 #: includes/class-dashboard-content.php:545
 #: includes/class-dashboard-money.php:301
 #: includes/class-dashboard-money.php:396 includes/class-metaboxes.php:350
@@ -3336,13 +3344,13 @@ msgstr "Service"
 msgid "Agency"
 msgstr "Agency"
 
-#: includes/class-dashboard-bookings.php:319 includes/class-metaboxes.php:1336
+#: includes/class-dashboard-bookings.php:384 includes/class-metaboxes.php:1336
 #: includes/class-shortcode-agency-panel.php:238
 #: includes/class-shortcode-booking.php:267
 msgid "Status"
 msgstr "Status"
 
-#: includes/class-dashboard-bookings.php:320
+#: includes/class-dashboard-bookings.php:385
 #: includes/class-dashboard-insights.php:54
 #: includes/class-dashboard-money.php:304 includes/class-metaboxes.php:1351
 #: includes/class-shortcode-agency-panel.php:137
@@ -3351,21 +3359,21 @@ msgstr "Status"
 msgid "Commission"
 msgstr "Commission"
 
-#: includes/class-dashboard-bookings.php:321
+#: includes/class-dashboard-bookings.php:386
 msgid "Fee"
 msgstr "Fee"
 
-#: includes/class-dashboard-bookings.php:322
+#: includes/class-dashboard-bookings.php:387
 #: includes/class-dashboard-money.php:306
 msgid "Date"
 msgstr "Date"
 
-#: includes/class-dashboard-bookings.php:327
+#: includes/class-dashboard-bookings.php:392
 #: includes/class-shortcode-booking.php:258
 msgid "No bookings found."
 msgstr "No bookings found."
 
-#: includes/class-dashboard-bookings.php:345
+#: includes/class-dashboard-bookings.php:410
 msgid "Cambiar estado"
 msgstr "Change status"
 
@@ -17227,9 +17235,6 @@ msgstr "Try other filters or different dates."
 
 msgid "La agencia <strong>%s</strong> (%s) se ha registrado en la plataforma."
 msgstr "The agency <strong>%s</strong> (%s) has registered on the platform."
-
-msgid "Lista"
-msgstr "List"
 
 msgid "Llegada"
 msgstr "Arrival"

@@ -142,6 +142,10 @@ class TAP_Dashboard_Bookings {
         $f_type   = sanitize_key(wp_unslash($_GET['f_type'] ?? ''));
         $f_agency = intval($_GET['f_agency'] ?? 0);
         $s        = sanitize_text_field(wp_unslash($_GET['s'] ?? ''));
+        $view     = sanitize_key(wp_unslash($_GET['view'] ?? 'list'));
+        if (!in_array($view, ['list', 'calendar'], true)) {
+            $view = 'list';
+        }
         $where    = '1=1';
         $params   = [];
 
@@ -194,6 +198,8 @@ class TAP_Dashboard_Bookings {
 
     public static function bookings_page() {
         global $wpdb;
+
+        $view = 'list';
 
         // Bulk actions.
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tap_bulk_action'])) {
@@ -295,6 +301,65 @@ class TAP_Dashboard_Bookings {
             <?php if (isset($_GET['bulk_done'])): ?>
                 <div class="notice notice-success is-dismissible"><p><?php esc_html_e('Acción masiva aplicada.', 'travel-agency-platform'); ?></p></div>
             <?php endif; ?>
+            <div style="margin:8px 0;display:flex;gap:8px;align-items:center;">
+                <a class="button <?php echo 'calendar' === $view ? 'button-primary' : ''; ?>" href="<?php echo esc_url(add_query_arg('view', 'calendar')); ?>"><?php esc_html_e('Calendario', 'travel-agency-platform'); ?></a>
+                <a class="button <?php echo 'list' === $view ? 'button-primary' : ''; ?>" href="<?php echo esc_url(add_query_arg('view', 'list')); ?>"><?php esc_html_e('Lista', 'travel-agency-platform'); ?></a>
+            </div>
+
+            <?php if ('calendar' === $view):
+                $cal_month = isset($_GET['cal_month']) ? sanitize_text_field(wp_unslash($_GET['cal_month'])) : gmdate('Y-m');
+                if (!preg_match('/^\d{4}-\d{2}$/', $cal_month)) $cal_month = gmdate('Y-m');
+                list($cal_y, $cal_m) = explode('-', $cal_month);
+                $cal_y = (int) $cal_y; $cal_m = (int) $cal_m;
+                $first_day = mktime(0, 0, 0, $cal_m, 1, $cal_y);
+                $days_in_month = (int) date('t', $first_day);
+                $start_dow = (int) date('w', $first_day);
+                $prev_month = date('Y-m', strtotime('-1 month', $first_day));
+                $next_month = date('Y-m', strtotime('+1 month', $first_day));
+                $month_label = date_i18n('F Y', $first_day);
+                $from = sprintf('%04d-%02d-01', $cal_y, $cal_m);
+                $to = sprintf('%04d-%02d-%02d', $cal_y, $cal_m, $days_in_month);
+                $cal_bookings = $wpdb->get_results($wpdb->prepare(
+                    "SELECT b.id, b.booking_code, b.status, b.check_in, b.service_type, s.post_title AS service_title
+                     FROM {$wpdb->prefix}tap_bookings b
+                     LEFT JOIN {$wpdb->posts} s ON s.ID = b.service_id
+                     WHERE b.check_in >= %s AND b.check_in <= %s
+                     ORDER BY b.check_in ASC",
+                    $from, $to
+                ));
+                $by_date = [];
+                foreach ($cal_bookings as $cb) {
+                    $by_date[$cb->check_in][] = $cb;
+                }
+            ?>
+            <div class="tap-admin-calendar" style="margin-bottom:20px;">
+                <div class="tap-avcal-header">
+                    <div class="tap-avcal-nav">
+                        <a href="<?php echo esc_url(add_query_arg('cal_month', $prev_month)); ?>" class="tap-avcal-nav-btn">&larr;</a>
+                        <span class="tap-avcal-label"><?php echo esc_html($month_label); ?></span>
+                        <a href="<?php echo esc_url(add_query_arg('cal_month', $next_month)); ?>" class="tap-avcal-nav-btn">&rarr;</a>
+                    </div>
+                </div>
+                <div class="tap-avcal-grid">
+                    <?php
+                    $weekdays = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+                    foreach ($weekdays as $wd) echo '<div class="tap-avcal-weekday">' . esc_html($wd) . '</div>';
+                    for ($p = 0; $p < $start_dow; $p++) echo '<div class="tap-avcal-day disabled"></div>';
+                    for ($d = 1; $d <= $days_in_month; $d++) {
+                        $date = sprintf('%04d-%02d-%02d', $cal_y, $cal_m, $d);
+                        $day_bookings = isset($by_date[$date]) ? $by_date[$date] : [];
+                        $cls = 'tap-avcal-day' . ($day_bookings ? ' available' : ' disabled');
+                        echo '<div class="' . esc_attr($cls) . '">';
+                        echo '<span class="tap-avcal-num">' . (int) $d . '</span>';
+                        foreach ($day_bookings as $cb) {
+                            echo '<div class="tap-avcal-slot"><a href="' . esc_url(admin_url('admin.php?page=tap-booking-detail&code=' . rawurlencode($cb->booking_code))) . '" style="font-size:10px;color:inherit;text-decoration:none;">' . esc_html($cb->booking_code) . '</a></div>';
+                        }
+                        echo '</div>';
+                    }
+                    ?>
+                </div>
+            </div>
+            <?php else: ?>
             <form method="post" id="tap-bulk-form">
                 <?php wp_nonce_field('tap_bulk_bookings_nonce'); ?>
                 <div style="margin:8px 0;display:flex;gap:8px;align-items:center;">
@@ -368,6 +433,7 @@ class TAP_Dashboard_Bookings {
                 }
             })();
             </script>
+            <?php endif; ?>
         </div>
         <?php
     }
