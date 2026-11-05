@@ -187,6 +187,32 @@ class TAP_Installer {
                 KEY status (status)
             ) $charset;",
 
+            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_email_templates (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                template_key varchar(60) NOT NULL,
+                subject varchar(200) NOT NULL,
+                body longtext NOT NULL,
+                locale varchar(10) NOT NULL DEFAULT 'es_ES',
+                is_active tinyint(1) NOT NULL DEFAULT 1,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY template_key (template_key),
+                KEY locale (locale)
+            ) $charset;",
+
+            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_email_log (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                template_key varchar(60) DEFAULT NULL,
+                recipient varchar(200) NOT NULL,
+                subject varchar(200) NOT NULL,
+                status varchar(20) NOT NULL DEFAULT 'sent',
+                sent_at datetime DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY template_key (template_key),
+                KEY recipient (recipient)
+            ) $charset;",
+
             "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_loyalty_points (
                 id bigint(20) NOT NULL AUTO_INCREMENT,
                 user_id bigint(20) NOT NULL,

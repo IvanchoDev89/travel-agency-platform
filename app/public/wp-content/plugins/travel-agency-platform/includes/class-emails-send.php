@@ -457,7 +457,34 @@ class TAP_Emails_Send {
         if (function_exists('TAP_Emails::set_html_content_type')) {
             $headers[] = 'Content-Type: text/html; charset=UTF-8';
         }
-        return (bool) wp_mail($to, $subject, $body, $headers, $attachments);
+        $result = (bool) wp_mail($to, $subject, $body, $headers, $attachments);
+        if (class_exists('TAP_Email_Templates')) {
+            TAP_Email_Templates::log(null, $to, $subject, $result ? 'sent' : 'failed');
+        }
+        return $result;
+    }
+
+    /**
+     * Send an email using a DB template if available, with variable replacement.
+     * Falls back to the provided subject/body if no template exists.
+     */
+    public static function send_templated($key, $to, $vars = [], $fallback_subject = '', $fallback_body = '', $attachments = []) {
+        $rendered = null;
+        if (class_exists('TAP_Email_Templates')) {
+            $rendered = TAP_Email_Templates::render($key, $vars);
+        }
+        $subject = $rendered ? $rendered['subject'] : $fallback_subject;
+        $body = $rendered ? $rendered['body'] : $fallback_body;
+        $body .= TAP_Privacy::email_footer();
+        $headers = [];
+        if (function_exists('TAP_Emails::set_html_content_type')) {
+            $headers[] = 'Content-Type: text/html; charset=UTF-8';
+        }
+        $result = (bool) wp_mail($to, $subject, $body, $headers, $attachments);
+        if (class_exists('TAP_Email_Templates')) {
+            TAP_Email_Templates::log($key, $to, $subject, $result ? 'sent' : 'failed');
+        }
+        return $result;
     }
 
 

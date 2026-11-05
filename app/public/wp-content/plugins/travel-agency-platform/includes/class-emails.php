@@ -81,7 +81,11 @@ class TAP_Emails {
             esc_html($agency->post_title),
             esc_url(home_url('/mi-cuenta/'))
         );
-        TAP_Emails_Send::send($agency_email, __('Tu agencia está en revisión', 'travel-agency-platform'), TAP_Emails_Send::info_template($welcome_headline, $welcome_intro));
+        TAP_Emails_Send::send_templated('agency_registered', $agency_email, [
+            'agency_name' => $agency->post_title,
+            'user_name'   => $user->display_name,
+            'date'        => current_time('Y-m-d'),
+        ], __('Tu agencia está en revisión', 'travel-agency-platform'), TAP_Emails_Send::info_template($welcome_headline, $welcome_intro));
 
         // Schedule onboarding email drip (day 1, 3, 7).
         if (!wp_next_scheduled('tap_agency_onboarding_day1', [$user_id, $agency_id])) {
