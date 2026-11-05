@@ -18,7 +18,7 @@ class TAP_Email_Templates {
     }
 
     public static function init() {
-        add_action('admin_menu', [__CLASS__, 'add_page']);
+        add_action('admin_menu', [__CLASS__, 'add_page'], 40);
         add_action('admin_init', [__CLASS__, 'handle_actions']);
     }
 
