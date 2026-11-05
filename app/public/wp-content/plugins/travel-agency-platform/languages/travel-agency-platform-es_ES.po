@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-04T22:45:15+00:00\n"
+"POT-Creation-Date: 2026-11-05T01:57:03+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -1624,7 +1624,7 @@ msgstr "Guardar y continuar"
 msgid "Crear y continuar"
 msgstr "Crear y continuar"
 
-#: includes/class-acc-wizard.php:284 includes/class-itinerary.php:467
+#: includes/class-acc-wizard.php:284 includes/class-itinerary.php:470
 msgid "Continuar"
 msgstr "Continuar"
 
@@ -2939,7 +2939,7 @@ msgstr "pts"
 msgid "Aún no tienes referidos. ¡Comparte tu enlace!"
 msgstr "Aún no tienes referidos. ¡Comparte tu enlace!"
 
-#: includes/class-customer-referrals.php:525
+#: includes/class-customer-referrals.php:525 includes/class-itinerary.php:387
 #: includes/class-shortcode-booking.php:1067
 msgid "Copiado"
 msgstr "Copiado"
@@ -11301,7 +11301,7 @@ msgstr "Sin facturas."
 msgid "Ver"
 msgstr "Ver"
 
-#: includes/class-itinerary-collab.php:26 includes/class-itinerary.php:483
+#: includes/class-itinerary-collab.php:26 includes/class-itinerary.php:486
 msgid "Mi itinerario"
 msgstr "Mi itinerario"
 
@@ -11376,7 +11376,7 @@ msgstr "Tours y experiencias"
 msgid "Consultar precio"
 msgstr "Consultar precio"
 
-#: includes/class-itinerary.php:281 includes/class-itinerary.php:405
+#: includes/class-itinerary.php:281 includes/class-itinerary.php:408
 msgid "Añadir al itinerario"
 msgstr "Añadir al itinerario"
 
@@ -11408,7 +11408,7 @@ msgstr "Así queda tu viaje"
 msgid "Servicios seleccionados según tus intereses, destinos y presupuesto."
 msgstr "Servicios seleccionados según tus intereses, destinos y presupuesto."
 
-#: includes/class-itinerary.php:381 includes/class-itinerary.php:486
+#: includes/class-itinerary.php:381 includes/class-itinerary.php:489
 msgid "Total estimado"
 msgstr "Total estimado"
 
@@ -11420,19 +11420,23 @@ msgstr ""
 "Monto estimado según tarifas publicadas por persona/noche. La reserva y el "
 "pago se gestionan directo con cada agencia."
 
-#: includes/class-itinerary.php:385
+#: includes/class-itinerary.php:386
 msgid "Imprimir itinerario"
 msgstr "Imprimir itinerario"
 
-#: includes/class-itinerary.php:406
+#: includes/class-itinerary.php:387
+msgid "Copiar enlace"
+msgstr "Copiar enlace"
+
+#: includes/class-itinerary.php:409
 msgid "Agregado ✓"
 msgstr "Agregado ✓"
 
-#: includes/class-itinerary.php:407
+#: includes/class-itinerary.php:410
 msgid "Hubo un problema al cargar los resultados. Reintentá en unos segundos."
 msgstr "Hubo un problema al cargar los resultados. Reintentá en unos segundos."
 
-#: includes/class-itinerary.php:408
+#: includes/class-itinerary.php:411
 msgid ""
 "Todavía no hay destinos publicados. Podés continuar igual y explorar por "
 "intereses."
@@ -11440,15 +11444,15 @@ msgstr ""
 "Todavía no hay destinos publicados. Podés continuar igual y explorar por "
 "intereses."
 
-#: includes/class-itinerary.php:423
+#: includes/class-itinerary.php:426
 msgid "Tu viaje, paso a paso"
 msgstr "Tu viaje, paso a paso"
 
-#: includes/class-itinerary.php:424
+#: includes/class-itinerary.php:427
 msgid "Armá tu itinerario"
 msgstr "Armá tu itinerario"
 
-#: includes/class-itinerary.php:425
+#: includes/class-itinerary.php:428
 msgid ""
 "Elegí tus intereses, destinos y presupuesto. En segundos encontrás "
 "experiencias que matchean con tu plan."
@@ -11456,58 +11460,58 @@ msgstr ""
 "Elegí tus intereses, destinos y presupuesto. En segundos encontrás "
 "experiencias que matchean con tu plan."
 
-#: includes/class-itinerary.php:439
+#: includes/class-itinerary.php:442
 msgid "1. Lo que te apasiona"
 msgstr "1. Lo que te apasiona"
 
-#: includes/class-itinerary.php:440
+#: includes/class-itinerary.php:443
 msgid "Elegí uno o más intereses. Podés cambiar de idea cuando quieras."
 msgstr "Elegí uno o más intereses. Podés cambiar de idea cuando quieras."
 
-#: includes/class-itinerary.php:446
+#: includes/class-itinerary.php:449
 msgid "2. ¿Hacia dónde viajás?"
 msgstr "2. ¿Hacia dónde viajás?"
 
-#: includes/class-itinerary.php:447
+#: includes/class-itinerary.php:450
 msgid "Podés combinar varios destinos en un mismo itinerario."
 msgstr "Podés combinar varios destinos en un mismo itinerario."
 
-#: includes/class-itinerary.php:452
+#: includes/class-itinerary.php:455
 msgid "3. Presupuesto y tipo de servicio"
 msgstr "3. Presupuesto y tipo de servicio"
 
-#: includes/class-itinerary.php:453
+#: includes/class-itinerary.php:456
 msgid "Dejá libre el rango si querés que te mostremos todo."
 msgstr "Dejá libre el rango si querés que te mostremos todo."
 
-#: includes/class-itinerary.php:455
+#: includes/class-itinerary.php:458
 msgid "Presupuesto mínimo"
 msgstr "Presupuesto mínimo"
 
-#: includes/class-itinerary.php:457
+#: includes/class-itinerary.php:460
 msgid "Presupuesto máximo"
 msgstr "Presupuesto máximo"
 
-#: includes/class-itinerary.php:460
+#: includes/class-itinerary.php:463
 msgid "Incluir"
 msgstr "Incluir"
 
-#: includes/class-itinerary.php:462
+#: includes/class-itinerary.php:465
 msgid ""
 "La búsqueda se hace en servicios activos publicados por agencias verificadas."
 msgstr ""
 "La búsqueda se hace en servicios activos publicados por agencias verificadas."
 
-#: includes/class-itinerary.php:466 includes/class-listing-editor.php:417
+#: includes/class-itinerary.php:469 includes/class-listing-editor.php:417
 #: includes/class-metaboxes.php:679
 msgid "Anterior"
 msgstr "Anterior"
 
-#: includes/class-itinerary.php:468
+#: includes/class-itinerary.php:471
 msgid "Buscar mi itinerario"
 msgstr "Buscar mi itinerario"
 
-#: includes/class-itinerary.php:475
+#: includes/class-itinerary.php:478
 msgid ""
 "Activá JavaScript para usar el constructor paso a paso, o usá la búsqueda "
 "por destino si preferís un flujo simple."
@@ -11515,19 +11519,19 @@ msgstr ""
 "Activá JavaScript para usar el constructor paso a paso, o usá la búsqueda "
 "por destino si preferís un flujo simple."
 
-#: includes/class-itinerary.php:485
+#: includes/class-itinerary.php:488
 msgid "Todavía no agregaste ninguna experiencia."
 msgstr "Todavía no agregaste ninguna experiencia."
 
-#: includes/class-itinerary.php:487
+#: includes/class-itinerary.php:490
 msgid "Ver mi itinerario"
 msgstr "Ver mi itinerario"
 
-#: includes/class-itinerary.php:488
+#: includes/class-itinerary.php:491
 msgid "Vaciar"
 msgstr "Vaciar"
 
-#: includes/class-itinerary.php:490
+#: includes/class-itinerary.php:493
 msgid "La reserva final se hace directo con cada agencia."
 msgstr "La reserva final se hace directo con cada agencia."
 

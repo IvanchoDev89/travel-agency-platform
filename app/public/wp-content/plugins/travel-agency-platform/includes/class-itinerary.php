@@ -382,7 +382,10 @@ class TAP_Itinerary {
                 <span class="tap-itin-share-total"><?php echo esc_html(TAP_Currency::fmt($total)); ?></span>
             </div>
             <p class="tap-itin-share-note"><?php esc_html_e('Monto estimado según tarifas publicadas por persona/noche. La reserva y el pago se gestionan directo con cada agencia.', 'travel-agency-platform'); ?></p>
-            <button type="button" class="tap-btn tap-btn-secondary" onclick="window.print()"><?php esc_html_e('Imprimir itinerario', 'travel-agency-platform'); ?></button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button type="button" class="tap-btn tap-btn-secondary" onclick="window.print()"><?php esc_html_e('Imprimir itinerario', 'travel-agency-platform'); ?></button>
+                <button type="button" class="tap-btn tap-btn-primary" onclick="navigator.clipboard && navigator.clipboard.writeText(window.location.href); this.textContent='<?php echo esc_js(__('Copiado', 'travel-agency-platform')); ?>';"><?php esc_html_e('Copiar enlace', 'travel-agency-platform'); ?></button>
+            </div>
         </div>
         <?php
         return ob_get_clean();
