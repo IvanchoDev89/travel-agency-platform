@@ -350,3 +350,36 @@ Garantías implementadas en v1.5.7 (ver [`CHANGELOG.md`](CHANGELOG.md)):
 - **Cancelación de pagadas**: solo administradores; revierte comisión y ejecuta reembolso real PayPal.
 - **Settlement**: los pagos masivos/individuales pasan `owed → paid`; “Cancelar” en el historial quiere decir revertir `paid → owed`, nunca borrar dinero.
 - **Uninstall**: al eliminar el plugin, `uninstall.php` borra las 17+ tablas `tap_%`, los crons (mantenimiento, automatizaciones, refunds), las opciones/transients y los roles propios, y elimina el contenido de los CPT tras confirmación (o lo conserva si `tap_uninstall_keep_content = 1`) — ver [`INSTALLATION.md`](INSTALLATION.md).
+## New admin pages (v1.5.53+)
+
+### Travel Platform → Email templates
+- CRUD for email templates with dynamic variables.
+- Multi-locale (es_ES / en_US).
+- Log of sent emails.
+
+### Travel Platform → Affiliates
+- CRUD for external affiliates.
+- Tracking of clicks and conversions.
+- Commission release (14-day window).
+- Tax form (W-9/W-8) required before payment.
+
+### Settings → Referidos
+- Configure referral discount % and points rate.
+- View affiliate tiers (Bronze/Silver/Gold).
+
+### Settings → Referidos – Reportes
+- Metrics: clicks, bookings, completed, revenue, points.
+- Top referrers table.
+- CSV export.
+
+### Settings → Seguridad HTTP
+- HSTS (HTTPS only).
+- CSP mode (disabled / report-only / enforce).
+- CSP policy editor.
+- Report-uri for violations.
+
+### Travel Platform → Analytics
+- Booking funnel.
+- Cohort retention.
+- Top agencies and listings.
+- UTM attribution.
