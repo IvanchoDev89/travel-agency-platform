@@ -9,10 +9,28 @@ class TAP_Security_Headers {
     public static function init() {
         add_action('admin_menu', [__CLASS__, 'add_page']);
         add_action('admin_init', [__CLASS__, 'register_settings']);
+        add_action('rest_api_init', [__CLASS__, 'register_rest']);
+    }
+
+    public static function register_rest() {
+        register_rest_route('tap/v1', '/csp-report', [
+            'methods'             => 'POST',
+            'callback'            => [__CLASS__, 'handle_csp_report'],
+            'permission_callback' => '__return_true',
+        ]);
+    }
+
+    public static function handle_csp_report($request) {
+        $body = $request->get_body();
+        if ($body) {
+            error_log('CSP Violation: ' . $body);
+        }
+        return new WP_REST_Response(null, 204);
     }
 
     public static function default_policy() {
-        return "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.paypal.com https://www.sandbox.paypal.com https://www.paypalobjects.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.paypal.com https://api.sandbox.paypal.com; frame-src 'self' https://www.paypal.com https://www.sandbox.paypal.com; object-src 'none'; base-uri 'self';";
+        $report_url = rest_url('tap/v1/csp-report');
+        return "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.paypal.com https://www.sandbox.paypal.com https://www.paypalobjects.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.paypal.com https://api.sandbox.paypal.com; frame-src 'self' https://www.paypal.com https://www.sandbox.paypal.com; object-src 'none'; base-uri 'self'; report-uri {$report_url};";
     }
 
     public static function mode() {
