@@ -318,8 +318,16 @@ class TAP_Dashboard_Settings {
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Travel Platform Settings', 'travel-agency-platform'); ?></h1>
+            <nav class="tap-settings-tabs" style="margin-bottom:16px;">
+                <a href="#tab-general" class="tap-settings-tab-link is-active" data-tab="general"><?php esc_html_e('General', 'travel-agency-platform'); ?></a>
+                <a href="#tab-booking" class="tap-settings-tab-link" data-tab="booking"><?php esc_html_e('Booking', 'travel-agency-platform'); ?></a>
+                <a href="#tab-cancel" class="tap-settings-tab-link" data-tab="cancel"><?php esc_html_e('Cancelación', 'travel-agency-platform'); ?></a>
+                <a href="#tab-automations" class="tap-settings-tab-link" data-tab="automations"><?php esc_html_e('Automations', 'travel-agency-platform'); ?></a>
+                <a href="#tab-payments" class="tap-settings-tab-link" data-tab="payments"><?php esc_html_e('Pagos', 'travel-agency-platform'); ?></a>
+            </nav>
             <form method="post" action="options.php">
                 <?php settings_fields('tap_settings'); ?>
+                <div class="tap-settings-tab-content" data-tab="general">
                 <table class="form-table">
                     <tr>
                         <th><label for="tap_commission_default"><?php esc_html_e('Default Commission %', 'travel-agency-platform'); ?></label></th>
@@ -358,7 +366,9 @@ class TAP_Dashboard_Settings {
                         </td>
                     </tr>
                 </table>
+                </div>
 
+                <div class="tap-settings-tab-content" data-tab="booking" style="display:none;">
                 <h2 style="margin-top: 30px;"><?php esc_html_e('Booking Fee (client)', 'travel-agency-platform'); ?></h2>
                 <table class="form-table">
                     <tr>
@@ -377,7 +387,9 @@ class TAP_Dashboard_Settings {
                         <td><input type="number" id="tap_booking_fee_value" name="tap_booking_fee_value" min="0" step="0.01" value="<?php echo esc_attr(get_option('tap_booking_fee_value', '0')); ?>" class="regular-text" style="width: 140px;"></td>
                     </tr>
                 </table>
+                </div>
 
+                <div class="tap-settings-tab-content" data-tab="cancel" style="display:none;">
                 <h2 style="margin-top: 30px;"><?php esc_html_e('Cancellation policies (T7, booking lifecycle)', 'travel-agency-platform'); ?></h2>
                 <table class="form-table">
                     <tr>
@@ -412,7 +424,9 @@ class TAP_Dashboard_Settings {
                         </td>
                     </tr>
                 </table>
+                </div>
 
+                <div class="tap-settings-tab-content" data-tab="automations" style="display:none;">
                 <h2 style="margin-top: 30px;"><?php esc_html_e('Automations (T4, daily cron)', 'travel-agency-platform'); ?></h2>
                 <table class="form-table">
                     <tr>
@@ -459,7 +473,9 @@ class TAP_Dashboard_Settings {
                         </td>
                     </tr>
                 </table>
+                </div>
 
+                <div class="tap-settings-tab-content" data-tab="payments" style="display:none;">
                 <h2 style="margin-top: 30px;"><?php esc_html_e('PayPal Settings', 'travel-agency-platform'); ?></h2>
                 <?php if (TAP_PayPal::has_placeholder_credentials()): ?>
                     <div class="notice notice-warning inline">
@@ -528,9 +544,29 @@ class TAP_Dashboard_Settings {
                         <p class="description"><?php esc_html_e('Genera las claves en https://vapidkeys.com/ o con web-push. Sin ellas, las notificaciones caen a email.', 'travel-agency-platform'); ?></p></td>
                     </tr>
                 </table>
+                </div>
 
                 <?php submit_button(); ?>
             </form>
+            <script>
+            (function(){
+                var links = document.querySelectorAll('.tap-settings-tab-link');
+                var contents = document.querySelectorAll('.tap-settings-tab-content');
+                function show(tab) {
+                    contents.forEach(function(c){ c.style.display = (c.getAttribute('data-tab') === tab) ? '' : 'none'; });
+                    links.forEach(function(l){ l.classList.toggle('is-active', l.getAttribute('data-tab') === tab); });
+                }
+                links.forEach(function(l){
+                    l.addEventListener('click', function(e){ e.preventDefault(); show(l.getAttribute('data-tab')); });
+                });
+                if (location.hash) { show(location.hash.replace('#tab-','')); }
+            })();
+            </script>
+            <style>
+            .tap-settings-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+            .tap-settings-tab-link { padding:8px 14px; border-radius:8px; text-decoration:none; color:#475569; font-weight:600; font-size:13px; border:1px solid #e2e8f0; background:#fff; }
+            .tap-settings-tab-link.is-active { background:#0f766e; color:#fff; border-color:#0f766e; }
+            </style>
         </div>
         <?php
     }
