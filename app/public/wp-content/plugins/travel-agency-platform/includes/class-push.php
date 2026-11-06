@@ -76,11 +76,11 @@ class TAP_Push {
                 continue;
             }
             if (!empty($b->client_id)) {
-                self::send((int) $b->client_id, __('Recordatorio de tu tour', 'travel-agency-platform'), sprintf(__('Tu tour es mañana. Reserva %s.', 'travel-agency-platform'), $b->booking_code), home_url('/mi-cuenta/?seccion=bookings'));
+                self::send((int) $b->client_id, __('Recordatorio de tu tour', 'travel-agency-platform'), sprintf(__('Tu tour es mañana. Reserva %s.', 'travel-agency-platform'), $b->booking_code), home_url('/mi-cuenta/?seccion=bookings'), 'reminder');
             }
             $agency_user = (int) get_post_meta((int) $b->agency_id, '_tap_agency_user_id', true);
             if ($agency_user) {
-                self::send($agency_user, __('Recordatorio de tour', 'travel-agency-platform'), sprintf(__('Tienes un tour mañana: reserva %s.', 'travel-agency-platform'), $b->booking_code), home_url('/mi-cuenta/?seccion=bo-operations'));
+                self::send($agency_user, __('Recordatorio de tour', 'travel-agency-platform'), sprintf(__('Tienes un tour mañana: reserva %s.', 'travel-agency-platform'), $b->booking_code), home_url('/mi-cuenta/?seccion=bo-operations'), 'reminder');
             }
             update_post_meta($b->id, '_tap_reminder_sent', 1);
         }
@@ -96,11 +96,11 @@ class TAP_Push {
         if ('client' === $author_type) {
             $agency_user = (int) get_post_meta((int) $booking->agency_id, '_tap_agency_user_id', true);
             if ($agency_user) {
-                self::send($agency_user, __('Nuevo mensaje de cliente', 'travel-agency-platform'), sprintf(__('Tienes un mensaje nuevo en la reserva %s.', 'travel-agency-platform'), $booking->booking_code), home_url('/mi-cuenta/?seccion=bo-operations'));
+                self::send($agency_user, __('Nuevo mensaje de cliente', 'travel-agency-platform'), sprintf(__('Tienes un mensaje nuevo en la reserva %s.', 'travel-agency-platform'), $booking->booking_code), home_url('/mi-cuenta/?seccion=bo-operations'), 'chat');
             }
         } else {
             if (!empty($booking->client_id)) {
-                self::send((int) $booking->client_id, __('Nuevo mensaje de la agencia', 'travel-agency-platform'), sprintf(__('La agencia respondió en la reserva %s.', 'travel-agency-platform'), $booking->booking_code), home_url('/mi-cuenta/?seccion=bookings'));
+                self::send((int) $booking->client_id, __('Nuevo mensaje de la agencia', 'travel-agency-platform'), sprintf(__('La agencia respondió en la reserva %s.', 'travel-agency-platform'), $booking->booking_code), home_url('/mi-cuenta/?seccion=bookings'), 'chat');
             }
         }
     }
@@ -118,8 +118,14 @@ class TAP_Push {
      *
      * @return int Number of successful deliveries.
      */
-    public static function send($user_id, $title, $body, $url = '') {
+    public static function send($user_id, $title, $body, $url = '', $category = '') {
         $user_id = (int) $user_id;
+        if ($user_id && $category) {
+            $prefs = get_user_meta($user_id, '_tap_push_prefs', true);
+            if (is_array($prefs) && !empty($prefs) && !in_array($category, $prefs, true)) {
+                return 0; // user opted out of this category
+            }
+        }
         $subs = self::for_user($user_id);
         $sent = 0;
         if (self::is_ready() && $subs) {
@@ -313,7 +319,7 @@ class TAP_Push {
         $agency_id = (int) $booking->agency_id;
         $agency_user = (int) get_post_meta($agency_id, '_tap_agency_user_id', true);
         if ($agency_user) {
-            self::send($agency_user, __('Nueva reserva', 'travel-agency-platform'), sprintf(__('Reserva %s creada.', 'travel-agency-platform'), $booking->booking_code), home_url('/mi-cuenta/?seccion=bo-operations'));
+            self::send($agency_user, __('Nueva reserva', 'travel-agency-platform'), sprintf(__('Reserva %s creada.', 'travel-agency-platform'), $booking->booking_code), home_url('/mi-cuenta/?seccion=bo-operations'), 'new_booking');
         }
     }
 
@@ -329,11 +335,11 @@ class TAP_Push {
             return;
         }
         if (!empty($booking->client_id)) {
-            self::send((int) $booking->client_id, __('Pago recibido', 'travel-agency-platform'), sprintf(__('Tu pago para la reserva %s fue recibido.', 'travel-agency-platform'), $booking->booking_code), home_url('/mi-cuenta/?seccion=bookings'));
+            self::send((int) $booking->client_id, __('Pago recibido', 'travel-agency-platform'), sprintf(__('Tu pago para la reserva %s fue recibido.', 'travel-agency-platform'), $booking->booking_code), home_url('/mi-cuenta/?seccion=bookings'), 'payment');
         }
         $agency_user = (int) get_post_meta((int) $booking->agency_id, '_tap_agency_user_id', true);
         if ($agency_user) {
-            self::send($agency_user, __('Pago recibido', 'travel-agency-platform'), sprintf(__('Pago recibido para la reserva %s.', 'travel-agency-platform'), $booking->booking_code), home_url('/mi-cuenta/?seccion=bo-operations'));
+            self::send($agency_user, __('Pago recibido', 'travel-agency-platform'), sprintf(__('Pago recibido para la reserva %s.', 'travel-agency-platform'), $booking->booking_code), home_url('/mi-cuenta/?seccion=bo-operations'), 'payment');
         }
     }
 

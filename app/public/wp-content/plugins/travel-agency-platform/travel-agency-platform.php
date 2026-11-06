@@ -196,6 +196,7 @@ final class TravelAgencyPlatform {
         add_action('wp_ajax_tap_set_currency', ['TAP_Ajax_Public', 'set_currency']);
         add_action('wp_ajax_nopriv_tap_set_currency', ['TAP_Ajax_Public', 'set_currency']);
         add_action('wp_ajax_tap_push_subscribe_client', ['TAP_Ajax_Public', 'push_subscribe_client']);
+        add_action('wp_ajax_tap_save_push_prefs', ['TAP_Ajax_Public', 'save_push_prefs']);
         add_action('wp_ajax_tap_submit_question', ['TAP_Ajax_Public', 'submit_question']);
         add_action('wp_ajax_nopriv_tap_submit_question', ['TAP_Ajax_Public', 'submit_question']);
         add_action('wp_ajax_tap_answer_question', ['TAP_Ajax_Public', 'answer_question']);

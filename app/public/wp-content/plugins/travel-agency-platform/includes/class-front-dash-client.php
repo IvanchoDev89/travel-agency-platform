@@ -278,6 +278,39 @@ class TAP_Front_Dash_Client {
             echo '<div class="tap-dash-section" style="margin-top:24px;">';
             echo '<h3>' . esc_html__('Notificaciones push', 'travel-agency-platform') . '</h3>';
             echo TAP_Push::render_subscribe_button([]);
+            $prefs = get_user_meta($user->ID, '_tap_push_prefs', true);
+            if (!is_array($prefs)) $prefs = [];
+            $all = ['new_booking' => __('Nuevas reservas', 'travel-agency-platform'), 'payment' => __('Pagos', 'travel-agency-platform'), 'chat' => __('Mensajes', 'travel-agency-platform'), 'reminder' => __('Recordatorios', 'travel-agency-platform')];
+            echo '<div class="tap-push-prefs" style="margin-top:12px;">';
+            echo '<p style="font-size:13px;color:#64748b;margin:0 0 8px;">' . esc_html__('Elige qué notificaciones recibir:', 'travel-agency-platform') . '</p>';
+            foreach ($all as $key => $label) {
+                $checked = empty($prefs) || in_array($key, $prefs, true);
+                echo '<label style="display:block;margin-bottom:4px;"><input type="checkbox" class="tap-push-pref" value="' . esc_attr($key) . '" ' . checked($checked, true, false) . '> ' . esc_html($label) . '</label>';
+            }
+            echo '<button type="button" class="tap-btn tap-btn-sm tap-btn-primary" id="tap-save-push-prefs" style="margin-top:8px;">' . esc_html__('Guardar preferencias', 'travel-agency-platform') . '</button>';
+            echo '<span id="tap-push-prefs-status" class="tap-agency-meta" style="margin-left:8px;"></span>';
+            echo '</div>';
+            echo '<script>
+            (function(){
+                var btn = document.getElementById("tap-save-push-prefs");
+                if (!btn) return;
+                btn.addEventListener("click", function(){
+                    var prefs = [];
+                    document.querySelectorAll(".tap-push-pref:checked").forEach(function(cb){ prefs.push(cb.value); });
+                    var fd = new FormData();
+                    prefs.forEach(function(p){ fd.append("prefs[]", p); });
+                    fd.append("action", "tap_save_push_prefs");
+                    fd.append("nonce", (window.tapDash && window.tapDash.nonce) || "");
+                    fetch((window.tapDash && window.tapDash.ajax_url) || "/wp-admin/admin-ajax.php", {method:"POST", body:fd, credentials:"same-origin"})
+                    .then(function(r){ return r.json(); })
+                    .then(function(res){
+                        var st = document.getElementById("tap-push-prefs-status");
+                        if (res && res.success) st.textContent = (res.data && res.data.message) || "Guardado.";
+                        else st.textContent = (res.data && res.data.message) || "Error.";
+                    });
+                });
+            })();
+            </script>';
             echo '</div>';
         }
 

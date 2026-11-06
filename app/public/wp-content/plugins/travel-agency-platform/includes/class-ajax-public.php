@@ -91,6 +91,18 @@ class TAP_Ajax_Public {
         wp_send_json_success(['id' => $id]);
     }
 
+    public static function save_push_prefs() {
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => __('No autorizado.', 'travel-agency-platform')], 403);
+        }
+        $prefs = isset($_POST['prefs']) && is_array($_POST['prefs']) ? array_map('sanitize_key', (array) $_POST['prefs']) : [];
+        $allowed = ['new_booking', 'payment', 'chat', 'reminder', 'review', 'promo'];
+        $prefs = array_values(array_intersect($prefs, $allowed));
+        update_user_meta(get_current_user_id(), '_tap_push_prefs', $prefs);
+        wp_send_json_success(['message' => __('Preferencias guardadas.', 'travel-agency-platform')]);
+    }
+
     public static function set_currency() {
         check_ajax_referer('tap_front_dash_nonce', 'nonce');
         $code = strtoupper(sanitize_text_field(wp_unslash($_POST['currency'] ?? '')));
