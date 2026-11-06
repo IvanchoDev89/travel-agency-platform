@@ -260,7 +260,9 @@ class TAP_Booking {
         if ($room_check_in && $room_check_in < $today) {
             return new WP_Error('past_date', __('No puedes reservar para una fecha pasada. Revisa la fecha de inicio.', 'travel-agency-platform'));
         }
-        if ($room_check_in && $room_check_out && $room_check_out <= $room_check_in) {
+        // For single-day services (tours/experiences) check_out may equal check_in.
+        $is_tour = in_array(sanitize_text_field($data['service_type'] ?? ''), ['tap_tour', 'tap_experience'], true);
+        if (!$is_tour && $room_check_in && $room_check_out && $room_check_out <= $room_check_in) {
             return new WP_Error('bad_range', __('La fecha de salida debe ser posterior a la de entrada.', 'travel-agency-platform'));
         }
 

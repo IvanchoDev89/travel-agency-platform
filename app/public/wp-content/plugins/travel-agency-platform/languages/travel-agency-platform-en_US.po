@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-06T01:31:40+00:00\n"
+"POT-Creation-Date: 2026-11-06T05:10:58+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -1137,7 +1137,7 @@ msgstr ""
 "if you can."
 
 #: includes/class-acc-wizard-steps.php:730
-#: includes/class-acc-wizard-steps.php:929 includes/class-ajax-public.php:512
+#: includes/class-acc-wizard-steps.php:929 includes/class-ajax-public.php:520
 #: includes/class-listing-editor.php:377
 #: includes/class-tour-wizard-steps.php:735
 msgid "Destino"
@@ -1792,7 +1792,7 @@ msgid "No puedes adjuntar imágenes a esa unidad."
 msgstr "You cannot attach images to that unit."
 
 #: includes/class-agency-media.php:38 includes/class-agency-media.php:70
-#: includes/class-ajax-public.php:426 includes/class-ajax-public.php:432
+#: includes/class-ajax-public.php:434 includes/class-ajax-public.php:440
 msgid "No se recibió ningún archivo."
 msgstr "No file was received."
 
@@ -1824,7 +1824,7 @@ msgstr "Server error: the file could not be written."
 msgid "Una extensión de PHP bloqueó la subida."
 msgstr "A PHP extension blocked the upload."
 
-#: includes/class-agency-media.php:75 includes/class-ajax-public.php:437
+#: includes/class-agency-media.php:75 includes/class-ajax-public.php:445
 msgid "Formato no permitido. Usa JPG, PNG, WEBP o GIF."
 msgstr "Format not allowed. Use JPG, PNG, WEBP or GIF."
 
@@ -1834,7 +1834,7 @@ msgstr "Format not allowed. Use JPG, PNG, WEBP or GIF."
 msgid "La imagen supera el tamaño máximo permitido (%s)."
 msgstr "The image exceeds the maximum allowed size (%s)."
 
-#: includes/class-agency-media.php:92 includes/class-ajax-public.php:450
+#: includes/class-agency-media.php:92 includes/class-ajax-public.php:458
 msgid "El archivo no es una imagen válida."
 msgstr "The file is not a valid image."
 
@@ -2016,7 +2016,8 @@ msgstr "Payout request sent to the administrator."
 #: includes/class-booking.php:615 includes/class-booking.php:759
 #: includes/class-booking.php:1106 includes/class-booking.php:1139
 #: includes/class-invoices.php:38 includes/class-refunds.php:40
-#: includes/class-travel-insurance.php:37 includes/class-waiver.php:72
+#: includes/class-travel-insurance.php:37
+#: includes/class-travel-insurance.php:128 includes/class-waiver.php:72
 #: includes/class-waiver.php:115
 msgid "Reserva no encontrada."
 msgstr "Booking not found."
@@ -2040,7 +2041,7 @@ msgstr "Agency"
 
 #: includes/class-ajax-dash.php:129 includes/class-ajax-dash.php:157
 #: includes/class-ajax-dash.php:372 includes/class-api.php:418
-#: includes/class-api.php:577 includes/class-shuttle.php:110
+#: includes/class-api.php:577 includes/class-shuttle.php:116
 msgid "Parámetros inválidos."
 msgstr "Invalid parameters."
 
@@ -2235,7 +2236,7 @@ msgstr ""
 "Submitted for review. An administrator will approve it and it will become "
 "visible."
 
-#: includes/class-ajax-listing.php:541 includes/class-ajax-public.php:412
+#: includes/class-ajax-listing.php:541 includes/class-ajax-public.php:420
 #: includes/class-booking.php:619 includes/class-booking.php:754
 msgid "Debes iniciar sesión."
 msgstr "You must log in."
@@ -2313,47 +2314,55 @@ msgstr "Push not available."
 msgid "Datos inválidos."
 msgstr "Invalid data."
 
-#: includes/class-ajax-public.php:97 includes/class-ajax.php:450
+#: includes/class-ajax-public.php:92
+msgid "Endpoint no válido."
+msgstr "Invalid endpoint."
+
+#: includes/class-ajax-public.php:96
+msgid "El endpoint debe usar HTTPS."
+msgstr "The endpoint must use HTTPS."
+
+#: includes/class-ajax-public.php:105 includes/class-ajax.php:450
 #: includes/class-front-dash.php:909
 msgid "No autorizado."
 msgstr "Unauthorized."
 
-#: includes/class-ajax-public.php:103
+#: includes/class-ajax-public.php:111
 msgid "Preferencias guardadas."
 msgstr "Preferences saved."
 
-#: includes/class-ajax-public.php:110
+#: includes/class-ajax-public.php:118
 msgid "Moneda inválida."
 msgstr "Invalid currency."
 
-#: includes/class-ajax-public.php:120
+#: includes/class-ajax-public.php:128
 msgid "Demasiadas solicitudes. Esperá unos minutos e intentá de nuevo."
 msgstr "Too many requests. Please wait a few minutes and try again."
 
-#: includes/class-ajax-public.php:212
+#: includes/class-ajax-public.php:220
 msgid "Invalid request"
 msgstr "Invalid request"
 
-#: includes/class-ajax-public.php:341
+#: includes/class-ajax-public.php:349
 msgid "Parámetros inválidos"
 msgstr "Invalid parameters"
 
-#: includes/class-ajax-public.php:421
+#: includes/class-ajax-public.php:429
 msgid "No puedes subir imágenes para esta reseña."
 msgstr "You cannot upload images for this review."
 
-#: includes/class-ajax-public.php:443
+#: includes/class-ajax-public.php:451
 msgid "La imagen supera el tamaño máximo permitido (5 MB)."
 msgstr "The image exceeds the maximum allowed size (5 MB)."
 
-#: includes/class-ajax-public.php:495 includes/class-booking.php:62
+#: includes/class-ajax-public.php:503 includes/class-booking.php:62
 #: includes/class-emails-send.php:747 includes/class-itinerary.php:31
 #: includes/class-itinerary.php:88 includes/class-shortcode-booking.php:1069
 #: includes/class-taxonomies.php:278
 msgid "Alojamiento"
 msgstr "Accommodation"
 
-#: includes/class-ajax-public.php:550
+#: includes/class-ajax-public.php:558
 msgid "Invalid accommodation"
 msgstr "Invalid accommodation"
 
@@ -4138,7 +4147,7 @@ msgstr "Entry cancelled."
 msgid "Faltan datos."
 msgstr "Missing data."
 
-#: includes/class-dashboard-market.php:253 includes/class-ical-import.php:170
+#: includes/class-dashboard-market.php:253 includes/class-ical-import.php:181
 msgid "No se pudieron obtener eventos del feed."
 msgstr "Could not fetch events from feed."
 
@@ -11450,6 +11459,10 @@ msgstr "Log Out"
 msgid "URL y room_id requeridos."
 msgstr "URL and room_id required."
 
+#: includes/class-ical-import.php:176
+msgid "No tienes permiso para este listado."
+msgstr "You do not have permission for this listing."
+
 #: includes/class-ical.php:30
 msgid "Servicio no encontrado."
 msgstr "Service not found."
@@ -11502,7 +11515,7 @@ msgid "Itinerario no encontrado."
 msgstr "Itinerary not found."
 
 #: includes/class-itinerary-collab.php:164
-#: includes/class-itinerary-collab.php:183 includes/class-shuttle.php:144
+#: includes/class-itinerary-collab.php:183 includes/class-shuttle.php:150
 msgid "Demasiadas solicitudes. Intenta más tarde."
 msgstr "Too many requests. Please try again later."
 
@@ -14041,16 +14054,16 @@ msgstr "Agency Admin"
 msgid "Agency Employee"
 msgstr "Agency Employee"
 
-#: includes/class-security-headers.php:76
-#: includes/class-security-headers.php:77
+#: includes/class-security-headers.php:79
+#: includes/class-security-headers.php:80
 msgid "Seguridad HTTP"
 msgstr "HTTP Security"
 
-#: includes/class-security-headers.php:120
+#: includes/class-security-headers.php:123
 msgid "Seguridad HTTP (HSTS / CSP)"
 msgstr "HTTP Security (HSTS / CSP)"
 
-#: includes/class-security-headers.php:121
+#: includes/class-security-headers.php:124
 msgid ""
 "Configura headers de seguridad. Empieza en modo \"Solo reporte\" para no "
 "romper el sitio."
@@ -14058,39 +14071,39 @@ msgstr ""
 "Configure security headers. Start in \"Report only\" mode to avoid breaking "
 "the site."
 
-#: includes/class-security-headers.php:126
+#: includes/class-security-headers.php:129
 msgid "HSTS (solo HTTPS)"
 msgstr "HSTS (HTTPS only)"
 
-#: includes/class-security-headers.php:128
+#: includes/class-security-headers.php:131
 msgid "Activar HSTS"
 msgstr "Enable HSTS"
 
-#: includes/class-security-headers.php:129
+#: includes/class-security-headers.php:132
 msgid "Solo se envía si el sitio está en HTTPS."
 msgstr "Only sent if the site uses HTTPS."
 
-#: includes/class-security-headers.php:133
+#: includes/class-security-headers.php:136
 msgid "Modo CSP"
 msgstr "CSP mode"
 
-#: includes/class-security-headers.php:136
+#: includes/class-security-headers.php:139
 msgid "Desactivado"
 msgstr "Disabled"
 
-#: includes/class-security-headers.php:137
+#: includes/class-security-headers.php:140
 msgid "Solo reporte (recomendado al inicio)"
 msgstr "Report only (recommended at first)"
 
-#: includes/class-security-headers.php:138
+#: includes/class-security-headers.php:141
 msgid "Aplicar (puede romper el sitio)"
 msgstr "Enforce (may break the site)"
 
-#: includes/class-security-headers.php:143
+#: includes/class-security-headers.php:146
 msgid "Política CSP"
 msgstr "CSP policy"
 
-#: includes/class-security-headers.php:146
+#: includes/class-security-headers.php:149
 msgid "Lista blanca de recursos. Ajusta según tus CDNs."
 msgstr "Resource allowlist. Adjust to your CDNs."
 
@@ -14240,17 +14253,17 @@ msgstr "Breadcrumb"
 msgid "Home"
 msgstr "Home"
 
-#: includes/class-service-extras.php:120
+#: includes/class-service-extras.php:127
 #: includes/class-tour-wizard-steps.php:562
 msgid "Servicios extra"
 msgstr "Extra services"
 
-#: includes/class-service-extras.php:128
+#: includes/class-service-extras.php:135
 #: includes/class-tour-wizard-steps.php:572
 msgid "persona"
 msgstr "person"
 
-#: includes/class-service-extras.php:129
+#: includes/class-service-extras.php:136
 msgid "obligatorio"
 msgstr "required"
 
@@ -15626,11 +15639,11 @@ msgstr "No featured services yet"
 msgid "Check back soon for new featured listings."
 msgstr "Check back soon for new featured listings."
 
-#: includes/class-shuttle.php:150
+#: includes/class-shuttle.php:156
 msgid "Grupo inválido."
 msgstr "Invalid group."
 
-#: includes/class-shuttle.php:154
+#: includes/class-shuttle.php:160
 msgid "El shuttle está completo."
 msgstr "The shuttle is full."
 
@@ -16793,6 +16806,10 @@ msgstr "Protect your trip with insurance. Select a plan:"
 #: includes/class-travel-insurance.php:89
 msgid "Sin seguro"
 msgstr "No insurance"
+
+#: includes/class-travel-insurance.php:136
+msgid "No tienes permiso para esta reserva."
+msgstr "You do not have permission for this booking."
 
 #: includes/class-waiver.php:78
 msgid "Esta actividad no requiere waiver."
