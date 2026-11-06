@@ -221,7 +221,7 @@ class TAP_Booking {
         if (!empty($data['extras']) && is_array($data['extras']) && class_exists('TAP_Service_Extras')) {
             $adults_for_extras = $adults;
             $children_for_extras = $children;
-            $extras_total = TAP_Service_Extras::total_for(array_map('intval', (array) $data['extras']), $adults_for_extras, $children_for_extras);
+            $extras_total = TAP_Service_Extras::total_for(array_map('intval', (array) $data['extras']), $adults_for_extras, $children_for_extras, sanitize_text_field($data['service_type']), (int) $data['service_id']);
         }
         $subtotal = round($total + $extras_total, 2);
         $booking_fee = self::get_booking_fee($subtotal);

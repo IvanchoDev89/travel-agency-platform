@@ -87,6 +87,14 @@ class TAP_Ajax_Public {
         if (!$endpoint || !$p256dh || !$auth) {
             wp_send_json_error(['message' => __('Datos inválidos.', 'travel-agency-platform')], 400);
         }
+        // SSRF guard: only allow public HTTPS endpoints.
+        if (!class_exists('TAP_ICal_Import') || !TAP_ICal_Import::is_safe_url($endpoint)) {
+            wp_send_json_error(['message' => __('Endpoint no válido.', 'travel-agency-platform')], 400);
+        }
+        $parts = wp_parse_url($endpoint);
+        if (strtolower($parts['scheme'] ?? '') !== 'https') {
+            wp_send_json_error(['message' => __('El endpoint debe usar HTTPS.', 'travel-agency-platform')], 400);
+        }
         $id = TAP_Push::subscribe(get_current_user_id(), $endpoint, $p256dh, $auth);
         wp_send_json_success(['id' => $id]);
     }
@@ -255,7 +263,7 @@ class TAP_Ajax_Public {
                     // Add extras if provided.
                     $extras_total = 0;
                     if (!empty($_POST['extras']) && is_array($_POST['extras']) && class_exists('TAP_Service_Extras')) {
-                        $extras_total = TAP_Service_Extras::total_for(array_map('intval', (array) $_POST['extras']), $adults, $children);
+                        $extras_total = TAP_Service_Extras::total_for(array_map('intval', (array) $_POST['extras']), $adults, $children, $service_type, $service_id);
                     }
                     $private_upgrade = !empty($_POST['private_upgrade']);
                     $private_price = (float) get_post_meta($service_id, '_tap_tour_private_price', true);

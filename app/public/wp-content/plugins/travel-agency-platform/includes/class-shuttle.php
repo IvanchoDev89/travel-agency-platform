@@ -47,15 +47,21 @@ class TAP_Shuttle {
     public static function add_passenger($group_id, $adults = 1) {
         global $wpdb;
         $t = self::table();
-        $g = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$t} WHERE id = %d", (int) $group_id));
+        $group_id = (int) $group_id;
+        $adults = max(1, (int) $adults);
+        $g = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$t} WHERE id = %d", $group_id));
         if (!$g || $g->status !== 'open') return false;
-        $new = (int) $g->booked_passengers + (int) $adults;
-        if ($new > (int) $g->max_passengers) return false;
-        $wpdb->update($t, [
-            'booked_passengers' => $new,
-            'status'            => ($new >= (int) $g->max_passengers) ? 'full' : 'open',
-        ], ['id' => (int) $group_id]);
-        return true;
+        $max = (int) $g->max_passengers;
+        if ($max <= 0) $max = 10;
+        $new = (int) $g->booked_passengers + $adults;
+        if ($new > $max) return false;
+        $affected = $wpdb->query($wpdb->prepare(
+            "UPDATE {$t} SET booked_passengers = booked_passengers + %d,
+             status = CASE WHEN booked_passengers + %d >= max_passengers THEN 'full' ELSE 'open' END
+             WHERE id = %d AND status = 'open' AND booked_passengers + %d <= max_passengers",
+            $adults, $adults, $group_id, $adults
+        ));
+        return $affected > 0;
     }
 
     /** Dynamic price per seat based on occupancy. */

@@ -23,6 +23,9 @@ class TAP_Security_Headers {
     public static function handle_csp_report($request) {
         $body = $request->get_body();
         if ($body) {
+            // Sanitize: strip control chars and truncate.
+            $body = preg_replace('/[\r\n\t\x00-\x1F\x7F]/', ' ', $body);
+            $body = substr($body, 0, 2000);
             error_log('CSP Violation: ' . $body);
         }
         return new WP_REST_Response(null, 204);

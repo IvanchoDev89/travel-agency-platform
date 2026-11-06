@@ -165,6 +165,17 @@ class TAP_ICal_Import {
         if (!$url || !$room_id) {
             return new WP_Error('invalid', __('URL y room_id requeridos.', 'travel-agency-platform'), ['status' => 400]);
         }
+        // Ownership check.
+        if (!current_user_can('manage_options')) {
+            $uid = get_current_user_id();
+            $room = get_post($room_id);
+            $accommodation_id = $room ? (int) get_post_meta($room_id, '_tap_room_accommodation_id', true) : 0;
+            $agency = $accommodation_id ? TAP_Booking::get_agency_for_user($uid) : 0;
+            $listing_agency = $accommodation_id ? (int) get_post_meta($accommodation_id, '_tap_acc_agency_id', true) : 0;
+            if (!$agency || $agency !== $listing_agency) {
+                return new WP_Error('forbidden', __('No tienes permiso para este listado.', 'travel-agency-platform'), ['status' => 403]);
+            }
+        }
         $ranges = self::fetch($url);
         if (!$ranges) {
             return new WP_Error('no_data', __('No se pudieron obtener eventos del feed.', 'travel-agency-platform'), ['status' => 400]);

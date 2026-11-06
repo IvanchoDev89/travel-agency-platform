@@ -121,6 +121,20 @@ class TAP_Travel_Insurance {
         if (!$booking_id || !isset(self::plans()[$plan])) {
             return new WP_Error('invalid', __('Datos inválidos.', 'travel-agency-platform'), ['status' => 400]);
         }
+        // Ownership check: only the booking owner or the agency/admin may issue.
+        global $wpdb;
+        $booking = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_bookings WHERE id = %d", $booking_id));
+        if (!$booking) {
+            return new WP_Error('not_found', __('Reserva no encontrada.', 'travel-agency-platform'), ['status' => 404]);
+        }
+        $uid = get_current_user_id();
+        $is_admin = current_user_can('manage_options');
+        $is_owner = ((int) $booking->client_id === $uid);
+        $agency = $booking->agency_id ? TAP_Booking::get_agency_for_user($uid) : 0;
+        $is_agency = $agency && (int) $agency === (int) $booking->agency_id;
+        if (!$is_admin && !$is_owner && !$is_agency) {
+            return new WP_Error('forbidden', __('No tienes permiso para esta reserva.', 'travel-agency-platform'), ['status' => 403]);
+        }
         $id = self::issue($booking_id, $plan);
         if (is_wp_error($id)) {
             return $id;

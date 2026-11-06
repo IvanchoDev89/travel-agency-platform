@@ -150,7 +150,7 @@ $formats[] = '%d'; }
         }
 
         $affected = $wpdb->query($wpdb->prepare(
-            "UPDATE {$t} SET booked = booked + %d WHERE id = %d AND (capacity = 0 OR booked + %d <= %d)",
+            "UPDATE {$t} SET booked = booked + %d WHERE id = %d AND booked + %d <= %d",
             $adults, $slot_id, $adults, $capacity
         ));
         return $affected > 0;

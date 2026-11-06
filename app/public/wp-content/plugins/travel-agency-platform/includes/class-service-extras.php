@@ -91,13 +91,20 @@ $formats[] = '%d'; }
     }
 
     /** Calculate total for selected extras. */
-    public static function total_for($extra_ids, $adults = 1, $children = 0) {
+    public static function total_for($extra_ids, $adults = 1, $children = 0, $service_type = '', $service_id = 0) {
         if (empty($extra_ids)) return 0;
         $ids = array_map('intval', (array) $extra_ids);
         $placeholders = implode(',', array_fill(0, count($ids), '%d'));
         global $wpdb;
         $t = self::table();
-        $rows = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$t} WHERE id IN ({$placeholders})", $ids)) ?: [];
+        $where = "id IN ({$placeholders})";
+        $params = $ids;
+        if ($service_type && $service_id) {
+            $where .= ' AND service_type = %s AND service_id = %d';
+            $params[] = sanitize_key($service_type);
+            $params[] = (int) $service_id;
+        }
+        $rows = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$t} WHERE {$where}", $params)) ?: [];
         $total = 0;
         foreach ($rows as $r) {
             $price = (float) $r->price;

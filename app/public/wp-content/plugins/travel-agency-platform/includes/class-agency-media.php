@@ -201,10 +201,20 @@ class TAP_Agency_Media {
         }
 
         $resolved = gethostbynamel((string) $host);
-        if (!$resolved || !is_array($resolved)) {
+        $ips = is_array($resolved) ? $resolved : [];
+        // IPv6 (AAAA) records.
+        $v6 = @dns_get_record($host, DNS_AAAA);
+        if (is_array($v6)) {
+            foreach ($v6 as $r) {
+                if (!empty($r['ipv6'])) {
+                    $ips[] = $r['ipv6'];
+                }
+            }
+        }
+        if (empty($ips)) {
             return false;
         }
-        foreach ($resolved as $address) {
+        foreach ($ips as $address) {
             if (!self::is_public_ip($address)) {
                 return false;
             }
