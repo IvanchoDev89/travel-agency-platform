@@ -630,6 +630,14 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
             <input type="hidden" name="service_type" value="<?php echo esc_attr($pt); ?>">
             <input type="hidden" name="service_id" value="<?php echo esc_attr($id); ?>">
             <input type="hidden" name="referral_code" value="<?php echo esc_attr(class_exists('TAP_Customer_Referrals') ? TAP_Customer_Referrals::active_code() : ''); ?>">
+            <div class="tap-bw-field tap-bw-field-full" style="margin-bottom:8px;">
+                <label><?php esc_html_e('Código de cupón', 'travel-agency-platform'); ?></label>
+                <div style="display:flex;gap:6px;">
+                    <input type="text" name="coupon_code" id="bw-coupon-code" class="tap-input" placeholder="<?php esc_attr_e('Ingresa tu cupón', 'travel-agency-platform'); ?>">
+                    <button type="button" class="tap-btn tap-btn-sm" id="bw-apply-coupon"><?php esc_html_e('Aplicar', 'travel-agency-platform'); ?></button>
+                </div>
+                <span id="bw-coupon-status" class="tap-field-hint"></span>
+            </div>
 
             <?php if ($needs_date): ?>
             <?php if ('tap_tour' === $pt): ?>
@@ -717,6 +725,10 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
               <div class="tap-bw-total-row tap-bw-referral-row" id="bw-referral" style="display:none;">
                 <span><?php esc_html_e('Descuento referido', 'travel-agency-platform'); ?></span>
                 <span id="bw-referral-amount">$0</span>
+              </div>
+              <div class="tap-bw-total-row tap-bw-coupon-row" id="bw-coupon" style="display:none;">
+                <span><?php esc_html_e('Descuento cupón', 'travel-agency-platform'); ?></span>
+                <span id="bw-coupon-amount">$0</span>
               </div>
               <div class="tap-bw-total-row tap-bw-total-final">
                 <span><?php esc_html_e('Total', 'travel-agency-platform'); ?></span>
@@ -812,7 +824,8 @@ jQuery(document).ready(function($) {
       children: parseInt($('#bw-children').val() || '0', 10),
       slot_id: slotId,
       private_upgrade: $('#bw-private-upgrade').is(':checked') ? 1 : 0,
-      referral_code: $('input[name="referral_code"]').val() || ''
+      referral_code: $('input[name="referral_code"]').val() || '',
+      coupon_code: $('#bw-coupon-code').val() || ''
     }).done(function(res) {
       if (res && res.success) {
         $('#bw-total').show();
@@ -829,6 +842,17 @@ jQuery(document).ready(function($) {
           $('#bw-referral').show();
         } else {
           $('#bw-referral').hide();
+        }
+        var couponDiscount = Number(res.data.coupon_discount || 0);
+        if (couponDiscount > 0) {
+          $('#bw-coupon-amount').text('-' + tapSym + couponDiscount.toFixed(tapDecimals));
+          $('#bw-coupon').show();
+          $('#bw-coupon-status').text('<?php echo esc_js(__('Cupón aplicado.', 'travel-agency-platform')); ?>').css('color', '#0f766e');
+        } else if (res.data.coupon_code) {
+          $('#bw-coupon').hide();
+          $('#bw-coupon-status').text('<?php echo esc_js(__('Cupón inválido o expirado.', 'travel-agency-platform')); ?>').css('color', '#dc2626');
+        } else {
+          $('#bw-coupon').hide();
         }
         $('#bw-total-amount').text(tapSym + res.data.total.toFixed(tapDecimals));
         tapFull = false;

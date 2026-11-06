@@ -134,6 +134,7 @@ final class TravelAgencyPlatform {
         }
         add_action('init', ['TAP_Referral_Reports', 'init'], 15);
         add_action('init', ['TAP_Referral_Leaderboard', 'init'], 15);
+        add_action('init', ['TAP_Coupons', 'init'], 15);
         add_action('init', ['TAP_Affiliates', 'init'], 15);
         add_action('init', ['TAP_Email_Templates', 'init'], 15);
         add_action('init', ['TAP_Security_Headers', 'init'], 15);

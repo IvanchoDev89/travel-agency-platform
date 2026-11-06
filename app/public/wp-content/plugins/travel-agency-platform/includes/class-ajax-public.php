@@ -293,6 +293,16 @@ class TAP_Ajax_Public {
             list($referral_code, $referrer, $referral_discount) = TAP_Customer_Referrals::resolve_for_booking($client_id, $total + $fee, isset($_POST['referral_code']) ? sanitize_text_field(wp_unslash($_POST['referral_code'])) : '', $guest_email); // phpcs:ignore WordPress.Security.NonceVerification.Missing
         }
 
+        // Coupon discount.
+        $coupon_code = isset($_POST['coupon_code']) ? sanitize_text_field(wp_unslash($_POST['coupon_code'])) : '';
+        $coupon_discount = 0.0;
+        if ($coupon_code && class_exists('TAP_Coupons')) {
+            $coupon = TAP_Coupons::validate($coupon_code, $total + $fee);
+            if ($coupon) {
+                $coupon_discount = TAP_Coupons::discount_for($coupon, $total + $fee);
+            }
+        }
+
         // Capacity response for tours.
         $capacity_response = null;
         if ($service_type === 'tap_tour') {
@@ -310,7 +320,7 @@ class TAP_Ajax_Public {
             }
         }
 
-        $final_total = round($total + $fee - $referral_discount, 2);
+        $final_total = round($total + $fee - $referral_discount - $coupon_discount, 2);
         if ($final_total < 0) {
             $final_total = 0;
         }
@@ -320,6 +330,8 @@ class TAP_Ajax_Public {
             'fee'               => $fee,
             'referral_code'     => $referral_code,
             'referral_discount' => $referral_discount,
+            'coupon_code'       => $coupon_code,
+            'coupon_discount'   => $coupon_discount,
             'base_total'       => $base_total,
             'savings'          => $savings,
             'discounts'        => $discounts,

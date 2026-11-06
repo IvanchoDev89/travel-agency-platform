@@ -246,6 +246,23 @@ class TAP_Booking {
             }
         }
 
+        // Coupon discount.
+        $coupon_code = isset($data['coupon_code']) ? sanitize_text_field($data['coupon_code']) : '';
+        $coupon_discount = 0.0;
+        if ($coupon_code && class_exists('TAP_Coupons')) {
+            $coupon = TAP_Coupons::validate($coupon_code, $total);
+            if ($coupon) {
+                $coupon_discount = TAP_Coupons::discount_for($coupon, $total);
+                if ($coupon_discount > 0) {
+                    $total = round($total - $coupon_discount, 2);
+                    if ($total < 0) $total = 0;
+                }
+            }
+        }
+        if ($coupon_code && $coupon_discount > 0 && class_exists('TAP_Coupons')) {
+            TAP_Coupons::mark_used($coupon_code);
+        }
+
         $nights = 0;
         if (!empty($data['check_in']) && !empty($data['check_out'])) {
             $d1 = new DateTime($data['check_in']);

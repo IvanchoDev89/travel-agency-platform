@@ -268,6 +268,22 @@ class TAP_Installer {
                 KEY status (status)
             ) $charset;",
 
+            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_coupons (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                code varchar(40) NOT NULL,
+                discount_type varchar(20) NOT NULL DEFAULT 'percent',
+                discount_value decimal(10,2) NOT NULL DEFAULT 0,
+                max_uses int(11) NOT NULL DEFAULT 0,
+                used_count int(11) NOT NULL DEFAULT 0,
+                min_amount decimal(10,2) NOT NULL DEFAULT 0,
+                expires_at datetime DEFAULT NULL,
+                is_active tinyint(1) NOT NULL DEFAULT 1,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                UNIQUE KEY code (code),
+                KEY is_active (is_active)
+            ) $charset;",
+
             "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_customer_referrals (
                 id bigint(20) NOT NULL AUTO_INCREMENT,
                 referrer_user_id bigint(20) NOT NULL,
