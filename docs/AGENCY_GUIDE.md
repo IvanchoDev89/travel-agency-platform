@@ -201,3 +201,30 @@ Los bookings quedan ligados por `service_id` + agencia; el panel solo muestra re
 - **Last Minute**: % dentro de la ventana previa al check-in.
 - **Long Stay**: % por tramos de noches.
 - Son configurables **por alojamiento** (override `_tap_acc_promos`) o se heredan de los **globales** del sitio (Travel Platform → Descuentos y Promociones). El cliente ve el desglose de descuentos en el checkout.
+## New features (v1.5.53+)
+
+### Onboarding
+- **Checklist** "Primeros pasos" en el dashboard (crear servicio, fotos, precios, disponibilidad, publicar).
+- **Email drip**: emails automáticos (día 1, 3, 7) con tips.
+- **Tour guiado**: tooltips interactivos en el primer login.
+- **Recursos**: enlaces rápidos a crear tour, gestionar listados, ver planes.
+
+### Referrals (agencia)
+- **Programa de referidos B2B**: código único por agencia.
+- **Comisión del 10%** sobre las comisiones de la agencia referida durante 12 meses.
+- Tracking de clicks y conversiones.
+
+### Promotions (destacados)
+- **Tours destacados**: badge "Destacado" en resultados de búsqueda.
+- **Ordenamiento prioritario**: destacados aparecen primero.
+- **Carrusel en home**: sección de tours destacados.
+
+### Financial dashboard
+- **Gráfico de comisiones por mes** (últimos 6 meses).
+- **Proyección** de los próximos 3 meses.
+- **Comisiones escalonadas** por volumen mensual (+2% / +5%).
+
+### Notifications
+- **Push notifications** para nuevas reservas, pagos, mensajes.
+- **Preferencias granulares** (elegir qué recibir).
+- **Recordatorio 24h** antes del tour.
