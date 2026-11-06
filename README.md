@@ -28,8 +28,8 @@ Built as a custom WordPress plugin (`travel-agency-platform`) paired with a dedi
 | **Product** | Travel Agency Platform |
 | **Type** | WordPress plugin + companion theme |
 | **Model** | B2B & B2C multi-agency marketplace |
-| **Current version** | `1.5.52` |
-| **Schema version** | `1.5.52` |
+| **Current version** | `1.5.55` |
+| **Schema version** | `1.5.55` |
 | **Text domain** | `travel-agency-platform` |
 | **Companion theme** | `travel-agency-theme` |
 | **License** | Proprietary (IvanchoDev) |
@@ -78,6 +78,47 @@ The platform orchestrates three core actors:
 - Star ratings with average aggregation; **only confirmed/completed + paid** bookings may leave a review (verified badge).
 - Approval workflow with **automated moderation** (abuse/spam/≥3 links → blocked; PII on reviews → blocked; 1–2 links, gibberish and PII on leads → queued for review).
 - **Platform responses** to reviews by the admin (author + timestamp, nonce-protected), and clients can delete their own review.
+- **Reviews with photos**: clients can upload up to 6 photos with their review.
+
+### Referrals & Growth (B2C)
+- **Referral program**: unique code per user, discount for invitee, points for referrer (awarded after payment).
+- **Affiliate tiers**: Bronze/Silver/Gold based on completed referrals (bonus discount + points rate).
+- **Gamification**: public leaderboard, QR code, shareable link.
+- **Admin dashboard**: metrics, top referrers, CSV export.
+
+### Push Notifications
+- **Web Push** (VAPID) with email fallback.
+- **Granular preferences**: clients choose which notifications to receive.
+- **Event-driven**: booking created, payment received, chat message, 24h reminder.
+- **Service worker** with offline fallback and install prompt (PWA base).
+
+### Email System
+- **Template editor** in admin (CRUD, variables, multi-locale, log).
+- **Automated emails**: welcome, payment receipt, reminders, pre-arrival, review request.
+- **Fallback** to hardcoded templates if no DB template.
+
+### Security
+- **HSTS/CSP** configurable (report-only or enforce).
+- **Rate limiting** on booking creation, search, referral clicks.
+- **Anti-fraud**: self-referral blocking, IP rate limits, idempotency.
+- **Audit log** for sensitive actions.
+- **Headers**: X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy.
+
+### Admin Dashboard
+- **Booking calendar view** (month grid with bookings).
+- **Bulk actions** (confirm, complete, cancel multiple).
+- **Internal notes** per booking.
+- **Printable invoices/vouchers** (browser print to PDF).
+- **Automated alerts** (booking drop, negative reviews).
+- **Email templates CRUD**.
+
+### Agencies (B2B)
+- **Onboarding checklist** with progress tracking.
+- **Email drip** (day 1, 3, 7) for new agencies.
+- **Interactive guided tour** for first-time agency users.
+- **Financial dashboard** with monthly chart and projection.
+- **Commissions tiers** (volume-based bonus).
+- **Featured listings** (paid promotion with badge and priority sorting).
 - SEO-friendly rating markup (schema.org `AggregateRating`, `Offer`).
 
 ### Search & Discovery
