@@ -9,7 +9,7 @@ class TAP_Affiliates {
 
     public static function init() {
         add_action('init', [__CLASS__, 'maybe_track_click'], 5);
-        add_action('admin_menu', [__CLASS__, 'add_page']);
+        add_action('admin_menu', [__CLASS__, 'add_page'], 40);
         add_action('admin_init', [__CLASS__, 'handle_actions']);
         add_action('tap_payment_completed', [__CLASS__, 'on_payment_completed'], 30, 1);
         // Daily release of pending commissions.
