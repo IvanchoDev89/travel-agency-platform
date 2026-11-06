@@ -273,13 +273,23 @@ class TAP_Agency_Media {
     private static function may_reuse_attachment($att, $uid, $context_id) {
         $context_id = (int) $context_id;
         if ($context_id) {
-            if ((int) get_post_thumbnail_id($context_id) === (int) $att->ID) {
-                return true;
+            // Only trust the listing's own media if the caller actually owns it.
+            $caller_agency = self::agency_id_for_user((int) $uid);
+            $listing_agency = 0;
+            foreach (['_tap_acc_agency_id', '_tap_tour_agency_id'] as $ak) {
+                $v = (int) get_post_meta($context_id, $ak, true);
+                if ($v > 0) { $listing_agency = $v; break; }
             }
-            foreach (['_tap_acc_gallery', '_tap_room_gallery'] as $gallery_key) {
-                $gallery = (string) get_post_meta($context_id, $gallery_key, true);
-                if ('' !== $gallery && in_array((string) $att->ID, array_map('trim', explode(',', $gallery)), true)) {
+            if ($caller_agency > 0 && $listing_agency > 0 && $caller_agency === $listing_agency) {
+                if ((int) get_post_thumbnail_id($context_id) === (int) $att->ID) {
                     return true;
+                }
+                $gallery_keys = ['_tap_acc_gallery', '_tap_room_gallery', '_tap_tour_gallery', '_tap_trans_gallery', '_tap_car_gallery', '_tap_boat_gallery', '_tap_pkg_gallery', '_tap_eq_gallery'];
+                foreach ($gallery_keys as $gallery_key) {
+                    $gallery = (string) get_post_meta($context_id, $gallery_key, true);
+                    if ('' !== $gallery && in_array((string) $att->ID, array_map('trim', explode(',', $gallery)), true)) {
+                        return true;
+                    }
                 }
             }
         }
