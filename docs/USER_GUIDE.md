@@ -185,3 +185,32 @@ El tema ofrece un selector de idioma **ES / EN**. Con el switcher, las secciones
 
 > Para detalles técnicos (arquitectura, hooks, APIs, shortcodes), vea [`docs/DEVELOPER_GUIDE.md`](DEVELOPER_GUIDE.md).
 > Historias y changelog completos: [`docs/CHANGELOG.md`](CHANGELOG.md).
+## New features (v1.5.53+)
+
+### Referrals (Invita y gana)
+- **Código único** por usuario.
+- **Descuento** para el invitado (10% por defecto).
+- **Puntos** para el referidor (tras pago completado).
+- **Niveles**: Bronce, Plata, Oro (más referidos = mejores bonos).
+- **QR y enlace compartible**.
+- **Panel** en Mi cuenta → Puntos y referidos.
+- **Leaderboard** público de top referidores.
+
+### Push notifications
+- **Activar** desde el dashboard (campana).
+- **Preferencias**: elegir qué recibir (reservas, pagos, mensajes, recordatorios).
+- **Recordatorio 24h** antes del tour.
+- **Fallback a email** si push no disponible.
+
+### Favorites (favoritos)
+- **Lista compartible**: botón "Compartir mi lista" genera URL.
+- **Vista compartida**: `/shared-favorites?favs=1,2,3`.
+
+### Itinerary (planificador)
+- **Rediseño moderno**: hero, timeline, cards por día.
+- **Botón "Reservar"** en cada actividad.
+- **Compartir**: copiar enlace, WhatsApp, imprimir.
+
+### Language
+- **Selector de idioma** en el header (ES · EN).
+- **Moneda por idioma** (USD en inglés, CRC en español).
