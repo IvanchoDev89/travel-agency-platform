@@ -682,3 +682,38 @@ The visitor-facing UI is **bilingual (ES/EN)** with **Spanish as the default**. 
 - All database access goes through `$wpdb` (never raw `mysqli`).
 - Money is stored as `decimal(15,2)` and formatted with `TAP_Currency`.
 - Migrations must remain **idempotent**.
+## New classes (v1.5.53-v1.5.55)
+
+### Referrals & Growth
+- `TAP_Customer_Referrals`: customer referral program (code, discount, points, tiers, QR, dashboard).
+- `TAP_Referral_Reports`: admin reports for referrals (metrics, top referrers, CSV export).
+- `TAP_Referral_Leaderboard`: public leaderboard shortcode.
+
+### Affiliates
+- `TAP_Affiliates`: external affiliate program (pilot) with CRUD, tracking, commissions.
+
+### Security
+- `TAP_Security_Headers`: HSTS/CSP configurable with report-only/enforce modes.
+
+### Email
+- `TAP_Email_Templates`: CRUD editor for email templates with variables and log.
+
+### Analytics
+- `TAP_Analytics::cohort_retention()`: cohort retention calculation.
+
+### New tables
+- `tap_customer_referrals`, `tap_affiliates`, `tap_affiliate_clicks`, `tap_affiliate_conversions`, `tap_email_templates`, `tap_email_log`.
+
+### New shortcodes
+- `[tap_referral_dashboard]`, `[tap_referral_leaderboard]`, `[tap_shared_favorites]`.
+
+### New REST endpoints
+- `POST /tap/v1/csp-report`: CSP violation reports.
+- `POST /tap/v1/push/subscribe`, `/tap/v1/push/unsubscribe`.
+
+### New hooks
+- `tap_payment_completed`: triggers referral points, invoice issuance, push notifications.
+- `tap_admin_alerts_hook`: daily cron for admin alerts.
+- `tap_push_reminders_hook`: daily cron for tour reminders.
+- `tap_affiliate_release_hook`: daily cron for commission release.
+- `tap_points_expiry_hook`: daily cron for point expiration.
