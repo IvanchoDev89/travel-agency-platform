@@ -6,6 +6,49 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [Unreleased] — 2026-11-05
+
+### Added
+- **Referidos B2C**: programa completo (código, descuento, puntos, niveles, QR, dashboard, reportes, anti-fraude, leaderboard).
+- **Push notifications**: suscripción, eventos (booking, pago, chat), recordatorio 24h, preferencias granulares.
+- **Email templates**: editor CRUD en admin con variables y log.
+- **Afiliados externos**: piloto con tablas, CRUD admin, tracking, comisiones.
+- **Analytics**: cohortes de retención, UTM tracking, dashboard financiero con gráficos y proyección.
+- **Admin**: acciones masivas, vista de calendario, notas internas, exportación PDF, alertas automáticas, tabs en settings.
+- **Onboarding**: checklist persistente, email drip (día 1, 3, 7), tour guiado interactivo.
+- **UX**: calendario interactivo, widget mobile sticky, microinteracciones, empty states, nav moderno.
+- **Monetización**: comisiones escalonadas, featured listings (badge + ordenamiento + carrusel home), upsells (extras + privado).
+- **Seguridad**: headers HSTS/CSP configurables, report-uri, rate limiting, anti-fraude.
+- **Internacionalización**: Polylang integrado, moneda por idioma, hreflang, selector de idioma.
+- **Favoritos compartibles**: lista compartible via URL.
+- **Itinerario**: rediseño moderno (hero, timeline, cards, copiar enlace).
+- **Landing page**: secciones de referidos y agencias, CTA en hero.
+- **PWA**: manifest, service worker, offline fallback, install prompt.
+
+### Changed
+- Tour wizard: refactor URL-based con navegación client-side.
+- Ficha de tour: rediseño profesional (hero, galería, breadcrumb).
+- Admin settings: unificado en tabs.
+- Booking list: vista de calendario + acciones masivas.
+
+### Fixed
+- SQL operator-precedence en `book_slot()`.
+- `upload_review_image` sin validación MIME/tamaño.
+- Submenu de Travel Platform (Email templates y Afiliados eran primeros).
+- Nav bar roto por Polylang (restaurado).
+- `get_agency_commission` con tiered bonuses.
+- `subscribe()` devolvía ID stale.
+- 5 suites E2E pre-existentes (equipment, payments, permissions, seo, tour_catalog).
+
+### Security
+- Headers de seguridad (HSTS, CSP, nosniff, frame-options, referrer-policy).
+- Rate limiting en booking, search, referral clicks.
+- Anti-self-referral (usuario y guest email).
+- Idempotencia en referral conversions (unique key).
+- Cookie segura (HttpOnly, Secure, SameSite).
+- Upload validation (MIME real, tamaño, ownership).
+- CSP report-uri + endpoint de reportes.
+
 ## [Unreleased] — 2026-10-28
 
 ### Added
