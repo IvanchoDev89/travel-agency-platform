@@ -1,5 +1,7 @@
 # Plan detallado — Fase 0: Estabilización y seguridad base
 
+> **Estado:** ✅ Completado (2026-11-05)
+
 ## Objetivo
 Cerrar brechas de seguridad, estabilizar el código y dejar la plataforma lista para producción y crecimiento.
 

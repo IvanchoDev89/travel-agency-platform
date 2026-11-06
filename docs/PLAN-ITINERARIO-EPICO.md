@@ -1,5 +1,7 @@
 # Plan: Itinerario épico (planificador de viajes)
 
+> **Estado:** ✅ Completado (2026-11-05)
+
 ## Visión
 Convertir el planificador de itinerarios en un **generador de reservas grupales** que permita armar un viaje completo (tours + alojamientos + transporte) y reservarlo todo en un solo checkout, con colaboración y compartición.
 

@@ -1,5 +1,7 @@
 # Plan de mejoras de mercado — Travel Agency Platform
 
+> **Estado:** ✅ Completado (2026-11-05)
+
 > Fecha: 2026-10-28
 > Estado: propuesta (no implementado)
 > Prioridad: negocio + UX + monetización

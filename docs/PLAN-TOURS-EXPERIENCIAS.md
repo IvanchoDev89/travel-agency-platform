@@ -1,5 +1,7 @@
 # Plan: Tours y Experiencias — entrada completa para agencias
 
+> **Estado:** ✅ Completado (2026-11-05)
+
 ## Objetivo
 Permitir a las agencias publicar **cualquier tipo de actividad** (retiros de yoga, kayak, senderismo, etc.) con:
 - Tarifas con calendario de disponibilidad (fechas y horas).

@@ -1,5 +1,7 @@
 # Plan de mejoras de seguridad y hardening
 
+> **Estado:** ✅ Completado (2026-11-05)
+
 ## Objetivo
 Cerrar las observaciones de la auditoría de seguridad y mejorar la robustez del plugin
 Travel Agency Platform, manteniendo todas las quality gates en verde.

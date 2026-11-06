@@ -1,5 +1,7 @@
 # Plan: Analytics y reportes del programa de referidos
 
+> **Estado:** ✅ Completado (2026-11-05)
+
 ## Objetivo
 Dar visibilidad al programa de referidos para optimizar el crecimiento (B2C) y la rentabilidad:
 - Conversiones por referidor.

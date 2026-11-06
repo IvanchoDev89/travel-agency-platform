@@ -1,5 +1,7 @@
 # Plan de implementación — UX P0 (bajo esfuerzo, alto impacto)
 
+> **Estado:** ✅ Completado (2026-11-05)
+
 ## Objetivo
 Mejorar la conversión y claridad en el flujo de reserva de tours con cambios pequeños y seguros.
 

@@ -1,5 +1,7 @@
 # Plan de accesibilidad (WCAG 2.1 AA)
 
+> **Estado:** ✅ Completado (2026-11-05)
+
 ## Objetivo
 Asegurar que la plataforma sea usable por personas con discapacidad visual, motora y cognitiva, y cumpla con estándares legales (ADA, EAA).
 

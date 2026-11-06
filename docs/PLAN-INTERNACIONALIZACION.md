@@ -1,5 +1,7 @@
 # Plan: Internacionalización (i18n / multi-idioma)
 
+> **Estado:** ✅ Completado (2026-11-05)
+
 ## Objetivo
 Permitir que la plataforma se use en múltiples idiomas (ES, EN, FR, DE, etc.) para expandir el mercado.
 

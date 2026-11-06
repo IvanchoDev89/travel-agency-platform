@@ -1,5 +1,7 @@
 # Plan: UI de suscripción push + recordatorio 24h
 
+> **Estado:** ✅ Completado (2026-11-05)
+
 ## Objetivo
 Permitir que usuarios y agencias activen notificaciones push y reciban recordatorios automáticos antes de sus tours.
 

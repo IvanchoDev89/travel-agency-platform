@@ -1,5 +1,7 @@
 # Plan: Monetización avanzada (rentabilidad)
 
+> **Estado:** ✅ Completado (2026-11-05)
+
 ## Objetivo
 Maximizar ingresos por reserva y por agencia, manteniendo una experiencia justa para B2B y B2C.
 

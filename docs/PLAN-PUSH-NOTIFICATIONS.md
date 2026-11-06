@@ -1,5 +1,7 @@
 # Plan: Notificaciones push (PWA)
 
+> **Estado:** ✅ Completado (2026-11-05)
+
 ## Objetivo
 Enviar notificaciones push a usuarios (clientes y agencias) para aumentar engagement y conversión.
 

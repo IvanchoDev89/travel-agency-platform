@@ -1,5 +1,7 @@
 # Plan de implementación — UX P1 (medio esfuerzo, alto impacto)
 
+> **Estado:** ✅ Completado (2026-11-05)
+
 ## Objetivo
 Mejorar la experiencia mobile y el onboarding de agencias, aumentando conversión y retención.
 

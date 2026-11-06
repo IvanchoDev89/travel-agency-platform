@@ -1,5 +1,7 @@
 # Plan: Editor de plantillas de email
 
+> **Estado:** ✅ Completado (2026-11-05)
+
 ## Objetivo
 Permitir gestionar las plantillas de email desde el admin sin tocar código.
 

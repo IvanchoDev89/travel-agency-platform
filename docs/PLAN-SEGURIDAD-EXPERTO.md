@@ -1,5 +1,7 @@
 # Plan de seguridad — Visión experta (Fase 0)
 
+> **Estado:** ✅ Completado (2026-11-05)
+
 ## 1. Modelo de amenazas (STRIDE)
 
 ### Activos críticos

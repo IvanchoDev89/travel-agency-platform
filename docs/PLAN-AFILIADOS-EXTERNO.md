@@ -1,5 +1,7 @@
 # Plan: Programa de afiliados externos (cauteloso)
 
+> **Estado:** ✅ Completado (2026-11-05)
+
 ## Objetivo
 Permitir que partners externos promocionen tours y ganen comisión, sin riesgos legales ni pérdidas económicas.
 
