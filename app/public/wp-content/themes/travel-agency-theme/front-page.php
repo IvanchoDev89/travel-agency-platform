@@ -1,6 +1,5 @@
 <?php get_header(); ?>
 
-<a href="#main-content" class="tap-skip-link"><?php esc_html_e('Saltar al contenido', 'travel-agency-platform'); ?></a>
 <div id="main-content"></div>
 
 <?php

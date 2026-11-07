@@ -47,7 +47,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            &copy; <?php echo date('Y'); ?> <?php bloginfo('name'); ?>. <?php _e('All rights reserved.', 'travel-agency-platform'); ?>
+            &copy; <?php echo esc_html(gmdate('Y')); ?> <?php bloginfo('name'); ?>. <?php _e('All rights reserved.', 'travel-agency-platform'); ?>
         </div>
     </div>
 </footer>

@@ -85,7 +85,7 @@ function tap_customizer_css() {
     $css .= '--tap-neutral-900: ' . esc_attr($text) . ';';
     $css .= '--tap-neutral-500: ' . esc_attr($text_muted) . ';';
     $css .= '--tap-border: ' . esc_attr($border) . ';';
-    $css .= '--tap-font-sans: ' . $font_stack . ';';
+    $css .= '--tap-font-sans: ' . esc_attr($font_stack) . ';';
     $css .= '--tap-text-base: ' . $font_size . 'px;';
     $css .= '--tap-container-max: ' . $container . 'px;';
     $css .= '--tap-section-padding: ' . $padding . 'px;';
@@ -161,7 +161,7 @@ class TAT_Nav_Walker extends Walker_Nav_Menu {
         $item_output .= '</a>';
 
         if ($has_children) {
-            $item_output .= '<button class="submenu-toggle" aria-label="' . esc_attr__('Toggle submenu', 'travel-agency-platform') . '">';
+            $item_output .= '<button class="submenu-toggle" aria-label="' . esc_attr__('Toggle submenu', 'travel-agency-platform') . '" aria-expanded="false" aria-controls="submenu-' . (int) $item->ID . '">';
             $item_output .= '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>';
             $item_output .= '</button>';
         }
