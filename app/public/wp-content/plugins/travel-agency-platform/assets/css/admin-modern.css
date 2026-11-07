@@ -1,0 +1,124 @@
+/* ===== Admin Modern Theme ===== */
+
+/* Sidebar */
+#adminmenu .wp-has-current-submenu > a.menu-top,
+#adminmenu .wp-has-current-submenu > a.menu-top:hover {
+    background: linear-gradient(135deg, #0f766e, #14b8a6);
+    color: #fff;
+    border-radius: 8px 0 0 8px;
+    margin-right: 0;
+}
+#adminmenu .wp-submenu {
+    background: #1e293b;
+    border-left: 3px solid #14b8a6;
+}
+#adminmenu .wp-submenu a {
+    color: #cbd5e1;
+    padding: 6px 12px;
+    border-radius: 6px;
+    margin: 2px 4px;
+    transition: background .15s ease, color .15s ease;
+}
+#adminmenu .wp-submenu a:hover {
+    background: rgba(20,184,166,0.15);
+    color: #fff;
+}
+#adminmenu .wp-submenu a.current {
+    background: rgba(20,184,166,0.25);
+    color: #fff;
+    font-weight: 600;
+}
+
+/* Topbar */
+#wpadminbar {
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+#wpadminbar .ab-item, #wpadminbar a.ab-item {
+    color: #e2e8f0;
+}
+#wpadminbar .ab-item:hover, #wpadminbar a.ab-item:hover {
+    background: rgba(20,184,166,0.2);
+    color: #fff;
+}
+
+/* KPI Cards */
+.tap-stat-card, .card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    padding: 20px;
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+.tap-stat-card:hover, .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+}
+.tap-stat-number { font-size: 24px; font-weight: 800; color: #0f766e; }
+.tap-stat-label { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* Tables */
+.wp-list-table {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.wp-list-table thead th {
+    background: #f8fafc;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #475569;
+    border-bottom: 2px solid #e2e8f0;
+    padding: 12px 14px;
+}
+.wp-list-table tbody tr { transition: background .12s ease; }
+.wp-list-table tbody tr:hover { background: #f0fdfa; }
+.wp-list-table td { padding: 10px 14px; vertical-align: middle; }
+
+/* Buttons */
+.button-primary, .tap-btn-primary {
+    background: linear-gradient(135deg, #0f766e, #14b8a6) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    color: #fff !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 8px rgba(15,118,110,0.25) !important;
+    transition: transform .15s ease, box-shadow .15s ease !important;
+}
+.button-primary:hover, .tap-btn-primary:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 16px rgba(15,118,110,0.35) !important;
+}
+
+/* Form tables */
+.form-table th { font-weight: 600; color: #334155; }
+.form-table td { padding: 12px 10px; }
+.form-table input.regular-text, .form-table select, .form-table textarea {
+    border-radius: 8px; border: 1px solid #cbd5e1; padding: 8px 12px;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+.form-table input.regular-text:focus, .form-table select:focus, .form-table textarea:focus {
+    border-color: #0f766e; box-shadow: 0 0 0 3px rgba(15,118,110,0.15); outline: none;
+}
+
+/* Notices */
+.notice { border-radius: 10px; border-left-width: 4px; }
+
+/* Empty states */
+.tap-empty { color: #64748b; font-style: italic; padding: 24px; text-align: center; }
+
+/* Dark mode for admin */
+@media (prefers-color-scheme: dark) {
+    #wpcontent, #wpfooter { background: #0f172a; color: #e2e8f0; }
+    .wp-list-table { background: #1e293b; border-color: #334155; }
+    .wp-list-table thead th { background: #334155; color: #cbd5e1; border-color: #475569; }
+    .wp-list-table tbody tr:hover { background: #334155; }
+    .form-table input.regular-text, .form-table select, .form-table textarea { background: #1e293b; border-color: #475569; color: #e2e8f0; }
+    .tap-stat-card, .card { background: #1e293b; border-color: #334155; }
+}
+CSS
+echo done

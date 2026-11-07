@@ -386,6 +386,7 @@ final class TravelAgencyPlatform {
         }
         if (!$is_tap_page) return;
         wp_enqueue_style('tap-admin', TAP_PLUGIN_URL . 'assets/css/admin.css', [], TAP_VERSION);
+        wp_enqueue_style('tap-admin-modern', TAP_PLUGIN_URL . 'assets/css/admin-modern.css', ['tap-admin'], TAP_VERSION);
         wp_enqueue_script('tap-admin', TAP_PLUGIN_URL . 'assets/js/admin.js', ['jquery'], TAP_VERSION, true);
         wp_localize_script('tap-admin', 'tapAdmin', [
             'ajax_url' => admin_url('admin-ajax.php'),
