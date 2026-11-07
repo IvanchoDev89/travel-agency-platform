@@ -1279,3 +1279,23 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     outline-offset: 2px;
     border-radius: 4px;
 }
+
+/* ===== Dark mode (auto) ===== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --tap-neutral-50: #1e293b;
+    --tap-neutral-100: #334155;
+    --tap-neutral-200: #475569;
+    --tap-neutral-600: #cbd5e1;
+    --tap-neutral-700: #e2e8f0;
+    --tap-neutral-800: #f1f5f9;
+    --tap-neutral-900: #f8fafc;
+    --tap-bg: #0f172a;
+    --tap-surface: #1e293b;
+  }
+  body { background: var(--tap-bg); color: var(--tap-neutral-800); }
+  .site-header { background: rgba(15,23,42,0.85); border-bottom-color: rgba(255,255,255,0.08); }
+  .tap-service-card, .tap-acc-booking-widget, .tap-referral-dashboard { background: var(--tap-surface); border-color: var(--tap-neutral-200); }
+  .main-navigation .nav-menu a.nav-link { color: var(--tap-neutral-600); }
+  .main-navigation .nav-menu a.nav-link:hover { background: rgba(20,184,166,0.12); }
+}

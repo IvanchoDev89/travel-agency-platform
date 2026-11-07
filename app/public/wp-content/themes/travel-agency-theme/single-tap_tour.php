@@ -130,9 +130,9 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
     <?php if (!empty($gallery_ids)): ?>
     <div class="tap-tour-hero-thumbs">
         <?php foreach (array_slice($gallery_ids, 0, 5) as $gimg): ?>
-            <?php $gsrc = wp_get_attachment_image_src($gimg, 'medium'); if (!$gsrc) continue; ?>
+            <?php if (!wp_get_attachment_image_src($gimg, 'medium')) continue; ?>
             <div class="tap-tour-hero-thumb">
-                <img src="<?php echo esc_url($gsrc[0]); ?>" alt="" loading="lazy" decoding="async">
+                <?php echo wp_get_attachment_image($gimg, 'medium', false, ['loading' => 'lazy', 'decoding' => 'async', 'alt' => '']); ?>
             </div>
         <?php endforeach; ?>
         <?php if (count($gallery_ids) > 5): ?>
