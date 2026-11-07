@@ -378,7 +378,7 @@ final class TravelAgencyPlatform {
     }
 
     public function enqueue_admin_assets($hook) {
-        $is_tap_page = false !== strpos($hook, 'tap_');
+        $is_tap_page = false !== strpos($hook, 'tap_') || false !== strpos($hook, 'travel-platform');
         if (!$is_tap_page) {
             $screen = function_exists('get_current_screen') ? get_current_screen() : null;
             $pt     = $screen ? ($screen->post_type ?? '') : '';
