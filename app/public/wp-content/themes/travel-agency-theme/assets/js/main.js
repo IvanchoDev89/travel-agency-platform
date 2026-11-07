@@ -136,14 +136,21 @@
 
     /* ===== Scroll effects ===== */
     var lastScroll = 0;
+    var scrollTicking = false;
     $(window).on('scroll', function() {
-        var st = $(this).scrollTop();
-        if (st > 20) {
-            header.addClass('scrolled');
-        } else {
-            header.removeClass('scrolled');
+        if (!scrollTicking) {
+            window.requestAnimationFrame(function() {
+                var st = $(window).scrollTop();
+                if (st > 20) {
+                    header.addClass('scrolled');
+                } else {
+                    header.removeClass('scrolled');
+                }
+                lastScroll = st;
+                scrollTicking = false;
+            });
+            scrollTicking = true;
         }
-        lastScroll = st;
     });
 
     /* ===== Overflow detection: move items to "More" ===== */
@@ -358,16 +365,18 @@
         var touchStartY = 0;
         var swiping = false;
 
-        $(document).on('touchstart', function(e) {
-            var touch = e.originalEvent.touches[0];
+        document.addEventListener('touchstart', function(e) {
+            if (!e.touches || !e.touches[0]) return;
+            var touch = e.touches[0];
             touchStartX = touch.clientX;
             touchStartY = touch.clientY;
             swiping = false;
-        });
+        }, { passive: true });
 
-        $(document).on('touchmove', function(e) {
+        document.addEventListener('touchmove', function(e) {
             if (swiping || !headerCenter.hasClass('open')) return;
-            var touch = e.originalEvent.touches[0];
+            if (!e.touches || !e.touches[0]) return;
+            var touch = e.touches[0];
             var diffX = touch.clientX - touchStartX;
             var diffY = Math.abs(touch.clientY - touchStartY);
 
@@ -377,7 +386,7 @@
                 swiping = true;
                 closeMobileMenu();
             }
-        });
+        }, { passive: true });
     }
 
     manageOverflow();
