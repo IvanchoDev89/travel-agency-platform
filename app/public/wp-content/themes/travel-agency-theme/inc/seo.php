@@ -51,6 +51,11 @@ function tap_reading_time($post_id = 0) {
 
 /** Canonical + meta description (only when the plugin SEO has not covered it). */
 function tap_theme_meta($description, $canonical = '', $og_type = 'website') {
+    $title = is_front_page() ? get_bloginfo('name') . ' — ' . get_bloginfo('description') : wp_get_document_title();
+    $image = '';
+    if (is_singular()) {
+        $image = (string) get_the_post_thumbnail_url(get_queried_object_id(), 'large');
+    }
     if ($canonical) {
         echo '<link rel="canonical" href="' . esc_url($canonical) . '">' . "\n";
     }
@@ -63,11 +68,22 @@ function tap_theme_meta($description, $canonical = '', $og_type = 'website') {
         }
         echo '<meta name="description" content="' . esc_attr($description) . '">' . "\n";
         echo '<meta property="og:description" content="' . esc_attr($description) . '">' . "\n";
+        echo '<meta name="twitter:description" content="' . esc_attr($description) . '">' . "\n";
     }
     echo '<meta property="og:type" content="' . esc_attr($og_type) . '">' . "\n";
+    echo '<meta property="og:title" content="' . esc_attr($title) . '">' . "\n";
     echo '<meta property="og:site_name" content="' . esc_attr(get_bloginfo('name')) . '">' . "\n";
     if ($canonical) {
         echo '<meta property="og:url" content="' . esc_url($canonical) . '">' . "\n";
+    }
+    if ($image) {
+        echo '<meta property="og:image" content="' . esc_url($image) . '">' . "\n";
+    }
+    // Twitter
+    echo '<meta name="twitter:card" content="summary_large_image">' . "\n";
+    echo '<meta name="twitter:title" content="' . esc_attr($title) . '">' . "\n";
+    if ($image) {
+        echo '<meta name="twitter:image" content="' . esc_url($image) . '">' . "\n";
     }
 }
 
@@ -106,7 +122,7 @@ function tap_theme_home_json_ld() {
         '@id'      => home_url('/#website'),
         'name'     => get_bloginfo('name'),
         'url'      => home_url('/'),
-        'inLanguage' => 'es',
+        'inLanguage' => get_locale(),
         'publisher'  => ['@id' => home_url('/#organization')],
     ];
     if ($search_target) {
@@ -158,7 +174,7 @@ function tap_theme_post_json_ld($post) {
         'dateModified'  => get_the_modified_date('c', $post),
         'author'        => ['@type' => 'Person', 'name' => $author],
         'publisher'     => ['@type' => 'Organization', 'name' => get_bloginfo('name'), 'url' => home_url('/')],
-        'inLanguage'    => 'es',
+        'inLanguage'    => get_locale(),
         'wordCount'     => str_word_count(wp_strip_all_tags($post->post_content)),
     ];
     if ($img) {

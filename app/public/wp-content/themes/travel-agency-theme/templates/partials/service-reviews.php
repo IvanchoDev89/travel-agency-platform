@@ -102,7 +102,7 @@ jQuery(document).ready(function($) {
       body.append($('<p class="tap-review-text">').text(r.content));
       if (r.image_urls && r.image_urls.length) {
         var gal = $('<div class="tap-review-images">');
-        r.image_urls.forEach(function(u){ gal.append($('<img>').attr('src', u).attr('loading','lazy').attr('decoding','async')); });
+        r.image_urls.forEach(function(u){ gal.append($('<img>').attr('src', u).attr('alt', '').attr('loading','lazy').attr('decoding','async')); });
         body.append(gal);
       }
       var meta = $('<div class="tap-review-meta">').text(r.user_name + ' · ' + new Date(r.created_at).toLocaleDateString());

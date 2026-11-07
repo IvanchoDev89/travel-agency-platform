@@ -335,7 +335,8 @@ img { max-width: 100%; height: auto; }
   background: none;
   font-size: var(--tap-text-base);
   color: var(--tap-neutral-900);
-  outline: none;
+  outline: 2px solid var(--tap-primary, #0d9488);
+  outline-offset: 2px;
   padding: var(--tap-space-2) 0;
 }
 .nav-search-input::placeholder { color: var(--tap-neutral-400); }
@@ -672,7 +673,8 @@ img { max-width: 100%; height: auto; }
   transition: border-color var(--tap-transition), background var(--tap-transition);
 }
 .tap-landing-hs .tap-hs-input:focus {
-  outline: none;
+  outline: 2px solid var(--tap-primary);
+  outline-offset: 2px;
   border-color: var(--tap-primary);
   background: #fff;
 }

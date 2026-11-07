@@ -130,7 +130,7 @@ function tap_media_url($url) {
 class TAT_Nav_Walker extends Walker_Nav_Menu {
     public function start_lvl(&$output, $depth = 0, $args = null) {
         $indent = str_repeat("\t", $depth);
-        $output .= "\n$indent<ul class=\"sub-menu\" data-depth=\"$depth\">\n";
+        $output .= "\n$indent<ul class=\"sub-menu\" data-depth=\"" . (int) $depth . "\">\n";
     }
 
     public function start_el(&$output, $item, $depth = 0, $args = null, $id = 0) {

@@ -78,10 +78,10 @@ while (have_posts()): the_post();
       <?php endif; ?>
       <div style="display:none">
         <?php foreach ($all_imgs as $src): ?>
-        <img src="<?php echo esc_url($src); ?>" loading="lazy" decoding="async">
+        <img src="<?php echo esc_url($src); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" loading="lazy" decoding="async">
         <?php endforeach; ?>
         <?php if (has_post_thumbnail()): $ft = wp_get_attachment_image_src(get_post_thumbnail_id(), 'large'); if ($ft): ?>
-        <img src="<?php echo esc_url($ft[0]); ?>" loading="lazy" decoding="async">
+        <img src="<?php echo esc_url($ft[0]); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" loading="lazy" decoding="async">
         <?php endif; endif; ?>
       </div>
     </div>
