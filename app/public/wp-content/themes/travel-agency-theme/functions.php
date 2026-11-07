@@ -39,7 +39,24 @@ function travel_agency_theme_assets() {
     $theme_uri  = get_template_directory_uri();
 
     wp_enqueue_style('tap-tokens', $plugin_url . 'assets/css/tokens.css', [], TAT_VERSION);
-    wp_enqueue_style('tap-public', $plugin_url . 'assets/css/public.css', [], TAT_VERSION);
+    wp_enqueue_style('tap-public', $plugin_url . 'assets/css/public.css', ['tap-tokens'], TAT_VERSION);
+
+    // Conditional font loading from customizer.
+    $font_family = get_theme_mod('tap_font_family', 'system');
+    $fonts = [
+        'system'     => null,
+        'inter'      => 'Inter',
+        'roboto'     => 'Roboto',
+        'poppins'    => 'Poppins',
+        'lato'       => 'Lato',
+        'montserrat' => 'Montserrat',
+        'open-sans'  => 'Open+Sans',
+    ];
+    if (isset($fonts[$font_family]) && $fonts[$font_family]) {
+        $font_name = $fonts[$font_family];
+        wp_enqueue_style('tap-font', 'https://fonts.googleapis.com/css2?family=' . $font_name . ':wght@400;500;600;700&display=swap', [], null);
+    }
+
     wp_enqueue_style('travel-agency-theme-style', get_stylesheet_uri(), ['tap-public'], TAT_VERSION);
     if (travel_agency_is_manage_listing()) {
         wp_enqueue_style('tap-agency-calendar', $plugin_url . 'assets/css/agency-calendar.css', ['tap-public'], TAT_VERSION);
