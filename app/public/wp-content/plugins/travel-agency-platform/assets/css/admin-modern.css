@@ -1,6 +1,12 @@
 /* ===== Admin Modern Theme ===== */
 
-/* Sidebar */
+/* Sidebar - dark theme */
+#adminmenuwrap, #adminmenuback, #adminmenu {
+    background: #0f172a !important;
+}
+#adminmenu .wp-menu-name { color: #e2e8f0 !important; }
+#adminmenu a { color: #94a3b8 !important; }
+#adminmenu a:hover { color: #fff !important; background: rgba(20,184,166,0.1) !important; }
 #adminmenu .wp-has-current-submenu > a.menu-top,
 #adminmenu .wp-has-current-submenu > a.menu-top:hover {
     background: linear-gradient(135deg, #0f766e, #14b8a6);
