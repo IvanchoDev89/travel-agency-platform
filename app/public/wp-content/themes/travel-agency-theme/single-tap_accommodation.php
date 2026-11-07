@@ -167,9 +167,9 @@ while (have_posts()): the_post();
         <h2><?php _e('Availability & Prices', 'travel-agency-platform'); ?></h2>
         <div class="tap-avcal-header">
           <div class="tap-avcal-nav">
-            <button type="button" class="tap-avcal-nav-btn" data-dir="-1">&larr;</button>
+            <button type="button" class="tap-avcal-nav-btn" data-dir="-1" aria-label="<?php esc_attr_e('Mes anterior', 'travel-agency-platform'); ?>">&larr;</button>
             <span class="tap-avcal-label">--</span>
-            <button type="button" class="tap-avcal-nav-btn" data-dir="1">&rarr;</button>
+            <button type="button" class="tap-avcal-nav-btn" data-dir="1" aria-label="<?php esc_attr_e('Mes siguiente', 'travel-agency-platform'); ?>">&rarr;</button>
           </div>
           <div class="tap-avcal-legend">
             <span><span class="tap-avcal-swatch available"></span> <?php echo esc_html__('Disponible', 'travel-agency-platform'); ?></span>

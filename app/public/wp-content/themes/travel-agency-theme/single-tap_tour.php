@@ -414,9 +414,9 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
           <p class="tap-avcal-help"><?php esc_html_e('Los días en verde tienen salidas disponibles. Haz clic en un día para seleccionarlo en el widget de reserva.', 'travel-agency-platform'); ?></p>
           <div class="tap-avcal-header">
             <div class="tap-avcal-nav">
-              <a href="<?php echo esc_url(add_query_arg('cal_month', $prev_month)); ?>" class="tap-avcal-nav-btn" data-dir="-1">&larr;</a>
+              <a href="<?php echo esc_url(add_query_arg('cal_month', $prev_month)); ?>" class="tap-avcal-nav-btn" data-dir="-1" aria-label="<?php esc_attr_e('Mes anterior', 'travel-agency-platform'); ?>">&larr;</a>
               <span class="tap-avcal-label"><?php echo esc_html($month_label); ?></span>
-              <a href="<?php echo esc_url(add_query_arg('cal_month', $next_month)); ?>" class="tap-avcal-nav-btn" data-dir="1">&rarr;</a>
+              <a href="<?php echo esc_url(add_query_arg('cal_month', $next_month)); ?>" class="tap-avcal-nav-btn" data-dir="1" aria-label="<?php esc_attr_e('Mes siguiente', 'travel-agency-platform'); ?>">&rarr;</a>
             </div>
             <div class="tap-avcal-legend">
               <span><span class="tap-avcal-swatch available"></span> <?php echo esc_html__('Disponible', 'travel-agency-platform'); ?></span>
