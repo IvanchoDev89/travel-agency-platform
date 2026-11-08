@@ -1,7 +1,7 @@
 <?php
 defined('ABSPATH') || exit;
 
-define('TAT_VERSION', '2.0.4');
+define('TAT_VERSION', '2.0.5');
 
 function travel_agency_theme_setup() {
     add_theme_support('title-tag');
@@ -68,6 +68,32 @@ function travel_agency_theme_assets() {
         'ajax_url' => admin_url('admin-ajax.php'),
         'nonce'    => wp_create_nonce('tap_nonce'),
     ]);
+
+    // Enhanced date picker on the landing hero search.
+    if (is_front_page()) {
+        wp_enqueue_script('jquery-ui-datepicker');
+        $date_init = "(function($){\n"
+            . "  if (!$.datepicker) return;\n"
+            . "  var fmt = 'yy-mm-dd';\n"
+            . "  $('#hs-checkin').datepicker({\n"
+            . "    dateFormat: fmt,\n"
+            . "    minDate: 0,\n"
+            . "    onSelect: function(selected) {\n"
+            . "      var d = $(this).datepicker('getDate');\n"
+            . "      if (d) {\n"
+            . "        var next = new Date(d.getTime() + 86400000);\n"
+            . "        $('#hs-checkout').datepicker('option', 'minDate', next);\n"
+            . "        if (!$('#hs-checkout').val()) { $('#hs-checkout').datepicker('setDate', next); }\n"
+            . "      }\n"
+            . "    }\n"
+            . "  });\n"
+            . "  $('#hs-checkout').datepicker({\n"
+            . "    dateFormat: fmt,\n"
+            . "    minDate: 1\n"
+            . "  });\n"
+            . "})(jQuery);";
+        wp_add_inline_script('jquery-ui-datepicker', $date_init);
+    }
 }
 
 function tap_customizer_css() {

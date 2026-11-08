@@ -307,11 +307,11 @@ foreach ($pillarDefs as $pDef) {
           </div>
           <div class="tap-hs-field tap-hs-date">
             <label for="hs-checkin"><?php esc_html_e('Llegada', 'travel-agency-platform'); ?></label>
-            <input type="date" name="check_in" id="hs-checkin" class="tap-hs-input" min="<?php echo esc_attr(date('Y-m-d')); ?>">
+            <input type="text" name="check_in" id="hs-checkin" class="tap-hs-input tap-date-input" placeholder="<?php esc_attr_e('Llegada', 'travel-agency-platform'); ?>" autocomplete="off" readonly>
           </div>
           <div class="tap-hs-field tap-hs-date">
             <label for="hs-checkout"><?php esc_html_e('Salida', 'travel-agency-platform'); ?></label>
-            <input type="date" name="check_out" id="hs-checkout" class="tap-hs-input" min="<?php echo esc_attr(date('Y-m-d', strtotime('+1 day'))); ?>">
+            <input type="text" name="check_out" id="hs-checkout" class="tap-hs-input tap-date-input" placeholder="<?php esc_attr_e('Salida', 'travel-agency-platform'); ?>" autocomplete="off" readonly>
           </div>
           <div class="tap-hs-field tap-hs-huespedes">
             <label for="hs-guests"><?php esc_html_e('Huéspedes', 'travel-agency-platform'); ?></label>
