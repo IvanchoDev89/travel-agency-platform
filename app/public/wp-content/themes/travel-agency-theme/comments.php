@@ -44,6 +44,7 @@ if (post_password_required()) {
         <div class="tap-post-comment-form-wrap">
             <h3><?php esc_html_e('Deja un comentario', 'travel-agency-platform'); ?></h3>
             <?php
+            $commenter = wp_get_current_commenter();
             comment_form([
                 'title_reply'          => '',
                 'title_reply_to'       => __('Responder a %s', 'travel-agency-platform'),
