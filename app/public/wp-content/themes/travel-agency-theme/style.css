@@ -419,8 +419,7 @@ img { max-width: 100%; height: auto; }
     max-width: 80vw;
     height: 100vh;
     height: 100dvh;
-    background: #fff;
-    flex-direction: column;
+    background: var(--tap-surface);
     align-items: stretch;
     justify-content: flex-start;
     padding: calc(var(--tap-header-height) + var(--tap-space-4)) var(--tap-space-4) var(--tap-space-4);
