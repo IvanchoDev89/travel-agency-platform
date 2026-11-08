@@ -300,7 +300,7 @@ $wp_customize->add_section('tap_typography', [
 ]);
 
 $wp_customize->add_setting('tap_font_family', [
-    'default'           => 'system',
+    'default'           => 'inter',
     'sanitize_callback' => 'sanitize_text_field',
     'transport'         => 'refresh',
 ]);

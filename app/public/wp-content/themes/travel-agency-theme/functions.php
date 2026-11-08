@@ -129,6 +129,7 @@ function tap_customizer_css() {
     $css .= '--tap-neutral-500: ' . esc_attr($text_muted) . ';';
     $css .= '--tap-border: ' . esc_attr($border) . ';';
     $css .= '--tap-font-sans: ' . esc_attr($font_stack) . ';';
+    $css .= '--tap-font-serif: ' . esc_attr($font_stack) . ';';
     $css .= '--tap-text-base: ' . $font_size . 'px;';
     $css .= '--tap-container-max: ' . $container . 'px;';
     $css .= '--tap-section-padding: ' . $padding . 'px;';
