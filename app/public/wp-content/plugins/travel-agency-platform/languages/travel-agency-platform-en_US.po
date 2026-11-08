@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-08T02:50:37+00:00\n"
+"POT-Creation-Date: 2026-11-08T03:12:06+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -1574,6 +1574,7 @@ msgid "Guarda el paso 1"
 msgstr "Save step 1"
 
 #: includes/class-acc-wizard.php:185 includes/class-tour-wizard.php:212
+#: includes/class-transport.php:410
 msgid "Completado"
 msgstr "Completed"
 
@@ -9963,7 +9964,7 @@ msgstr "Car rental"
 
 #: includes/class-emails-send.php:775 includes/class-metaboxes.php:1350
 #: includes/class-shortcode-booking.php:757
-#: includes/class-shortcode-search.php:40 includes/class-transport.php:331
+#: includes/class-shortcode-search.php:40 includes/class-transport.php:359
 msgid "Check-in"
 msgstr "Check-in"
 
@@ -15333,7 +15334,7 @@ msgstr "Write a message to the agency..."
 msgid "Seguimiento del viaje"
 msgstr "Trip tracking"
 
-#: includes/class-shortcode-booking.php:1009 includes/class-transport.php:317
+#: includes/class-shortcode-booking.php:1009
 msgid "Estado:"
 msgstr "Status:"
 
@@ -17061,15 +17062,15 @@ msgstr "No routes."
 msgid "Llegada"
 msgstr "Arrival"
 
-#: includes/class-transport-admin.php:378 includes/class-transport.php:319
+#: includes/class-transport-admin.php:378 includes/class-transport.php:348
 msgid "Pasajeros"
 msgstr "Passengers"
 
-#: includes/class-transport-admin.php:392 includes/class-transport.php:340
+#: includes/class-transport-admin.php:392 includes/class-transport.php:368
 msgid "Iniciar abordaje"
 msgstr "Start boarding"
 
-#: includes/class-transport-admin.php:394 includes/class-transport.php:342
+#: includes/class-transport-admin.php:394 includes/class-transport.php:370
 msgid "Iniciar viaje"
 msgstr "Start trip"
 
@@ -17102,21 +17103,61 @@ msgstr "Check-in completed."
 msgid "No tienes un perfil de conductor."
 msgstr "You do not have a driver profile."
 
-#: includes/class-transport.php:309
+#: includes/class-transport.php:313
+msgid "Mi panel de conductor"
+msgstr "My driver panel"
+
+#: includes/class-transport.php:314
+msgid "Sin vehículo asignado"
+msgstr "No vehicle assigned"
+
+#: includes/class-transport.php:319
+msgid "Hoy"
+msgstr "Today"
+
+#: includes/class-transport.php:320
+msgid "Próximos"
+msgstr "Upcoming"
+
+#: includes/class-transport.php:321
+msgid "Historial"
+msgstr "History"
+
+#: includes/class-transport.php:326
 msgid "Mis viajes de hoy"
 msgstr "My trips today"
 
-#: includes/class-transport.php:311
+#: includes/class-transport.php:328
 msgid "No tienes viajes asignados para hoy."
 msgstr "No trips assigned for today."
 
-#: includes/class-transport.php:322
+#: includes/class-transport.php:350
 msgid "Sin pasajeros."
 msgstr "No passengers."
 
-#: includes/class-transport.php:344
+#: includes/class-transport.php:372
 msgid "Completar viaje"
 msgstr "Complete trip"
+
+#: includes/class-transport.php:374
+msgid "Actualizar posición"
+msgstr "Update position"
+
+#: includes/class-transport.php:383
+msgid "Próximos viajes"
+msgstr "Upcoming trips"
+
+#: includes/class-transport.php:385
+msgid "No tienes viajes programados."
+msgstr "No trips scheduled."
+
+#: includes/class-transport.php:401
+msgid "Historial (últimos 30 días)"
+msgstr "History (last 30 days)"
+
+#: includes/class-transport.php:403
+msgid "No hay viajes completados."
+msgstr "No completed trips."
 
 #: includes/class-travel-insurance.php:18
 msgid "Básico"

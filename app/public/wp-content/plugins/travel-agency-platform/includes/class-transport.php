@@ -303,53 +303,131 @@ class TAP_Transport_Driver_Dashboard {
         }
         $today = gmdate('Y-m-d');
         $trips = TAP_Transport_Trips::for_driver((int) $driver->id, $today . ' 00:00:00', $today . ' 23:59:59');
+        $upcoming = TAP_Transport_Trips::for_driver((int) $driver->id, gmdate('Y-m-d', strtotime('+1 day')) . ' 00:00:00', gmdate('Y-m-d', strtotime('+7 days')) . ' 23:59:59');
+        $completed = TAP_Transport_Trips::for_driver((int) $driver->id, gmdate('Y-m-d', strtotime('-30 days')) . ' 00:00:00', gmdate('Y-m-d', strtotime('-1 day')) . ' 23:59:59');
+        $vehicle = $driver->vehicle_id ? TAP_Transport_Vehicles::get((int) $driver->vehicle_id) : null;
         ob_start();
         ?>
         <div class="tap-driver-dashboard" id="tap-driver-dashboard">
-            <h2><?php esc_html_e('Mis viajes de hoy', 'travel-agency-platform'); ?></h2>
-            <?php if (!$trips): ?>
-                <p class="tap-empty"><?php esc_html_e('No tienes viajes asignados para hoy.', 'travel-agency-platform'); ?></p>
-            <?php else: ?>
-                <?php foreach ($trips as $trip): ?>
-                    <div class="tap-driver-trip" data-trip="<?php echo (int) $trip->id; ?>">
-                        <h3><?php echo esc_html(get_the_title((int) $trip->service_id)); ?></h3>
-                        <p><?php echo esc_html($trip->departure_time); ?> → <?php echo esc_html($trip->arrival_time ?: '—'); ?></p>
-                        <p><?php esc_html_e('Estado:', 'travel-agency-platform'); ?> <strong><?php echo esc_html($trip->status); ?></strong></p>
-                        <div class="tap-driver-passengers">
-                            <h4><?php esc_html_e('Pasajeros', 'travel-agency-platform'); ?></h4>
-                            <?php $passengers = TAP_Transport_Trips::passengers((int) $trip->id); ?>
-                            <?php if (!$passengers): ?>
-                                <p class="tap-empty"><?php esc_html_e('Sin pasajeros.', 'travel-agency-platform'); ?></p>
-                            <?php else: ?>
-                                <ul>
-                                    <?php foreach ($passengers as $ps): ?>
-                                        <li>
-                                            <?php echo esc_html($ps->passenger_name); ?>
-                                            <?php if ($ps->checked_in): ?>
-                                                <span style="color:#0f766e;">✓</span>
-                                            <?php else: ?>
-                                                <button type="button" class="tap-btn tap-btn-sm tap-checkin" data-trip="<?php echo (int) $trip->id; ?>" data-booking="<?php echo (int) $ps->booking_id; ?>"><?php esc_html_e('Check-in', 'travel-agency-platform'); ?></button>
-                                            <?php endif; ?>
-                                        </li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            <?php endif; ?>
+            <div class="tap-driver-header">
+                <h2><?php esc_html_e('Mi panel de conductor', 'travel-agency-platform'); ?></h2>
+                <p class="tap-agency-meta"><?php echo esc_html($driver->license_number); ?> · <?php echo esc_html($driver->license_type); ?> · <?php echo $vehicle ? esc_html($vehicle->model . ' (' . $vehicle->plate . ')') : esc_html__('Sin vehículo asignado', 'travel-agency-platform'); ?></p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tap-driver-tabs">
+                <button type="button" class="tap-driver-tab is-active" data-tab="today"><?php esc_html_e('Hoy', 'travel-agency-platform'); ?></button>
+                <button type="button" class="tap-driver-tab" data-tab="upcoming"><?php esc_html_e('Próximos', 'travel-agency-platform'); ?></button>
+                <button type="button" class="tap-driver-tab" data-tab="history"><?php esc_html_e('Historial', 'travel-agency-platform'); ?></button>
+            </div>
+
+            <!-- Today -->
+            <div class="tap-driver-tab-content" data-tab="today">
+                <h3><?php esc_html_e('Mis viajes de hoy', 'travel-agency-platform'); ?></h3>
+                <?php if (!$trips): ?>
+                    <p class="tap-empty"><?php esc_html_e('No tienes viajes asignados para hoy.', 'travel-agency-platform'); ?></p>
+                <?php else: ?>
+                    <?php foreach ($trips as $trip): ?>
+                        <?php $passengers = TAP_Transport_Trips::passengers((int) $trip->id); ?>
+                        <div class="tap-driver-trip" data-trip="<?php echo (int) $trip->id; ?>">
+                            <div class="tap-driver-trip-header">
+                                <h4><?php echo esc_html(get_the_title((int) $trip->service_id)); ?></h4>
+                                <span class="tap-status tap-status-<?php echo esc_attr($trip->status); ?>"><?php echo esc_html($trip->status); ?></span>
+                            </div>
+                            <div class="tap-driver-trip-info">
+                                <span>🕐 <?php echo esc_html(substr($trip->departure_time, 11, 5)); ?> → <?php echo esc_html($trip->arrival_time ? substr($trip->arrival_time, 11, 5) : '—'); ?></span>
+                                <?php if ($trip->route_id): ?>
+                                    <?php $route = TAP_Transport_Routes::get((int) $trip->route_id); ?>
+                                    <?php if ($route): ?>
+                                        <span>📍 <?php echo esc_html($route->origin); ?> → <?php echo esc_html($route->destination); ?></span>
+                                    <?php endif; ?>
+                                <?php endif; ?>
+                            </div>
+                            <div id="tap-trip-map-<?php echo (int) $trip->id; ?>" style="height:200px;border-radius:8px;margin:10px 0;" class="tap-driver-map"></div>
+                            <div class="tap-driver-passengers">
+                                <h5><?php esc_html_e('Pasajeros', 'travel-agency-platform'); ?> (<?php echo count($passengers); ?>)</h5>
+                                <?php if (!$passengers): ?>
+                                    <p class="tap-empty"><?php esc_html_e('Sin pasajeros.', 'travel-agency-platform'); ?></p>
+                                <?php else: ?>
+                                    <ul class="tap-driver-passenger-list">
+                                        <?php foreach ($passengers as $ps): ?>
+                                            <li>
+                                                <span><?php echo esc_html($ps->passenger_name); ?></span>
+                                                <?php if ($ps->checked_in): ?>
+                                                    <span class="tap-checkin-done">✓ <?php echo esc_html($ps->checked_in_at); ?></span>
+                                                <?php else: ?>
+                                                    <button type="button" class="tap-btn tap-btn-sm tap-checkin" data-trip="<?php echo (int) $trip->id; ?>" data-booking="<?php echo (int) $ps->booking_id; ?>"><?php esc_html_e('Check-in', 'travel-agency-platform'); ?></button>
+                                                <?php endif; ?>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                <?php endif; ?>
+                            </div>
+                            <div class="tap-driver-actions">
+                                <?php if ('scheduled' === $trip->status): ?>
+                                    <button type="button" class="tap-btn tap-btn-primary tap-trip-status" data-trip="<?php echo (int) $trip->id; ?>" data-status="boarding"><?php esc_html_e('Iniciar abordaje', 'travel-agency-platform'); ?></button>
+                                <?php elseif ('boarding' === $trip->status): ?>
+                                    <button type="button" class="tap-btn tap-btn-primary tap-trip-status" data-trip="<?php echo (int) $trip->id; ?>" data-status="in_transit"><?php esc_html_e('Iniciar viaje', 'travel-agency-platform'); ?></button>
+                                <?php elseif ('in_transit' === $trip->status): ?>
+                                    <button type="button" class="tap-btn tap-btn-primary tap-trip-status" data-trip="<?php echo (int) $trip->id; ?>" data-status="completed"><?php esc_html_e('Completar viaje', 'travel-agency-platform'); ?></button>
+                                <?php endif; ?>
+                                <button type="button" class="tap-btn tap-btn-outline tap-btn-sm tap-update-position" data-trip="<?php echo (int) $trip->id; ?>"><?php esc_html_e('Actualizar posición', 'travel-agency-platform'); ?></button>
+                            </div>
                         </div>
-                        <div class="tap-driver-actions">
-                            <?php if ('scheduled' === $trip->status): ?>
-                                <button type="button" class="tap-btn tap-btn-primary tap-trip-status" data-trip="<?php echo (int) $trip->id; ?>" data-status="boarding"><?php esc_html_e('Iniciar abordaje', 'travel-agency-platform'); ?></button>
-                            <?php elseif ('boarding' === $trip->status): ?>
-                                <button type="button" class="tap-btn tap-btn-primary tap-trip-status" data-trip="<?php echo (int) $trip->id; ?>" data-status="in_transit"><?php esc_html_e('Iniciar viaje', 'travel-agency-platform'); ?></button>
-                            <?php elseif ('in_transit' === $trip->status): ?>
-                                <button type="button" class="tap-btn tap-btn-primary tap-trip-status" data-trip="<?php echo (int) $trip->id; ?>" data-status="completed"><?php esc_html_e('Completar viaje', 'travel-agency-platform'); ?></button>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+
+            <!-- Upcoming -->
+            <div class="tap-driver-tab-content" data-tab="upcoming" style="display:none;">
+                <h3><?php esc_html_e('Próximos viajes', 'travel-agency-platform'); ?></h3>
+                <?php if (!$upcoming): ?>
+                    <p class="tap-empty"><?php esc_html_e('No tienes viajes programados.', 'travel-agency-platform'); ?></p>
+                <?php else: ?>
+                    <ul class="tap-driver-trip-list">
+                        <?php foreach ($upcoming as $trip): ?>
+                            <li>
+                                <strong><?php echo esc_html(get_the_title((int) $trip->service_id)); ?></strong>
+                                <span><?php echo esc_html($trip->departure_time); ?></span>
+                                <span class="tap-status tap-status-<?php echo esc_attr($trip->status); ?>"><?php echo esc_html($trip->status); ?></span>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
+            </div>
+
+            <!-- History -->
+            <div class="tap-driver-tab-content" data-tab="history" style="display:none;">
+                <h3><?php esc_html_e('Historial (últimos 30 días)', 'travel-agency-platform'); ?></h3>
+                <?php if (!$completed): ?>
+                    <p class="tap-empty"><?php esc_html_e('No hay viajes completados.', 'travel-agency-platform'); ?></p>
+                <?php else: ?>
+                    <ul class="tap-driver-trip-list">
+                        <?php foreach ($completed as $trip): ?>
+                            <li>
+                                <strong><?php echo esc_html(get_the_title((int) $trip->service_id)); ?></strong>
+                                <span><?php echo esc_html($trip->departure_time); ?></span>
+                                <span class="tap-status tap-status-completed"><?php esc_html_e('Completado', 'travel-agency-platform'); ?></span>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
+            </div>
+
             <script>
             (function(){
                 var nonce = '<?php echo esc_js(wp_create_nonce('tap_transport_nonce')); ?>';
+                // Tabs
+                document.querySelectorAll('.tap-driver-tab').forEach(function(tab){
+                    tab.addEventListener('click', function(){
+                        document.querySelectorAll('.tap-driver-tab').forEach(function(t){ t.classList.remove('is-active'); });
+                        document.querySelectorAll('.tap-driver-tab-content').forEach(function(c){ c.style.display = 'none'; });
+                        tab.classList.add('is-active');
+                        var target = document.querySelector('.tap-driver-tab-content[data-tab="' + tab.getAttribute('data-tab') + '"]');
+                        if (target) target.style.display = '';
+                    });
+                });
+                // Status buttons
                 document.querySelectorAll('.tap-trip-status').forEach(function(btn){
                     btn.addEventListener('click', function(){
                         var tid = btn.getAttribute('data-trip');
@@ -364,6 +442,7 @@ class TAP_Transport_Driver_Dashboard {
                         .then(function(res){ if (res && res.success) location.reload(); else alert(res.data && res.data.message ? res.data.message : 'Error'); });
                     });
                 });
+                // Check-in buttons
                 document.querySelectorAll('.tap-checkin').forEach(function(btn){
                     btn.addEventListener('click', function(){
                         var tid = btn.getAttribute('data-trip');
@@ -378,13 +457,54 @@ class TAP_Transport_Driver_Dashboard {
                         .then(function(res){ if (res && res.success) location.reload(); else alert(res.data && res.data.message ? res.data.message : 'Error'); });
                     });
                 });
-                // Auto-track position if geolocation available.
+                // Manual position update
+                document.querySelectorAll('.tap-update-position').forEach(function(btn){
+                    btn.addEventListener('click', function(){
+                        if (!navigator.geolocation) { alert('Geolocalización no disponible.'); return; }
+                        var tid = btn.getAttribute('data-trip');
+                        navigator.geolocation.getCurrentPosition(function(pos){
+                            var fd = new FormData();
+                            fd.append('action', 'tap_transport_position');
+                            fd.append('trip_id', tid);
+                            fd.append('lat', pos.coords.latitude);
+                            fd.append('lng', pos.coords.longitude);
+                            if (pos.coords.speed) fd.append('speed', pos.coords.speed);
+                            if (pos.coords.heading) fd.append('heading', pos.coords.heading);
+                            fd.append('nonce', nonce);
+                            fetch(ajaxurl || '/wp-admin/admin-ajax.php', {method:'POST', body:fd, credentials:'same-origin'})
+                            .then(function(r){ return r.json(); })
+                            .then(function(res){ alert(res && res.success ? 'Posición actualizada.' : 'Error'); });
+                        });
+                    });
+                });
+                // Load maps
+                if (typeof L !== 'undefined') {
+                    document.querySelectorAll('.tap-driver-map').forEach(function(el){
+                        var tripId = el.id.replace('tap-trip-map-', '');
+                        var map = L.map(el).setView([9.93, -84.08], 8);
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap'}).addTo(map);
+                        var fd = new FormData();
+                        fd.append('action', 'tap_transport_live');
+                        fd.append('trip_id', tripId);
+                        fd.append('nonce', nonce);
+                        fetch(ajaxurl || '/wp-admin/admin-ajax.php', {method:'POST', body:fd, credentials:'same-origin'})
+                        .then(function(r){ return r.json(); })
+                        .then(function(res){
+                            if (res && res.success && res.data.position) {
+                                var pos = res.data.position;
+                                L.marker([pos.lat, pos.lng]).addTo(map).bindPopup('Tu posición');
+                                map.setView([pos.lat, pos.lng], 12);
+                            }
+                        });
+                    });
+                }
+                // Auto-track position every 30s for in-transit trips
                 if (navigator.geolocation) {
                     setInterval(function(){
+                        var tripEl = document.querySelector('.tap-driver-trip');
+                        if (!tripEl) return;
+                        var tid = tripEl.getAttribute('data-trip');
                         navigator.geolocation.getCurrentPosition(function(pos){
-                            var trips = document.querySelectorAll('.tap-driver-trip');
-                            if (!trips.length) return;
-                            var tid = trips[0].getAttribute('data-trip');
                             var fd = new FormData();
                             fd.append('action', 'tap_transport_position');
                             fd.append('trip_id', tid);
@@ -400,6 +520,24 @@ class TAP_Transport_Driver_Dashboard {
             })();
             </script>
         </div>
+        <style>
+        .tap-driver-dashboard { max-width: 900px; margin: 0 auto; }
+        .tap-driver-header { margin-bottom: 20px; }
+        .tap-driver-tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+        .tap-driver-tab { padding: 8px 16px; border: none; background: none; cursor: pointer; font-weight: 600; color: #64748b; border-radius: 8px; transition: all .15s ease; }
+        .tap-driver-tab.is-active { background: #0f766e; color: #fff; }
+        .tap-driver-trip { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+        .tap-driver-trip-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .tap-driver-trip-header h4 { margin: 0; font-size: 18px; font-weight: 700; color: #1e293b; }
+        .tap-driver-trip-info { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: #475569; margin-bottom: 12px; }
+        .tap-driver-passengers h5 { margin: 0 0 8px; font-size: 14px; font-weight: 600; color: #334155; }
+        .tap-driver-passenger-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; }
+        .tap-driver-passenger-list li { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #f8fafc; border-radius: 8px; font-size: 13px; }
+        .tap-checkin-done { color: #0f766e; font-weight: 600; font-size: 12px; }
+        .tap-driver-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+        .tap-driver-trip-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+        .tap-driver-trip-list li { display: flex; justify-content: space-between; gap: 12px; padding: 10px 14px; background: #f8fafc; border-radius: 10px; font-size: 13px; }
+        </style>
         <?php
         return ob_get_clean();
     }
