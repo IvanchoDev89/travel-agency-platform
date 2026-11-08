@@ -188,7 +188,7 @@ class TAP_Transport_Trips {
         $wpdb->update($t, ['checked_in' => 1, 'checked_in_at' => current_time('mysql')], ['trip_id' => (int) $trip_id, 'booking_id' => (int) $booking_id], ['%d','%s'], ['%d','%d']);
         return true;
     }
-    public static function update_status($trip_id, $status) {
+    public static function set_status($trip_id, $status) {
         $allowed = ['scheduled','boarding','in_transit','completed','cancelled'];
         if (!in_array($status, $allowed, true)) return false;
         // Validate transition.
@@ -229,7 +229,7 @@ class TAP_Transport_Ajax {
         if (!$is_admin && (!$driver || (int) $driver->id !== (int) $trip->driver_id)) {
             wp_send_json_error(['message' => __('Sin permiso.', 'travel-agency-platform')], 403);
         }
-        $ok = TAP_Transport_Trips::update_status($trip_id, $status);
+        $ok = TAP_Transport_Trips::set_status($trip_id, $status);
         if (!$ok) wp_send_json_error(['message' => __('Transición no válida.', 'travel-agency-platform')]);
         wp_send_json_success(['message' => __('Estado actualizado.', 'travel-agency-platform'), 'status' => $status]);
     }

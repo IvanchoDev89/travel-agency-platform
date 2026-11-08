@@ -996,7 +996,7 @@ class TAP_Booking {
                     if ((int) $ps->booking_id !== $booking_id) $remaining++;
                 }
                 if ($remaining === 0) {
-                    TAP_Transport_Trips::update_status($trip_id, 'cancelled');
+                    TAP_Transport_Trips::set_status($trip_id, 'cancelled');
                 }
             }
         }

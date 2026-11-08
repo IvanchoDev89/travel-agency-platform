@@ -70,10 +70,10 @@ $trip = TAP_Transport_Trips::get($trip_id);
 tap_t_assert($trip && $trip->status === 'scheduled', 'trip get works');
 
 // Status transitions
-tap_t_assert(TAP_Transport_Trips::update_status($trip_id, 'boarding'), 'scheduled -> boarding');
-tap_t_assert(!TAP_Transport_Trips::update_status($trip_id, 'completed'), 'boarding -> completed invalid');
-tap_t_assert(TAP_Transport_Trips::update_status($trip_id, 'in_transit'), 'boarding -> in_transit');
-tap_t_assert(TAP_Transport_Trips::update_status($trip_id, 'completed'), 'in_transit -> completed');
+tap_t_assert(TAP_Transport_Trips::set_status($trip_id, 'boarding'), 'scheduled -> boarding');
+tap_t_assert(!TAP_Transport_Trips::set_status($trip_id, 'completed'), 'boarding -> completed invalid');
+tap_t_assert(TAP_Transport_Trips::set_status($trip_id, 'in_transit'), 'boarding -> in_transit');
+tap_t_assert(TAP_Transport_Trips::set_status($trip_id, 'completed'), 'in_transit -> completed');
 $trip2 = TAP_Transport_Trips::get($trip_id);
 tap_t_assert($trip2->status === 'completed', 'trip status updated');
 

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-08T04:50:03+00:00\n"
+"POT-Creation-Date: 2026-11-08T06:43:01+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -1579,7 +1579,7 @@ msgid "Guarda el paso 1"
 msgstr "Guarda el paso 1"
 
 #: includes/class-acc-wizard.php:185 includes/class-tour-wizard.php:212
-#: includes/class-transport.php:431
+#: includes/class-transport.php:435
 msgid "Completado"
 msgstr "Completado"
 
@@ -1738,7 +1738,7 @@ msgstr "Tope por reserva"
 #: includes/class-transport-admin.php:167
 #: includes/class-transport-admin.php:234
 #: includes/class-transport-admin.php:253
-#: includes/class-transport-admin.php:377 includes/class-transport.php:333
+#: includes/class-transport-admin.php:377 includes/class-transport.php:337
 msgid "Estado"
 msgstr "Estado"
 
@@ -1749,7 +1749,7 @@ msgstr "Pendiente (revisión)"
 #: includes/class-affiliates.php:237 includes/class-coupons.php:174
 #: includes/class-coupons.php:188 includes/class-listing-editor.php:138
 #: includes/class-metaboxes.php:96 includes/class-transport-admin.php:141
-#: includes/class-transport-admin.php:236 includes/class-transport.php:332
+#: includes/class-transport-admin.php:236 includes/class-transport.php:336
 msgid "Activo"
 msgstr "Activo"
 
@@ -3569,7 +3569,7 @@ msgid "Code"
 msgstr "Código"
 
 #: includes/class-dashboard-bookings.php:380 includes/class-metaboxes.php:1344
-#: includes/class-roles.php:99
+#: includes/class-roles.php:100
 msgid "Client"
 msgstr "Cliente"
 
@@ -9999,7 +9999,7 @@ msgstr "Alquiler de auto"
 
 #: includes/class-emails-send.php:775 includes/class-metaboxes.php:1350
 #: includes/class-shortcode-booking.php:757
-#: includes/class-shortcode-search.php:40 includes/class-transport.php:380
+#: includes/class-shortcode-search.php:40 includes/class-transport.php:384
 msgid "Check-in"
 msgstr "Entrada"
 
@@ -10665,7 +10665,7 @@ msgid "Puntos y referidos"
 msgstr "Puntos y referidos"
 
 #: includes/class-front-dash-client.php:49
-#: includes/class-front-dash-client.php:722 includes/class-transport.php:440
+#: includes/class-front-dash-client.php:722 includes/class-transport.php:444
 msgid "Mi perfil"
 msgstr "Mi perfil"
 
@@ -10813,7 +10813,7 @@ msgid "Buscar transportes"
 msgstr "Buscar transportes"
 
 #: includes/class-front-dash-client.php:477
-#: includes/class-shortcode-booking.php:1009 includes/class-transport.php:443
+#: includes/class-shortcode-booking.php:1009 includes/class-transport.php:447
 msgid "Estado:"
 msgstr "Estado:"
 
@@ -11635,7 +11635,7 @@ msgstr "Actividad"
 msgid "Mis puntos"
 msgstr "Mis puntos"
 
-#: includes/class-front-dash.php:1796 includes/class-transport.php:342
+#: includes/class-front-dash.php:1796 includes/class-transport.php:346
 msgid "Perfil"
 msgstr "Perfil"
 
@@ -12202,7 +12202,7 @@ msgid "Seleccionar tipo…"
 msgstr "Seleccionar tipo…"
 
 #: includes/class-listing-editor.php:138 includes/class-transport-admin.php:143
-#: includes/class-transport-admin.php:237 includes/class-transport.php:332
+#: includes/class-transport-admin.php:237 includes/class-transport.php:336
 msgid "Inactivo"
 msgstr "Inactivo"
 
@@ -14295,13 +14295,17 @@ msgstr ""
 "Solo puedes dejar reseñas después de una reserva confirmada o completada y "
 "pagada."
 
-#: includes/class-roles.php:76
+#: includes/class-roles.php:77
 msgid "Agency Admin"
 msgstr "Administrador de agencia"
 
-#: includes/class-roles.php:94
+#: includes/class-roles.php:95
 msgid "Agency Employee"
 msgstr "Empleado de agencia"
+
+#: includes/class-roles.php:107
+msgid "Driver"
+msgstr "Driver"
 
 #: includes/class-security-headers.php:79
 #: includes/class-security-headers.php:80
@@ -17148,15 +17152,15 @@ msgstr "No hay rutas."
 msgid "Llegada"
 msgstr "Llegada"
 
-#: includes/class-transport-admin.php:378 includes/class-transport.php:369
+#: includes/class-transport-admin.php:378 includes/class-transport.php:373
 msgid "Pasajeros"
 msgstr "Pasajeros"
 
-#: includes/class-transport-admin.php:392 includes/class-transport.php:389
+#: includes/class-transport-admin.php:392 includes/class-transport.php:393
 msgid "Iniciar abordaje"
 msgstr "Iniciar abordaje"
 
-#: includes/class-transport-admin.php:394 includes/class-transport.php:391
+#: includes/class-transport-admin.php:394 includes/class-transport.php:395
 msgid "Iniciar viaje"
 msgstr "Iniciar viaje"
 
@@ -17189,87 +17193,87 @@ msgstr "Check-in realizado."
 msgid "No tienes un perfil de conductor."
 msgstr "No tienes un perfil de conductor."
 
-#: includes/class-transport.php:313
+#: includes/class-transport.php:317
 msgid "Mi panel de conductor"
 msgstr "Mi panel de conductor"
 
-#: includes/class-transport.php:314
+#: includes/class-transport.php:318
 msgid "Sin vehículo asignado"
 msgstr "Sin vehículo asignado"
 
-#: includes/class-transport.php:321
+#: includes/class-transport.php:325
 msgid "Viajes hoy"
 msgstr "Viajes hoy"
 
-#: includes/class-transport.php:325 includes/class-transport.php:340
+#: includes/class-transport.php:329 includes/class-transport.php:344
 msgid "Próximos"
 msgstr "Próximos"
 
-#: includes/class-transport.php:329
+#: includes/class-transport.php:333
 msgid "Completados (30d)"
 msgstr "Completados (30d)"
 
-#: includes/class-transport.php:339
+#: includes/class-transport.php:343
 msgid "Hoy"
 msgstr "Hoy"
 
-#: includes/class-transport.php:341
+#: includes/class-transport.php:345
 msgid "Historial"
 msgstr "Historial"
 
-#: includes/class-transport.php:347
+#: includes/class-transport.php:351
 msgid "Mis viajes de hoy"
 msgstr "Mis viajes de hoy"
 
-#: includes/class-transport.php:349
+#: includes/class-transport.php:353
 msgid "No tienes viajes asignados para hoy."
 msgstr "No tienes viajes asignados para hoy."
 
-#: includes/class-transport.php:371
+#: includes/class-transport.php:375
 msgid "Sin pasajeros."
 msgstr "Sin pasajeros."
 
-#: includes/class-transport.php:393
+#: includes/class-transport.php:397
 msgid "Completar viaje"
 msgstr "Completar viaje"
 
-#: includes/class-transport.php:395
+#: includes/class-transport.php:399
 msgid "Actualizar posición"
 msgstr "Actualizar posición"
 
-#: includes/class-transport.php:404
+#: includes/class-transport.php:408
 msgid "Próximos viajes"
 msgstr "Próximos viajes"
 
-#: includes/class-transport.php:406
+#: includes/class-transport.php:410
 msgid "No tienes viajes programados."
 msgstr "No tienes viajes programados."
 
-#: includes/class-transport.php:422
+#: includes/class-transport.php:426
 msgid "Historial (últimos 30 días)"
 msgstr "Historial (últimos 30 días)"
 
-#: includes/class-transport.php:424
+#: includes/class-transport.php:428
 msgid "No hay viajes completados."
 msgstr "No hay viajes completados."
 
-#: includes/class-transport.php:442
+#: includes/class-transport.php:446
 msgid "Licencia:"
 msgstr "Licencia:"
 
-#: includes/class-transport.php:445
+#: includes/class-transport.php:449
 msgid "Vehículo:"
 msgstr "Vehículo:"
 
-#: includes/class-transport.php:445
+#: includes/class-transport.php:449
 msgid "pasajeros"
 msgstr "pasajeros"
 
-#: includes/class-transport.php:447
+#: includes/class-transport.php:451
 msgid "Sin vehículo asignado. Contacta a tu agencia."
 msgstr "Sin vehículo asignado. Contacta a tu agencia."
 
-#: includes/class-transport.php:449
+#: includes/class-transport.php:453
 msgid "Agencia:"
 msgstr "Agencia:"
 
