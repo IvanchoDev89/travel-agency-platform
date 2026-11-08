@@ -640,11 +640,21 @@ img { max-width: 100%; height: auto; }
 
 /* Hero search (composes with .tap-hs-* from plugin) */
 .tap-landing-search {
+  position: relative;
   background: #fff;
   border: 1px solid var(--tap-neutral-100);
   border-radius: 18px;
   box-shadow: 0 24px 60px rgba(2, 44, 40, 0.35);
   margin-bottom: var(--tap-space-6);
+}
+.tap-landing-search .tap-hs-suggestions {
+  left: 0;
+  right: 0;
+  top: 100%;
+  border-radius: 0 0 18px 18px;
+  margin-top: 0;
+  max-height: 360px;
+  box-shadow: 0 24px 60px rgba(2, 44, 40, 0.25);
 }
 .tap-landing-hs {
   display: grid;

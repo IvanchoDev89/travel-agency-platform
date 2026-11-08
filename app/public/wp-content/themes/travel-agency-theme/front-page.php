@@ -304,7 +304,6 @@ foreach ($pillarDefs as $pDef) {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.4 8 12 8 12s8-6.6 8-12a8 8 0 0 0-8-8z"/></svg>
               <input type="text" name="keyword" id="hs-destino" placeholder="<?php esc_attr_e('¿A dónde querés ir?', 'travel-agency-platform'); ?>" class="tap-hs-input" autocomplete="off">
             </div>
-            <div class="tap-hs-suggestions" style="display:none;"></div>
           </div>
           <div class="tap-hs-field tap-hs-date">
             <label for="hs-checkin"><?php esc_html_e('Llegada', 'travel-agency-platform'); ?></label>
@@ -333,6 +332,7 @@ foreach ($pillarDefs as $pDef) {
             <?php esc_html_e('Buscar', 'travel-agency-platform'); ?>
           </button>
         </form>
+        <div class="tap-hs-suggestions" style="display:none;"></div>
       </div>
 
       <?php endif; ?>
