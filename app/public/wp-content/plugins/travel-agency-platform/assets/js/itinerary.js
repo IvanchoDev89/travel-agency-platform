@@ -25,6 +25,17 @@
     var $step = $('.tap-itin-step', root);
     var current = 1;
 
+    function showToast(msg) {
+        var $toast = $('#tap-itin-toast');
+        if (!$toast.length) {
+            $toast = $('<div id="tap-itin-toast" class="tap-itin-toast" role="status" aria-live="polite"></div>');
+            $(root).append($toast);
+        }
+        $toast.text(msg).addClass('is-visible');
+        clearTimeout($toast.data('t'));
+        $toast.data('t', setTimeout(function () { $toast.removeClass('is-visible'); }, 2200));
+    }
+
     // ---- Wiring ----
     function esc(s) {
         var d = document.createElement('div');
@@ -146,9 +157,13 @@
         if (existing.length) {
             state.picks = state.picks.filter(function (p) { return pickKey(p.id, p.type) !== key; });
             el.find('.tap-itin-add').text(tapItinerary.addText);
+            showToast('Quitado del itinerario');
         } else {
             state.picks.push({ id: id, type: type, title: title, price: price, priceLabel: priceLabel(id, type) });
             el.find('.tap-itin-add').text(tapItinerary.addedText);
+            el.addClass('tap-itin-item--added');
+            setTimeout(function () { el.removeClass('tap-itin-item--added'); }, 600);
+            showToast('Agregado al itinerario ✓');
         }
         save(state);
         renderSummary();

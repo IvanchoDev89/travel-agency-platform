@@ -493,9 +493,7 @@ class TAP_Itinerary {
                         </section>
 
                         <div class="tap-itin-nav">
-                            <button type="button" class="tap-btn tap-btn-outline tap-itin-prev" data-itin-prev disabled><?php esc_html_e('Anterior', 'travel-agency-platform'); ?></button>
-                            <button type="button" class="tap-btn tap-btn-primary tap-itin-next" data-itin-next><?php esc_html_e('Continuar', 'travel-agency-platform'); ?></button>
-                            <button type="submit" class="tap-btn tap-btn-secondary tap-itin-run" data-itin-run hidden><?php esc_html_e('Buscar mi itinerario', 'travel-agency-platform'); ?></button>
+                            <button type="submit" class="tap-btn tap-btn-primary tap-itin-run" data-itin-run><?php esc_html_e('Buscar mi itinerario', 'travel-agency-platform'); ?></button>
                         </div>
                     </form>
 
