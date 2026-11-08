@@ -580,7 +580,12 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 .tap-search-filters label { display: flex; flex-direction: column; gap: 4px; font-size: var(--tap-text-xs); font-weight: 600; color: var(--tap-neutral-500); }
 .tap-search-filters select, .tap-search-filters input[type="number"] { padding: 0.45rem 0.6rem; border: 1px solid var(--tap-neutral-200); border-radius: var(--tap-radius-md); font-size: var(--tap-text-sm); background: #fff; }
 .tap-search-filters .tap-field { flex: 1 1 100%; }
-.tap-dest-picker { display: flex; flex-wrap: wrap; gap: var(--tap-space-2); align-items: flex-end; }
+.tap-dest-picker--collapsible { border: 1px solid var(--tap-neutral-200); border-radius: var(--tap-radius-md); padding: var(--tap-space-2); background: #fff; }
+.tap-dest-picker > summary.tap-dest-summary { cursor: pointer; font-size: var(--tap-text-sm); font-weight: 600; color: var(--tap-primary); list-style: none; }
+.tap-dest-picker > summary.tap-dest-summary::-webkit-details-marker { display: none; }
+.tap-dest-picker > summary.tap-dest-summary::before { content: '▸ '; }
+.tap-dest-picker[open] > summary.tap-dest-summary::before { content: '▾ '; }
+.tap-dest-picker-body { display: flex; flex-wrap: wrap; gap: var(--tap-space-2); align-items: flex-end; margin-top: var(--tap-space-2); }
 .tap-dest-level { display: flex; flex-direction: column; gap: 4px; font-size: var(--tap-text-xs); font-weight: 600; color: var(--tap-neutral-500); flex: 1 1 160px; min-width: 0; }
 .tap-dest-level select { width: 100%; padding: 0.45rem 0.6rem; border: 1px solid var(--tap-neutral-200); border-radius: var(--tap-radius-md); font-size: var(--tap-text-sm); background: #fff; }
 
