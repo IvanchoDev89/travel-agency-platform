@@ -389,6 +389,33 @@
         }, { passive: true });
     }
 
+    // ===== Theme toggle (light/dark) =====
+    var themeToggle = document.getElementById('nav-theme-toggle');
+    function applyTheme(mode) {
+        if (mode === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        try { localStorage.setItem('tap-theme', mode); } catch (e) {}
+    }
+    // Initial theme: respect stored preference, else system preference.
+    (function() {
+        var stored = null;
+        try { stored = localStorage.getItem('tap-theme'); } catch (e) {}
+        if (stored === 'dark' || stored === 'light') {
+            applyTheme(stored);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+    })();
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            var isDark = document.documentElement.classList.contains('dark');
+            applyTheme(isDark ? 'light' : 'dark');
+        });
+    }
+
     manageOverflow();
 
 })(jQuery);

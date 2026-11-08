@@ -3,6 +3,16 @@
 <head>
     <meta charset="<?php bloginfo('charset'); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <script>
+    (function() {
+        try {
+            var t = localStorage.getItem('tap-theme');
+            if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            }
+        } catch (e) {}
+    })();
+    </script>
     <?php wp_head(); ?>
 <link rel="manifest" href="<?php echo esc_url(get_template_directory_uri() . '/assets/manifest.json'); ?>">
 <meta name="theme-color" content="#0f766e">
@@ -83,6 +93,10 @@ function tapInstallApp() {
             </nav>
 
             <div class="nav-actions">
+                <button class="nav-action-btn nav-theme-toggle" id="nav-theme-toggle" aria-label="<?php esc_attr_e('Toggle dark mode', 'travel-agency-platform'); ?>" title="<?php esc_attr_e('Toggle dark mode', 'travel-agency-platform'); ?>">
+                    <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                    <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </button>
                 <button class="nav-action-btn nav-search-toggle" id="nav-search-toggle" aria-label="<?php esc_attr_e('Toggle search', 'travel-agency-platform'); ?>">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 </button>

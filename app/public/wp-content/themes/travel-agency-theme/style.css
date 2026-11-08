@@ -1290,9 +1290,9 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     border-radius: 4px;
 }
 
-/* ===== Dark mode (auto) ===== */
-@media (prefers-color-scheme: dark) {
-  :root {
+/* ===== Dark mode (auto + manual toggle) ===== */
+html.dark {
+  & {
     --tap-neutral-50: #0f172a !important;
     --tap-neutral-100: #1e293b !important;
     --tap-neutral-200: #334155 !important;
