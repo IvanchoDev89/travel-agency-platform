@@ -502,6 +502,33 @@ class TAP_Booking {
                         update_post_meta($booking_id, '_tap_booking_extras', implode(',', array_map('intval', (array) $data['extras'])));
                     }
 
+                    // Transport: auto-create trip and link to booking.
+                    if ($booking_id && 'tap_transport' === sanitize_text_field($data['service_type']) && class_exists('TAP_Transport_Trips')) {
+                        $vehicle_id = (int) get_post_meta((int) $data['service_id'], '_tap_trans_vehicle_id', true);
+                        $route_id = (int) get_post_meta((int) $data['service_id'], '_tap_trans_route_id', true);
+                        $driver_id = $vehicle_id ? (int) get_post_meta($vehicle_id, 'driver_id', true) : 0;
+                        // If vehicle has driver assigned, use it.
+                        if ($vehicle_id) {
+                            $v = TAP_Transport_Vehicles::get($vehicle_id);
+                            if ($v && $v->driver_id) $driver_id = (int) $v->driver_id;
+                        }
+                        $departure = !empty($data['check_in']) ? sanitize_text_field($data['check_in']) . ' ' . (get_post_meta((int) $data['service_id'], '_tap_trans_departure_time', true) ?: '08:00') : '';
+                        if ($departure) {
+                            $trip_id = TAP_Transport_Trips::create([
+                                'service_id' => (int) $data['service_id'],
+                                'vehicle_id' => $vehicle_id ?: null,
+                                'driver_id' => $driver_id ?: null,
+                                'route_id' => $route_id ?: null,
+                                'departure_time' => $departure,
+                                'status' => 'scheduled',
+                            ]);
+                            if ($trip_id) {
+                                $wpdb->update($wpdb->prefix . 'tap_bookings', ['trip_id' => $trip_id], ['id' => $booking_id], ['%d'], ['%d']);
+                                TAP_Transport_Trips::add_passenger($trip_id, $booking_id, !empty($data['guest_name']) ? sanitize_text_field($data['guest_name']) : 'Passenger');
+                            }
+                        }
+                    }
+
                     // Affiliate attribution (external partners).
                     if ($booking_id && class_exists('TAP_Affiliates')) {
                         $aff_code = TAP_Affiliates::active_code();
@@ -957,6 +984,21 @@ class TAP_Booking {
         // Cancelling / refunding a booking voids any still-owed commission.
         if (in_array($status, ['cancelled', 'refunded'], true)) {
             self::void_commission($booking_id, true);
+        }
+
+        // Transport: cancel trip if no remaining passengers.
+        if (in_array($status, ['cancelled', 'refunded'], true) && class_exists('TAP_Transport_Trips')) {
+            $trip_id = (int) ($booking->trip_id ?? 0);
+            if ($trip_id) {
+                $passengers = TAP_Transport_Trips::passengers($trip_id);
+                $remaining = 0;
+                foreach ($passengers as $ps) {
+                    if ((int) $ps->booking_id !== $booking_id) $remaining++;
+                }
+                if ($remaining === 0) {
+                    TAP_Transport_Trips::update_status($trip_id, 'cancelled');
+                }
+            }
         }
 
         do_action('tap_booking_status_updated', $booking_id, $status, $prev);
