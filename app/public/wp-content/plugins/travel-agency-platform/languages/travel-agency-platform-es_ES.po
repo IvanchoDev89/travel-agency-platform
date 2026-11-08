@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-08T01:26:28+00:00\n"
+"POT-Creation-Date: 2026-11-08T01:33:55+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -69,8 +69,9 @@ msgstr "Inactiva"
 #: includes/class-email-templates.php:155
 #: includes/class-landing-builder.php:266
 #: includes/class-landing-builder.php:337 includes/class-listing-editor.php:143
-#: includes/class-transport-admin.php:154
-#: includes/class-transport-admin.php:239
+#: includes/class-transport-admin.php:180
+#: includes/class-transport-admin.php:265
+#: includes/class-transport-admin.php:336
 msgid "Editar"
 msgstr "Editar"
 
@@ -209,8 +210,9 @@ msgstr "Unidad activa"
 #: includes/class-landing-builder.php:338 includes/class-listing-editor.php:524
 #: includes/class-metaboxes.php:110 includes/class-metaboxes.php:130
 #: includes/class-metaboxes.php:264 includes/class-tour-wizard-steps.php:976
-#: includes/class-tour-wizard.php:50 includes/class-transport-admin.php:159
-#: includes/class-transport-admin.php:244
+#: includes/class-tour-wizard.php:50 includes/class-transport-admin.php:185
+#: includes/class-transport-admin.php:270
+#: includes/class-transport-admin.php:341
 msgid "Eliminar"
 msgstr "Eliminar"
 
@@ -1062,8 +1064,8 @@ msgid "Destino y coordenadas para el mapa."
 msgstr "Destino y coordenadas para el mapa."
 
 #: includes/class-acc-wizard-steps.php:596
-#: includes/class-transport-admin.php:111
-#: includes/class-transport-admin.php:139
+#: includes/class-transport-admin.php:137
+#: includes/class-transport-admin.php:165
 msgid "Capacidad"
 msgstr "Capacidad"
 
@@ -1152,6 +1154,8 @@ msgstr ""
 #: includes/class-acc-wizard-steps.php:929 includes/class-ajax-public.php:532
 #: includes/class-listing-editor.php:377
 #: includes/class-tour-wizard-steps.php:735
+#: includes/class-transport-admin.php:301
+#: includes/class-transport-admin.php:320
 msgid "Destino"
 msgstr "Destino"
 
@@ -1655,14 +1659,18 @@ msgstr "Afiliados externos"
 #: includes/class-affiliates.php:220 includes/class-coupons.php:154
 #: includes/class-email-templates.php:114
 #: includes/class-landing-builder.php:375
-#: includes/class-landing-builder.php:481 includes/class-transport-admin.php:86
-#: includes/class-transport-admin.php:182
+#: includes/class-landing-builder.php:481
+#: includes/class-transport-admin.php:112
+#: includes/class-transport-admin.php:208
+#: includes/class-transport-admin.php:292
 msgid "Guardado."
 msgstr "Guardado."
 
 #: includes/class-affiliates.php:221 includes/class-coupons.php:155
 #: includes/class-email-templates.php:115 includes/class-tour-wizard.php:51
-#: includes/class-transport-admin.php:87 includes/class-transport-admin.php:183
+#: includes/class-transport-admin.php:113
+#: includes/class-transport-admin.php:209
+#: includes/class-transport-admin.php:293
 msgid "Eliminado."
 msgstr "Eliminado."
 
@@ -1725,10 +1733,10 @@ msgstr "Tope por reserva"
 #: includes/class-shortcode-agency-panel.php:549
 #: includes/class-shortcode-agency-panel.php:597
 #: includes/class-shortcode-agency-panel.php:636
-#: includes/class-transport-admin.php:112
-#: includes/class-transport-admin.php:140
-#: includes/class-transport-admin.php:207
-#: includes/class-transport-admin.php:226
+#: includes/class-transport-admin.php:138
+#: includes/class-transport-admin.php:166
+#: includes/class-transport-admin.php:233
+#: includes/class-transport-admin.php:252
 msgid "Estado"
 msgstr "Estado"
 
@@ -1738,12 +1746,12 @@ msgstr "Pendiente (revisión)"
 
 #: includes/class-affiliates.php:237 includes/class-coupons.php:174
 #: includes/class-coupons.php:188 includes/class-listing-editor.php:138
-#: includes/class-metaboxes.php:96 includes/class-transport-admin.php:114
-#: includes/class-transport-admin.php:209
+#: includes/class-metaboxes.php:96 includes/class-transport-admin.php:140
+#: includes/class-transport-admin.php:235
 msgid "Activo"
 msgstr "Activo"
 
-#: includes/class-affiliates.php:238 includes/class-transport-admin.php:211
+#: includes/class-affiliates.php:238 includes/class-transport-admin.php:237
 msgid "Suspendido"
 msgstr "Suspendido"
 
@@ -1754,15 +1762,17 @@ msgstr "Formulario fiscal (W-9/W-8)"
 #: includes/class-affiliates.php:243 includes/class-coupons.php:176
 #: includes/class-email-campaigns.php:315
 #: includes/class-email-templates.php:135
-#: includes/class-transport-admin.php:128
-#: includes/class-transport-admin.php:215
+#: includes/class-transport-admin.php:154
+#: includes/class-transport-admin.php:241
+#: includes/class-transport-admin.php:312
 msgid "Actualizar"
 msgstr "Actualizar"
 
 #: includes/class-affiliates.php:243 includes/class-coupons.php:176
 #: includes/class-email-templates.php:135
-#: includes/class-transport-admin.php:128
-#: includes/class-transport-admin.php:215
+#: includes/class-transport-admin.php:154
+#: includes/class-transport-admin.php:241
+#: includes/class-transport-admin.php:312
 msgid "Crear"
 msgstr "Crear"
 
@@ -1792,16 +1802,18 @@ msgstr "Tax form"
 #: includes/class-email-campaigns.php:250
 #: includes/class-email-templates.php:145 includes/class-front-dash.php:513
 #: includes/class-front-dash.php:1185 includes/class-invoices.php:183
-#: includes/class-transport-admin.php:141
-#: includes/class-transport-admin.php:227
+#: includes/class-transport-admin.php:167
+#: includes/class-transport-admin.php:253
+#: includes/class-transport-admin.php:324
 msgid "Acciones"
 msgstr "Acciones"
 
 #: includes/class-affiliates.php:272 includes/class-coupons.php:207
 #: includes/class-email-campaigns.php:267
 #: includes/class-email-templates.php:160
-#: includes/class-transport-admin.php:159
-#: includes/class-transport-admin.php:244
+#: includes/class-transport-admin.php:185
+#: includes/class-transport-admin.php:270
+#: includes/class-transport-admin.php:341
 msgid "¿Eliminar?"
 msgstr "¿Eliminar?"
 
@@ -2070,9 +2082,10 @@ msgstr "No tienes permiso sobre esta reserva."
 #: includes/class-dashboard-insights.php:106
 #: includes/class-dashboard-money.php:592 includes/class-front-dash.php:1818
 #: includes/class-invoices.php:114 includes/class-shortcode-booking.php:822
-#: includes/class-transport-admin.php:94 includes/class-transport-admin.php:135
-#: includes/class-transport-admin.php:191
-#: includes/class-transport-admin.php:223
+#: includes/class-transport-admin.php:120
+#: includes/class-transport-admin.php:161
+#: includes/class-transport-admin.php:217
+#: includes/class-transport-admin.php:249
 msgid "Agencia"
 msgstr "Agencia"
 
@@ -2989,9 +3002,11 @@ msgstr "Nuevo cupón"
 #: includes/class-metaboxes.php:277
 #: includes/class-shortcode-agency-panel.php:476
 #: includes/class-shortcode-search.php:236
-#: includes/class-transport-admin.php:102
-#: includes/class-transport-admin.php:136
-#: includes/class-transport-admin.php:225
+#: includes/class-transport-admin.php:128
+#: includes/class-transport-admin.php:162
+#: includes/class-transport-admin.php:251
+#: includes/class-transport-admin.php:304
+#: includes/class-transport-admin.php:323
 msgid "Tipo"
 msgstr "Tipo"
 
@@ -3645,7 +3660,7 @@ msgstr "Reseña"
 
 #: includes/class-dashboard-content.php:78 includes/class-front-dash.php:1020
 #: includes/class-front-dash.php:1838 includes/class-referral-reports.php:124
-#: includes/class-transport-admin.php:222
+#: includes/class-transport-admin.php:248
 msgid "Usuario"
 msgstr "Usuario"
 
@@ -4406,8 +4421,9 @@ msgstr ""
 #: includes/class-dashboard-money.php:395 includes/class-front-dash.php:796
 #: includes/class-privacy.php:566 includes/class-privacy.php:613
 #: includes/class-shortcode-agency-panel.php:544
-#: includes/class-transport-admin.php:134
-#: includes/class-transport-admin.php:221
+#: includes/class-transport-admin.php:160
+#: includes/class-transport-admin.php:247
+#: includes/class-transport-admin.php:318
 msgid "ID"
 msgstr "ID"
 
@@ -4425,6 +4441,8 @@ msgstr "Método"
 
 #: includes/class-dashboard-money.php:399
 #: includes/class-front-dash-client.php:556 includes/class-front-dash.php:799
+#: includes/class-transport-admin.php:300
+#: includes/class-transport-admin.php:319
 msgid "Origen"
 msgstr "Origen"
 
@@ -11015,8 +11033,8 @@ msgstr "No hay reservas todavía."
 msgid "No hay reservas en este estado."
 msgstr "No hay reservas en este estado."
 
-#: includes/class-front-dash.php:505 includes/class-transport-admin.php:96
-#: includes/class-transport-admin.php:193
+#: includes/class-front-dash.php:505 includes/class-transport-admin.php:122
+#: includes/class-transport-admin.php:219
 msgid "Seleccionar"
 msgstr "Seleccionar"
 
@@ -12146,8 +12164,8 @@ msgstr "Nuevo:"
 msgid "Seleccionar tipo…"
 msgstr "Seleccionar tipo…"
 
-#: includes/class-listing-editor.php:138 includes/class-transport-admin.php:116
-#: includes/class-transport-admin.php:210
+#: includes/class-listing-editor.php:138 includes/class-transport-admin.php:142
+#: includes/class-transport-admin.php:236
 msgid "Inactivo"
 msgstr "Inactivo"
 
@@ -16129,7 +16147,8 @@ msgstr "Gastronómico"
 msgid "Relax"
 msgstr "Relax"
 
-#: includes/class-taxonomies.php:252 includes/class-transport-admin.php:106
+#: includes/class-taxonomies.php:252 includes/class-transport-admin.php:132
+#: includes/class-transport-admin.php:308
 msgid "Aéreo"
 msgstr "Aéreo"
 
@@ -16948,85 +16967,117 @@ msgstr "Guarda los cambios o publica cuando esté listo."
 msgid "Guarda este paso para continuar."
 msgstr "Guarda este paso para continuar."
 
-#: includes/class-transport-admin.php:16 includes/class-transport-admin.php:85
-#: includes/class-transport-admin.php:131
+#: includes/class-transport-admin.php:16 includes/class-transport-admin.php:111
+#: includes/class-transport-admin.php:157
 msgid "Vehículos"
 msgstr "Vehículos"
 
-#: includes/class-transport-admin.php:17 includes/class-transport-admin.php:181
-#: includes/class-transport-admin.php:218
+#: includes/class-transport-admin.php:17 includes/class-transport-admin.php:207
+#: includes/class-transport-admin.php:244
 msgid "Conductores"
 msgstr "Conductores"
 
-#: includes/class-transport-admin.php:88
+#: includes/class-transport-admin.php:18 includes/class-transport-admin.php:291
+#: includes/class-transport-admin.php:315
+msgid "Rutas"
+msgstr "Rutas"
+
+#: includes/class-transport-admin.php:114
 msgid "Editar vehículo"
 msgstr "Editar vehículo"
 
-#: includes/class-transport-admin.php:88
+#: includes/class-transport-admin.php:114
 msgid "Nuevo vehículo"
 msgstr "Nuevo vehículo"
 
-#: includes/class-transport-admin.php:104
+#: includes/class-transport-admin.php:130
+#: includes/class-transport-admin.php:306
 msgid "Terrestre"
 msgstr "Terrestre"
 
-#: includes/class-transport-admin.php:105
+#: includes/class-transport-admin.php:131
+#: includes/class-transport-admin.php:307
 msgid "Acuático"
 msgstr "Acuático"
 
-#: includes/class-transport-admin.php:109
-#: includes/class-transport-admin.php:137
+#: includes/class-transport-admin.php:135
+#: includes/class-transport-admin.php:163
 msgid "Placa"
 msgstr "Placa"
 
-#: includes/class-transport-admin.php:110
-#: includes/class-transport-admin.php:138
+#: includes/class-transport-admin.php:136
+#: includes/class-transport-admin.php:164
 msgid "Modelo"
 msgstr "Modelo"
 
-#: includes/class-transport-admin.php:115
+#: includes/class-transport-admin.php:141
 msgid "Mantenimiento"
 msgstr "Mantenimiento"
 
-#: includes/class-transport-admin.php:119
+#: includes/class-transport-admin.php:145
 msgid "Conductor asignado"
 msgstr "Conductor asignado"
 
-#: includes/class-transport-admin.php:121
+#: includes/class-transport-admin.php:147
 msgid "Ninguno"
 msgstr "Ninguno"
 
-#: includes/class-transport-admin.php:165
+#: includes/class-transport-admin.php:191
 msgid "No hay vehículos."
 msgstr "No hay vehículos."
 
-#: includes/class-transport-admin.php:184
+#: includes/class-transport-admin.php:210
 msgid "Editar conductor"
 msgstr "Editar conductor"
 
-#: includes/class-transport-admin.php:184
+#: includes/class-transport-admin.php:210
 msgid "Nuevo conductor"
 msgstr "Nuevo conductor"
 
-#: includes/class-transport-admin.php:190
+#: includes/class-transport-admin.php:216
 msgid "Usuario (WP)"
 msgstr "Usuario (WP)"
 
-#: includes/class-transport-admin.php:199
+#: includes/class-transport-admin.php:225
 msgid "Número de licencia"
 msgstr "Número de licencia"
 
-#: includes/class-transport-admin.php:200
+#: includes/class-transport-admin.php:226
 msgid "Tipo de licencia"
 msgstr "Tipo de licencia"
 
-#: includes/class-transport-admin.php:224
+#: includes/class-transport-admin.php:250
 msgid "Licencia"
 msgstr "Licencia"
 
-#: includes/class-transport-admin.php:250
+#: includes/class-transport-admin.php:276
 msgid "No hay conductores."
 msgstr "No hay conductores."
+
+#: includes/class-transport-admin.php:294
+msgid "Editar ruta"
+msgstr "Editar ruta"
+
+#: includes/class-transport-admin.php:294
+msgid "Nueva ruta"
+msgstr "Nueva ruta"
+
+#: includes/class-transport-admin.php:302
+#: includes/class-transport-admin.php:321
+msgid "Distancia (km)"
+msgstr "Distancia (km)"
+
+#: includes/class-transport-admin.php:303
+msgid "Duración estimada (min)"
+msgstr "Duración estimada (min)"
+
+#: includes/class-transport-admin.php:322
+msgid "Duración (min)"
+msgstr "Duración (min)"
+
+#: includes/class-transport-admin.php:347
+msgid "No hay rutas."
+msgstr "No hay rutas."
 
 #: includes/class-travel-insurance.php:18
 msgid "Básico"

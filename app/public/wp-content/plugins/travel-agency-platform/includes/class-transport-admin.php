@@ -15,6 +15,7 @@ class TAP_Transport_Admin {
     public static function add_pages() {
         add_submenu_page('travel-platform', __('Vehículos', 'travel-agency-platform'), __('Vehículos', 'travel-agency-platform'), 'manage_options', 'tap-vehicles', [__CLASS__, 'render_vehicles']);
         add_submenu_page('travel-platform', __('Conductores', 'travel-agency-platform'), __('Conductores', 'travel-agency-platform'), 'manage_options', 'tap-drivers', [__CLASS__, 'render_drivers']);
+        add_submenu_page('travel-platform', __('Rutas', 'travel-agency-platform'), __('Rutas', 'travel-agency-platform'), 'manage_options', 'tap-routes', [__CLASS__, 'render_routes']);
     }
 
     public static function handle_actions() {
@@ -44,6 +45,31 @@ class TAP_Transport_Admin {
                 exit;
             }
         }
+        if (isset($_POST['tap_route_action'])) {
+            if (!current_user_can('manage_options')) wp_die('');
+            check_admin_referer('tap_route_nonce');
+            $action = sanitize_key(wp_unslash($_POST['tap_route_action']));
+            if ('save' === $action) {
+                $data = [
+                    'origin' => sanitize_text_field(wp_unslash($_POST['origin'] ?? '')),
+                    'destination' => sanitize_text_field(wp_unslash($_POST['destination'] ?? '')),
+                    'distance_km' => (float) ($_POST['distance_km'] ?? 0),
+                    'estimated_duration' => (int) ($_POST['estimated_duration'] ?? 0),
+                    'type' => sanitize_key(wp_unslash($_POST['type'] ?? 'land')),
+                ];
+                $id = absint($_POST['id'] ?? 0);
+                if ($id) TAP_Transport_Routes::update($id, $data);
+                else TAP_Transport_Routes::create($data);
+                wp_safe_redirect(add_query_arg(['page' => 'tap-routes', 'updated' => '1'], admin_url('admin.php')));
+                exit;
+            }
+            if ('delete' === $action) {
+                TAP_Transport_Routes::delete(absint($_POST['id'] ?? 0));
+                wp_safe_redirect(add_query_arg(['page' => 'tap-routes', 'deleted' => '1'], admin_url('admin.php')));
+                exit;
+            }
+        }
+
         if (isset($_POST['tap_driver_action'])) {
             if (!current_user_can('manage_options')) wp_die('');
             check_admin_referer('tap_driver_nonce');
@@ -248,6 +274,77 @@ class TAP_Transport_Admin {
                     <?php endforeach; ?>
                     <?php if (!$drivers): ?>
                         <tr><td colspan="7"><?php esc_html_e('No hay conductores.', 'travel-agency-platform'); ?></td></tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php
+    }
+
+    public static function render_routes() {
+        if (!current_user_can('manage_options')) return;
+        global $wpdb;
+        $routes = TAP_Transport_Routes::search('', '', '');
+        $editing = isset($_GET['edit']) ? TAP_Transport_Routes::get(absint($_GET['edit'])) : null;
+        ?>
+        <div class="wrap">
+            <h1><?php esc_html_e('Rutas', 'travel-agency-platform'); ?></h1>
+            <?php if (isset($_GET['updated'])): ?><div class="notice notice-success"><p><?php esc_html_e('Guardado.', 'travel-agency-platform'); ?></p></div><?php endif; ?>
+            <?php if (isset($_GET['deleted'])): ?><div class="notice notice-success"><p><?php esc_html_e('Eliminado.', 'travel-agency-platform'); ?></p></div><?php endif; ?>
+            <h2><?php echo $editing ? esc_html__('Editar ruta', 'travel-agency-platform') : esc_html__('Nueva ruta', 'travel-agency-platform'); ?></h2>
+            <form method="post">
+                <?php wp_nonce_field('tap_route_nonce'); ?>
+                <input type="hidden" name="tap_route_action" value="save">
+                <?php if ($editing): ?><input type="hidden" name="id" value="<?php echo (int) $editing->id; ?>"><?php endif; ?>
+                <table class="form-table">
+                    <tr><th><?php esc_html_e('Origen', 'travel-agency-platform'); ?></th><td><input type="text" name="origin" value="<?php echo esc_attr($editing->origin ?? ''); ?>" class="regular-text" required></td></tr>
+                    <tr><th><?php esc_html_e('Destino', 'travel-agency-platform'); ?></th><td><input type="text" name="destination" value="<?php echo esc_attr($editing->destination ?? ''); ?>" class="regular-text" required></td></tr>
+                    <tr><th><?php esc_html_e('Distancia (km)', 'travel-agency-platform'); ?></th><td><input type="number" name="distance_km" value="<?php echo esc_attr($editing->distance_km ?? 0); ?>" step="0.01" min="0" class="regular-text"></td></tr>
+                    <tr><th><?php esc_html_e('Duración estimada (min)', 'travel-agency-platform'); ?></th><td><input type="number" name="estimated_duration" value="<?php echo esc_attr($editing->estimated_duration ?? 0); ?>" min="0" step="1" class="regular-text"></td></tr>
+                    <tr><th><?php esc_html_e('Tipo', 'travel-agency-platform'); ?></th><td>
+                        <select name="type">
+                            <option value="land" <?php selected($editing->type ?? 'land', 'land'); ?>><?php esc_html_e('Terrestre', 'travel-agency-platform'); ?></option>
+                            <option value="water" <?php selected($editing->type ?? 'land', 'water'); ?>><?php esc_html_e('Acuático', 'travel-agency-platform'); ?></option>
+                            <option value="air" <?php selected($editing->type ?? 'land', 'air'); ?>><?php esc_html_e('Aéreo', 'travel-agency-platform'); ?></option>
+                        </select>
+                    </td></tr>
+                </table>
+                <?php submit_button($editing ? __('Actualizar', 'travel-agency-platform') : __('Crear', 'travel-agency-platform')); ?>
+            </form>
+
+            <h2><?php esc_html_e('Rutas', 'travel-agency-platform'); ?></h2>
+            <table class="widefat striped">
+                <thead><tr>
+                    <th><?php esc_html_e('ID', 'travel-agency-platform'); ?></th>
+                    <th><?php esc_html_e('Origen', 'travel-agency-platform'); ?></th>
+                    <th><?php esc_html_e('Destino', 'travel-agency-platform'); ?></th>
+                    <th><?php esc_html_e('Distancia (km)', 'travel-agency-platform'); ?></th>
+                    <th><?php esc_html_e('Duración (min)', 'travel-agency-platform'); ?></th>
+                    <th><?php esc_html_e('Tipo', 'travel-agency-platform'); ?></th>
+                    <th><?php esc_html_e('Acciones', 'travel-agency-platform'); ?></th>
+                </tr></thead>
+                <tbody>
+                    <?php foreach ($routes as $r): ?>
+                        <tr>
+                            <td><?php echo (int) $r->id; ?></td>
+                            <td><?php echo esc_html($r->origin); ?></td>
+                            <td><?php echo esc_html($r->destination); ?></td>
+                            <td><?php echo esc_html($r->distance_km); ?></td>
+                            <td><?php echo (int) $r->estimated_duration; ?></td>
+                            <td><?php echo esc_html($r->type); ?></td>
+                            <td>
+                                <a href="<?php echo esc_url(add_query_arg(['page' => 'tap-routes', 'edit' => $r->id], admin_url('admin.php'))); ?>" class="button button-small"><?php esc_html_e('Editar', 'travel-agency-platform'); ?></a>
+                                <form method="post" style="display:inline;">
+                                    <?php wp_nonce_field('tap_route_nonce'); ?>
+                                    <input type="hidden" name="tap_route_action" value="delete">
+                                    <input type="hidden" name="id" value="<?php echo (int) $r->id; ?>">
+                                    <button type="submit" class="button button-small" onclick="return confirm('<?php echo esc_js(__('¿Eliminar?', 'travel-agency-platform')); ?>');"><?php esc_html_e('Eliminar', 'travel-agency-platform'); ?></button>
+                                </form>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    <?php if (!$routes): ?>
+                        <tr><td colspan="7"><?php esc_html_e('No hay rutas.', 'travel-agency-platform'); ?></td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
