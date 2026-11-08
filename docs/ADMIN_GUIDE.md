@@ -365,18 +365,21 @@ Garantías implementadas en v1.5.7 (ver [`CHANGELOG.md`](CHANGELOG.md)):
 
 ### Settings → Referidos
 - Configure referral discount % and points rate.
+- Manual review threshold: rewards with this many points or more (default 500) are held for approval; `0` disables it.
 - View affiliate tiers (Bronze/Silver/Gold).
 
 ### Settings → Referidos – Reportes
 - Metrics: clicks, bookings, completed, revenue, points.
 - Top referrers table.
+- **Pendientes de revisión**: approve or reject high-point/suspicious rewards before points are credited.
 - CSV export.
 
 ### Settings → Seguridad HTTP
 - HSTS (HTTPS only).
-- CSP mode (disabled / report-only / enforce).
-- CSP policy editor.
-- Report-uri for violations.
+- CSP mode (disabled / report-only / enforce). Keep `report-only` for 48h, review reports, then switch to `enforce`. Rollback: set the mode back to `report-only`.
+- CSP policy editor (default policy already allows Google Fonts, jsDelivr, PayPal, Worker blobs and manifests).
+- Report-uri for violations, rate-limited to 60 reports/minute per IP.
+- Violations are logged and counted per day (`tap_csp_report_stats`).
 
 ### Travel Platform → Analytics
 - Booking funnel.

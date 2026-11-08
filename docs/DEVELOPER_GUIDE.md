@@ -693,7 +693,15 @@ The visitor-facing UI is **bilingual (ES/EN)** with **Spanish as the default**. 
 - `TAP_Affiliates`: external affiliate program (pilot) with CRUD, tracking, commissions.
 
 ### Security
-- `TAP_Security_Headers`: HSTS/CSP configurable with report-only/enforce modes.
+- `TAP_Security_Headers`: HSTS/CSP configurable with report-only/enforce modes. `default_policy()` is the shipped baseline; `maybe_upgrade_policy()` migrates stored defaults when `POLICY_VERSION` bumps.
+- `TAP_Login_Guard`: brute-force throttle for `wp-login.php` (per username 5 / per IP 20 failed attempts over 15 minutes; success resets).
+- `TAP_Rate_Limit`: shared transient throttle (`too_many($bucket, $limit, $window, $id)`), also used by the CSP report endpoint (`csp_report`, 60/min).
+
+### Referral anti-fraud
+- `TAP_Customer_Referrals::fingerprint()` hashes user-agent + IP (or the `tap_ref_fp` cookie).
+- `tap_customer_referrals` columns: `fingerprint` (varchar 64) and `is_suspicious` (tinyint).
+- `on_payment_completed()` holds high-point or suspicious rewards as `pending_review`; `approve_pending()` / `reject_pending()` resolve them from the admin queue.
+- Option `tap_referral_manual_threshold` (default 500, `0` disables).
 
 ### Email
 - `TAP_Email_Templates`: CRUD editor for email templates with variables and log.

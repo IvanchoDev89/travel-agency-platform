@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.56] — 2026-11-08
+
+### Added
+- **Login brute-force guard** (`TAP_Login_Guard`): per-username (5) and per-IP (20) failed-attempt limits over 15 minutes, with automatic reset on successful login.
+- **Referral anti-fraud**: browser fingerprint stored on referral clicks/bookings; three different invitees booking from the same fingerprint within 24h flags the rows as suspicious (never auto-rejects).
+- **Manual referral approval**: configurable point threshold (`tap_referral_manual_threshold`, default 500) and a “Pendientes de revisión” queue in Referidos – Reportes with approve/reject actions.
+- **CSP monitoring**: daily counter (`tap_csp_report_stats`) and rate limit on the unauthenticated `/tap/v1/csp-report` endpoint (60/min per IP).
+
+### Changed
+- iCal import resolves the feed host once and pins the validated IP with `CURLOPT_RESOLVE`, closing the DNS-rebinding (SSRF TOCTOU) window.
+- CSP default policy adds `manifest-src 'self'`; existing installs are migrated automatically.
+- CSP report endpoint validates `Content-Type` and answers `415` for unexpected payloads.
+
+### Fixed
+- Booking admin calendar view ignored `?view=calendar` and was unreachable.
+- Referral agency approval read `get_post_meta()` with a string `$single` argument.
+- Dead/unreachable branches in tour availability, voucher lookup and destination page creation (PHPStan level 5).
+
+---
+
 ## [Unreleased] — 2026-11-05
 
 ### Added
