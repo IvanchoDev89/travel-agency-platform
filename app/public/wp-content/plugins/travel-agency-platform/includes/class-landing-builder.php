@@ -18,7 +18,7 @@ class TAP_Landing_Builder {
 
     const OPTION = 'tap_landing_config';
     const CACHE  = 'tap_landing_rendered';
-    const VERSION = 2;
+    const VERSION = 3;
 
     /**
      * Default section types available in the builder.
@@ -28,21 +28,19 @@ class TAP_Landing_Builder {
             'hero'          => __('Hero', 'travel-agency-platform'),
             'stats'         => __('Estadísticas', 'travel-agency-platform'),
             'facts'         => __('Datos de Costa Rica', 'travel-agency-platform'),
-            'categories'    => __('Categorías', 'travel-agency-platform'),
             'destinations'  => __('Destinos', 'travel-agency-platform'),
-            'featured'      => __('Servicios destacados', 'travel-agency-platform'),
             'interests'     => __('Intereses (chips)', 'travel-agency-platform'),
+            'promoted'      => __('Tours destacados', 'travel-agency-platform'),
+            'featured'      => __('Servicios destacados', 'travel-agency-platform'),
             'pillars'       => __('Pilares del blog', 'travel-agency-platform'),
+            'referrals'     => __('CTA referidos', 'travel-agency-platform'),
+            'agencies_cta'  => __('CTA agencias', 'travel-agency-platform'),
             'itinerary'     => __('CTA Itinerario', 'travel-agency-platform'),
             'agencies'      => __('Agencias verificadas', 'travel-agency-platform'),
             'testimonials'  => __('Testimonios', 'travel-agency-platform'),
             'blog'          => __('Blog', 'travel-agency-platform'),
             'faq'           => __('FAQ', 'travel-agency-platform'),
-            'newsletter'    => __('Newsletter', 'travel-agency-platform'),
             'cta'           => __('CTA final', 'travel-agency-platform'),
-            'video'         => __('Video', 'travel-agency-platform'),
-            'text'          => __('Texto libre', 'travel-agency-platform'),
-            'gallery'       => __('Galería', 'travel-agency-platform'),
         ];
     }
 
@@ -56,20 +54,96 @@ class TAP_Landing_Builder {
                 ['type' => 'hero', 'enabled' => true, 'order' => 1, 'settings' => []],
                 ['type' => 'stats', 'enabled' => true, 'order' => 2, 'settings' => []],
                 ['type' => 'facts', 'enabled' => true, 'order' => 3, 'settings' => []],
-                ['type' => 'categories', 'enabled' => true, 'order' => 4, 'settings' => []],
-                ['type' => 'destinations', 'enabled' => true, 'order' => 5, 'settings' => ['show_map' => true]],
-                ['type' => 'featured', 'enabled' => true, 'order' => 6, 'settings' => ['count' => 6, 'mode' => 'auto']],
-                ['type' => 'interests', 'enabled' => true, 'order' => 7, 'settings' => []],
+                ['type' => 'destinations', 'enabled' => true, 'order' => 4, 'settings' => ['show_map' => true]],
+                ['type' => 'interests', 'enabled' => true, 'order' => 5, 'settings' => []],
+                ['type' => 'promoted', 'enabled' => true, 'order' => 6, 'settings' => []],
+                ['type' => 'featured', 'enabled' => true, 'order' => 7, 'settings' => ['count' => 6, 'mode' => 'auto']],
                 ['type' => 'pillars', 'enabled' => true, 'order' => 8, 'settings' => []],
-                ['type' => 'itinerary', 'enabled' => true, 'order' => 9, 'settings' => []],
-                ['type' => 'agencies', 'enabled' => true, 'order' => 10, 'settings' => []],
-                ['type' => 'testimonials', 'enabled' => true, 'order' => 11, 'settings' => []],
-                ['type' => 'blog', 'enabled' => true, 'order' => 12, 'settings' => ['count' => 3]],
-                ['type' => 'faq', 'enabled' => true, 'order' => 13, 'settings' => []],
-                ['type' => 'newsletter', 'enabled' => true, 'order' => 14, 'settings' => []],
-                ['type' => 'cta', 'enabled' => true, 'order' => 15, 'settings' => []],
+                ['type' => 'referrals', 'enabled' => true, 'order' => 9, 'settings' => []],
+                ['type' => 'agencies_cta', 'enabled' => true, 'order' => 10, 'settings' => []],
+                ['type' => 'itinerary', 'enabled' => true, 'order' => 11, 'settings' => []],
+                ['type' => 'agencies', 'enabled' => true, 'order' => 12, 'settings' => []],
+                ['type' => 'testimonials', 'enabled' => true, 'order' => 13, 'settings' => []],
+                ['type' => 'blog', 'enabled' => true, 'order' => 14, 'settings' => ['count' => 3]],
+                ['type' => 'faq', 'enabled' => true, 'order' => 15, 'settings' => []],
+                ['type' => 'cta', 'enabled' => true, 'order' => 16, 'settings' => []],
             ],
         ];
+    }
+
+    /**
+     * Reorder stored sections into the canonical visual order.
+     *
+     * Older configs (version < 3) stored duplicated and non-sequential
+     * `order` values and a `categories` section that duplicated `interests`.
+     * Since the front-end never applied that order, upgrading is safe: we
+     * keep each section's enabled flag and settings, alias `categories` to
+     * `interests`, add any missing canonical sections, drop types the
+     * front-end cannot render, and append other supported legacy sections
+     * at the end.
+     *
+     * @param array $sections Stored sections.
+     * @return array Canonical sections (orders renumbered from 1).
+     */
+    public static function canonicalize_sections($sections) {
+        $allowed = self::section_types();
+        $stored  = [];
+        if (is_array($sections)) {
+            foreach ($sections as $sec) {
+                if (!is_array($sec) || empty($sec['type'])) {
+                    continue;
+                }
+                $type = sanitize_key($sec['type']);
+                // Legacy alias: the chips section used to be called categories.
+                if ('categories' === $type) {
+                    $type = 'interests';
+                }
+                if (!array_key_exists($type, $allowed)) {
+                    // Type removed from the builder (e.g. newsletter) or unknown.
+                    continue;
+                }
+                if (isset($stored[$type])) {
+                    // Duplicate: keep it enabled if either copy was enabled.
+                    $stored[$type]['enabled'] = !empty($stored[$type]['enabled']) || !empty($sec['enabled']);
+                    if (empty($stored[$type]['settings']) && !empty($sec['settings']) && is_array($sec['settings'])) {
+                        $stored[$type]['settings'] = $sec['settings'];
+                    }
+                    continue;
+                }
+                $stored[$type] = [
+                    'type'     => $type,
+                    'enabled'  => !empty($sec['enabled']),
+                    'settings' => is_array($sec['settings'] ?? null) ? $sec['settings'] : [],
+                ];
+            }
+        }
+
+        $out   = [];
+        $seen  = [];
+        $order = 1;
+        foreach (self::default_config()['sections'] as $def) {
+            $type = $def['type'];
+            $seen[$type] = true;
+            $out[] = [
+                'type'     => $type,
+                'enabled'  => isset($stored[$type]) ? (bool) $stored[$type]['enabled'] : (bool) $def['enabled'],
+                'order'    => $order++,
+                'settings' => isset($stored[$type]) ? $stored[$type]['settings'] : $def['settings'],
+            ];
+        }
+        // Preserve other supported sections that are not in the default set.
+        foreach ($stored as $type => $sec) {
+            if (isset($seen[$type]) || !array_key_exists($type, $allowed)) {
+                continue;
+            }
+            $out[] = [
+                'type'     => $type,
+                'enabled'  => (bool) $sec['enabled'],
+                'order'    => $order++,
+                'settings' => $sec['settings'],
+            ];
+        }
+        return $out;
     }
 
     /**
@@ -80,16 +154,12 @@ class TAP_Landing_Builder {
         if (!is_array($config) || empty($config['sections'])) {
             $config = self::default_config();
             update_option(self::OPTION, $config, false);
+            return $config;
         }
-        // Merge new sections for upgrades.
+        // Migrate old configs once, preserving enabled flags and settings.
         if (($config['version'] ?? 0) < self::VERSION) {
-            $existing_types = array_column($config['sections'], 'type');
-            foreach (self::default_config()['sections'] as $def) {
-                if (!in_array($def['type'], $existing_types, true)) {
-                    $config['sections'][] = $def;
-                }
-            }
-            $config['version'] = self::VERSION;
+            $config['sections'] = self::canonicalize_sections($config['sections']);
+            $config['version']  = self::VERSION;
             update_option(self::OPTION, $config, false);
         }
         // Ensure version.
@@ -115,17 +185,40 @@ class TAP_Landing_Builder {
             'version'  => self::VERSION,
             'sections' => [],
         ];
-        $order = 1;
+        $types  = self::section_types();
+        $order  = 1;
+        $byType = [];
         foreach ($config['sections'] as $sec) {
-            if (!isset($sec['type']) || !array_key_exists($sec['type'], self::section_types())) {
+            if (!is_array($sec) || empty($sec['type'])) {
                 continue;
             }
+            $type = sanitize_key($sec['type']);
+            // Legacy alias: the chips section used to be called categories.
+            if ('categories' === $type) {
+                $type = 'interests';
+            }
+            if (!array_key_exists($type, $types)) {
+                continue;
+            }
+            if (isset($byType[$type])) {
+                // Keep a single copy; preserve the enabled state of either.
+                $index = $byType[$type];
+                $clean['sections'][$index]['enabled'] = !empty($clean['sections'][$index]['enabled']) || !empty($sec['enabled']);
+                if (empty($clean['sections'][$index]['settings']) && !empty($sec['settings']) && is_array($sec['settings'])) {
+                    $clean['sections'][$index]['settings'] = $sec['settings'];
+                }
+                continue;
+            }
+            $byType[$type] = count($clean['sections']);
             $clean['sections'][] = [
-                'type'     => sanitize_key($sec['type']),
+                'type'     => $type,
                 'enabled'  => !empty($sec['enabled']),
                 'order'    => $order++,
                 'settings' => is_array($sec['settings'] ?? null) ? $sec['settings'] : [],
             ];
+        }
+        if (empty($clean['sections'])) {
+            return false;
         }
         update_option(self::OPTION, $clean, false);
         // Invalidate cache.

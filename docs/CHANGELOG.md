@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.57] — 2026-11-08
+
+### Fixed
+- **Landing hero search form** pointed to `/resultados-de-busqueda/` (404); it now targets the canonical `/search-results/` page.
+- **Landing Page Builder order and toggles** were ignored by the front-end: `front-page.php` only honoured `enabled`. All 16 sections are now buffered and printed in builder order, and each toggle controls only its own section.
+- **Destinations** was nested under the "Datos de Costa Rica" toggle and **blog pillars** under the "Blog" toggle; both are now independent sections.
+- **Interests chips** were controlled by the legacy `categories` type; the section now uses `interests`.
+
+### Changed
+- Landing config **v3 migration** canonicalizes section order, aliases `categories` → `interests`, preserves `enabled`/`settings`, adds missing sections and drops types the landing cannot render (`newsletter`, `video`, `text`, `gallery`).
+- `promoted` (tours destacados), `referrals` and `agencies_cta` are now first-class builder section types.
+- Saving the builder deduplicates section types and keeps a single copy of each.
+- Plugin version bumped to `1.5.57` (header + `TAP_VERSION` + README).
+
+---
+
 ## [1.5.56] — 2026-11-08
 
 ### Added
