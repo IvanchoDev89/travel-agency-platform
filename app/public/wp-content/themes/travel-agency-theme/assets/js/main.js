@@ -48,7 +48,10 @@
         headerCenter.hasClass('open') ? closeMobileMenu() : openMobileMenu();
     });
 
-    mobileOverlay.on('click', closeMobileMenu);
+    var mobileCloseBtn = $('#mobile-close-btn');
+    if (mobileCloseBtn.length) {
+        mobileCloseBtn.on('click', closeMobileMenu);
+    }
 
     /* ===== Submenu accordion (mobile) ===== */
     headerCenter.on('click', '.submenu-toggle', function(e) {
