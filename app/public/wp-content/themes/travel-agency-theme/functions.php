@@ -1,7 +1,7 @@
 <?php
 defined('ABSPATH') || exit;
 
-define('TAT_VERSION', '2.0.6');
+define('TAT_VERSION', '2.0.7');
 
 function travel_agency_theme_setup() {
     add_theme_support('title-tag');
@@ -128,6 +128,8 @@ function tap_customizer_css() {
     $css .= '--tap-neutral-900: ' . esc_attr($text) . ';';
     $css .= '--tap-neutral-500: ' . esc_attr($text_muted) . ';';
     $css .= '--tap-border: ' . esc_attr($border) . ';';
+    $css .= '--tap-surface: #ffffff;';
+    $css .= '--tap-surface-2: #f8fafc;';
     $css .= '--tap-font-sans: ' . esc_attr($font_stack) . ';';
     $css .= '--tap-font-serif: ' . esc_attr($font_stack) . ';';
     $css .= '--tap-text-base: ' . $font_size . 'px;';
