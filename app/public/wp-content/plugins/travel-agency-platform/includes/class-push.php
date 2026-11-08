@@ -105,6 +105,25 @@ class TAP_Push {
         }
     }
 
+    /** Notify client of trip status changes. */
+    public static function on_trip_status($trip_id, $new_status, $prev_status) {
+        global $wpdb;
+        $trip = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_trips WHERE id = %d", (int) $trip_id));
+        if (!$trip) return;
+        // Find booking linked to this trip.
+        $booking = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_bookings WHERE trip_id = %d", (int) $trip_id));
+        if (!$booking) return;
+        $messages = [
+            'boarding' => __('Tu conductor está abordando. Prepárate para salir.', 'travel-agency-platform'),
+            'in_transit' => __('Tu viaje ha iniciado. ¡Buen viaje!', 'travel-agency-platform'),
+            'completed' => __('Tu viaje ha finalizado. ¡Gracias por viajar con nosotros!', 'travel-agency-platform'),
+            'cancelled' => __('Tu viaje ha sido cancelado.', 'travel-agency-platform'),
+        ];
+        if (isset($messages[$new_status]) && !empty($booking->client_id)) {
+            self::send((int) $booking->client_id, __('Estado del viaje', 'travel-agency-platform'), $messages[$new_status], home_url('/mi-cuenta/?seccion=bookings'), 'trip_status');
+        }
+    }
+
     /** Count subscriptions. */
     public static function count() {
         global $wpdb;
@@ -281,6 +300,7 @@ class TAP_Push {
         add_action('tap_booking_created', [__CLASS__, 'on_booking_created'], 10, 2);
         add_action('tap_payment_completed', [__CLASS__, 'on_payment_completed'], 20, 1);
         add_action('tap_chat_message_sent', [__CLASS__, 'on_chat_message'], 10, 3);
+        add_action('tap_trip_status_updated', [__CLASS__, 'on_trip_status'], 10, 3);
     }
 
     /** Generate VAPID keys if missing. */
