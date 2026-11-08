@@ -385,6 +385,8 @@ class TAP_Installer {
                 status varchar(20) NOT NULL DEFAULT 'clicked',
                 discount_amount decimal(15,2) NOT NULL DEFAULT 0.00,
                 points_awarded int(11) NOT NULL DEFAULT 0,
+                fingerprint varchar(64) DEFAULT NULL,
+                is_suspicious tinyint(1) NOT NULL DEFAULT 0,
                 created_at datetime DEFAULT CURRENT_TIMESTAMP,
                 updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 PRIMARY KEY (id),
@@ -547,6 +549,18 @@ class TAP_Installer {
         $has_unique = $wpdb->get_var("SHOW INDEX FROM {$wpdb->prefix}tap_customer_referrals WHERE Key_name = 'booking_unique'");
         if (!$has_unique) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_customer_referrals ADD UNIQUE KEY booking_unique (booking_id)");
+        }
+
+        // Referral anti-fraud columns (idempotent).
+        $ref_cols = [
+            'fingerprint'   => 'varchar(64) DEFAULT NULL',
+            'is_suspicious' => 'tinyint(1) NOT NULL DEFAULT 0',
+        ];
+        foreach ($ref_cols as $col => $def) {
+            $exists = $wpdb->get_var($wpdb->prepare("SHOW COLUMNS FROM {$wpdb->prefix}tap_customer_referrals LIKE %s", $col));
+            if (!$exists) {
+                $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_customer_referrals ADD COLUMN {$col} {$def}");
+            }
         }
 
         self::migrate();

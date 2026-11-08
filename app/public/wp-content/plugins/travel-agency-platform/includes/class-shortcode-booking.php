@@ -660,16 +660,13 @@ class TAP_Shortcode_Booking {
             }
             $can = true;
         }
-        if (!$can) {
-            return '<p class="tap-empty">' . esc_html__('You do not have permission to view this booking.', 'travel-agency-platform') . '</p>';
-        }
 
         $user    = get_userdata($booking->client_id);
         $dispute_msg  = '';
         $dispute_err  = '';
         $dispute_open = $booking->id ? TAP_Disputes::active_for_booking($booking->id) : null;
 
-        if (isset($_POST['tap_open_dispute']) && $can
+        if (isset($_POST['tap_open_dispute'])
             && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'] ?? '')), 'tap_open_dispute_' . $booking->booking_code)) {
             $reason  = sanitize_key(wp_unslash($_POST['reason'] ?? ''));
             $details = sanitize_textarea_field(wp_unslash($_POST['details'] ?? ''));

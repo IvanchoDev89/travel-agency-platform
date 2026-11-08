@@ -317,7 +317,6 @@ $formats[] = '%d'; }
             $to   = new DateTime($end);
         } catch (Exception $e) {
             wp_send_json_error(['message' => __('Las fechas no son válidas.', 'travel-agency-platform')]);
-            return;
         }
         if ($to < $from) {
             wp_send_json_error(['message' => __('La fecha final debe ser posterior a la inicial.', 'travel-agency-platform')]);

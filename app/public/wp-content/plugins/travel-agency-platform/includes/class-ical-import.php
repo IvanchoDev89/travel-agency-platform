@@ -14,8 +14,33 @@ class TAP_ICal_Import {
     public static function fetch($url) {
         $url = esc_url_raw($url);
         if (!$url) return [];
-        if (!self::is_safe_url($url)) return [];
+        $parts = wp_parse_url($url);
+        if (!is_array($parts)) return [];
+
+        // Resolve once and pin the validated IP for the actual connection so a
+        // DNS rebind between the check and the fetch cannot reach an internal
+        // host (SSRF TOCTOU).
+        $scheme = strtolower($parts['scheme'] ?? '');
+        $host   = strtolower($parts['host'] ?? '');
+        if (!in_array($scheme, ['http', 'https'], true) || '' === $host) return [];
+        $ip = self::safe_resolved_ip($host);
+        if ('' === $ip) return [];
+
+        $port = isset($parts['port']) ? (int) $parts['port'] : ('https' === $scheme ? 443 : 80);
+        $addr = false !== strpos($ip, ':') ? '[' . $ip . ']' : $ip;
+        $resolve = $host . ':' . $port . ':' . $addr;
+
+        $pin = static function ($handle) use ($resolve) {
+            if (function_exists('curl_setopt') && defined('CURLOPT_RESOLVE')) {
+                curl_setopt($handle, CURLOPT_RESOLVE, [$resolve]);
+            }
+        };
+        add_action('http_api_curl', $pin, 10, 1);
+        // Verify the resolved address is used: cURL applies the pin; other
+        // transports simply re-validate below.
         $resp = wp_remote_get($url, ['timeout' => 15, 'redirection' => 0]);
+        remove_action('http_api_curl', $pin, 10);
+
         if (is_wp_error($resp)) return [];
         // Reject redirects to avoid SSRF via open redirects.
         $code = (int) wp_remote_retrieve_response_code($resp);
@@ -34,11 +59,17 @@ class TAP_ICal_Import {
         if (!is_array($parts)) return false;
         $scheme = strtolower($parts['scheme'] ?? '');
         if (!in_array($scheme, ['http', 'https'], true)) return false;
-        $host = $parts['host'] ?? '';
+        $host = strtolower($parts['host'] ?? '');
         if ('' === $host) return false;
-        $host = strtolower($host);
-        if (in_array($host, ['localhost', '0.0.0.0', '::', '[::]'], true)) return false;
-        // Resolve DNS.
+        return '' !== self::safe_resolved_ip($host);
+    }
+
+    /**
+     * Resolve a host and return one public IP, or '' when the host is
+     * localhost, unresolvable or resolves to any private/reserved address.
+     */
+    private static function safe_resolved_ip($host) {
+        if (in_array($host, ['localhost', '0.0.0.0', '::', '[::]'], true)) return '';
         $ips = [];
         if (filter_var($host, FILTER_VALIDATE_IP)) {
             $ips = [$host];
@@ -53,11 +84,11 @@ class TAP_ICal_Import {
                 }
             }
         }
-        if (empty($ips)) return false;
+        if (empty($ips)) return '';
         foreach ($ips as $ip) {
-            if (self::is_private_ip($ip)) return false;
+            if (self::is_private_ip($ip)) return '';
         }
-        return true;
+        return (string) $ips[0];
     }
 
     private static function is_private_ip($ip) {

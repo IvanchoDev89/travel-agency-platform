@@ -17,7 +17,7 @@
 
 defined('ABSPATH') || exit;
 
-define('TAP_VERSION', '1.5.55');
+define('TAP_VERSION', '1.5.56');
 define('TAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -127,6 +127,7 @@ final class TravelAgencyPlatform {
         add_action('init', ['TAP_Itinerary', 'init'], 14);
         add_action('init', ['TAP_Front_Dash', 'init'], 15);
         add_action('init', ['TAP_Customer_Referrals', 'init'], 15);
+        add_action('init', ['TAP_Login_Guard', 'init'], 5);
         // Polylang integration: make our CPTs and taxonomies translatable.
         if (function_exists('pll_get_post_types')) {
             add_filter('pll_get_post_types', [$this, 'polylang_post_types'], 10, 2);
@@ -387,7 +388,7 @@ final class TravelAgencyPlatform {
         $is_tap_page = false !== strpos($hook, 'tap_') || false !== strpos($hook, 'travel-platform');
         if (!$is_tap_page) {
             $screen = function_exists('get_current_screen') ? get_current_screen() : null;
-            $pt     = $screen ? ($screen->post_type ?? '') : '';
+            $pt     = $screen && isset($screen->post_type) ? (string) $screen->post_type : '';
             $is_tap_page = $pt && in_array($pt, array_keys(TAP_Post_Types::get_service_types()), true);
         }
         if (!$is_tap_page) return;

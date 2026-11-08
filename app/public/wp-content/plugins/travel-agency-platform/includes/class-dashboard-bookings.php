@@ -199,7 +199,10 @@ class TAP_Dashboard_Bookings {
     public static function bookings_page() {
         global $wpdb;
 
-        $view = 'list';
+        $view = sanitize_key(wp_unslash($_GET['view'] ?? 'list'));
+        if (!in_array($view, ['list', 'calendar'], true)) {
+            $view = 'list';
+        }
 
         // Bulk actions.
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tap_bulk_action'])) {

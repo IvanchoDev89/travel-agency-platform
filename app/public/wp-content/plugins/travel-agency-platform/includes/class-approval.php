@@ -63,7 +63,7 @@ class TAP_Approval {
 
     public static function is_approved($agency_id) {
         return self::status($agency_id) === self::APPROVED
-            && '0' !== get_post_meta((int) $agency_id, self::ACTIVE_META, '1');
+            && '0' !== get_post_meta((int) $agency_id, self::ACTIVE_META, true);
     }
 
     public static function is_pending($agency_id) {

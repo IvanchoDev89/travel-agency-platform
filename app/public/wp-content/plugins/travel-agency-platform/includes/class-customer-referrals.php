@@ -39,6 +39,16 @@ class TAP_Customer_Referrals {
             'sanitize_callback' => [__CLASS__, 'sanitize_rate'],
             'default' => 0.05,
         ]);
+        register_setting('tap_referral_group', 'tap_referral_manual_threshold', [
+            'type' => 'number',
+            'sanitize_callback' => [__CLASS__, 'sanitize_threshold'],
+            'default' => 500,
+        ]);
+    }
+
+    public static function sanitize_threshold($value) {
+        $value = (int) $value;
+        return $value < 0 ? 0 : $value;
     }
 
     public static function sanitize_discount($value) {
@@ -61,6 +71,7 @@ class TAP_Customer_Referrals {
         }
         $discount = (float) get_option('tap_referral_discount_pct', 10);
         $rate = (float) get_option('tap_referral_points_rate', 0.05);
+        $threshold = (int) get_option('tap_referral_manual_threshold', 500);
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Programa de referidos y puntos', 'travel-agency-platform'); ?></h1>
@@ -80,6 +91,13 @@ class TAP_Customer_Referrals {
                         <td>
                             <input type="number" id="tap_referral_points_rate" name="tap_referral_points_rate" value="<?php echo esc_attr($rate); ?>" min="0" max="0.5" step="0.01" class="small-text">
                             <p class="description"><?php esc_html_e('Fracción del total de la reserva que se convierte en puntos para el referidor (ej. 0.05 = 5%). Tope 50%.', 'travel-agency-platform'); ?></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="tap_referral_manual_threshold"><?php esc_html_e('Umbral de revisión manual (puntos)', 'travel-agency-platform'); ?></label></th>
+                        <td>
+                            <input type="number" id="tap_referral_manual_threshold" name="tap_referral_manual_threshold" value="<?php echo esc_attr($threshold); ?>" min="0" step="1" class="small-text">
+                            <p class="description"><?php esc_html_e('Las recompensas con estos puntos o más quedan pendientes de aprobación manual. 0 desactiva el límite.', 'travel-agency-platform'); ?></p>
                         </td>
                     </tr>
                 </table>
@@ -150,6 +168,19 @@ class TAP_Customer_Referrals {
         return 0;
     }
 
+    /** Stable browser fingerprint used only to flag suspicious referrals. */
+    public static function fingerprint() {
+        if (!empty($_COOKIE['tap_ref_fp'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            $cookie = sanitize_text_field(wp_unslash($_COOKIE['tap_ref_fp'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+            if (preg_match('/^[a-f0-9]{32,64}$/', $cookie)) {
+                return $cookie;
+            }
+        }
+        $ua = isset($_SERVER['HTTP_USER_AGENT']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])) : '';
+        $ip = isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '';
+        return hash('sha256', $ua . '|' . $ip);
+    }
+
     /** Track a click on a referral link. */
     public static function maybe_track_click() {
         if (empty($_GET['ref'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -169,6 +200,16 @@ class TAP_Customer_Referrals {
         }
         set_transient($rl_key, $rl + 1, HOUR_IN_SECONDS);
 
+        $fingerprint = self::fingerprint();
+        setcookie('tap_ref_fp', $fingerprint, [
+            'expires'  => time() + (30 * DAY_IN_SECONDS),
+            'path'     => COOKIEPATH,
+            'domain'   => COOKIE_DOMAIN,
+            'secure'   => is_ssl(),
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+
         setcookie('tap_referral_code', $code, [
             'expires'  => time() + (30 * DAY_IN_SECONDS),
             'path'     => COOKIEPATH,
@@ -183,6 +224,7 @@ class TAP_Customer_Referrals {
             'referred_user_id' => get_current_user_id() ? get_current_user_id() : null,
             'referral_code'    => $code,
             'status'           => 'clicked',
+            'fingerprint'      => $fingerprint,
         ]);
     }
 
@@ -337,11 +379,32 @@ class TAP_Customer_Referrals {
             'booking_id'       => $booking_id,
             'status'           => 'booked',
             'discount_amount'  => (float) $discount,
+            'fingerprint'      => self::fingerprint(),
         ]);
         update_post_meta($booking_id, '_tap_referral_code', $code);
         update_post_meta($booking_id, '_tap_referrer_user_id', (int) $referrer);
         update_post_meta($booking_id, '_tap_referral_discount', (float) $discount);
-        return (int) $wpdb->insert_id;
+        $row_id = (int) $wpdb->insert_id;
+
+        // Anti-fraud: several different invitees booked from the same browser
+        // fingerprint within 24h. This only flags the rows for manual review;
+        // it never blocks or rejects a booking.
+        $fp = self::fingerprint();
+        if ('' !== $fp) {
+            $recent = (int) $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(DISTINCT referred_user_id) FROM " . self::table() . "
+                 WHERE fingerprint = %s AND booking_id IS NOT NULL AND created_at >= %s",
+                $fp,
+                gmdate('Y-m-d H:i:s', time() - DAY_IN_SECONDS)
+            ));
+            if ($recent >= 3) {
+                $wpdb->query($wpdb->prepare(
+                    "UPDATE " . self::table() . " SET is_suspicious = 1 WHERE fingerprint = %s",
+                    $fp
+                ));
+            }
+        }
+        return $row_id;
     }
 
     /** Award points to the referrer once the booking is paid. */
@@ -360,11 +423,38 @@ class TAP_Customer_Referrals {
             return;
         }
         $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . self::table() . " WHERE booking_id = %d", $booking_id));
-        if ($row && 'rewarded' === $row->status) {
+        if ($row && in_array($row->status, ['rewarded', 'rejected'], true)) {
             return;
         }
         $total = (float) ($booking->total_amount ?? 0);
         $points = (int) round($total * self::points_rate($referrer));
+
+        // High-value payouts and flagged referrals need a human decision
+        // before points are credited.
+        $threshold   = (int) get_option('tap_referral_manual_threshold', 500);
+        $suspicious  = $row ? (int) $row->is_suspicious : 0;
+        $needs_review = $suspicious > 0 || ($threshold > 0 && $points >= $threshold);
+        if ($needs_review) {
+            if ($row) {
+                $wpdb->update(self::table(), [
+                    'status'         => 'pending_review',
+                    'points_awarded' => 0,
+                ], ['id' => (int) $row->id], ['%s', '%d'], ['%d']);
+            } else {
+                $code = (string) get_post_meta($booking_id, '_tap_referral_code', true);
+                $wpdb->insert(self::table(), [
+                    'referrer_user_id' => $referrer,
+                    'referred_user_id' => (int) $booking->client_id,
+                    'referral_code'    => $code,
+                    'booking_id'       => $booking_id,
+                    'status'           => 'pending_review',
+                    'points_awarded'   => 0,
+                    'fingerprint'      => self::fingerprint(),
+                ]);
+            }
+            return;
+        }
+
         if (class_exists('TAP_Loyalty') && $points > 0) {
             TAP_Loyalty::award($referrer, $points, 'referral', $booking_id);
         }
@@ -385,8 +475,55 @@ class TAP_Customer_Referrals {
                 'booking_id'       => $booking_id,
                 'status'           => 'rewarded',
                 'points_awarded'   => $points,
+                'fingerprint'      => self::fingerprint(),
             ]);
         }
+    }
+
+    /** Referrals waiting for a manual payout decision. */
+    public static function pending_review($limit = 50) {
+        global $wpdb;
+        return $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM " . self::table() . " WHERE status = 'pending_review' ORDER BY created_at ASC LIMIT %d",
+            (int) $limit
+        )) ?: [];
+    }
+
+    /** Approve a pending referral: credit its points and mark it rewarded. */
+    public static function approve_pending($row_id) {
+        global $wpdb;
+        $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . self::table() . " WHERE id = %d", (int) $row_id));
+        if (!$row || 'pending_review' !== $row->status) {
+            return false;
+        }
+        $booking = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_bookings WHERE id = %d", (int) $row->booking_id));
+        $total   = $booking ? (float) ($booking->total_amount ?? 0) : 0.0;
+        $points  = (int) round($total * self::points_rate((int) $row->referrer_user_id));
+        if (class_exists('TAP_Loyalty') && $points > 0) {
+            TAP_Loyalty::award((int) $row->referrer_user_id, $points, 'referral', (int) $row->booking_id);
+        }
+        if (class_exists('TAP_Emails_Send') && $points > 0) {
+            TAP_Emails_Send::send_referral_reward((int) $row->referrer_user_id, $points, (int) $row->booking_id);
+        }
+        $wpdb->update(self::table(), [
+            'status'         => 'rewarded',
+            'points_awarded' => $points,
+        ], ['id' => (int) $row->id], ['%s', '%d'], ['%d']);
+        return true;
+    }
+
+    /** Reject a pending referral without crediting points. */
+    public static function reject_pending($row_id) {
+        global $wpdb;
+        $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM " . self::table() . " WHERE id = %d", (int) $row_id));
+        if (!$row || 'pending_review' !== $row->status) {
+            return false;
+        }
+        $wpdb->update(self::table(), [
+            'status'         => 'rejected',
+            'points_awarded' => 0,
+        ], ['id' => (int) $row->id], ['%s', '%d'], ['%d']);
+        return true;
     }
 
     /** Shortcode: referral dashboard. */
