@@ -314,11 +314,32 @@ class TAP_Transport_Driver_Dashboard {
                 <p class="tap-agency-meta"><?php echo esc_html($driver->license_number); ?> · <?php echo esc_html($driver->license_type); ?> · <?php echo $vehicle ? esc_html($vehicle->model . ' (' . $vehicle->plate . ')') : esc_html__('Sin vehículo asignado', 'travel-agency-platform'); ?></p>
             </div>
 
+            <!-- Summary cards -->
+            <div class="tap-driver-summary">
+                <div class="tap-driver-summary-card">
+                    <span class="tap-driver-summary-value"><?php echo count($trips); ?></span>
+                    <span class="tap-driver-summary-label"><?php esc_html_e('Viajes hoy', 'travel-agency-platform'); ?></span>
+                </div>
+                <div class="tap-driver-summary-card">
+                    <span class="tap-driver-summary-value"><?php echo count($upcoming); ?></span>
+                    <span class="tap-driver-summary-label"><?php esc_html_e('Próximos', 'travel-agency-platform'); ?></span>
+                </div>
+                <div class="tap-driver-summary-card">
+                    <span class="tap-driver-summary-value"><?php echo count($completed); ?></span>
+                    <span class="tap-driver-summary-label"><?php esc_html_e('Completados (30d)', 'travel-agency-platform'); ?></span>
+                </div>
+                <div class="tap-driver-summary-card">
+                    <span class="tap-driver-summary-value"><?php echo $driver->status === 'active' ? esc_html__('Activo', 'travel-agency-platform') : esc_html__('Inactivo', 'travel-agency-platform'); ?></span>
+                    <span class="tap-driver-summary-label"><?php esc_html_e('Estado', 'travel-agency-platform'); ?></span>
+                </div>
+            </div>
+
             <!-- Tabs -->
             <div class="tap-driver-tabs">
                 <button type="button" class="tap-driver-tab is-active" data-tab="today"><?php esc_html_e('Hoy', 'travel-agency-platform'); ?></button>
                 <button type="button" class="tap-driver-tab" data-tab="upcoming"><?php esc_html_e('Próximos', 'travel-agency-platform'); ?></button>
                 <button type="button" class="tap-driver-tab" data-tab="history"><?php esc_html_e('Historial', 'travel-agency-platform'); ?></button>
+                <button type="button" class="tap-driver-tab" data-tab="profile"><?php esc_html_e('Perfil', 'travel-agency-platform'); ?></button>
             </div>
 
             <!-- Today -->
@@ -412,6 +433,21 @@ class TAP_Transport_Driver_Dashboard {
                         <?php endforeach; ?>
                     </ul>
                 <?php endif; ?>
+            </div>
+
+            <!-- Profile -->
+            <div class="tap-driver-tab-content" data-tab="profile" style="display:none;">
+                <h3><?php esc_html_e('Mi perfil', 'travel-agency-platform'); ?></h3>
+                <div class="tap-driver-profile">
+                    <p><strong><?php esc_html_e('Licencia:', 'travel-agency-platform'); ?></strong> <?php echo esc_html($driver->license_number); ?> (<?php echo esc_html($driver->license_type); ?>)</p>
+                    <p><strong><?php esc_html_e('Estado:', 'travel-agency-platform'); ?></strong> <?php echo esc_html($driver->status); ?></p>
+                    <?php if ($vehicle): ?>
+                        <p><strong><?php esc_html_e('Vehículo:', 'travel-agency-platform'); ?></strong> <?php echo esc_html($vehicle->model); ?> (<?php echo esc_html($vehicle->plate); ?>) — <?php echo (int) $vehicle->capacity; ?> <?php esc_html_e('pasajeros', 'travel-agency-platform'); ?></p>
+                    <?php else: ?>
+                        <p><?php esc_html_e('Sin vehículo asignado. Contacta a tu agencia.', 'travel-agency-platform'); ?></p>
+                    <?php endif; ?>
+                    <p><strong><?php esc_html_e('Agencia:', 'travel-agency-platform'); ?></strong> <?php echo esc_html(get_the_title((int) $driver->agency_id)); ?></p>
+                </div>
             </div>
 
             <script>

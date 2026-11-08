@@ -3408,3 +3408,12 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
     body { background: #fff !important; }
     .tap-dash-main { width: 100% !important; margin: 0 !important; }
 }
+
+/* Driver dashboard improvements */
+.tap-driver-summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.tap-driver-summary-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.tap-driver-summary-value { display: block; font-size: 24px; font-weight: 800; color: #0f766e; line-height: 1.1; }
+.tap-driver-summary-label { display: block; font-size: 11px; color: #64748b; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.06em; }
+.tap-driver-profile { background: #f8fafc; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0; }
+.tap-driver-profile p { margin: 6px 0; font-size: 14px; color: #334155; }
+@media (max-width: 640px) { .tap-driver-summary { grid-template-columns: repeat(2, 1fr); } }
