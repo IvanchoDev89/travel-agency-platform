@@ -14,13 +14,14 @@ class TAP_Roles {
      * (adds the missing edit_published_ and private_ primitives, equipment and
      * rooms) and the cleanup loop no longer deletes the correct plural caps.
      */
-    const SETUP_VERSION = 3;
+    const SETUP_VERSION = 5;
 
     public static function setup() {
         if ((int) get_option('tap_roles_version', 0) !== self::SETUP_VERSION) {
             self::add_agency_admin_role();
             self::add_agency_employee_role();
             self::add_client_role();
+            self::add_driver_role();
             self::add_capabilities();
             update_option('tap_roles_version', self::SETUP_VERSION);
         }
@@ -98,6 +99,17 @@ class TAP_Roles {
         remove_role('tap_client');
         add_role('tap_client', __('Client', 'travel-agency-platform'), [
             'read' => true,
+        ]);
+    }
+
+    private static function add_driver_role() {
+        remove_role('tap_driver');
+        add_role('tap_driver', __('Driver', 'travel-agency-platform'), [
+            'read' => true,
+            'tap_view_trips' => true,
+            'tap_update_trip_status' => true,
+            'tap_checkin_passengers' => true,
+            'tap_update_position' => true,
         ]);
     }
 
