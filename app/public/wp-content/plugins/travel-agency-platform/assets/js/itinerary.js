@@ -18,7 +18,7 @@
         try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* private mode */ }
     }
     function defaultState() {
-        return { interests: [], categories: [], locations: [], types: [], min_price: null, max_price: null, picks: [] };
+        return { interests: [], categories: [], locations: [], types: [], min_price: null, max_price: null, check_in: null, check_out: null, travelers: 2, picks: [] };
     }
 
     var state = load();
@@ -97,6 +97,9 @@
         $('[data-itin-fld="types"]', root).value = state.types.join(',');
         $('[data-itin-fld="min_price"]', root).value = state.min_price == null ? '' : state.min_price;
         $('[data-itin-fld="max_price"]', root).value = state.max_price == null ? '' : state.max_price;
+        $('[data-itin-fld="check_in"]', root).value = state.check_in || '';
+        $('[data-itin-fld="check_out"]', root).value = state.check_out || '';
+        $('[data-itin-fld="travelers"]', root).value = state.travelers || 2;
         renderSummary();
     }
 
@@ -106,8 +109,8 @@
             $(this).toggleClass('is-active', parseInt($(this).attr('data-itin-step'), 10) === n);
         });
         $('[data-itin-prev]', root).prop('disabled', n === 1);
-        $('[data-itin-next]', root).prop('hidden', n === 3);
-        $('[data-itin-run]', root).prop('hidden', n !== 3);
+        $('[data-itin-next]', root).prop('hidden', n === 5);
+        $('[data-itin-run]', root).prop('hidden', n !== 5);
     }
 
     // ---- Sidebar / picks ----
@@ -198,7 +201,8 @@
     });
     $(root).on('input', '[data-role="min_price"]', function () { state.min_price = $(this).val() === '' ? null : parseFloat($(this).val()); save(state); sync(); });
     $(root).on('input', '[data-role="max_price"]', function () { state.max_price = $(this).val() === '' ? null : parseFloat($(this).val()); save(state); sync(); });
-    $(root).on('click', '[data-itin-next]', function () { showStep(Math.min(3, current + 1)); });
+    $(root).on('change', '[data-role="travelers"]', function () { state.travelers = parseInt($(this).val(), 10) || 2; save(state); sync(); });
+    $(root).on('click', '[data-itin-next]', function () { showStep(Math.min(5, current + 1)); });
     $(root).on('click', '[data-itin-prev]', function () { showStep(Math.max(1, current - 1)); });
     $(root).on('click', '[data-itin-run]', function () { $('form[data-itin-form]', root).trigger('submit'); });
     $(root).on('click', '.tap-itin-item .tap-itin-add', function () {
@@ -238,6 +242,37 @@
             }
         }).always(function () { $btn.prop('disabled', false); });
     });
+
+    // ---- Date pickers ----
+    if ($.datepicker) {
+        $('[data-role="check_in"]', root).datepicker({
+            dateFormat: 'yy-mm-dd',
+            minDate: 0,
+            onSelect: function (date) {
+                state.check_in = date;
+                var d = $(this).datepicker('getDate');
+                if (d) {
+                    var next = new Date(d.getTime() + 86400000);
+                    $('[data-role="check_out"]', root).datepicker('option', 'minDate', next);
+                    if (!state.check_out) {
+                        $('[data-role="check_out"]', root).datepicker('setDate', next);
+                        state.check_out = $.datepicker.formatDate('yy-mm-dd', next);
+                    }
+                }
+                save(state); sync();
+            }
+        });
+        $('[data-role="check_out"]', root).datepicker({
+            dateFormat: 'yy-mm-dd',
+            minDate: 1,
+            onSelect: function (date) {
+                state.check_out = date;
+                save(state); sync();
+            }
+        });
+        if (state.check_in) { $('[data-role="check_in"]', root).datepicker('setDate', state.check_in); }
+        if (state.check_out) { $('[data-role="check_out"]', root).datepicker('setDate', state.check_out); }
+    }
 
     // ---- Boot ----
     renderInterests();

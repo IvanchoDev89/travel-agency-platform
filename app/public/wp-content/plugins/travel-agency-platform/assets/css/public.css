@@ -3609,3 +3609,88 @@ html.dark .tap-itin-toast {
   color: var(--tap-neutral-900);
   border: 1px solid var(--tap-neutral-200);
 }
+
+/* ===== Itinerary wizard v2: tips, dates, travelers ===== */
+.tap-itin-step-head { margin-bottom: var(--tap-space-5); }
+.tap-itin-step-head h3 { font-size: var(--tap-text-xl); font-weight: 700; color: var(--tap-neutral-900); margin: 0 0 4px; }
+.tap-itin-step-head p { color: var(--tap-neutral-500); font-size: var(--tap-text-sm); margin: 0; }
+
+.tap-itin-tip {
+  display: flex;
+  gap: var(--tap-space-3);
+  align-items: flex-start;
+  padding: var(--tap-space-4);
+  margin-bottom: var(--tap-space-6);
+  background: var(--tap-primary-bg);
+  border: 1px solid var(--tap-primary-border, rgba(13,148,136,0.25));
+  border-radius: var(--tap-radius-lg);
+  font-size: var(--tap-text-sm);
+  line-height: var(--tap-leading-relaxed);
+  color: var(--tap-neutral-700);
+}
+.tap-itin-tip-icon { font-size: 1.25rem; flex-shrink: 0; line-height: 1; }
+.tap-itin-tip strong { color: var(--tap-primary-dark, #0f766e); }
+
+.tap-itin-dates {
+  display: flex;
+  gap: var(--tap-space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--tap-space-5);
+}
+.tap-itin-dates label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--tap-text-sm);
+  font-weight: 600;
+  color: var(--tap-neutral-700);
+  flex: 1 1 180px;
+}
+.tap-itin-dates input {
+  margin-top: 4px;
+  padding: var(--tap-space-3);
+  border: 1px solid var(--tap-neutral-200);
+  border-radius: var(--tap-radius-lg);
+  font-size: var(--tap-text-base);
+  background: var(--tap-surface);
+  color: var(--tap-neutral-800);
+  cursor: pointer;
+}
+.tap-itin-dates input:focus { outline: none; border-color: var(--tap-primary); }
+
+.tap-itin-travelers { margin-bottom: var(--tap-space-5); }
+.tap-itin-travelers label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--tap-text-sm);
+  font-weight: 600;
+  color: var(--tap-neutral-700);
+}
+.tap-itin-travelers select {
+  margin-top: 4px;
+  padding: var(--tap-space-3);
+  border: 1px solid var(--tap-neutral-200);
+  border-radius: var(--tap-radius-lg);
+  font-size: var(--tap-text-base);
+  background: var(--tap-surface);
+  color: var(--tap-neutral-800);
+  cursor: pointer;
+  max-width: 240px;
+}
+
+/* Dark mode for new wizard components */
+html.dark .tap-itin-tip {
+  background: rgba(13, 148, 136, 0.12);
+  border-color: rgba(45, 212, 191, 0.25);
+  color: var(--tap-neutral-600);
+}
+html.dark .tap-itin-tip strong { color: var(--tap-primary); }
+html.dark .tap-itin-dates label,
+html.dark .tap-itin-travelers label { color: var(--tap-neutral-700); }
+html.dark .tap-itin-dates input,
+html.dark .tap-itin-travelers select {
+  background: var(--tap-surface-2);
+  color: var(--tap-neutral-800);
+  border-color: var(--tap-neutral-300);
+}

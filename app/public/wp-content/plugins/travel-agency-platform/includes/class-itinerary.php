@@ -134,6 +134,10 @@ class TAP_Itinerary {
             $budget['max'] = abs(floatval($raw['max_price']));
         }
 
+        $check_in = isset($raw['check_in']) ? sanitize_text_field($raw['check_in']) : '';
+        $check_out = isset($raw['check_out']) ? sanitize_text_field($raw['check_out']) : '';
+        $travelers = isset($raw['travelers']) ? max(1, intval($raw['travelers'])) : 2;
+
         return [
             'interests'  => array_values(array_unique($interests)),
             'categories' => array_values(array_unique($categories)),
@@ -141,6 +145,9 @@ class TAP_Itinerary {
             'types'      => array_values(array_unique($types)),
             'min_price'  => $budget['min'],
             'max_price'  => $budget['max'],
+            'check_in'   => $check_in,
+            'check_out'  => $check_out,
+            'travelers'  => $travelers,
         ];
     }
 
@@ -425,7 +432,7 @@ class TAP_Itinerary {
             return self::share_view(sanitize_text_field(wp_unslash($_GET['itin'] ?? '')));
         }
 
-        wp_enqueue_script('tap-itinerary', TAP_PLUGIN_URL . 'assets/js/itinerary.js', ['jquery'], TAP_VERSION, true);
+        wp_enqueue_script('tap-itinerary', TAP_PLUGIN_URL . 'assets/js/itinerary.js', ['jquery', 'jquery-ui-datepicker'], TAP_VERSION, true);
         wp_localize_script('tap-itinerary', 'tapItinerary', [
             'ajax_url'      => admin_url('admin-ajax.php'),
             'nonce'         => wp_create_nonce('tap_nonce'),
@@ -464,23 +471,75 @@ class TAP_Itinerary {
                         <input type="hidden" name="types[]" data-itin-fld="types">
                         <input type="hidden" name="min_price" data-itin-fld="min_price">
                         <input type="hidden" name="max_price" data-itin-fld="max_price">
+                        <input type="hidden" name="check_in" data-itin-fld="check_in">
+                        <input type="hidden" name="check_out" data-itin-fld="check_out">
+                        <input type="hidden" name="travelers" data-itin-fld="travelers">
 
                         <section class="tap-itin-step is-active" data-itin-step="1">
-                            <h3><?php esc_html_e('1. Lo que te apasiona', 'travel-agency-platform'); ?></h3>
-                            <p><?php esc_html_e('Elegí uno o más intereses. Podés cambiar de idea cuando quieras.', 'travel-agency-platform'); ?></p>
+                            <div class="tap-itin-step-head">
+                                <h3><?php esc_html_e('1. ¿Qué te apasiona?', 'travel-agency-platform'); ?></h3>
+                                <p><?php esc_html_e('Elegí uno o más intereses. Podés cambiar de idea cuando quieras.', 'travel-agency-platform'); ?></p>
+                            </div>
+                            <div class="tap-itin-tip">
+                                <span class="tap-itin-tip-icon">💡</span>
+                                <div>
+                                    <strong><?php esc_html_e('Tip:', 'travel-agency-platform'); ?></strong>
+                                    <?php esc_html_e('Costa Rica tiene el 6% de la biodiversidad mundial. Si te gusta la naturaleza, probá "Naturaleza" y "Senderismo"; si preferís adrenalina, "Aventura" y "Náutico". Combiná varios para un viaje más completo.', 'travel-agency-platform'); ?>
+                                </div>
+                            </div>
                             <div class="tap-itin-chips" data-role="interests"></div>
                             <div class="tap-itin-chips tap-itin-chips-cat" data-role="categories"></div>
                         </section>
 
                         <section class="tap-itin-step" data-itin-step="2">
-                            <h3><?php esc_html_e('2. ¿Hacia dónde viajás?', 'travel-agency-platform'); ?></h3>
-                            <p><?php esc_html_e('Podés combinar varios destinos en un mismo itinerario.', 'travel-agency-platform'); ?></p>
+                            <div class="tap-itin-step-head">
+                                <h3><?php esc_html_e('2. ¿Hacia dónde viajás?', 'travel-agency-platform'); ?></h3>
+                                <p><?php esc_html_e('Podés combinar varios destinos en un mismo itinerario.', 'travel-agency-platform'); ?></p>
+                            </div>
+                            <div class="tap-itin-tip">
+                                <span class="tap-itin-tip-icon">🗺️</span>
+                                <div>
+                                    <strong><?php esc_html_e('Tip:', 'travel-agency-platform'); ?></strong>
+                                    <?php esc_html_e('La Fortuna (volcán Arenal), Monteverde (bosque nuboso) y Manuel Antonio (playa + fauna) son los clásicos. Para algo menos turístico, probá Sarapiquí, Drake Bay o Tortuguero. Cada región tiene su propia magia.', 'travel-agency-platform'); ?>
+                                </div>
+                            </div>
                             <div class="tap-itin-dest-grid" data-role="destinations"></div>
                         </section>
 
                         <section class="tap-itin-step" data-itin-step="3">
-                            <h3><?php esc_html_e('3. Presupuesto y tipo de servicio', 'travel-agency-platform'); ?></h3>
-                            <p><?php esc_html_e('Dejá libre el rango si querés que te mostremos todo.', 'travel-agency-platform'); ?></p>
+                            <div class="tap-itin-step-head">
+                                <h3><?php esc_html_e('3. ¿Cuándo viajás?', 'travel-agency-platform'); ?></h3>
+                                <p><?php esc_html_e('Seleccioná las fechas de tu viaje.', 'travel-agency-platform'); ?></p>
+                            </div>
+                            <div class="tap-itin-tip">
+                                <span class="tap-itin-tip-icon">☀️</span>
+                                <div>
+                                    <strong><?php esc_html_e('Tip:', 'travel-agency-platform'); ?></strong>
+                                    <?php esc_html_e('Temporada seca (dic-abr): mejor clima pero más caro y concurrido. Temporada verde (may-nov): lluvias por la tarde, paisajes exuberantes y precios más bajos. Evitá Semana Santa y Navidad si buscás tranquilidad.', 'travel-agency-platform'); ?>
+                                </div>
+                            </div>
+                            <div class="tap-itin-dates">
+                                <label><?php esc_html_e('Fecha de llegada', 'travel-agency-platform'); ?>
+                                    <input type="text" name="itin_checkin" data-role="check_in" placeholder="<?php esc_attr_e('Llegada', 'travel-agency-platform'); ?>" autocomplete="off" readonly class="tap-date-input">
+                                </label>
+                                <label><?php esc_html_e('Fecha de salida', 'travel-agency-platform'); ?>
+                                    <input type="text" name="itin_checkout" data-role="check_out" placeholder="<?php esc_attr_e('Salida', 'travel-agency-platform'); ?>" autocomplete="off" readonly class="tap-date-input">
+                                </label>
+                            </div>
+                        </section>
+
+                        <section class="tap-itin-step" data-itin-step="4">
+                            <div class="tap-itin-step-head">
+                                <h3><?php esc_html_e('4. Presupuesto y tipo de servicio', 'travel-agency-platform'); ?></h3>
+                                <p><?php esc_html_e('Dejá libre el rango si querés que te mostremos todo.', 'travel-agency-platform'); ?></p>
+                            </div>
+                            <div class="tap-itin-tip">
+                                <span class="tap-itin-tip-icon">💰</span>
+                                <div>
+                                    <strong><?php esc_html_e('Tip:', 'travel-agency-platform'); ?></strong>
+                                    <?php esc_html_e('Costa Rica es un destino de gama media-alta. Un día de tour cuesta entre $50-$150 por persona. Alojamiento: $60-$200/noche. Transporte privado: $80-$150. Considerá que los precios incluyen guía y equipo en la mayoría de los tours.', 'travel-agency-platform'); ?>
+                                </div>
+                            </div>
                             <div class="tap-itin-budget">
                                 <label><?php esc_html_e('Presupuesto mínimo', 'travel-agency-platform'); ?><input type="number" name="itin_min" min="0" step="1" data-role="min_price" placeholder="0"></label>
                                 <span class="tap-itin-budget-sep"></span>
@@ -492,8 +551,36 @@ class TAP_Itinerary {
                             <p class="tap-itin-budget-note"><?php esc_html_e('La búsqueda se hace en servicios activos publicados por agencias verificadas.', 'travel-agency-platform'); ?></p>
                         </section>
 
+                        <section class="tap-itin-step" data-itin-step="5">
+                            <div class="tap-itin-step-head">
+                                <h3><?php esc_html_e('5. ¿Quiénes viajan?', 'travel-agency-platform'); ?></h3>
+                                <p><?php esc_html_e('Contanos sobre tu grupo para personalizar las recomendaciones.', 'travel-agency-platform'); ?></p>
+                            </div>
+                            <div class="tap-itin-tip">
+                                <span class="tap-itin-tip-icon">👨‍👩‍👧‍👦</span>
+                                <div>
+                                    <strong><?php esc_html_e('Tip:', 'travel-agency-platform'); ?></strong>
+                                    <?php esc_html_e('Costa Rica es ideal para familias (tours de naturaleza, playas seguras), parejas (lodges románticos, aventura) y grupos de amigos (rafting, surf, vida nocturna). Algunos tours tienen edad mínima o restricciones de salud.', 'travel-agency-platform'); ?>
+                                </div>
+                            </div>
+                            <div class="tap-itin-travelers">
+                                <label><?php esc_html_e('Cantidad de viajeros', 'travel-agency-platform'); ?>
+                                    <select data-role="travelers" name="itin_travelers">
+                                        <option value="1">1 <?php esc_html_e('viajero', 'travel-agency-platform'); ?></option>
+                                        <option value="2" selected>2 <?php esc_html_e('viajeros', 'travel-agency-platform'); ?></option>
+                                        <option value="3">3 <?php esc_html_e('viajeros', 'travel-agency-platform'); ?></option>
+                                        <option value="4">4 <?php esc_html_e('viajeros', 'travel-agency-platform'); ?></option>
+                                        <option value="5">5 <?php esc_html_e('viajeros', 'travel-agency-platform'); ?></option>
+                                        <option value="6">6+ <?php esc_html_e('viajeros', 'travel-agency-platform'); ?></option>
+                                    </select>
+                                </label>
+                            </div>
+                        </section>
+
                         <div class="tap-itin-nav">
-                            <button type="submit" class="tap-btn tap-btn-primary tap-itin-run" data-itin-run><?php esc_html_e('Buscar mi itinerario', 'travel-agency-platform'); ?></button>
+                            <button type="button" class="tap-btn tap-btn-outline tap-itin-prev" data-itin-prev disabled><?php esc_html_e('Anterior', 'travel-agency-platform'); ?></button>
+                            <button type="button" class="tap-btn tap-btn-primary tap-itin-next" data-itin-next><?php esc_html_e('Continuar', 'travel-agency-platform'); ?></button>
+                            <button type="submit" class="tap-btn tap-btn-secondary tap-itin-run" data-itin-run hidden><?php esc_html_e('Buscar mi itinerario', 'travel-agency-platform'); ?></button>
                         </div>
                     </form>
 
