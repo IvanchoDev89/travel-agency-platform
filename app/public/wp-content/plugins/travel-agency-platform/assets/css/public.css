@@ -3426,3 +3426,83 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 .tap-driver-profile { background: #f8fafc; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0; }
 .tap-driver-profile p { margin: 6px 0; font-size: 14px; color: #334155; }
 @media (max-width: 640px) { .tap-driver-summary { grid-template-columns: repeat(2, 1fr); } }
+
+/* ===== Dark mode (auto + manual toggle) for public components ===== */
+html.dark .tap-card,
+html.dark .tap-service-card,
+html.dark .tap-search-filters,
+html.dark .tap-hs-form,
+html.dark .tap-section-alt,
+html.dark .tap-stat-card,
+html.dark .tap-form-suggestions,
+html.dark .tap-hs-suggestions,
+html.dark .tap-dest-picker--collapsible,
+html.dark .tap-acc-booking-widget,
+html.dark .tap-referral-dashboard,
+html.dark .tap-panel-section,
+html.dark .tap-manage-form,
+html.dark .tap-voucher-inner,
+html.dark .tap-voucher-dispute,
+html.dark .tap-voucher-chat,
+html.dark .tap-review-item,
+html.dark .tap-room-card,
+html.dark .tap-acc-card,
+html.dark .tap-acc-archive-filters,
+html.dark .tap-room-row,
+html.dark .tap-chat-msg.theirs,
+html.dark .tap-tab,
+html.dark .tap-voucher-badges .tap-badge-ok,
+html.dark .tap-itin-item,
+html.dark .tap-itin-share,
+html.dark .tap-itin-form,
+html.dark .tap-itin-dest,
+html.dark .tap-itin-side-card,
+html.dark .tap-driver-summary-card,
+html.dark .tap-notif-dropdown,
+html.dark .tap-onboarding-help,
+html.dark .tap-referral-leaderboard,
+html.dark .tap-referral-rules,
+html.dark .tap-referral-dashboard--cool,
+html.dark .tap-referral-code,
+html.dark .tap-itin-share-timeline,
+html.dark .tap-itin-chip,
+html.dark .tap-meta-grid,
+html.dark .tap-service-detail .tap-meta-grid {
+  background: var(--tap-surface);
+  border-color: var(--tap-neutral-200);
+}
+html.dark .tap-input,
+html.dark .tap-hs-input,
+html.dark .tap-search-filters select,
+html.dark .tap-search-filters input[type="number"],
+html.dark .tap-dest-level select,
+html.dark .tap-acc-archive-filters select,
+html.dark .tap-acc-archive-filters input,
+html.dark .tap-voucher-inner input,
+html.dark .tap-voucher-inner select,
+html.dark .tap-voucher-inner textarea {
+  background: var(--tap-surface-2);
+  color: var(--tap-neutral-800);
+  border-color: var(--tap-neutral-300);
+}
+html.dark .tap-hs-suggestions {
+  background: var(--tap-surface);
+  border-color: var(--tap-neutral-300);
+}
+html.dark .tap-hs-suggestion-title { color: var(--tap-neutral-800); }
+html.dark .tap-hs-suggestion-type { color: var(--tap-neutral-500); }
+html.dark .tap-hs-suggestion-item:hover { background: var(--tap-primary-bg); }
+html.dark .tap-card h3,
+html.dark .tap-service-card h3,
+html.dark .tap-acc-card h3,
+html.dark .tap-review-item .tap-review-author,
+html.dark .tap-itin-item h3,
+html.dark .tap-itin-dest .tap-itin-dest-name {
+  color: var(--tap-neutral-900);
+}
+html.dark .tap-card-meta,
+html.dark .tap-service-card .tap-card-meta,
+html.dark .tap-review-item .tap-review-date,
+html.dark .tap-itin-item p {
+  color: var(--tap-neutral-500);
+}

@@ -6,6 +6,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.58] — 2026-11-08
+
+### Fixed
+- **Landing dark mode**: cards, search filters, inputs and surfaces in `public.css` stayed white with light text, making text invisible in dark mode. They now adapt to `--tap-surface` / `--tap-surface-2`.
+- **Landing hero dark mode**: wave separator fill now matches the stats section background, eliminating the visible seam.
+- **FAQ dark mode**: FAQ items and links now adapt to dark surfaces.
+
+---
+
 ## [1.5.57] — 2026-11-08
 
 ### Fixed
