@@ -11,6 +11,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 ### Fixed
 - **Landing hero search form** pointed to `/resultados-de-busqueda/` (404); it now targets the canonical `/search-results/` page.
 - **Search results filter form** used the full (messy) current URL as its action, duplicating query params on every submit; it now posts to a clean `/search-results/` URL and preserves the active filters.
+- **Search results destination picker** had no responsive layout and overflowed horizontally, hiding the result list; it now wraps and takes full width.
 - **Landing Page Builder order and toggles** were ignored by the front-end: `front-page.php` only honoured `enabled`. All 16 sections are now buffered and printed in builder order, and each toggle controls only its own section.
 - **Destinations** was nested under the "Datos de Costa Rica" toggle and **blog pillars** under the "Blog" toggle; both are now independent sections.
 - **Interests chips** were controlled by the legacy `categories` type; the section now uses `interests`.
