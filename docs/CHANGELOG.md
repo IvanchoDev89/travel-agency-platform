@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.59] — 2026-11-08
+
+### Changed
+- **Itinerary builder (`/armar-mi-viaje/`)**: redesigned from 3-step wizard to a 2-column layout (filters + results, cart sidebar). Added toast feedback on add/remove, persisted cart in localStorage, full dark-mode support for all itinerary components.
+
+### Fixed
+- Itinerary components had hardcoded `#fff` backgrounds causing invisible text in dark mode.
+
+---
+
 ## [1.5.58] — 2026-11-08
 
 ### Fixed
