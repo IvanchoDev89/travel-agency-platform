@@ -42,6 +42,7 @@ class TAP_Front_Dash_Client {
         return [
             ['key' => 'overview', 'label' => __('Resumen', 'travel-agency-platform'), 'icon' => 'home', 'url' => $base],
             ['key' => 'bookings', 'label' => __('Mis reservas', 'travel-agency-platform'), 'icon' => 'calendar', 'url' => add_query_arg('seccion', 'bookings', $base)],
+            ['key' => 'trips', 'label' => __('Mis viajes', 'travel-agency-platform'), 'icon' => 'map', 'url' => add_query_arg('seccion', 'trips', $base)],
             ['key' => 'favorites', 'label' => __('Favoritos', 'travel-agency-platform'), 'icon' => 'heart', 'url' => add_query_arg('seccion', 'favorites', $base)],
             ['key' => 'reviews', 'label' => __('Mis reseñas', 'travel-agency-platform'), 'icon' => 'star', 'url' => add_query_arg('seccion', 'reviews', $base)],
             ['key' => 'loyalty', 'label' => __('Puntos y referidos', 'travel-agency-platform'), 'icon' => 'star', 'url' => add_query_arg('seccion', 'loyalty', $base)],
@@ -53,6 +54,8 @@ class TAP_Front_Dash_Client {
         switch ($section) {
             case 'bookings':
                 return self::client_bookings($user);
+            case 'trips':
+                return self::client_trips($user);
             case 'favorites':
                 return self::client_favorites($user);
             case 'reviews':
@@ -439,6 +442,86 @@ class TAP_Front_Dash_Client {
     }
 
     /* ── client: favorites ─────────────────────────────────────────── */
+
+    private static function client_trips($user) {
+        global $wpdb;
+        $bookings = TAP_Booking::get_client_bookings($user->ID);
+        $trip_bookings = [];
+        foreach ($bookings as $b) {
+            if (!empty($b->trip_id)) {
+                $trip_bookings[] = $b;
+            }
+        }
+
+        ob_start();
+        ?>
+        <div class="tap-dash-header">
+            <h1><?php esc_html_e('Mis viajes', 'travel-agency-platform'); ?></h1>
+            <p><?php esc_html_e('Seguimiento en tiempo real de tus viajes de transporte.', 'travel-agency-platform'); ?></p>
+        </div>
+
+        <?php if (empty($trip_bookings)) : ?>
+            <div class="tap-dash-empty">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+                <h3><?php esc_html_e('Sin viajes de transporte', 'travel-agency-platform'); ?></h3>
+                <p><?php esc_html_e('Cuando reserves un transporte, podrás seguirlo en tiempo real aquí.', 'travel-agency-platform'); ?></p>
+                <a href="<?php echo esc_url(home_url('/transport/')); ?>" class="tap-btn tap-btn-primary"><?php esc_html_e('Buscar transportes', 'travel-agency-platform'); ?></a>
+            </div>
+        <?php else: ?>
+            <?php foreach ($trip_bookings as $b):
+                $trip = class_exists('TAP_Transport_Trips') ? TAP_Transport_Trips::get((int) $b->trip_id) : null;
+                if (!$trip) continue;
+            ?>
+                <div class="tap-client-trip" data-trip="<?php echo (int) $trip->id; ?>">
+                    <h3><?php echo esc_html(get_the_title((int) $b->service_id)); ?></h3>
+                    <p><?php esc_html_e('Estado:', 'travel-agency-platform'); ?> <strong id="trip-status-<?php echo (int) $trip->id; ?>"><?php echo esc_html($trip->status); ?></strong></p>
+                    <p><?php echo esc_html($trip->departure_time); ?> → <?php echo esc_html($trip->arrival_time ?: '—'); ?></p>
+                    <?php if ($trip->route_id): ?>
+                        <?php $route = TAP_Transport_Routes::get((int) $trip->route_id); ?>
+                        <?php if ($route): ?>
+                            <p>📍 <?php echo esc_html($route->origin); ?> → <?php echo esc_html($route->destination); ?></p>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                    <link rel="stylesheet" href="<?php echo esc_url(TAP_PLUGIN_URL . 'assets/leaflet/leaflet.css'); ?>">
+                    <script src="<?php echo esc_url(TAP_PLUGIN_URL . 'assets/leaflet/leaflet.js'); ?>"></script>
+                    <div id="trip-map-<?php echo (int) $trip->id; ?>" style="height:220px;border-radius:8px;margin:10px 0;"></div>
+                    <script>
+                    (function(){
+                        if (typeof L === 'undefined') return;
+                        var map = L.map('trip-map-<?php echo (int) $trip->id; ?>').setView([9.93, -84.08], 8);
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap'}).addTo(map);
+                        var marker = null;
+                        var tripId = <?php echo (int) $trip->id; ?>;
+                        var nonce = '<?php echo esc_js(wp_create_nonce('tap_transport_nonce')); ?>';
+                        function update() {
+                            var fd = new FormData();
+                            fd.append('action', 'tap_transport_live');
+                            fd.append('trip_id', tripId);
+                            fd.append('nonce', nonce);
+                            fetch((window.tapDash && window.tapDash.ajax_url) || '/wp-admin/admin-ajax.php', {method:'POST', body:fd, credentials:'same-origin'})
+                            .then(function(r){ return r.json(); })
+                            .then(function(res){
+                                if (res && res.success && res.data.position) {
+                                    var pos = res.data.position;
+                                    if (marker) map.removeLayer(marker);
+                                    marker = L.marker([pos.lat, pos.lng]).addTo(map).bindPopup('Tu conductor');
+                                    map.setView([pos.lat, pos.lng], 13);
+                                }
+                                if (res && res.success && res.data.trip) {
+                                    document.getElementById('trip-status-<?php echo (int) $trip->id; ?>').textContent = res.data.trip.status;
+                                }
+                            });
+                        }
+                        update();
+                        setInterval(update, 30000);
+                    })();
+                    </script>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
+        <?php
+        return ob_get_clean();
+    }
 
     private static function client_favorites($user) {
         $favorites = get_user_meta($user->ID, 'tap_favorites', true);
