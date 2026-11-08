@@ -1064,7 +1064,7 @@ img { max-width: 100%; height: auto; }
 /* ---------- Landing FAQ ---------- */
 .tap-landing-faq-wrap { max-width: 860px; }
 .tap-landing-faq-list { display: flex; flex-direction: column; gap: 12px; }
-.tap-landing-faq-item { background: #fff; border: 1px solid var(--tap-neutral-100, #f1f5f9); border-radius: 14px; box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04); overflow: hidden; }
+.tap-landing-faq-item { background: var(--tap-surface); border: 1px solid var(--tap-neutral-100, #f1f5f9); border-radius: 14px; box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04); overflow: hidden; }
 .tap-landing-faq-item summary { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 16px 20px; cursor: pointer; font-weight: 600; font-size: 0.98rem; color: var(--tap-neutral-900, #0f172a); list-style: none; }
 .tap-landing-faq-item summary::-webkit-details-marker { display: none; }
 .tap-landing-faq-item summary:hover { background: var(--tap-primary-bg, #f0fdfa); }
@@ -1084,7 +1084,7 @@ img { max-width: 100%; height: auto; }
 
 /* ---------- Blog pillar chips ---------- */
 .tap-blog-pillars { display: flex; flex-wrap: wrap; gap: 8px; margin: var(--tap-space-5) 0 var(--tap-space-4); }
-.tap-blog-pillar { padding: 6px 15px; border: 1px solid var(--tap-border, #e2e8f0); border-radius: 999px; font-size: 0.85rem; font-weight: 600; color: var(--tap-neutral-600, #475569); text-decoration: none; background: #fff; transition: all var(--tap-transition); }
+.tap-blog-pillar { padding: 6px 15px; border: 1px solid var(--tap-border, #e2e8f0); border-radius: 999px; font-size: 0.85rem; font-weight: 600; color: var(--tap-neutral-600, #475569); text-decoration: none; background: var(--tap-surface); transition: all var(--tap-transition); }
 .tap-blog-pillar:hover { border-color: var(--tap-primary, #0d9488); color: var(--tap-primary-dark, #0f766e); }
 .tap-blog-pillar.is-active { background: var(--tap-primary, #0d9488); border-color: var(--tap-primary, #0d9488); color: #fff; }
 .tap-blog-cat { color: var(--tap-primary-dark, #0f766e); font-weight: 600; }
@@ -1323,6 +1323,9 @@ html.dark {
   .tap-landing-chip { background: var(--tap-surface-2); border-color: var(--tap-neutral-300); color: var(--tap-neutral-700); }
   .tap-landing-chip:hover { border-color: var(--tap-primary); color: var(--tap-primary); }
   .tap-landing-chip-all { background: var(--tap-primary); color: #fff; border-color: var(--tap-primary); }
+  .tap-landing-faq-item { background: var(--tap-surface); border-color: var(--tap-neutral-200); box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+  .tap-landing-faq-item summary:hover { background: var(--tap-primary-bg); }
+  .tap-landing-faq-more a { color: var(--tap-primary); }
   .tap-landing-facts { background: linear-gradient(135deg, #0f766e, #0d9488); }
   .tap-landing-cta { background: var(--tap-bg); }
   .tap-btn-outline { border-color: var(--tap-neutral-300); color: var(--tap-neutral-700); }
@@ -1345,9 +1348,9 @@ html.dark {
   .tap-lang-selector a { color: var(--tap-neutral-600); }
   .tap-lang-selector a.is-active { background: var(--tap-primary); color: #fff; }
   a { color: var(--tap-primary); }
-  h1, h2, h3, h4, h5, h6 { color: var(--tap-neutral-900); }
+  html.dark h1, html.dark h2, html.dark h3, html.dark h4, html.dark h5, html.dark h6 { color: var(--tap-neutral-900); font-weight: 600; letter-spacing: 0.01em; }
   .tap-landing-hero { background: radial-gradient(900px 460px at 88% -12%, rgba(20, 184, 166, 0.18), transparent 62%), radial-gradient(760px 420px at -8% 115%, rgba(217, 119, 6, 0.12), transparent 58%), linear-gradient(150deg, #020617 0%, #0a1628 40%, #0f2a2a 100%); }
-  .tap-landing-hero::after { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 46' preserveAspectRatio='none'%3E%3Cpath fill='%230b1220' d='M0 46h1440V12c-180 22-360 22-540 8S540-6 360 8 180 34 0 30z'/%3E%3C/svg%3E") center / cover no-repeat; }
+  .tap-landing-hero::after { background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 46' preserveAspectRatio='none'%3E%3Cpath fill='%231a2540' d='M0 46h1440V12c-180 22-360 22-540 8S540-6 360 8 180 34 0 30z'/%3E%3C/svg%3E") center / cover no-repeat; }
   .tap-landing-search { background: var(--tap-surface); border: 1px solid var(--tap-primary-border); box-shadow: 0 24px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(20,184,166,0.1); }
   .tap-landing-hero-title { text-shadow: 0 2px 30px rgba(0,0,0,0.5); }
   .tap-landing-hero-sub { color: rgba(203, 213, 225, 0.9); }
