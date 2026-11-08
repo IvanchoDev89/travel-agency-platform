@@ -998,6 +998,55 @@ class TAP_Shortcode_Booking {
             <button type="button" class="tap-btn tap-btn-outline" onclick="window.print()"><?php esc_html_e('Imprimir voucher', 'travel-agency-platform'); ?></button>
         </div>
         <?php
+        // Trip tracking (client-facing).
+        $trip_id = (int) ($booking->trip_id ?? 0);
+        if ($trip_id && class_exists('TAP_Transport_Trips')) :
+            $trip = TAP_Transport_Trips::get($trip_id);
+            if ($trip):
+        ?>
+        <div class="tap-trip-tracking" style="margin-top:24px;padding:16px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-lg);background:var(--tap-surface-muted);">
+            <h3><?php esc_html_e('Seguimiento del viaje', 'travel-agency-platform'); ?></h3>
+            <p><?php esc_html_e('Estado:', 'travel-agency-platform'); ?> <strong id="tap-trip-status"><?php echo esc_html($trip->status); ?></strong></p>
+            <div id="tap-trip-map" style="height:280px;border-radius:8px;overflow:hidden;margin-top:12px;"></div>
+            <link rel="stylesheet" href="<?php echo esc_url(TAP_PLUGIN_URL . 'assets/leaflet/leaflet.css'); ?>">
+            <script src="<?php echo esc_url(TAP_PLUGIN_URL . 'assets/leaflet/leaflet.js'); ?>"></script>
+            <script>
+            (function(){
+                if (typeof L === 'undefined') return;
+                var map = L.map('tap-trip-map').setView([9.93, -84.08], 8);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap'}).addTo(map);
+                var marker = null;
+                var tripId = <?php echo (int) $trip_id; ?>;
+                var nonce = '<?php echo esc_js(wp_create_nonce('tap_transport_nonce')); ?>';
+                function update() {
+                    var fd = new FormData();
+                    fd.append('action', 'tap_transport_live');
+                    fd.append('trip_id', tripId);
+                    fd.append('nonce', nonce);
+                    fetch((window.tap_ajax && window.tap_ajax.ajax_url) || '/wp-admin/admin-ajax.php', {method:'POST', body:fd, credentials:'same-origin'})
+                    .then(function(r){ return r.json(); })
+                    .then(function(res){
+                        if (res && res.success && res.data.position) {
+                            var pos = res.data.position;
+                            if (marker) map.removeLayer(marker);
+                            marker = L.marker([pos.lat, pos.lng]).addTo(map).bindPopup('Tu conductor');
+                            map.setView([pos.lat, pos.lng], 13);
+                        }
+                        if (res && res.success && res.data.trip) {
+                            document.getElementById('tap-trip-status').textContent = res.data.trip.status;
+                        }
+                    });
+                }
+                update();
+                setInterval(update, 30000);
+            })();
+            </script>
+        </div>
+        <?php
+            endif;
+        endif;
+        ?>
+        <?php
         // Internal notes (agency/admin only).
         $uid = get_current_user_id();
         $can_note = false;

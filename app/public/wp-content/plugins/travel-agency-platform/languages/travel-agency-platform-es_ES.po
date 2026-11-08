@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-08T02:29:04+00:00\n"
+"POT-Creation-Date: 2026-11-08T02:32:27+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -2412,7 +2412,7 @@ msgstr "La imagen supera el tamaño máximo permitido (5 MB)."
 
 #: includes/class-ajax-public.php:515 includes/class-booking.php:62
 #: includes/class-emails-send.php:747 includes/class-itinerary.php:31
-#: includes/class-itinerary.php:88 includes/class-shortcode-booking.php:1069
+#: includes/class-itinerary.php:88 includes/class-shortcode-booking.php:1118
 #: includes/class-taxonomies.php:278
 msgid "Alojamiento"
 msgstr "Alojamiento"
@@ -2714,7 +2714,7 @@ msgstr "Futón"
 #: includes/class-booking.php:63 includes/class-dashboard-bookings.php:29
 #: includes/class-emails-send.php:749 includes/class-itinerary.php:32
 #: includes/class-post-types.php:105 includes/class-post-types.php:304
-#: includes/class-shortcode-booking.php:1070
+#: includes/class-shortcode-booking.php:1119
 msgid "Tour"
 msgstr "Tour"
 
@@ -2725,7 +2725,7 @@ msgstr "Experiencia"
 
 #: includes/class-booking.php:65 includes/class-emails-send.php:750
 #: includes/class-itinerary.php:33 includes/class-itinerary.php:90
-#: includes/class-seo.php:67 includes/class-shortcode-booking.php:1071
+#: includes/class-seo.php:67 includes/class-shortcode-booking.php:1120
 #: includes/class-shortcode-search.php:217
 msgid "Transporte"
 msgstr "Transporte"
@@ -2740,7 +2740,7 @@ msgid "Barco"
 msgstr "Barco"
 
 #: includes/class-booking.php:68 includes/class-emails-send.php:753
-#: includes/class-itinerary.php:36 includes/class-shortcode-booking.php:1074
+#: includes/class-itinerary.php:36 includes/class-shortcode-booking.php:1123
 msgid "Paquete"
 msgstr "Paquete"
 
@@ -3238,7 +3238,7 @@ msgid "Aún no tienes referidos. ¡Comparte tu enlace!"
 msgstr "Aún no tienes referidos. ¡Comparte tu enlace!"
 
 #: includes/class-customer-referrals.php:525 includes/class-itinerary.php:413
-#: includes/class-shortcode-booking.php:1112
+#: includes/class-shortcode-booking.php:1161
 msgid "Copiado"
 msgstr "Copiado"
 
@@ -10752,8 +10752,8 @@ msgid "Explorar tours"
 msgstr "Explorar tours"
 
 #: includes/class-front-dash-client.php:389 includes/class-itinerary.php:395
-#: includes/class-shortcode-booking.php:1100
-#: includes/class-shortcode-booking.php:1157
+#: includes/class-shortcode-booking.php:1149
+#: includes/class-shortcode-booking.php:1206
 #: includes/class-shortcode-search.php:319
 #: includes/class-shortcode-search.php:1235
 msgid "Ver detalles"
@@ -10807,7 +10807,7 @@ msgstr ""
 "después."
 
 #: includes/class-front-dash-client.php:495
-#: includes/class-shortcode-booking.php:1101
+#: includes/class-shortcode-booking.php:1150
 msgid "Quitar de favoritos"
 msgstr "Quitar de favoritos"
 
@@ -11363,7 +11363,7 @@ msgstr "Miembros del equipo"
 msgid "Aún no hay empleados en el equipo."
 msgstr "Aún no hay empleados en el equipo."
 
-#: includes/class-front-dash.php:1193 includes/class-shortcode-booking.php:1102
+#: includes/class-front-dash.php:1193 includes/class-shortcode-booking.php:1151
 msgid "Quitar"
 msgstr "Quitar"
 
@@ -15373,19 +15373,27 @@ msgstr ""
 msgid "Escribe un mensaje para la agencia..."
 msgstr "Escribe un mensaje para la agencia..."
 
-#: includes/class-shortcode-booking.php:1015
+#: includes/class-shortcode-booking.php:1008
+msgid "Seguimiento del viaje"
+msgstr "Seguimiento del viaje"
+
+#: includes/class-shortcode-booking.php:1009 includes/class-transport.php:317
+msgid "Estado:"
+msgstr "Estado:"
+
+#: includes/class-shortcode-booking.php:1064
 msgid "Notas internas"
 msgstr "Notas internas"
 
-#: includes/class-shortcode-booking.php:1017
+#: includes/class-shortcode-booking.php:1066
 msgid "Guardar nota"
 msgstr "Guardar nota"
 
-#: includes/class-shortcode-booking.php:1048
+#: includes/class-shortcode-booking.php:1097
 msgid "Inicia sesión para ver tus favoritos."
 msgstr "Inicia sesión para ver tus favoritos."
 
-#: includes/class-shortcode-booking.php:1053
+#: includes/class-shortcode-booking.php:1102
 msgid ""
 "Aún no tienes favoritos. Toca el corazón ♥ en cualquier servicio para "
 "guardarlo aquí."
@@ -15393,27 +15401,27 @@ msgstr ""
 "Aún no tienes favoritos. Toca el corazón ♥ en cualquier servicio para "
 "guardarlo aquí."
 
-#: includes/class-shortcode-booking.php:1065
+#: includes/class-shortcode-booking.php:1114
 msgid "No se encontraron servicios favoritos."
 msgstr "No se encontraron servicios favoritos."
 
-#: includes/class-shortcode-booking.php:1072 templates/landing/categories.php:8
+#: includes/class-shortcode-booking.php:1121 templates/landing/categories.php:8
 msgid "Alquiler de autos"
 msgstr "Alquiler de autos"
 
-#: includes/class-shortcode-booking.php:1073
+#: includes/class-shortcode-booking.php:1122
 msgid "Paseo en bote"
 msgstr "Paseo en bote"
 
-#: includes/class-shortcode-booking.php:1112
+#: includes/class-shortcode-booking.php:1161
 msgid "Compartir mi lista"
 msgstr "Compartir mi lista"
 
-#: includes/class-shortcode-booking.php:1127
+#: includes/class-shortcode-booking.php:1176
 msgid "No se especificaron favoritos."
 msgstr "No se especificaron favoritos."
 
-#: includes/class-shortcode-booking.php:1138
+#: includes/class-shortcode-booking.php:1187
 msgid "No se encontraron servicios."
 msgstr "No se encontraron servicios."
 
@@ -17145,10 +17153,6 @@ msgstr "Mis viajes de hoy"
 #: includes/class-transport.php:311
 msgid "No tienes viajes asignados para hoy."
 msgstr "No tienes viajes asignados para hoy."
-
-#: includes/class-transport.php:317
-msgid "Estado:"
-msgstr "Estado:"
 
 #: includes/class-transport.php:322
 msgid "Sin pasajeros."
