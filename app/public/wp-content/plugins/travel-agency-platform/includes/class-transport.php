@@ -305,7 +305,11 @@ class TAP_Transport_Driver_Dashboard {
         $trips = TAP_Transport_Trips::for_driver((int) $driver->id, $today . ' 00:00:00', $today . ' 23:59:59');
         $upcoming = TAP_Transport_Trips::for_driver((int) $driver->id, gmdate('Y-m-d', strtotime('+1 day')) . ' 00:00:00', gmdate('Y-m-d', strtotime('+7 days')) . ' 23:59:59');
         $completed = TAP_Transport_Trips::for_driver((int) $driver->id, gmdate('Y-m-d', strtotime('-30 days')) . ' 00:00:00', gmdate('Y-m-d', strtotime('-1 day')) . ' 23:59:59');
-        $vehicle = $driver->vehicle_id ? TAP_Transport_Vehicles::get((int) $driver->vehicle_id) : null;
+        // Find vehicle assigned to this driver.
+        $vehicle = null;
+        global $wpdb;
+        $vid = (int) $wpdb->get_var($wpdb->prepare("SELECT id FROM " . TAP_Transport_Vehicles::table() . " WHERE driver_id = %d LIMIT 1", (int) $driver->id));
+        if ($vid) $vehicle = TAP_Transport_Vehicles::get($vid);
         ob_start();
         ?>
         <div class="tap-driver-dashboard" id="tap-driver-dashboard">
