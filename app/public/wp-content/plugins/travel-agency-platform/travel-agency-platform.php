@@ -220,6 +220,9 @@ final class TravelAgencyPlatform {
         add_action('wp_ajax_tap_agency_tour_schedule', ['TAP_Tour_Availability', 'ajax_schedule']);
         add_action('wp_ajax_tap_agency_tour_slot', ['TAP_Tour_Availability', 'ajax_slot']);
         add_action('wp_ajax_tap_toggle_favorite', ['TAP_Ajax', 'toggle_favorite']);
+        add_action('wp_ajax_tap_transport_status', ['TAP_Transport_Ajax', 'update_status']);
+        add_action('wp_ajax_tap_transport_position', ['TAP_Transport_Ajax', 'update_position']);
+        add_action('wp_ajax_tap_transport_live', ['TAP_Transport_Ajax', 'live']);
         add_action('wp_ajax_tap_save_internal_note', ['TAP_Ajax', 'save_internal_note']);
         add_action('wp_ajax_tap_onboarding_tour_done', ['TAP_Front_Dash', 'mark_onboarding_tour_seen']);
         add_action('wp_ajax_tap_agency_subscribe', ['TAP_Ajax_Commerce', 'agency_subscribe']);

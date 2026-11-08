@@ -213,6 +213,63 @@ class TAP_Transport_Trips {
     }
 }
 
+// AJAX handlers for transport (registered in plugin main).
+class TAP_Transport_Ajax {
+    public static function update_status() {
+        check_ajax_referer('tap_transport_nonce', 'nonce');
+        if (!is_user_logged_in()) wp_send_json_error(['message' => __('No autorizado.', 'travel-agency-platform')], 403);
+        $trip_id = absint($_POST['trip_id'] ?? 0);
+        $status = sanitize_key(wp_unslash($_POST['status'] ?? ''));
+        $trip = TAP_Transport_Trips::get($trip_id);
+        if (!$trip) wp_send_json_error(['message' => __('Viaje no encontrado.', 'travel-agency-platform')], 404);
+        // Permission: admin or assigned driver.
+        $uid = get_current_user_id();
+        $is_admin = current_user_can('manage_options');
+        $driver = TAP_Transport_Drivers::by_user($uid);
+        if (!$is_admin && (!$driver || (int) $driver->id !== (int) $trip->driver_id)) {
+            wp_send_json_error(['message' => __('Sin permiso.', 'travel-agency-platform')], 403);
+        }
+        $ok = TAP_Transport_Trips::update_status($trip_id, $status);
+        if (!$ok) wp_send_json_error(['message' => __('Transición no válida.', 'travel-agency-platform')]);
+        wp_send_json_success(['message' => __('Estado actualizado.', 'travel-agency-platform'), 'status' => $status]);
+    }
+
+    public static function update_position() {
+        check_ajax_referer('tap_transport_nonce', 'nonce');
+        if (!is_user_logged_in()) wp_send_json_error(['message' => __('No autorizado.', 'travel-agency-platform')], 403);
+        $trip_id = absint($_POST['trip_id'] ?? 0);
+        $lat = (float) ($_POST['lat'] ?? 0);
+        $lng = (float) ($_POST['lng'] ?? 0);
+        $speed = isset($_POST['speed']) ? (float) $_POST['speed'] : null;
+        $heading = isset($_POST['heading']) ? (int) $_POST['heading'] : null;
+        $trip = TAP_Transport_Trips::get($trip_id);
+        if (!$trip) wp_send_json_error(['message' => __('Viaje no encontrado.', 'travel-agency-platform')], 404);
+        $uid = get_current_user_id();
+        $is_admin = current_user_can('manage_options');
+        $driver = TAP_Transport_Drivers::by_user($uid);
+        if (!$is_admin && (!$driver || (int) $driver->id !== (int) $trip->driver_id)) {
+            wp_send_json_error(['message' => __('Sin permiso.', 'travel-agency-platform')], 403);
+        }
+        TAP_Transport_Tracking::record($trip_id, $lat, $lng, $speed, $heading);
+        wp_send_json_success(['message' => 'ok']);
+    }
+
+    public static function live() {
+        check_ajax_referer('tap_transport_nonce', 'nonce');
+        if (!is_user_logged_in()) wp_send_json_error(['message' => __('No autorizado.', 'travel-agency-platform')], 403);
+        $trip_id = absint($_POST['trip_id'] ?? 0);
+        $trip = TAP_Transport_Trips::get($trip_id);
+        if (!$trip) wp_send_json_error(['message' => __('Viaje no encontrado.', 'travel-agency-platform')], 404);
+        $pos = TAP_Transport_Tracking::latest($trip_id);
+        $passengers = TAP_Transport_Trips::passengers($trip_id);
+        wp_send_json_success([
+            'trip' => $trip,
+            'position' => $pos,
+            'passengers' => $passengers,
+        ]);
+    }
+}
+
 class TAP_Transport_Tracking {
     public static function table() { global $wpdb; return $wpdb->prefix . 'tap_trip_tracking'; }
     public static function record($trip_id, $lat, $lng, $speed = null, $heading = null) {

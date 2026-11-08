@@ -16,6 +16,7 @@ class TAP_Transport_Admin {
         add_submenu_page('travel-platform', __('Vehículos', 'travel-agency-platform'), __('Vehículos', 'travel-agency-platform'), 'manage_options', 'tap-vehicles', [__CLASS__, 'render_vehicles']);
         add_submenu_page('travel-platform', __('Conductores', 'travel-agency-platform'), __('Conductores', 'travel-agency-platform'), 'manage_options', 'tap-drivers', [__CLASS__, 'render_drivers']);
         add_submenu_page('travel-platform', __('Rutas', 'travel-agency-platform'), __('Rutas', 'travel-agency-platform'), 'manage_options', 'tap-routes', [__CLASS__, 'render_routes']);
+        add_submenu_page('travel-platform', __('Viajes', 'travel-agency-platform'), __('Viajes', 'travel-agency-platform'), 'manage_options', 'tap-trips', [__CLASS__, 'render_trips']);
     }
 
     public static function handle_actions() {
@@ -348,6 +349,107 @@ class TAP_Transport_Admin {
                     <?php endif; ?>
                 </tbody>
             </table>
+        </div>
+        <?php
+    }
+
+    public static function render_trips() {
+        if (!current_user_can('manage_options')) return;
+        global $wpdb;
+        $trips = TAP_Transport_Trips::for_agency(0) ?: [];
+        // Admin: get all trips
+        if (empty($trips)) {
+            $trips = $wpdb->get_results("SELECT * FROM " . TAP_Transport_Trips::table() . " ORDER BY departure_time DESC LIMIT 100") ?: [];
+        }
+        $statuses = ['scheduled','boarding','in_transit','completed','cancelled'];
+        ?>
+        <div class="wrap">
+            <h1><?php esc_html_e('Viajes', 'travel-agency-platform'); ?></h1>
+            <div id="tap-trips-map" style="height:360px;border-radius:12px;margin-bottom:20px;border:1px solid #e2e8f0;"></div>
+            <link rel="stylesheet" href="<?php echo esc_url(TAP_PLUGIN_URL . 'assets/leaflet/leaflet.css'); ?>">
+            <script src="<?php echo esc_url(TAP_PLUGIN_URL . 'assets/leaflet/leaflet.js'); ?>"></script>
+            <table class="widefat striped">
+                <thead><tr>
+                    <th><?php esc_html_e('ID', 'travel-agency-platform'); ?></th>
+                    <th><?php esc_html_e('Servicio', 'travel-agency-platform'); ?></th>
+                    <th><?php esc_html_e('Salida', 'travel-agency-platform'); ?></th>
+                    <th><?php esc_html_e('Llegada', 'travel-agency-platform'); ?></th>
+                    <th><?php esc_html_e('Estado', 'travel-agency-platform'); ?></th>
+                    <th><?php esc_html_e('Pasajeros', 'travel-agency-platform'); ?></th>
+                    <th><?php esc_html_e('Acciones', 'travel-agency-platform'); ?></th>
+                </tr></thead>
+                <tbody>
+                    <?php foreach ($trips as $tr): ?>
+                        <tr data-trip="<?php echo (int) $tr->id; ?>">
+                            <td><?php echo (int) $tr->id; ?></td>
+                            <td><?php echo esc_html(get_the_title((int) $tr->service_id)); ?></td>
+                            <td><?php echo esc_html($tr->departure_time); ?></td>
+                            <td><?php echo esc_html($tr->arrival_time ?: '—'); ?></td>
+                            <td><span class="tap-status tap-status-<?php echo esc_attr($tr->status); ?>"><?php echo esc_html($tr->status); ?></span></td>
+                            <td><?php echo count(TAP_Transport_Trips::passengers((int) $tr->id)); ?></td>
+                            <td>
+                                <?php if ('scheduled' === $tr->status): ?>
+                                    <button type="button" class="button button-small tap-trip-status" data-trip="<?php echo (int) $tr->id; ?>" data-status="boarding"><?php esc_html_e('Iniciar abordaje', 'travel-agency-platform'); ?></button>
+                                <?php elseif ('boarding' === $tr->status): ?>
+                                    <button type="button" class="button button-small tap-trip-status" data-trip="<?php echo (int) $tr->id; ?>" data-status="in_transit"><?php esc_html_e('Iniciar viaje', 'travel-agency-platform'); ?></button>
+                                <?php elseif ('in_transit' === $tr->status): ?>
+                                    <button type="button" class="button button-small tap-trip-status" data-trip="<?php echo (int) $tr->id; ?>" data-status="completed"><?php esc_html_e('Completar', 'travel-agency-platform'); ?></button>
+                                <?php endif; ?>
+                                <button type="button" class="button button-small tap-trip-live" data-trip="<?php echo (int) $tr->id; ?>"><?php esc_html_e('Ver en vivo', 'travel-agency-platform'); ?></button>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    <?php if (!$trips): ?>
+                        <tr><td colspan="7"><?php esc_html_e('No hay viajes.', 'travel-agency-platform'); ?></td></tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+            <script>
+            (function(){
+                if (typeof L === 'undefined') return;
+                var map = L.map('tap-trips-map').setView([9.93, -84.08], 8);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap'}).addTo(map);
+                var markers = {};
+                document.querySelectorAll('.tap-trip-live').forEach(function(btn){
+                    btn.addEventListener('click', function(){
+                        var tid = btn.getAttribute('data-trip');
+                        var fd = new FormData();
+                        fd.append('action', 'tap_transport_live');
+                        fd.append('trip_id', tid);
+                        fd.append('nonce', '<?php echo esc_js(wp_create_nonce('tap_transport_nonce')); ?>');
+                        fetch(ajaxurl, {method:'POST', body:fd, credentials:'same-origin'})
+                        .then(function(r){ return r.json(); })
+                        .then(function(res){
+                            if (res && res.success && res.data.position) {
+                                var pos = res.data.position;
+                                if (markers[tid]) map.removeLayer(markers[tid]);
+                                markers[tid] = L.marker([pos.lat, pos.lng]).addTo(map).bindPopup('Trip ' + tid);
+                                map.setView([pos.lat, pos.lng], 12);
+                            } else {
+                                alert('Sin posición disponible.');
+                            }
+                        });
+                    });
+                });
+                document.querySelectorAll('.tap-trip-status').forEach(function(btn){
+                    btn.addEventListener('click', function(){
+                        var tid = btn.getAttribute('data-trip');
+                        var st = btn.getAttribute('data-status');
+                        var fd = new FormData();
+                        fd.append('action', 'tap_transport_status');
+                        fd.append('trip_id', tid);
+                        fd.append('status', st);
+                        fd.append('nonce', '<?php echo esc_js(wp_create_nonce('tap_transport_nonce')); ?>');
+                        fetch(ajaxurl, {method:'POST', body:fd, credentials:'same-origin'})
+                        .then(function(r){ return r.json(); })
+                        .then(function(res){
+                            if (res && res.success) { location.reload(); }
+                            else { alert(res.data && res.data.message ? res.data.message : 'Error'); }
+                        });
+                    });
+                });
+            })();
+            </script>
         </div>
         <?php
     }
