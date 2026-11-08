@@ -137,6 +137,7 @@ final class TravelAgencyPlatform {
         add_action('init', ['TAP_Coupons', 'init'], 15);
         add_action('init', ['TAP_Affiliates', 'init'], 15);
         add_action('init', ['TAP_Transport_Admin', 'init'], 15);
+        add_action('init', ['TAP_Transport_Driver_Dashboard', 'init'], 15);
         add_action('init', ['TAP_Email_Templates', 'init'], 15);
         add_action('init', ['TAP_Security_Headers', 'init'], 15);
         add_action('plugins_loaded', [$this, 'maybe_update_tables'], 5);
@@ -223,6 +224,7 @@ final class TravelAgencyPlatform {
         add_action('wp_ajax_tap_transport_status', ['TAP_Transport_Ajax', 'update_status']);
         add_action('wp_ajax_tap_transport_position', ['TAP_Transport_Ajax', 'update_position']);
         add_action('wp_ajax_tap_transport_live', ['TAP_Transport_Ajax', 'live']);
+        add_action('wp_ajax_tap_transport_checkin', ['TAP_Transport_Ajax', 'checkin']);
         add_action('wp_ajax_tap_save_internal_note', ['TAP_Ajax', 'save_internal_note']);
         add_action('wp_ajax_tap_onboarding_tour_done', ['TAP_Front_Dash', 'mark_onboarding_tour_seen']);
         add_action('wp_ajax_tap_agency_subscribe', ['TAP_Ajax_Commerce', 'agency_subscribe']);

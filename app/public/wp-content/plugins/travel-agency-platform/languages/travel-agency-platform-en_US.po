@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-08T01:42:04+00:00\n"
+"POT-Creation-Date: 2026-11-08T02:29:04+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -874,7 +874,7 @@ msgstr "Click any day to edit its price, label or block it."
 #: includes/class-shortcode-booking.php:921
 #: includes/class-shortcode-booking.php:923
 #: includes/class-shortcode-booking.php:946
-#: includes/class-shortcode-booking.php:949 travel-agency-platform.php:368
+#: includes/class-shortcode-booking.php:949 travel-agency-platform.php:370
 msgid "Error"
 msgstr "Error"
 
@@ -2107,6 +2107,7 @@ msgstr "Processed: %d OK, %d with errors."
 #: includes/class-ajax-dash.php:190 includes/class-ajax-dash.php:575
 #: includes/class-ajax-public.php:66 includes/class-ajax.php:462
 #: includes/class-transport.php:230 includes/class-transport.php:251
+#: includes/class-transport.php:268
 msgid "Sin permiso."
 msgstr "No permission."
 
@@ -2285,6 +2286,7 @@ msgstr ""
 
 #: includes/class-ajax-listing.php:541 includes/class-ajax-public.php:432
 #: includes/class-booking.php:638 includes/class-booking.php:773
+#: includes/class-transport.php:297
 msgid "Debes iniciar sesión."
 msgstr "You must log in."
 
@@ -2372,6 +2374,7 @@ msgstr "The endpoint must use HTTPS."
 #: includes/class-ajax-public.php:105 includes/class-ajax.php:450
 #: includes/class-front-dash.php:909 includes/class-transport.php:220
 #: includes/class-transport.php:239 includes/class-transport.php:259
+#: includes/class-transport.php:276
 msgid "No autorizado."
 msgstr "Unauthorized."
 
@@ -9448,7 +9451,7 @@ msgstr "Send now?"
 #: includes/class-email-campaigns.php:265
 #: includes/class-front-dash-client.php:414 includes/class-front-dash.php:561
 #: includes/class-shortcode-account.php:811
-#: includes/class-shortcode-booking.php:900 travel-agency-platform.php:377
+#: includes/class-shortcode-booking.php:900 travel-agency-platform.php:379
 msgid "Enviar"
 msgstr "Send"
 
@@ -9960,7 +9963,7 @@ msgstr "Car rental"
 
 #: includes/class-emails-send.php:775 includes/class-metaboxes.php:1350
 #: includes/class-shortcode-booking.php:757
-#: includes/class-shortcode-search.php:40
+#: includes/class-shortcode-search.php:40 includes/class-transport.php:331
 msgid "Check-in"
 msgstr "Check-in"
 
@@ -14661,11 +14664,11 @@ msgid "Network error. Please try again."
 msgstr "Network error. Please try again."
 
 #: includes/class-shortcode-account.php:795
-#: includes/class-shortcode-account.php:797 travel-agency-platform.php:373
+#: includes/class-shortcode-account.php:797 travel-agency-platform.php:375
 msgid "Asistente de viajes"
 msgstr "Travel assistant"
 
-#: includes/class-shortcode-account.php:801 travel-agency-platform.php:378
+#: includes/class-shortcode-account.php:801 travel-agency-platform.php:380
 msgid ""
 "¡Hola! Soy el asistente de viajes. Pregunta por alojamientos, tours, bonos o "
 "agencias, o toca una sugerencia."
@@ -14674,7 +14677,7 @@ msgstr ""
 "or tap a suggestion."
 
 #: includes/class-shortcode-account.php:809
-#: includes/class-shortcode-account.php:810 travel-agency-platform.php:376
+#: includes/class-shortcode-account.php:810 travel-agency-platform.php:378
 msgid "Escribe tu pregunta…"
 msgstr "Type your question…"
 
@@ -14846,7 +14849,7 @@ msgid "Solicitar reserva"
 msgstr "Request to Book"
 
 #: includes/class-shortcode-booking.php:46
-#: includes/class-shortcode-booking.php:124 travel-agency-platform.php:367
+#: includes/class-shortcode-booking.php:124 travel-agency-platform.php:369
 msgid "Book Now"
 msgstr "Book Now"
 
@@ -17030,15 +17033,15 @@ msgstr "No routes."
 msgid "Llegada"
 msgstr "Arrival"
 
-#: includes/class-transport-admin.php:378
+#: includes/class-transport-admin.php:378 includes/class-transport.php:319
 msgid "Pasajeros"
 msgstr "Passengers"
 
-#: includes/class-transport-admin.php:392
+#: includes/class-transport-admin.php:392 includes/class-transport.php:340
 msgid "Iniciar abordaje"
 msgstr "Start boarding"
 
-#: includes/class-transport-admin.php:394
+#: includes/class-transport-admin.php:394 includes/class-transport.php:342
 msgid "Iniciar viaje"
 msgstr "Start trip"
 
@@ -17051,7 +17054,7 @@ msgid "No hay viajes."
 msgstr "No trips."
 
 #: includes/class-transport.php:224 includes/class-transport.php:246
-#: includes/class-transport.php:262
+#: includes/class-transport.php:263 includes/class-transport.php:279
 msgid "Viaje no encontrado."
 msgstr "Trip not found."
 
@@ -17062,6 +17065,34 @@ msgstr "Invalid transition."
 #: includes/class-transport.php:234
 msgid "Estado actualizado."
 msgstr "Status updated."
+
+#: includes/class-transport.php:271
+msgid "Check-in realizado."
+msgstr "Check-in completed."
+
+#: includes/class-transport.php:302
+msgid "No tienes un perfil de conductor."
+msgstr "You do not have a driver profile."
+
+#: includes/class-transport.php:309
+msgid "Mis viajes de hoy"
+msgstr "My trips today"
+
+#: includes/class-transport.php:311
+msgid "No tienes viajes asignados para hoy."
+msgstr "No trips assigned for today."
+
+#: includes/class-transport.php:317
+msgid "Estado:"
+msgstr "Status:"
+
+#: includes/class-transport.php:322
+msgid "Sin pasajeros."
+msgstr "No passengers."
+
+#: includes/class-transport.php:344
+msgid "Completar viaje"
+msgstr "Complete trip"
 
 #: includes/class-travel-insurance.php:18
 msgid "Básico"
@@ -17213,117 +17244,117 @@ msgid ""
 msgstr ""
 "The Composer autoloader was not found. Run \"composer dump-autoload -o\"."
 
-#: travel-agency-platform.php:345
+#: travel-agency-platform.php:347
 msgid "results found"
 msgstr "results found"
 
-#: travel-agency-platform.php:346
+#: travel-agency-platform.php:348
 msgid "No results found"
 msgstr "No results found"
 
-#: travel-agency-platform.php:347
+#: travel-agency-platform.php:349
 msgid "Guardado en favoritos"
 msgstr "Saved to favorites"
 
-#: travel-agency-platform.php:348
+#: travel-agency-platform.php:350
 msgid "Quitado de favoritos"
 msgstr "Removed from favorites"
 
-#: travel-agency-platform.php:349
+#: travel-agency-platform.php:351
 msgid "Aún no hay reseñas."
 msgstr "No reviews yet."
 
-#: travel-agency-platform.php:350
+#: travel-agency-platform.php:352
 msgid "Aún no hay reseñas. Sé el primero en compartir tu experiencia."
 msgstr "No reviews yet. Be the first to share your experience."
 
-#: travel-agency-platform.php:351
+#: travel-agency-platform.php:353
 msgid "reseña"
 msgstr "review"
 
-#: travel-agency-platform.php:352
+#: travel-agency-platform.php:354
 msgid "reseñas"
 msgstr "reviews"
 
-#: travel-agency-platform.php:353
+#: travel-agency-platform.php:355
 msgid "Anónimo"
 msgstr "Anonymous"
 
-#: travel-agency-platform.php:354
+#: travel-agency-platform.php:356
 msgid "Enviando..."
 msgstr "Sending..."
 
-#: travel-agency-platform.php:355
+#: travel-agency-platform.php:357
 msgid "¡Reseña enviada! Pendiente de aprobación."
 msgstr "Review submitted! Pending approval."
 
-#: travel-agency-platform.php:356
+#: travel-agency-platform.php:358
 msgid "Error al enviar"
 msgstr "Error sending"
 
-#: travel-agency-platform.php:357
+#: travel-agency-platform.php:359
 msgid "Review submitted"
 msgstr "Review submitted"
 
-#: travel-agency-platform.php:358
+#: travel-agency-platform.php:360
 msgid "Error al enviar la reseña"
 msgstr "Error submitting the review"
 
 #. translators: %s: nombre del servicio
-#: travel-agency-platform.php:360
+#: travel-agency-platform.php:362
 #, php-format
 msgid "Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!"
 msgstr "Thank you for your stay (%s). Tell us how it went!"
 
-#: travel-agency-platform.php:361
+#: travel-agency-platform.php:363
 msgid "Reseña verificada"
 msgstr "Verified review"
 
 #. translators: 1: cupos disponibles, 2: cupos totales
-#: travel-agency-platform.php:363
+#: travel-agency-platform.php:365
 #, php-format
 msgid "Cupos disponibles: %s de %s"
 msgstr "Available spots: %s of %s"
 
 #. translators: 1: cupos ocupados, 2: cupos totales
-#: travel-agency-platform.php:365
+#: travel-agency-platform.php:367
 #, php-format
 msgid "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
 msgstr "Full for this date (%s/%s). Please choose another date."
 
-#: travel-agency-platform.php:366
+#: travel-agency-platform.php:368
 msgid "El tour está completo para esta fecha."
 msgstr "This tour is full for this date."
 
-#: travel-agency-platform.php:369
+#: travel-agency-platform.php:371
 msgid "Image gallery"
 msgstr "Image gallery"
 
-#: travel-agency-platform.php:370
+#: travel-agency-platform.php:372
 msgid "Close image gallery"
 msgstr "Close image gallery"
 
-#: travel-agency-platform.php:371
+#: travel-agency-platform.php:373
 msgid "Previous image"
 msgstr "Previous image"
 
-#: travel-agency-platform.php:372
+#: travel-agency-platform.php:374
 msgid "Next image"
 msgstr "Next image"
 
-#: travel-agency-platform.php:374
+#: travel-agency-platform.php:376
 msgid "Abrir asistente"
 msgstr "Open assistant"
 
-#: travel-agency-platform.php:375
+#: travel-agency-platform.php:377
 msgid "Cerrar asistente"
 msgstr "Close assistant"
 
-#: travel-agency-platform.php:379
+#: travel-agency-platform.php:381
 msgid "Pensando…"
 msgstr "Thinking…"
 
-#: travel-agency-platform.php:380
+#: travel-agency-platform.php:382
 msgid "Hubo un problema. Inténtalo de nuevo."
 msgstr "Something went wrong. Please try again."
 

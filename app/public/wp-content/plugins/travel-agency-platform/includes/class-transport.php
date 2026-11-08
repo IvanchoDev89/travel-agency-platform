@@ -254,6 +254,23 @@ class TAP_Transport_Ajax {
         wp_send_json_success(['message' => 'ok']);
     }
 
+    public static function checkin() {
+        check_ajax_referer('tap_transport_nonce', 'nonce');
+        if (!is_user_logged_in()) wp_send_json_error(['message' => __('No autorizado.', 'travel-agency-platform')], 403);
+        $trip_id = absint($_POST['trip_id'] ?? 0);
+        $booking_id = absint($_POST['booking_id'] ?? 0);
+        $trip = TAP_Transport_Trips::get($trip_id);
+        if (!$trip) wp_send_json_error(['message' => __('Viaje no encontrado.', 'travel-agency-platform')], 404);
+        $uid = get_current_user_id();
+        $is_admin = current_user_can('manage_options');
+        $driver = TAP_Transport_Drivers::by_user($uid);
+        if (!$is_admin && (!$driver || (int) $driver->id !== (int) $trip->driver_id)) {
+            wp_send_json_error(['message' => __('Sin permiso.', 'travel-agency-platform')], 403);
+        }
+        TAP_Transport_Trips::check_in_passenger($trip_id, $booking_id);
+        wp_send_json_success(['message' => __('Check-in realizado.', 'travel-agency-platform')]);
+    }
+
     public static function live() {
         check_ajax_referer('tap_transport_nonce', 'nonce');
         if (!is_user_logged_in()) wp_send_json_error(['message' => __('No autorizado.', 'travel-agency-platform')], 403);
@@ -267,6 +284,124 @@ class TAP_Transport_Ajax {
             'position' => $pos,
             'passengers' => $passengers,
         ]);
+    }
+}
+
+// Driver dashboard shortcode.
+class TAP_Transport_Driver_Dashboard {
+    public static function init() {
+        add_shortcode('tap_driver_dashboard', [__CLASS__, 'render']);
+    }
+    public static function render($atts = []) {
+        if (!is_user_logged_in()) {
+            return '<p class="tap-empty">' . esc_html__('Debes iniciar sesión.', 'travel-agency-platform') . '</p>';
+        }
+        $uid = get_current_user_id();
+        $driver = TAP_Transport_Drivers::by_user($uid);
+        if (!$driver) {
+            return '<p class="tap-empty">' . esc_html__('No tienes un perfil de conductor.', 'travel-agency-platform') . '</p>';
+        }
+        $today = gmdate('Y-m-d');
+        $trips = TAP_Transport_Trips::for_driver((int) $driver->id, $today . ' 00:00:00', $today . ' 23:59:59');
+        ob_start();
+        ?>
+        <div class="tap-driver-dashboard" id="tap-driver-dashboard">
+            <h2><?php esc_html_e('Mis viajes de hoy', 'travel-agency-platform'); ?></h2>
+            <?php if (!$trips): ?>
+                <p class="tap-empty"><?php esc_html_e('No tienes viajes asignados para hoy.', 'travel-agency-platform'); ?></p>
+            <?php else: ?>
+                <?php foreach ($trips as $trip): ?>
+                    <div class="tap-driver-trip" data-trip="<?php echo (int) $trip->id; ?>">
+                        <h3><?php echo esc_html(get_the_title((int) $trip->service_id)); ?></h3>
+                        <p><?php echo esc_html($trip->departure_time); ?> → <?php echo esc_html($trip->arrival_time ?: '—'); ?></p>
+                        <p><?php esc_html_e('Estado:', 'travel-agency-platform'); ?> <strong><?php echo esc_html($trip->status); ?></strong></p>
+                        <div class="tap-driver-passengers">
+                            <h4><?php esc_html_e('Pasajeros', 'travel-agency-platform'); ?></h4>
+                            <?php $passengers = TAP_Transport_Trips::passengers((int) $trip->id); ?>
+                            <?php if (!$passengers): ?>
+                                <p class="tap-empty"><?php esc_html_e('Sin pasajeros.', 'travel-agency-platform'); ?></p>
+                            <?php else: ?>
+                                <ul>
+                                    <?php foreach ($passengers as $ps): ?>
+                                        <li>
+                                            <?php echo esc_html($ps->passenger_name); ?>
+                                            <?php if ($ps->checked_in): ?>
+                                                <span style="color:#0f766e;">✓</span>
+                                            <?php else: ?>
+                                                <button type="button" class="tap-btn tap-btn-sm tap-checkin" data-trip="<?php echo (int) $trip->id; ?>" data-booking="<?php echo (int) $ps->booking_id; ?>"><?php esc_html_e('Check-in', 'travel-agency-platform'); ?></button>
+                                            <?php endif; ?>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
+                        </div>
+                        <div class="tap-driver-actions">
+                            <?php if ('scheduled' === $trip->status): ?>
+                                <button type="button" class="tap-btn tap-btn-primary tap-trip-status" data-trip="<?php echo (int) $trip->id; ?>" data-status="boarding"><?php esc_html_e('Iniciar abordaje', 'travel-agency-platform'); ?></button>
+                            <?php elseif ('boarding' === $trip->status): ?>
+                                <button type="button" class="tap-btn tap-btn-primary tap-trip-status" data-trip="<?php echo (int) $trip->id; ?>" data-status="in_transit"><?php esc_html_e('Iniciar viaje', 'travel-agency-platform'); ?></button>
+                            <?php elseif ('in_transit' === $trip->status): ?>
+                                <button type="button" class="tap-btn tap-btn-primary tap-trip-status" data-trip="<?php echo (int) $trip->id; ?>" data-status="completed"><?php esc_html_e('Completar viaje', 'travel-agency-platform'); ?></button>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+            <script>
+            (function(){
+                var nonce = '<?php echo esc_js(wp_create_nonce('tap_transport_nonce')); ?>';
+                document.querySelectorAll('.tap-trip-status').forEach(function(btn){
+                    btn.addEventListener('click', function(){
+                        var tid = btn.getAttribute('data-trip');
+                        var st = btn.getAttribute('data-status');
+                        var fd = new FormData();
+                        fd.append('action', 'tap_transport_status');
+                        fd.append('trip_id', tid);
+                        fd.append('status', st);
+                        fd.append('nonce', nonce);
+                        fetch(ajaxurl || '/wp-admin/admin-ajax.php', {method:'POST', body:fd, credentials:'same-origin'})
+                        .then(function(r){ return r.json(); })
+                        .then(function(res){ if (res && res.success) location.reload(); else alert(res.data && res.data.message ? res.data.message : 'Error'); });
+                    });
+                });
+                document.querySelectorAll('.tap-checkin').forEach(function(btn){
+                    btn.addEventListener('click', function(){
+                        var tid = btn.getAttribute('data-trip');
+                        var bid = btn.getAttribute('data-booking');
+                        var fd = new FormData();
+                        fd.append('action', 'tap_transport_checkin');
+                        fd.append('trip_id', tid);
+                        fd.append('booking_id', bid);
+                        fd.append('nonce', nonce);
+                        fetch(ajaxurl || '/wp-admin/admin-ajax.php', {method:'POST', body:fd, credentials:'same-origin'})
+                        .then(function(r){ return r.json(); })
+                        .then(function(res){ if (res && res.success) location.reload(); else alert(res.data && res.data.message ? res.data.message : 'Error'); });
+                    });
+                });
+                // Auto-track position if geolocation available.
+                if (navigator.geolocation) {
+                    setInterval(function(){
+                        navigator.geolocation.getCurrentPosition(function(pos){
+                            var trips = document.querySelectorAll('.tap-driver-trip');
+                            if (!trips.length) return;
+                            var tid = trips[0].getAttribute('data-trip');
+                            var fd = new FormData();
+                            fd.append('action', 'tap_transport_position');
+                            fd.append('trip_id', tid);
+                            fd.append('lat', pos.coords.latitude);
+                            fd.append('lng', pos.coords.longitude);
+                            if (pos.coords.speed) fd.append('speed', pos.coords.speed);
+                            if (pos.coords.heading) fd.append('heading', pos.coords.heading);
+                            fd.append('nonce', nonce);
+                            fetch(ajaxurl || '/wp-admin/admin-ajax.php', {method:'POST', body:fd, credentials:'same-origin'});
+                        });
+                    }, 30000);
+                }
+            })();
+            </script>
+        </div>
+        <?php
+        return ob_get_clean();
     }
 }
 
