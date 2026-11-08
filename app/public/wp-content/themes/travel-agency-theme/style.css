@@ -565,7 +565,7 @@ img { max-width: 100%; height: auto; }
 /* Hero */
 .tap-landing-hero {
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   color: #fff;
   padding: clamp(4.5rem, 10vw, 7.5rem) 0 clamp(5rem, 11vw, 7.5rem);
   background:
