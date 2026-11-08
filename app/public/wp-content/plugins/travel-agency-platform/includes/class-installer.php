@@ -284,6 +284,98 @@ class TAP_Installer {
                 KEY is_active (is_active)
             ) $charset;",
 
+            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_vehicles (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                agency_id bigint(20) NOT NULL,
+                type varchar(20) NOT NULL DEFAULT 'land',
+                plate varchar(20) NOT NULL,
+                model varchar(100) NOT NULL,
+                capacity int(11) NOT NULL DEFAULT 0,
+                status varchar(20) NOT NULL DEFAULT 'active',
+                driver_id bigint(20) DEFAULT NULL,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY agency (agency_id),
+                KEY type (type),
+                KEY driver (driver_id),
+                UNIQUE KEY plate (plate)
+            ) $charset;",
+
+            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_drivers (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                user_id bigint(20) NOT NULL,
+                agency_id bigint(20) NOT NULL,
+                license_number varchar(50) NOT NULL,
+                license_type varchar(10) NOT NULL DEFAULT 'B1',
+                status varchar(20) NOT NULL DEFAULT 'active',
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                UNIQUE KEY user (user_id),
+                KEY agency (agency_id)
+            ) $charset;",
+
+            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_routes (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                origin varchar(200) NOT NULL,
+                destination varchar(200) NOT NULL,
+                distance_km decimal(8,2) DEFAULT NULL,
+                estimated_duration int(11) DEFAULT NULL,
+                type varchar(20) NOT NULL DEFAULT 'land',
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY origin_dest (origin, destination)
+            ) $charset;",
+
+            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_trips (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                service_id bigint(20) NOT NULL,
+                vehicle_id bigint(20) DEFAULT NULL,
+                driver_id bigint(20) DEFAULT NULL,
+                route_id bigint(20) DEFAULT NULL,
+                departure_time datetime NOT NULL,
+                arrival_time datetime DEFAULT NULL,
+                status varchar(20) NOT NULL DEFAULT 'scheduled',
+                notes text,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY service (service_id),
+                KEY vehicle (vehicle_id),
+                KEY driver (driver_id),
+                KEY route (route_id),
+                KEY status (status),
+                KEY departure (departure_time)
+            ) $charset;",
+
+            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_trip_passengers (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                trip_id bigint(20) NOT NULL,
+                booking_id bigint(20) NOT NULL,
+                passenger_name varchar(150) NOT NULL,
+                seat varchar(10) DEFAULT NULL,
+                checked_in tinyint(1) NOT NULL DEFAULT 0,
+                checked_in_at datetime DEFAULT NULL,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY trip (trip_id),
+                KEY booking (booking_id),
+                UNIQUE KEY trip_booking (trip_id, booking_id)
+            ) $charset;",
+
+            "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_trip_tracking (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                trip_id bigint(20) NOT NULL,
+                lat decimal(10,7) NOT NULL,
+                lng decimal(10,7) NOT NULL,
+                speed decimal(6,2) DEFAULT NULL,
+                heading int(11) DEFAULT NULL,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY trip (trip_id),
+                KEY created (created_at)
+            ) $charset;",
+
             "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_customer_referrals (
                 id bigint(20) NOT NULL AUTO_INCREMENT,
                 referrer_user_id bigint(20) NOT NULL,
@@ -434,6 +526,13 @@ class TAP_Installer {
         $has_notes = $wpdb->get_var("SHOW COLUMNS FROM {$wpdb->prefix}tap_bookings LIKE 'internal_notes'");
         if (!$has_notes) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN internal_notes text");
+        }
+
+        // trip_id column on bookings (idempotent).
+        $has_trip_id = $wpdb->get_var("SHOW COLUMNS FROM {$wpdb->prefix}tap_bookings LIKE 'trip_id'");
+        if (!$has_trip_id) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN trip_id bigint(20) DEFAULT NULL");
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD KEY trip_id (trip_id)");
         }
 
         // UTM tracking columns (idempotent).
