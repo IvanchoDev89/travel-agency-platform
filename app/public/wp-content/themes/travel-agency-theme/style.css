@@ -1293,21 +1293,69 @@ a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible
 /* ===== Dark mode (auto) ===== */
 @media (prefers-color-scheme: dark) {
   :root {
-    --tap-neutral-50: #1e293b;
-    --tap-neutral-100: #334155;
-    --tap-neutral-200: #475569;
-    --tap-neutral-600: #cbd5e1;
-    --tap-neutral-700: #e2e8f0;
-    --tap-neutral-800: #f1f5f9;
-    --tap-neutral-900: #f8fafc;
-    --tap-bg: #0f172a;
-    --tap-surface: #1e293b;
+    --tap-neutral-50: #0f172a !important;
+    --tap-neutral-100: #1e293b !important;
+    --tap-neutral-200: #334155 !important;
+    --tap-neutral-300: #475569 !important;
+    --tap-neutral-400: #64748b !important;
+    --tap-neutral-500: #94a3b8 !important;
+    --tap-neutral-600: #cbd5e1 !important;
+    --tap-neutral-700: #e2e8f0 !important;
+    --tap-neutral-800: #f1f5f9 !important;
+    --tap-neutral-900: #f8fafc !important;
+    --tap-bg: #0b1220 !important;
+    --tap-surface: #111a2e !important;
+    --tap-surface-2: #1a2540 !important;
+    --tap-primary-bg: rgba(13, 148, 136, 0.18) !important;
+    --tap-primary-border: rgba(45, 212, 191, 0.3) !important;
   }
-  body { background: var(--tap-bg); color: var(--tap-neutral-800); }
-  .site-header { background: rgba(15,23,42,0.85); border-bottom-color: rgba(255,255,255,0.08); }
-  .tap-service-card, .tap-acc-booking-widget, .tap-referral-dashboard { background: var(--tap-surface); border-color: var(--tap-neutral-200); }
+  html, body { background: var(--tap-bg); color: var(--tap-neutral-800); }
+  .site-header { background: rgba(11,18,32,0.85); border-bottom-color: rgba(255,255,255,0.08); }
+  .site-footer { background: #070d18; }
+  .site-footer, .site-footer a { color: var(--tap-neutral-600); }
+  .site-footer h3, .site-footer .footer-brand h3 { color: #fff; }
+  .tap-section-alt { background: var(--tap-surface); }
+  .tap-service-card, .tap-acc-booking-widget, .tap-referral-dashboard,
+  .tap-landing-search, .tap-landing-review-card, .tap-landing-article-card,
+  .tap-landing-cta-card, .tap-landing-agencies-cta { background: var(--tap-surface); border-color: var(--tap-neutral-200); color: var(--tap-neutral-800); }
+  .tap-landing-stats, .tap-landing-pillars, .tap-landing-itinerary-card { background: var(--tap-surface-2); }
+  .tap-landing-head h2, .tap-landing-head h3 { color: var(--tap-neutral-900); }
+  .tap-landing-sub { color: var(--tap-neutral-500); }
+  .tap-landing-chip { background: var(--tap-surface-2); border-color: var(--tap-neutral-300); color: var(--tap-neutral-700); }
+  .tap-landing-chip:hover { border-color: var(--tap-primary); color: var(--tap-primary); }
+  .tap-landing-chip-all { background: var(--tap-primary); color: #fff; border-color: var(--tap-primary); }
+  .tap-landing-facts { background: linear-gradient(135deg, #0f766e, #0d9488); }
+  .tap-landing-cta { background: var(--tap-bg); }
+  .tap-btn-outline { border-color: var(--tap-neutral-300); color: var(--tap-neutral-700); }
+  .tap-btn-outline:hover { border-color: var(--tap-primary); color: var(--tap-primary); }
+  .tap-btn-ghost { color: var(--tap-neutral-600); }
+  input, select, textarea, .tap-input, .tap-hs-input {
+    background: var(--tap-surface-2); color: var(--tap-neutral-800); border-color: var(--tap-neutral-300);
+  }
+  input::placeholder, textarea::placeholder { color: var(--tap-neutral-500); }
+  .tap-hs-field { border-color: var(--tap-neutral-300); }
+  .tap-hs-suggestions { background: var(--tap-surface); border-color: var(--tap-neutral-300); }
+  .tap-hs-suggestion-item:hover { background: var(--tap-primary-bg); }
+  .tap-hs-suggestion-title { color: var(--tap-neutral-800); }
+  .tap-hs-suggestion-type { color: var(--tap-neutral-500); }
   .main-navigation .nav-menu a.nav-link { color: var(--tap-neutral-600); }
-  .main-navigation .nav-menu a.nav-link:hover { background: rgba(20,184,166,0.12); }
+  .main-navigation .nav-menu a.nav-link:hover { color: var(--tap-primary); background: rgba(20,184,166,0.12); }
+  .main-navigation .nav-menu .sub-menu { background: var(--tap-surface); border-color: var(--tap-neutral-300); }
+  .main-navigation .nav-menu .sub-menu a.nav-link:hover { background: rgba(20,184,166,0.12); color: var(--tap-primary); }
+  .tap-mobile-toggle { border-color: var(--tap-neutral-300); color: var(--tap-neutral-600); }
+  .tap-lang-selector a { color: var(--tap-neutral-600); }
+  .tap-lang-selector a.is-active { background: var(--tap-primary); color: #fff; }
+  a { color: var(--tap-primary); }
+  h1, h2, h3, h4, h5, h6 { color: var(--tap-neutral-900); }
+  .tap-landing-hero { background: linear-gradient(150deg, #020617 0%, #0f172a 48%, #134e4a 100%); }
+  .tap-landing-facts-grid b, .tap-landing-facts-grid span { color: #fff; }
+  .ui-datepicker { background: var(--tap-surface); border-color: var(--tap-neutral-300); color: var(--tap-neutral-800); }
+  .ui-datepicker-header { border-color: var(--tap-neutral-300); }
+  .ui-datepicker-title { color: var(--tap-neutral-900); }
+  .ui-datepicker-calendar th { color: var(--tap-neutral-500); }
+  .ui-datepicker-calendar td a { color: var(--tap-neutral-700); }
+  .ui-datepicker-calendar td a:hover { background: var(--tap-primary-bg); color: var(--tap-primary); }
+  .ui-datepicker-calendar .ui-datepicker-other-month a { color: var(--tap-neutral-500); }
 }
 
 /* ===== Hero date picker (jQuery UI) ===== */
