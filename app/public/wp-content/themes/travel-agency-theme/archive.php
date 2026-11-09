@@ -49,7 +49,7 @@
                     }
                 }
                 ?>
-                <input type="search" name="s" value="<?php echo esc_attr(get_search_query()); ?>" placeholder="<?php esc_attr_e('Buscar…', 'travel-agency-platform'); ?>" style="flex:1;padding:8px 12px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);background:#fff;">
+                <input type="search" name="s" value="<?php echo esc_attr(get_search_query()); ?>" placeholder="<?php esc_attr_e('Buscar…', 'travel-agency-platform'); ?>" style="flex:1;padding:8px 12px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);background:var(--tap-surface-2);color:var(--tap-neutral-800);">
                 <button type="submit" class="tap-btn tap-btn-sm"><?php esc_html_e('Buscar', 'travel-agency-platform'); ?></button>
                 <?php if (get_search_query()): ?>
                     <a class="tap-btn tap-btn-sm tap-btn-outline" href="<?php echo esc_url(remove_query_arg('s')); ?>"><?php esc_html_e('Limpiar', 'travel-agency-platform'); ?></a>
