@@ -1364,6 +1364,8 @@ html.dark {
   .tap-lang-selector a { color: var(--tap-neutral-600); }
   .tap-lang-selector a.is-active { background: var(--tap-primary); color: #fff; }
   a { color: var(--tap-primary); }
+  .tap-btn, .tap-btn-primary, .tap-btn-secondary { color: #fff; }
+  .tap-btn-outline { color: var(--tap-primary); }
   html.dark h1, html.dark h2, html.dark h3, html.dark h4, html.dark h5, html.dark h6 { color: var(--tap-neutral-900); font-weight: 600; letter-spacing: 0.01em; }
   .tap-landing-hero { background: radial-gradient(900px 460px at 88% -12%, rgba(20, 184, 166, 0.18), transparent 62%), radial-gradient(760px 420px at -8% 115%, rgba(217, 119, 6, 0.12), transparent 58%), linear-gradient(150deg, #020617 0%, #0a1628 40%, #0f2a2a 100%); }
   .tap-dest-hero { background-blend-mode: multiply; }

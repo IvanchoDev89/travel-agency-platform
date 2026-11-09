@@ -3719,3 +3719,19 @@ html.dark .tap-itin-travelers select {
   font-weight: 600;
 }
 html.dark .tap-itin-progress-bar { background: var(--tap-surface-2); }
+
+/* ===== Dark mode: keep button text readable ===== */
+html.dark .tap-btn-primary,
+html.dark .tap-btn-primary:hover,
+html.dark .tap-btn-secondary,
+html.dark .tap-btn-secondary:hover,
+html.dark .tap-btn-outline:hover,
+html.dark .tap-btn-white,
+html.dark .tap-btn-white:hover,
+html.dark .tap-btn-primary:visited,
+html.dark .tap-btn-secondary:visited {
+  color: #fff;
+}
+html.dark .tap-btn-outline { color: var(--tap-primary); }
+html.dark .tap-btn-ghost { color: var(--tap-neutral-600); }
+html.dark .tap-btn-ghost:hover { color: var(--tap-neutral-900); background: var(--tap-neutral-100); }
