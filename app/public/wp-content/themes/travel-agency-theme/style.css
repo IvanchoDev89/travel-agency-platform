@@ -1141,7 +1141,7 @@ img { max-width: 100%; height: auto; }
 .tap-post-comment-nav { display: flex; justify-content: space-between; margin-top: 16px; font-size: 0.9rem; }
 .tap-post-comment-nav a { color: var(--tap-primary-dark, #0f766e); font-weight: 600; text-decoration: none; }
 .tap-post-comments-closed { text-align: center; color: var(--tap-neutral-500, #64748b); font-style: italic; padding: 24px; }
-.tap-post-comment-form-wrap { margin-top: 24px; padding: 24px; background: #fff; border: 1px solid var(--tap-border, #e2e8f0); border-radius: 16px; }
+.tap-post-comment-form-wrap { margin-top: 24px; padding: 24px; background: var(--tap-surface); border: 1px solid var(--tap-border, #e2e8f0); border-radius: 16px; }
 .tap-post-comment-form-wrap h3 { margin: 0 0 16px; font-size: 1.1rem; color: var(--tap-neutral-900, #0f172a); }
 .tap-comment-form .tap-comment-field { margin-bottom: 14px; }
 .tap-comment-form .tap-comment-field label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--tap-neutral-700, #334155); margin-bottom: 4px; }
@@ -1306,6 +1306,7 @@ html.dark {
     --tap-bg: #0b1220 !important;
     --tap-surface: #111a2e !important;
     --tap-surface-2: #1a2540 !important;
+    --tap-surface-muted: #1e293b !important;
     --tap-primary-bg: rgba(13, 148, 136, 0.18) !important;
     --tap-primary-border: rgba(45, 212, 191, 0.3) !important;
   }
@@ -1332,6 +1333,15 @@ html.dark {
   .tap-landing-faq-item { background: var(--tap-surface); border-color: var(--tap-neutral-200); box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
   .tap-landing-faq-item summary:hover { background: var(--tap-primary-bg); }
   .tap-landing-faq-more a { color: var(--tap-primary); }
+  .tap-post-comments { border-top-color: var(--tap-neutral-200); }
+  .tap-post-comment { background: var(--tap-surface-2); }
+  .tap-post-comment-form-wrap { background: var(--tap-surface); border-color: var(--tap-neutral-200); }
+  .tap-comment-form .tap-comment-field input, .tap-comment-form .tap-comment-field textarea { background: var(--tap-surface-2); color: var(--tap-neutral-800); border-color: var(--tap-neutral-300); }
+  .tap-comment-form .tap-comment-field input::placeholder, .tap-comment-form .tap-comment-field textarea::placeholder { color: var(--tap-neutral-500); }
+  .tap-comment-author { color: var(--tap-neutral-900); }
+  .tap-comment-content { color: var(--tap-neutral-700); }
+  .tap-comment-date { color: var(--tap-neutral-500); }
+  .tap-post-comment-nav a { color: var(--tap-primary); }
   .tap-landing-facts { background: linear-gradient(135deg, #0f766e, #0d9488); }
   .tap-landing-cta { background: var(--tap-bg); }
   .tap-btn-outline { border-color: var(--tap-neutral-300); color: var(--tap-neutral-700); }
