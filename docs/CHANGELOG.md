@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.65] — 2026-11-09
+
+### Fixed
+- **Fonts**: `public.css` (plugin) had an `@import` of Google Fonts (Inter + Playfair Display) at the top, which was loading competing fonts on every page and overriding the self-hosted Fraunces + Plus Jakarta Sans. Removed the import. Now only the self-hosted fonts are used.
+
+---
+
 ## [1.5.63] — 2026-11-08
 
 ### Fixed
