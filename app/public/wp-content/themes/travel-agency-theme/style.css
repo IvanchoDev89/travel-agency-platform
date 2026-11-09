@@ -3,7 +3,7 @@ Theme Name: Travel Agency Theme
 Theme URI: https://ivanchodev.com
 Author: IvanchoDev
 Description: Modern travel multi-agency B2B & B2C theme. Designed for Travel Agency Platform plugin.
-Version: 2.0.27
+Version: 2.0.28
 License: GPL v2 or later
 Text Domain: travel-agency-theme
 */
@@ -800,6 +800,7 @@ img { max-width: 100%; height: auto; }
     height: 100vh;
     height: 100dvh;
     background: var(--tap-surface);
+    flex-direction: column;
     align-items: stretch;
     justify-content: flex-start;
     padding: calc(var(--tap-header-height) + var(--tap-space-4)) var(--tap-space-5) var(--tap-space-5);
