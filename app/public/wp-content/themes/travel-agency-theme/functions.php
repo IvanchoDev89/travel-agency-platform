@@ -41,37 +41,8 @@ function travel_agency_theme_assets() {
     wp_enqueue_style('tap-tokens', $plugin_url . 'assets/css/tokens.css', [], TAT_VERSION);
     wp_enqueue_style('tap-public', $plugin_url . 'assets/css/public.css', ['tap-tokens'], TAT_VERSION);
 
-    // Conditional font loading from customizer.
-    $font_family = get_theme_mod('tap_font_family', 'plus-jakarta-sans');
-    $fonts = [
-        'system'             => null,
-        'plus-jakarta-sans'  => 'Plus+Jakarta+Sans',
-        'inter'              => 'Inter',
-        'poppins'            => 'Poppins',
-        'montserrat'         => 'Montserrat',
-        'manrope'            => 'Manrope',
-        'sora'               => 'Sora',
-        'roboto'             => 'Roboto',
-        'lato'               => 'Lato',
-    ];
-    if (isset($fonts[$font_family]) && $fonts[$font_family]) {
-        $font_name = $fonts[$font_family];
-        wp_enqueue_style('tap-font', 'https://fonts.googleapis.com/css2?family=' . $font_name . ':wght@300;400;500;600;700;800&display=swap', [], null);
-    }
-
-    // Heading font (serif/display for H1-H6).
-    $heading_font = get_theme_mod('tap_heading_font', 'fraunces');
-    $heading_fonts = [
-        'fraunces'          => 'Fraunces',
-        'playfair-display'  => 'Playfair+Display',
-        'dm-serif-display'  => 'DM+Serif+Display',
-        'lora'              => 'Lora',
-        'plus-jakarta-sans' => 'Plus+Jakarta+Sans',
-    ];
-    if (isset($heading_fonts[$heading_font]) && $heading_fonts[$heading_font]) {
-        $hf_name = $heading_fonts[$heading_font];
-        wp_enqueue_style('tap-heading-font', 'https://fonts.googleapis.com/css2?family=' . $hf_name . ':wght@400;500;600;700;800;900&display=swap', [], null);
-    }
+    // Fonts are now self-hosted via @font-face in style.css (assets/fonts/).
+    // No external Google Fonts dependency.
 
     wp_enqueue_style('travel-agency-theme-style', get_stylesheet_uri(), ['tap-public'], TAT_VERSION);
     if (travel_agency_is_manage_listing()) {

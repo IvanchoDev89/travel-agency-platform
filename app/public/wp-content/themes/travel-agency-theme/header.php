@@ -18,8 +18,6 @@
 <meta name="theme-color" content="#0f766e">
 <link rel="preconnect" href="https://images.pexels.com" crossorigin>
 <link rel="dns-prefetch" href="https://images.pexels.com">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <?php if (class_exists('TAP_Localization')): ?>
 <link rel="alternate" hreflang="es" href="<?php echo esc_url(add_query_arg('lang', 'es', home_url($_SERVER['REQUEST_URI'] ?? '/'))); ?>">
 <link rel="alternate" hreflang="en" href="<?php echo esc_url(add_query_arg('lang', 'en', home_url($_SERVER['REQUEST_URI'] ?? '/'))); ?>">

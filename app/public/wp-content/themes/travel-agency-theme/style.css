@@ -8,6 +8,8 @@ License: GPL v2 or later
 Text Domain: travel-agency-theme
 */
 
+@import url('assets/fonts/fonts.css');
+
 /* ===== Base ===== */
 *, *::before, *::after { box-sizing: border-box; }
 body {
