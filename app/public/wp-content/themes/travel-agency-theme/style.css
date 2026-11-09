@@ -3,7 +3,7 @@ Theme Name: Travel Agency Theme
 Theme URI: https://ivanchodev.com
 Author: IvanchoDev
 Description: Modern travel multi-agency B2B & B2C theme. Designed for Travel Agency Platform plugin.
-Version: 2.0.29
+Version: 2.0.30
 License: GPL v2 or later
 Text Domain: travel-agency-theme
 */
@@ -2004,7 +2004,8 @@ body.tap-install-visible { padding-bottom: 80px; }
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    min-height: 48px;
+    flex-shrink: 0;
+    min-height: 72px;
     margin-bottom: 14px;
     padding: max(16px, env(safe-area-inset-top)) 0 10px;
     background: var(--tap-surface);
@@ -2034,7 +2035,9 @@ body.tap-install-visible { padding-bottom: 80px; }
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-shrink: 0;
     height: 52px;
+    min-height: 52px;
     margin-bottom: 12px;
     padding: 0 16px;
     border: 1px solid var(--tap-neutral-200);
@@ -2061,6 +2064,7 @@ body.tap-install-visible { padding-bottom: 80px; }
     display: flex;
     align-items: center;
     gap: 10px;
+    flex-shrink: 0;
     margin: 0 0 12px;
     padding: 0 0 12px;
     border-bottom: 1px solid var(--tap-neutral-100);
@@ -2101,6 +2105,7 @@ body.tap-install-visible { padding-bottom: 80px; }
   }
   .header-center .nav-menu > li {
     width: 100%;
+    flex-shrink: 0;
     border-bottom: 1px solid var(--tap-neutral-100);
   }
   .header-center .nav-menu > li:last-child { border-bottom: 0; }
@@ -2166,6 +2171,7 @@ body.tap-install-visible { padding-bottom: 80px; }
     display: grid;
     grid-template-columns: 1fr 1fr;
     align-items: stretch;
+    flex-shrink: 0;
     gap: 10px;
     width: 100%;
     margin-top: 16px;

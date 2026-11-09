@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [Theme 2.0.30] — 2026-11-09
+
+### Fixed
+- **Mobile drawer**: prevented flexbox from shrinking the search field, language row and nav items, so the search bar keeps its 52px height, the close button stays fully visible and the drawer scrolls instead of clipping controls.
+
 ## [Theme 2.0.29] — 2026-11-09
 
 ### Changed
