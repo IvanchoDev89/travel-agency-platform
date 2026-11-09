@@ -1,7 +1,7 @@
 <?php
 defined('ABSPATH') || exit;
 
-define('TAT_VERSION', '2.0.18');
+define('TAT_VERSION', '2.0.19');
 
 function travel_agency_theme_setup() {
     add_theme_support('title-tag');
@@ -42,7 +42,7 @@ function travel_agency_theme_assets() {
     wp_enqueue_style('tap-public', $plugin_url . 'assets/css/public.css', ['tap-tokens'], TAT_VERSION);
 
     // Conditional font loading from customizer.
-    $font_family = get_theme_mod('tap_font_family', 'system');
+    $font_family = get_theme_mod('tap_font_family', 'plus-jakarta-sans');
     $fonts = [
         'system'             => null,
         'plus-jakarta-sans'  => 'Plus+Jakarta+Sans',
@@ -57,6 +57,20 @@ function travel_agency_theme_assets() {
     if (isset($fonts[$font_family]) && $fonts[$font_family]) {
         $font_name = $fonts[$font_family];
         wp_enqueue_style('tap-font', 'https://fonts.googleapis.com/css2?family=' . $font_name . ':wght@300;400;500;600;700;800&display=swap', [], null);
+    }
+
+    // Heading font (serif/display for H1-H6).
+    $heading_font = get_theme_mod('tap_heading_font', 'fraunces');
+    $heading_fonts = [
+        'fraunces'          => 'Fraunces',
+        'playfair-display'  => 'Playfair+Display',
+        'dm-serif-display'  => 'DM+Serif+Display',
+        'lora'              => 'Lora',
+        'plus-jakarta-sans' => 'Plus+Jakarta+Sans',
+    ];
+    if (isset($heading_fonts[$heading_font]) && $heading_fonts[$heading_font]) {
+        $hf_name = $heading_fonts[$heading_font];
+        wp_enqueue_style('tap-heading-font', 'https://fonts.googleapis.com/css2?family=' . $hf_name . ':wght@400;500;600;700;800;900&display=swap', [], null);
     }
 
     wp_enqueue_style('travel-agency-theme-style', get_stylesheet_uri(), ['tap-public'], TAT_VERSION);
@@ -108,6 +122,7 @@ function tap_customizer_css() {
     $bg           = get_theme_mod('tap_color_background', '#ffffff');
     $border       = get_theme_mod('tap_color_border', '#e2e8f0');
     $font_family  = get_theme_mod('tap_font_family', 'plus-jakarta-sans');
+    $heading_font = get_theme_mod('tap_heading_font', 'fraunces');
     $font_size    = (int) get_theme_mod('tap_font_size_base', 16);
     $container    = (int) get_theme_mod('tap_container_max', 1200);
     $padding      = (int) get_theme_mod('tap_section_padding', 64);
@@ -123,7 +138,15 @@ function tap_customizer_css() {
         'roboto'             => "'Roboto', sans-serif",
         'lato'               => "'Lato', sans-serif",
     ];
-    $font_stack = $fonts[$font_family] ?? $fonts['system'];
+    $font_stack = $fonts[$font_family] ?? $fonts['plus-jakarta-sans'];
+    $heading_fonts = [
+        'fraunces'          => "'Fraunces', serif",
+        'playfair-display'  => "'Playfair Display', serif",
+        'dm-serif-display'  => "'DM Serif Display', serif",
+        'lora'              => "'Lora', serif",
+        'plus-jakarta-sans' => "'Plus Jakarta Sans', sans-serif",
+    ];
+    $heading_stack = $heading_fonts[$heading_font] ?? $heading_fonts['fraunces'];
 
     $css = ':root {';
     $css .= '--tap-primary: ' . esc_attr($primary) . ';';
@@ -137,7 +160,7 @@ function tap_customizer_css() {
     $css .= '--tap-surface-2: #f8fafc;';
     $css .= '--tap-surface-muted: #f8fafc;';
     $css .= '--tap-font-sans: ' . esc_attr($font_stack) . ';';
-    $css .= '--tap-font-serif: ' . esc_attr($font_stack) . ';';
+    $css .= '--tap-font-serif: ' . esc_attr($heading_stack) . ';';
     $css .= '--tap-text-base: ' . $font_size . 'px;';
     $css .= '--tap-container-max: ' . $container . 'px;';
     $css .= '--tap-section-padding: ' . $padding . 'px;';

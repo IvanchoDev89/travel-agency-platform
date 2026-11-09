@@ -321,6 +321,24 @@ $wp_customize->add_control('tap_font_family', [
     ],
 ]);
 
+$wp_customize->add_setting('tap_heading_font', [
+    'default'           => 'fraunces',
+    'sanitize_callback' => 'sanitize_text_field',
+    'transport'         => 'refresh',
+]);
+$wp_customize->add_control('tap_heading_font', [
+    'label'   => __('Fuente de títulos (H1-H6)', 'travel-agency-platform'),
+    'section' => 'tap_typography',
+    'type'    => 'select',
+    'choices' => [
+        'fraunces'          => 'Fraunces (serif cálido)',
+        'playfair-display'  => 'Playfair Display (elegante)',
+        'dm-serif-display'  => 'DM Serif Display (bold)',
+        'lora'              => 'Lora (clásico)',
+        'plus-jakarta-sans' => 'Plus Jakarta Sans (igual que cuerpo)',
+    ],
+]);
+
 $wp_customize->add_setting('tap_font_size_base', [
     'default'           => 16,
     'sanitize_callback' => 'absint',
