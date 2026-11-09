@@ -1,7 +1,7 @@
 <?php
 defined('ABSPATH') || exit;
 
-define('TAT_VERSION', '2.0.19');
+define('TAT_VERSION', '2.0.20');
 
 function travel_agency_theme_setup() {
     add_theme_support('title-tag');
@@ -126,6 +126,12 @@ function tap_customizer_css() {
     $font_size    = (int) get_theme_mod('tap_font_size_base', 16);
     $container    = (int) get_theme_mod('tap_container_max', 1200);
     $padding      = (int) get_theme_mod('tap_section_padding', 64);
+    $header_height = (int) get_theme_mod('tap_header_height', 76);
+    $header_bg    = get_theme_mod('tap_header_bg', 'glass');
+    $logo_height  = (int) get_theme_mod('tap_header_logo_height', 36);
+    $footer_bg    = get_theme_mod('tap_footer_bg', '#0f172a');
+    $footer_text  = get_theme_mod('tap_footer_text', '#cbd5e1');
+    $custom_css   = get_theme_mod('tap_custom_css', '');
 
     $fonts = [
         'system'             => "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
@@ -164,7 +170,30 @@ function tap_customizer_css() {
     $css .= '--tap-text-base: ' . $font_size . 'px;';
     $css .= '--tap-container-max: ' . $container . 'px;';
     $css .= '--tap-section-padding: ' . $padding . 'px;';
+    $css .= '--tap-header-height: ' . $header_height . 'px;';
     $css .= '}';
+    // Header background
+    $header_bg_css = 'background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);';
+    if ($header_bg === 'solid') {
+        $header_bg_css = 'background: #fff;';
+    } elseif ($header_bg === 'dark') {
+        $header_bg_css = 'background: #0f172a; color: #fff;';
+    } elseif ($header_bg === 'transparent') {
+        $header_bg_css = 'background: transparent; border-bottom: none;';
+    }
+    $css .= '.site-header { ' . $header_bg_css . ' }';
+    if (!get_theme_mod('tap_header_sticky', true)) {
+        $css .= '.site-header { position: relative; }';
+    }
+    if (!get_theme_mod('tap_header_shadow', true)) {
+        $css .= '.site-header.scrolled { box-shadow: none; }';
+    }
+    $css .= '.site-branding .custom-logo { height: ' . $logo_height . 'px; width: auto; }';
+    $css .= '.site-footer { background: ' . esc_attr($footer_bg) . '; color: ' . esc_attr($footer_text) . '; }';
+    $css .= '.site-footer h3, .site-footer .footer-brand h3 { color: #fff; }';
+    if ($custom_css) {
+        $css .= $custom_css;
+    }
     if ($bg !== '#ffffff') {
         $css .= 'body { background-color: ' . esc_attr($bg) . '; }';
     }

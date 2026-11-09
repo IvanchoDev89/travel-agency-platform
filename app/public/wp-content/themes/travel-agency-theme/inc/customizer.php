@@ -382,5 +382,148 @@ $wp_customize->add_control('tap_section_padding', [
     'input_attrs' => ['min' => 32, 'max' => 128, 'step' => 8],
 ]);
 
+// ===== Header =====
+$wp_customize->add_section('tap_header', [
+    'title'    => __('Header / Navegación', 'travel-agency-platform'),
+    'panel'    => 'tap_landing',
+    'priority' => 5,
+]);
+$wp_customize->add_setting('tap_header_height', [
+    'default'           => 76,
+    'sanitize_callback' => 'absint',
+    'transport'         => 'refresh',
+]);
+$wp_customize->add_control('tap_header_height', [
+    'label'       => __('Altura del header (px)', 'travel-agency-platform'),
+    'section'     => 'tap_header',
+    'type'        => 'range',
+    'input_attrs' => ['min' => 56, 'max' => 120, 'step' => 4],
+]);
+$wp_customize->add_setting('tap_header_bg', [
+    'default'           => 'glass',
+    'sanitize_callback' => 'sanitize_text_field',
+    'transport'         => 'refresh',
+]);
+$wp_customize->add_control('tap_header_bg', [
+    'label'   => __('Fondo del header', 'travel-agency-platform'),
+    'section' => 'tap_header',
+    'type'    => 'select',
+    'choices' => [
+        'glass'       => __('Glassmorphism (blur)', 'travel-agency-platform'),
+        'solid'       => __('Sólido blanco', 'travel-agency-platform'),
+        'dark'        => __('Oscuro', 'travel-agency-platform'),
+        'transparent' => __('Transparente', 'travel-agency-platform'),
+    ],
+]);
+$wp_customize->add_setting('tap_header_sticky', [
+    'default'           => true,
+    'sanitize_callback' => 'rest_sanitize_boolean',
+    'transport'         => 'refresh',
+]);
+$wp_customize->add_control('tap_header_sticky', [
+    'label'   => __('Header sticky (fijo al hacer scroll)', 'travel-agency-platform'),
+    'section' => 'tap_header',
+    'type'    => 'checkbox',
+]);
+$wp_customize->add_setting('tap_header_shadow', [
+    'default'           => true,
+    'sanitize_callback' => 'rest_sanitize_boolean',
+    'transport'         => 'refresh',
+]);
+$wp_customize->add_control('tap_header_shadow', [
+    'label'   => __('Sombra al hacer scroll', 'travel-agency-platform'),
+    'section' => 'tap_header',
+    'type'    => 'checkbox',
+]);
+$wp_customize->add_setting('tap_header_logo_height', [
+    'default'           => 36,
+    'sanitize_callback' => 'absint',
+    'transport'         => 'refresh',
+]);
+$wp_customize->add_control('tap_header_logo_height', [
+    'label'       => __('Altura del logo (px)', 'travel-agency-platform'),
+    'section'     => 'tap_header',
+    'type'        => 'range',
+    'input_attrs' => ['min' => 24, 'max' => 80, 'step' => 4],
+]);
+
+// ===== Footer =====
+$wp_customize->add_section('tap_footer', [
+    'title'    => __('Footer', 'travel-agency-platform'),
+    'panel'    => 'tap_landing',
+    'priority' => 200,
+]);
+$wp_customize->add_setting('tap_footer_bg', [
+    'default'           => '#0f172a',
+    'sanitize_callback' => 'sanitize_hex_color',
+    'transport'         => 'refresh',
+]);
+$wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'tap_footer_bg', [
+    'label'   => __('Color de fondo del footer', 'travel-agency-platform'),
+    'section' => 'tap_footer',
+]));
+$wp_customize->add_setting('tap_footer_text', [
+    'default'           => '#cbd5e1',
+    'sanitize_callback' => 'sanitize_hex_color',
+    'transport'         => 'refresh',
+]);
+$wp_customize->add_control(new WP_Customize_Color_Control($wp_customize, 'tap_footer_text', [
+    'label'   => __('Color de texto del footer', 'travel-agency-platform'),
+    'section' => 'tap_footer',
+]));
+$wp_customize->add_setting('tap_footer_columns', [
+    'default'           => 4,
+    'sanitize_callback' => 'absint',
+    'transport'         => 'refresh',
+]);
+$wp_customize->add_control('tap_footer_columns', [
+    'label'   => __('Columnas del footer', 'travel-agency-platform'),
+    'section' => 'tap_footer',
+    'type'    => 'select',
+    'choices' => [
+        2 => __('2 columnas', 'travel-agency-platform'),
+        3 => __('3 columnas', 'travel-agency-platform'),
+        4 => __('4 columnas', 'travel-agency-platform'),
+    ],
+]);
+$wp_customize->add_setting('tap_footer_copyright', [
+    'default'           => '',
+    'sanitize_callback' => 'sanitize_text_field',
+    'transport'         => 'refresh',
+]);
+$wp_customize->add_control('tap_footer_copyright', [
+    'label'       => __('Texto de copyright (vacío = default)', 'travel-agency-platform'),
+    'section'     => 'tap_footer',
+    'type'        => 'text',
+]);
+$wp_customize->add_setting('tap_footer_show_social', [
+    'default'           => true,
+    'sanitize_callback' => 'rest_sanitize_boolean',
+    'transport'         => 'refresh',
+]);
+$wp_customize->add_control('tap_footer_show_social', [
+    'label'   => __('Mostrar redes sociales', 'travel-agency-platform'),
+    'section' => 'tap_footer',
+    'type'    => 'checkbox',
+]);
+
+// ===== Custom CSS =====
+$wp_customize->add_section('tap_custom_css', [
+    'title'    => __('CSS Personalizado', 'travel-agency-platform'),
+    'panel'    => 'tap_landing',
+    'priority' => 999,
+]);
+$wp_customize->add_setting('tap_custom_css', [
+    'default'           => '',
+    'sanitize_callback' => 'wp_strip_all_tags',
+    'transport'         => 'postMessage',
+]);
+$wp_customize->add_control('tap_custom_css', [
+    'label'       => __('CSS personalizado (se inyecta en <head>)', 'travel-agency-platform'),
+    'description' => __('Agregá tus propias reglas CSS. Se aplican sobre el tema.', 'travel-agency-platform'),
+    'section'     => 'tap_custom_css',
+    'type'        => 'textarea',
+]);
+
 }
 add_action('customize_register', 'tat_customize_register');
