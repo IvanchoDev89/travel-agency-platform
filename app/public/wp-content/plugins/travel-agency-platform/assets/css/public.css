@@ -3694,3 +3694,28 @@ html.dark .tap-itin-travelers select {
   color: var(--tap-neutral-800);
   border-color: var(--tap-neutral-300);
 }
+
+/* ===== Itinerary progress bar ===== */
+.tap-itin-progress { max-width: 620px; margin: 0 auto var(--tap-space-6); }
+.tap-itin-progress-bar {
+  height: 6px;
+  background: var(--tap-neutral-100);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.tap-itin-progress-bar span {
+  display: block;
+  height: 100%;
+  width: 20%;
+  background: linear-gradient(90deg, var(--tap-primary), var(--tap-secondary));
+  border-radius: 999px;
+  transition: width .3s ease;
+}
+.tap-itin-progress-label {
+  text-align: center;
+  font-size: var(--tap-text-xs);
+  color: var(--tap-neutral-500);
+  margin: var(--tap-space-2) 0 0;
+  font-weight: 600;
+}
+html.dark .tap-itin-progress-bar { background: var(--tap-surface-2); }

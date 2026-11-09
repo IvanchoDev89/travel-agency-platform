@@ -462,6 +462,11 @@ class TAP_Itinerary {
                 <p class="tap-itin-sub"><?php esc_html_e('Elegí tus intereses, destinos y presupuesto. En segundos encontrás experiencias que matchean con tu plan.', 'travel-agency-platform'); ?></p>
             </div>
 
+            <div class="tap-itin-progress" data-itin-progress>
+                <div class="tap-itin-progress-bar"><span data-itin-progress-bar></span></div>
+                <p class="tap-itin-progress-label"><?php esc_html_e('Paso', 'travel-agency-platform'); ?> <b data-itin-progress-step>1</b> <?php esc_html_e('de', 'travel-agency-platform'); ?> 5</p>
+            </div>
+
             <div class="tap-itin-layout">
                 <div class="tap-itin-main">
                     <form class="tap-itin-form" method="get" action="<?php echo esc_url(get_permalink()); ?>" data-itin-form>

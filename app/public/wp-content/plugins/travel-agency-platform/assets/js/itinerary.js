@@ -111,6 +111,9 @@
         $('[data-itin-prev]', root).prop('disabled', n === 1);
         $('[data-itin-next]', root).prop('hidden', n === 5);
         $('[data-itin-run]', root).prop('hidden', n !== 5);
+        var pct = (n / 5) * 100;
+        $('[data-itin-progress-bar]', root).css('width', pct + '%');
+        $('[data-itin-progress-step]', root).text(n);
     }
 
     // ---- Sidebar / picks ----
