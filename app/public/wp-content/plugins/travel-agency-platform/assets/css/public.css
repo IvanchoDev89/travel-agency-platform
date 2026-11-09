@@ -2059,7 +2059,7 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
   border-radius: 18px;
   box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
 }
-.tap-itin-step { display: block; }
+.tap-itin-step { display: none; }
 .tap-itin-step.is-active { display: block; }
 .tap-itin-step { padding: var(--tap-space-6); }
 .tap-itin-step h3 { font-size: var(--tap-text-xl); font-weight: 700; color: var(--tap-neutral-900); margin: 0 0 4px; }
