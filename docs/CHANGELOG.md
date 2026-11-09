@@ -6,6 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.63] — 2026-11-08
+
+### Fixed
+- **Dark mode (comprehensive)**: converted 74 hardcoded `#fff` backgrounds in public.css to `var(--tap-surface)`, replaced hardcoded dark text colors with adaptive vars, fixed `--tap-surface-muted` override, fixed archive.php search input and blog comment form. All public components now adapt to dark mode.
+
+---
+
 ## [1.5.62] — 2026-11-08
 
 ### Changed
