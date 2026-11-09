@@ -1,7 +1,7 @@
 <?php
 defined('ABSPATH') || exit;
 
-define('TAT_VERSION', '2.0.17');
+define('TAT_VERSION', '2.0.18');
 
 function travel_agency_theme_setup() {
     add_theme_support('title-tag');
@@ -44,17 +44,19 @@ function travel_agency_theme_assets() {
     // Conditional font loading from customizer.
     $font_family = get_theme_mod('tap_font_family', 'system');
     $fonts = [
-        'system'     => null,
-        'inter'      => 'Inter',
-        'roboto'     => 'Roboto',
-        'poppins'    => 'Poppins',
-        'lato'       => 'Lato',
-        'montserrat' => 'Montserrat',
-        'open-sans'  => 'Open+Sans',
+        'system'             => null,
+        'plus-jakarta-sans'  => 'Plus+Jakarta+Sans',
+        'inter'              => 'Inter',
+        'poppins'            => 'Poppins',
+        'montserrat'         => 'Montserrat',
+        'manrope'            => 'Manrope',
+        'sora'               => 'Sora',
+        'roboto'             => 'Roboto',
+        'lato'               => 'Lato',
     ];
     if (isset($fonts[$font_family]) && $fonts[$font_family]) {
         $font_name = $fonts[$font_family];
-        wp_enqueue_style('tap-font', 'https://fonts.googleapis.com/css2?family=' . $font_name . ':wght@400;500;600;700&display=swap', [], null);
+        wp_enqueue_style('tap-font', 'https://fonts.googleapis.com/css2?family=' . $font_name . ':wght@300;400;500;600;700;800&display=swap', [], null);
     }
 
     wp_enqueue_style('travel-agency-theme-style', get_stylesheet_uri(), ['tap-public'], TAT_VERSION);
@@ -105,18 +107,21 @@ function tap_customizer_css() {
     $text_muted   = get_theme_mod('tap_color_text_muted', '#64748b');
     $bg           = get_theme_mod('tap_color_background', '#ffffff');
     $border       = get_theme_mod('tap_color_border', '#e2e8f0');
-    $font_family  = get_theme_mod('tap_font_family', 'system');
+    $font_family  = get_theme_mod('tap_font_family', 'plus-jakarta-sans');
     $font_size    = (int) get_theme_mod('tap_font_size_base', 16);
     $container    = (int) get_theme_mod('tap_container_max', 1200);
     $padding      = (int) get_theme_mod('tap_section_padding', 64);
 
     $fonts = [
-        'system'     => "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
-        'inter'      => "'Inter', sans-serif",
-        'roboto'     => "'Roboto', sans-serif",
-        'lato'       => "'Lato', sans-serif",
-        'poppins'    => "'Poppins', sans-serif",
-        'montserrat' => "'Montserrat', sans-serif",
+        'system'             => "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+        'plus-jakarta-sans'  => "'Plus Jakarta Sans', sans-serif",
+        'inter'              => "'Inter', sans-serif",
+        'poppins'            => "'Poppins', sans-serif",
+        'montserrat'         => "'Montserrat', sans-serif",
+        'manrope'            => "'Manrope', sans-serif",
+        'sora'               => "'Sora', sans-serif",
+        'roboto'             => "'Roboto', sans-serif",
+        'lato'               => "'Lato', sans-serif",
     ];
     $font_stack = $fonts[$font_family] ?? $fonts['system'];
 

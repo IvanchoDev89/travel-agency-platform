@@ -300,7 +300,7 @@ $wp_customize->add_section('tap_typography', [
 ]);
 
 $wp_customize->add_setting('tap_font_family', [
-    'default'           => 'inter',
+    'default'           => 'plus-jakarta-sans',
     'sanitize_callback' => 'sanitize_text_field',
     'transport'         => 'refresh',
 ]);
@@ -309,12 +309,15 @@ $wp_customize->add_control('tap_font_family', [
     'section' => 'tap_typography',
     'type'    => 'select',
     'choices' => [
-        'system'  => __('Sistema (por defecto)', 'travel-agency-platform'),
-        'inter'   => 'Inter',
-        'roboto'  => 'Roboto',
-        'lato'    => 'Lato',
-        'poppins' => 'Poppins',
-        'montserrat' => 'Montserrat',
+        'system'             => __('Sistema (por defecto)', 'travel-agency-platform'),
+        'plus-jakarta-sans'  => 'Plus Jakarta Sans',
+        'inter'              => 'Inter',
+        'poppins'            => 'Poppins',
+        'montserrat'         => 'Montserrat',
+        'manrope'            => 'Manrope',
+        'sora'               => 'Sora',
+        'roboto'             => 'Roboto',
+        'lato'               => 'Lato',
     ],
 ]);
 
