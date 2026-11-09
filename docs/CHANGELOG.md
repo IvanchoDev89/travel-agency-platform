@@ -6,7 +6,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
-## [1.5.60] — 2026-11-08
+## [1.5.62] — 2026-11-08
 
 ### Changed
 - **Itinerary builder (`/armar-mi-viaje/`)**: upgraded from 3-step to 5-step wizard with educational tips per step (interests, destinations, dates, budget/types, travelers). Added date pickers and traveler count. All components fully themed for dark mode.
