@@ -3,7 +3,7 @@ Theme Name: Travel Agency Theme
 Theme URI: https://ivanchodev.com
 Author: IvanchoDev
 Description: Modern travel multi-agency B2B & B2C theme. Designed for Travel Agency Platform plugin.
-Version: 2.0.22
+Version: 2.0.23
 License: GPL v2 or later
 Text Domain: travel-agency-theme
 */
@@ -393,7 +393,7 @@ Text Domain: travel-agency-theme
 *, *::before, *::after { box-sizing: border-box; }
 body {
   margin: 0;
-  font-family: var(--tap-font-sans);
+  font-family: 'Plus Jakarta Sans', sans-serif;
   color: var(--tap-neutral-800);
   background: var(--tap-neutral-50);
   -webkit-font-smoothing: antialiased;
@@ -1001,7 +1001,7 @@ img { max-width: 100%; height: auto; }
 .tap-landing-eyebrow-dark { background: var(--tap-primary-bg); border-color: rgba(13, 148, 136, 0.25); color: var(--tap-secondary); }
 
 .tap-landing-hero-title {
-  font-family: var(--tap-font-serif);
+  font-family: 'Fraunces', serif;
   font-size: clamp(2.4rem, 5.2vw, 4rem);
   line-height: 1.04;
   font-weight: 700;
@@ -1082,7 +1082,7 @@ img { max-width: 100%; height: auto; }
 
 /* Sections shared */
 .tap-landing-head { text-align: center; max-width: 640px; margin: 0 auto var(--tap-space-10); }
-.tap-landing-head h2 { font-family: var(--tap-font-serif); font-size: clamp(1.75rem, 3.2vw, 2.4rem); font-weight: 700; line-height: 1.12; color: var(--tap-neutral-900); margin: 0 0 var(--tap-space-3); }
+.tap-landing-head h2 { font-family: 'Fraunces', serif; font-size: clamp(1.75rem, 3.2vw, 2.4rem); font-weight: 700; line-height: 1.12; color: var(--tap-neutral-900); margin: 0 0 var(--tap-space-3); }
 .tap-landing-sub { font-size: var(--tap-text-base); color: var(--tap-neutral-500); line-height: var(--tap-leading-relaxed); margin: 0 auto var(--tap-space-6); max-width: 52ch; }
 .tap-landing-head .tap-btn { margin-top: var(--tap-space-1); }
 .tap-section-alt { background: var(--tap-neutral-50); }
@@ -1093,7 +1093,7 @@ img { max-width: 100%; height: auto; }
 .tap-landing-stat { text-align: center; padding: var(--tap-space-2) 0; }
 .tap-landing-stat-num {
   display: block;
-  font-family: var(--tap-font-serif);
+  font-family: 'Fraunces', serif;
   font-size: clamp(2rem, 4vw, 2.9rem);
   font-weight: 700;
   line-height: 1;
@@ -1184,7 +1184,7 @@ img { max-width: 100%; height: auto; }
   box-shadow: 0 30px 70px rgba(13, 148, 136, 0.25);
   overflow: hidden;
 }
-.tap-landing-itinerary-copy h2 { font-family: var(--tap-font-serif); font-size: clamp(1.8rem, 3.4vw, 2.5rem); line-height: 1.1; margin: 0 0 var(--tap-space-6); }
+.tap-landing-itinerary-copy h2 { font-family: 'Fraunces', serif; font-size: clamp(1.8rem, 3.4vw, 2.5rem); line-height: 1.1; margin: 0 0 var(--tap-space-6); }
 .tap-landing-itinerary-steps { list-style: none; margin: 0 0 var(--tap-space-7); padding: 0; counter-reset: step; }
 .tap-landing-itinerary-steps li { position: relative; padding-left: 2.5rem; margin-bottom: var(--tap-space-4); font-size: var(--tap-text-base); line-height: var(--tap-leading-relaxed); color: rgba(255, 255, 255, 0.88); }
 .tap-landing-itinerary-steps li::before { counter-increment: step; content: counter(step); position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 50%; background: var(--tap-secondary); color: #fff; font-weight: 800; font-size: var(--tap-text-sm); display: flex; align-items: center; justify-content: center; }
@@ -1196,7 +1196,7 @@ img { max-width: 100%; height: auto; }
 .tap-landing-itinerary-art-inner { display: flex; flex-direction: column; gap: var(--tap-space-5); position: relative; }
 .tap-landing-itinerary-line { position: absolute; left: 22px; top: 34px; bottom: 34px; width: 2px; background: linear-gradient(180deg, var(--tap-secondary), rgba(217, 119, 6, 0.15)); }
 .tap-landing-itinerary-stop { display: flex; gap: var(--tap-space-4); align-items: center; font-size: var(--tap-text-base); color: #fff; }
-.tap-landing-itinerary-stop b { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.25); font-family: var(--tap-font-serif); font-size: var(--tap-text-lg); color: var(--tap-secondary); }
+.tap-landing-itinerary-stop b { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.25); font-family: 'Fraunces', serif; font-size: var(--tap-text-lg); color: var(--tap-secondary); }
 
 /* Agencies */
 .tap-landing-agency-grid { display: grid; grid-template-columns: 1fr; gap: var(--tap-space-4); }
@@ -1216,7 +1216,7 @@ img { max-width: 100%; height: auto; }
 .tap-landing-agency-card:hover { border-color: var(--tap-primary); transform: translateY(-2px); box-shadow: 0 14px 30px rgba(13, 148, 136, 0.12); }
 .tap-landing-agency-avatar { width: 56px; height: 56px; border-radius: 50%; overflow: hidden; flex: none; background: linear-gradient(135deg, var(--tap-primary), #0f766e); display: flex; align-items: center; justify-content: center; }
 .tap-landing-agency-avatar img { width: 100%; height: 100%; object-fit: cover; }
-.tap-landing-agency-avatar span { font-family: var(--tap-font-serif); font-size: var(--tap-text-xl); color: #fff; font-weight: 700; }
+.tap-landing-agency-avatar span { font-family: 'Fraunces', serif; font-size: var(--tap-text-xl); color: #fff; font-weight: 700; }
 .tap-landing-agency-info h3 { font-size: var(--tap-text-base); font-weight: 700; margin: 0 0 2px; color: var(--tap-neutral-900); }
 .tap-landing-agency-info p { font-size: var(--tap-text-sm); color: var(--tap-neutral-500); margin: 0 0 var(--tap-space-2); }
 .tap-landing-verified { display: inline-flex; align-items: center; gap: 5px; font-size: var(--tap-text-xs); font-weight: 700; color: var(--tap-primary); background: var(--tap-primary-bg); padding: 3px 10px; border-radius: var(--tap-radius-full); }
@@ -1236,7 +1236,7 @@ img { max-width: 100%; height: auto; }
 .tap-landing-article-card { background: var(--tap-surface); border: 1px solid var(--tap-neutral-100); border-radius: 18px; overflow: hidden; text-decoration: none; color: inherit; box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04); transition: all var(--tap-transition); }
 .tap-landing-article-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12); }
 .tap-landing-article-card img { width: 100%; height: 180px; object-fit: cover; display: block; }
-.tap-landing-article-ph { height: 180px; display: flex; align-items: center; justify-content: center; font-family: var(--tap-font-serif); font-size: 3rem; color: rgba(255, 255, 255, 0.9); background: linear-gradient(135deg, var(--tap-primary), var(--tap-secondary)); }
+.tap-landing-article-ph { height: 180px; display: flex; align-items: center; justify-content: center; font-family: 'Fraunces', serif; font-size: 3rem; color: rgba(255, 255, 255, 0.9); background: linear-gradient(135deg, var(--tap-primary), var(--tap-secondary)); }
 .tap-landing-article-card h3 { font-size: var(--tap-text-base); font-weight: 700; margin: var(--tap-space-4) var(--tap-space-5) 4px; color: var(--tap-neutral-900); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .tap-landing-article-card p { font-size: var(--tap-text-sm); color: var(--tap-neutral-500); line-height: var(--tap-leading-relaxed); margin: 0 var(--tap-space-5) var(--tap-space-3); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .tap-landing-article-date { display: block; font-size: var(--tap-text-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--tap-neutral-400); padding: 0 var(--tap-space-5) var(--tap-space-4); }
@@ -1252,7 +1252,7 @@ img { max-width: 100%; height: auto; }
     linear-gradient(140deg, #04302b 0%, #0b4f47 60%, #0d5c52 100%);
   box-shadow: 0 30px 70px rgba(13, 148, 136, 0.22);
 }
-.tap-landing-cta-card h2 { font-family: var(--tap-font-serif); font-size: clamp(1.8rem, 3.4vw, 2.5rem); line-height: 1.1; margin: 0 0 var(--tap-space-4); }
+.tap-landing-cta-card h2 { font-family: 'Fraunces', serif; font-size: clamp(1.8rem, 3.4vw, 2.5rem); line-height: 1.1; margin: 0 0 var(--tap-space-4); }
 .tap-landing-cta-card p { font-size: var(--tap-text-base); line-height: var(--tap-leading-relaxed); color: rgba(255, 255, 255, 0.85); max-width: 46ch; margin: 0 auto var(--tap-space-7); }
 .tap-landing-cta-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--tap-space-3); }
 
@@ -1278,7 +1278,7 @@ img { max-width: 100%; height: auto; }
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--tap-font-serif);
+  font-family: 'Fraunces', serif;
   font-size: 3rem;
   color: rgba(255, 255, 255, 0.9);
   background: linear-gradient(135deg, var(--tap-primary) 0%, #0f766e 55%, var(--tap-secondary) 130%);
@@ -1380,7 +1380,7 @@ img { max-width: 100%; height: auto; }
 .tap-blog-featured-thumb img { width: 100%; height: 100%; object-fit: cover; min-height: 280px; display: block; transition: transform .3s ease; }
 .tap-blog-featured:hover .tap-blog-featured-thumb img { transform: scale(1.03); }
 .tap-blog-featured-body { padding: 28px 32px; display: flex; flex-direction: column; gap: 12px; justify-content: center; }
-.tap-blog-featured-title { font-size: 1.5rem; line-height: 1.25; margin: 0; font-family: var(--tap-font-serif, serif); }
+.tap-blog-featured-title { font-size: 1.5rem; line-height: 1.25; margin: 0; font-family: 'Fraunces', serif; }
 .tap-blog-featured-title a { color: var(--tap-neutral-900, #0f172a); text-decoration: none; }
 .tap-blog-featured-title a:hover { color: var(--tap-primary, #0d9488); }
 .tap-blog-featured-excerpt { color: var(--tap-neutral-600, #475569); font-size: 1rem; line-height: 1.6; margin: 0; }
@@ -1428,7 +1428,7 @@ img { max-width: 100%; height: auto; }
 /* ---------- Costa Rica facts strip ---------- */
 .tap-landing-facts { background: linear-gradient(135deg, var(--tap-primary-dark, #0f766e), var(--tap-primary, #0d9488)); padding: var(--tap-space-5) 0; }
 .tap-landing-facts-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--tap-space-4) var(--tap-space-3); text-align: center; }
-.tap-landing-facts-grid b { display: block; font-family: var(--tap-font-serif); font-size: clamp(1.5rem, 3vw, 2.1rem); color: #fff; line-height: 1.1; }
+.tap-landing-facts-grid b { display: block; font-family: 'Fraunces', serif; font-size: clamp(1.5rem, 3vw, 2.1rem); color: #fff; line-height: 1.1; }
 .tap-landing-facts-grid span { display: block; font-size: var(--tap-text-sm, 0.875rem); color: rgba(255, 255, 255, 0.85); line-height: 1.4; margin-top: 4px; }
 @media (min-width: 768px) { .tap-landing-facts-grid { grid-template-columns: repeat(4, 1fr); } }
 
@@ -1474,14 +1474,14 @@ img { max-width: 100%; height: auto; }
 /* ---------- Single post (guías) ---------- */
 .tap-post-article { max-width: 760px; margin: 0 auto; }
 .tap-post-breadcrumbs { margin-top: var(--tap-space-4); }
-.tap-post-header h1 { font-family: var(--tap-font-serif); font-size: clamp(1.7rem, 4vw, 2.5rem); line-height: 1.18; margin: 10px 0 14px; color: var(--tap-neutral-900, #0f172a); }
+.tap-post-header h1 { font-family: 'Fraunces', serif; font-size: clamp(1.7rem, 4vw, 2.5rem); line-height: 1.18; margin: 10px 0 14px; color: var(--tap-neutral-900, #0f172a); }
 .tap-post-badge { display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--tap-primary-dark, #0f766e); background: var(--tap-primary-bg, #f0fdfa); border: 1px solid var(--tap-primary-border, #99f6e4); padding: 4px 12px; border-radius: 999px; text-decoration: none; }
 .tap-post-badge:hover { background: var(--tap-primary, #0d9488); color: #fff; }
 .tap-post-meta { display: flex; flex-wrap: wrap; gap: 8px; font-size: 0.85rem; color: var(--tap-neutral-500, #64748b); margin: 0; }
 .tap-post-hero { margin: var(--tap-space-5) 0 0; border-radius: 18px; overflow: hidden; }
 .tap-post-hero img { width: 100%; height: auto; display: block; }
 .tap-post-content { margin-top: var(--tap-space-6); font-size: 1.05rem; line-height: 1.75; color: var(--tap-neutral-700, #334155); }
-.tap-post-content h2 { font-family: var(--tap-font-serif); font-size: 1.55rem; line-height: 1.25; margin: 2.2rem 0 0.8rem; color: var(--tap-neutral-900, #0f172a); }
+.tap-post-content h2 { font-family: 'Fraunces', serif; font-size: 1.55rem; line-height: 1.25; margin: 2.2rem 0 0.8rem; color: var(--tap-neutral-900, #0f172a); }
 .tap-post-content h3 { font-size: 1.2rem; margin: 1.8rem 0 0.6rem; color: var(--tap-neutral-900, #0f172a); }
 .tap-post-content p { margin: 0 0 1.1rem; }
 .tap-post-content a { color: var(--tap-primary-dark, #0f766e); }
