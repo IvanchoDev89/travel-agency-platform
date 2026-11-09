@@ -53,4 +53,3 @@ self.addEventListener('notificationclick', function(e) {
   var url = (e.notification.data && e.notification.data.url) ? e.notification.data.url : '/';
   e.waitUntil(clients.openWindow(url));
 });
-PY
