@@ -3,7 +3,7 @@ Theme Name: Travel Agency Theme
 Theme URI: https://ivanchodev.com
 Author: IvanchoDev
 Description: Modern travel multi-agency B2B & B2C theme. Designed for Travel Agency Platform plugin.
-Version: 2.0.25
+Version: 2.0.26
 License: GPL v2 or later
 Text Domain: travel-agency-theme
 */
@@ -796,18 +796,18 @@ img { max-width: 100%; height: auto; }
     position: fixed;
     top: 0;
     right: 0;
-    width: 300px;
-    max-width: 80vw;
+    width: 100%;
+    max-width: 100vw;
     height: 100vh;
     height: 100dvh;
     background: var(--tap-surface);
     align-items: stretch;
     justify-content: flex-start;
-    padding: calc(var(--tap-header-height) + var(--tap-space-4)) var(--tap-space-4) var(--tap-space-4);
+    padding: calc(var(--tap-header-height) + var(--tap-space-4)) var(--tap-space-5) var(--tap-space-5);
     z-index: 999;
-    box-shadow: -4px 0 30px rgba(0,0,0,0.12);
+    box-shadow: none;
     transform: translateX(100%);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     gap: 0;
@@ -1425,6 +1425,18 @@ img { max-width: 100%; height: auto; }
   }
 }
 
+@media (max-width: 768px) {
+  .tap-landing-hero { padding: clamp(3rem, 8vw, 5rem) 0 clamp(3.5rem, 9vw, 5rem); }
+  .tap-landing-hero-title { font-size: clamp(2rem, 8vw, 2.8rem); }
+  .tap-landing-hero-sub { font-size: 0.95rem; margin-bottom: var(--tap-space-5); }
+  .tap-landing-search { border-radius: 14px; }
+  .tap-landing-hs { grid-template-columns: 1fr; }
+  .tap-landing-hs .tap-hs-field { border-right: none; border-bottom: 1px solid var(--tap-neutral-200); }
+  .tap-landing-hs .tap-hs-field:last-of-type { border-bottom: none; }
+  .tap-landing-trust { gap: var(--tap-space-1) var(--tap-space-3); font-size: var(--tap-text-xs); }
+  .tap-landing-hero-video { display: none; }
+}
+
 /* ---------- Costa Rica facts strip ---------- */
 .tap-landing-facts { background: linear-gradient(135deg, var(--tap-primary-dark, #0f766e), var(--tap-primary, #0d9488)); padding: var(--tap-space-5) 0; }
 .tap-landing-facts-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--tap-space-4) var(--tap-space-3); text-align: center; }
@@ -1661,7 +1673,7 @@ img { max-width: 100%; height: auto; }
 .tap-lang-selector a.tap-lang-link.is-active { background: #0f766e; color: #fff; }
 @media (max-width: 768px) {
   .site-header { padding: 8px 12px; }
-  .tap-mobile-toggle { width: 40px; height: 40px; }
+  .tap-mobile-toggle { width: 44px; height: 44px; border-radius: 12px; }
 }
 
 /* Accessibility: focus visible */
@@ -1841,4 +1853,33 @@ html.dark {
 @media (max-width: 768px) {
   .mobile-close-btn { display: inline-flex; }
   .header-center .mobile-close-btn { align-self: flex-end; }
+}
+
+/* ===== Mobile landing improvements ===== */
+@media (max-width: 768px) {
+  .tap-container { padding: 0 16px; }
+  .tap-landing-head { margin-bottom: var(--tap-space-6); }
+  .tap-landing-head h2 { font-size: 1.5rem; }
+  .tap-landing-sub { font-size: 0.9rem; }
+  .tap-landing-card { border-radius: 14px; }
+  .tap-landing-card-media { aspect-ratio: 16 / 9; }
+  .tap-landing-dest-card { border-radius: 14px; }
+  .tap-landing-dest-media { aspect-ratio: 16 / 9; }
+  .tap-landing-faq-item { border-radius: 12px; }
+  .tap-landing-faq-item summary { padding: 14px 16px; font-size: 0.95rem; }
+  .tap-landing-faq-a { padding: 0 16px 14px; }
+  .tap-landing-chip { font-size: 0.85rem; padding: 6px 12px; }
+  .tap-landing-stats-grid { gap: var(--tap-space-3); }
+  .tap-landing-itinerary-card { padding: var(--tap-space-5); }
+  .tap-landing-review-card { padding: var(--tap-space-5); }
+  .tap-landing-article-card h3 { font-size: 1rem; }
+  .mobile-close-btn { display: inline-flex; }
+}
+
+@media (max-width: 480px) {
+  .tap-container { padding: 0 12px; }
+  .tap-landing-hero-title { font-size: 1.75rem; }
+  .tap-landing-head h2 { font-size: 1.35rem; }
+  .tap-landing-card-title { font-size: 1rem; }
+  .tap-landing-dest-title { font-size: 1rem; }
 }
