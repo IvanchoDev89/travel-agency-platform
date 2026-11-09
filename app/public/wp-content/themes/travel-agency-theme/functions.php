@@ -1,7 +1,7 @@
 <?php
 defined('ABSPATH') || exit;
 
-define('TAT_VERSION', '2.0.26');
+define('TAT_VERSION', '2.0.27');
 
 function travel_agency_theme_setup() {
     add_theme_support('title-tag');
