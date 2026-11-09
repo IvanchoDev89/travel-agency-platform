@@ -1,7 +1,7 @@
 <?php
 defined('ABSPATH') || exit;
 
-define('TAT_VERSION', '2.0.28');
+define('TAT_VERSION', '2.0.29');
 
 function travel_agency_theme_setup() {
     add_theme_support('title-tag');
@@ -52,8 +52,9 @@ function travel_agency_theme_assets() {
 
     wp_enqueue_script('travel-agency-theme-main', $theme_uri . '/assets/js/main.js', ['jquery'], TAT_VERSION, true);
     wp_localize_script('travel-agency-theme-main', 'tat_ajax', [
-        'ajax_url' => admin_url('admin-ajax.php'),
-        'nonce'    => wp_create_nonce('tap_nonce'),
+        'ajax_url'      => admin_url('admin-ajax.php'),
+        'nonce'         => wp_create_nonce('tap_nonce'),
+        'filters_label' => __('Filtros', 'travel-agency-platform'),
     ]);
 
     // Enhanced date picker on the landing hero search.

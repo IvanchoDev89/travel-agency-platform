@@ -46,8 +46,15 @@ var tapDeferredPrompt = null;
 window.addEventListener('beforeinstallprompt', function(e) {
     e.preventDefault();
     tapDeferredPrompt = e;
+    var dismissed = false;
+    try { dismissed = localStorage.getItem('tap-install-dismissed') === '1'; } catch (err) {}
     var bar = document.getElementById('tap-install-bar');
-    if (bar) bar.style.display = 'flex';
+    if (bar && !dismissed) {
+        bar.style.display = 'flex';
+        if (window.getComputedStyle(bar).display !== 'none') {
+            document.body.classList.add('tap-install-visible');
+        }
+    }
 });
 function tapInstallApp() {
     if (!tapDeferredPrompt) return;
@@ -56,6 +63,7 @@ function tapInstallApp() {
         tapDeferredPrompt = null;
         var bar = document.getElementById('tap-install-bar');
         if (bar) bar.style.display = 'none';
+        document.body.classList.remove('tap-install-visible');
     });
 }
 </script>
@@ -80,11 +88,25 @@ function tapInstallApp() {
         </div>
 
         <div class="header-center">
-            <button class="mobile-close-btn" id="mobile-close-btn" aria-label="<?php esc_attr_e('Close menu', 'travel-agency-platform'); ?>">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
+            <div class="mobile-drawer-head">
+                <div class="mobile-drawer-brand">
+                    <?php if (function_exists('the_custom_logo') && has_custom_logo()): ?>
+                        <?php the_custom_logo(); ?>
+                    <?php else: ?>
+                        <a href="<?php echo esc_url(home_url('/')); ?>" rel="home"><?php bloginfo('name'); ?></a>
+                    <?php endif; ?>
+                </div>
+                <button class="mobile-close-btn" id="mobile-close-btn" aria-label="<?php esc_attr_e('Close menu', 'travel-agency-platform'); ?>">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <form class="mobile-drawer-search" method="get" action="<?php echo esc_url(home_url('/search-results/')); ?>" role="search">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="search" name="keyword" placeholder="<?php esc_attr_e('Buscar destinos, tours…', 'travel-agency-platform'); ?>" aria-label="<?php esc_attr_e('Buscar', 'travel-agency-platform'); ?>" autocomplete="off">
+            </form>
             <?php if (class_exists('TAP_Localization')): ?>
             <div class="tap-lang-selector tap-lang-in-drawer">
+                <span class="tap-lang-label"><?php esc_html_e('Idioma', 'travel-agency-platform'); ?></span>
                 <?php echo TAP_Localization::switcher([]); ?>
             </div>
             <?php endif; ?>
@@ -115,9 +137,11 @@ function tapInstallApp() {
                 <button class="nav-action-btn nav-theme-toggle" id="nav-theme-toggle" aria-label="<?php esc_attr_e('Toggle dark mode', 'travel-agency-platform'); ?>" title="<?php esc_attr_e('Toggle dark mode', 'travel-agency-platform'); ?>">
                     <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                     <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                    <span class="nav-action-label"><?php esc_html_e('Modo oscuro', 'travel-agency-platform'); ?></span>
                 </button>
                 <button class="nav-action-btn nav-search-toggle" id="nav-search-toggle" aria-label="<?php esc_attr_e('Toggle search', 'travel-agency-platform'); ?>">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <span class="nav-action-label"><?php esc_html_e('Buscar', 'travel-agency-platform'); ?></span>
                 </button>
                 <?php if (is_user_logged_in()):
                     $current_user = wp_get_current_user();

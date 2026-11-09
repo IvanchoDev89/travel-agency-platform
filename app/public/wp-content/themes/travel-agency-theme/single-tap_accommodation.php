@@ -88,31 +88,31 @@ while (have_posts()): the_post();
     <?php endif; ?>
   </div>
 
+  <!-- Header -->
+  <div class="tap-acc-header">
+    <div class="tap-acc-header-top">
+      <h1 class="tap-acc-title"><?php the_title(); ?></h1>
+      <?php echo tap_fav_button($id, 'tap-fav-hero'); ?>
+      <?php if ($stars): ?>
+      <div class="tap-acc-stars"><?php echo str_repeat('★', intval($stars)) . str_repeat('☆', 5 - intval($stars)); ?></div>
+      <?php endif; ?>
+    </div>
+    <div class="tap-acc-meta">
+      <span class="tap-acc-type"><?php echo esc_html($type_name); ?></span>
+      <?php if ($address || $city): ?>
+      <span class="tap-acc-location">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <?php echo esc_html(implode(', ', array_filter([$address, $city, $country]))); ?>
+      </span>
+      <?php endif; ?>
+      <?php if ($agency): ?>
+      <span class="tap-acc-hosted"><?php esc_html_e('Hosted by', 'travel-agency-platform'); ?> <strong><?php echo esc_html($agency->post_title); ?></strong></span>
+      <?php endif; ?>
+    </div>
+  </div>
+
   <div class="tap-acc-layout">
     <div class="tap-acc-main">
-
-      <!-- Header -->
-      <div class="tap-acc-header">
-        <div class="tap-acc-header-top">
-          <h1 class="tap-acc-title"><?php the_title(); ?></h1>
-          <?php echo tap_fav_button($id, 'tap-fav-hero'); ?>
-          <?php if ($stars): ?>
-          <div class="tap-acc-stars"><?php echo str_repeat('★', intval($stars)) . str_repeat('☆', 5 - intval($stars)); ?></div>
-          <?php endif; ?>
-        </div>
-        <div class="tap-acc-meta">
-          <span class="tap-acc-type"><?php echo esc_html($type_name); ?></span>
-          <?php if ($address || $city): ?>
-          <span class="tap-acc-location">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <?php echo esc_html(implode(', ', array_filter([$address, $city, $country]))); ?>
-          </span>
-          <?php endif; ?>
-          <?php if ($agency): ?>
-          <span class="tap-acc-hosted"><?php esc_html_e('Hosted by', 'travel-agency-platform'); ?> <strong><?php echo esc_html($agency->post_title); ?></strong></span>
-          <?php endif; ?>
-        </div>
-      </div>
 
       <!-- Highlights -->
       <div class="tap-acc-highlights">

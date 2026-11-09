@@ -65,7 +65,7 @@
     <span style="font-size:14px;font-weight:600;"><?php esc_html_e('Instala la app para acceso rápido', 'travel-agency-platform'); ?></span>
     <div style="display:flex;gap:8px;">
         <button type="button" class="tap-btn tap-btn-sm" style="background:#fff;color:#0f766e;" onclick="tapInstallApp()"><?php esc_html_e('Instalar', 'travel-agency-platform'); ?></button>
-        <button type="button" class="tap-btn tap-btn-sm" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.4);" onclick="document.getElementById('tap-install-bar').style.display='none'"><?php esc_html_e('Cerrar', 'travel-agency-platform'); ?></button>
+        <button type="button" class="tap-btn tap-btn-sm" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.4);" onclick="document.getElementById('tap-install-bar').style.display='none';document.body.classList.remove('tap-install-visible');try{localStorage.setItem('tap-install-dismissed','1')}catch(e){}"><?php esc_html_e('Cerrar', 'travel-agency-platform'); ?></button>
     </div>
 </div>
 <?php wp_footer(); ?>

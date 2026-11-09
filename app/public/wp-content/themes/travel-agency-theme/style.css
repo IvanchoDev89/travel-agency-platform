@@ -3,7 +3,7 @@ Theme Name: Travel Agency Theme
 Theme URI: https://ivanchodev.com
 Author: IvanchoDev
 Description: Modern travel multi-agency B2B & B2C theme. Designed for Travel Agency Platform plugin.
-Version: 2.0.28
+Version: 2.0.29
 License: GPL v2 or later
 Text Domain: travel-agency-theme
 */
@@ -1894,4 +1894,673 @@ html.dark {
 @media (max-width: 768px) {
   .mobile-close-btn { display: inline-flex; }
   .header-center .mobile-close-btn { align-self: flex-end; }
+}
+
+/* ==========================================================================
+   Mobile polish — v2.0.29
+   Mobile-first refinements for navigation, landing, detail pages and forms.
+   Kept at the end of the file on purpose: it must win over earlier base rules.
+   ========================================================================== */
+
+.nav-action-label { display: none; }
+.mobile-drawer-head,
+.mobile-drawer-search { display: none; }
+.tap-filters-toggle { display: none; }
+.tap-filters-body { display: contents; }
+
+/* Theme toggle: show the icon for the mode you can switch to. */
+.nav-theme-toggle .icon-sun { display: none; }
+.nav-theme-toggle .icon-moon { display: block; }
+html.dark .nav-theme-toggle .icon-sun { display: block; }
+html.dark .nav-theme-toggle .icon-moon { display: none; }
+
+/* Reserve room for the fixed PWA install bar while it is visible. */
+body.tap-install-visible { padding-bottom: 80px; }
+
+@media (max-width: 768px) {
+  /* ---------- Global mobile foundation ---------- */
+  html { -webkit-text-size-adjust: 100%; }
+  *, *::before, *::after { -webkit-tap-highlight-color: transparent; }
+  a, button, [role="button"] { touch-action: manipulation; }
+  body { font-size: 15px; line-height: 1.6; padding-bottom: 0; }
+  body.tap-install-visible { padding-bottom: calc(108px + env(safe-area-inset-bottom)); }
+  body:has(.tap-bw-mobile-bar) { padding-bottom: 76px; }
+  body:has(.tap-bw-mobile-bar) #tap-install-bar { display: none !important; }
+  .tap-container { padding-left: 20px; padding-right: 20px; }
+  .tap-section,
+  .tap-section-alt { padding-top: 44px; padding-bottom: 44px; }
+  .tap-page-header { padding: 22px 0 20px; }
+  .tap-page-header h1 { font-size: 1.55rem; line-height: 1.2; }
+  .tap-btn { min-height: 48px; padding: 12px 20px; }
+  .tap-btn-sm { min-height: 42px; padding: 10px 16px; }
+  .tap-btn-lg { min-height: 52px; }
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea { font-size: 16px; }
+  .tap-post-content { font-size: 1rem; line-height: 1.7; }
+  .tap-post-header h1 { font-size: 1.6rem; }
+  .screen-reader-text:focus { top: 8px; left: 8px; }
+  [id] { scroll-margin-top: 76px; }
+
+  /* ---------- Header / top bar ---------- */
+  .site-header,
+  .site-header.scrolled {
+    height: 60px;
+    background: var(--tap-surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .site-header .header-inner { height: 60px; padding: 0 20px; gap: 12px; }
+  .site-branding .custom-logo { height: 30px !important; width: auto; }
+  .site-branding .site-title { font-size: 1.05rem; }
+  .tap-mobile-toggle {
+    display: flex;
+    width: 46px;
+    height: 46px;
+    border: 0;
+    border-radius: 14px;
+    background: var(--tap-neutral-100);
+    color: var(--tap-neutral-800);
+  }
+  .tap-mobile-toggle:hover,
+  .tap-mobile-toggle.active {
+    border: 0;
+    background: var(--tap-primary-bg);
+    color: var(--tap-primary);
+  }
+  .tap-mobile-toggle.active .hamburger-line { background: currentColor; }
+
+  /* ---------- Full-screen drawer ---------- */
+  .header-center {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: 0 20px max(24px, env(safe-area-inset-bottom));
+    background: var(--tap-surface);
+    box-shadow: none;
+    transform: translateX(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    gap: 0;
+    z-index: 1110;
+  }
+  .header-center.open { transform: translateX(0); }
+  body.tap-menu-open { overflow: hidden; }
+  body.tap-menu-open #tap-install-bar { display: none !important; }
+
+  .mobile-drawer-head {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    min-height: 48px;
+    margin-bottom: 14px;
+    padding: max(16px, env(safe-area-inset-top)) 0 10px;
+    background: var(--tap-surface);
+  }
+  .mobile-drawer-brand { display: flex; align-items: center; min-height: 44px; }
+  .mobile-drawer-brand .custom-logo-link { display: block; }
+  .mobile-drawer-brand img,
+  .mobile-drawer-brand .custom-logo { height: 32px !important; width: auto; }
+  .mobile-drawer-brand a { color: var(--tap-neutral-900); font-weight: 800; font-size: 1.05rem; }
+
+  .mobile-close-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    flex: none;
+    margin: 0;
+    border: 0;
+    border-radius: 14px;
+    background: var(--tap-neutral-100);
+    color: var(--tap-neutral-700);
+  }
+  .mobile-close-btn:hover { background: var(--tap-primary-bg); color: var(--tap-primary); }
+
+  .mobile-drawer-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 52px;
+    margin-bottom: 12px;
+    padding: 0 16px;
+    border: 1px solid var(--tap-neutral-200);
+    border-radius: 14px;
+    background: var(--tap-neutral-50);
+    color: var(--tap-neutral-500);
+  }
+  .mobile-drawer-search:focus-within { border-color: var(--tap-primary); box-shadow: 0 0 0 3px var(--tap-primary-bg); }
+  .mobile-drawer-search svg { flex: none; }
+  .mobile-drawer-search input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--tap-neutral-800);
+    font: inherit;
+    font-size: 16px;
+    outline: 0;
+  }
+
+  .tap-lang-in-drawer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 12px;
+    padding: 0 0 12px;
+    border-bottom: 1px solid var(--tap-neutral-100);
+  }
+  .tap-lang-in-drawer .tap-lang-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tap-neutral-400);
+  }
+  .tap-lang-in-drawer .tap-lang-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    min-height: 38px;
+    padding: 6px 12px;
+    border: 1px solid var(--tap-neutral-200);
+    border-radius: 10px;
+    background: var(--tap-surface);
+    color: var(--tap-neutral-600);
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  .tap-lang-in-drawer .tap-lang-link.is-active {
+    border-color: var(--tap-primary);
+    background: var(--tap-primary);
+    color: #fff;
+  }
+
+  .header-center .main-navigation { width: 100%; }
+  .header-center .nav-menu {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 0;
+  }
+  .header-center .nav-menu > li {
+    width: 100%;
+    border-bottom: 1px solid var(--tap-neutral-100);
+  }
+  .header-center .nav-menu > li:last-child { border-bottom: 0; }
+  .header-center .nav-menu a.nav-link {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 48px;
+    padding: 10px 4px;
+    border-radius: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--tap-neutral-800);
+    white-space: normal;
+  }
+  .header-center .nav-menu .current-menu-item > a.nav-link {
+    color: var(--tap-primary);
+    font-weight: 700;
+  }
+  .header-center .nav-menu a.nav-link::after,
+  .header-center .nav-menu .menu-item-has-children > a.nav-link::before { display: none; }
+  .header-center .nav-menu .menu-item-has-children {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .header-center .nav-menu .menu-item-has-children > a.nav-link { flex: 1; }
+  .submenu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin: 4px 0 4px 8px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--tap-neutral-100);
+    color: var(--tap-neutral-600);
+  }
+  .submenu-toggle.active { background: var(--tap-primary-bg); color: var(--tap-primary); }
+  .header-center .nav-menu .sub-menu {
+    display: none;
+    position: static;
+    width: 100%;
+    margin: 0 0 8px;
+    padding: 2px 0 6px 14px;
+    border: 0;
+    border-left: 2px solid var(--tap-primary-border);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  .header-center .nav-menu .sub-menu.open { display: block; }
+  .header-center .nav-menu .sub-menu a.nav-link {
+    min-height: 44px;
+    padding: 8px 10px;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--tap-neutral-600);
+  }
+
+  .header-center .nav-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--tap-neutral-100);
+  }
+  .header-center .nav-actions .nav-action-btn {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    width: 100%;
+    min-height: 50px;
+    padding: 0 4px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--tap-neutral-700);
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+  .header-center .nav-actions .nav-action-btn:hover { background: transparent; color: var(--tap-primary); }
+  .header-center .nav-actions .nav-action-label { display: inline; }
+  .header-center .nav-actions .nav-search-toggle { display: none !important; }
+  .header-center .nav-actions .tap-btn {
+    width: 100%;
+    min-height: 48px;
+    padding: 10px 12px;
+    justify-content: center;
+  }
+  .header-center .nav-actions .nav-user-dropdown-wrapper { grid-column: 1 / -1; width: 100%; }
+  .header-center .nav-actions .nav-user-btn { width: 100%; justify-content: flex-start; }
+  .header-center .nav-actions .nav-user-dropdown {
+    position: static;
+    margin-top: 8px;
+    border: 1px solid var(--tap-neutral-200);
+    box-shadow: none;
+  }
+
+  /* ---------- Header search overlay ---------- */
+  .nav-search-overlay { z-index: 1001; }
+  .nav-search-overlay-inner { padding: 10px 20px; }
+  .nav-search-overlay.open { height: auto; max-height: 88px; }
+  .nav-search-form {
+    height: 52px;
+    border-radius: 14px;
+    background: var(--tap-neutral-50);
+    border: 1px solid var(--tap-neutral-200);
+  }
+  .nav-search-input { font-size: 16px; }
+}
+
+@media (max-width: 480px) {
+  .tap-container { padding-left: 16px; padding-right: 16px; }
+  .site-header .header-inner { padding: 0 16px; }
+  .header-center { padding-left: 16px; padding-right: 16px; }
+}
+
+@media (max-width: 768px) {
+  /* ---------- Landing hero ---------- */
+  .tap-landing-hero {
+    padding: 30px 0 38px;
+    background:
+      radial-gradient(520px 300px at 105% -10%, rgba(20, 184, 166, 0.28), transparent 62%),
+      radial-gradient(420px 280px at -10% 110%, rgba(217, 119, 6, 0.16), transparent 60%),
+      linear-gradient(155deg, #043f38 0%, #0b5d52 58%, #0f766e 100%);
+  }
+  .tap-landing-hero-content { max-width: 100%; }
+  .tap-landing-eyebrow {
+    margin-bottom: 14px;
+    padding: 7px 12px;
+    font-size: 0.66rem;
+    letter-spacing: 0.08em;
+  }
+  .tap-landing-hero-title {
+    margin-bottom: 12px;
+    font-size: clamp(1.85rem, 8.4vw, 2.4rem);
+    line-height: 1.06;
+    letter-spacing: -0.02em;
+  }
+  .tap-landing-hero-sub {
+    margin-bottom: 18px;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.82);
+  }
+  .tap-landing-search {
+    margin-bottom: 18px;
+    border-radius: 18px;
+    box-shadow: 0 18px 42px rgba(2, 30, 27, 0.28);
+  }
+  .tap-landing-hs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-radius: 18px;
+    overflow: visible;
+    background: var(--tap-surface);
+  }
+  .tap-landing-hs .tap-hs-field {
+    min-height: 60px;
+    padding: 9px 14px;
+    border: 0;
+    border-bottom: 1px solid var(--tap-neutral-100);
+  }
+  .tap-landing-hs .tap-hs-destino,
+  .tap-landing-hs .tap-hs-huespedes,
+  .tap-landing-hs .tap-hs-btn { grid-column: 1 / -1; }
+  .tap-landing-hs .tap-hs-date { min-width: 0; }
+  .tap-landing-hs .tap-hs-date + .tap-hs-date { border-left: 1px solid var(--tap-neutral-100); }
+  .tap-landing-hs .tap-hs-field label {
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    margin-bottom: 1px;
+  }
+  .tap-landing-hs .tap-hs-input { width: 100%; font-size: 15px; }
+  .tap-landing-hs .tap-hs-input-wrap svg { width: 15px; height: 15px; }
+  .tap-landing-hs .tap-hs-btn {
+    min-width: 0;
+    min-height: 54px;
+    margin: 0;
+    padding: 14px 20px;
+    border-radius: 0 0 18px 18px;
+    justify-content: center;
+    font-size: 1rem;
+  }
+  .tap-hs-suggestions { margin-top: 6px; }
+  .tap-landing-trust {
+    gap: 8px 14px;
+    margin-bottom: 16px;
+    font-size: 0.76rem;
+    line-height: 1.3;
+  }
+  .tap-landing-trust li { gap: 6px; }
+  .tap-landing-trust li::before { width: 16px; height: 16px; font-size: 9px; }
+  .tap-landing-hero-cta-row { margin-top: 0; }
+  .tap-landing-hero-cta-row .tap-btn {
+    width: 100%;
+    border-color: rgba(255, 255, 255, 0.34);
+    background: rgba(255, 255, 255, 0.09);
+    color: #fff;
+  }
+
+  /* ---------- Landing sections ---------- */
+  .tap-landing-head { margin-bottom: 26px; padding: 0 4px; }
+  .tap-landing-head h2 { font-size: 1.5rem; line-height: 1.14; }
+  .tap-landing-sub { font-size: 0.94rem; line-height: 1.55; margin-bottom: 18px; }
+  .tap-landing-stats { padding: 30px 0; }
+  .tap-landing-stats-grid { gap: 22px 14px; }
+  .tap-landing-stat-num { font-size: 2rem; }
+  .tap-landing-stat-label { font-size: 0.68rem; line-height: 1.35; }
+  .tap-landing-facts { padding: 22px 0; }
+  .tap-landing-facts-grid { gap: 18px 12px; }
+  .tap-landing-facts-grid b { font-size: 1.45rem; }
+  .tap-landing-facts-grid span { font-size: 0.78rem; }
+
+  .tap-landing-chips {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: 8px;
+    margin: 0 -20px;
+    padding: 0 20px 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .tap-landing-chips::-webkit-scrollbar { display: none; }
+  .tap-landing-chip { flex: 0 0 auto; padding: 8px 14px; font-size: 0.82rem; }
+
+  .tap-landing-card,
+  .tap-landing-dest-card,
+  .tap-landing-article-card {
+    overflow: hidden;
+    border-radius: 16px;
+  }
+  .tap-landing-card-media,
+  .tap-landing-dest-media,
+  .tap-landing-article-card .tap-landing-article-media { aspect-ratio: 16 / 9; }
+  .tap-landing-dest-media img,
+  .tap-landing-card-media img,
+  .tap-landing-article-media img { width: 100%; height: 100%; object-fit: cover; }
+  .tap-landing-card-body { padding: 15px 16px 17px; }
+  .tap-landing-card-title { font-size: 1.02rem; }
+  .tap-landing-card-location { margin-bottom: 12px; font-size: 0.8rem; }
+  .tap-landing-dest-card > div:last-child,
+  .tap-landing-dest-body { padding: 14px 16px 16px; }
+  .tap-landing-dest-title { font-size: 1.05rem; }
+  .tap-landing-dest-grid { gap: 16px; }
+  .tap-landing-review-card { padding: 18px; border-radius: 16px; }
+  .tap-landing-review-card blockquote { font-size: 0.94rem; }
+  .tap-landing-article-card h3 { margin: 14px 16px 4px; font-size: 1rem; }
+  .tap-landing-article-card p { margin: 0 16px 14px; font-size: 0.82rem; }
+  .tap-landing-itinerary-card { padding: 24px 20px; border-radius: 22px; gap: 22px; }
+  .tap-landing-itinerary-copy h2 { font-size: 1.65rem; margin-bottom: 18px; }
+  .tap-landing-itinerary-steps li { margin-bottom: 12px; font-size: 0.92rem; }
+  .tap-landing-cta-card { padding: 28px 20px; border-radius: 22px; }
+  .tap-landing-cta-card h2 { font-size: 1.65rem; }
+  .tap-landing-agency-card { padding: 14px 16px; }
+  .tap-landing-agency-avatar { width: 48px; height: 48px; }
+  .tap-landing-faq-item summary { min-height: 48px; }
+  .tap-landing-pillars-grid,
+  .tap-landing-pillar-card { border-radius: 16px; }
+
+  /* ---------- Page headers / generic content ---------- */
+  .tap-breadcrumbs {
+    margin-bottom: 10px;
+    font-size: 0.72rem;
+    line-height: 1.4;
+  }
+  .tap-page-header + .entry-content { padding-top: 20px; }
+  body:has(.tap-itin-head) .tap-page-header { display: none; }
+  body:has(.tap-itin-head) #tap-install-bar { display: none !important; }
+  .entry-content > h1 { font-size: 1.6rem; }
+  .entry-content > h2 { font-size: 1.35rem; }
+  .tap-empty { padding: 48px 18px; }
+  .tap-empty h3 { font-size: 1.15rem; }
+
+  /* ---------- Single post ---------- */
+  .tap-post-header h1 { font-size: 1.6rem; line-height: 1.16; }
+  .tap-post-meta { font-size: 0.78rem; }
+  .tap-post-content { font-size: 1rem; line-height: 1.7; }
+  .tap-post-content h2 { font-size: 1.35rem; margin-top: 1.8rem; }
+  .tap-post-content h3 { font-size: 1.1rem; }
+  .tap-post-content blockquote { padding: 12px 14px; }
+
+  /* ---------- Service pages / booking ---------- */
+  .tap-acc-single { padding: 16px 20px 56px; }
+  .tap-acc-gallery { margin-bottom: 20px; border-radius: 16px; }
+  .tap-acc-gallery-main { min-height: 240px; }
+  .tap-acc-header { margin-bottom: 20px; padding-bottom: 18px; }
+  .tap-acc-header-top { flex-direction: row; align-items: flex-start; gap: 12px; }
+  .tap-acc-title { font-size: 1.55rem; line-height: 1.16; }
+  .tap-acc-meta { gap: 8px 14px; margin-top: 10px; font-size: 0.82rem; }
+  .tap-acc-highlights { gap: 10px 16px; padding: 16px 0; margin-bottom: 22px; }
+  .tap-acc-highlight { font-size: 0.82rem; }
+  .tap-acc-section { margin-bottom: 24px; padding-bottom: 24px; }
+  .tap-acc-section h2 { font-size: 1.15rem; margin-bottom: 12px; }
+  .tap-acc-layout { gap: 22px; }
+  .tap-acc-booking-widget { border-radius: 16px; }
+  .tap-bw-header { padding: 16px 18px; }
+  .tap-bw-body { padding: 16px 18px 18px; }
+  .tap-bw-field label { font-size: 0.68rem; }
+  .tap-bw-actions .tap-btn,
+  .tap-bw-form .tap-btn { width: 100%; }
+  .tap-room-card-img { height: 170px; }
+  .tap-acc-amenities { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .tap-acc-amenity { padding: 8px 10px; font-size: 0.78rem; }
+  .tap-reviews-summary { flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px; }
+  .tap-review-item { padding: 14px; gap: 12px; }
+
+  .tap-check-label.tap-privacy-consent {
+    display: block !important;
+    position: relative;
+    padding-left: 30px;
+    font-size: 0.82rem;
+    line-height: 1.55;
+  }
+  .tap-check-label.tap-privacy-consent input[type="checkbox"] {
+    position: absolute;
+    left: 0;
+    top: 2px;
+    width: 19px;
+    height: 19px;
+    margin: 0;
+  }
+  .tap-privacy-consent a { font-weight: 600; }
+  .tap-bw-consent { padding-top: 4px; }
+
+  /* ---------- Search results filters ---------- */
+  .tap-search-filters {
+    display: block;
+    padding: 12px;
+    border-radius: 16px;
+  }
+  .tap-filters-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 46px;
+    padding: 0 4px;
+    border: 0;
+    background: transparent;
+    color: var(--tap-neutral-800);
+    font: inherit;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+  .tap-filters-toggle-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: var(--tap-primary-bg);
+    color: var(--tap-primary);
+  }
+  .tap-filters-body { display: none; flex-direction: column; align-items: stretch; gap: 12px; padding-top: 10px; }
+  .tap-search-filters.is-open .tap-filters-body { display: flex; }
+  .tap-search-filters .tap-filters-body label { width: 100%; gap: 6px; }
+  .tap-search-filters .tap-filters-body select,
+  .tap-search-filters .tap-filters-body input[type="number"] { width: 100%; min-height: 46px; padding: 10px 12px; }
+  .tap-search-filters .tap-filters-body .tap-btn { width: 100%; }
+  .tap-search-filters .tap-dest-picker-body { flex-direction: column; align-items: stretch; }
+  .tap-search-filters .tap-dest-level { flex-basis: auto; }
+  .tap-search-results .tap-service-card {
+    align-items: stretch;
+    gap: 0;
+    padding: 0;
+    text-align: left;
+    overflow: hidden;
+    border-radius: 16px;
+  }
+  .tap-search-results .tap-service-card > a:first-child { display: block; }
+  .tap-search-results .tap-service-card > a:first-child img { width: 100%; height: 180px; object-fit: cover; display: block; }
+  .tap-search-results .tap-service-card-body { align-items: flex-start; padding: 16px; }
+  .tap-search-results .tap-service-card-body .tap-btn { width: 100%; }
+
+  /* ---------- Agency profile ---------- */
+  body.single-tap_agency .tap-breadcrumbs,
+  body.single-tap_agency .tap-agency-detail { padding-left: 20px; padding-right: 20px; }
+  .tap-agency-detail .tap-agency-header { gap: 12px; }
+  .tap-agency-detail h1,
+  .tap-agency-detail .tap-agency-title { font-size: 1.6rem; line-height: 1.18; }
+
+  /* ---------- Itinerary wizard ---------- */
+  .tap-itin { padding: 20px 16px 40px; }
+  .tap-itin-head { margin-bottom: 22px; }
+  .tap-itin-head h2 { font-size: 1.7rem; }
+  .tap-itin-head p { font-size: 0.92rem; }
+  .tap-itin-progress { margin-bottom: 20px; }
+  .tap-itin-form { padding: 18px 16px; border-radius: 16px; }
+  .tap-itin-step { padding: 0; }
+  .tap-itin-step h3,
+  .tap-itin-step-head h3 { font-size: 1.15rem; }
+  .tap-itin-tip { padding: 12px 14px; font-size: 0.85rem; border-radius: 12px; }
+  .tap-itin-dest-grid { grid-template-columns: 1fr; }
+  .tap-itin-nav { display: grid; grid-template-columns: 1fr 1fr; }
+  .tap-itin-nav .tap-btn { width: 100%; }
+  .tap-itin-side-card { position: static; }
+
+  /* ---------- Dashboard / tables ---------- */
+  .tap-dash-main .tap-table { display: block; width: 100%; overflow-x: auto; white-space: nowrap; }
+  .tap-dash-main .tap-table th,
+  .tap-dash-main .tap-table td { white-space: nowrap; }
+  .tap-dash-booking-card { border-radius: 14px; }
+  .tap-profile-grid { grid-template-columns: 1fr; }
+
+  /* ---------- Footer ---------- */
+  .site-footer { padding-top: 40px; }
+  .site-footer .footer-inner { padding: 0 20px; }
+  .site-footer .footer-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 28px 18px !important;
+  }
+  .site-footer .footer-brand { grid-column: 1 / -1; }
+  .site-footer .footer-brand p { max-width: 42ch; font-size: 0.85rem; }
+  .site-footer h3 { font-size: 0.74rem; letter-spacing: 0.08em; margin-bottom: 12px; }
+  .site-footer ul a { font-size: 0.85rem; }
+  .site-footer .footer-social a { width: 42px; height: 42px; }
+  .site-footer .footer-bottom {
+    margin-top: 30px;
+    padding: 18px 0 calc(18px + env(safe-area-inset-bottom));
+    font-size: 0.78rem;
+  }
+
+  /* ---------- Install bar ---------- */
+  #tap-install-bar {
+    z-index: 900 !important;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom)) !important;
+    gap: 10px !important;
+  }
+  #tap-install-bar span { font-size: 0.8rem !important; line-height: 1.3; }
+
+  /* ---------- Dark mode touch-ups ---------- */
+  html.dark .site-header,
+  html.dark .site-header.scrolled { background: rgba(11, 18, 32, 0.96); }
+  html.dark .tap-mobile-toggle { background: var(--tap-surface-2); color: var(--tap-neutral-800); }
+  html.dark .header-center { background: var(--tap-surface); }
+  html.dark .mobile-close-btn,
+  html.dark .submenu-toggle { background: var(--tap-surface-2); color: var(--tap-neutral-700); }
+  html.dark .mobile-drawer-search { background: var(--tap-surface-2); border-color: var(--tap-neutral-300); }
+  html.dark .tap-lang-in-drawer .tap-lang-link { background: var(--tap-surface-2); border-color: var(--tap-neutral-300); }
+  html.dark .site-footer .footer-grid { border-color: transparent; }
+}
+
+@media (max-width: 480px) {
+  .tap-landing-hero-title { font-size: 1.8rem; }
+  .tap-landing-hs .tap-hs-field { min-height: 56px; padding: 8px 12px; }
+  .tap-landing-hs .tap-hs-btn { min-height: 52px; }
+  .tap-landing-trust { font-size: 0.72rem; gap: 7px 10px; }
+  .tap-acc-single { padding-left: 16px; padding-right: 16px; }
+  .tap-acc-amenities { grid-template-columns: 1fr; }
+  .site-footer .footer-inner { padding: 0 16px; }
+  .tap-itin { padding-left: 12px; padding-right: 12px; }
 }

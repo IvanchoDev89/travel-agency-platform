@@ -247,7 +247,7 @@ class TAP_Shortcode_Search {
             </label>
             <div class="tap-field">
                 <span class="tap-field-label"><?php esc_html_e('Ubicación', 'travel-agency-platform'); ?></span>
-                <?php echo TAP_Destinations::render_picker($location, 'location'); ?>
+                <?php echo TAP_Destinations::render_picker($location, 'location', true); ?>
             </div>
             <label><?php esc_html_e('Tipo de tour', 'travel-agency-platform'); ?>
                 <select name="tour_type">

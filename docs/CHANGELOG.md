@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [Theme 2.0.29] — 2026-11-09
+
+### Changed
+- **Mobile public redesign**: full-screen navigation drawer with integrated service search, language switcher and labeled actions; compact header, hero and search grid; responsive landing cards, destination chips, page headers, post layout, booking forms, agency profile and itinerary wizard.
+- **Search results**: collapsible filters with active-filter count and container padding on mobile; results page content is now wrapped in the theme container.
+- **Mobile detail pages**: the accommodation title/meta now precedes the booking widget, and the tour page keeps its sticky booking bar without the install prompt overlapping it.
+- **PWA install prompt**: dismissal is remembered in `localStorage`; the bar is hidden while the mobile menu is open and on pages with a sticky booking bar.
+- **Dark mode**: the theme toggle shows the correct sun/moon icon and the mobile drawer inherits dark surfaces.
+- Theme version bumped to `2.0.29` for asset cache-busting.
+
+---
+
 ## [1.5.65] — 2026-11-09
 
 ### Fixed
