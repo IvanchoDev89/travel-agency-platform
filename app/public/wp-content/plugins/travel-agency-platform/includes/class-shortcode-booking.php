@@ -578,9 +578,11 @@ class TAP_Shortcode_Booking {
                         <h3><?php esc_html_e('Pagar con Onvo Pay', 'travel-agency-platform'); ?></h3>
                         <p class="tap-pay-label"><?php esc_html_e('Tarjetas (Visa, Mastercard, Amex) y SINPE Móvil', 'travel-agency-platform'); ?></p>
                         <button type="button" class="tap-btn tap-btn-primary" id="tap-onvo-pay-btn" data-booking-id="<?php echo intval($booking->id); ?>">
-                            <?php echo esc_html($tap_remaining > 0 && TAP_Booking::amount_already_paid($booking) > 0
+                            <?php
+                            echo esc_html($tap_remaining > 0 && TAP_Booking::amount_already_paid($booking) > 0
                                 ? sprintf(__('Pagar el saldo restante de %s', 'travel-agency-platform'), TAP_Currency::fmt($tap_remaining))
-                                : __('Completar el pago con Onvo Pay', 'travel-agency-platform')); ?>
+                                : __('Completar el pago con Onvo Pay', 'travel-agency-platform'));
+                                ?>
                         </button>
                         <div id="tap-onvo-message" class="tap-booking-message"></div>
                     </div>
@@ -1230,7 +1232,8 @@ class TAP_Shortcode_Booking {
         ob_start();
         ?>
         <div class="tap-fav-grid">
-            <?php foreach ($posts as $post):
+            <?php
+            foreach ($posts as $post):
                 $type = $post->post_type;
                 $price = floatval(get_post_meta($post->ID, TAP_API::get_price_key($type) ?: '', true));
             ?>

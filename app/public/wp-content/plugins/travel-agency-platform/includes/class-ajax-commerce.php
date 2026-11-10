@@ -451,7 +451,7 @@ class TAP_Ajax_Commerce {
             'unitAmount' => TAP_Onvo::to_minor_units($remaining, $currency),
             'currency'   => strtoupper($currency),
             'description' => sprintf(__('Booking %s - %s', 'travel-agency-platform'), $booking->booking_code, $service_name),
-        ]];
+        ],];
 
         // Get connected account for the agency (marketplace).
         $on_behalf_of = '';

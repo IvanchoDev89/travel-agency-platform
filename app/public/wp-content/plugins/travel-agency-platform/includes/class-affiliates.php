@@ -16,9 +16,15 @@ class TAP_Affiliates {
         add_action('tap_affiliate_release_hook', [__CLASS__, 'release_pending']);
     }
 
-    public static function table() { global $wpdb; return $wpdb->prefix . 'tap_affiliates'; }
-    public static function clicks_table() { global $wpdb; return $wpdb->prefix . 'tap_affiliate_clicks'; }
-    public static function conv_table() { global $wpdb; return $wpdb->prefix . 'tap_affiliate_conversions'; }
+    public static function table() {
+global $wpdb;
+return $wpdb->prefix . 'tap_affiliates'; }
+    public static function clicks_table() {
+global $wpdb;
+return $wpdb->prefix . 'tap_affiliate_clicks'; }
+    public static function conv_table() {
+global $wpdb;
+return $wpdb->prefix . 'tap_affiliate_conversions'; }
 
     /** Track a click on an affiliate link. */
     public static function maybe_track_click() {
@@ -197,7 +203,8 @@ class TAP_Affiliates {
                 'status' => sanitize_key(wp_unslash($_POST['status'] ?? 'pending')),
                 'tax_form' => sanitize_text_field(wp_unslash($_POST['tax_form'] ?? '')),
             ];
-            if ($id) self::update($id, $data); else self::create($data);
+            if ($id) self::update($id, $data);
+else self::create($data);
             wp_safe_redirect(add_query_arg(['page' => 'tap-affiliates', 'updated' => '1'], admin_url('admin.php')));
             exit;
         }

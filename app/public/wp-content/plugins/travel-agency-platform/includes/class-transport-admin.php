@@ -226,7 +226,7 @@ class TAP_Transport_Admin {
                     <tr><th><?php esc_html_e('Número de licencia', 'travel-agency-platform'); ?></th><td><input type="text" name="license_number" value="<?php echo esc_attr($editing->license_number ?? ''); ?>" class="regular-text" required></td></tr>
                     <tr><th><?php esc_html_e('Tipo de licencia', 'travel-agency-platform'); ?></th><td>
                         <select name="license_type">
-                            <?php foreach (['B1','B2','B3','C1','C2','D1','D2','E'] as $lt): ?>
+                            <?php foreach (['B1', 'B2', 'B3', 'C1', 'C2', 'D1', 'D2', 'E'] as $lt): ?>
                                 <option value="<?php echo esc_attr($lt); ?>" <?php selected($editing->license_type ?? 'B1', $lt); ?>><?php echo esc_html($lt); ?></option>
                             <?php endforeach; ?>
                         </select>
@@ -361,7 +361,7 @@ class TAP_Transport_Admin {
         if (empty($trips)) {
             $trips = $wpdb->get_results("SELECT * FROM " . TAP_Transport_Trips::table() . " ORDER BY departure_time DESC LIMIT 100") ?: [];
         }
-        $statuses = ['scheduled','boarding','in_transit','completed','cancelled'];
+        $statuses = ['scheduled', 'boarding', 'in_transit', 'completed', 'cancelled'];
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Viajes', 'travel-agency-platform'); ?></h1>

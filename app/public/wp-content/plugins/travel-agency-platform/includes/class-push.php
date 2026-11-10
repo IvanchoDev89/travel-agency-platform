@@ -98,10 +98,8 @@ class TAP_Push {
             if ($agency_user) {
                 self::send($agency_user, __('Nuevo mensaje de cliente', 'travel-agency-platform'), sprintf(__('Tienes un mensaje nuevo en la reserva %s.', 'travel-agency-platform'), $booking->booking_code), home_url('/mi-cuenta/?seccion=bo-operations'), 'chat');
             }
-        } else {
-            if (!empty($booking->client_id)) {
+        } elseif (!empty($booking->client_id)) {
                 self::send((int) $booking->client_id, __('Nuevo mensaje de la agencia', 'travel-agency-platform'), sprintf(__('La agencia respondió en la reserva %s.', 'travel-agency-platform'), $booking->booking_code), home_url('/mi-cuenta/?seccion=bookings'), 'chat');
-            }
         }
     }
 

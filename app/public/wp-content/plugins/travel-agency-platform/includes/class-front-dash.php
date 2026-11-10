@@ -1439,7 +1439,8 @@ class TAP_Front_Dash {
                     if (get_post_thumbnail_id($lid)) $any_photos = true;
                     $price_meta_keys = ['_tap_acc_price_per_night', '_tap_tour_price_adult', '_tap_trans_price', '_tap_car_price_per_day', '_tap_boat_price_half', '_tap_pkg_price', '_tap_eq_price_day'];
                     foreach ($price_meta_keys as $pmk) {
-                        if (get_post_meta($lid, $pmk, true)) { $any_prices = true; break; }
+                        if (get_post_meta($lid, $pmk, true)) { $any_prices = true;
+break; }
                     }
                 }
             }
