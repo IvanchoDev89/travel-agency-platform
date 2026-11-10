@@ -39,7 +39,22 @@ echo $fonts_css;
 <script>
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-        navigator.serviceWorker.register('<?php echo esc_url(get_template_directory_uri() . '/assets/sw.js?ver=' . TAT_VERSION); ?>').then(function(reg){ reg.update(); }).catch(function(){});
+        var registerSW = function() {
+            navigator.serviceWorker.register('<?php echo esc_url(get_template_directory_uri() . '/assets/sw.js?ver=' . TAT_VERSION); ?>').then(function(reg){ reg.update(); }).catch(function(){});
+        };
+        var cleanupKey = 'tap-sw-cleanup-v4';
+        try {
+            if (!localStorage.getItem(cleanupKey)) {
+                navigator.serviceWorker.getRegistrations().then(function(regs) {
+                    return Promise.all(regs.map(function(r) { return r.unregister(); }));
+                }).then(function() {
+                    try { localStorage.setItem(cleanupKey, '1'); } catch (e) {}
+                    registerSW();
+                }).catch(function() { registerSW(); });
+            } else {
+                registerSW();
+            }
+        } catch (e) { registerSW(); }
     });
 }
 var tapDeferredPrompt = null;

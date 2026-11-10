@@ -3,6 +3,18 @@ defined('ABSPATH') || exit;
 
 define('TAT_VERSION', '2.0.30');
 
+// Drop jQuery Migrate on the front end: it only adds a deprecation notice to
+// the console and the platform does not rely on deprecated jQuery APIs.
+add_action('wp_default_scripts', function ($scripts) {
+    if (is_admin() || empty($scripts->registered['jquery'])) {
+        return;
+    }
+    $scripts->registered['jquery']->deps = array_values(array_diff(
+        $scripts->registered['jquery']->deps,
+        ['jquery-migrate']
+    ));
+});
+
 function travel_agency_theme_setup() {
     add_theme_support('title-tag');
     add_theme_support('post-thumbnails');
