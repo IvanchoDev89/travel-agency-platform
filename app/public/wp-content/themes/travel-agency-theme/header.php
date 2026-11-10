@@ -39,7 +39,7 @@ echo $fonts_css;
 <script>
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-        navigator.serviceWorker.register('<?php echo esc_url(get_template_directory_uri() . '/assets/sw.js?ver=2.0.24'); ?>').then(function(reg){ reg.update(); }).catch(function(){});
+        navigator.serviceWorker.register('<?php echo esc_url(get_template_directory_uri() . '/assets/sw.js?ver=' . TAT_VERSION); ?>').then(function(reg){ reg.update(); }).catch(function(){});
     });
 }
 var tapDeferredPrompt = null;
