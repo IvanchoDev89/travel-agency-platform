@@ -204,6 +204,8 @@ final class TravelAgencyPlatform {
         add_action('wp_ajax_nopriv_tap_search_services', ['TAP_Ajax_Public', 'search_services']);
         add_action('wp_ajax_tap_create_paypal_order', ['TAP_Ajax_Commerce', 'create_paypal_order']);
         add_action('wp_ajax_nopriv_tap_create_paypal_order', ['TAP_Ajax_Commerce', 'create_paypal_order']);
+        add_action('wp_ajax_tap_create_onvo_checkout', ['TAP_Ajax_Commerce', 'create_onvo_checkout']);
+        add_action('wp_ajax_nopriv_tap_create_onvo_checkout', ['TAP_Ajax_Commerce', 'create_onvo_checkout']);
         add_action('wp_ajax_tap_capture_paypal_order', ['TAP_Ajax_Commerce', 'capture_paypal_order']);
         add_action('wp_ajax_nopriv_tap_capture_paypal_order', ['TAP_Ajax_Commerce', 'capture_paypal_order']);
         add_action('wp_ajax_tap_calculate_booking_total', ['TAP_Ajax_Public', 'calculate_booking_total']);

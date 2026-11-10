@@ -401,4 +401,88 @@ class TAP_Ajax_Commerce {
 
         wp_send_json_success($result);
     }
+
+    /**
+     * Create an Onvo hosted checkout session for a booking.
+     */
+    public static function create_onvo_checkout() {
+        check_ajax_referer('tap_nonce', 'nonce');
+
+        $booking_id = intval($_POST['booking_id'] ?? 0);
+        if (!$booking_id) {
+            wp_send_json_error(['message' => __('Invalid booking', 'travel-agency-platform')]);
+        }
+
+        $booking = TAP_Booking::get_booking($booking_id);
+        if (!$booking) {
+            wp_send_json_error(['message' => __('Booking not found', 'travel-agency-platform')]);
+        }
+
+        $uid = get_current_user_id();
+        $owner_ok = $uid && (int) $booking->client_id === $uid;
+        $guest_ok = !$uid && (int) $booking->client_id === 0 && TAP_Guest_Checkout::get_guest_pay_token($booking->booking_code);
+        if (!$owner_ok && !$guest_ok) {
+            wp_send_json_error(['message' => __('Booking not found', 'travel-agency-platform')]);
+        }
+
+        if ($booking->payment_status === 'paid') {
+            wp_send_json_error(['message' => __('Booking already paid', 'travel-agency-platform')]);
+        }
+
+        if (!TAP_Booking::is_payable($booking)) {
+            wp_send_json_error(['message' => __('Esta solicitud aún no ha sido aceptada por la agencia. Cuando sea confirmada podrás pagar.', 'travel-agency-platform')]);
+        }
+
+        if (!class_exists('TAP_Onvo') || !TAP_Onvo::is_ready()) {
+            wp_send_json_error(['message' => __('Onvo Pay is not configured.', 'travel-agency-platform')]);
+        }
+
+        $service = get_post($booking->service_id);
+        $service_name = $service ? $service->post_title : __('Travel Service', 'travel-agency-platform');
+
+        $return_url = home_url('/checkout?code=' . $booking->booking_code . '&status=success');
+        $cancel_url = home_url('/checkout?code=' . $booking->booking_code . '&status=cancel');
+
+        $currency = class_exists('TAP_Currency') ? TAP_Currency::code() : 'USD';
+        $remaining = TAP_Booking::remaining_amount($booking);
+
+        $line_items = [[
+            'quantity'   => 1,
+            'unitAmount' => TAP_Onvo::to_minor_units($remaining, $currency),
+            'currency'   => strtoupper($currency),
+            'description' => sprintf(__('Booking %s - %s', 'travel-agency-platform'), $booking->booking_code, $service_name),
+        ]];
+
+        // Get connected account for the agency (marketplace).
+        $on_behalf_of = '';
+        if ($booking->agency_id) {
+            $on_behalf_of = get_post_meta($booking->agency_id, '_tap_onvo_connected_account_id', true);
+        }
+
+        $result = TAP_Onvo::create_checkout_session($line_items, $return_url, $cancel_url, $on_behalf_of, [
+            'booking_id'   => $booking->id,
+            'booking_code' => $booking->booking_code,
+        ]);
+
+        if (is_wp_error($result)) {
+            wp_send_json_error(['message' => $result->get_error_message()]);
+        }
+
+        // Store the session/intent reference.
+        if (is_object($result) && !empty($result->id)) {
+            update_post_meta($booking_id, '_tap_onvo_checkout_session_id', $result->id);
+        }
+
+        // Extract redirect URL from result.
+        $redirect_url = '';
+        if (is_object($result)) {
+            $redirect_url = $result->url ?? ($result->redirectUrl ?? ($result->checkoutUrl ?? ''));
+        }
+
+        if (empty($redirect_url)) {
+            wp_send_json_error(['message' => __('Could not create Onvo checkout session.', 'travel-agency-platform')]);
+        }
+
+        wp_send_json_success(['redirect_url' => $redirect_url]);
+    }
 }

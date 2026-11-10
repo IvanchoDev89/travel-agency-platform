@@ -572,6 +572,49 @@ class TAP_Shortcode_Booking {
                     <?php else: ?>
                     <p class="tap-empty"><?php esc_html_e('Online payment is temporarily unavailable. Your reservation is registered and will be confirmed by the agency.', 'travel-agency-platform'); ?></p>
                     <?php endif; ?>
+
+                    <?php if (TAP_Onvo::is_ready()): ?>
+                    <div class="tap-onvo-payment" style="margin-top:16px; padding-top:16px; border-top:1px solid var(--tap-neutral-100, #e2e8f0);">
+                        <h3><?php esc_html_e('Pagar con Onvo Pay', 'travel-agency-platform'); ?></h3>
+                        <p class="tap-pay-label"><?php esc_html_e('Tarjetas (Visa, Mastercard, Amex) y SINPE Móvil', 'travel-agency-platform'); ?></p>
+                        <button type="button" class="tap-btn tap-btn-primary" id="tap-onvo-pay-btn" data-booking-id="<?php echo intval($booking->id); ?>">
+                            <?php echo esc_html($tap_remaining > 0 && TAP_Booking::amount_already_paid($booking) > 0
+                                ? sprintf(__('Pagar el saldo restante de %s', 'travel-agency-platform'), TAP_Currency::fmt($tap_remaining))
+                                : __('Completar el pago con Onvo Pay', 'travel-agency-platform')); ?>
+                        </button>
+                        <div id="tap-onvo-message" class="tap-booking-message"></div>
+                    </div>
+                    <script>
+                    jQuery(document).ready(function($) {
+                        $('#tap-onvo-pay-btn').on('click', function() {
+                            var btn = $(this);
+                            var msg = $('#tap-onvo-message');
+                            btn.prop('disabled', true).text('<?php echo esc_js(__('Procesando...', 'travel-agency-platform')); ?>');
+                            msg.removeClass('tap-error tap-success').html('');
+
+                            $.ajax({
+                                url: tap_ajax.ajax_url,
+                                type: 'POST',
+                                data: {
+                                    action: 'tap_create_onvo_checkout',
+                                    booking_id: btn.data('booking-id'),
+                                    nonce: tap_ajax.nonce
+                                }
+                            }).then(function(res) {
+                                if (res.success && res.data.redirect_url) {
+                                    window.location.href = res.data.redirect_url;
+                                } else {
+                                    btn.prop('disabled', false).text('<?php echo esc_js(__('Completar el pago con Onvo Pay', 'travel-agency-platform')); ?>');
+                                    msg.addClass('tap-error').html('<p>' + (res.data.message || '<?php echo esc_js(__('Error al crear la sesión de pago.', 'travel-agency-platform')); ?>') + '</p>');
+                                }
+                            }).fail(function() {
+                                btn.prop('disabled', false).text('<?php echo esc_js(__('Completar el pago con Onvo Pay', 'travel-agency-platform')); ?>');
+                                msg.addClass('tap-error').html('<p><?php echo esc_js(__('Error de conexión.', 'travel-agency-platform')); ?></p>');
+                            });
+                        });
+                    });
+                    </script>
+                    <?php endif; ?>
                 </div>
 					<?php endif; ?>
         </div>
