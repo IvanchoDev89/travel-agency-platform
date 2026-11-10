@@ -67,7 +67,7 @@ class TAP_Onvo {
         self::init();
         $placeholder = ['', 'test', 'YOUR_SECRET_KEY', 'onvo_test_secret_key_'];
         return in_array(trim(self::$secret_key), $placeholder, true)
-            || strpos(self::$secret_key, 'onvo_test_secret_key_') === 0 && strlen(self::$secret_key) < 40;
+            || (strpos(self::$secret_key, 'onvo_test_secret_key_') === 0 && strlen(self::$secret_key) < 40);
     }
 
     public static function get_base_url() {

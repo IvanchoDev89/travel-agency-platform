@@ -203,7 +203,7 @@ class TAP_Payment {
 
         // Record in payment ledger.
         $amount = isset($intent->amount) ? TAP_Onvo::from_minor_units($intent->amount, $intent->currency ?? 'CRC') : 0;
-        TAP_Payment::record_order($intent_id, 'booking', (int) $booking_id, (float) $amount, 'completed');
+        self::record_order($intent_id, 'booking', (int) $booking_id, (float) $amount, 'completed');
 
         do_action('tap_payment_completed', $booking_id, 'onvo', $intent_id);
     }
