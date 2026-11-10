@@ -127,6 +127,124 @@ class TAP_Payment {
         exit;
     }
 
+    /**
+     * Webhook handler for Onvo Pay.
+     *
+     * Verifies HMAC signature, processes payment_intent.succeeded / failed.
+     */
+    public static function handle_onvo_webhook() {
+        $raw_body = file_get_contents('php://input');
+
+        if (empty($raw_body)) {
+            status_header(400);
+            exit;
+        }
+
+        $signature = isset($_SERVER['HTTP_X_ONVO_SIGNATURE']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_X_ONVO_SIGNATURE'])) : '';
+
+        $verified = TAP_Onvo::verify_webhook($raw_body, $signature);
+        if (!$verified) {
+            status_header(403);
+            exit;
+        }
+
+        $event = json_decode($raw_body);
+        if (!$event || empty($event->type)) {
+            status_header(400);
+            exit;
+        }
+
+        // Idempotency: skip if already processed.
+        $event_id = $event->id ?? '';
+        if (!empty($event_id)) {
+            $processed = get_transient('tap_onvo_event_' . $event_id);
+            if ($processed) {
+                status_header(200);
+                exit;
+            }
+        }
+
+        $type = $event->type;
+        $intent = $event->data->object ?? null;
+
+        switch ($type) {
+            case 'payment_intent.succeeded':
+                if ($intent && !empty($intent->id)) {
+                    self::handle_onvo_payment_succeeded($intent);
+                }
+                break;
+
+            case 'payment_intent.payment_failed':
+                if ($intent && !empty($intent->id)) {
+                    self::handle_onvo_payment_failed($intent);
+                }
+                break;
+        }
+
+        // Mark as processed.
+        if (!empty($event_id)) {
+            set_transient('tap_onvo_event_' . $event_id, 1, DAY_IN_SECONDS);
+        }
+
+        status_header(200);
+        exit;
+    }
+
+    /**
+     * Handle Onvo payment_intent.succeeded.
+     */
+    private static function handle_onvo_payment_succeeded($intent) {
+        $intent_id = $intent->id;
+        $booking_id = self::find_booking_by_onvo_intent($intent_id);
+        if (!$booking_id) {
+            return;
+        }
+        TAP_Booking::update_payment_status($booking_id, 'paid');
+
+        // Record in payment ledger.
+        $amount = isset($intent->amount) ? TAP_Onvo::from_minor_units($intent->amount, $intent->currency ?? 'CRC') : 0;
+        TAP_Payment::record_order($intent_id, 'booking', (int) $booking_id, (float) $amount, 'completed');
+
+        do_action('tap_payment_completed', $booking_id, 'onvo', $intent_id);
+    }
+
+    /**
+     * Handle Onvo payment_intent.payment_failed.
+     */
+    private static function handle_onvo_payment_failed($intent) {
+        $intent_id = $intent->id;
+        $booking_id = self::find_booking_by_onvo_intent($intent_id);
+        if (!$booking_id) {
+            return;
+        }
+        TAP_Booking::update_payment_status($booking_id, 'failed');
+        do_action('tap_payment_failed', $booking_id, 'onvo', $intent_id);
+    }
+
+    /**
+     * Resolve the booking that owns an Onvo payment intent id.
+     */
+    public static function find_booking_by_onvo_intent($intent_id) {
+        global $wpdb;
+
+        $table = self::orders_table();
+        $booking_id = $wpdb->get_var($wpdb->prepare(
+            "SELECT object_id FROM {$table}
+             WHERE paypal_order_id = %s AND object_type = 'booking' AND object_id > 0 LIMIT 1",
+            $intent_id
+        ));
+        if ($booking_id) {
+            return (int) $booking_id;
+        }
+
+        // Legacy fallback: postmeta reference.
+        $booking_id = $wpdb->get_var($wpdb->prepare(
+            "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = '_tap_onvo_payment_intent_id' AND meta_value = %s",
+            $intent_id
+        ));
+        return $booking_id ? (int) $booking_id : 0;
+    }
+
     private static function get_webhook_headers() {
         $headers = [];
         $paypal_headers = [
@@ -324,6 +442,11 @@ add_action('rest_api_init', function () {
     register_rest_route('tap/v1', '/paypal-webhook', [
         'methods'             => 'POST',
         'callback'            => ['TAP_Payment', 'handle_paypal_webhook'],
+        'permission_callback' => '__return_true',
+    ]);
+    register_rest_route('tap/v1', '/onvo-webhook', [
+        'methods'             => 'POST',
+        'callback'            => ['TAP_Payment', 'handle_onvo_webhook'],
         'permission_callback' => '__return_true',
     ]);
 });
