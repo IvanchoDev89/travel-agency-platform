@@ -92,6 +92,11 @@
 		     require_once that points at them. -->
 		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
 
+		<!-- Several files intentionally group related classes (e.g. transport
+		     drivers/routes/trips/ajax in one file). Splitting them is a refactor
+		     out of scope for the lint gate. -->
+		<exclude name="Generic.Files.OneObjectStructurePerFile"/>
+
 		<!-- Formatting / cosmetic sniffs that conflict with the project's
 		     established style (4-space indent, single-line arrays, etc.). -->
 		<exclude name="Generic.WhiteSpace.ScopeIndent"/>
