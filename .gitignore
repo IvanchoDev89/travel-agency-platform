@@ -5,6 +5,11 @@
 !SECURITY.md
 !.env.example
 
+# Open source community files (allowed)
+!LICENSE
+!CONTRIBUTING.md
+!CODE_OF_CONDUCT.md
+
 # Local by Flywheel / WordPress artifacts
 !.gitignore
 !README.md
@@ -45,6 +50,9 @@ tools/*
 .github/*
 !.github/workflows/
 !.github/workflows/*
+!.github/ISSUE_TEMPLATE/
+!.github/ISSUE_TEMPLATE/*
+!.github/PULL_REQUEST_TEMPLATE.md
 
 # Generated translation template (rebuilt by tools/i18n.sh)
 app/public/wp-content/plugins/travel-agency-platform/languages/*.pot
