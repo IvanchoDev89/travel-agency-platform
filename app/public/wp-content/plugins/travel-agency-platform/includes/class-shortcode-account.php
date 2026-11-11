@@ -703,10 +703,20 @@ break; }
             <h2><?php esc_html_e('Registra tu agencia', 'travel-agency-platform'); ?></h2>
             <p class="tap-register-intro"><?php esc_html_e('Crea una cuenta de agencia, publica tus alojamientos y tours, y empieza a recibir reservas de miles de viajeros.', 'travel-agency-platform'); ?></p>
 
+            <!-- Stepper -->
+            <div class="tap-reg-stepper" id="tap-reg-stepper">
+                <div class="tap-reg-step is-active" data-step="1"><span class="tap-reg-step-num">1</span><span class="tap-reg-step-label"><?php esc_html_e('Cuenta', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-reg-step" data-step="2"><span class="tap-reg-step-num">2</span><span class="tap-reg-step-label"><?php esc_html_e('Contacto', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-reg-step" data-step="3"><span class="tap-reg-step-num">3</span><span class="tap-reg-step-label"><?php esc_html_e('Ubicación', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-reg-step" data-step="4"><span class="tap-reg-step-num">4</span><span class="tap-reg-step-label"><?php esc_html_e('Verificación', 'travel-agency-platform'); ?></span></div>
+            </div>
+
             <form id="tap-agency-register-form" class="tap-form tap-form-grid" autocomplete="on">
                 <div style="position:absolute;left:-9999px;top:-9999px;" aria-hidden="true">
                     <input type="text" name="tap_hp" tabindex="-1" autocomplete="off" value="">
                 </div>
+                <fieldset class="tap-reg-fieldset" data-step="1">
+                    <legend><?php esc_html_e('Cuenta', 'travel-agency-platform'); ?></legend>
                 <div class="tap-input-group">
                     <label for="tap_reg_agency_name"><?php esc_html_e('Agency Name', 'travel-agency-platform'); ?> *</label>
                     <input type="text" id="tap_reg_agency_name" name="agency_name" class="tap-input" required>
@@ -723,6 +733,9 @@ break; }
                     <label for="tap_reg_password"><?php esc_html_e('Password', 'travel-agency-platform'); ?> *</label>
                     <input type="password" id="tap_reg_password" name="password" class="tap-input" minlength="8" required>
                 </div>
+                </fieldset>
+                <fieldset class="tap-reg-fieldset" data-step="2">
+                    <legend><?php esc_html_e('Contacto', 'travel-agency-platform'); ?></legend>
                 <div class="tap-input-group">
                     <label for="tap_reg_phone"><?php esc_html_e('Phone', 'travel-agency-platform'); ?></label>
                     <input type="text" id="tap_reg_phone" name="phone" class="tap-input">
@@ -735,6 +748,9 @@ break; }
                     <label for="tap_reg_website"><?php esc_html_e('Website', 'travel-agency-platform'); ?></label>
                     <input type="url" id="tap_reg_website" name="website" class="tap-input">
                 </div>
+                </fieldset>
+                <fieldset class="tap-reg-fieldset" data-step="3">
+                    <legend><?php esc_html_e('Ubicación', 'travel-agency-platform'); ?></legend>
                 <div class="tap-input-group">
                     <label for="tap_reg_city"><?php esc_html_e('City', 'travel-agency-platform'); ?></label>
                     <input type="text" id="tap_reg_city" name="city" class="tap-input">
@@ -747,6 +763,9 @@ break; }
                     <label for="tap_reg_address"><?php esc_html_e('Address', 'travel-agency-platform'); ?></label>
                     <input type="text" id="tap_reg_address" name="address" class="tap-input">
                 </div>
+                </fieldset>
+                <fieldset class="tap-reg-fieldset tap-span-2" data-step="4">
+                    <legend><?php esc_html_e('Verificación', 'travel-agency-platform'); ?></legend>
                 <div class="tap-input-group tap-span-2">
                     <label for="tap_reg_description"><?php esc_html_e('Describe tu agencia', 'travel-agency-platform'); ?></label>
                     <textarea id="tap_reg_description" name="description" class="tap-input" rows="4"></textarea>
@@ -783,6 +802,7 @@ break; }
                         </div>
                     </div>
                 </div>
+                </fieldset>
                 <div class="tap-span-2">
                     <div id="tap-register-message" class="tap-booking-message" role="status" aria-live="polite"></div>
                     <button type="submit" class="tap-btn tap-btn-primary tap-btn-block"><?php esc_html_e('Crear mi cuenta de agencia', 'travel-agency-platform'); ?></button>
@@ -791,6 +811,44 @@ break; }
         </div>
         <script>
         (function($) {
+            // Stepper: highlight current step based on focused fieldset.
+            var $stepper = $('#tap-reg-stepper');
+            if ($stepper.length) {
+                var $fieldsets = $('.tap-reg-fieldset');
+                function updateStepper() {
+                    var activeStep = 1;
+                    $fieldsets.each(function() {
+                        var $fs = $(this);
+                        var step = parseInt($fs.data('step'), 10) || 1;
+                        var rect = $fs[0].getBoundingClientRect();
+                        if (rect.top < window.innerHeight / 2) {
+                            activeStep = Math.max(activeStep, step);
+                        }
+                    });
+                    $stepper.find('.tap-reg-step').each(function() {
+                        var $s = $(this);
+                        var step = parseInt($s.data('step'), 10) || 1;
+                        $s.removeClass('is-active is-done');
+                        if (step < activeStep) $s.addClass('is-done');
+                        else if (step === activeStep) $s.addClass('is-active');
+                    });
+                }
+                $(window).on('scroll', updateStepper);
+                $('input, select, textarea').on('focus', function() {
+                    var $fs = $(this).closest('.tap-reg-fieldset');
+                    if ($fs.length) {
+                        var step = parseInt($fs.data('step'), 10) || 1;
+                        $stepper.find('.tap-reg-step').removeClass('is-active is-done');
+                        $stepper.find('.tap-reg-step').each(function() {
+                            var s = parseInt($(this).data('step'), 10) || 1;
+                            if (s < step) $(this).addClass('is-done');
+                            else if (s === step) $(this).addClass('is-active');
+                        });
+                    }
+                });
+                updateStepper();
+            }
+
             $('#tap-agency-register-form').on('submit', function(e) {
                 e.preventDefault();
                 var $form = $(this), $btn = $form.find('button[type=submit]'), $msg = $('#tap-register-message');

@@ -1917,6 +1917,78 @@ html.dark .nav-theme-toggle .icon-moon { display: none; }
 /* Reserve room for the fixed PWA install bar while it is visible. */
 body.tap-install-visible { padding-bottom: 80px; }
 
+/* ---------- Agency registration stepper ---------- */
+.tap-reg-stepper {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 24px;
+    padding: 0;
+    list-style: none;
+}
+.tap-reg-step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    text-align: center;
+    opacity: 0.4;
+    transition: opacity 0.2s;
+}
+.tap-reg-step.is-active,
+.tap-reg-step.is-done {
+    opacity: 1;
+}
+.tap-reg-step-num {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--tap-neutral-200, #e2e8f0);
+    color: var(--tap-neutral-600, #4b5563);
+    font-weight: 700;
+    font-size: 14px;
+    transition: background 0.2s, color 0.2s;
+}
+.tap-reg-step.is-active .tap-reg-step-num {
+    background: var(--tap-primary, #2563eb);
+    color: #fff;
+}
+.tap-reg-step.is-done .tap-reg-step-num {
+    background: var(--tap-primary, #2563eb);
+    color: #fff;
+}
+.tap-reg-step-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--tap-neutral-500, #6b7280);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.tap-reg-step.is-active .tap-reg-step-label {
+    color: var(--tap-primary, #2563eb);
+}
+.tap-reg-fieldset {
+    border: 1px solid var(--tap-neutral-200, #e5e7eb);
+    border-radius: var(--tap-radius-lg, 8px);
+    padding: 16px;
+    margin-bottom: 16px;
+}
+.tap-reg-fieldset legend {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--tap-neutral-800, #1f2937);
+    padding: 0 8px;
+}
+@media (max-width: 480px) {
+    .tap-reg-stepper { gap: 4px; }
+    .tap-reg-step-num { width: 28px; height: 28px; font-size: 12px; }
+    .tap-reg-step-label { font-size: 9px; }
+}
+
 /* ---------- Scroll to top button ---------- */
 .tap-scroll-top {
   position: fixed;
@@ -2520,6 +2592,19 @@ body.tap-install-visible { padding-bottom: 80px; }
   .tap-search-results .tap-service-card > a:first-child img { width: 100%; height: 180px; object-fit: cover; display: block; }
   .tap-search-results .tap-service-card-body { align-items: flex-start; padding: 16px; }
   .tap-search-results .tap-service-card-body .tap-btn { width: 100%; }
+
+  /* ---------- Agency registration ---------- */
+  .tap-register { max-width: 100%; }
+  .tap-reg-stepper { gap: 4px; }
+  .tap-reg-step-num { width: 28px; height: 28px; font-size: 12px; }
+  .tap-reg-step-label { font-size: 9px; }
+  .tap-reg-fieldset { padding: 12px; }
+  .tap-register .tap-form-grid { grid-template-columns: 1fr; gap: 12px; }
+  .tap-register .tap-input-group { margin-bottom: 4px; }
+  .tap-register .tap-input { font-size: 16px; min-height: 44px; }
+  .tap-register-kyc { padding: 12px; }
+  .tap-register-kyc h3 { font-size: 1rem; }
+  .tap-register .tap-btn-block { min-height: 48px; font-size: 1rem; }
 
   /* ---------- Agency profile ---------- */
   body.single-tap_agency .tap-breadcrumbs,

@@ -58,6 +58,7 @@ body { font-family: var(--tap-font-sans); color: var(--tap-neutral-800); -webkit
 
 .tap-input { width: 100%; padding: 0.625rem 0.875rem; font-family: var(--tap-font-sans); font-size: var(--tap-text-sm); color: var(--tap-neutral-800); background: var(--tap-surface, #fff); border: 1.5px solid var(--tap-neutral-300); border-radius: var(--tap-radius-md); transition: all var(--tap-transition); outline: none; }
 .tap-input:focus { border-color: var(--tap-primary); box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15); }
+.tap-input:invalid:not(:placeholder-shown) { border-color: var(--tap-error, #dc2626); box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.10); }
 .tap-input::placeholder { color: var(--tap-neutral-400); }
 .tap-input-sm { padding: 0.375rem 0.75rem; font-size: var(--tap-text-xs); max-width: 120px; }
 .tap-input-lg { padding: 0.875rem 1rem; font-size: var(--tap-text-base); }
