@@ -53,6 +53,27 @@
         mobileCloseBtn.on('click', closeMobileMenu);
     }
 
+    /* ===== Focus trap inside drawer ===== */
+    headerCenter.on('keydown', function(e) {
+        if (!headerCenter.hasClass('open')) return;
+        if (e.key !== 'Tab') return;
+        var focusable = headerCenter.find('a:visible, button:visible, input:visible, select:visible, textarea:visible, [tabindex]:not([tabindex="-1"]):visible');
+        if (!focusable.length) return;
+        var first = focusable.first();
+        var last = focusable.last();
+        if (e.shiftKey) {
+            if (document.activeElement === first[0]) {
+                e.preventDefault();
+                last.focus();
+            }
+        } else {
+            if (document.activeElement === last[0]) {
+                e.preventDefault();
+                first.focus();
+            }
+        }
+    });
+
     /* ===== Close drawer when navigating ===== */
     headerCenter.on('click', '.nav-menu a.nav-link, .mobile-drawer-brand a', function() {
         if ($(window).width() >= BREAKPOINT) return;

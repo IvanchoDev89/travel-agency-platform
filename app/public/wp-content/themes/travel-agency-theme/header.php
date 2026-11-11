@@ -206,4 +206,4 @@ function tapInstallApp() {
 
 <div class="mobile-overlay" id="mobile-overlay" aria-hidden="true"></div>
 
-<main id="main" class="site-main">
+<main id="main-content" class="site-main" tabindex="-1">
