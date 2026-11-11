@@ -1917,6 +1917,147 @@ html.dark .nav-theme-toggle .icon-moon { display: none; }
 /* Reserve room for the fixed PWA install bar while it is visible. */
 body.tap-install-visible { padding-bottom: 80px; }
 
+/* ---------- Collapsible sections (details/summary) ---------- */
+.tap-collapse {
+    border: 1px solid var(--tap-neutral-200, #e2e8f0);
+    border-radius: var(--tap-radius-lg, 12px);
+    margin-bottom: var(--tap-space-4, 16px);
+    overflow: hidden;
+}
+.tap-collapse > summary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+    background: var(--tap-surface, #fff);
+    font-weight: 600;
+    color: var(--tap-neutral-800, #1f2937);
+    transition: background 0.2s;
+}
+.tap-collapse > summary::-webkit-details-marker { display: none; }
+.tap-collapse > summary:hover { background: var(--tap-surface-muted, #f8fafc); }
+.tap-collapse > summary .tap-collapse-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    transition: transform 0.25s ease;
+    color: var(--tap-primary, #0d9488);
+}
+.tap-collapse[open] > summary .tap-collapse-icon {
+    transform: rotate(90deg);
+}
+.tap-collapse > summary h2 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+.tap-collapse .tap-collapse-body {
+    padding: 16px;
+    border-top: 1px solid var(--tap-neutral-200, #e2e8f0);
+}
+html.dark .tap-collapse { border-color: var(--tap-border, #334155); }
+html.dark .tap-collapse > summary { background: var(--tap-surface, #1e293b); color: var(--tap-neutral-800, #f1f5f9); }
+html.dark .tap-collapse > summary:hover { background: var(--tap-surface-2, #1a2540); }
+html.dark .tap-collapse .tap-collapse-body { border-color: var(--tap-border, #334155); }
+
+/* ---------- Map placeholder (lazy load) ---------- */
+.tap-map-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    background: var(--tap-surface-muted, #f8fafc);
+    border: 1px solid var(--tap-neutral-200, #e2e8f0);
+    border-radius: var(--tap-radius-lg, 12px);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.tap-map-placeholder:hover { background: var(--tap-primary-bg, #f0fdfa); }
+.tap-map-placeholder span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--tap-primary, #0d9488);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+html.dark .tap-map-placeholder { background: var(--tap-surface-2, #1a2540); border-color: var(--tap-border, #334155); }
+
+/* ---------- Booking widget accordion (mobile) ---------- */
+@media (max-width: 768px) {
+    .tap-acc-booking-widget.tap-widget-accordion .tap-bw-body {
+        display: none;
+    }
+    .tap-acc-booking-widget.tap-widget-accordion.is-open .tap-bw-body {
+        display: block;
+    }
+    .tap-acc-booking-widget.tap-widget-accordion .tap-bw-toggle-btn {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+    }
+    .tap-acc-booking-widget.tap-widget-accordion .tap-bw-toggle-icon {
+        transition: transform 0.25s ease;
+    }
+    .tap-acc-booking-widget.tap-widget-accordion.is-open .tap-bw-toggle-icon {
+        transform: rotate(180deg);
+    }
+}
+@media (min-width: 769px) {
+    .tap-acc-booking-widget.tap-widget-accordion .tap-bw-toggle-btn {
+        display: none;
+    }
+}
+
+/* ---------- Gallery carousel (mobile) ---------- */
+@media (max-width: 768px) {
+    .tap-acc-gallery-thumbs {
+        display: flex;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 8px;
+        padding-bottom: 8px;
+        scrollbar-width: none;
+    }
+    .tap-acc-gallery-thumbs::-webkit-scrollbar { display: none; }
+    .tap-acc-gallery-thumb {
+        flex: 0 0 80px;
+        scroll-snap-align: start;
+    }
+    .tap-acc-gallery-main { min-height: 220px; }
+}
+
+/* ---------- Hero compact (mobile) ---------- */
+@media (max-width: 768px) {
+    .tap-tour-hero-media, .tap-tour-hero-img { min-height: 220px; max-height: 300px; }
+    .tap-tour-hero-content { padding: 16px; }
+    .tap-tour-hero-title { font-size: 1.4rem; line-height: 1.2; }
+    .tap-tour-hero-meta { font-size: 0.8rem; gap: 8px; }
+    .tap-tour-hero-badges { gap: 6px; }
+    .tap-tour-hero-badge, .tap-badge { font-size: 11px; padding: 3px 8px; }
+}
+
+/* ---------- Reviews load more ---------- */
+.tap-reviews-load-more {
+    display: block;
+    margin: 16px auto;
+    text-align: center;
+}
+.tap-review-hidden { display: none; }
+
 /* ---------- Agency registration stepper ---------- */
 .tap-reg-stepper {
     display: flex;

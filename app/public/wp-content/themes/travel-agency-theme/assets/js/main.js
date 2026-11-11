@@ -25,6 +25,13 @@
 
     mobileToggle.attr('aria-controls', 'main-nav');
 
+    /* ===== Collapsible sections: open on desktop ---------- */
+    if (window.innerWidth > 768) {
+        document.querySelectorAll('details.tap-collapse').forEach(function(d) {
+            d.setAttribute('open', '');
+        });
+    }
+
     /* ===== Mobile menu ===== */
     function closeMobileMenu() {
         headerCenter.removeClass('open').removeAttr('role').removeAttr('aria-modal');

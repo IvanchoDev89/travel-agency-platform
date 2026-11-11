@@ -231,8 +231,12 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
             }
             ksort($days);
         ?>
-        <div class="tap-acc-section tap-tour-itinerary">
-          <h2><?php esc_html_e('Itinerario', 'travel-agency-platform'); ?></h2>
+        <details class="tap-acc-section tap-tour-itinerary tap-collapse">
+          <summary class="tap-collapse-summary">
+            <span class="tap-collapse-icon" aria-hidden="true">▶</span>
+            <h2><?php esc_html_e('Itinerario', 'travel-agency-platform'); ?></h2>
+          </summary>
+          <div class="tap-collapse-body">
           <?php foreach ($days as $day_number => $stops): ?>
             <section class="tap-tour-day">
               <h3 class="tap-tour-day-title">
@@ -255,6 +259,7 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
             </section>
           <?php endforeach; ?>
         </div>
+        </details>
         <?php endif; ?>
         <?php endif; ?>
 
@@ -282,22 +287,57 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
         $meeting = get_post_meta($id, '_tap_tour_meeting_point', true);
         if ($meeting || ($tlat && $tlng)):
         ?>
-        <div class="tap-acc-section tap-tour-meeting">
-          <h2><?php _e('Punto de encuentro', 'travel-agency-platform'); ?></h2>
+        <details class="tap-acc-section tap-tour-meeting tap-collapse">
+          <summary class="tap-collapse-summary">
+            <span class="tap-collapse-icon" aria-hidden="true">▶</span>
+            <h2><?php _e('Punto de encuentro', 'travel-agency-platform'); ?></h2>
+          </summary>
+          <div class="tap-collapse-body">
           <?php if ($meeting): ?><p><?php echo esc_html($meeting); ?></p><?php endif; ?>
           <?php if ($tlat && $tlng): ?>
-          <div id="tap-tour-map" style="height:320px;border-radius:8px;overflow:hidden;margin-top:12px;"></div>
+          <div id="tap-tour-map-wrap">
+            <div id="tap-tour-map-placeholder" class="tap-map-placeholder" data-lat="<?php echo (float)$tlat; ?>" data-lng="<?php echo (float)$tlng; ?>" data-popup="<?php echo esc_attr($meeting ?: get_the_title()); ?>">
+              <span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <?php esc_html_e('Ver mapa', 'travel-agency-platform'); ?>
+              </span>
+            </div>
+            <div id="tap-tour-map" style="height:320px;border-radius:8px;overflow:hidden;margin-top:12px;display:none;"></div>
+          </div>
           <link rel="stylesheet" href="<?php echo esc_url(TAP_PLUGIN_URL . 'assets/leaflet/leaflet.css'); ?>">
           <script src="<?php echo esc_url(TAP_PLUGIN_URL . 'assets/leaflet/leaflet.js'); ?>"></script>
           <script>
           (function(){
-            var map = L.map('tap-tour-map').setView([<?php echo (float)$tlat; ?>, <?php echo (float)$tlng; ?>], 14);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap'}).addTo(map);
-            L.marker([<?php echo (float)$tlat; ?>, <?php echo (float)$tlng; ?>]).addTo(map).bindPopup(<?php echo wp_json_encode($meeting ?: get_the_title()); ?>);
+            var placeholder = document.getElementById('tap-tour-map-placeholder');
+            var mapEl = document.getElementById('tap-tour-map');
+            if (!placeholder || !mapEl) return;
+            var loaded = false;
+            function loadMap() {
+                if (loaded) return;
+                loaded = true;
+                placeholder.style.display = 'none';
+                mapEl.style.display = 'block';
+                var lat = parseFloat(placeholder.dataset.lat);
+                var lng = parseFloat(placeholder.dataset.lng);
+                var popup = placeholder.dataset.popup;
+                var map = L.map('tap-tour-map').setView([lat, lng], 14);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'© OpenStreetMap'}).addTo(map);
+                L.marker([lat, lng]).addTo(map).bindPopup(popup);
+            }
+            placeholder.addEventListener('click', loadMap);
+            if ('IntersectionObserver' in window) {
+                var obs = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(e) {
+                        if (e.isIntersecting) { loadMap(); obs.disconnect(); }
+                    });
+                }, { rootMargin: '200px' });
+                obs.observe(placeholder);
+            }
           })();
           </script>
           <?php endif; ?>
-        </div>
+          </div>
+        </details>
         <?php endif; ?>
 
         <!-- Inclusions -->
@@ -308,8 +348,12 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
         $equipment = get_post_meta($id, '_tap_tour_equipment', true);
         if ($includes || $excludes || $what_bring || $equipment):
         ?>
-        <div class="tap-acc-section tap-tour-inclusions">
-          <h2><?php _e('Detalles del tour', 'travel-agency-platform'); ?></h2>
+        <details class="tap-acc-section tap-tour-inclusions tap-collapse">
+          <summary class="tap-collapse-summary">
+            <span class="tap-collapse-icon" aria-hidden="true">▶</span>
+            <h2><?php _e('Detalles del tour', 'travel-agency-platform'); ?></h2>
+          </summary>
+          <div class="tap-collapse-body">
           <?php if ($includes): ?>
           <div class="tap-tour-inc"><h3><?php _e('Qué incluye', 'travel-agency-platform'); ?></h3><p><?php echo nl2br(esc_html($includes)); ?></p></div>
           <?php endif; ?>
@@ -326,6 +370,7 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
           <p><strong><?php _e('Alquiler de equipo disponible.', 'travel-agency-platform'); ?></strong></p>
           <?php endif; ?>
         </div>
+        </details>
         <?php endif; ?>
 
         <?php if ('tap_tour' === $pt): ?>
@@ -334,8 +379,12 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
         $tour_accessibility = (string) get_post_meta($id, '_tap_tour_accessibility', true);
         if ('' !== trim($tour_requirements) || '' !== trim($tour_accessibility)):
         ?>
-        <div class="tap-acc-section tap-tour-requirements">
-          <h2><?php esc_html_e('Antes de reservar', 'travel-agency-platform'); ?></h2>
+        <details class="tap-acc-section tap-tour-requirements tap-collapse">
+          <summary class="tap-collapse-summary">
+            <span class="tap-collapse-icon" aria-hidden="true">▶</span>
+            <h2><?php esc_html_e('Antes de reservar', 'travel-agency-platform'); ?></h2>
+          </summary>
+          <div class="tap-collapse-body">
           <?php if ('' !== trim($tour_requirements)): ?>
             <div class="tap-tour-inc">
               <h3><?php esc_html_e('Requisitos', 'travel-agency-platform'); ?></h3>
@@ -349,6 +398,7 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
             </div>
           <?php endif; ?>
         </div>
+        </details>
         <?php endif; ?>
         <?php endif; ?>
 
@@ -357,10 +407,15 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
         $extras_html = TAP_Service_Extras::render_selector('tap_tour', $id);
         if ($extras_html):
         ?>
-        <div class="tap-acc-section tap-tour-extras">
-          <h2><?php _e('Servicios extra', 'travel-agency-platform'); ?></h2>
+        <details class="tap-acc-section tap-tour-extras tap-collapse">
+          <summary class="tap-collapse-summary">
+            <span class="tap-collapse-icon" aria-hidden="true">▶</span>
+            <h2><?php _e('Servicios extra', 'travel-agency-platform'); ?></h2>
+          </summary>
+          <div class="tap-collapse-body">
           <?php echo $extras_html; ?>
         </div>
+        </details>
         <?php endif; ?>
 
         <!-- Legals (collapsible) -->
@@ -371,8 +426,12 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
         $waiver_required = get_post_meta($id, '_tap_tour_waiver_required', true);
         if ($terms || $privacy || $waiver):
         ?>
-        <div class="tap-acc-section tap-tour-legals">
-          <h2><?php _e('Términos y condiciones', 'travel-agency-platform'); ?></h2>
+        <details class="tap-acc-section tap-tour-legals tap-collapse">
+          <summary class="tap-collapse-summary">
+            <span class="tap-collapse-icon" aria-hidden="true">▶</span>
+            <h2><?php _e('Términos y condiciones', 'travel-agency-platform'); ?></h2>
+          </summary>
+          <div class="tap-collapse-body">
           <?php if ($terms): ?>
           <details class="tap-tour-legal"><summary><?php _e('Términos y condiciones', 'travel-agency-platform'); ?></summary><div><?php echo wp_kses_post(nl2br($terms)); ?></div></details>
           <?php endif; ?>
@@ -383,6 +442,7 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
           <details class="tap-tour-legal"><summary><?php _e('Waiver (descargo de responsabilidad)', 'travel-agency-platform'); ?><?php if ($waiver_required): ?> *<?php endif; ?></summary><div><?php echo wp_kses_post(nl2br($waiver)); ?></div></details>
           <?php endif; ?>
         </div>
+        </details>
         <?php endif; ?>
 
         <?php if ('tap_tour' === $pt): ?>
@@ -409,8 +469,12 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
         $service_capacity = max(1, (int) get_post_meta($id, '_tap_tour_capacity', true));
         $base_price = (float) get_post_meta($id, '_tap_tour_price_adult', true);
         ?>
-        <div class="tap-acc-section tap-avcal-wrap" data-tour="<?php echo esc_attr($id); ?>">
-          <h2><?php _e('Availability & Prices', 'travel-agency-platform'); ?></h2>
+        <details class="tap-acc-section tap-avcal-wrap tap-collapse" data-tour="<?php echo esc_attr($id); ?>">
+          <summary class="tap-collapse-summary">
+            <span class="tap-collapse-icon" aria-hidden="true">▶</span>
+            <h2><?php _e('Availability & Prices', 'travel-agency-platform'); ?></h2>
+          </summary>
+          <div class="tap-collapse-body">
           <p class="tap-avcal-help"><?php esc_html_e('Los días en verde tienen salidas disponibles. Haz clic en un día para seleccionarlo en el widget de reserva.', 'travel-agency-platform'); ?></p>
           <div class="tap-avcal-header">
             <div class="tap-avcal-nav">
@@ -473,6 +537,7 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
             <?php } ?>
           </div>
         </div>
+        </details>
         <script>
         (function(){
             var days = document.querySelectorAll('.tap-avcal-day.available, .tap-avcal-day.full');
@@ -604,8 +669,12 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
     </div>
 
     <div class="tap-acc-sidebar">
-      <div class="tap-acc-booking-widget" id="tap-booking-widget">
-        <div class="tap-bw-header">
+      <div class="tap-acc-booking-widget tap-widget-accordion" id="tap-booking-widget">
+        <div class="tap-bw-header" id="tap-bw-toggle">
+          <button type="button" class="tap-bw-toggle-btn" aria-expanded="false" aria-controls="tap-bw-body">
+            <span><?php esc_html_e('Reservar este tour', 'travel-agency-platform'); ?></span>
+            <span class="tap-bw-toggle-icon" aria-hidden="true">▼</span>
+          </button>
           <span class="tap-bw-price-amount"><?php echo esc_html(TAP_Currency::fmt0($price)); ?></span>
           <span class="tap-bw-price-label"><?php echo esc_html($unit_label[$pt] ?? ''); ?></span>
           <?php if ('tap_tour' === $pt): ?>
@@ -968,9 +1037,19 @@ echo wp_json_encode($ld, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     var widget = document.getElementById('tap-booking-widget');
     if (cta && widget) {
         cta.addEventListener('click', function(){
+            widget.classList.add('is-open');
+            var toggle = widget.querySelector('.tap-bw-toggle-btn');
+            if (toggle) toggle.setAttribute('aria-expanded', 'true');
             widget.scrollIntoView({behavior:'smooth', block:'start'});
             var first = widget.querySelector('select, input');
             if (first) first.focus();
+        });
+    }
+    var toggle = document.getElementById('tap-bw-toggle');
+    if (toggle && widget) {
+        toggle.addEventListener('click', function(){
+            var isOpen = widget.classList.toggle('is-open');
+            toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
         });
     }
 })();
