@@ -1,6 +1,10 @@
 # Ignore everything by default
 /*
 
+# Security & environment templates (allowed)
+!SECURITY.md
+!.env.example
+
 # Local by Flywheel / WordPress artifacts
 !.gitignore
 !README.md
