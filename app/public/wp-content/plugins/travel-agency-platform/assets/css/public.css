@@ -3734,3 +3734,247 @@ html.dark .tap-btn-secondary:visited {
 html.dark .tap-btn-outline { color: var(--tap-primary); }
 html.dark .tap-btn-ghost { color: var(--tap-neutral-600); }
 html.dark .tap-btn-ghost:hover { color: var(--tap-neutral-900); background: var(--tap-neutral-100); }
+
+/* ================================================================
+   Agency Panel Mobile Polish (2026)
+   ================================================================ */
+@media (max-width: 768px) {
+    /* ── Header ─────────────────────────────────────────────────── */
+    .tap-agency-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--tap-space-3);
+    }
+    .tap-agency-header h2 {
+        font-size: 1.25rem;
+    }
+    .tap-agency-header .tap-btn {
+        width: 100%;
+        min-height: 44px;
+        justify-content: center;
+    }
+    .tap-agency-meta {
+        font-size: var(--tap-text-sm);
+    }
+
+    /* ── Notices ────────────────────────────────────────────────── */
+    .tap-notice {
+        font-size: var(--tap-text-sm);
+        padding: var(--tap-space-3);
+    }
+
+    /* ── Plan summary ───────────────────────────────────────────── */
+    .tap-plan-summary {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--tap-space-2);
+        padding: var(--tap-space-3);
+        font-size: var(--tap-text-sm);
+    }
+    .tap-plan-summary span {
+        display: block;
+    }
+    .tap-plan-summary .tap-btn {
+        width: 100%;
+        min-height: 40px;
+        justify-content: center;
+    }
+    .tap-capacity-note {
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+
+    /* ── Stats grid ─────────────────────────────────────────────── */
+    .tap-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--tap-space-2);
+        margin-bottom: var(--tap-space-4);
+    }
+    .tap-stat-card {
+        padding: var(--tap-space-3);
+        border-radius: var(--tap-radius-lg);
+    }
+    .tap-stat-card .tap-stat-number {
+        font-size: var(--tap-text-lg);
+    }
+    .tap-stat-card .tap-stat-label {
+        font-size: 11px;
+    }
+    .tap-stat-card .tap-stat-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+    }
+
+    /* ── Tabs ────────────────────────────────────────────────────── */
+    .tap-agency-tabs {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 4px;
+    }
+    .tap-agency-tabs::-webkit-scrollbar {
+        display: none;
+    }
+    .tap-tab {
+        white-space: nowrap;
+        flex-shrink: 0;
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    /* ── Panel section ──────────────────────────────────────────── */
+    .tap-panel-section {
+        padding: var(--tap-space-4);
+        border-radius: var(--tap-radius-lg);
+    }
+    .tap-panel-section h3 {
+        font-size: var(--tap-text-lg);
+    }
+    .tap-section-head {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--tap-space-2);
+    }
+
+    /* ── Tables: scroll with shadow indicator ───────────────────── */
+    .tap-table-scroll {
+        position: relative;
+        border-radius: var(--tap-radius-md);
+    }
+    .tap-table-scroll::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 24px;
+        background: linear-gradient(to left, var(--tap-surface, #fff), transparent);
+        pointer-events: none;
+        opacity: 0.8;
+    }
+    .tap-table-scroll .tap-booking-table,
+    .tap-table-scroll .tap-agency-table {
+        font-size: var(--tap-text-sm);
+    }
+    .tap-table-scroll th,
+    .tap-table-scroll td {
+        padding: 6px 8px;
+    }
+    .tap-actions .tap-btn {
+        min-height: 36px;
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+    .tap-booking-code {
+        font-size: 12px;
+    }
+
+    /* ── Listings grid ──────────────────────────────────────────── */
+    .tap-agency-panel .tap-listings-grid,
+    .tap-listings-grid {
+        grid-template-columns: 1fr;
+        gap: var(--tap-space-3);
+    }
+    .tap-listing-card {
+        border-radius: var(--tap-radius-lg);
+    }
+    .tap-listing-card .tap-btn {
+        width: 100%;
+        min-height: 40px;
+        justify-content: center;
+    }
+
+    /* ── Pagination ─────────────────────────────────────────────── */
+    .tap-pagination {
+        flex-wrap: wrap;
+        gap: var(--tap-space-2);
+        justify-content: center;
+    }
+    .tap-pagination .tap-btn {
+        min-height: 36px;
+        padding: 4px 10px;
+        font-size: 12px;
+    }
+
+    /* ── Leads: compact ─────────────────────────────────────────── */
+    .tap-lead-message {
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* ── Export button ───────────────────────────────────────────── */
+    .tap-panel-section .tap-btn-sm {
+        width: 100%;
+        min-height: 40px;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .tap-stats-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--tap-space-2);
+    }
+    .tap-stat-card {
+        padding: var(--tap-space-2);
+    }
+    .tap-stat-card .tap-stat-number {
+        font-size: var(--tap-text-base);
+    }
+    .tap-stat-card .tap-stat-label {
+        font-size: 10px;
+    }
+    .tap-agency-tabs {
+        gap: 2px;
+    }
+    .tap-tab {
+        padding: 4px 10px;
+        font-size: 11px;
+    }
+    .tap-tab-count {
+        font-size: 10px;
+        padding: 0 5px;
+    }
+    .tap-panel-section {
+        padding: var(--tap-space-3);
+    }
+    .tap-panel-section h3 {
+        font-size: var(--tap-text-base);
+    }
+    .tap-lead-message {
+        max-width: 150px;
+    }
+}
+
+/* ── Dark mode agency panel ─────────────────────────────────────── */
+@media (max-width: 768px) {
+    html.dark .tap-stats-grid .tap-stat-card {
+        background: var(--tap-surface, #1e293b);
+        border-color: var(--tap-border, #334155);
+    }
+    html.dark .tap-panel-section {
+        background: var(--tap-surface, #1e293b);
+        border-color: var(--tap-border, #334155);
+    }
+    html.dark .tap-table-scroll::after {
+        background: linear-gradient(to left, var(--tap-surface, #1e293b), transparent);
+    }
+    html.dark .tap-tab {
+        background: var(--tap-surface, #1e293b);
+        border-color: var(--tap-border, #334155);
+        color: var(--tap-neutral-600, #94a3b8);
+    }
+    html.dark .tap-tab.active {
+        background: var(--tap-primary, #0d9488);
+        border-color: var(--tap-primary, #0d9488);
+        color: #fff;
+    }
+    html.dark .tap-listing-card {
+        background: var(--tap-surface, #1e293b);
+        border-color: var(--tap-border, #334155);
+    }
+}
