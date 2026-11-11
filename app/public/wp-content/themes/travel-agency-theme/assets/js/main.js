@@ -166,13 +166,20 @@
     function closeUserDropdown() {
         userDropdown.removeClass('open');
         userBtn.attr('aria-expanded', 'false');
+        userBtn.trigger('focus');
     }
 
     userBtn.on('click', function(e) {
         e.stopPropagation();
         if ($(window).width() < BREAKPOINT) return;
+        var isOpen = userDropdown.hasClass('open');
         userDropdown.toggleClass('open');
         userBtn.attr('aria-expanded', userDropdown.hasClass('open'));
+        if (!isOpen) {
+            userDropdown.attr('role', 'menu');
+            var first = userDropdown.find('a, button').first();
+            if (first.length) setTimeout(function() { first.trigger('focus'); }, 50);
+        }
     });
 
     $(document).on('click', function(e) {
@@ -183,13 +190,14 @@
 
     /* ===== Search ===== */
     function closeSearch() {
-        searchOverlay.removeClass('open');
+        searchOverlay.removeClass('open').removeAttr('role').removeAttr('aria-modal');
         searchInput.val('');
+        searchToggle.trigger('focus');
     }
 
     searchToggle.on('click', function() {
         if ($(window).width() < BREAKPOINT) return;
-        searchOverlay.addClass('open');
+        searchOverlay.addClass('open').attr({'role': 'dialog', 'aria-modal': 'true', 'aria-label': 'Search'});
         setTimeout(function() { searchInput.trigger('focus'); }, 120);
     });
 

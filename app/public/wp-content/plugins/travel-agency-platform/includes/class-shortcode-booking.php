@@ -611,11 +611,14 @@ class TAP_Shortcode_Booking {
                         <h3><?php esc_html_e('Pagar con Onvo Pay', 'travel-agency-platform'); ?></h3>
                         <p class="tap-pay-label"><?php esc_html_e('Tarjetas (Visa, Mastercard, Amex) y SINPE Móvil', 'travel-agency-platform'); ?></p>
                         <button type="button" class="tap-btn tap-btn-primary" id="tap-onvo-pay-btn" data-booking-id="<?php echo intval($booking->id); ?>">
-                            <?php
-                            echo esc_html($tap_remaining > 0 && TAP_Booking::amount_already_paid($booking) > 0
-                                ? sprintf(__('Pagar el saldo restante de %s', 'travel-agency-platform'), TAP_Currency::fmt($tap_remaining))
-                                : __('Completar el pago con Onvo Pay', 'travel-agency-platform'));
+                            <span class="tap-onvo-btn-text">
+                                <?php
+                                echo esc_html($tap_remaining > 0 && TAP_Booking::amount_already_paid($booking) > 0
+                                    ? sprintf(__('Pagar el saldo restante de %s', 'travel-agency-platform'), TAP_Currency::fmt($tap_remaining))
+                                    : __('Completar el pago con Onvo Pay', 'travel-agency-platform'));
                                 ?>
+                            </span>
+                            <span class="tap-onvo-btn-spinner" style="display:none;" aria-hidden="true"></span>
                         </button>
                         <div id="tap-onvo-message" class="tap-booking-message" role="status" aria-live="polite"></div>
                     </div>
@@ -624,7 +627,9 @@ class TAP_Shortcode_Booking {
                         $('#tap-onvo-pay-btn').on('click', function() {
                             var btn = $(this);
                             var msg = $('#tap-onvo-message');
-                            btn.prop('disabled', true).text('<?php echo esc_js(__('Procesando...', 'travel-agency-platform')); ?>');
+                            btn.prop('disabled', true);
+                            btn.find('.tap-onvo-btn-text').text('<?php echo esc_js(__('Procesando...', 'travel-agency-platform')); ?>');
+                            btn.find('.tap-onvo-btn-spinner').show();
                             msg.removeClass('tap-error tap-success').html('');
 
                             $.ajax({
@@ -639,11 +644,15 @@ class TAP_Shortcode_Booking {
                                 if (res.success && res.data.redirect_url) {
                                     window.location.href = res.data.redirect_url;
                                 } else {
-                                    btn.prop('disabled', false).text('<?php echo esc_js(__('Completar el pago con Onvo Pay', 'travel-agency-platform')); ?>');
+                                    btn.prop('disabled', false);
+                                    btn.find('.tap-onvo-btn-text').text('<?php echo esc_js(__('Completar el pago con Onvo Pay', 'travel-agency-platform')); ?>');
+                                    btn.find('.tap-onvo-btn-spinner').hide();
                                     msg.addClass('tap-error').html('<p>' + (res.data.message || '<?php echo esc_js(__('Error al crear la sesión de pago.', 'travel-agency-platform')); ?>') + '</p>');
                                 }
                             }).fail(function() {
-                                btn.prop('disabled', false).text('<?php echo esc_js(__('Completar el pago con Onvo Pay', 'travel-agency-platform')); ?>');
+                                btn.prop('disabled', false);
+                                btn.find('.tap-onvo-btn-text').text('<?php echo esc_js(__('Completar el pago con Onvo Pay', 'travel-agency-platform')); ?>');
+                                btn.find('.tap-onvo-btn-spinner').hide();
                                 msg.addClass('tap-error').html('<p><?php echo esc_js(__('Error de conexión.', 'travel-agency-platform')); ?></p>');
                             });
                         });

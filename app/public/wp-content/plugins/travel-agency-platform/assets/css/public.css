@@ -801,6 +801,8 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 .tap-booking-message { margin-bottom: var(--tap-space-4); font-size: var(--tap-text-sm); }
 .tap-booking-message.tap-error { color: var(--tap-error); }
 .tap-booking-message.tap-success { color: var(--tap-success); }
+.tap-onvo-btn-spinner { display: inline-block; width: 16px; height: 16px; margin-left: 8px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: tap-spin 0.6s linear infinite; vertical-align: middle; }
+@keyframes tap-spin { to { transform: rotate(360deg); } }
 @media (max-width: 640px) {
     .tap-form-grid { grid-template-columns: 1fr; }
 }
@@ -3734,6 +3736,16 @@ html.dark .tap-btn-secondary:visited {
 html.dark .tap-btn-outline { color: var(--tap-primary); }
 html.dark .tap-btn-ghost { color: var(--tap-neutral-600); }
 html.dark .tap-btn-ghost:hover { color: var(--tap-neutral-900); background: var(--tap-neutral-100); }
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 
 /* ================================================================
    Agency Panel Mobile Polish (2026)
