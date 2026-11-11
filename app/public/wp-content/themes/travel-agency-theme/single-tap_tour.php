@@ -578,6 +578,7 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
         }
         ?>
         <script>
+        document.addEventListener('DOMContentLoaded', function() {
         (function(){
             var slotsData = <?php echo wp_json_encode($_by_date, JSON_UNESCAPED_UNICODE); ?>;
             var dateSel = document.getElementById('bw-tour-date');
@@ -643,11 +644,16 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
                 document.getElementById('bw-sum-total').textContent = estimatedTotal.toFixed(2) + ' <?php echo esc_js(TAP_Currency::code()); ?>';
             }
             slotSel.addEventListener('change', function(){
-                if (slotId) slotId.value = slotSel.value;
-                if (checkIn) checkIn.value = dateSel.value;
-                if (checkOut) checkOut.value = dateSel.value;
-                updatePriceSummary();
-                if (typeof checkFormReady === 'function') checkFormReady();
+                try {
+                    if (slotId) slotId.value = slotSel.value;
+                    if (checkIn) checkIn.value = dateSel.value;
+                    if (checkOut) checkOut.value = dateSel.value;
+                    updatePriceSummary();
+                } catch (e) {
+                    /* price summary update failed; button state still updated below */
+                }
+                var btn = document.getElementById('bw-submit');
+                if (btn) btn.disabled = !slotSel.value;
             });
             var adultsInput = document.getElementById('bw-adults');
             var childrenInput = document.getElementById('bw-children');
@@ -661,6 +667,7 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
             var privateCb = document.getElementById('bw-private-upgrade');
             if (privateCb) privateCb.addEventListener('change', updatePriceSummary);
         })();
+        });
         </script>
         <?php endif; ?>
 
