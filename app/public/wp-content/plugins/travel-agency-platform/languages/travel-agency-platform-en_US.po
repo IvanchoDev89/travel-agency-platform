@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-11T06:35:33+00:00\n"
+"POT-Creation-Date: 2026-11-11T17:06:44+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -1992,7 +1992,7 @@ msgstr "Invalid PayPal order"
 #: includes/class-ajax-commerce.php:309 includes/class-ajax-commerce.php:317
 #: includes/class-ajax-commerce.php:375 includes/class-ajax-commerce.php:382
 #: includes/class-ajax-commerce.php:418 includes/class-ajax-commerce.php:425
-#: includes/class-ajax.php:126 includes/class-api.php:354
+#: includes/class-ajax.php:128 includes/class-api.php:354
 #: includes/class-booking.php:895 includes/class-payment.php:45
 #: includes/class-paypal.php:79
 msgid "Booking not found"
@@ -2011,7 +2011,7 @@ msgid "Payment status does not allow capture"
 msgstr "Payment status does not allow capture"
 
 #: includes/class-ajax-commerce.php:370 includes/class-ajax-commerce.php:413
-#: includes/class-ajax.php:121
+#: includes/class-ajax.php:123
 msgid "Invalid booking"
 msgstr "Invalid booking"
 
@@ -2077,8 +2077,8 @@ msgstr "Payout request sent to the administrator."
 
 #: includes/class-ajax-dash.php:42 includes/class-ajax-dash.php:92
 #: includes/class-ajax-dash.php:494 includes/class-ajax-dash.php:525
-#: includes/class-ajax-dash.php:557 includes/class-ajax.php:189
-#: includes/class-ajax.php:232 includes/class-ajax.php:496
+#: includes/class-ajax-dash.php:557 includes/class-ajax.php:191
+#: includes/class-ajax.php:234 includes/class-ajax.php:498
 #: includes/class-booking.php:641 includes/class-booking.php:655
 #: includes/class-booking.php:661 includes/class-booking.php:805
 #: includes/class-booking.php:1167 includes/class-booking.php:1200
@@ -2092,7 +2092,7 @@ msgstr "Booking not found."
 #: includes/class-ajax-dash.php:45 includes/class-ajax-dash.php:51
 #: includes/class-ajax-dash.php:95 includes/class-ajax-dash.php:101
 #: includes/class-ajax-dash.php:498 includes/class-ajax-dash.php:529
-#: includes/class-ajax.php:238 includes/class-booking.php:817
+#: includes/class-ajax.php:240 includes/class-booking.php:817
 #: includes/class-booking.php:835
 msgid "No tienes permiso sobre esta reserva."
 msgstr "You do not have permission over this booking."
@@ -2130,7 +2130,7 @@ msgid "Procesadas: %d OK, %d con error."
 msgstr "Processed: %d OK, %d with errors."
 
 #: includes/class-ajax-dash.php:190 includes/class-ajax-dash.php:575
-#: includes/class-ajax-public.php:66 includes/class-ajax.php:502
+#: includes/class-ajax-public.php:66 includes/class-ajax.php:504
 #: includes/class-transport.php:303 includes/class-transport.php:324
 #: includes/class-transport.php:341
 msgid "Sin permiso."
@@ -2396,7 +2396,7 @@ msgstr "Invalid endpoint."
 msgid "El endpoint debe usar HTTPS."
 msgstr "The endpoint must use HTTPS."
 
-#: includes/class-ajax-public.php:105 includes/class-ajax.php:490
+#: includes/class-ajax-public.php:105 includes/class-ajax.php:492
 #: includes/class-front-dash.php:909 includes/class-transport.php:293
 #: includes/class-transport.php:312 includes/class-transport.php:332
 #: includes/class-transport.php:349
@@ -2442,7 +2442,7 @@ msgstr "Accommodation"
 msgid "Invalid accommodation"
 msgstr "Invalid accommodation"
 
-#: includes/class-ajax.php:13 includes/class-ajax.php:547
+#: includes/class-ajax.php:13 includes/class-ajax.php:549
 msgid "Security check failed."
 msgstr "Security check failed."
 
@@ -2474,108 +2474,108 @@ msgstr "Too many bookings in a short time. Try again later."
 msgid "Field %s is required"
 msgstr "Field %s is required"
 
-#: includes/class-ajax.php:139
+#: includes/class-ajax.php:141
 msgid "Permission denied"
 msgstr "Permission denied"
 
-#: includes/class-ajax.php:157
+#: includes/class-ajax.php:159
 msgid "Reserva inválida."
 msgstr "Invalid booking."
 
-#: includes/class-ajax.php:172
+#: includes/class-ajax.php:174
 msgid "Tu reserva ha sido cancelada."
 msgstr "Your booking has been cancelled."
 
-#: includes/class-ajax.php:202
+#: includes/class-ajax.php:204
 msgid "Usa el panel de la agencia para responder en el chat."
 msgstr "Use the agency panel to reply in the chat."
 
-#: includes/class-ajax.php:206
+#: includes/class-ajax.php:208
 msgid "No tienes permiso para escribir aquí."
 msgstr "You do not have permission to post here."
 
-#: includes/class-ajax.php:206
+#: includes/class-ajax.php:208
 msgid "Verifica el correo de la reserva para escribir."
 msgstr "Verify the booking email to post."
 
-#: includes/class-ajax.php:265
+#: includes/class-ajax.php:267
 msgid "Unauthorized"
 msgstr "Unauthorized"
 
-#: includes/class-ajax.php:277
+#: includes/class-ajax.php:279
 msgid "No agency linked to your account."
 msgstr "No agency linked to your account."
 
-#: includes/class-ajax.php:282
+#: includes/class-ajax.php:284
 msgid "You can only manage bookings from your own agency."
 msgstr "You can only manage bookings from your own agency."
 
-#: includes/class-ajax.php:289 includes/class-booking.php:869
+#: includes/class-ajax.php:291 includes/class-booking.php:869
 msgid "Solo los administradores pueden cancelar reservas pagadas."
 msgstr "Only administrators can cancel paid bookings."
 
-#: includes/class-ajax.php:294
+#: includes/class-ajax.php:296
 msgid ""
 "Solo puedes Aceptar (pasa a pendiente de pago) o Rechazar una solicitud."
 msgstr "You can only Accept (moves to pending payment) or Reject a request."
 
-#: includes/class-ajax.php:297
+#: includes/class-ajax.php:299
 msgid "Invalid status."
 msgstr "Invalid status."
 
-#: includes/class-ajax.php:307
+#: includes/class-ajax.php:309
 msgid "Status updated"
 msgstr "Status updated"
 
-#: includes/class-ajax.php:314
+#: includes/class-ajax.php:316
 msgid "Gracias por tu interés."
 msgstr "Thank you for your interest."
 
-#: includes/class-ajax.php:319
+#: includes/class-ajax.php:321
 msgid "Demasiados registros en poco tiempo. Intenta nuevamente más tarde."
 msgstr "Too many registrations in a short time. Please try again later."
 
-#: includes/class-ajax.php:343
+#: includes/class-ajax.php:345
 msgid "Agency name is required."
 msgstr "Agency name is required."
 
-#: includes/class-ajax.php:346
+#: includes/class-ajax.php:348
 msgid "Please enter a valid username (letters and numbers only)."
 msgstr "Please enter a valid username (letters and numbers only)."
 
-#: includes/class-ajax.php:349
+#: includes/class-ajax.php:351
 msgid "Please enter a valid email address."
 msgstr "Please enter a valid email address."
 
-#: includes/class-ajax.php:352
+#: includes/class-ajax.php:354
 msgid "Password must be at least 8 characters."
 msgstr "Password must be at least 8 characters."
 
-#: includes/class-ajax.php:355
+#: includes/class-ajax.php:357
 msgid "That username is already taken."
 msgstr "That username is already taken."
 
-#: includes/class-ajax.php:358
+#: includes/class-ajax.php:360
 msgid "That email is already registered."
 msgstr "That email is already registered."
 
-#: includes/class-ajax.php:362
+#: includes/class-ajax.php:364
 msgid "Indica el nombre del representante legal o de la empresa."
 msgstr "Enter the name of the legal representative or business."
 
-#: includes/class-ajax.php:365
+#: includes/class-ajax.php:367
 msgid "Indica el tipo y número de documento (cédula)."
 msgstr "Enter a document type and ID number (cédula)."
 
-#: includes/class-ajax.php:368
+#: includes/class-ajax.php:370
 msgid "Para persona jurídica indica la cédula jurídica."
 msgstr "For legal persons, provide your corporate tax ID."
 
-#: includes/class-ajax.php:371
+#: includes/class-ajax.php:373
 msgid "Debes aceptar los términos y condiciones."
 msgstr "You must accept the terms and conditions."
 
-#: includes/class-ajax.php:374
+#: includes/class-ajax.php:376
 msgid ""
 "Debes aceptar el Aviso de Privacidad y consentir el tratamiento de tus datos "
 "para registrar tu agencia."
@@ -2583,40 +2583,40 @@ msgstr ""
 "You must accept the Privacy Notice and consent to the processing of your "
 "data to register your agency."
 
-#: includes/class-ajax.php:402
+#: includes/class-ajax.php:404
 msgid "Could not create the agency. Please try again."
 msgstr "Could not create the agency. Please try again."
 
-#: includes/class-ajax.php:457
+#: includes/class-ajax.php:459
 msgid ""
 "Tu agencia está en revisión. Te avisaremos por correo cuando sea aprobada."
 msgstr "Your agency is under review. We will email you when it is approved."
 
-#: includes/class-ajax.php:466
+#: includes/class-ajax.php:468
 msgid "Gracias por tu mensaje."
 msgstr "Thank you for your message."
 
-#: includes/class-ajax.php:484 includes/class-leads.php:260
+#: includes/class-ajax.php:486 includes/class-leads.php:260
 msgid "Mensaje enviado. La agencia te contactará pronto."
 msgstr "Message sent. The agency will contact you soon."
 
-#: includes/class-ajax.php:506
+#: includes/class-ajax.php:508
 msgid "Nota guardada."
 msgstr "Note saved."
 
-#: includes/class-ajax.php:513
+#: includes/class-ajax.php:515
 msgid "Please log in to save favorites."
 msgstr "Please log in to save favorites."
 
-#: includes/class-ajax.php:518
+#: includes/class-ajax.php:520
 msgid "Invalid service."
 msgstr "Invalid service."
 
-#: includes/class-ajax.php:552
+#: includes/class-ajax.php:554
 msgid "Too many messages. Try again in a moment."
 msgstr "Too many messages. Try again in a moment."
 
-#: includes/class-ajax.php:557
+#: includes/class-ajax.php:559
 msgid "Type your question..."
 msgstr "Type your question..."
 
@@ -15276,7 +15276,9 @@ msgstr "The payment could not be processed. Please try again."
 msgid ""
 "Tu pago está siendo procesado. Recibirás un correo de confirmación cuando se "
 "complete."
-msgstr "Your payment is being processed. You will receive a confirmation email when it completes."
+msgstr ""
+"Your payment is being processed. You will receive a confirmation email when "
+"it completes."
 
 #: includes/class-shortcode-booking.php:428
 msgid "Payment was cancelled. You can try again."

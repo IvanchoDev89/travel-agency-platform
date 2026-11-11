@@ -555,6 +555,29 @@ jQuery(document).ready(function($) {
 });
 </script>
 
+<?php if ($price_fallback || $has_rooms): ?>
+<div class="tap-bw-mobile-bar" id="tap-bw-mobile-bar">
+    <div class="tap-bw-mobile-price">
+        <span class="tap-bw-mobile-amount"><?php echo esc_html($price_fallback ? TAP_Currency::fmt0($price_fallback) : TAP_Currency::fmt0(0)); ?></span>
+        <small><?php esc_html_e('por noche', 'travel-agency-platform'); ?></small>
+    </div>
+    <button type="button" class="tap-btn tap-btn-primary tap-bw-mobile-cta" id="tap-bw-mobile-cta"><?php esc_html_e('Reservar', 'travel-agency-platform'); ?></button>
+</div>
+<script>
+(function(){
+    var cta = document.getElementById('tap-bw-mobile-cta');
+    var widget = document.getElementById('tap-booking-widget');
+    if (cta && widget) {
+        cta.addEventListener('click', function(){
+            widget.scrollIntoView({behavior:'smooth', block:'start'});
+            var first = widget.querySelector('select, input');
+            if (first) first.focus();
+        });
+    }
+})();
+</script>
+<?php endif; ?>
+
 <?php
 endwhile;
 get_footer();
