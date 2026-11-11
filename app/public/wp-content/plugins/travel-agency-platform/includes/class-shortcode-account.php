@@ -410,6 +410,60 @@ break; }
         .tap-agency-service-card:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.1);}
         .tap-agency-review{transition:box-shadow .2s;}
         .tap-agency-review:hover{box-shadow:0 4px 12px rgba(0,0,0,.06);}
+        @media (max-width:768px){
+            .tap-agency-hero-cover{height:160px;}
+            .tap-agency-hero-body{padding:16px;gap:12px;flex-direction:column;}
+            .tap-agency-hero-avatar{width:72px;height:72px;margin-top:-48px;flex:0 0 72px;}
+            .tap-agency-hero-avatar span{font-size:1.5rem;}
+            .tap-agency-hero-title{font-size:1.3rem;}
+            .tap-agency-hero-badges{gap:6px;}
+            .tap-agency-badge{font-size:11px;padding:2px 8px;}
+            .tap-agency-hero-desc{font-size:14px;}
+            .tap-agency-hero-ctas{gap:6px;}
+            .tap-agency-hero-ctas .tap-btn{flex:1;min-height:44px;font-size:13px;}
+            .tap-agency-stats{grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px;}
+            .tap-agency-stat{padding:10px;}
+            .tap-agency-stat-num{font-size:1.2rem;}
+            .tap-agency-stat-label{font-size:11px;}
+            .tap-agency-layout{grid-template-columns:1fr;gap:16px;}
+            .tap-agency-sidebar{position:static;gap:12px;}
+            .tap-agency-card{padding:12px;}
+            .tap-agency-tabs{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;gap:2px;}
+            .tap-agency-tabs::-webkit-scrollbar{display:none;}
+            .tap-agency-tab{padding:8px 12px;font-size:13px;white-space:nowrap;}
+            .tap-agency-section{margin-bottom:20px;}
+            .tap-agency-section-title{font-size:1.1rem;}
+            .tap-agency-services-grid{grid-template-columns:1fr;gap:12px;}
+            .tap-agency-service-card-img img{height:140px;}
+            .tap-agency-service-card-body{padding:10px;}
+            .tap-agency-service-card-body h3{font-size:.95rem;}
+            .tap-agency-service-excerpt{font-size:12px;}
+            .tap-agency-review{padding:12px;}
+            .tap-agency-review-images img{width:48px;height:48px;}
+            .tap-agency-final-cta{padding:20px 16px;margin:16px 0;}
+            .tap-agency-final-cta h2{font-size:1.2rem;}
+            .tap-agency-newsletter-form{flex-direction:column;}
+            .tap-agency-newsletter-form input{min-width:0;width:100%;}
+            .tap-agency-newsletter-form button{width:100%;}
+        }
+        @media (max-width:480px){
+            .tap-agency-stats{grid-template-columns:repeat(4,1fr);gap:6px;}
+            .tap-agency-stat{padding:8px 4px;}
+            .tap-agency-stat-num{font-size:1rem;}
+            .tap-agency-stat-label{font-size:10px;}
+            .tap-agency-hero-ctas .tap-btn{font-size:12px;padding:8px 12px;}
+        }
+        /* Dark mode support for agency profile */
+        html.dark .tap-agency-card{background:var(--tap-surface,#1e293b);border-color:var(--tap-border,#334155);}
+        html.dark .tap-agency-service-card{background:var(--tap-surface,#1e293b);border-color:var(--tap-border,#334155);}
+        html.dark .tap-agency-service-card-body h3 a{color:var(--tap-neutral-900,#f1f5f9);}
+        html.dark .tap-agency-review{background:var(--tap-surface,#1e293b);border-color:var(--tap-border,#334155);}
+        html.dark .tap-agency-stat{background:var(--tap-surface-2,#334155);border-color:var(--tap-border,#475569);}
+        html.dark .tap-agency-hero{border-color:var(--tap-border,#334155);}
+        html.dark .tap-agency-hero-cover{background:linear-gradient(135deg,var(--tap-primary-bg,#1e3a5f),var(--tap-surface,#1e293b));}
+        html.dark .tap-agency-final-cta{background:linear-gradient(135deg,var(--tap-primary-bg,#1e3a5f),var(--tap-surface,#1e293b));border-color:var(--tap-primary-border,#334155);}
+        html.dark .tap-agency-final-cta h2{color:var(--tap-neutral-900,#f1f5f9);}
+        html.dark .tap-agency-final-cta p{color:var(--tap-neutral-600,#94a3b8);}
         </style>
         <script>
         (function(){
