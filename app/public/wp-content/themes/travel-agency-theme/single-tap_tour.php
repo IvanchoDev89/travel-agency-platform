@@ -582,6 +582,7 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
                 if (checkIn) checkIn.value = dateSel.value;
                 if (checkOut) checkOut.value = dateSel.value;
                 updatePriceSummary();
+                if (typeof checkFormReady === 'function') checkFormReady();
             });
             var adultsInput = document.getElementById('bw-adults');
             var childrenInput = document.getElementById('bw-children');
@@ -805,6 +806,7 @@ jQuery(document).ready(function($) {
     var ready = true;
     var needsDate = <?php echo $needs_date ? 'true' : 'false'; ?>;
     if (needsDate && !$('#bw-check-in').val()) ready = false;
+    if (needsDate && !$('#bw-slot-id').val()) ready = false;
     if (tapFull) ready = false;
     $('#bw-submit').prop('disabled', !ready);
   }
@@ -889,6 +891,11 @@ jQuery(document).ready(function($) {
       alert('<?php echo esc_js(__('Debes aceptar el Aviso de Privacidad para continuar.', 'travel-agency-platform')); ?>');
       return;
     }
+    var slotId = $('#bw-slot-id').val();
+    if (!slotId) {
+      alert('<?php echo esc_js(__('Selecciona una fecha y horario para el tour.', 'travel-agency-platform')); ?>');
+      return;
+    }
     $btn.prop('disabled', true).text('...');
     $.post(tap_ajax.ajax_url, {
       action: 'tap_booking_create',
@@ -896,6 +903,7 @@ jQuery(document).ready(function($) {
       idempotency_key: '<?php echo esc_js(wp_generate_uuid4()); ?>',
       service_type: '<?php echo esc_js($pt); ?>',
       service_id: <?php echo (int) $id; ?>,
+      slot_id: $('#bw-slot-id').val() || 0,
       check_in: $('#bw-check-in').val() || '',
       check_out: $('#bw-check-out').val() || '',
       adults: parseInt($('#bw-adults').val() || '1', 10),
