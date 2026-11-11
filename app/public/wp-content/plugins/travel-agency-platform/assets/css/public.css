@@ -311,8 +311,16 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 .tap-avcal-day.range-end .tap-avcal-price { color: rgba(255,255,255,0.9); }
 .tap-avcal-day.today { font-weight: 700; }
 .tap-avcal-day.today::after { content: ""; position: absolute; bottom: 2px; width: 4px; height: 4px; border-radius: 50%; background: var(--tap-primary); }
-.tap-avcal-num { font-size: 12px; line-height: 1.2; }
+.tap-avcal-num { font-size: 12px; line-height: 1.2; font-weight: 600; }
 .tap-avcal-price { font-size: 9px; color: var(--tap-primary); font-weight: 600; line-height: 1.2; }
+.tap-avcal-slot { display: flex; flex-direction: column; align-items: center; gap: 1px; margin-top: 2px; }
+.tap-avcal-time { font-size: 10px; font-weight: 700; color: var(--tap-neutral-800, #1e293b); line-height: 1.2; background: var(--tap-primary-bg, #f0fdfa); padding: 1px 4px; border-radius: 3px; }
+.tap-avcal-slotlabel { font-size: 8px; color: var(--tap-neutral-500, #64748b); line-height: 1.1; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tap-avcal-cap { font-size: 8px; color: var(--tap-neutral-500, #64748b); line-height: 1.1; }
+.tap-avcal-day.available .tap-avcal-time { color: var(--tap-primary-dark, #0f766e); }
+.tap-avcal-day.full .tap-avcal-time { color: var(--tap-neutral-400, #64748b); text-decoration: line-through; }
+.tap-avcal-day.blocked .tap-avcal-time { display: none; }
+.tap-avcal-day.blocked .tap-avcal-cap { display: none; }
 .tap-avcal-day.blocked .tap-avcal-price { display: none; }
 .tap-avcal-day.blocked .tap-avcal-num { text-decoration: line-through; color: #dc2626; }
 .tap-avcal-rooms { margin-top: var(--tap-space-4); padding: var(--tap-space-4); background: var(--tap-neutral-50); border-radius: var(--tap-radius-xl); display: none; }
@@ -3989,4 +3997,78 @@ html.dark .tap-btn-ghost:hover { color: var(--tap-neutral-900); background: var(
         background: var(--tap-surface, #1e293b);
         border-color: var(--tap-border, #334155);
     }
+}
+
+/* ================================================================
+   Availability Calendar Mobile (2026)
+   ================================================================ */
+@media (max-width: 768px) {
+    .tap-avcal-grid {
+        gap: 3px;
+    }
+    .tap-avcal-day {
+        min-height: 60px;
+        padding: 2px;
+        aspect-ratio: auto;
+    }
+    .tap-avcal-weekday {
+        font-size: 9px;
+        padding: 4px 0;
+    }
+    .tap-avcal-num {
+        font-size: 11px;
+    }
+    .tap-avcal-time {
+        font-size: 9px;
+        padding: 1px 3px;
+    }
+    .tap-avcal-price {
+        font-size: 8px;
+    }
+    .tap-avcal-cap {
+        font-size: 7px;
+    }
+    .tap-avcal-slot {
+        gap: 0;
+    }
+    .tap-avcal-legend {
+        flex-wrap: wrap;
+        gap: 6px;
+        font-size: 10px;
+    }
+    .tap-avcal-legend span {
+        gap: 3px;
+    }
+    .tap-avcal-swatch {
+        width: 8px;
+        height: 8px;
+    }
+    .tap-avcal-header {
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+    }
+    .tap-avcal-nav {
+        justify-content: center;
+    }
+    .tap-avcal-label {
+        min-width: 0;
+        font-size: 0.9rem;
+    }
+    .tap-avcal-help {
+        font-size: 12px;
+    }
+}
+
+/* Make calendar expanded by default (not collapsed) */
+.tap-avcal-wrap.tap-collapse {
+    border: none;
+    margin-bottom: var(--tap-space-4);
+}
+.tap-avcal-wrap.tap-collapse > summary {
+    display: none;
+}
+.tap-avcal-wrap.tap-collapse > .tap-collapse-body {
+    padding: 0;
+    border: none;
 }

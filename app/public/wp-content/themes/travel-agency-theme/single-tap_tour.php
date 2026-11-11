@@ -469,7 +469,7 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
         $service_capacity = max(1, (int) get_post_meta($id, '_tap_tour_capacity', true));
         $base_price = (float) get_post_meta($id, '_tap_tour_price_adult', true);
         ?>
-        <details class="tap-acc-section tap-avcal-wrap tap-collapse" data-tour="<?php echo esc_attr($id); ?>">
+        <details class="tap-acc-section tap-avcal-wrap tap-collapse" data-tour="<?php echo esc_attr($id); ?>" open>
           <summary class="tap-collapse-summary">
             <span class="tap-collapse-icon" aria-hidden="true">▶</span>
             <h2><?php _e('Availability & Prices', 'travel-agency-platform'); ?></h2>

@@ -163,7 +163,7 @@ while (have_posts()): the_post();
 
       <!-- Availability Calendar -->
       <?php if ($has_rooms): ?>
-      <details class="tap-acc-section tap-avcal-wrap tap-collapse" data-accommodation="<?php echo esc_attr($id); ?>">
+      <details class="tap-acc-section tap-avcal-wrap tap-collapse" data-accommodation="<?php echo esc_attr($id); ?>" open>
         <summary class="tap-collapse-summary">
           <span class="tap-collapse-icon" aria-hidden="true">▶</span>
           <h2><?php _e('Availability & Prices', 'travel-agency-platform'); ?></h2>
