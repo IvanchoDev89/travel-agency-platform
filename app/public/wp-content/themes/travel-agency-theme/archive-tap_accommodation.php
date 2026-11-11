@@ -62,7 +62,7 @@ $total_posts = $wp_query->found_posts;
 
         <div class="tap-filter-group">
           <h4><?php echo esc_html__('Huéspedes', 'travel-agency-platform'); ?></h4>
-          <select name="guests" class="tap-input">
+          <select name="guests" class="tap-input" aria-label="<?php echo esc_attr__('Cantidad de huéspedes', 'travel-agency-platform'); ?>">
             <option value=""><?php echo esc_html__('Cualquier', 'travel-agency-platform'); ?></option>
             <?php foreach ([1,2,3,4,5,6,8,10] as $g): ?>
             <option value="<?php echo $g; ?>" <?php selected($guests, $g); ?>><?php echo $g; ?>+</option>
@@ -72,7 +72,7 @@ $total_posts = $wp_query->found_posts;
 
         <div class="tap-filter-group">
           <h4><?php echo esc_html__('Tipo', 'travel-agency-platform'); ?></h4>
-          <select name="type" class="tap-input">
+          <select name="type" class="tap-input" aria-label="<?php echo esc_attr__('Tipo de propiedad', 'travel-agency-platform'); ?>">
             <option value=""><?php echo esc_html__('Todos', 'travel-agency-platform'); ?></option>
             <?php
             $types = get_terms(['taxonomy' => 'tap_property_type', 'hide_empty' => true]);
@@ -85,7 +85,7 @@ $total_posts = $wp_query->found_posts;
 
         <div class="tap-filter-group">
           <h4><?php echo esc_html__('Estrellas', 'travel-agency-platform'); ?></h4>
-          <select name="stars" class="tap-input">
+          <select name="stars" class="tap-input" aria-label="<?php echo esc_attr__('Cantidad de estrellas', 'travel-agency-platform'); ?>">
             <option value=""><?php echo esc_html__('Cualquier', 'travel-agency-platform'); ?></option>
             <?php foreach ([5,4,3,2,1] as $s): ?>
             <option value="<?php echo $s; ?>" <?php selected($stars, $s); ?>><?php echo $s; ?> ★</option>

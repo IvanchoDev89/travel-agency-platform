@@ -191,7 +191,7 @@ class TAP_Shortcode_Search {
             }
         }
 
-        echo '<div class="tap-search-results">';
+        echo '<div class="tap-search-results" aria-live="polite" aria-atomic="true">';
         if ($total) {
             /* translators: %d: number of results found. */
             echo '<p class="tap-results-count">' . esc_html(sprintf(_n('%d resultado encontrado', '%d resultados encontrados', $total, 'travel-agency-platform'), $total)) . '</p>';
