@@ -390,7 +390,40 @@ class TAP_Shortcode_Booking {
             <h2><?php esc_html_e('Complete Your Payment', 'travel-agency-platform'); ?></h2>
 
             <?php if ($status_success): ?>
-                <div class="tap-success"><?php esc_html_e('Payment completed! Thank you for your booking.', 'travel-agency-platform'); ?></div>
+                <div id="tap-payment-status-box" class="tap-success">
+                    <p id="tap-payment-status-msg"><?php esc_html_e('Procesando tu pago...', 'travel-agency-platform'); ?></p>
+                </div>
+                <script>
+                jQuery(document).ready(function($) {
+                    var bookingCode = '<?php echo esc_js($booking->booking_code); ?>';
+                    var attempts = 0;
+                    var maxAttempts = 15;
+                    var poll = setInterval(function() {
+                        attempts++;
+                        $.post(tap_ajax.ajax_url, {
+                            action: 'tap_check_payment_status',
+                            booking_code: bookingCode,
+                            nonce: tap_ajax.nonce
+                        }).done(function(res) {
+                            if (res && res.success && res.data.payment_status === 'paid') {
+                                clearInterval(poll);
+                                $('#tap-payment-status-msg').text('<?php echo esc_js(__('Payment completed! Thank you for your booking.', 'travel-agency-platform')); ?>');
+                                setTimeout(function() {
+                                    window.location.href = '<?php echo esc_url($uid ? home_url('/my-bookings') : home_url('/booking-detail/?code=' . rawurlencode($booking->booking_code))); ?>';
+                                }, 2000);
+                            } else if (res && res.success && res.data.payment_status === 'failed') {
+                                clearInterval(poll);
+                                $('#tap-payment-status-box').removeClass('tap-success').addClass('tap-error');
+                                $('#tap-payment-status-msg').text('<?php echo esc_js(__('El pago no pudo procesarse. Intenta nuevamente.', 'travel-agency-platform')); ?>');
+                            }
+                        });
+                        if (attempts >= maxAttempts) {
+                            clearInterval(poll);
+                            $('#tap-payment-status-msg').text('<?php echo esc_js(__('Tu pago está siendo procesado. Recibirás un correo de confirmación cuando se complete.', 'travel-agency-platform')); ?>');
+                        }
+                    }, 2000);
+                });
+                </script>
             <?php elseif ($status_cancel): ?>
                 <div class="tap-error"><?php esc_html_e('Payment was cancelled. You can try again.', 'travel-agency-platform'); ?></div>
             <?php endif; ?>

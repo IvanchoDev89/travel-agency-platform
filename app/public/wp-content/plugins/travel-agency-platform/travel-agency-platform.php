@@ -194,6 +194,8 @@ final class TravelAgencyPlatform {
         add_action('send_headers', ['TAP_Security_Headers', 'send']);
         add_action('wp_ajax_tap_booking_create', ['TAP_Ajax', 'create_booking']);
         add_action('wp_ajax_nopriv_tap_booking_create', ['TAP_Ajax', 'create_booking']);
+        add_action('wp_ajax_tap_check_payment_status', ['TAP_Ajax', 'check_payment_status']);
+        add_action('wp_ajax_nopriv_tap_check_payment_status', ['TAP_Ajax', 'check_payment_status']);
         add_action('wp_ajax_tap_cancel_booking', ['TAP_Ajax', 'cancel_booking']);
         add_action('wp_ajax_nopriv_tap_cancel_booking', ['TAP_Ajax', 'cancel_booking']);
         add_action('wp_ajax_tap_chat_client_send', ['TAP_Ajax', 'chat_client_send']);
