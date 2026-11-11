@@ -123,7 +123,7 @@ class TAP_Shortcode_Booking {
                 <div class="tap-form-group">
                     <button type="submit" class="tap-btn tap-btn-primary tap-btn-lg"><?php echo $is_request ? esc_html__('Enviar solicitud', 'travel-agency-platform') : esc_html__('Book Now', 'travel-agency-platform'); ?></button>
                 </div>
-                <div class="tap-booking-message"></div>
+                <div class="tap-booking-message" role="status" aria-live="polite"></div>
             </form>
         </div>
 
@@ -390,7 +390,7 @@ class TAP_Shortcode_Booking {
             <h2><?php esc_html_e('Complete Your Payment', 'travel-agency-platform'); ?></h2>
 
             <?php if ($status_success): ?>
-                <div id="tap-payment-status-box" class="tap-success">
+                <div id="tap-payment-status-box" class="tap-success" role="status" aria-live="polite" aria-atomic="true">
                     <p id="tap-payment-status-msg"><?php esc_html_e('Procesando tu pago...', 'travel-agency-platform'); ?></p>
                 </div>
                 <script>
@@ -518,7 +518,7 @@ class TAP_Shortcode_Booking {
                     <h3><?php esc_html_e('Pay with PayPal', 'travel-agency-platform'); ?></h3>
 							<?php if (TAP_PayPal::is_ready()): ?>
                     <div id="tap-paypal-button-container"></div>
-                    <div id="tap-paypal-message" class="tap-booking-message"></div>
+                    <div id="tap-paypal-message" class="tap-booking-message" role="status" aria-live="polite"></div>
                     <p class="tap-pay-label">
 								<?php
 								echo $tap_remaining > 0 && TAP_Booking::amount_already_paid($booking) > 0
@@ -617,7 +617,7 @@ class TAP_Shortcode_Booking {
                                 : __('Completar el pago con Onvo Pay', 'travel-agency-platform'));
                                 ?>
                         </button>
-                        <div id="tap-onvo-message" class="tap-booking-message"></div>
+                        <div id="tap-onvo-message" class="tap-booking-message" role="status" aria-live="polite"></div>
                     </div>
                     <script>
                     jQuery(document).ready(function($) {

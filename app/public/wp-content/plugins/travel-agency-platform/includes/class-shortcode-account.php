@@ -730,7 +730,7 @@ break; }
                     </div>
                 </div>
                 <div class="tap-span-2">
-                    <div id="tap-register-message" class="tap-booking-message"></div>
+                    <div id="tap-register-message" class="tap-booking-message" role="status" aria-live="polite"></div>
                     <button type="submit" class="tap-btn tap-btn-primary tap-btn-block"><?php esc_html_e('Crear mi cuenta de agencia', 'travel-agency-platform'); ?></button>
                 </div>
             </form>
