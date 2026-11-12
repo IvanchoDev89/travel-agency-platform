@@ -13,6 +13,7 @@ class TAP_Post_Types {
         self::register_boat();
         self::register_package();
         self::register_equipment();
+        self::register_help();
     }
 
     private static function register_agency() {
@@ -294,6 +295,46 @@ class TAP_Post_Types {
             'capability_type' => ['tap_equipment', 'tap_equipment_items'],
             'map_meta_cap' => true,
             'show_in_rest' => true,
+        ]);
+    }
+
+    private static function register_help() {
+        $labels = [
+            'name'               => __('Help Articles', 'travel-agency-platform'),
+            'singular_name'      => __('Help Article', 'travel-agency-platform'),
+            'add_new'            => __('Add Article', 'travel-agency-platform'),
+            'add_new_item'       => __('Add New Article', 'travel-agency-platform'),
+            'edit_item'          => __('Edit Article', 'travel-agency-platform'),
+            'view_item'          => __('View Article', 'travel-agency-platform'),
+            'search_items'       => __('Search Articles', 'travel-agency-platform'),
+            'not_found'          => __('No articles found', 'travel-agency-platform'),
+            'all_items'          => __('All Articles', 'travel-agency-platform'),
+        ];
+
+        register_post_type('tap_help', [
+            'labels'       => $labels,
+            'public'       => true,
+            'has_archive'  => true,
+            'show_in_menu' => true,
+            'menu_icon'    => 'dashicons-book',
+            'menu_position' => 28,
+            'supports'     => ['title', 'editor', 'excerpt', 'thumbnail', 'custom-fields'],
+            'rewrite'      => ['slug' => 'soporte'],
+            'capability_type' => 'post',
+            'map_meta_cap' => true,
+            'show_in_rest' => true,
+        ]);
+
+        // Taxonomy for help categories.
+        register_taxonomy('tap_help_category', 'tap_help', [
+            'labels' => [
+                'name'          => __('Help Categories', 'travel-agency-platform'),
+                'singular_name' => __('Help Category', 'travel-agency-platform'),
+            ],
+            'public'       => true,
+            'hierarchical' => true,
+            'show_in_rest' => true,
+            'rewrite'      => ['slug' => 'soporte-categoria'],
         ]);
     }
 

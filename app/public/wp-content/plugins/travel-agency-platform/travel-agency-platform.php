@@ -99,6 +99,7 @@ final class TravelAgencyPlatform {
         add_action('init', ['TAP_Taxonomies', 'migrate_tour_difficulty'], 8);
         add_action('init', ['TAP_Roles', 'setup'], 9);
         add_action('init', ['TAP_Shortcodes', 'init'], 8);
+        add_action('init', ['TAP_Shortcode_Support', 'init'], 8);
         add_shortcode('tap_currency_selector', ['TAP_Currency', 'render_selector']);
         add_action('init', ['TAP_Dashboard', 'init'], 9);
         add_action('init', ['TAP_Pricing', 'init'], 10);
@@ -194,6 +195,8 @@ final class TravelAgencyPlatform {
         add_action('send_headers', ['TAP_Security_Headers', 'send']);
         add_action('wp_ajax_tap_booking_create', ['TAP_Ajax', 'create_booking']);
         add_action('wp_ajax_nopriv_tap_booking_create', ['TAP_Ajax', 'create_booking']);
+        add_action('wp_ajax_tap_search_help', ['TAP_Shortcode_Support', 'ajax_search']);
+        add_action('wp_ajax_nopriv_tap_search_help', ['TAP_Shortcode_Support', 'ajax_search']);
         add_action('wp_ajax_tap_check_payment_status', ['TAP_Ajax', 'check_payment_status']);
         add_action('wp_ajax_nopriv_tap_check_payment_status', ['TAP_Ajax', 'check_payment_status']);
         add_action('wp_ajax_tap_cancel_booking', ['TAP_Ajax', 'cancel_booking']);
