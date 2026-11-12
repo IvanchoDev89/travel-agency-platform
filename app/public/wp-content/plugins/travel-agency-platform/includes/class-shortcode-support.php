@@ -44,7 +44,7 @@ class TAP_Shortcode_Support {
         ]);
         // Filter out hidden categories.
         if (!empty($hidden_cats)) {
-            $featured = array_filter($featured, function($f) use ($hidden_cats) {
+            $featured = array_filter($featured, function ($f) use ($hidden_cats) {
                 $cats = wp_get_post_terms($f->ID, 'tap_help_category', ['fields' => 'slugs']);
                 foreach ($cats as $c) {
                     if (in_array($c, $hidden_cats, true)) return false;
@@ -310,7 +310,7 @@ class TAP_Shortcode_Support {
         // Filter out hidden categories for non-admins.
         if (!current_user_can('manage_options')) {
             $hidden_cats = ['primeros-pasos', 'administradores', 'desarrolladores'];
-            $posts = array_filter($posts, function($p) use ($hidden_cats) {
+            $posts = array_filter($posts, function ($p) use ($hidden_cats) {
                 $cats = wp_get_post_terms($p->ID, 'tap_help_category', ['fields' => 'slugs']);
                 foreach ($cats as $c) {
                     if (in_array($c, $hidden_cats, true)) return false;
