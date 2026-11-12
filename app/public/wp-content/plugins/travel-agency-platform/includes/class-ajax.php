@@ -62,20 +62,29 @@ class TAP_Ajax {
         $adults   = intval($_POST['adults'] ?? 1);
         $children = intval($_POST['children'] ?? 0);
 
+        $svc_type = sanitize_text_field(wp_unslash($_POST['service_type']));
+        $svc_id   = intval($_POST['service_id']);
+
         $total = TAP_Booking_Pricing::calculate_price(
-            sanitize_text_field(wp_unslash($_POST['service_type'])),
-            intval($_POST['service_id']),
+            $svc_type,
+            $svc_id,
             $check_in, $check_out, $adults, $children, $room_id,
             $slot_id
         );
+
+        // Store the service's currency so payments always use the correct
+        // currency regardless of the user's display language.
+        $prefix = class_exists('TAP_Post_Types') ? TAP_Post_Types::meta_prefix($svc_type) : '';
+        $svc_currency = $prefix ? get_post_meta($svc_id, '_tap_' . $prefix . '_currency', true) : '';
+        if (empty($svc_currency)) $svc_currency = 'USD';
 
         $extras = [];
         if (!empty($_POST['extras']) && is_array($_POST['extras'])) {
             $extras = array_map('intval', $_POST['extras']);
         }
         $data = [
-            'service_type'    => sanitize_text_field(wp_unslash($_POST['service_type'])),
-            'service_id'      => intval($_POST['service_id']),
+            'service_type'    => $svc_type,
+            'service_id'      => $svc_id,
             'room_id'         => $room_id,
             'slot_id'         => $slot_id,
             'check_in'        => $check_in,

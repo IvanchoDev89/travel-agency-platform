@@ -443,7 +443,11 @@ class TAP_Ajax_Commerce {
         $return_url = home_url('/checkout?code=' . $booking->booking_code . '&status=success');
         $cancel_url = home_url('/checkout?code=' . $booking->booking_code . '&status=cancel');
 
-        $currency = class_exists('TAP_Currency') ? TAP_Currency::code() : 'USD';
+        // Use the service's currency, not the display currency, to avoid
+        // mismatches (e.g. $240 USD showing as ₡240 CRC).
+        $prefix = class_exists('TAP_Post_Types') ? TAP_Post_Types::meta_prefix($booking->service_type) : '';
+        $currency = $prefix ? get_post_meta($booking->service_id, '_tap_' . $prefix . '_currency', true) : '';
+        if (empty($currency)) $currency = 'USD';
         $remaining = TAP_Booking::remaining_amount($booking);
 
         $line_items = [[
