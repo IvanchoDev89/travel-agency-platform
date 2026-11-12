@@ -963,3 +963,169 @@
 }
 .tap-dash-toast-error { background: var(--tap-danger, #dc2626); }
 .tap-dash-toast-success { background: var(--tap-success, #10b981); }
+
+/* ================================================================
+   Mobile Dashboard Polish (2026)
+   ================================================================ */
+@media (max-width: 768px) {
+    .tap-dash-sidebar {
+        border-radius: 12px;
+        padding: 0.35rem;
+        margin-bottom: 0.75rem;
+    }
+    .tap-dash-sidebar-nav {
+        gap: 2px;
+    }
+    .tap-dash-nav-item {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+        min-height: 40px;
+    }
+    .tap-dash-nav-item svg {
+        width: 18px;
+        height: 18px;
+    }
+    .tap-dash-nav-logout {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+    }
+    .tap-dash-stats {
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    .tap-dash-stat-card {
+        padding: 0.75rem;
+        border-radius: 10px;
+    }
+    .tap-dash-stat-value {
+        font-size: 1.15rem;
+    }
+    .tap-dash-stat-label {
+        font-size: 0.7rem;
+    }
+    .tap-dash-stat-icon {
+        width: 32px;
+        height: 32px;
+    }
+    .tap-dash-stat-icon svg {
+        width: 16px;
+        height: 16px;
+    }
+    .tap-dash-section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    .tap-dash-section-header h2 {
+        font-size: 1.1rem;
+    }
+    .tap-dash-booking-card {
+        border-radius: 12px;
+        margin-bottom: 0.5rem;
+    }
+    .tap-dash-booking-body {
+        padding: 0.75rem;
+    }
+    .tap-dash-booking-top h3 {
+        font-size: 0.95rem;
+    }
+    .tap-dash-booking-meta {
+        font-size: 0.8rem;
+        gap: 0.25rem;
+    }
+    .tap-dash-booking-actions {
+        gap: 0.35rem;
+    }
+    .tap-dash-booking-actions .tap-btn {
+        min-height: 36px;
+        padding: 0.4rem 0.75rem;
+        font-size: 0.8rem;
+    }
+    .tap-dash-review-card {
+        padding: 0.75rem;
+        border-radius: 12px;
+    }
+    .tap-dash-review-content {
+        font-size: 0.85rem;
+    }
+    .tap-dash-explore-card {
+        border-radius: 12px;
+    }
+    .tap-dash-explore-body h3 {
+        font-size: 0.95rem;
+    }
+    .tap-dash-explore-price {
+        font-size: 0.85rem;
+    }
+    .tap-dash-fav-card {
+        border-radius: 12px;
+    }
+    .tap-dash-fav-body h3 {
+        font-size: 0.95rem;
+    }
+    .tap-dash-main input:not([type="checkbox"]):not([type="radio"]),
+    .tap-dash-main select,
+    .tap-dash-main textarea {
+        font-size: 16px;
+        width: 100%;
+    }
+    .tap-dash-main .tap-form-grid {
+        grid-template-columns: 1fr;
+    }
+    .tap-dash-pagination {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+    .tap-dash-pagination .tap-btn {
+        min-height: 36px;
+        padding: 0.4rem 0.75rem;
+    }
+    .tap-dash-header h1 {
+        font-size: 1.25rem;
+    }
+    .tap-dash-header p {
+        font-size: 0.85rem;
+    }
+    .tap-dash-empty {
+        padding: 2rem 1rem;
+        text-align: center;
+    }
+    .tap-dash-toast {
+        max-width: 90vw;
+        font-size: 0.8rem;
+        padding: 0.6rem 1rem;
+    }
+    .tap-dash-main {
+        padding: 1rem 0.5rem;
+    }
+}
+@media (max-width: 480px) {
+    .tap-dash-stats { grid-template-columns: 1fr; }
+    .tap-dash-stat-card { padding: 0.65rem; }
+    .tap-dash-header h1 { font-size: 1.15rem; }
+    .tap-dash-nav-item {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.7rem;
+    }
+    .tap-dash-nav-item svg {
+        width: 16px;
+        height: 16px;
+    }
+    .tap-dash-booking-card { border-radius: 10px; }
+    .tap-dash-booking-img { height: 120px; }
+}
+
+/* ── Dark mode dashboard mobile ─────────────────────────────────── */
+@media (max-width: 768px) {
+    html.dark .tap-dash-sidebar {
+        background: linear-gradient(195deg, #0f172a 0%, #1e293b 100%);
+    }
+    html.dark .tap-dash-main .tap-table tr {
+        background: var(--tap-surface, #1e293b);
+        border-color: var(--tap-border, #334155);
+    }
+    html.dark .tap-dash-main .tap-table td {
+        border-color: var(--tap-border, #334155);
+    }
+}

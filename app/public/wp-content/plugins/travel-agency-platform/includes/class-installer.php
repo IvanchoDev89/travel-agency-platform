@@ -385,6 +385,8 @@ class TAP_Installer {
                 status varchar(20) NOT NULL DEFAULT 'clicked',
                 discount_amount decimal(15,2) NOT NULL DEFAULT 0.00,
                 points_awarded int(11) NOT NULL DEFAULT 0,
+                fingerprint varchar(64) DEFAULT NULL,
+                is_suspicious tinyint(1) NOT NULL DEFAULT 0,
                 created_at datetime DEFAULT CURRENT_TIMESTAMP,
                 updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 PRIMARY KEY (id),
@@ -535,6 +537,12 @@ class TAP_Installer {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD KEY trip_id (trip_id)");
         }
 
+        // currency column on bookings (idempotent).
+        $has_currency = $wpdb->get_var("SHOW COLUMNS FROM {$wpdb->prefix}tap_bookings LIKE 'currency'");
+        if (!$has_currency) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN currency varchar(5) NOT NULL DEFAULT 'USD' AFTER total_amount");
+        }
+
         // UTM tracking columns (idempotent).
         foreach (['utm_source', 'utm_medium', 'utm_campaign'] as $col) {
             $exists = $wpdb->get_var($wpdb->prepare("SHOW COLUMNS FROM {$wpdb->prefix}tap_bookings LIKE %s", $col));
@@ -549,7 +557,102 @@ class TAP_Installer {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_customer_referrals ADD UNIQUE KEY booking_unique (booking_id)");
         }
 
+        // Referral anti-fraud columns (idempotent).
+        $ref_cols = [
+            'fingerprint'   => 'varchar(64) DEFAULT NULL',
+            'is_suspicious' => 'tinyint(1) NOT NULL DEFAULT 0',
+        ];
+        foreach ($ref_cols as $col => $def) {
+            $exists = $wpdb->get_var($wpdb->prepare("SHOW COLUMNS FROM {$wpdb->prefix}tap_customer_referrals LIKE %s", $col));
+            if (!$exists) {
+                $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_customer_referrals ADD COLUMN {$col} {$def}");
+            }
+        }
+
         self::migrate();
+    }
+
+    /**
+     * Sync a single service post into tap_service_index.
+     * Called on save_post for service post types.
+     */
+    public static function sync_service_index($post_id) {
+        if (wp_is_post_autosave($post_id) || wp_is_post_revision($post_id)) {
+            return;
+        }
+        $post = get_post($post_id);
+        if (!$post) return;
+
+        $service_types = ['tap_accommodation', 'tap_tour', 'tap_experience', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
+        if (!in_array($post->post_type, $service_types, true)) {
+            return;
+        }
+
+        global $wpdb;
+        $table = $wpdb->prefix . 'tap_service_index';
+
+        // If not published, remove from index.
+        if ($post->post_status !== 'publish') {
+            $wpdb->delete($table, ['post_id' => $post_id], ['%d']);
+            return;
+        }
+
+        $agency_id = (int) get_post_meta($post_id, '_tap_agency_id', true);
+        $location_id = (int) get_post_meta($post_id, '_tap_location', true);
+        $service_type = get_post_meta($post_id, '_tap_service_type', true) ?: $post->post_type;
+        $price = (float) get_post_meta($post_id, '_tap_price', true);
+        $is_featured = (int) get_post_meta($post_id, '_tap_featured', true);
+
+        // Try common price meta keys.
+        if ($price <= 0) {
+            foreach (['_tap_price_from', 'price', '_price'] as $key) {
+                $val = get_post_meta($post_id, $key, true);
+                if ($val !== '' && is_numeric($val)) {
+                    $price = (float) $val;
+                    break;
+                }
+            }
+        }
+
+        $wpdb->replace($table, [
+            'post_id'      => $post_id,
+            'post_type'    => $post->post_type,
+            'status'       => $post->post_status,
+            'agency_id'    => $agency_id,
+            'location_id'  => $location_id,
+            'service_type' => $service_type,
+            'price'        => $price,
+            'is_featured'  => $is_featured,
+            'updated_at'   => current_time('mysql'),
+        ], ['%d', '%s', '%s', '%d', '%d', '%s', '%f', '%d', '%s']);
+    }
+
+    /**
+     * Remove a service from the index on deletion.
+     */
+    public static function remove_service_index($post_id) {
+        global $wpdb;
+        $wpdb->delete($wpdb->prefix . 'tap_service_index', ['post_id' => $post_id], ['%d']);
+    }
+
+    /**
+     * Reindex all services (WP-CLI or admin action).
+     */
+    public static function reindex_services() {
+        global $wpdb;
+        $wpdb->query("TRUNCATE TABLE {$wpdb->prefix}tap_service_index");
+
+        $service_types = ['tap_accommodation', 'tap_tour', 'tap_experience', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
+        $posts = get_posts([
+            'post_type'      => $service_types,
+            'post_status'    => 'publish',
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+        ]);
+        foreach ($posts as $post_id) {
+            self::sync_service_index($post_id);
+        }
+        return count($posts);
     }
 
     public static function migrate() {
@@ -671,6 +774,12 @@ class TAP_Installer {
             ["{$wpdb->prefix}tap_bookings", 'agency_created', 'agency_id, created_at'],
             ["{$wpdb->prefix}tap_reviews", 'service_approved', 'service_type, service_id, is_approved, created_at'],
             ["{$wpdb->prefix}tap_commission_payments", 'status', 'status'],
+            // Performance indexes (scaling plan, 2026-11-10)
+            ["{$wpdb->prefix}tap_bookings", 'idx_agency_date_status', 'agency_id, created_at, payment_status'],
+            ["{$wpdb->prefix}tap_bookings", 'idx_client_date', 'client_id, created_at'],
+            ["{$wpdb->prefix}tap_bookings", 'idx_booking_code', 'booking_code'],
+            ["{$wpdb->prefix}tap_payment_orders", 'idx_order_id', 'paypal_order_id'],
+            ["{$wpdb->prefix}tap_payment_orders", 'idx_object', 'object_type, object_id'],
         ];
         foreach ($tap_index_backfill as $idx) {
             $has_idx = $wpdb->get_var($wpdb->prepare(
@@ -682,6 +791,27 @@ class TAP_Installer {
             if (!$has_idx) {
                 $wpdb->query("ALTER TABLE {$idx[0]} ADD KEY {$idx[1]} ({$idx[2]})");
             }
+        }
+
+        // Denormalized service index for fast search (scaling plan, 2026-11-10).
+        $svc_index_table = $wpdb->prefix . 'tap_service_index';
+        if ($wpdb->get_var("SHOW TABLES LIKE '{$svc_index_table}'") !== $svc_index_table) {
+            $wpdb->query("CREATE TABLE {$svc_index_table} (
+                post_id bigint(20) NOT NULL,
+                post_type varchar(20) NOT NULL,
+                status varchar(20) NOT NULL DEFAULT 'publish',
+                agency_id bigint(20) NOT NULL DEFAULT 0,
+                location_id bigint(20) NOT NULL DEFAULT 0,
+                service_type varchar(50) NOT NULL DEFAULT '',
+                price decimal(12,2) NOT NULL DEFAULT 0,
+                is_featured tinyint(1) NOT NULL DEFAULT 0,
+                updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (post_id),
+                INDEX idx_type_status (post_type, status),
+                INDEX idx_location (location_id, service_type),
+                INDEX idx_price (price),
+                INDEX idx_agency (agency_id)
+            ) {$wpdb->get_charset_collate()}");
         }
 
         if ($wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}tap_disputes'") !== "{$wpdb->prefix}tap_disputes") {

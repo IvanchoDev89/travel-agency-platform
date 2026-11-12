@@ -11,6 +11,7 @@ Manual de uso del **Travel Agency Platform** para el rol de **administrador del 
 - [Roles y permisos](#roles-y-permisos)
 - [El menú Travel Platform](#el-menú-travel-platform)
 - [Dashboard](#dashboard)
+- [Landing Page Builder](#landing-page-builder)
 - [Bookings (Reservas)](#bookings-reservas)
 - [Commissions (Comisiones)](#commissions-comisiones)
 - [Reviews (Reseñas)](#reviews-reseñas)
@@ -53,6 +54,7 @@ Todos los submenús cuelgan del ítem **Travel Platform** (posición 25 del admi
 | Página | Slug | Cap necesaria |
 | --- | --- | --- |
 | Dashboard | `travel-platform` | `manage_options` |
+| Landing Page | `tap-landing` | `manage_options` |
 | Bookings | `tap-bookings` | `tap_manage_bookings` |
 | Commissions | `tap-commissions` | `tap_manage_commissions` |
 | Reviews | `tap-reviews` | `tap_manage_reviews` |
@@ -86,6 +88,23 @@ Vista resumen del negocio:
 - Tarjetas con ingresos, reservas, comisiones y agencias.
 - Gráficos (Chart.js): ingresos mensuales, distribución por estado, reservas por tipo de servicio.
 - Tabla de las 8 reservas más recientes.
+
+---
+
+## Landing Page Builder
+
+**Ruta:** Travel Platform → Landing Page (`tap-landing`, cap `manage_options`).
+
+La portada (`front-page.php`) se compone de secciones independientes. El builder permite **arrastrar para reordenar** y **activar/desactivar** cada sección; el orden y los toggles se aplican en el front-end en la siguiente visita.
+
+- Secciones disponibles: hero, estadísticas, datos de Costa Rica, destinos, intereses (chips), tours destacados, servicios destacados, pilares del blog, CTA de referidos, CTA de agencias, itinerario, agencias verificadas, testimonios, blog, FAQ, newsletter y CTA final.
+- **Tours destacados** (`promoted`) muestra los listados con promoción activa; **servicios destacados** (`featured`) muestra las experiencias mejor valoradas. Son secciones distintas.
+- Los toggles son independientes: desactivar **Destinos** no oculta **Datos de Costa Rica**, y desactivar **Blog** no oculta los **Pilares**.
+- El botón **Editar** abre los ajustes propios de la sección (título, cantidad, imagen, etc.) cuando aplican.
+- Las secciones sin contenido se omiten automáticamente aunque estén activas.
+- Al guardar se eliminan tipos duplicados. La configuración se migra sola desde versiones anteriores (`categories` se fusiona con `intereses` y los tipos que la portada no puede renderizar se descartan).
+
+> La vista previa del builder se actualiza al guardar. Si cambió el orden y no lo ve, recargue la portada pública.
 
 ---
 
@@ -365,18 +384,21 @@ Garantías implementadas en v1.5.7 (ver [`CHANGELOG.md`](CHANGELOG.md)):
 
 ### Settings → Referidos
 - Configure referral discount % and points rate.
+- Manual review threshold: rewards with this many points or more (default 500) are held for approval; `0` disables it.
 - View affiliate tiers (Bronze/Silver/Gold).
 
 ### Settings → Referidos – Reportes
 - Metrics: clicks, bookings, completed, revenue, points.
 - Top referrers table.
+- **Pendientes de revisión**: approve or reject high-point/suspicious rewards before points are credited.
 - CSV export.
 
 ### Settings → Seguridad HTTP
 - HSTS (HTTPS only).
-- CSP mode (disabled / report-only / enforce).
-- CSP policy editor.
-- Report-uri for violations.
+- CSP mode (disabled / report-only / enforce). Keep `report-only` for 48h, review reports, then switch to `enforce`. Rollback: set the mode back to `report-only`.
+- CSP policy editor (default policy already allows Google Fonts, jsDelivr, PayPal, Worker blobs and manifests).
+- Report-uri for violations, rate-limited to 60 reports/minute per IP.
+- Violations are logged and counted per day (`tap_csp_report_stats`).
 
 ### Travel Platform → Analytics
 - Booking funnel.

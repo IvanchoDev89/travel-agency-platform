@@ -131,7 +131,8 @@ class TAP_Coupons {
                 'expires_at'     => sanitize_text_field(wp_unslash($_POST['expires_at'] ?? '')),
                 'is_active'      => !empty($_POST['is_active']),
             ];
-            if ($id) self::update($id, $data); else self::create($data);
+            if ($id) self::update($id, $data);
+else self::create($data);
             wp_safe_redirect(add_query_arg(['page' => 'tap-coupons', 'updated' => '1'], admin_url('admin.php')));
             exit;
         }

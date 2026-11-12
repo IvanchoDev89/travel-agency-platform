@@ -62,28 +62,45 @@ class TAP_Ajax {
         $adults   = intval($_POST['adults'] ?? 1);
         $children = intval($_POST['children'] ?? 0);
 
+        $svc_type = sanitize_text_field(wp_unslash($_POST['service_type']));
+        $svc_id   = intval($_POST['service_id']);
+
         $total = TAP_Booking_Pricing::calculate_price(
-            sanitize_text_field(wp_unslash($_POST['service_type'])),
-            intval($_POST['service_id']),
+            $svc_type,
+            $svc_id,
             $check_in, $check_out, $adults, $children, $room_id,
             $slot_id
         );
 
+        // Store the service's currency so payments always use the correct
+        // currency regardless of the user's display language.
+        $prefix = class_exists('TAP_Post_Types') ? TAP_Post_Types::meta_prefix($svc_type) : '';
+        $svc_currency = $prefix ? get_post_meta($svc_id, '_tap_' . $prefix . '_currency', true) : '';
+        if (empty($svc_currency)) $svc_currency = 'USD';
+
+        $extras = [];
+        if (!empty($_POST['extras']) && is_array($_POST['extras'])) {
+            $extras = array_map('intval', $_POST['extras']);
+        }
         $data = [
-            'service_type' => sanitize_text_field(wp_unslash($_POST['service_type'])),
-            'service_id'   => intval($_POST['service_id']),
-            'room_id'      => $room_id,
-            'slot_id'      => $slot_id,
-            'check_in'     => $check_in,
-            'check_out'    => $check_out,
-            'adults'       => $adults,
-            'children'     => $children,
-            'total_amount' => $total,
-            'notes'        => sanitize_textarea_field(wp_unslash($_POST['notes'] ?? '')),
-            'guest_name'   => sanitize_text_field(wp_unslash($_POST['guest_name'] ?? '')),
-            'guest_email'  => sanitize_email(wp_unslash($_POST['guest_email'] ?? '')),
-            'guest_phone'  => sanitize_text_field(wp_unslash($_POST['guest_phone'] ?? '')),
+            'service_type'    => $svc_type,
+            'service_id'      => $svc_id,
+            'room_id'         => $room_id,
+            'slot_id'         => $slot_id,
+            'check_in'        => $check_in,
+            'check_out'       => $check_out,
+            'adults'          => $adults,
+            'children'        => $children,
+            'total_amount'    => $total,
+            'currency'        => $svc_currency,
+            'notes'           => sanitize_textarea_field(wp_unslash($_POST['notes'] ?? '')),
+            'guest_name'      => sanitize_text_field(wp_unslash($_POST['guest_name'] ?? '')),
+            'guest_email'     => sanitize_email(wp_unslash($_POST['guest_email'] ?? '')),
+            'guest_phone'     => sanitize_text_field(wp_unslash($_POST['guest_phone'] ?? '')),
             'idempotency_key' => sanitize_text_field(wp_unslash($_POST['idempotency_key'] ?? '')),
+            'private_upgrade' => !empty($_POST['private_upgrade']) ? 1 : 0,
+            'coupon_code'     => sanitize_text_field(wp_unslash($_POST['coupon_code'] ?? '')),
+            'extras'          => $extras,
         ];
 
         $result = TAP_Booking::create($data);
@@ -103,6 +120,41 @@ class TAP_Ajax {
         }
 
         wp_send_json_success($result + ['redirect' => TAP_Booking::redirect_target(TAP_Booking::get_booking($result['booking_id']))]);
+    }
+
+    /**
+     * Check payment status of a booking (used for polling after Onvo redirect).
+     */
+    public static function check_payment_status() {
+        check_ajax_referer('tap_nonce', 'nonce');
+
+        $booking_code = sanitize_text_field(wp_unslash($_POST['booking_code'] ?? ''));
+        if (!$booking_code) {
+            wp_send_json_error(['message' => __('Invalid booking', 'travel-agency-platform')]);
+        }
+
+        $booking = TAP_Booking::get_booking_by_code($booking_code);
+        if (!$booking) {
+            wp_send_json_error(['message' => __('Booking not found', 'travel-agency-platform')]);
+        }
+
+        // Permission check: owner or guest with pay token.
+        $uid = get_current_user_id();
+        $can = false;
+        if ($uid) {
+            $can = (int) $booking->client_id === $uid || current_user_can('manage_options');
+        } elseif ((int) $booking->client_id === 0) {
+            $can = (bool) TAP_Guest_Checkout::get_guest_pay_token($booking->booking_code);
+        }
+
+        if (!$can) {
+            wp_send_json_error(['message' => __('Permission denied', 'travel-agency-platform')]);
+        }
+
+        wp_send_json_success([
+            'payment_status' => $booking->payment_status,
+            'status'         => $booking->status,
+        ]);
     }
 
     /* ===== Guest checkout helpers (testable, no die) ===== */

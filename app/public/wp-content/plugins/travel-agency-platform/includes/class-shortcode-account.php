@@ -410,6 +410,60 @@ break; }
         .tap-agency-service-card:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.1);}
         .tap-agency-review{transition:box-shadow .2s;}
         .tap-agency-review:hover{box-shadow:0 4px 12px rgba(0,0,0,.06);}
+        @media (max-width:768px){
+            .tap-agency-hero-cover{height:160px;}
+            .tap-agency-hero-body{padding:16px;gap:12px;flex-direction:column;}
+            .tap-agency-hero-avatar{width:72px;height:72px;margin-top:-48px;flex:0 0 72px;}
+            .tap-agency-hero-avatar span{font-size:1.5rem;}
+            .tap-agency-hero-title{font-size:1.3rem;}
+            .tap-agency-hero-badges{gap:6px;}
+            .tap-agency-badge{font-size:11px;padding:2px 8px;}
+            .tap-agency-hero-desc{font-size:14px;}
+            .tap-agency-hero-ctas{gap:6px;}
+            .tap-agency-hero-ctas .tap-btn{flex:1;min-height:44px;font-size:13px;}
+            .tap-agency-stats{grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px;}
+            .tap-agency-stat{padding:10px;}
+            .tap-agency-stat-num{font-size:1.2rem;}
+            .tap-agency-stat-label{font-size:11px;}
+            .tap-agency-layout{grid-template-columns:1fr;gap:16px;}
+            .tap-agency-sidebar{position:static;gap:12px;}
+            .tap-agency-card{padding:12px;}
+            .tap-agency-tabs{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;gap:2px;}
+            .tap-agency-tabs::-webkit-scrollbar{display:none;}
+            .tap-agency-tab{padding:8px 12px;font-size:13px;white-space:nowrap;}
+            .tap-agency-section{margin-bottom:20px;}
+            .tap-agency-section-title{font-size:1.1rem;}
+            .tap-agency-services-grid{grid-template-columns:1fr;gap:12px;}
+            .tap-agency-service-card-img img{height:140px;}
+            .tap-agency-service-card-body{padding:10px;}
+            .tap-agency-service-card-body h3{font-size:.95rem;}
+            .tap-agency-service-excerpt{font-size:12px;}
+            .tap-agency-review{padding:12px;}
+            .tap-agency-review-images img{width:48px;height:48px;}
+            .tap-agency-final-cta{padding:20px 16px;margin:16px 0;}
+            .tap-agency-final-cta h2{font-size:1.2rem;}
+            .tap-agency-newsletter-form{flex-direction:column;}
+            .tap-agency-newsletter-form input{min-width:0;width:100%;}
+            .tap-agency-newsletter-form button{width:100%;}
+        }
+        @media (max-width:480px){
+            .tap-agency-stats{grid-template-columns:repeat(4,1fr);gap:6px;}
+            .tap-agency-stat{padding:8px 4px;}
+            .tap-agency-stat-num{font-size:1rem;}
+            .tap-agency-stat-label{font-size:10px;}
+            .tap-agency-hero-ctas .tap-btn{font-size:12px;padding:8px 12px;}
+        }
+        /* Dark mode support for agency profile */
+        html.dark .tap-agency-card{background:var(--tap-surface,#1e293b);border-color:var(--tap-border,#334155);}
+        html.dark .tap-agency-service-card{background:var(--tap-surface,#1e293b);border-color:var(--tap-border,#334155);}
+        html.dark .tap-agency-service-card-body h3 a{color:var(--tap-neutral-900,#f1f5f9);}
+        html.dark .tap-agency-review{background:var(--tap-surface,#1e293b);border-color:var(--tap-border,#334155);}
+        html.dark .tap-agency-stat{background:var(--tap-surface-2,#334155);border-color:var(--tap-border,#475569);}
+        html.dark .tap-agency-hero{border-color:var(--tap-border,#334155);}
+        html.dark .tap-agency-hero-cover{background:linear-gradient(135deg,var(--tap-primary-bg,#1e3a5f),var(--tap-surface,#1e293b));}
+        html.dark .tap-agency-final-cta{background:linear-gradient(135deg,var(--tap-primary-bg,#1e3a5f),var(--tap-surface,#1e293b));border-color:var(--tap-primary-border,#334155);}
+        html.dark .tap-agency-final-cta h2{color:var(--tap-neutral-900,#f1f5f9);}
+        html.dark .tap-agency-final-cta p{color:var(--tap-neutral-600,#94a3b8);}
         </style>
         <script>
         (function(){
@@ -649,10 +703,20 @@ break; }
             <h2><?php esc_html_e('Registra tu agencia', 'travel-agency-platform'); ?></h2>
             <p class="tap-register-intro"><?php esc_html_e('Crea una cuenta de agencia, publica tus alojamientos y tours, y empieza a recibir reservas de miles de viajeros.', 'travel-agency-platform'); ?></p>
 
+            <!-- Stepper -->
+            <div class="tap-reg-stepper" id="tap-reg-stepper">
+                <div class="tap-reg-step is-active" data-step="1"><span class="tap-reg-step-num">1</span><span class="tap-reg-step-label"><?php esc_html_e('Cuenta', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-reg-step" data-step="2"><span class="tap-reg-step-num">2</span><span class="tap-reg-step-label"><?php esc_html_e('Contacto', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-reg-step" data-step="3"><span class="tap-reg-step-num">3</span><span class="tap-reg-step-label"><?php esc_html_e('Ubicación', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-reg-step" data-step="4"><span class="tap-reg-step-num">4</span><span class="tap-reg-step-label"><?php esc_html_e('Verificación', 'travel-agency-platform'); ?></span></div>
+            </div>
+
             <form id="tap-agency-register-form" class="tap-form tap-form-grid" autocomplete="on">
                 <div style="position:absolute;left:-9999px;top:-9999px;" aria-hidden="true">
                     <input type="text" name="tap_hp" tabindex="-1" autocomplete="off" value="">
                 </div>
+                <fieldset class="tap-reg-fieldset" data-step="1">
+                    <legend><?php esc_html_e('Cuenta', 'travel-agency-platform'); ?></legend>
                 <div class="tap-input-group">
                     <label for="tap_reg_agency_name"><?php esc_html_e('Agency Name', 'travel-agency-platform'); ?> *</label>
                     <input type="text" id="tap_reg_agency_name" name="agency_name" class="tap-input" required>
@@ -669,6 +733,9 @@ break; }
                     <label for="tap_reg_password"><?php esc_html_e('Password', 'travel-agency-platform'); ?> *</label>
                     <input type="password" id="tap_reg_password" name="password" class="tap-input" minlength="8" required>
                 </div>
+                </fieldset>
+                <fieldset class="tap-reg-fieldset" data-step="2">
+                    <legend><?php esc_html_e('Contacto', 'travel-agency-platform'); ?></legend>
                 <div class="tap-input-group">
                     <label for="tap_reg_phone"><?php esc_html_e('Phone', 'travel-agency-platform'); ?></label>
                     <input type="text" id="tap_reg_phone" name="phone" class="tap-input">
@@ -681,6 +748,9 @@ break; }
                     <label for="tap_reg_website"><?php esc_html_e('Website', 'travel-agency-platform'); ?></label>
                     <input type="url" id="tap_reg_website" name="website" class="tap-input">
                 </div>
+                </fieldset>
+                <fieldset class="tap-reg-fieldset" data-step="3">
+                    <legend><?php esc_html_e('Ubicación', 'travel-agency-platform'); ?></legend>
                 <div class="tap-input-group">
                     <label for="tap_reg_city"><?php esc_html_e('City', 'travel-agency-platform'); ?></label>
                     <input type="text" id="tap_reg_city" name="city" class="tap-input">
@@ -693,6 +763,9 @@ break; }
                     <label for="tap_reg_address"><?php esc_html_e('Address', 'travel-agency-platform'); ?></label>
                     <input type="text" id="tap_reg_address" name="address" class="tap-input">
                 </div>
+                </fieldset>
+                <fieldset class="tap-reg-fieldset tap-span-2" data-step="4">
+                    <legend><?php esc_html_e('Verificación', 'travel-agency-platform'); ?></legend>
                 <div class="tap-input-group tap-span-2">
                     <label for="tap_reg_description"><?php esc_html_e('Describe tu agencia', 'travel-agency-platform'); ?></label>
                     <textarea id="tap_reg_description" name="description" class="tap-input" rows="4"></textarea>
@@ -729,14 +802,53 @@ break; }
                         </div>
                     </div>
                 </div>
+                </fieldset>
                 <div class="tap-span-2">
-                    <div id="tap-register-message" class="tap-booking-message"></div>
+                    <div id="tap-register-message" class="tap-booking-message" role="status" aria-live="polite"></div>
                     <button type="submit" class="tap-btn tap-btn-primary tap-btn-block"><?php esc_html_e('Crear mi cuenta de agencia', 'travel-agency-platform'); ?></button>
                 </div>
             </form>
         </div>
         <script>
         (function($) {
+            // Stepper: highlight current step based on focused fieldset.
+            var $stepper = $('#tap-reg-stepper');
+            if ($stepper.length) {
+                var $fieldsets = $('.tap-reg-fieldset');
+                function updateStepper() {
+                    var activeStep = 1;
+                    $fieldsets.each(function() {
+                        var $fs = $(this);
+                        var step = parseInt($fs.data('step'), 10) || 1;
+                        var rect = $fs[0].getBoundingClientRect();
+                        if (rect.top < window.innerHeight / 2) {
+                            activeStep = Math.max(activeStep, step);
+                        }
+                    });
+                    $stepper.find('.tap-reg-step').each(function() {
+                        var $s = $(this);
+                        var step = parseInt($s.data('step'), 10) || 1;
+                        $s.removeClass('is-active is-done');
+                        if (step < activeStep) $s.addClass('is-done');
+                        else if (step === activeStep) $s.addClass('is-active');
+                    });
+                }
+                $(window).on('scroll', updateStepper);
+                $('input, select, textarea').on('focus', function() {
+                    var $fs = $(this).closest('.tap-reg-fieldset');
+                    if ($fs.length) {
+                        var step = parseInt($fs.data('step'), 10) || 1;
+                        $stepper.find('.tap-reg-step').removeClass('is-active is-done');
+                        $stepper.find('.tap-reg-step').each(function() {
+                            var s = parseInt($(this).data('step'), 10) || 1;
+                            if (s < step) $(this).addClass('is-done');
+                            else if (s === step) $(this).addClass('is-active');
+                        });
+                    }
+                });
+                updateStepper();
+            }
+
             $('#tap-agency-register-form').on('submit', function(e) {
                 e.preventDefault();
                 var $form = $(this), $btn = $form.find('button[type=submit]'), $msg = $('#tap-register-message');

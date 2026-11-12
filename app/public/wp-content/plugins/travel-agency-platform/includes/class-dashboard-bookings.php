@@ -199,7 +199,10 @@ class TAP_Dashboard_Bookings {
     public static function bookings_page() {
         global $wpdb;
 
-        $view = 'list';
+        $view = sanitize_key(wp_unslash($_GET['view'] ?? 'list'));
+        if (!in_array($view, ['list', 'calendar'], true)) {
+            $view = 'list';
+        }
 
         // Bulk actions.
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tap_bulk_action'])) {
@@ -306,16 +309,18 @@ class TAP_Dashboard_Bookings {
                 <a class="button <?php echo 'list' === $view ? 'button-primary' : ''; ?>" href="<?php echo esc_url(add_query_arg('view', 'list')); ?>"><?php esc_html_e('Lista', 'travel-agency-platform'); ?></a>
             </div>
 
-            <?php if ('calendar' === $view):
+            <?php
+            if ('calendar' === $view):
                 $cal_month = isset($_GET['cal_month']) ? sanitize_text_field(wp_unslash($_GET['cal_month'])) : gmdate('Y-m');
                 if (!preg_match('/^\d{4}-\d{2}$/', $cal_month)) $cal_month = gmdate('Y-m');
                 list($cal_y, $cal_m) = explode('-', $cal_month);
-                $cal_y = (int) $cal_y; $cal_m = (int) $cal_m;
+                $cal_y = (int) $cal_y;
+$cal_m = (int) $cal_m;
                 $first_day = mktime(0, 0, 0, $cal_m, 1, $cal_y);
-                $days_in_month = (int) date('t', $first_day);
-                $start_dow = (int) date('w', $first_day);
-                $prev_month = date('Y-m', strtotime('-1 month', $first_day));
-                $next_month = date('Y-m', strtotime('+1 month', $first_day));
+                $days_in_month = (int) wp_date('t', $first_day);
+                $start_dow = (int) wp_date('w', $first_day);
+                $prev_month = wp_date('Y-m', strtotime('-1 month', $first_day));
+                $next_month = wp_date('Y-m', strtotime('+1 month', $first_day));
                 $month_label = date_i18n('F Y', $first_day);
                 $from = sprintf('%04d-%02d-01', $cal_y, $cal_m);
                 $to = sprintf('%04d-%02d-%02d', $cal_y, $cal_m, $days_in_month);
@@ -342,7 +347,7 @@ class TAP_Dashboard_Bookings {
                 </div>
                 <div class="tap-avcal-grid">
                     <?php
-                    $weekdays = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+                    $weekdays = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
                     foreach ($weekdays as $wd) echo '<div class="tap-avcal-weekday">' . esc_html($wd) . '</div>';
                     for ($p = 0; $p < $start_dow; $p++) echo '<div class="tap-avcal-day disabled"></div>';
                     for ($d = 1; $d <= $days_in_month; $d++) {

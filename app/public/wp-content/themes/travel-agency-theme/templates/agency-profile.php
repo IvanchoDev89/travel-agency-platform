@@ -6,6 +6,7 @@ get_header();
 ?>
 
 <div class="entry-content">
+    <div class="tap-container">
     <?php
     $agency_id = intval($_GET['id'] ?? 0);
     if ($agency_id) {
@@ -14,6 +15,7 @@ get_header();
         echo '<p>' . __('Agency not specified.', 'travel-agency-platform') . '</p>';
     }
     ?>
+    </div>
 </div>
 
 <?php get_footer(); ?>

@@ -88,31 +88,31 @@ while (have_posts()): the_post();
     <?php endif; ?>
   </div>
 
+  <!-- Header -->
+  <div class="tap-acc-header">
+    <div class="tap-acc-header-top">
+      <h1 class="tap-acc-title"><?php the_title(); ?></h1>
+      <?php echo tap_fav_button($id, 'tap-fav-hero'); ?>
+      <?php if ($stars): ?>
+      <div class="tap-acc-stars"><?php echo str_repeat('★', intval($stars)) . str_repeat('☆', 5 - intval($stars)); ?></div>
+      <?php endif; ?>
+    </div>
+    <div class="tap-acc-meta">
+      <span class="tap-acc-type"><?php echo esc_html($type_name); ?></span>
+      <?php if ($address || $city): ?>
+      <span class="tap-acc-location">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <?php echo esc_html(implode(', ', array_filter([$address, $city, $country]))); ?>
+      </span>
+      <?php endif; ?>
+      <?php if ($agency): ?>
+      <span class="tap-acc-hosted"><?php esc_html_e('Hosted by', 'travel-agency-platform'); ?> <strong><?php echo esc_html($agency->post_title); ?></strong></span>
+      <?php endif; ?>
+    </div>
+  </div>
+
   <div class="tap-acc-layout">
     <div class="tap-acc-main">
-
-      <!-- Header -->
-      <div class="tap-acc-header">
-        <div class="tap-acc-header-top">
-          <h1 class="tap-acc-title"><?php the_title(); ?></h1>
-          <?php echo tap_fav_button($id, 'tap-fav-hero'); ?>
-          <?php if ($stars): ?>
-          <div class="tap-acc-stars"><?php echo str_repeat('★', intval($stars)) . str_repeat('☆', 5 - intval($stars)); ?></div>
-          <?php endif; ?>
-        </div>
-        <div class="tap-acc-meta">
-          <span class="tap-acc-type"><?php echo esc_html($type_name); ?></span>
-          <?php if ($address || $city): ?>
-          <span class="tap-acc-location">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <?php echo esc_html(implode(', ', array_filter([$address, $city, $country]))); ?>
-          </span>
-          <?php endif; ?>
-          <?php if ($agency): ?>
-          <span class="tap-acc-hosted"><?php esc_html_e('Hosted by', 'travel-agency-platform'); ?> <strong><?php echo esc_html($agency->post_title); ?></strong></span>
-          <?php endif; ?>
-        </div>
-      </div>
 
       <!-- Highlights -->
       <div class="tap-acc-highlights">
@@ -163,8 +163,12 @@ while (have_posts()): the_post();
 
       <!-- Availability Calendar -->
       <?php if ($has_rooms): ?>
-      <div class="tap-acc-section tap-avcal-wrap" data-accommodation="<?php echo esc_attr($id); ?>">
-        <h2><?php _e('Availability & Prices', 'travel-agency-platform'); ?></h2>
+      <details class="tap-acc-section tap-avcal-wrap tap-collapse" data-accommodation="<?php echo esc_attr($id); ?>" open>
+        <summary class="tap-collapse-summary">
+          <span class="tap-collapse-icon" aria-hidden="true">▶</span>
+          <h2><?php _e('Availability & Prices', 'travel-agency-platform'); ?></h2>
+        </summary>
+        <div class="tap-collapse-body">
         <div class="tap-avcal-header">
           <div class="tap-avcal-nav">
             <button type="button" class="tap-avcal-nav-btn" data-dir="-1" aria-label="<?php esc_attr_e('Mes anterior', 'travel-agency-platform'); ?>">&larr;</button>
@@ -179,6 +183,7 @@ while (have_posts()): the_post();
         </div>
         <div class="tap-avcal-grid"></div>
       </div>
+      </details>
       <?php endif; ?>
 
       <!-- Room Types -->
@@ -253,8 +258,12 @@ while (have_posts()): the_post();
       <?php get_template_part('templates/partials/service-reviews'); ?>
 
       <!-- Policies -->
-      <div class="tap-acc-section">
-        <h2><?php _e('Policies', 'travel-agency-platform'); ?></h2>
+      <details class="tap-acc-section tap-collapse">
+        <summary class="tap-collapse-summary">
+          <span class="tap-collapse-icon" aria-hidden="true">▶</span>
+          <h2><?php _e('Policies', 'travel-agency-platform'); ?></h2>
+        </summary>
+        <div class="tap-collapse-body">
         <div class="tap-acc-policies">
           <div class="tap-acc-policy">
             <strong><?php _e('Check-in / Check-out', 'travel-agency-platform'); ?></strong>
@@ -271,13 +280,18 @@ while (have_posts()): the_post();
           </div>
           <?php endif; ?>
         </div>
+         </details>
       </div>
 
     </div>
 
     <!-- Sidebar Booking Widget -->
     <div class="tap-acc-sidebar">
-      <div class="tap-acc-booking-widget" id="tap-booking-widget">
+      <div class="tap-acc-booking-widget tap-widget-accordion" id="tap-booking-widget">
+        <div class="tap-bw-toggle-btn" id="tap-bw-toggle" role="button" tabindex="0" aria-expanded="false" aria-controls="tap-bw-body">
+          <span><?php esc_html_e('Reservar este alojamiento', 'travel-agency-platform'); ?></span>
+          <span class="tap-bw-toggle-icon" aria-hidden="true">▼</span>
+        </div>
         <div class="tap-bw-header">
           <?php if ($has_rooms): ?>
             <span class="tap-bw-price"><?php _e('Select dates & room', 'travel-agency-platform'); ?></span>
@@ -287,7 +301,7 @@ while (have_posts()): the_post();
           <?php endif; ?>
         </div>
 
-        <div class="tap-bw-body">
+        <div class="tap-bw-body" id="tap-bw-body">
           <form id="tap-booking-form" class="tap-bw-form">
             <div style="position:absolute;left:-9999px;top:-9999px;" aria-hidden="true">
               <input type="text" name="tap_hp" tabindex="-1" autocomplete="off" value="">
@@ -554,6 +568,39 @@ jQuery(document).ready(function($) {
   });
 });
 </script>
+
+<?php if ($price_fallback || $has_rooms): ?>
+<div class="tap-bw-mobile-bar" id="tap-bw-mobile-bar">
+    <div class="tap-bw-mobile-price">
+        <span class="tap-bw-mobile-amount"><?php echo esc_html($price_fallback ? TAP_Currency::fmt0($price_fallback) : TAP_Currency::fmt0(0)); ?></span>
+        <small><?php esc_html_e('por noche', 'travel-agency-platform'); ?></small>
+    </div>
+    <button type="button" class="tap-btn tap-btn-primary tap-bw-mobile-cta" id="tap-bw-mobile-cta"><?php esc_html_e('Reservar', 'travel-agency-platform'); ?></button>
+</div>
+<script>
+(function(){
+    var cta = document.getElementById('tap-bw-mobile-cta');
+    var widget = document.getElementById('tap-booking-widget');
+    if (cta && widget) {
+        cta.addEventListener('click', function(){
+            widget.classList.add('is-open');
+            var toggle = widget.querySelector('#tap-bw-toggle');
+            if (toggle) toggle.setAttribute('aria-expanded', 'true');
+            widget.scrollIntoView({behavior:'smooth', block:'start'});
+            var first = widget.querySelector('select, input');
+            if (first) first.focus();
+        });
+    }
+    var toggle = document.getElementById('tap-bw-toggle');
+    if (toggle && widget) {
+        toggle.addEventListener('click', function(){
+            var isOpen = widget.classList.toggle('is-open');
+            toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+    }
+})();
+</script>
+<?php endif; ?>
 
 <?php
 endwhile;

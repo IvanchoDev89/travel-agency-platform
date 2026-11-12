@@ -1094,16 +1094,17 @@ class TAP_Destination_Spots {
             if ($existing) {
                 $page_id = (int) $existing->ID;
             } else {
-                $page_id = (int) wp_insert_post([
+                $created = wp_insert_post([
                     'post_type'    => 'page',
                     'post_status'  => 'publish',
                     'post_title'   => __('Destinos', 'travel-agency-platform'),
                     'post_name'    => 'destinos',
                     'post_content' => "[tap_destinations_map]\n",
                 ], true);
-                if (is_wp_error($page_id)) {
+                if (is_wp_error($created)) {
                     return;
                 }
+                $page_id = (int) $created;
                 flush_rewrite_rules(false);
             }
             update_option(self::PAGE_OPTION, $page_id);

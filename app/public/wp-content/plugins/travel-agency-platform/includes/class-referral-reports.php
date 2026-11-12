@@ -10,6 +10,36 @@ class TAP_Referral_Reports {
     public static function init() {
         add_action('admin_menu', [__CLASS__, 'add_page']);
         add_action('admin_post_tap_export_referrals', [__CLASS__, 'export_csv']);
+        add_action('admin_post_tap_referral_approve', [__CLASS__, 'handle_approve']);
+        add_action('admin_post_tap_referral_reject', [__CLASS__, 'handle_reject']);
+    }
+
+    public static function handle_approve() {
+        self::handle_decision('approve');
+    }
+
+    public static function handle_reject() {
+        self::handle_decision('reject');
+    }
+
+    private static function handle_decision($action) {
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform'));
+        }
+        check_admin_referer('tap_referral_' . $action);
+        $row_id = isset($_GET['row']) ? absint($_GET['row']) : 0;
+        if ($row_id) {
+            if ('approve' === $action) {
+                TAP_Customer_Referrals::approve_pending($row_id);
+            } else {
+                TAP_Customer_Referrals::reject_pending($row_id);
+            }
+        }
+        wp_safe_redirect(add_query_arg(
+            ['page' => 'tap-referral-reports', 'reviewed' => $action],
+            admin_url('options-general.php')
+        ));
+        exit;
     }
 
     public static function add_page() {
@@ -144,6 +174,52 @@ class TAP_Referral_Reports {
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr><td colspan="6"><?php esc_html_e('Sin datos en el rango seleccionado.', 'travel-agency-platform'); ?></td></tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+
+            <?php $pending = TAP_Customer_Referrals::pending_review(); ?>
+            <h2 style="margin-top:24px;"><?php esc_html_e('Pendientes de revisión', 'travel-agency-platform'); ?></h2>
+            <p class="description"><?php esc_html_e('Recompensas de puntos altos o marcadas como sospechosas. Aprueba para acreditar los puntos o rechaza para descartarlas.', 'travel-agency-platform'); ?></p>
+            <table class="widefat striped">
+                <thead>
+                    <tr>
+                        <th><?php esc_html_e('Fecha', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Referidor', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Reserva', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Código', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Motivo', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Acciones', 'travel-agency-platform'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if ($pending): ?>
+                        <?php foreach ($pending as $r): ?>
+                            <?php
+                            $u = get_userdata((int) $r->referrer_user_id);
+                            $approve_url = wp_nonce_url(
+                                admin_url('admin-post.php?action=tap_referral_approve&row=' . (int) $r->id),
+                                'tap_referral_approve'
+                            );
+                            $reject_url = wp_nonce_url(
+                                admin_url('admin-post.php?action=tap_referral_reject&row=' . (int) $r->id),
+                                'tap_referral_reject'
+                            );
+                            ?>
+                            <tr>
+                                <td><?php echo esc_html((string) $r->created_at); ?></td>
+                                <td><?php echo $u ? esc_html($u->display_name . ' (#' . $u->ID . ')') : esc_html('#' . $r->referrer_user_id); ?></td>
+                                <td><?php echo $r->booking_id ? '#' . (int) $r->booking_id : '—'; ?></td>
+                                <td><?php echo esc_html((string) $r->referral_code); ?></td>
+                                <td><?php echo (int) $r->is_suspicious ? esc_html__('Sospechoso', 'travel-agency-platform') : esc_html__('Puntos altos', 'travel-agency-platform'); ?></td>
+                                <td>
+                                    <a class="button button-primary" href="<?php echo esc_url($approve_url); ?>"><?php esc_html_e('Aprobar', 'travel-agency-platform'); ?></a>
+                                    <a class="button" href="<?php echo esc_url($reject_url); ?>"><?php esc_html_e('Rechazar', 'travel-agency-platform'); ?></a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr><td colspan="6"><?php esc_html_e('No hay recompensas pendientes.', 'travel-agency-platform'); ?></td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>

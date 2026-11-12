@@ -62,7 +62,7 @@ class TAP_Shortcode_Search {
     public static function search_results($atts) {
         $atts = shortcode_atts(['per_page' => 20], $atts);
 
-        $current_url = home_url(add_query_arg([]));
+        $current_url = home_url('/search-results/');
 
         $keyword   = sanitize_text_field(wp_unslash($_GET['keyword'] ?? ''));
         $type      = sanitize_text_field(wp_unslash($_GET['type'] ?? ''));
@@ -191,7 +191,7 @@ class TAP_Shortcode_Search {
             }
         }
 
-        echo '<div class="tap-search-results">';
+        echo '<div class="tap-search-results" aria-live="polite" aria-atomic="true">';
         if ($total) {
             /* translators: %d: number of results found. */
             echo '<p class="tap-results-count">' . esc_html(sprintf(_n('%d resultado encontrado', '%d resultados encontrados', $total, 'travel-agency-platform'), $total)) . '</p>';
@@ -233,6 +233,11 @@ class TAP_Shortcode_Search {
                 <?php $keyword = sanitize_text_field(wp_unslash($_GET['keyword'] ?? '')); ?>
                 <input type="hidden" name="keyword" value="<?php echo esc_attr($keyword); ?>">
             <?php endif; ?>
+            <?php foreach (['check_in', 'check_out', 'guests'] as $extra_field): ?>
+                <?php if (isset($_GET[$extra_field]) && $_GET[$extra_field] !== ''): ?>
+                    <input type="hidden" name="<?php echo esc_attr($extra_field); ?>" value="<?php echo esc_attr(sanitize_text_field(wp_unslash($_GET[$extra_field]))); ?>">
+                <?php endif; ?>
+            <?php endforeach; ?>
             <label><?php esc_html_e('Tipo', 'travel-agency-platform'); ?>
                 <select name="type">
                     <?php foreach ($types as $val => $label): ?>
@@ -242,7 +247,7 @@ class TAP_Shortcode_Search {
             </label>
             <div class="tap-field">
                 <span class="tap-field-label"><?php esc_html_e('Ubicación', 'travel-agency-platform'); ?></span>
-                <?php echo TAP_Destinations::render_picker($location, 'location'); ?>
+                <?php echo TAP_Destinations::render_picker($location, 'location', true); ?>
             </div>
             <label><?php esc_html_e('Tipo de tour', 'travel-agency-platform'); ?>
                 <select name="tour_type">

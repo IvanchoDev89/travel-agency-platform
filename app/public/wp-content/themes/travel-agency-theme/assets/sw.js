@@ -1,9 +1,9 @@
-const CACHE = 'tap-v2';
+const CACHE = 'tap-v4';
 const ASSETS = [
-  '/',
-  '/offline.html',
   '/wp-content/plugins/travel-agency-platform/assets/css/tokens.css',
   '/wp-content/plugins/travel-agency-platform/assets/css/public.css',
+  '/wp-content/themes/travel-agency-theme/assets/style.css',
+  '/wp-content/themes/travel-agency-theme/assets/main.js',
 ];
 
 self.addEventListener('install', function(e) {
@@ -24,12 +24,14 @@ self.addEventListener('fetch', function(e) {
   if (e.request.method !== 'GET') return;
   e.respondWith(
     fetch(e.request).then(function(resp) {
-      var copy = resp.clone();
-      caches.open(CACHE).then(function(c) { c.put(e.request, copy); });
+      if (resp && resp.ok) {
+        var copy = resp.clone();
+        caches.open(CACHE).then(function(c) { c.put(e.request, copy); });
+      }
       return resp;
     }).catch(function() {
       return caches.match(e.request).then(function(r) {
-        return r || caches.match('/offline.html');
+        return r || new Response('Offline', { status: 503, statusText: 'Service Unavailable', headers: { 'Content-Type': 'text/plain' } });
       });
     })
   );
@@ -53,4 +55,3 @@ self.addEventListener('notificationclick', function(e) {
   var url = (e.notification.data && e.notification.data.url) ? e.notification.data.url : '/';
   e.waitUntil(clients.openWindow(url));
 });
-PY

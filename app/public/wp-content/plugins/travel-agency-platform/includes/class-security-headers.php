@@ -6,10 +6,37 @@ defined('ABSPATH') || exit;
  */
 class TAP_Security_Headers {
 
+    /** Bump when the shipped default policy gains directives. */
+    const POLICY_VERSION = 2;
+
     public static function init() {
         add_action('admin_menu', [__CLASS__, 'add_page']);
         add_action('admin_init', [__CLASS__, 'register_settings']);
         add_action('rest_api_init', [__CLASS__, 'register_rest']);
+        self::maybe_upgrade_policy();
+    }
+
+    /**
+     * Migrate a stored policy that is a previous shipped default so new
+     * directives (e.g. manifest-src) reach existing installs. Custom policies
+     * that never had the old worker-src directive are left untouched.
+     */
+    public static function maybe_upgrade_policy() {
+        if ((int) get_option('tap_csp_policy_version', 0) >= self::POLICY_VERSION) {
+            return;
+        }
+        $stored = (string) get_option('tap_csp_policy', '');
+        if ('' !== $stored && false === strpos($stored, 'manifest-src')) {
+            $upgraded = str_replace(
+                "worker-src 'self' blob:;",
+                "worker-src 'self' blob:; manifest-src 'self';",
+                $stored
+            );
+            if ($upgraded !== $stored) {
+                update_option('tap_csp_policy', $upgraded);
+            }
+        }
+        update_option('tap_csp_policy_version', self::POLICY_VERSION, false);
     }
 
     public static function register_rest() {
@@ -21,19 +48,41 @@ class TAP_Security_Headers {
     }
 
     public static function handle_csp_report($request) {
+        // Throttle the unauthenticated endpoint so a flood cannot fill the log.
+        if (class_exists('TAP_Rate_Limit') && TAP_Rate_Limit::too_many('csp_report', 60, 60)) {
+            return new WP_REST_Response(null, 429);
+        }
+
+        // Only accept the content types browsers use for CSP reports.
+        $ct = $request->get_content_type();
+        $content_type = is_array($ct) ? strtolower((string) ($ct['value'] ?? '')) : '';
+        $allowed_types = ['application/csp-report', 'application/reports+json', 'application/json'];
+        if ('' !== $content_type && !in_array($content_type, $allowed_types, true)) {
+            return new WP_REST_Response(null, 415);
+        }
+
         $body = $request->get_body();
         if ($body) {
             // Sanitize: strip control chars and truncate.
             $body = preg_replace('/[\r\n\t\x00-\x1F\x7F]/', ' ', $body);
-            $body = substr($body, 0, 2000);
+            $body = substr((string) $body, 0, 2000);
             error_log('CSP Violation: ' . $body);
+
+            // Daily counter for monitoring (option read is cached).
+            $today = gmdate('Y-m-d');
+            $stats = get_option('tap_csp_report_stats', []);
+            if (!is_array($stats) || ($stats['date'] ?? '') !== $today) {
+                $stats = ['date' => $today, 'count' => 0];
+            }
+            $stats['count'] = (int) $stats['count'] + 1;
+            update_option('tap_csp_report_stats', $stats, false);
         }
         return new WP_REST_Response(null, 204);
     }
 
     public static function default_policy() {
         $report_url = rest_url('tap/v1/csp-report');
-        return "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.paypal.com https://www.sandbox.paypal.com https://www.paypalobjects.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://api.paypal.com https://api.sandbox.paypal.com; frame-src 'self' https://www.paypal.com https://www.sandbox.paypal.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; report-uri {$report_url};";
+        return "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.paypal.com https://www.sandbox.paypal.com https://www.paypalobjects.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://api.paypal.com https://api.sandbox.paypal.com; frame-src 'self' https://www.paypal.com https://www.sandbox.paypal.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; report-uri {$report_url};";
     }
 
     public static function mode() {
@@ -118,10 +167,13 @@ class TAP_Security_Headers {
         $hsts = (bool) get_option('tap_hsts_enabled', true);
         $mode = self::mode();
         $policy = self::policy();
+        $stats = get_option('tap_csp_report_stats', []);
+        $reports_today = is_array($stats) && ($stats['date'] ?? '') === gmdate('Y-m-d') ? (int) ($stats['count'] ?? 0) : 0;
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Seguridad HTTP (HSTS / CSP)', 'travel-agency-platform'); ?></h1>
             <p><?php esc_html_e('Configura headers de seguridad. Empieza en modo "Solo reporte" para no romper el sitio.', 'travel-agency-platform'); ?></p>
+            <p><strong><?php esc_html_e('Reportes CSP recibidos hoy:', 'travel-agency-platform'); ?></strong> <?php echo (int) $reports_today; ?></p>
             <form method="post" action="options.php">
                 <?php settings_fields('tap_security_group'); ?>
                 <table class="form-table" role="presentation">

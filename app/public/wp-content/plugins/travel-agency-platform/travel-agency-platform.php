@@ -7,7 +7,7 @@
  * Plugin Name: Travel Agency Platform
  * Plugin URI: https://ivanchodev.com
  * Description: Multi-agency travel platform B2B & B2C. Manage accommodations, tours, transports, car rentals, boats and packages.
- * Version:           1.5.55
+ * Version:           1.5.65
  * Requires at least: 6.4
  * Requires PHP:      8.2.35
  * Author: IvanchoDev
@@ -17,7 +17,7 @@
 
 defined('ABSPATH') || exit;
 
-define('TAP_VERSION', '1.5.55');
+define('TAP_VERSION', '1.5.66');
 define('TAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -99,6 +99,7 @@ final class TravelAgencyPlatform {
         add_action('init', ['TAP_Taxonomies', 'migrate_tour_difficulty'], 8);
         add_action('init', ['TAP_Roles', 'setup'], 9);
         add_action('init', ['TAP_Shortcodes', 'init'], 8);
+        add_action('init', ['TAP_Shortcode_Support', 'init'], 8);
         add_shortcode('tap_currency_selector', ['TAP_Currency', 'render_selector']);
         add_action('init', ['TAP_Dashboard', 'init'], 9);
         add_action('init', ['TAP_Pricing', 'init'], 10);
@@ -117,6 +118,17 @@ final class TravelAgencyPlatform {
         add_action('admin_post_nopriv_tap_sign_waiver', ['TAP_Waiver', 'handle_sign']);
         add_action('init', ['TAP_Email_Campaigns', 'init'], 14);
         add_action('init', ['TAP_Installer', 'migrate_experiences_to_tours'], 25);
+        // One-time backfill of service index (after post types are registered).
+        add_action('init', function () {
+            if (get_option('tap_service_index_backfilled') === '1') return;
+            if (!class_exists('TAP_Installer')) return;
+            TAP_Installer::reindex_services();
+            update_option('tap_service_index_backfilled', '1');
+        }, 30);
+        // Service index sync (scaling plan).
+        add_action('save_post', ['TAP_Installer', 'sync_service_index'], 10, 1);
+        add_action('before_delete_post', ['TAP_Installer', 'remove_service_index'], 10, 1);
+        add_action('trashed_post', ['TAP_Installer', 'remove_service_index'], 10, 1);
         add_action('template_redirect', ['TAP_Post_Types', 'redirect_experience_to_tour']);
         add_action('init', ['TAP_Translations', 'init'], 15);
         add_shortcode('tap_lang_selector', ['TAP_Translations', 'render_selector']);
@@ -127,6 +139,7 @@ final class TravelAgencyPlatform {
         add_action('init', ['TAP_Itinerary', 'init'], 14);
         add_action('init', ['TAP_Front_Dash', 'init'], 15);
         add_action('init', ['TAP_Customer_Referrals', 'init'], 15);
+        add_action('init', ['TAP_Login_Guard', 'init'], 5);
         // Polylang integration: make our CPTs and taxonomies translatable.
         if (function_exists('pll_get_post_types')) {
             add_filter('pll_get_post_types', [$this, 'polylang_post_types'], 10, 2);
@@ -182,6 +195,10 @@ final class TravelAgencyPlatform {
         add_action('send_headers', ['TAP_Security_Headers', 'send']);
         add_action('wp_ajax_tap_booking_create', ['TAP_Ajax', 'create_booking']);
         add_action('wp_ajax_nopriv_tap_booking_create', ['TAP_Ajax', 'create_booking']);
+        add_action('wp_ajax_tap_search_help', ['TAP_Shortcode_Support', 'ajax_search']);
+        add_action('wp_ajax_nopriv_tap_search_help', ['TAP_Shortcode_Support', 'ajax_search']);
+        add_action('wp_ajax_tap_check_payment_status', ['TAP_Ajax', 'check_payment_status']);
+        add_action('wp_ajax_nopriv_tap_check_payment_status', ['TAP_Ajax', 'check_payment_status']);
         add_action('wp_ajax_tap_cancel_booking', ['TAP_Ajax', 'cancel_booking']);
         add_action('wp_ajax_nopriv_tap_cancel_booking', ['TAP_Ajax', 'cancel_booking']);
         add_action('wp_ajax_tap_chat_client_send', ['TAP_Ajax', 'chat_client_send']);
@@ -192,6 +209,8 @@ final class TravelAgencyPlatform {
         add_action('wp_ajax_nopriv_tap_search_services', ['TAP_Ajax_Public', 'search_services']);
         add_action('wp_ajax_tap_create_paypal_order', ['TAP_Ajax_Commerce', 'create_paypal_order']);
         add_action('wp_ajax_nopriv_tap_create_paypal_order', ['TAP_Ajax_Commerce', 'create_paypal_order']);
+        add_action('wp_ajax_tap_create_onvo_checkout', ['TAP_Ajax_Commerce', 'create_onvo_checkout']);
+        add_action('wp_ajax_nopriv_tap_create_onvo_checkout', ['TAP_Ajax_Commerce', 'create_onvo_checkout']);
         add_action('wp_ajax_tap_capture_paypal_order', ['TAP_Ajax_Commerce', 'capture_paypal_order']);
         add_action('wp_ajax_nopriv_tap_capture_paypal_order', ['TAP_Ajax_Commerce', 'capture_paypal_order']);
         add_action('wp_ajax_tap_calculate_booking_total', ['TAP_Ajax_Public', 'calculate_booking_total']);
@@ -387,7 +406,7 @@ final class TravelAgencyPlatform {
         $is_tap_page = false !== strpos($hook, 'tap_') || false !== strpos($hook, 'travel-platform');
         if (!$is_tap_page) {
             $screen = function_exists('get_current_screen') ? get_current_screen() : null;
-            $pt     = $screen ? ($screen->post_type ?? '') : '';
+            $pt     = $screen && isset($screen->post_type) ? (string) $screen->post_type : '';
             $is_tap_page = $pt && in_array($pt, array_keys(TAP_Post_Types::get_service_types()), true);
         }
         if (!$is_tap_page) return;

@@ -6,6 +6,101 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [Theme 2.0.30] — 2026-11-09
+
+### Fixed
+- **Mobile drawer**: prevented flexbox from shrinking the search field, language row and nav items, so the search bar keeps its 52px height, the close button stays fully visible and the drawer scrolls instead of clipping controls.
+
+## [Theme 2.0.29] — 2026-11-09
+
+### Changed
+- **Mobile public redesign**: full-screen navigation drawer with integrated service search, language switcher and labeled actions; compact header, hero and search grid; responsive landing cards, destination chips, page headers, post layout, booking forms, agency profile and itinerary wizard.
+- **Search results**: collapsible filters with active-filter count and container padding on mobile; results page content is now wrapped in the theme container.
+- **Mobile detail pages**: the accommodation title/meta now precedes the booking widget, and the tour page keeps its sticky booking bar without the install prompt overlapping it.
+- **PWA install prompt**: dismissal is remembered in `localStorage`; the bar is hidden while the mobile menu is open and on pages with a sticky booking bar.
+- **Dark mode**: the theme toggle shows the correct sun/moon icon and the mobile drawer inherits dark surfaces.
+- Theme version bumped to `2.0.29` for asset cache-busting.
+
+---
+
+## [1.5.65] — 2026-11-09
+
+### Fixed
+- **Fonts**: `public.css` (plugin) had an `@import` of Google Fonts (Inter + Playfair Display) at the top, which was loading competing fonts on every page and overriding the self-hosted Fraunces + Plus Jakarta Sans. Removed the import. Now only the self-hosted fonts are used.
+
+---
+
+## [1.5.63] — 2026-11-08
+
+### Fixed
+- **Dark mode (comprehensive)**: converted 74 hardcoded `#fff` backgrounds in public.css to `var(--tap-surface)`, replaced hardcoded dark text colors with adaptive vars, fixed `--tap-surface-muted` override, fixed archive.php search input and blog comment form. All public components now adapt to dark mode.
+
+---
+
+## [1.5.62] — 2026-11-08
+
+### Changed
+- **Itinerary builder (`/armar-mi-viaje/`)**: upgraded from 3-step to 5-step wizard with educational tips per step (interests, destinations, dates, budget/types, travelers). Added date pickers and traveler count. All components fully themed for dark mode.
+
+---
+
+## [1.5.59] — 2026-11-08
+
+### Changed
+- **Itinerary builder (`/armar-mi-viaje/`)**: redesigned from 3-step wizard to a 2-column layout (filters + results, cart sidebar). Added toast feedback on add/remove, persisted cart in localStorage, full dark-mode support for all itinerary components.
+
+### Fixed
+- Itinerary components had hardcoded `#fff` backgrounds causing invisible text in dark mode.
+
+---
+
+## [1.5.58] — 2026-11-08
+
+### Fixed
+- **Landing dark mode**: cards, search filters, inputs and surfaces in `public.css` stayed white with light text, making text invisible in dark mode. They now adapt to `--tap-surface` / `--tap-surface-2`.
+- **Landing hero dark mode**: wave separator fill now matches the stats section background, eliminating the visible seam.
+- **FAQ dark mode**: FAQ items and links now adapt to dark surfaces.
+
+---
+
+## [1.5.57] — 2026-11-08
+
+### Fixed
+- **Landing hero search form** pointed to `/resultados-de-busqueda/` (404); it now targets the canonical `/search-results/` page.
+- **Search results filter form** used the full (messy) current URL as its action, duplicating query params on every submit; it now posts to a clean `/search-results/` URL and preserves the active filters.
+- **Landing hero search autocomplete** was clipped by the hero's `overflow: hidden`, so suggestions appeared behind the hero and were cut off; the hero now allows the dropdown to overflow.
+- **Landing Page Builder order and toggles** were ignored by the front-end: `front-page.php` only honoured `enabled`. All 16 sections are now buffered and printed in builder order, and each toggle controls only its own section.
+- **Destinations** was nested under the "Datos de Costa Rica" toggle and **blog pillars** under the "Blog" toggle; both are now independent sections.
+- **Interests chips** were controlled by the legacy `categories` type; the section now uses `interests`.
+
+### Changed
+- Landing config **v3 migration** canonicalizes section order, aliases `categories` → `interests`, preserves `enabled`/`settings`, adds missing sections and drops types the landing cannot render (`newsletter`, `video`, `text`, `gallery`).
+- `promoted` (tours destacados), `referrals` and `agencies_cta` are now first-class builder section types.
+- Saving the builder deduplicates section types and keeps a single copy of each.
+- Plugin version bumped to `1.5.57` (header + `TAP_VERSION` + README).
+
+---
+
+## [1.5.56] — 2026-11-08
+
+### Added
+- **Login brute-force guard** (`TAP_Login_Guard`): per-username (5) and per-IP (20) failed-attempt limits over 15 minutes, with automatic reset on successful login.
+- **Referral anti-fraud**: browser fingerprint stored on referral clicks/bookings; three different invitees booking from the same fingerprint within 24h flags the rows as suspicious (never auto-rejects).
+- **Manual referral approval**: configurable point threshold (`tap_referral_manual_threshold`, default 500) and a “Pendientes de revisión” queue in Referidos – Reportes with approve/reject actions.
+- **CSP monitoring**: daily counter (`tap_csp_report_stats`) and rate limit on the unauthenticated `/tap/v1/csp-report` endpoint (60/min per IP).
+
+### Changed
+- iCal import resolves the feed host once and pins the validated IP with `CURLOPT_RESOLVE`, closing the DNS-rebinding (SSRF TOCTOU) window.
+- CSP default policy adds `manifest-src 'self'`; existing installs are migrated automatically.
+- CSP report endpoint validates `Content-Type` and answers `415` for unexpected payloads.
+
+### Fixed
+- Booking admin calendar view ignored `?view=calendar` and was unreachable.
+- Referral agency approval read `get_post_meta()` with a string `$single` argument.
+- Dead/unreachable branches in tour availability, voucher lookup and destination page creation (PHPStan level 5).
+
+---
+
 ## [Unreleased] — 2026-11-05
 
 ### Added

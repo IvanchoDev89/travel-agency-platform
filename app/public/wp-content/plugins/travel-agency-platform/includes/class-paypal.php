@@ -92,6 +92,11 @@ class TAP_PayPal {
         $service = get_post($booking->service_id);
         $service_name = $service ? $service->post_title : __('Travel Service', 'travel-agency-platform');
 
+        // Use the service's currency, not the display currency.
+        $prefix = class_exists('TAP_Post_Types') ? TAP_Post_Types::meta_prefix($booking->service_type) : '';
+        $currency = $prefix ? get_post_meta($booking->service_id, '_tap_' . $prefix . '_currency', true) : '';
+        if (empty($currency)) $currency = 'USD';
+
         $url = self::get_base_url() . '/v2/checkout/orders';
 
         $body = [
@@ -101,11 +106,11 @@ class TAP_PayPal {
                 /* translators: 1: código de la reserva, 2: nombre del servicio */
                 'description'  => sprintf(__('Booking %s - %s', 'travel-agency-platform'), $booking->booking_code, $service_name),
                 'amount' => [
-                    'currency_code' => self::currency_code(),
+                    'currency_code' => $currency,
                     'value'         => number_format($remaining, 2, '.', ''),
                     'breakdown' => [
                         'item_total' => [
-                            'currency_code' => self::currency_code(),
+                            'currency_code' => $currency,
                             'value'         => number_format($remaining, 2, '.', ''),
                         ],
                     ],
@@ -113,7 +118,7 @@ class TAP_PayPal {
                 'items' => [[
                     'name'     => $service_name,
                     'unit_amount' => [
-                        'currency_code' => self::currency_code(),
+                        'currency_code' => $currency,
                         'value'         => number_format($remaining, 2, '.', ''),
                     ],
                     'quantity' => '1',

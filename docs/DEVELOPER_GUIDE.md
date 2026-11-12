@@ -83,6 +83,27 @@ wp-content/
 
 ---
 
+## Landing Page Builder
+
+The public landing page is driven by `TAP_Landing_Builder` (`includes/class-landing-builder.php`) and the theme's `front-page.php`.
+
+- **Storage:** the JSON option `tap_landing_config` holds `{version, sections[]}`. Each section has `type`, `enabled`, `order` and `settings`.
+- **Source of truth:** `section_types()` lists the valid types; `default_config()` defines the canonical order and is bumped with `TAP_Landing_Builder::VERSION` (currently `3`).
+- **Admin:** Travel Platform → Landing Page (`tap-landing`) exposes drag-and-drop ordering and enabled toggles over AJAX (`tap_landing_save_ajax`).
+- **Front-end contract:** every section is rendered through `tap_lp_enabled('type')` and buffered with `ob_start()` / `ob_get_clean()` into `$tap_lp_sections['type']`. After all sections are computed, `front-page.php` prints them in `TAP_Landing_Builder::ordered_sections()` order. Sections rendered by the theme but absent from the stored config keep their legacy order at the end.
+- **Migration:** `load()` upgrades configs with `version < 3` through `canonicalize_sections()`. This preserves `enabled`/`settings`, aliases the legacy `categories` type to `interests`, merges duplicates, adds missing canonical sections and drops types the front-end cannot render (`newsletter`, `video`, `text`, `gallery`). Because the old front-end ignored `order`, reordering on upgrade is safe.
+- **`is_enabled()` fallback:** a type missing from the stored config is treated as enabled, so newly added theme sections keep rendering until the builder config is migrated.
+- **Saving:** `save()` sanitizes types, drops unknown ones, aliases `categories` → `interests` and keeps a single copy of each type (merging the enabled flag and settings).
+
+To add a landing section:
+
+1. Add the type to `section_types()` and `default_config()` and bump `TAP_Landing_Builder::VERSION`.
+2. Render it in `front-page.php` guarded by `tap_lp_enabled('new_type')`, wrapping the markup in `ob_start()` / `$tap_lp_sections['new_type'] = ob_get_clean()`.
+3. Add the settings fields in `render_section_settings()` if needed.
+4. Regenerate catalogs (`bash tools/i18n.sh`), then run the landing/hero/SEO E2E suites.
+
+---
+
 ## Custom Post Types & Taxonomies
 
 ### Post types
@@ -693,7 +714,15 @@ The visitor-facing UI is **bilingual (ES/EN)** with **Spanish as the default**. 
 - `TAP_Affiliates`: external affiliate program (pilot) with CRUD, tracking, commissions.
 
 ### Security
-- `TAP_Security_Headers`: HSTS/CSP configurable with report-only/enforce modes.
+- `TAP_Security_Headers`: HSTS/CSP configurable with report-only/enforce modes. `default_policy()` is the shipped baseline; `maybe_upgrade_policy()` migrates stored defaults when `POLICY_VERSION` bumps.
+- `TAP_Login_Guard`: brute-force throttle for `wp-login.php` (per username 5 / per IP 20 failed attempts over 15 minutes; success resets).
+- `TAP_Rate_Limit`: shared transient throttle (`too_many($bucket, $limit, $window, $id)`), also used by the CSP report endpoint (`csp_report`, 60/min).
+
+### Referral anti-fraud
+- `TAP_Customer_Referrals::fingerprint()` hashes user-agent + IP (or the `tap_ref_fp` cookie).
+- `tap_customer_referrals` columns: `fingerprint` (varchar 64) and `is_suspicious` (tinyint).
+- `on_payment_completed()` holds high-point or suspicious rewards as `pending_review`; `approve_pending()` / `reject_pending()` resolve them from the admin queue.
+- Option `tap_referral_manual_threshold` (default 500, `0` disables).
 
 ### Email
 - `TAP_Email_Templates`: CRUD editor for email templates with variables and log.

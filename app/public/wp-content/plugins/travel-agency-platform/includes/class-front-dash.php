@@ -1439,7 +1439,8 @@ class TAP_Front_Dash {
                     if (get_post_thumbnail_id($lid)) $any_photos = true;
                     $price_meta_keys = ['_tap_acc_price_per_night', '_tap_tour_price_adult', '_tap_trans_price', '_tap_car_price_per_day', '_tap_boat_price_half', '_tap_pkg_price', '_tap_eq_price_day'];
                     foreach ($price_meta_keys as $pmk) {
-                        if (get_post_meta($lid, $pmk, true)) { $any_prices = true; break; }
+                        if (get_post_meta($lid, $pmk, true)) { $any_prices = true;
+break; }
                     }
                 }
             }
@@ -1792,6 +1793,7 @@ endif;
         }
         $nav[] = ['key' => 'bo-listings', 'label' => __('Listados', 'travel-agency-platform'), 'icon' => 'grid', 'url' => add_query_arg('seccion', 'bo-listings', $base)];
         $nav[] = ['key' => 'loyalty', 'label' => __('Mis puntos', 'travel-agency-platform'), 'icon' => 'star', 'url' => add_query_arg('seccion', 'loyalty', $base)];
+        $nav[] = ['key' => 'help', 'label' => __('Ayuda', 'travel-agency-platform'), 'icon' => 'help', 'url' => home_url('/centro-de-soporte/')];
         if ($is_team_admin) {
             $nav[] = ['key' => 'bo-profile', 'label' => __('Perfil', 'travel-agency-platform'), 'icon' => 'user', 'url' => add_query_arg('seccion', 'bo-profile', $base)];
         }
@@ -1877,6 +1879,7 @@ endif;
             'chart'    => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
             'list'     => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',
             'user'     => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+            'help'     => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
         ];
         echo $icons[$icon] ?? '';
     }

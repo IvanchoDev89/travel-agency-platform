@@ -12,7 +12,9 @@ get_header();
 </div>
 
 <div class="entry-content">
-    <?php echo do_shortcode('[tap_search_results per_page="20"]'); ?>
+    <div class="tap-container">
+        <?php echo do_shortcode('[tap_search_results per_page="20"]'); ?>
+    </div>
 </div>
 
 <?php get_footer(); ?>

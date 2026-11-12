@@ -288,7 +288,8 @@ class TAP_Agency_Media {
             $listing_agency = 0;
             foreach (['_tap_acc_agency_id', '_tap_tour_agency_id'] as $ak) {
                 $v = (int) get_post_meta($context_id, $ak, true);
-                if ($v > 0) { $listing_agency = $v; break; }
+                if ($v > 0) { $listing_agency = $v;
+break; }
             }
             if ($caller_agency > 0 && $listing_agency > 0 && $caller_agency === $listing_agency) {
                 if ((int) get_post_thumbnail_id($context_id) === (int) $att->ID) {

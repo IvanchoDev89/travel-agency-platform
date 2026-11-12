@@ -118,7 +118,7 @@ class TAP_Front_Dash_Client {
                 $user->ID
             ));
             foreach ($recent_rewards as $rr) {
-                $notif_count++;
+                ++$notif_count;
                 $notif_items[] = ['type' => 'referral', 'text' => sprintf(__('Ganaste %d puntos por un referido.', 'travel-agency-platform'), (int) $rr->points_awarded), 'url' => home_url('/mi-cuenta/?seccion=loyalty')];
             }
         }
@@ -468,7 +468,8 @@ class TAP_Front_Dash_Client {
                 <a href="<?php echo esc_url(home_url('/transport/')); ?>" class="tap-btn tap-btn-primary"><?php esc_html_e('Buscar transportes', 'travel-agency-platform'); ?></a>
             </div>
         <?php else: ?>
-            <?php foreach ($trip_bookings as $b):
+            <?php
+            foreach ($trip_bookings as $b):
                 $trip = class_exists('TAP_Transport_Trips') ? TAP_Transport_Trips::get((int) $b->trip_id) : null;
                 if (!$trip) continue;
             ?>

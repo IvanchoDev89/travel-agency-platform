@@ -1,8 +1,8 @@
 # Travel Agency Platform
 
-**A multi-agency travel platform for WordPress (B2B & B2C).**
+**A multi-agency travel marketplace for WordPress (B2B & B2C).**
 
-The **Travel Agency Platform** transforms a standard WordPress installation into a full-featured travel marketplace. It provides the data models, business logic, and admin tooling to manage **accommodations, tours, transports, car rentals, boats, and packages**, while agencies and clients operate through a clean, on-brand front-end.
+The **Travel Agency Platform** transforms a standard WordPress installation into a full-featured travel marketplace. It manages **accommodations, tours, transports, car rentals, boats, packages, and equipment rentals**, with agencies and clients operating through a clean, on-brand front-end.
 
 Built as a custom WordPress plugin (`travel-agency-platform`) paired with a dedicated theme (`travel-agency-theme`).
 
@@ -10,144 +10,149 @@ Built as a custom WordPress plugin (`travel-agency-platform`) paired with a dedi
 
 ## Table of Contents
 
-- [Overview](#overview)
+- [Quick Start](#quick-start)
 - [Feature Set](#feature-set)
-- [Product Scope](#product-scope)
 - [Technology Stack](#technology-stack)
 - [Repository Layout](#repository-layout)
 - [Documentation](#documentation)
+- [Contributing](#contributing)
+- [Security](#security)
 - [Versioning](#versioning)
 - [Support](#support)
 
 ---
 
-## Overview
+## Quick Start
 
-| Attribute | Value |
-| --- | --- |
-| **Product** | Travel Agency Platform |
-| **Type** | WordPress plugin + companion theme |
-| **Model** | B2B & B2C multi-agency marketplace |
-| **Current version** | `1.5.55` |
-| **Schema version** | `1.5.55` |
-| **Text domain** | `travel-agency-platform` |
-| **Companion theme** | `travel-agency-theme` |
-| **License** | Proprietary (IvanchoDev) |
+### For Travelers (Users)
+1. Visit the site and use the **search bar** (destination, dates, guests).
+2. Browse results and click a service to see details, photos, and reviews.
+3. Select dates, guests, and extras → click **Book Now**.
+4. Pay online (PayPal, Onvo Pay with cards/SINPE Móvil) or request a booking.
+5. Receive a **booking code** and voucher. Manage your reservation at `/my-bookings`.
 
-The platform orchestrates three core actors:
+📖 **Full guide:** [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md)
 
-- **Clients** — browse available services, book (as account or guest), pay online, cancel by booking code, manage reservations, submit reviews, and exercise their privacy rights.
-- **Agencies** — publish and price their inventory, capture consented leads, and track bookings, commissions, promotions and payouts. (Reviews are posted by clients and replied to officially by the platform admin; agencies are not the ones replying.)
-- **Administrators** — govern agencies (approval/KYC, commission %, verification), moderate reviews & leads, manage the commission ledger, disputes, plans/subscriptions/promotions, reports/analytics and platform settings.
+### For Agencies
+1. Register at `/register/` and complete the onboarding checklist.
+2. Wait for admin approval and verification.
+3. Publish your services (accommodations, tours, transport, etc.) via the **Agency Dashboard**.
+4. Set pricing, availability, and cancellation policies.
+5. Track bookings, commissions, leads, and payouts in your dashboard.
+
+📖 **Full guide:** [`docs/AGENCY_GUIDE.md`](docs/AGENCY_GUIDE.md)
+
+### For Administrators
+1. Install the plugin and theme (see [`docs/INSTALLATION.md`](docs/INSTALLATION.md)).
+2. Configure settings: payments (Onvo/PayPal), currencies, email templates.
+3. Approve and verify agencies.
+4. Manage bookings, commissions, disputes, reviews, and analytics.
+
+📖 **Full guide:** [`docs/ADMIN_GUIDE.md`](docs/ADMIN_GUIDE.md)
+
+### For Developers
+1. Clone the repo and run `composer install`.
+2. Run the full quality gate: `make check`.
+3. Read the architecture in [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md).
+4. Follow the contribution guide in [`CONTRIBUTING.md`](CONTRIBUTING.md).
+
+📖 **Full guide:** [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md)
 
 ---
 
 ## Feature Set
 
 ### Catalogue & Inventory
-- Six agency-facing service types: **accommodation**, **tour**, **transport**, **car rental**, **boat**, **package** — plus **equipment rentals** (`tap_equipment`) as a bookable category (admin-managed).
+- Six agency-facing service types: **accommodation**, **tour**, **transport**, **car rental**, **boat**, **package** — plus **equipment rentals**.
 - Sub-classes for accommodation (**rooms**) with per-room nightly pricing, occupancy limits, and inventory.
-- Custom taxonomies: location, service category, property type, amenity, tour type, vehicle type, and boat type.
+- Custom taxonomies: location, service category, property type, amenity, tour type, vehicle type, boat type.
 
 ### Booking Engine
-- Server-side reservation creation with unique booking codes.
-- Date-range validation (no past check-in, valid check-out ordering).
-- **Capacity/inventory control** — tours use per-date slots; rooms enforce inventory and blocked dates; overlapping stays are refused.
-- **Guest data capture** (name, email, phone) persisted per booking.
-- **Guest checkout** — logged-out visitors book, pay and manage their reservation using `?code=` + their email, with per email+IP rate limiting (max 5 per 15 minutes; a short-lived payment token lets them pay on `/checkout`).
-- **Client-side cancellation** with ownership enforcement and lifecycle guards (`pending`/`request`/`confirmed` before check-in → `cancelled`, past stays refused; guest cancels by **booking code + email**, legacy booking **ID + email**). A paid client cancellation triggers a real PayPal refund (failed refunds are retried daily by cron); **agency operators cannot cancel paid bookings on their own** — only an administrator can (with a real PayPal refund).
-- Automatic cancellation of **stale `pending` bookings** via a scheduled maintenance task; past **paid** bookings auto-complete; failed refunds are retried daily.
-- **Guest ↔ agency messaging** per booking: client thread on the voucher and an agency inbox with per-side unread counters, live auto-refresh of the guest thread, and a global unread badge in the agency panel.
+- Server-side reservation creation with unique booking codes and **idempotency** (prevents duplicates).
+- Date-range validation, capacity/inventory control, guest data capture.
+- **Guest checkout** — book, pay, and manage without an account (email + IP rate limiting).
+- **Request-to-book** mode: agency must accept before payment.
+- Automatic cancellation of stale pending bookings; auto-complete past paid bookings.
+- Client ↔ agency messaging per booking with unread counters.
 
 ### Pricing & Money
-- Multi-currency display with configurable symbols and **decimal rules** (e.g. JPY → 0 decimals).
-- Per-room daily pricing, seasonal modifiers, and minimum-stay rules.
-- Discount engine and live price breakdowns before confirmation.
-- Agency commission calculation and a commission ledger with settlement records.
+- Multi-currency (CRC/USD) with configurable symbols and decimal rules.
+- Per-room daily pricing, seasonal modifiers, minimum-stay rules.
+- Discount engine (Early Bird, Last Minute, Long Stay) + per-service overrides.
+- Coupon codes with validation.
+- Agency commission calculation and settlement ledger.
 
 ### Payments
-- **PayPal** order creation and capture via AJAX (`create` / `capture`).
+- **Onvo Pay** (Costa Rica): cards (Visa/MC/Amex) + SINPE Móvil, hosted checkout, webhooks, marketplace split payments.
+- **PayPal** (legacy): order creation and capture via AJAX.
+- **Manual/SINPE** (legacy manual transfer).
 - Payment-status lifecycle independent of booking status.
-- **Partial-payment retry**: `amount_paid` tracks what was paid, top-up orders charge only the remaining balance (guarding against double-charging), with retry after a failed payment.
-- Sandbox configuration for development.
-
-### Analytics
-- **Booking funnel** (listing views → bookings created → confirmed → paid) with per-step conversion and share of total, filterable by month range in the admin Analytics page.
-
-### Reviews & Trust
-- Star ratings with average aggregation; **only confirmed/completed + paid** bookings may leave a review (verified badge).
-- Approval workflow with **automated moderation** (abuse/spam/≥3 links → blocked; PII on reviews → blocked; 1–2 links, gibberish and PII on leads → queued for review).
-- **Platform responses** to reviews by the admin (author + timestamp, nonce-protected), and clients can delete their own review.
-- **Reviews with photos**: clients can upload up to 6 photos with their review.
-
-### Referrals & Growth (B2C)
-- **Referral program**: unique code per user, discount for invitee, points for referrer (awarded after payment).
-- **Affiliate tiers**: Bronze/Silver/Gold based on completed referrals (bonus discount + points rate).
-- **Gamification**: public leaderboard, QR code, shareable link.
-- **Admin dashboard**: metrics, top referrers, CSV export.
-
-### Push Notifications
-- **Web Push** (VAPID) with email fallback.
-- **Granular preferences**: clients choose which notifications to receive.
-- **Event-driven**: booking created, payment received, chat message, 24h reminder.
-- **Service worker** with offline fallback and install prompt (PWA base).
-
-### Email System
-- **Template editor** in admin (CRUD, variables, multi-locale, log).
-- **Automated emails**: welcome, payment receipt, reminders, pre-arrival, review request.
-- **Fallback** to hardcoded templates if no DB template.
-
-### Security
-- **HSTS/CSP** configurable (report-only or enforce).
-- **Rate limiting** on booking creation, search, referral clicks.
-- **Anti-fraud**: self-referral blocking, IP rate limits, idempotency.
-- **Audit log** for sensitive actions.
-- **Headers**: X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy.
-
-### Admin Dashboard
-- **Booking calendar view** (month grid with bookings).
-- **Bulk actions** (confirm, complete, cancel multiple).
-- **Internal notes** per booking.
-- **Printable invoices/vouchers** (browser print to PDF).
-- **Automated alerts** (booking drop, negative reviews).
-- **Email templates CRUD**.
-
-### Agencies (B2B)
-- **Onboarding checklist** with progress tracking.
-- **Email drip** (day 1, 3, 7) for new agencies.
-- **Interactive guided tour** for first-time agency users.
-- **Financial dashboard** with monthly chart and projection.
-- **Commissions tiers** (volume-based bonus).
-- **Featured listings** (paid promotion with badge and priority sorting).
-- SEO-friendly rating markup (schema.org `AggregateRating`, `Offer`).
+- Partial-payment retry (top-up orders charge only the remaining balance).
+- Sandbox mode for development.
 
 ### Search & Discovery
-- Faceted search: keyword, dates, guests, property type, amenities, star level, and price range.
-- Sortable results: relevance (featured first), price (asc/desc), rating.
-- **Interactive map** built on Leaflet with marker clustering.
+- Faceted search: keyword, dates, guests, property type, amenities, star level, price range.
+- Sortable results: relevance, price (asc/desc), rating.
+- Interactive map (Leaflet + marker clustering).
 - Favorites (wishlist) for logged-in clients.
 
-### Agencies & Monetization
-- Self-service inventory manager for all **six service types** (plan-limit and ownership enforced).
-- **5-step B2B accommodation wizard** (info → units → pricing/availability → policies → publish) with a per-room daily price/availability calendar and image uploader.
-- **Contact leads** from visitors with mandatory GDPR/Ley 8968 **consent**, automated spam/moderation engine, rate limits (5 email/h, 10 IP/h), masked public display until confirmation, attribution until a booking is confirmed, and CSV export.
-- Agency **KYC** (approval/rejection/verification/activation/deactivation, commission % per agency).
-- Agency subscriptions (`tap_plans`) with commission overrides, **PayPal** online payment and featured-promotion slots.
-- **Featured / ★ Destacado** promotions — months paid online or marked active by admin; automatically expire.
-- Commission ledger with settlement (manual bulk or per-booking), **dispute** flow, payout requests, and PayPal webhook sync.
-- **Discount engine**: global Early Bird, Last Minute, Long Stay rules and per-accommodation overrides.
+### Reviews & Trust
+- Star ratings with average aggregation; only confirmed/completed + paid bookings may review.
+- Approval workflow with automated moderation (spam, PII, links).
+- Platform responses to reviews by admin.
+- Reviews with photos (up to 6).
 
-### Privacy & Uninstall
-- **Ley 8968** (Costa Rica) compliance page: Access, Rectification, Update, Deletion and Opposition rights.
-- Native **WordPress Privacy** exporters/erasers covering bookings, leads, consents and reviews.
-- Consent recording per form (`consent_scope`: booking/agency_registration/lead).
-- **Uninstall** removes all plugin data (17 tables, transients, options, crons and roles); plugin post content is removed after a confirmation step unless `tap_uninstall_keep_content` is enabled.
+### Referrals & Growth
+- Referral program: unique code, discount for invitee, points for referrer.
+- Affiliate tiers (Bronze/Silver/Gold) based on completed referrals.
+- Gamification: leaderboard, QR code, shareable link.
+- Admin dashboard: metrics, top referrers, CSV export.
 
-### Content, SEO & Engagement
-- Per-service SEO **meta title & description** fields rendered as `<meta>`, Open Graph, and JSON-LD (`Product`, `AggregateRating`, `Offer`, `BreadcrumbList`).
-- Email notifications to clients including a **booking voucher detail link**.
-- Spam protection via a **honeypot** field on public forms.
-- **Multilingual interface (ES/EN)** — Spanish-first front-end with a one-click English switch (`?lang=en`, persistent via cookie / user meta) backed by dual compiled message catalogs and a `[tap_lang_switcher]` shortcode.
+### Push Notifications & Email
+- Web Push (VAPID) with email fallback.
+- Granular notification preferences per client.
+- Event-driven: booking created, payment received, chat message, 24h reminder.
+- Email template editor (CRUD, variables, multi-locale, log).
+- Automated emails: welcome, payment receipt, reminders, pre-arrival, review request.
+
+### Security
+- CSP configurable (report-only or enforce).
+- Rate limiting on booking creation, search, referral clicks.
+- Anti-fraud: self-referral blocking, IP rate limits, idempotency.
+- Audit log for sensitive actions.
+- Security headers: HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy.
+- PCI compliance via hosted checkout / client-side tokenization.
+
+### Admin Dashboard
+- Booking calendar view (month grid).
+- Bulk actions (confirm, complete, cancel multiple).
+- Internal notes per booking.
+- Printable invoices/vouchers.
+- Automated alerts (booking drop, negative reviews).
+- Email templates CRUD.
+- Analytics: booking funnel, conversion rates.
+
+### Agencies (B2B)
+- Self-service inventory manager for all service types (plan limits enforced).
+- 5-step accommodation wizard (info → units → pricing → policies → publish).
+- Per-room daily price/availability calendar.
+- Contact leads with GDPR/Ley 8968 consent, spam moderation, CSV export.
+- Agency KYC (approval, verification, activation, commission %).
+- Agency subscriptions with commission overrides.
+- Featured listings (paid promotion).
+- Financial dashboard with monthly chart and projection.
+
+### Privacy & Compliance
+- Ley 8968 (Costa Rica) compliance page: Access, Rectification, Update, Deletion, Opposition.
+- WordPress Privacy exporters/erasers (bookings, leads, consents, reviews).
+- Consent recording per form.
+- Uninstall removes all plugin data (17 tables, transients, options, crons, roles).
+
+### Content & SEO
+- Per-service SEO meta title & description, Open Graph, JSON-LD.
+- Multilingual interface (ES/EN) with one-click language switch.
+- Spam protection (honeypot) on public forms.
+- Email notifications with booking voucher links.
 
 ---
 
@@ -155,39 +160,35 @@ The platform orchestrates three core actors:
 
 | Layer | Technology |
 | --- | --- |
-| Platform | WordPress |
-| Language | PHP (server-side) — 8.2.35 / 8.3.36 / 8.4.27 / 8.5.12 (security patches) |
+| Platform | WordPress 6.4+ |
+| Language | PHP 8.2+ (8.2.35, 8.3.36, 8.4.27, 8.5.12) |
 | Front-end | jQuery, vanilla JS, CSS custom-properties design tokens |
 | Mapping | Leaflet + Leaflet.markercluster |
 | Data | MySQL via `$wpdb` (custom tables) |
-| API | WordPress REST (`tap/v1`) + admin-ajax endpoints |
+| API | WordPress REST (`tap/v1`) + admin-ajax |
 | Scheduling | WordPress Cron |
+| Payments | Onvo Pay (primary), PayPal (legacy) |
+| i18n | es_ES / en_US (Spanish-first, compiled .mo) |
 
 ---
 
 ## Repository Layout
 
-> The repository is a **Local-by-Flywheel** site checkout. WordPress core, uploads, the database, and third-party plugins are **excluded** from version control; only the delivered product is tracked.
-
 ```
 travel-agency/
-├── .gitignore                          # Tracks only the product + docs
 ├── README.md                           # This document
-├── docs/
-│   ├── INSTALLATION.md                 # Setup, configuration, deployment
-│   ├── USER_GUIDE.md                   # End-user manual (travelers / guests)
-│   ├── AGENCY_GUIDE.md                 # Agency manual (agency admin & employees)
-│   ├── ADMIN_GUIDE.md                  # Administrator manual (back office)
-│   ├── DEVELOPER_GUIDE.md              # Architecture, schema, hooks, APIs
-│   ├── FASE1_PLAN.md                   # Historical roadmap plan (completed)
-│   ├── FASE4_PLAN.md                   # Historical roadmap plan (completed)
-│   └── CHANGELOG.md                    # Version history
-├── tests/                              # E2E suites + runner (run.sh)
-├── tools/                              # Maintenance scripts (i18n, lint)
-└── app/
-    └── public/wp-content/
-        ├── plugins/travel-agency-platform/   # The plugin
-        └── themes/travel-agency-theme/       # The companion theme
+├── LICENSE                             # GPL-2.0
+├── SECURITY.md                         # Security policy
+├── CONTRIBUTING.md                     # Contribution guide
+├── CODE_OF_CONDUCT.md                  # Contributor Covenant
+├── .env.example                        # Environment variables template
+├── docs/                               # User, agency, admin, developer guides
+├── tests/                              # E2E suites + runner
+├── tools/                              # i18n, lint, static checks
+├── .github/workflows/                  # CI/CD (GitHub Actions)
+└── app/public/wp-content/
+    ├── plugins/travel-agency-platform/ # The plugin
+    └── themes/travel-agency-theme/     # The companion theme
 ```
 
 ---
@@ -196,80 +197,60 @@ travel-agency/
 
 | Guide | Audience | Purpose |
 | --- | --- | --- |
-| [`docs/INSTALLATION.md`](docs/INSTALLATION.md) | Administrators / DevOps | Install, configure, and deploy the platform. |
+| [`docs/INSTALLATION.md`](docs/INSTALLATION.md) | Admins / DevOps | Install, configure, deploy. |
 | [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md) | Travelers & visitors | Search, book, pay, cancel, review, privacy rights. |
-| [`docs/AGENCY_GUIDE.md`](docs/AGENCY_GUIDE.md) | Agency staff | Register, publish inventory, manage bookings, leads, commissions and plans. |
-| [`docs/ADMIN_GUIDE.md`](docs/ADMIN_GUIDE.md) | Administrators | Full back office: bookings, commissions, reviews, moderation, disputes, agencies, reports, analytics, plans/promotions, settings, discounts and privacy. |
-| [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md) | Developers | Architecture, database schema, custom hooks, AJAX and REST APIs, and shortcodes. |
-| [`docs/FASE1_PLAN.md`](docs/FASE1_PLAN.md) | Product/engineering | Historical roadmap plan (multi-agency marketplace, P1–P4). Completed; superseded by the changelog. |
-| [`docs/FASE4_PLAN.md`](docs/FASE4_PLAN.md) | Product/engineering | Historical plan for the support chatbot & content moderation. Completed; superseded by the changelog. |
-| [`docs/INTEGRATION_PLAN.md`](docs/INTEGRATION_PLAN.md) | Integrators | How to embed the plugin into an existing WordPress site (child-theme strategy). |
-| [`docs/CHANGELOG.md`](docs/CHANGELOG.md) | All | Released improvements and fixes by version. |
+| [`docs/AGENCY_GUIDE.md`](docs/AGENCY_GUIDE.md) | Agency staff | Register, publish inventory, manage bookings, leads, commissions. |
+| [`docs/ADMIN_GUIDE.md`](docs/ADMIN_GUIDE.md) | Administrators | Full back office: bookings, commissions, moderation, analytics, settings. |
+| [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md) | Developers | Architecture, schema, hooks, APIs, shortcodes. |
+| [`docs/CHANGELOG.md`](docs/CHANGELOG.md) | All | Version history and release notes. |
+| [`SECURITY.md`](SECURITY.md) | Security researchers | Vulnerability reporting policy. |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Contributors | How to contribute code. |
 
 ---
 
-## Development & QA
+## Contributing
 
-Requires PHP >= 8.2.35 and [Composer](https://getcomposer.org/).
+We welcome contributions! Please read [`CONTRIBUTING.md`](CONTRIBUTING.md) before submitting.
 
-> **PHP security requirement.** The PHP core has two critical remote code
-> execution advisories published on 2026-10-21: `CVE-2026-109618` (RCE via
-> OOM corruption) and `CVE-2026-109619` (RCE via stale global state). An
-> unauthenticated exploit has been demonstrated against PHP-FPM. The plugin
-> checks the running interpreter at activation and warns in the admin when
-> it is affected, so the requirement is per branch and not a single minimum:
->
-> | Branch | Patched release |
-> | --- | --- |
-> | 8.2 | 8.2.35 |
-> | 8.3 | 8.3.36 |
-> | 8.4 | 8.4.27 |
-> | 8.5 | 8.5.12 |
->
-> A release on a branch newer than 8.5 already carries the fix.
+**Quick checklist:**
+- [ ] PHPStan level 3 passes
+- [ ] i18n check passes
+- [ ] Ajax nonce check passes
+- [ ] Includes check passes
+- [ ] PHPCS passes
+- [ ] Tests pass
+- [ ] New strings translated (es/en)
+- [ ] No secrets committed
 
-```bash
-make install      # composer install (PHPCS + PHPStan dev tooling)
-make check        # analyse + lint + test + i18n-check (the full local gate)
+See [`.github/ISSUE_TEMPLATE/`](.github/ISSUE_TEMPLATE/) for bug reports and feature requests.
 
-# or run the pieces individually
-make analyse      # PHPStan (level 3) — must stay green
-make lint         # PHPStan + PHPCS report
-make lint-fix     # PHPCS auto-fix
-make test         # E2E suites against a real WP install (mutates the DB)
-make i18n         # regenerate POT + refresh/compile es_ES & en_US
-make i18n-check   # fail if a translated string is missing from the catalogs
-make ajax-nonce-check   # fail if a wp_ajax_ handler skips nonce verification
-make includes-check     # fail if a class file in includes/ is not require_once'd
-make audit-security     # security/DB-only PHPCS report (no formatting rules)
-```
+---
 
-- **Static analysis** — PHPStan level 3 with the WordPress stubs (`phpstan.neon.dist`); the `TAP_*`/WP constants come from `tools/phpstan-bootstrap.php`.
-- **Coding standards** — the `WordPress` ruleset trimmed to correctness, security, database and i18n sniffs (`.phpcs.xml.dist`); the report is informational while the pre-existing debt is burned down.
-- **Tests** — the E2E suites in `tests/` run against a real WordPress + MySQL install (they modify data, hence the guard flag).
-- **Translations** — `tools/i18n.sh` regenerates the POT and refreshes/compiles the `es_ES` and `en_US` catalogs without dropping curated entries.
-- **Static guards** — three dependency-free PHP scripts that run in CI and fail the build: `tools/i18n-check.php` (a translated string used in PHP must exist in the catalogs), `tools/ajax-nonce-check.php` (every `wp_ajax_*` handler must verify a nonce) and `tools/includes-check.php` (every class file in `includes/` must be wired into the loader).
-- **CI** — `.github/workflows/ci.yml` runs PHPStan (blocking), the static guards, and PHPCS (informational) on every push and pull request.
+## Security
+
+For security vulnerabilities, **do NOT open a public issue**. See [`SECURITY.md`](SECURITY.md) for the responsible disclosure process.
 
 ---
 
 ## Versioning
 
-This project follows **semantic versioning** (`MAJOR.MINOR.PATCH`).
+Semantic versioning (`MAJOR.MINOR.PATCH`).
 
-- **Plugin constant**: `TAP_VERSION` (defined in `travel-agency-platform.php`).
-- **Schema version**: `tap_version` option; `TAP_Installer::create_tables()` runs idempotent migrations when the option differs from `TAP_VERSION`.
+- **Plugin:** `TAP_VERSION` (defined in `travel-agency-platform.php`).
+- **Theme:** `TAT_VERSION` (defined in `functions.php`).
+- **Schema:** `tap_version` option; `TAP_Installer::create_tables()` runs idempotent migrations.
 
-See [`docs/CHANGELOG.md`](docs/CHANGELOG.md) for the full history and [`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md#database-migrations) for the migration mechanism.
+See [`docs/CHANGELOG.md`](docs/CHANGELOG.md) for the full history.
 
 ---
 
 ## Support
 
-- **Author**: IvanchoDev
-- **Site**: https://ivanchodev.com
-- **Bug reports & enhancements**: raise an issue in the project repository.
+- **Author:** Ivan Bermudez
+- **Email:** ivanbermudez@protonmail.ch
+- **Site:** https://ivanchodev.com
+- **Bug reports & enhancements:** raise an issue in the repository.
 
 ---
 
-© IvanchoDev. All rights reserved.
+© Ivan Bermudez. Licensed under [GPL-2.0](LICENSE).

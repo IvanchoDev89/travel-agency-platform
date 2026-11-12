@@ -2,10 +2,11 @@
 
 <footer class="site-footer">
     <div class="footer-inner">
-        <div class="footer-grid">
+        <div class="footer-grid" style="grid-template-columns: repeat(<?php echo (int) get_theme_mod('tap_footer_columns', 4); ?>, 1fr);">
             <div class="footer-brand">
                 <h3><?php bloginfo('name'); ?></h3>
                 <p><?php _e('Your trusted multi-agency travel platform. Discover, compare, and book the best travel experiences from verified local agencies.', 'travel-agency-platform'); ?></p>
+                <?php if (get_theme_mod('tap_footer_show_social', true)): ?>
                 <div class="footer-social">
                     <a href="#" aria-label="Facebook">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
@@ -17,6 +18,7 @@
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
                     </a>
                 </div>
+                <?php endif; ?>
             </div>
             <div>
                 <h3><?php _e('Services', 'travel-agency-platform'); ?></h3>
@@ -39,15 +41,22 @@
             <div>
                 <h3><?php _e('Support', 'travel-agency-platform'); ?></h3>
                 <ul>
-                    <li><a href="#"><?php _e('Help Center', 'travel-agency-platform'); ?></a></li>
-                    <li><a href="#"><?php _e('Contact Us', 'travel-agency-platform'); ?></a></li>
-                    <li><a href="#"><?php _e('Privacy Policy', 'travel-agency-platform'); ?></a></li>
-                    <li><a href="#"><?php _e('Terms of Service', 'travel-agency-platform'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/centro-de-soporte/')); ?>"><?php _e('Help Center', 'travel-agency-platform'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/contacto/')); ?>"><?php _e('Contact Us', 'travel-agency-platform'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/privacy-policy/')); ?>"><?php _e('Privacy Policy', 'travel-agency-platform'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/terminos-y-condiciones/')); ?>"><?php _e('Terms of Service', 'travel-agency-platform'); ?></a></li>
                 </ul>
             </div>
         </div>
         <div class="footer-bottom">
-            &copy; <?php echo esc_html(gmdate('Y')); ?> <?php bloginfo('name'); ?>. <?php _e('All rights reserved.', 'travel-agency-platform'); ?>
+            &copy; <?php echo esc_html(gmdate('Y')); ?> <?php bloginfo('name'); ?>. <?php
+            $copyright = get_theme_mod('tap_footer_copyright', '');
+            if ($copyright) {
+                echo esc_html($copyright);
+            } else {
+                _e('All rights reserved.', 'travel-agency-platform');
+            }
+            ?>
         </div>
     </div>
 </footer>
@@ -56,9 +65,27 @@
     <span style="font-size:14px;font-weight:600;"><?php esc_html_e('Instala la app para acceso rápido', 'travel-agency-platform'); ?></span>
     <div style="display:flex;gap:8px;">
         <button type="button" class="tap-btn tap-btn-sm" style="background:#fff;color:#0f766e;" onclick="tapInstallApp()"><?php esc_html_e('Instalar', 'travel-agency-platform'); ?></button>
-        <button type="button" class="tap-btn tap-btn-sm" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.4);" onclick="document.getElementById('tap-install-bar').style.display='none'"><?php esc_html_e('Cerrar', 'travel-agency-platform'); ?></button>
+        <button type="button" class="tap-btn tap-btn-sm" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.4);" onclick="document.getElementById('tap-install-bar').style.display='none';document.body.classList.remove('tap-install-visible');try{localStorage.setItem('tap-install-dismissed','1')}catch(e){}"><?php esc_html_e('Cerrar', 'travel-agency-platform'); ?></button>
     </div>
 </div>
+<button type="button" id="tap-scroll-top" class="tap-scroll-top" aria-label="<?php esc_attr_e('Volver arriba', 'travel-agency-platform'); ?>" title="<?php esc_attr_e('Volver arriba', 'travel-agency-platform'); ?>">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+<script>
+(function(){
+    var btn = document.getElementById('tap-scroll-top');
+    if (!btn) return;
+    function toggle() {
+        if (window.scrollY > 300) btn.classList.add('is-visible');
+        else btn.classList.remove('is-visible');
+    }
+    window.addEventListener('scroll', toggle, {passive: true});
+    toggle();
+    btn.addEventListener('click', function() {
+        window.scrollTo({top: 0, behavior: 'smooth'});
+    });
+})();
+</script>
 <?php wp_footer(); ?>
 </body>
 </html>

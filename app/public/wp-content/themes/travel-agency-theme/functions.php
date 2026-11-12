@@ -1,7 +1,19 @@
 <?php
 defined('ABSPATH') || exit;
 
-define('TAT_VERSION', '2.0.4');
+define('TAT_VERSION', '2.0.30');
+
+// Drop jQuery Migrate on the front end: it only adds a deprecation notice to
+// the console and the platform does not rely on deprecated jQuery APIs.
+add_action('wp_default_scripts', function ($scripts) {
+    if (is_admin() || empty($scripts->registered['jquery'])) {
+        return;
+    }
+    $scripts->registered['jquery']->deps = array_values(array_diff(
+        $scripts->registered['jquery']->deps,
+        ['jquery-migrate']
+    ));
+});
 
 function travel_agency_theme_setup() {
     add_theme_support('title-tag');
@@ -41,21 +53,8 @@ function travel_agency_theme_assets() {
     wp_enqueue_style('tap-tokens', $plugin_url . 'assets/css/tokens.css', [], TAT_VERSION);
     wp_enqueue_style('tap-public', $plugin_url . 'assets/css/public.css', ['tap-tokens'], TAT_VERSION);
 
-    // Conditional font loading from customizer.
-    $font_family = get_theme_mod('tap_font_family', 'system');
-    $fonts = [
-        'system'     => null,
-        'inter'      => 'Inter',
-        'roboto'     => 'Roboto',
-        'poppins'    => 'Poppins',
-        'lato'       => 'Lato',
-        'montserrat' => 'Montserrat',
-        'open-sans'  => 'Open+Sans',
-    ];
-    if (isset($fonts[$font_family]) && $fonts[$font_family]) {
-        $font_name = $fonts[$font_family];
-        wp_enqueue_style('tap-font', 'https://fonts.googleapis.com/css2?family=' . $font_name . ':wght@400;500;600;700&display=swap', [], null);
-    }
+    // Fonts are now self-hosted via @font-face in style.css (assets/fonts/).
+    // No external Google Fonts dependency.
 
     wp_enqueue_style('travel-agency-theme-style', get_stylesheet_uri(), ['tap-public'], TAT_VERSION);
     if (travel_agency_is_manage_listing()) {
@@ -65,9 +64,36 @@ function travel_agency_theme_assets() {
 
     wp_enqueue_script('travel-agency-theme-main', $theme_uri . '/assets/js/main.js', ['jquery'], TAT_VERSION, true);
     wp_localize_script('travel-agency-theme-main', 'tat_ajax', [
-        'ajax_url' => admin_url('admin-ajax.php'),
-        'nonce'    => wp_create_nonce('tap_nonce'),
+        'ajax_url'      => admin_url('admin-ajax.php'),
+        'nonce'         => wp_create_nonce('tap_nonce'),
+        'filters_label' => __('Filtros', 'travel-agency-platform'),
     ]);
+
+    // Enhanced date picker on the landing hero search.
+    if (is_front_page()) {
+        wp_enqueue_script('jquery-ui-datepicker');
+        $date_init = "(function($){\n"
+            . "  if (!$.datepicker) return;\n"
+            . "  var fmt = 'yy-mm-dd';\n"
+            . "  $('#hs-checkin').datepicker({\n"
+            . "    dateFormat: fmt,\n"
+            . "    minDate: 0,\n"
+            . "    onSelect: function(selected) {\n"
+            . "      var d = $(this).datepicker('getDate');\n"
+            . "      if (d) {\n"
+            . "        var next = new Date(d.getTime() + 86400000);\n"
+            . "        $('#hs-checkout').datepicker('option', 'minDate', next);\n"
+            . "        if (!$('#hs-checkout').val()) { $('#hs-checkout').datepicker('setDate', next); }\n"
+            . "      }\n"
+            . "    }\n"
+            . "  });\n"
+            . "  $('#hs-checkout').datepicker({\n"
+            . "    dateFormat: fmt,\n"
+            . "    minDate: 1\n"
+            . "  });\n"
+            . "})(jQuery);";
+        wp_add_inline_script('jquery-ui-datepicker', $date_init);
+    }
 }
 
 function tap_customizer_css() {
@@ -79,20 +105,38 @@ function tap_customizer_css() {
     $text_muted   = get_theme_mod('tap_color_text_muted', '#64748b');
     $bg           = get_theme_mod('tap_color_background', '#ffffff');
     $border       = get_theme_mod('tap_color_border', '#e2e8f0');
-    $font_family  = get_theme_mod('tap_font_family', 'system');
+    $font_family  = get_theme_mod('tap_font_family', 'plus-jakarta-sans');
+    $heading_font = get_theme_mod('tap_heading_font', 'fraunces');
     $font_size    = (int) get_theme_mod('tap_font_size_base', 16);
     $container    = (int) get_theme_mod('tap_container_max', 1200);
     $padding      = (int) get_theme_mod('tap_section_padding', 64);
+    $header_height = (int) get_theme_mod('tap_header_height', 76);
+    $header_bg    = get_theme_mod('tap_header_bg', 'glass');
+    $logo_height  = (int) get_theme_mod('tap_header_logo_height', 36);
+    $footer_bg    = get_theme_mod('tap_footer_bg', '#0f172a');
+    $footer_text  = get_theme_mod('tap_footer_text', '#cbd5e1');
+    $custom_css   = get_theme_mod('tap_custom_css', '');
 
     $fonts = [
-        'system'     => "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
-        'inter'      => "'Inter', sans-serif",
-        'roboto'     => "'Roboto', sans-serif",
-        'lato'       => "'Lato', sans-serif",
-        'poppins'    => "'Poppins', sans-serif",
-        'montserrat' => "'Montserrat', sans-serif",
+        'system'             => "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif",
+        'plus-jakarta-sans'  => "'Plus Jakarta Sans', sans-serif",
+        'inter'              => "'Inter', sans-serif",
+        'poppins'            => "'Poppins', sans-serif",
+        'montserrat'         => "'Montserrat', sans-serif",
+        'manrope'            => "'Manrope', sans-serif",
+        'sora'               => "'Sora', sans-serif",
+        'roboto'             => "'Roboto', sans-serif",
+        'lato'               => "'Lato', sans-serif",
     ];
-    $font_stack = $fonts[$font_family] ?? $fonts['system'];
+    $font_stack = $fonts[$font_family] ?? $fonts['plus-jakarta-sans'];
+    $heading_fonts = [
+        'fraunces'          => "'Fraunces', serif",
+        'playfair-display'  => "'Playfair Display', serif",
+        'dm-serif-display'  => "'DM Serif Display', serif",
+        'lora'              => "'Lora', serif",
+        'plus-jakarta-sans' => "'Plus Jakarta Sans', sans-serif",
+    ];
+    $heading_stack = $heading_fonts[$heading_font] ?? $heading_fonts['fraunces'];
 
     $css = ':root {';
     $css .= '--tap-primary: ' . esc_attr($primary) . ';';
@@ -102,11 +146,38 @@ function tap_customizer_css() {
     $css .= '--tap-neutral-900: ' . esc_attr($text) . ';';
     $css .= '--tap-neutral-500: ' . esc_attr($text_muted) . ';';
     $css .= '--tap-border: ' . esc_attr($border) . ';';
+    $css .= '--tap-surface: #ffffff;';
+    $css .= '--tap-surface-2: #f8fafc;';
+    $css .= '--tap-surface-muted: #f8fafc;';
     $css .= '--tap-font-sans: ' . esc_attr($font_stack) . ';';
+    $css .= '--tap-font-serif: ' . esc_attr($heading_stack) . ';';
     $css .= '--tap-text-base: ' . $font_size . 'px;';
     $css .= '--tap-container-max: ' . $container . 'px;';
     $css .= '--tap-section-padding: ' . $padding . 'px;';
+    $css .= '--tap-header-height: ' . $header_height . 'px;';
     $css .= '}';
+    // Header background
+    $header_bg_css = 'background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);';
+    if ($header_bg === 'solid') {
+        $header_bg_css = 'background: #fff;';
+    } elseif ($header_bg === 'dark') {
+        $header_bg_css = 'background: #0f172a; color: #fff;';
+    } elseif ($header_bg === 'transparent') {
+        $header_bg_css = 'background: transparent; border-bottom: none;';
+    }
+    $css .= '.site-header { ' . $header_bg_css . ' }';
+    if (!get_theme_mod('tap_header_sticky', true)) {
+        $css .= '.site-header { position: relative; }';
+    }
+    if (!get_theme_mod('tap_header_shadow', true)) {
+        $css .= '.site-header.scrolled { box-shadow: none; }';
+    }
+    $css .= '.site-branding .custom-logo { height: ' . $logo_height . 'px; width: auto; }';
+    $css .= '.site-footer { background: ' . esc_attr($footer_bg) . '; color: ' . esc_attr($footer_text) . '; }';
+    $css .= '.site-footer h3, .site-footer .footer-brand h3 { color: #fff; }';
+    if ($custom_css) {
+        $css .= $custom_css;
+    }
     if ($bg !== '#ffffff') {
         $css .= 'body { background-color: ' . esc_attr($bg) . '; }';
     }

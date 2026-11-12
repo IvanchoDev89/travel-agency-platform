@@ -25,21 +25,28 @@
 
     mobileToggle.attr('aria-controls', 'main-nav');
 
+    /* ===== Collapsible sections: open on desktop ---------- */
+    if (window.innerWidth > 768) {
+        document.querySelectorAll('details.tap-collapse').forEach(function(d) {
+            d.setAttribute('open', '');
+        });
+    }
+
     /* ===== Mobile menu ===== */
     function closeMobileMenu() {
-        headerCenter.removeClass('open');
+        headerCenter.removeClass('open').removeAttr('role').removeAttr('aria-modal');
         mobileToggle.removeClass('active').attr('aria-expanded', 'false');
         mobileOverlay.removeClass('open').attr('aria-hidden', 'true');
-        $('body').css('overflow', '');
+        $('body').removeClass('tap-menu-open').css('overflow', '');
         mobileToggle.trigger('focus');
     }
 
     function openMobileMenu() {
-        headerCenter.addClass('open');
+        headerCenter.addClass('open').attr({ 'role': 'dialog', 'aria-modal': 'true' });
         mobileToggle.addClass('active').attr('aria-expanded', 'true');
         mobileOverlay.addClass('open').attr('aria-hidden', 'false');
-        $('body').css('overflow', 'hidden');
-        var first = headerCenter.find('.nav-menu a:visible, .submenu-toggle:visible').first();
+        $('body').addClass('tap-menu-open').css('overflow', 'hidden');
+        var first = headerCenter.find('.mobile-drawer-search input, .nav-menu a:visible, .submenu-toggle:visible').first();
         if (first.length) first.trigger('focus');
     }
 
@@ -48,7 +55,74 @@
         headerCenter.hasClass('open') ? closeMobileMenu() : openMobileMenu();
     });
 
-    mobileOverlay.on('click', closeMobileMenu);
+    var mobileCloseBtn = $('#mobile-close-btn');
+    if (mobileCloseBtn.length) {
+        mobileCloseBtn.on('click', closeMobileMenu);
+    }
+
+    /* ===== Focus trap inside drawer ===== */
+    headerCenter.on('keydown', function(e) {
+        if (!headerCenter.hasClass('open')) return;
+        if (e.key !== 'Tab') return;
+        var focusable = headerCenter.find('a:visible, button:visible, input:visible, select:visible, textarea:visible, [tabindex]:not([tabindex="-1"]):visible');
+        if (!focusable.length) return;
+        var first = focusable.first();
+        var last = focusable.last();
+        if (e.shiftKey) {
+            if (document.activeElement === first[0]) {
+                e.preventDefault();
+                last.focus();
+            }
+        } else {
+            if (document.activeElement === last[0]) {
+                e.preventDefault();
+                first.focus();
+            }
+        }
+    });
+
+    /* ===== Close drawer when navigating ===== */
+    headerCenter.on('click', '.nav-menu a.nav-link, .mobile-drawer-brand a', function() {
+        if ($(window).width() >= BREAKPOINT) return;
+        var href = $(this).attr('href');
+        if (!href || href === '#') return;
+        closeMobileMenu();
+    });
+
+    /* ===== Mobile filters toggle (search results) ===== */
+    var $filters = $('.tap-search-filters');
+    if ($filters.length) {
+        $filters.each(function() {
+            var $form = $(this);
+            if ($form.data('tapFiltersReady')) return;
+            $form.data('tapFiltersReady', true);
+
+            var $body = $('<div class="tap-filters-body"></div>');
+            $form.children().not('input[type="hidden"]').wrapAll($body);
+            var $toggle = $('<button type="button" class="tap-filters-toggle" aria-expanded="false">' +
+                '<span class="tap-filters-toggle-label">' + (window.tat_ajax && tat_ajax.filters_label ? tat_ajax.filters_label : 'Filtros') + '</span>' +
+                '<span class="tap-filters-toggle-icon" aria-hidden="true">' +
+                '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>' +
+                '</span></button>');
+            $form.prepend($toggle);
+
+            $toggle.on('click', function() {
+                var open = $form.toggleClass('is-open').hasClass('is-open');
+                $toggle.attr('aria-expanded', open ? 'true' : 'false');
+            });
+
+            var params = new URLSearchParams(window.location.search);
+            var active = ['type', 'location', 'difficulty', 'tour_type', 'min_price', 'max_price', 'sort'].filter(function(k) {
+                var v = params.get(k);
+                return v && v !== 'relevance';
+            }).length;
+            if (active > 0) {
+                $toggle.find('.tap-filters-toggle-label').text(
+                    (window.tat_ajax && tat_ajax.filters_label ? tat_ajax.filters_label : 'Filtros') + ' (' + active + ')'
+                );
+            }
+        });
+    }
 
     /* ===== Submenu accordion (mobile) ===== */
     headerCenter.on('click', '.submenu-toggle', function(e) {
@@ -99,13 +173,20 @@
     function closeUserDropdown() {
         userDropdown.removeClass('open');
         userBtn.attr('aria-expanded', 'false');
+        userBtn.trigger('focus');
     }
 
     userBtn.on('click', function(e) {
         e.stopPropagation();
         if ($(window).width() < BREAKPOINT) return;
+        var isOpen = userDropdown.hasClass('open');
         userDropdown.toggleClass('open');
         userBtn.attr('aria-expanded', userDropdown.hasClass('open'));
+        if (!isOpen) {
+            userDropdown.attr('role', 'menu');
+            var first = userDropdown.find('a, button').first();
+            if (first.length) setTimeout(function() { first.trigger('focus'); }, 50);
+        }
     });
 
     $(document).on('click', function(e) {
@@ -116,13 +197,14 @@
 
     /* ===== Search ===== */
     function closeSearch() {
-        searchOverlay.removeClass('open');
+        searchOverlay.removeClass('open').removeAttr('role').removeAttr('aria-modal');
         searchInput.val('');
+        searchToggle.trigger('focus');
     }
 
     searchToggle.on('click', function() {
         if ($(window).width() < BREAKPOINT) return;
-        searchOverlay.addClass('open');
+        searchOverlay.addClass('open').attr({'role': 'dialog', 'aria-modal': 'true', 'aria-label': 'Search'});
         setTimeout(function() { searchInput.trigger('focus'); }, 120);
     });
 
@@ -387,6 +469,33 @@
                 closeMobileMenu();
             }
         }, { passive: true });
+    }
+
+    // ===== Theme toggle (light/dark) =====
+    var themeToggle = document.getElementById('nav-theme-toggle');
+    function applyTheme(mode) {
+        if (mode === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        try { localStorage.setItem('tap-theme', mode); } catch (e) {}
+    }
+    // Initial theme: respect stored preference, else system preference.
+    (function() {
+        var stored = null;
+        try { stored = localStorage.getItem('tap-theme'); } catch (e) {}
+        if (stored === 'dark' || stored === 'light') {
+            applyTheme(stored);
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+    })();
+    if (themeToggle) {
+        themeToggle.addEventListener('click', function() {
+            var isDark = document.documentElement.classList.contains('dark');
+            applyTheme(isDark ? 'light' : 'dark');
+        });
     }
 
     manageOverflow();

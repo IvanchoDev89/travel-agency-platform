@@ -12,7 +12,9 @@ get_header();
 </div>
 
 <div class="entry-content">
-    <?php echo do_shortcode('[tap_agency_manage]'); ?>
+    <div class="tap-container">
+        <?php echo do_shortcode('[tap_agency_manage]'); ?>
+    </div>
 </div>
 
 <?php get_footer(); ?>

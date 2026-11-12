@@ -194,4 +194,43 @@ tap_t_assert(
     'referral table has unique constraint on booking_id'
 );
 
+// ===== M. Login brute-force guard ==========================================
+$_SERVER['REMOTE_ADDR'] = '203.0.113.10';
+$lg_user = 'suite_login_' . wp_generate_password(6, false);
+delete_transient(TAP_Rate_Limit::key('login_user', strtolower($lg_user)));
+delete_transient(TAP_Rate_Limit::key('login_ip'));
+tap_t_assert(!TAP_Login_Guard::is_blocked($lg_user), 'login guard starts unlocked');
+for ($lg_i = 0; $lg_i < 5; $lg_i++) {
+    TAP_Login_Guard::on_failed($lg_user);
+}
+tap_t_assert(TAP_Login_Guard::is_blocked($lg_user), 'login guard blocks after 5 failed attempts');
+TAP_Login_Guard::on_success($lg_user);
+tap_t_assert(!TAP_Login_Guard::is_blocked($lg_user), 'successful login clears the counters');
+delete_transient(TAP_Rate_Limit::key('login_user', strtolower($lg_user)));
+delete_transient(TAP_Rate_Limit::key('login_ip'));
+unset($_SERVER['REMOTE_ADDR']);
+
+// ===== N. CSP defaults cover shipped assets ================================
+$policy = TAP_Security_Headers::default_policy();
+foreach (['fonts.googleapis.com', 'fonts.gstatic.com', 'manifest-src', 'worker-src'] as $needle) {
+    tap_t_assert(false !== strpos($policy, $needle), 'CSP default policy allows ' . $needle);
+}
+tap_t_assert(
+    false !== strpos($sec_src, "too_many('csp_report'"),
+    'CSP report endpoint is rate limited'
+);
+
+// ===== O. iCal SSRF guard ==================================================
+tap_t_assert(false === TAP_ICal_Import::is_safe_url('http://127.0.0.1/feed.ics'), 'iCal rejects loopback IPv4');
+tap_t_assert(false === TAP_ICal_Import::is_safe_url('http://10.0.0.5/feed.ics'), 'iCal rejects private IPv4');
+tap_t_assert(false === TAP_ICal_Import::is_safe_url('http://localhost/feed.ics'), 'iCal rejects localhost');
+tap_t_assert(false === TAP_ICal_Import::is_safe_url('ftp://8.8.8.8/feed.ics'), 'iCal only allows http(s)');
+tap_t_assert(true === TAP_ICal_Import::is_safe_url('http://8.8.8.8/feed.ics'), 'iCal allows a public IP');
+
+// ===== P. Referral anti-fraud ==============================================
+tap_t_assert(method_exists('TAP_Customer_Referrals', 'approve_pending'), 'high-point payouts can be approved manually');
+tap_t_assert(method_exists('TAP_Customer_Referrals', 'reject_pending'), 'high-point payouts can be rejected manually');
+tap_t_assert(false !== strpos($ref_src, "'pending_review'"), 'referrals support a pending-review state');
+tap_t_assert(false !== strpos($ref_src, 'is_suspicious'), 'referrals are flagged when the fingerprint repeats');
+
 tap_t_finish();

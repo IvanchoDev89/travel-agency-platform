@@ -357,11 +357,16 @@ class TAP_Destinations {
      * @param int    $selected Deepest selected term id (to restore state).
      * @param string $name     Form field name for the hidden submission value.
      */
-    public static function render_picker($selected, $name = 'location') {
+    public static function render_picker($selected, $name = 'location', $collapsible = false) {
         $selected = intval($selected) ? intval($selected) : 0;
         $chain    = $selected ? self::chain($selected) : [];
         $map      = self::term_map();
         $uid      = 'tap-dest-' . wp_rand(1000, 9999);
+
+        $chain_names = array_values(array_filter(array_map(function ($t) {
+            return is_object($t) ? (string) $t->name : '';
+        }, $chain)));
+        $summary_text = $chain_names ? implode(' › ', $chain_names) : __('Todas las ubicaciones', 'travel-agency-platform');
 
         // Always render every level so the cascade can grow client-side. The
         // option list for a level is the children of the term chosen at the
@@ -383,11 +388,23 @@ class TAP_Destinations {
         }
 
         ob_start();
-        ?>
-        <div class="tap-dest-picker" id="<?php echo esc_attr($uid); ?>">
-            <input type="hidden" name="<?php echo esc_attr($name); ?>" value="<?php echo esc_attr($selected); ?>">
-            <?php foreach ($rows as $row): ?>
-                <?php $placeholder = '— ' . $row['label'] . ' —'; ?>
+        if ($collapsible) {
+            ?>
+            <details class="tap-dest-picker tap-dest-picker--collapsible" id="<?php echo esc_attr($uid); ?>" data-default-summary="<?php echo esc_attr(__('Todas las ubicaciones', 'travel-agency-platform')); ?>" <?php echo $selected ? '' : 'open'; ?>>
+                <summary class="tap-dest-summary"><?php echo esc_html($summary_text); ?></summary>
+                <input type="hidden" name="<?php echo esc_attr($name); ?>" value="<?php echo esc_attr($selected); ?>">
+                <div class="tap-dest-picker-body">
+            <?php
+        } else {
+            ?>
+            <div class="tap-dest-picker" id="<?php echo esc_attr($uid); ?>">
+                <input type="hidden" name="<?php echo esc_attr($name); ?>" value="<?php echo esc_attr($selected); ?>">
+                <div class="tap-dest-picker-body">
+            <?php
+        }
+        foreach ($rows as $row) {
+            $placeholder = '— ' . $row['label'] . ' —';
+            ?>
                 <label class="tap-dest-level">
                     <span><?php echo esc_html($row['label']); ?></span>
                     <select class="tap-dest-select" data-level="<?php echo esc_attr($row['level']); ?>" data-placeholder="<?php echo esc_attr($placeholder); ?>">
@@ -398,8 +415,15 @@ class TAP_Destinations {
                         <?php endforeach; ?>
                     </select>
                 </label>
-            <?php endforeach; ?>
-        </div>
+            <?php
+        }
+        ?>
+                </div>
+        <?php if ($collapsible): ?>
+            </details>
+        <?php else: ?>
+            </div>
+        <?php endif; ?>
         <?php
         $html = ob_get_clean();
 
@@ -441,11 +465,16 @@ class TAP_Destinations {
                     }
                     function syncHidden() {
                         var deepest = 0;
+                        var label = "";
                         $selects.each(function () {
                             var v = parseInt($(this).val() || "0", 10);
-                            if (v !== 0) deepest = v;
+                            if (v !== 0) { deepest = v; label = $(this).find("option:selected").text(); }
                         });
                         $hidden.val(deepest);
+                        var $summary = $root.find("> summary.tap-dest-summary");
+                        if ($summary.length) {
+                            $summary.text(label || $root.data("default-summary") || "Todas las ubicaciones");
+                        }
                     }
                     $selects.on("change", function () {
                         var $cur = $(this);

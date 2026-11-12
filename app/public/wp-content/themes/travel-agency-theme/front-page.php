@@ -9,6 +9,9 @@ function tap_lp_enabled($type) {
     return class_exists('TAP_Landing_Builder') ? TAP_Landing_Builder::is_enabled($type) : true;
 }
 
+// Each section is buffered here and printed later in the builder's order.
+$tap_lp_sections = [];
+
 /**
  * Travel landing — modern, light, bilingual (ES/EN), mobile-first.
  * Every section degrades gracefully when there is no content yet.
@@ -270,7 +273,7 @@ foreach ($pillarDefs as $pDef) {
     ];
 }
 ?>
-<?php if (tap_lp_enabled('hero')): ?>
+<?php if (tap_lp_enabled('hero')): ob_start(); ?>
 <section class="tap-hero tap-landing-hero" id="home">
   <?php if (!empty($hero_video)): ?>
     <video class="tap-landing-hero-video" autoplay muted loop playsinline preload="metadata"<?php if (!empty($hero_poster)) echo ' poster="' . esc_url($hero_poster) . '"'; ?> aria-hidden="true">
@@ -294,22 +297,21 @@ foreach ($pillarDefs as $pDef) {
 
       <?php if ($hero_search): ?>
       <div class="tap-hero-search tap-landing-search">
-        <form method="get" action="<?php echo esc_url(home_url('/resultados-de-busqueda/')); ?>" class="tap-hs-form tap-landing-hs">
+        <form method="get" action="<?php echo esc_url($searchUrl); ?>" class="tap-hs-form tap-landing-hs">
           <div class="tap-hs-field tap-hs-destino">
             <label for="hs-destino"><?php esc_html_e('Destino', 'travel-agency-platform'); ?></label>
             <div class="tap-hs-input-wrap">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 5.4 8 12 8 12s8-6.6 8-12a8 8 0 0 0-8-8z"/></svg>
               <input type="text" name="keyword" id="hs-destino" placeholder="<?php esc_attr_e('¿A dónde querés ir?', 'travel-agency-platform'); ?>" class="tap-hs-input" autocomplete="off">
             </div>
-            <div class="tap-hs-suggestions" style="display:none;"></div>
           </div>
           <div class="tap-hs-field tap-hs-date">
             <label for="hs-checkin"><?php esc_html_e('Llegada', 'travel-agency-platform'); ?></label>
-            <input type="date" name="check_in" id="hs-checkin" class="tap-hs-input" min="<?php echo esc_attr(date('Y-m-d')); ?>">
+            <input type="text" name="check_in" id="hs-checkin" class="tap-hs-input tap-date-input" placeholder="<?php esc_attr_e('Llegada', 'travel-agency-platform'); ?>" autocomplete="off" readonly>
           </div>
           <div class="tap-hs-field tap-hs-date">
             <label for="hs-checkout"><?php esc_html_e('Salida', 'travel-agency-platform'); ?></label>
-            <input type="date" name="check_out" id="hs-checkout" class="tap-hs-input" min="<?php echo esc_attr(date('Y-m-d', strtotime('+1 day'))); ?>">
+            <input type="text" name="check_out" id="hs-checkout" class="tap-hs-input tap-date-input" placeholder="<?php esc_attr_e('Salida', 'travel-agency-platform'); ?>" autocomplete="off" readonly>
           </div>
           <div class="tap-hs-field tap-hs-huespedes">
             <label for="hs-guests"><?php esc_html_e('Huéspedes', 'travel-agency-platform'); ?></label>
@@ -330,6 +332,7 @@ foreach ($pillarDefs as $pDef) {
             <?php esc_html_e('Buscar', 'travel-agency-platform'); ?>
           </button>
         </form>
+        <div class="tap-hs-suggestions" style="display:none;"></div>
       </div>
 
       <?php endif; ?>
@@ -347,9 +350,9 @@ foreach ($pillarDefs as $pDef) {
   </div>
 </section>
 
-<?php endif; // hero ?>
+<?php $tap_lp_sections['hero'] = ob_get_clean(); endif; // hero ?>
 
-<?php if (($statServices + $statAgencies + $statDestinos) > 0 && tap_lp_enabled('stats')): ?>
+<?php if (($statServices + $statAgencies + $statDestinos) > 0 && tap_lp_enabled('stats')): ob_start(); ?>
 <section class="tap-section tap-landing-stats">
   <div class="tap-container">
     <div class="tap-landing-stats-grid">
@@ -372,9 +375,9 @@ foreach ($pillarDefs as $pDef) {
     </div>
   </div>
 </section>
-<?php endif; ?>
+<?php $tap_lp_sections['stats'] = ob_get_clean(); endif; ?>
 
-<?php if (tap_lp_enabled('facts')): ?>
+<?php if (tap_lp_enabled('facts')): ob_start(); ?>
 <section class="tap-landing-facts" aria-label="<?php esc_attr_e('Costa Rica en datos', 'travel-agency-platform'); ?>">
   <div class="tap-container">
     <ul class="tap-landing-facts-grid">
@@ -385,8 +388,9 @@ foreach ($pillarDefs as $pDef) {
     </ul>
   </div>
 </section>
+<?php $tap_lp_sections['facts'] = ob_get_clean(); endif; // facts ?>
 
-<?php if (!empty($spots) && tap_lp_enabled('destinations')): ?>
+<?php if (!empty($spots) && tap_lp_enabled('destinations')): ob_start(); ?>
 <section class="tap-section tap-landing-destinations" id="destinos">
   <div class="tap-container">
     <div class="tap-landing-head">
@@ -419,11 +423,9 @@ foreach ($pillarDefs as $pDef) {
     </div>
   </div>
 </section>
-<?php endif; ?>
+<?php $tap_lp_sections['destinations'] = ob_get_clean(); endif; ?>
 
-<?php endif; // facts ?>
-
-<?php if (!empty($interests) && tap_lp_enabled('categories')): ?>
+<?php if (!empty($interests) && tap_lp_enabled('interests')): ob_start(); ?>
 <section class="tap-section tap-landing-interests">
   <div class="tap-container">
     <div class="tap-landing-head">
@@ -442,7 +444,7 @@ foreach ($pillarDefs as $pDef) {
     </div>
   </div>
 </section>
-<?php endif; ?>
+<?php $tap_lp_sections['interests'] = ob_get_clean(); endif; ?>
 
 <?php
 $featured_tour_ids = class_exists('TAP_Promotions') ? TAP_Promotions::featured_ids(['tap_tour']) : [];
@@ -457,7 +459,7 @@ if ($featured_tour_ids) {
     }
 }
 ?>
-<?php if (!empty($featured_tours)): ?>
+<?php if (!empty($featured_tours) && tap_lp_enabled('promoted')): ob_start(); ?>
 <section class="tap-section tap-featured-tours">
   <div class="tap-container">
     <div class="tap-landing-head">
@@ -480,9 +482,9 @@ if ($featured_tour_ids) {
     </div>
   </div>
 </section>
-<?php endif; ?>
+<?php $tap_lp_sections['promoted'] = ob_get_clean(); endif; ?>
 
-<?php if (!empty($experiences) && tap_lp_enabled('featured')): ?>
+<?php if (!empty($experiences) && tap_lp_enabled('featured')): ob_start(); ?>
 <section class="tap-section tap-section-alt tap-landing-experiences">
   <div class="tap-container">
     <div class="tap-landing-head">
@@ -523,9 +525,9 @@ if ($featured_tour_ids) {
     </div>
   </div>
 </section>
-<?php endif; ?>
+<?php $tap_lp_sections['featured'] = ob_get_clean(); endif; ?>
 
-<?php if (!empty($pillars) && tap_lp_enabled('blog')): ?>
+<?php if (!empty($pillars) && tap_lp_enabled('pillars')): ob_start(); ?>
 <section class="tap-section tap-landing-pillars">
   <div class="tap-container">
     <div class="tap-landing-head">
@@ -548,9 +550,9 @@ if ($featured_tour_ids) {
     </div>
   </div>
 </section>
-<?php endif; ?>
+<?php $tap_lp_sections['pillars'] = ob_get_clean(); endif; ?>
 
-<?php if (tap_lp_enabled('referrals')): ?>
+<?php if (tap_lp_enabled('referrals')): ob_start(); ?>
 <section class="tap-section tap-landing-referrals">
   <div class="tap-container">
     <div class="tap-landing-head">
@@ -563,9 +565,9 @@ if ($featured_tour_ids) {
     </div>
   </div>
 </section>
-<?php endif; ?>
+<?php $tap_lp_sections['referrals'] = ob_get_clean(); endif; ?>
 
-<?php if (tap_lp_enabled('agencies_cta')): ?>
+<?php if (tap_lp_enabled('agencies_cta')): ob_start(); ?>
 <section class="tap-section tap-section-alt tap-landing-agencies-cta">
   <div class="tap-container">
     <div class="tap-landing-head">
@@ -579,9 +581,9 @@ if ($featured_tour_ids) {
     </div>
   </div>
 </section>
-<?php endif; ?>
+<?php $tap_lp_sections['agencies_cta'] = ob_get_clean(); endif; ?>
 
-<?php if (tap_lp_enabled('itinerary')): ?>
+<?php if (tap_lp_enabled('itinerary')): ob_start(); ?>
 <section class="tap-section tap-landing-itinerary">
   <div class="tap-container">
     <div class="tap-landing-itinerary-card">
@@ -606,10 +608,9 @@ if ($featured_tour_ids) {
     </div>
   </div>
 </section>
+<?php $tap_lp_sections['itinerary'] = ob_get_clean(); endif; // itinerary ?>
 
-<?php endif; // itinerary ?>
-
-<?php if (!empty($agenciesClean) && tap_lp_enabled('agencies')): ?>
+<?php if (!empty($agenciesClean) && tap_lp_enabled('agencies')): ob_start(); ?>
 <section class="tap-section tap-landing-agencies">
   <div class="tap-container">
     <div class="tap-landing-head">
@@ -638,9 +639,9 @@ if ($featured_tour_ids) {
     </div>
   </div>
 </section>
-<?php endif; ?>
+<?php $tap_lp_sections['agencies'] = ob_get_clean(); endif; ?>
 
-<?php if (!empty($testimonials) && tap_lp_enabled('testimonials')): ?>
+<?php if (!empty($testimonials) && tap_lp_enabled('testimonials')): ob_start(); ?>
 <section class="tap-section tap-section-alt tap-landing-reviews">
   <div class="tap-container">
     <div class="tap-landing-head">
@@ -660,9 +661,9 @@ if ($featured_tour_ids) {
     </div>
   </div>
 </section>
-<?php endif; ?>
+<?php $tap_lp_sections['testimonials'] = ob_get_clean(); endif; ?>
 
-<?php if (!empty($articles) && tap_lp_enabled('blog')): ?>
+<?php if (!empty($articles) && tap_lp_enabled('blog')): ob_start(); ?>
 <section class="tap-section tap-section-alt tap-landing-articles">
   <div class="tap-container">
     <div class="tap-landing-head">
@@ -695,9 +696,9 @@ if ($featured_tour_ids) {
     </div>
   </div>
 </section>
-<?php endif; ?>
+<?php $tap_lp_sections['blog'] = ob_get_clean(); endif; ?>
 
-<?php if (!empty($faqItems) && tap_lp_enabled('faq')): ?>
+<?php if (!empty($faqItems) && tap_lp_enabled('faq')): ob_start(); ?>
 <section class="tap-section tap-landing-faq" id="preguntas">
   <div class="tap-container tap-landing-faq-wrap">
     <div class="tap-landing-head">
@@ -721,9 +722,9 @@ if ($featured_tour_ids) {
     </p>
   </div>
 </section>
-<?php endif; ?>
+<?php $tap_lp_sections['faq'] = ob_get_clean(); endif; ?>
 
-<?php if (tap_lp_enabled('cta')): ?>
+<?php if (tap_lp_enabled('cta')): ob_start(); ?>
 <section class="tap-section tap-landing-cta">
   <div class="tap-container">
     <div class="tap-landing-cta-card">
@@ -736,8 +737,34 @@ if ($featured_tour_ids) {
     </div>
   </div>
 </section>
+<?php $tap_lp_sections['cta'] = ob_get_clean(); endif; // cta ?>
 
-<?php endif; // cta ?>
+<?php
+// Print the buffered sections in the order configured in the Landing Page
+// Builder. Sections the builder does not know about keep their legacy order.
+$tap_lp_order = [];
+if (class_exists('TAP_Landing_Builder')) {
+    foreach (TAP_Landing_Builder::ordered_sections() as $tap_lp_section) {
+        $tap_lp_type = (string) ($tap_lp_section['type'] ?? '');
+        if ('categories' === $tap_lp_type) {
+            $tap_lp_type = 'interests';
+        }
+        if ('' !== $tap_lp_type && !in_array($tap_lp_type, $tap_lp_order, true)) {
+            $tap_lp_order[] = $tap_lp_type;
+        }
+    }
+}
+foreach ($tap_lp_order as $tap_lp_type) {
+    if (!empty($tap_lp_sections[$tap_lp_type])) {
+        echo $tap_lp_sections[$tap_lp_type]; // phpcs:ignore WordPress.Security.EscapeOutput -- rendered section
+        unset($tap_lp_sections[$tap_lp_type]);
+    }
+}
+foreach ($tap_lp_sections as $tap_lp_html) {
+    echo $tap_lp_html; // phpcs:ignore WordPress.Security.EscapeOutput -- rendered section
+}
+unset($tap_lp_sections, $tap_lp_order, $tap_lp_type, $tap_lp_html);
+?>
 
 <style>
 /* Entrance animations */

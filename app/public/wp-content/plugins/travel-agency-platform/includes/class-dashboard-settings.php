@@ -27,6 +27,7 @@ class TAP_Dashboard_Settings {
         ]);
         register_setting('tap_settings', 'tap_booking_auto_confirm');
         register_setting('tap_settings', 'tap_stale_booking_hours');
+        register_setting('tap_settings', 'tap_payment_hold_minutes');
         register_setting('tap_settings', 'tap_payment_methods');
         register_setting('tap_settings', 'tap_terms_page');
         register_setting('tap_settings', 'tap_paypal_enabled');
@@ -34,6 +35,11 @@ class TAP_Dashboard_Settings {
         register_setting('tap_settings', 'tap_paypal_client_id');
         register_setting('tap_settings', 'tap_paypal_secret');
         register_setting('tap_settings', 'tap_paypal_webhook_id');
+        register_setting('tap_settings', 'tap_onvo_enabled');
+        register_setting('tap_settings', 'tap_onvo_secret_key');
+        register_setting('tap_settings', 'tap_onvo_publishable_key');
+        register_setting('tap_settings', 'tap_onvo_webhook_secret');
+        register_setting('tap_settings', 'tap_onvo_app_fee');
         register_setting('tap_settings', 'tap_sinpe_enabled');
         register_setting('tap_settings', 'tap_sinpe_phone');
         register_setting('tap_settings', 'tap_manual_payment_enabled');
@@ -354,6 +360,11 @@ class TAP_Dashboard_Settings {
                         <td><input type="number" id="tap_stale_booking_hours" name="tap_stale_booking_hours" value="<?php echo esc_attr(get_option('tap_stale_booking_hours', '24')); ?>" min="1" step="1" class="regular-text"></td>
                     </tr>
                     <tr>
+                        <th><label for="tap_payment_hold_minutes"><?php esc_html_e('Hold de pago (minutos)', 'travel-agency-platform'); ?></label></th>
+                        <td><input type="number" id="tap_payment_hold_minutes" name="tap_payment_hold_minutes" value="<?php echo esc_attr(get_option('tap_payment_hold_minutes', '30')); ?>" min="5" step="5" class="regular-text">
+                        <p class="description"><?php esc_html_e('Tiempo que un usuario tiene para completar el pago antes de que la reserva se cancele automáticamente y se libere el slot.', 'travel-agency-platform'); ?></p></td>
+                    </tr>
+                    <tr>
                         <th><label for="tap_terms_page"><?php esc_html_e('Terms & Conditions Page', 'travel-agency-platform'); ?></label></th>
                         <td><?php wp_dropdown_pages(['name' => 'tap_terms_page', 'selected' => get_option('tap_terms_page', ''), 'show_option_none' => __('-- Select --', 'travel-agency-platform')]); ?></td>
                     </tr>
@@ -362,6 +373,7 @@ class TAP_Dashboard_Settings {
                         <td>
                             <select id="tap_default_gateway" name="tap_default_gateway">
                                 <option value="paypal" <?php selected('paypal', get_option('tap_default_gateway', 'paypal')); ?>><?php esc_html_e('PayPal', 'travel-agency-platform'); ?></option>
+                                <option value="onvo" <?php selected('onvo', get_option('tap_default_gateway', 'paypal')); ?>><?php esc_html_e('Onvo Pay', 'travel-agency-platform'); ?></option>
                             </select>
                         </td>
                     </tr>
@@ -505,6 +517,38 @@ class TAP_Dashboard_Settings {
                         <td><input type="text" id="tap_paypal_webhook_id" name="tap_paypal_webhook_id" value="<?php echo esc_attr(get_option('tap_paypal_webhook_id', '')); ?>" class="regular-text" style="width: 400px;">
                         <p class="description"><?php esc_html_e('Webhook URL:', 'travel-agency-platform'); ?> <code><?php echo esc_url(home_url('/wp-json/tap/v1/paypal-webhook')); ?></code></p>
                         </td>
+                    </tr>
+                </table>
+
+                <h3><?php esc_html_e('Onvo Pay (Costa Rica)', 'travel-agency-platform'); ?></h3>
+                <?php if (class_exists('TAP_Onvo') && TAP_Onvo::has_placeholder_credentials()): ?>
+                    <div class="notice notice-warning inline">
+                        <p><strong><?php esc_html_e('Onvo Pay no está configurado.', 'travel-agency-platform'); ?></strong>
+                        <?php esc_html_e('Pega el Secret Key y el Publishable Key de tu cuenta de Onvo para activar los pagos.', 'travel-agency-platform'); ?></p>
+                    </div>
+                <?php endif; ?>
+                <table class="form-table">
+                    <tr>
+                        <th><label for="tap_onvo_enabled"><?php esc_html_e('Enable Onvo Pay', 'travel-agency-platform'); ?></label></th>
+                        <td><input type="checkbox" id="tap_onvo_enabled" name="tap_onvo_enabled" value="1" <?php checked('1', get_option('tap_onvo_enabled', '0')); ?>></td>
+                    </tr>
+                    <tr>
+                        <th><label for="tap_onvo_secret_key"><?php esc_html_e('Secret Key', 'travel-agency-platform'); ?></label></th>
+                        <td><input type="password" id="tap_onvo_secret_key" name="tap_onvo_secret_key" value="<?php echo esc_attr(get_option('tap_onvo_secret_key', '')); ?>" class="regular-text" style="width: 400px;"></td>
+                    </tr>
+                    <tr>
+                        <th><label for="tap_onvo_publishable_key"><?php esc_html_e('Publishable Key', 'travel-agency-platform'); ?></label></th>
+                        <td><input type="text" id="tap_onvo_publishable_key" name="tap_onvo_publishable_key" value="<?php echo esc_attr(get_option('tap_onvo_publishable_key', '')); ?>" class="regular-text" style="width: 400px;"></td>
+                    </tr>
+                    <tr>
+                        <th><label for="tap_onvo_webhook_secret"><?php esc_html_e('Webhook Secret', 'travel-agency-platform'); ?></label></th>
+                        <td><input type="password" id="tap_onvo_webhook_secret" name="tap_onvo_webhook_secret" value="<?php echo esc_attr(get_option('tap_onvo_webhook_secret', '')); ?>" class="regular-text" style="width: 400px;">
+                        <p class="description"><?php esc_html_e('Webhook URL:', 'travel-agency-platform'); ?> <code><?php echo esc_url(home_url('/wp-json/tap/v1/onvo-webhook')); ?></code></p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th><label for="tap_onvo_app_fee"><?php esc_html_e('Comisión de plataforma (%)', 'travel-agency-platform'); ?></label></th>
+                        <td><input type="number" id="tap_onvo_app_fee" name="tap_onvo_app_fee" value="<?php echo esc_attr(get_option('tap_onvo_app_fee', '5')); ?>" class="small-text" min="0" max="100" step="0.01"> <span class="description"><?php esc_html_e('Porcentaje que la plataforma retiene de cada pago (marketplaceAppFee).', 'travel-agency-platform'); ?></span></td>
                     </tr>
                 </table>
 
