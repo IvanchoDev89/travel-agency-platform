@@ -41,10 +41,10 @@
             <div>
                 <h3><?php _e('Support', 'travel-agency-platform'); ?></h3>
                 <ul>
-                    <li><a href="#"><?php _e('Help Center', 'travel-agency-platform'); ?></a></li>
-                    <li><a href="#"><?php _e('Contact Us', 'travel-agency-platform'); ?></a></li>
-                    <li><a href="#"><?php _e('Privacy Policy', 'travel-agency-platform'); ?></a></li>
-                    <li><a href="#"><?php _e('Terms of Service', 'travel-agency-platform'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/centro-de-soporte/')); ?>"><?php _e('Help Center', 'travel-agency-platform'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/contacto/')); ?>"><?php _e('Contact Us', 'travel-agency-platform'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/privacy-policy/')); ?>"><?php _e('Privacy Policy', 'travel-agency-platform'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/terminos-y-condiciones/')); ?>"><?php _e('Terms of Service', 'travel-agency-platform'); ?></a></li>
                 </ul>
             </div>
         </div>
