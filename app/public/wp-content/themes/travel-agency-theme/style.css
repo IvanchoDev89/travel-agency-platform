@@ -2253,6 +2253,17 @@ html.dark .tap-support-related ul li a:hover { background: var(--tap-primary-bg,
 html.dark .tap-breadcrumb { color: var(--tap-neutral-600, #94a3b8); }
 html.dark .tap-breadcrumb-current { color: var(--tap-neutral-700, #cbd5e1); }
 
+/* ---------- Support article list (taxonomy archive) ---------- */
+.tap-support-article-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.tap-support-article-list li a { display: block; padding: 16px; background: var(--tap-surface, #fff); border: 1px solid var(--tap-border, #e5e7eb); border-radius: var(--tap-radius-lg, 8px); text-decoration: none; color: var(--tap-neutral-800, #1f2937); transition: background .15s, border-color .15s, transform .15s; }
+.tap-support-article-list li a:hover { background: var(--tap-primary-bg, #eff6ff); border-color: var(--tap-primary, #2563eb); transform: translateY(-1px); }
+.tap-support-article-list-title { display: block; font-weight: 600; font-size: 15px; margin-bottom: 4px; color: var(--tap-neutral-900, #111827); }
+.tap-support-article-list-excerpt { display: block; font-size: 13px; color: var(--tap-neutral-500, #6b7280); line-height: 1.4; }
+html.dark .tap-support-article-list li a { background: var(--tap-surface, #1e293b); border-color: var(--tap-border, #334155); color: var(--tap-neutral-800, #f1f5f9); }
+html.dark .tap-support-article-list li a:hover { background: var(--tap-primary-bg, #1e3a5f); border-color: var(--tap-primary, #0d9488); }
+html.dark .tap-support-article-list-title { color: var(--tap-neutral-900, #f1f5f9); }
+html.dark .tap-support-article-list-excerpt { color: var(--tap-neutral-600, #94a3b8); }
+
 /* ---------- Scroll to top button ---------- */
 .tap-scroll-top {
   position: fixed;
