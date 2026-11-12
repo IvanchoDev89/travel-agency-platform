@@ -200,6 +200,33 @@ endif;
                 <?php endif; ?>
             </div>
 
+            <!-- Contextual help widget -->
+            <div class="tap-panel-section tap-help-widget">
+                <h3><?php esc_html_e('¿Necesitas ayuda?', 'travel-agency-platform'); ?></h3>
+                <div class="tap-help-widget-links">
+                    <a href="<?php echo esc_url(home_url('/centro-de-soporte/gestionar-reservas-como-agencia/')); ?>" class="tap-help-link">
+                        <span class="tap-help-link-icon" aria-hidden="true">📋</span>
+                        <span><?php esc_html_e('Cómo gestionar reservas', 'travel-agency-platform'); ?></span>
+                    </a>
+                    <a href="<?php echo esc_url(home_url('/centro-de-soporte/como-publico-mis-servicios/')); ?>" class="tap-help-link">
+                        <span class="tap-help-link-icon" aria-hidden="true">🏠</span>
+                        <span><?php esc_html_e('Cómo publicar servicios', 'travel-agency-platform'); ?></span>
+                    </a>
+                    <a href="<?php echo esc_url(home_url('/centro-de-soporte/cuanto-cobra-la-plataforma-de-comision/')); ?>" class="tap-help-link">
+                        <span class="tap-help-link-icon" aria-hidden="true">💰</span>
+                        <span><?php esc_html_e('Comisiones y tarifas', 'travel-agency-platform'); ?></span>
+                    </a>
+                    <a href="<?php echo esc_url(home_url('/centro-de-soporte/como-registro-mi-agencia/')); ?>" class="tap-help-link">
+                        <span class="tap-help-link-icon" aria-hidden="true">🏢</span>
+                        <span><?php esc_html_e('Cómo registrar mi agencia', 'travel-agency-platform'); ?></span>
+                    </a>
+                    <a href="<?php echo esc_url(home_url('/centro-de-soporte/')); ?>" class="tap-help-link tap-help-link--all">
+                        <span class="tap-help-link-icon" aria-hidden="true">📚</span>
+                        <span><?php esc_html_e('Ver toda la documentación', 'travel-agency-platform'); ?></span>
+                    </a>
+                </div>
+            </div>
+
             <div class="tap-panel-section">
                 <h3><?php esc_html_e('Bookings', 'travel-agency-platform'); ?></h3>
                 <div class="tap-agency-tabs">

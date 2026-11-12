@@ -31,6 +31,9 @@ class TAP_Shortcode_Support {
             'order'      => 'ASC',
         ]);
 
+        // Hidden categories for non-admins.
+        $hidden_cats = current_user_can('manage_options') ? [] : ['primeros-pasos', 'administradores', 'desarrolladores'];
+
         // Featured articles.
         $featured = get_posts([
             'post_type'      => 'tap_help',
@@ -39,6 +42,16 @@ class TAP_Shortcode_Support {
             'meta_value'     => '1',
             'post_status'    => 'publish',
         ]);
+        // Filter out hidden categories.
+        if (!empty($hidden_cats)) {
+            $featured = array_filter($featured, function($f) use ($hidden_cats) {
+                $cats = wp_get_post_terms($f->ID, 'tap_help_category', ['fields' => 'slugs']);
+                foreach ($cats as $c) {
+                    if (in_array($c, $hidden_cats, true)) return false;
+                }
+                return true;
+            });
+        }
 
         // All articles grouped by category.
         $articles_by_cat = [];
@@ -69,6 +82,15 @@ class TAP_Shortcode_Support {
             'faq'               => ['icon' => '❓', 'desc' => __('Preguntas frecuentes.', 'travel-agency-platform')],
         ];
 
+        // Hide admin/developer/first-steps categories from non-admins.
+        $is_admin = current_user_can('manage_options');
+        $hidden_cats = ['primeros-pasos', 'administradores', 'desarrolladores'];
+        if (!$is_admin) {
+            foreach ($hidden_cats as $hc) {
+                unset($cat_meta[$hc]);
+            }
+        }
+
         ob_start();
         ?>
         <div class="tap-support-center">
@@ -92,7 +114,8 @@ class TAP_Shortcode_Support {
                     <?php foreach ($categories as $cat): ?>
                         <?php
                         $slug = $cat->slug;
-                        $meta = isset($cat_meta[$slug]) ? $cat_meta[$slug] : ['icon' => '📄', 'desc' => $cat->description];
+                        if (!isset($cat_meta[$slug])) continue; // Skip hidden categories.
+                        $meta = $cat_meta[$slug];
                         $count = isset($articles_by_cat[$slug]) ? count($articles_by_cat[$slug]) : 0;
                         ?>
                         <a href="<?php echo esc_url(get_term_link($cat)); ?>" class="tap-support-cat-card">
@@ -283,6 +306,18 @@ class TAP_Shortcode_Support {
             'posts_per_page' => 10,
             'post_status'    => 'publish',
         ]);
+
+        // Filter out hidden categories for non-admins.
+        if (!current_user_can('manage_options')) {
+            $hidden_cats = ['primeros-pasos', 'administradores', 'desarrolladores'];
+            $posts = array_filter($posts, function($p) use ($hidden_cats) {
+                $cats = wp_get_post_terms($p->ID, 'tap_help_category', ['fields' => 'slugs']);
+                foreach ($cats as $c) {
+                    if (in_array($c, $hidden_cats, true)) return false;
+                }
+                return true;
+            });
+        }
 
         if (empty($posts)) {
             wp_send_json_success(['html' => '<p class="tap-support-search-empty">' . esc_html__('No se encontraron resultados.', 'travel-agency-platform') . '</p>']);

@@ -771,6 +771,11 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 
 /* ===== Agency Self-Service Panel ===== */
 .tap-agency-panel { display: flex; flex-direction: column; gap: var(--tap-space-8); }
+.tap-help-widget-links { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: var(--tap-space-2); }
+.tap-help-link { display: flex; align-items: center; gap: var(--tap-space-2); padding: var(--tap-space-3); background: var(--tap-surface-muted, #f8fafc); border: 1px solid var(--tap-border, #e2e8f0); border-radius: var(--tap-radius-lg); text-decoration: none; color: var(--tap-neutral-800, #1f2937); font-size: var(--tap-text-sm); font-weight: 500; transition: background .15s, border-color .15s, transform .15s; }
+.tap-help-link:hover { background: var(--tap-primary-bg, #eff6ff); border-color: var(--tap-primary, #2563eb); transform: translateY(-1px); }
+.tap-help-link--all { grid-column: 1 / -1; justify-content: center; background: var(--tap-primary-bg, #eff6ff); border-color: var(--tap-primary-border, #dbeafe); color: var(--tap-primary, #2563eb); font-weight: 600; }
+.tap-help-link-icon { font-size: 1.2rem; flex-shrink: 0; }
 .tap-agency-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--tap-space-4); }
 .tap-agency-header h2 { margin: 0; color: var(--tap-neutral-900); }
 .tap-agency-meta { margin: var(--tap-space-1) 0 0; color: var(--tap-neutral-500); font-size: var(--tap-text-sm); }
@@ -3465,6 +3470,9 @@ html.dark .tap-acc-archive-filters,
 html.dark .tap-room-row,
 html.dark .tap-chat-msg.theirs,
 html.dark .tap-tab,
+html.dark .tap-help-link { background: var(--tap-surface-2, #1e293b); border-color: var(--tap-border, #334155); color: var(--tap-neutral-800, #f1f5f9); }
+html.dark .tap-help-link:hover { background: var(--tap-primary-bg, #1e3a5f); border-color: var(--tap-primary, #0d9488); }
+html.dark .tap-help-link--all { background: var(--tap-primary-bg, #1e3a5f); border-color: var(--tap-primary, #0d9488); color: var(--tap-primary-light, #2dd4bf); }
 html.dark .tap-voucher-badges .tap-badge-ok,
 html.dark .tap-itin-item,
 html.dark .tap-itin-share,
