@@ -537,6 +537,12 @@ class TAP_Installer {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD KEY trip_id (trip_id)");
         }
 
+        // currency column on bookings (idempotent).
+        $has_currency = $wpdb->get_var("SHOW COLUMNS FROM {$wpdb->prefix}tap_bookings LIKE 'currency'");
+        if (!$has_currency) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN currency varchar(5) NOT NULL DEFAULT 'USD' AFTER total_amount");
+        }
+
         // UTM tracking columns (idempotent).
         foreach (['utm_source', 'utm_medium', 'utm_campaign'] as $col) {
             $exists = $wpdb->get_var($wpdb->prepare("SHOW COLUMNS FROM {$wpdb->prefix}tap_bookings LIKE %s", $col));

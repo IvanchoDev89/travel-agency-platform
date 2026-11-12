@@ -92,6 +92,7 @@ class TAP_Ajax {
             'adults'          => $adults,
             'children'        => $children,
             'total_amount'    => $total,
+            'currency'        => $svc_currency,
             'notes'           => sanitize_textarea_field(wp_unslash($_POST['notes'] ?? '')),
             'guest_name'      => sanitize_text_field(wp_unslash($_POST['guest_name'] ?? '')),
             'guest_email'     => sanitize_email(wp_unslash($_POST['guest_email'] ?? '')),

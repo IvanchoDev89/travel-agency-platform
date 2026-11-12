@@ -227,7 +227,6 @@ class TAP_Booking {
         $booking_fee = self::get_booking_fee($subtotal);
         $booking_fee = round(max(0, $booking_fee), 2);
         $total = round($subtotal + $booking_fee, 2);
-        $commission_amount = round($subtotal * ($commission_percent / 100), 2);
 
         // Referral discount (B2C growth loop).
         $referral_code = '';
@@ -252,7 +251,11 @@ class TAP_Booking {
         if ($coupon_code && class_exists('TAP_Coupons')) {
             $coupon = TAP_Coupons::validate($coupon_code, $total);
             if ($coupon) {
-                $coupon_discount = TAP_Coupons::discount_for($coupon, $total);
+                $raw_discount = TAP_Coupons::discount_for($coupon, $total);
+                // Cap: discount cannot exceed 25% of the platform commission,
+                // so the platform never loses money on a coupon.
+                $max_discount = round($subtotal * ($commission_percent * 0.25 / 100), 2);
+                $coupon_discount = min($raw_discount, $max_discount);
                 if ($coupon_discount > 0) {
                     $total = round($total - $coupon_discount, 2);
                     if ($total < 0) $total = 0;
@@ -262,6 +265,10 @@ class TAP_Booking {
         if ($coupon_code && $coupon_discount > 0 && class_exists('TAP_Coupons')) {
             TAP_Coupons::mark_used($coupon_code);
         }
+
+        // Commission is calculated on the FINAL total (after all discounts),
+        // so the platform never earns commission on money it did not collect.
+        $commission_amount = round($total * ($commission_percent / 100), 2);
 
         $nights = 0;
         if (!empty($data['check_in']) && !empty($data['check_out'])) {
@@ -466,6 +473,7 @@ class TAP_Booking {
                     'children'          => $children,
                     'nights'            => $nights,
                     'total_amount'      => $total,
+                    'currency'          => isset($data['currency']) ? sanitize_text_field($data['currency']) : 'USD',
                     'booking_fee'       => $booking_fee,
                     'commission_amount' => $commission_amount,
                     'commission_percent'=> $commission_percent,

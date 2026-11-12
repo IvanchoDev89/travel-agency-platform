@@ -199,11 +199,38 @@ class TAP_Payment {
         if (!$booking_id) {
             return;
         }
+
+        $booking = TAP_Booking::get_booking($booking_id);
+        if (!$booking) {
+            return;
+        }
+
+        // Reconciliation: verify amount matches booking total.
+        $intent_amount = isset($intent->amount) ? TAP_Onvo::from_minor_units($intent->amount, $intent->currency ?? 'USD') : 0;
+        $booking_total = (float) $booking->total_amount;
+        if (abs($intent_amount - $booking_total) > 0.01) {
+            // Log discrepancy for admin review.
+            if (class_exists('TAP_Audit_Log')) {
+                TAP_Audit_Log::log('payment_amount_mismatch', 'booking', $booking_id, null, $booking_id, 0);
+            }
+            // Don't mark as paid if amount doesn't match.
+            return;
+        }
+
         TAP_Booking::update_payment_status($booking_id, 'paid');
 
+        // Store the payment intent ID for refunds.
+        update_post_meta($booking_id, '_tap_onvo_payment_intent_id', $intent_id);
+
         // Record in payment ledger.
-        $amount = isset($intent->amount) ? TAP_Onvo::from_minor_units($intent->amount, $intent->currency ?? 'CRC') : 0;
-        self::record_order($intent_id, 'booking', (int) $booking_id, (float) $amount, 'completed');
+        self::record_order($intent_id, 'booking', (int) $booking_id, (float) $intent_amount, 'completed');
+
+        // Store processor fee (Onvo: 3.5% + 2% retention).
+        $processor_fee = round($intent_amount * 0.055, 2);
+        $net_received = round($intent_amount - $processor_fee, 2);
+        update_post_meta($booking_id, '_tap_processor_fee', $processor_fee);
+        update_post_meta($booking_id, '_tap_net_received', $net_received);
+        update_post_meta($booking_id, '_tap_payment_gateway', 'onvo');
 
         do_action('tap_payment_completed', $booking_id, 'onvo', $intent_id);
     }

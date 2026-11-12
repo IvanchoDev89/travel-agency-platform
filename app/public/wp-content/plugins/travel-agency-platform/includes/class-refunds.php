@@ -44,26 +44,44 @@ class TAP_Refunds {
         }
 
         $refund_amount = $amount !== null ? round((float) $amount, 2) : round((float) ($booking->refund_amount ?? 0), 2);
+        // Cap: never refund more than what was actually paid.
+        $paid = round((float) ($booking->amount_paid ?? 0), 2);
+        if ($paid > 0 && $refund_amount > $paid) {
+            $refund_amount = $paid;
+        }
         if ($refund_amount <= 0) {
             update_post_meta($booking_id, '_tap_refund_error', '');
             return true;
         }
 
         $capture_id = get_post_meta($booking_id, '_tap_paypal_capture_id', true);
-        if (!$capture_id) {
+        $onvo_intent_id = get_post_meta($booking_id, '_tap_onvo_payment_intent_id', true);
+
+        if (!$capture_id && !$onvo_intent_id) {
             // Payment was not captured online (office/cash/manual): nothing to
             // reverse at the gateway. Treat it as an offline refund.
             delete_post_meta($booking_id, '_tap_refund_error');
             return true;
         }
 
-        $refunded = TAP_PayPal::refund_capture($capture_id, $refund_amount);
+        if ($capture_id) {
+            $refunded = TAP_PayPal::refund_capture($capture_id, $refund_amount);
+        } else {
+            $currency = !empty($booking->currency) ? $booking->currency : 'USD';
+            $refunded = TAP_Onvo::refund($onvo_intent_id, $refund_amount, $currency);
+        }
+
         if (is_wp_error($refunded)) {
             update_post_meta($booking_id, '_tap_refund_error', $refunded->get_error_message());
             return $refunded;
         }
 
-        update_post_meta($booking_id, '_tap_paypal_refund_id', $refunded['refund_id']);
+        $refund_id = is_array($refunded) ? ($refunded['refund_id'] ?? $refunded['id'] ?? '') : '';
+        if ($capture_id) {
+            update_post_meta($booking_id, '_tap_paypal_refund_id', $refund_id);
+        } else {
+            update_post_meta($booking_id, '_tap_onvo_refund_id', $refund_id);
+        }
         update_post_meta($booking_id, '_tap_refund_error', '');
         return true;
     }
@@ -81,12 +99,15 @@ class TAP_Refunds {
 
         $pct  = self::refund_percent($policy, $days_before);
         $total = floatval($booking->total_amount ?? 0);
+        $paid  = floatval($booking->amount_paid ?? 0);
+        // Never base the refund on more than what was actually paid.
+        $base  = ($paid > 0 && $paid < $total) ? $paid : $total;
 
         return [
             'policy'         => $policy,
             'days_before'    => $days_before,
             'refund_percent' => $pct,
-            'refund_amount'  => round($total * ($pct / 100), 2),
+            'refund_amount'  => round($base * ($pct / 100), 2),
         ];
     }
 
