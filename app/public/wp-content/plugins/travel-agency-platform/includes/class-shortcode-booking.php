@@ -275,15 +275,19 @@ class TAP_Shortcode_Booking {
                             $service = get_post($booking->service_id);
                             $service_marker = $booking->service_type . ':' . $booking->service_id;
                             $can_review = TAP_Booking::can_review_booking($booking, $reviewed);
+                            $prefix = class_exists('TAP_Post_Types') ? TAP_Post_Types::meta_prefix($booking->service_type) : '';
+                            $bc = $prefix ? get_post_meta($booking->service_id, '_tap_' . $prefix . '_currency', true) : '';
+                            if (empty($bc)) $bc = 'USD';
+                            $currency_symbol = class_exists('TAP_Currency') ? TAP_Currency::symbol($bc) : $bc;
 							?>
                         <tr>
                             <td><?php echo esc_html($booking->booking_code); ?></td>
                             <td><?php echo $service ? esc_html($service->post_title) : 'N/A'; ?></td>
                             <td><?php echo esc_html($booking->check_in . ($booking->check_out ? ' - ' . $booking->check_out : '')); ?></td>
                             <td>
-                                <?php echo esc_html(TAP_Currency::fmt($booking->total_amount)); ?>
+                                <?php echo esc_html($currency_symbol . ' ' . number_format((float) $booking->total_amount, 2)); ?>
                                 <?php if ((float) ($booking->refund_amount ?? 0) > 0): ?>
-                                    <br><span class="tap-refund-note"><?php echo esc_html(sprintf(/* translators: %s: importe reembolsado */ __('Reembolso: %s', 'travel-agency-platform'), TAP_Currency::fmt((float) $booking->refund_amount))); ?></span>
+                                    <br><span class="tap-refund-note"><?php echo esc_html(sprintf(/* translators: %s: importe reembolsado */ __('Reembolso: %s', 'travel-agency-platform'), $currency_symbol . ' ' . number_format((float) $booking->refund_amount, 2))); ?></span>
                                 <?php elseif (in_array($booking->status, ['cancelled', 'refunded'], true) && !empty($booking->cancellation_policy) && in_array($booking->service_type, TAP_Booking::service_type_slugs(), true)): ?>
                                     <br><span class="tap-refund-note"><?php esc_html_e('Política no reembolsable', 'travel-agency-platform'); ?></span>
                                 <?php endif; ?>
@@ -383,6 +387,12 @@ class TAP_Shortcode_Booking {
         $service = get_post($booking->service_id);
         $status_success = isset($_GET['status']) && $_GET['status'] === 'success';
         $status_cancel  = isset($_GET['status']) && $_GET['status'] === 'cancel';
+
+        // Determine the booking's currency (from service meta, default USD).
+        $prefix = class_exists('TAP_Post_Types') ? TAP_Post_Types::meta_prefix($booking->service_type) : '';
+        $booking_currency = $prefix ? get_post_meta($booking->service_id, '_tap_' . $prefix . '_currency', true) : '';
+        if (empty($booking_currency)) $booking_currency = 'USD';
+        $currency_symbol = class_exists('TAP_Currency') ? TAP_Currency::symbol($booking_currency) : $booking_currency;
 
         ob_start();
         ?>
@@ -487,9 +497,9 @@ class TAP_Shortcode_Booking {
                     <?php endif; ?>
                     <tr><td><strong><?php esc_html_e('Adults:', 'travel-agency-platform'); ?></strong></td><td><?php echo esc_html($booking->adults); ?></td></tr>
                     <tr><td><strong><?php esc_html_e('Children:', 'travel-agency-platform'); ?></strong></td><td><?php echo esc_html($booking->children); ?></td></tr>
-                    <tr><td><strong><?php esc_html_e('Total:', 'travel-agency-platform'); ?></strong></td><td><strong><?php echo esc_html(TAP_Currency::fmt($booking->total_amount)); ?></strong></td></tr>
+                    <tr><td><strong><?php esc_html_e('Total:', 'travel-agency-platform'); ?></strong></td><td><strong><?php echo esc_html($currency_symbol . ' ' . number_format((float) $booking->total_amount, 2)); ?></strong></td></tr>
                     <?php if ((float) ($booking->refund_amount ?? 0) > 0): ?>
-                    <tr><td><strong><?php esc_html_e('Reembolso aplicado:', 'travel-agency-platform'); ?></strong></td><td><span class="tap-refund-note">-<?php echo esc_html(TAP_Currency::fmt((float) $booking->refund_amount)); ?></span></td></tr>
+                    <tr><td><strong><?php esc_html_e('Reembolso aplicado:', 'travel-agency-platform'); ?></strong></td><td><span class="tap-refund-note">-<?php echo esc_html($currency_symbol . ' ' . number_format((float) $booking->refund_amount, 2)); ?></span></td></tr>
                     <?php endif; ?>
                     <tr><td><strong><?php esc_html_e('Status:', 'travel-agency-platform'); ?></strong></td><td><span class="tap-status tap-status-<?php echo esc_attr($booking->status); ?>"><?php echo esc_html(ucfirst($booking->status)); ?></span></td></tr>
                 </table>
@@ -505,9 +515,9 @@ class TAP_Shortcode_Booking {
                             echo esc_html(sprintf(
                                 /* translators: 1: importe ya pagado, 2: importe total, 3: saldo pendiente */
                                 __('Ya pagaste %1$s de %2$s. El saldo pendiente es de %3$s.', 'travel-agency-platform'),
-                                TAP_Currency::fmt(TAP_Booking::amount_already_paid($booking)),
-                                TAP_Currency::fmt((float) $booking->total_amount),
-                                TAP_Currency::fmt($tap_remaining)
+                                $currency_symbol . ' ' . number_format(TAP_Booking::amount_already_paid($booking), 2),
+                                $currency_symbol . ' ' . number_format((float) $booking->total_amount, 2),
+                                $currency_symbol . ' ' . number_format($tap_remaining, 2)
                             ));
 							?>
                             </p>
@@ -523,7 +533,7 @@ class TAP_Shortcode_Booking {
 								<?php
 								echo $tap_remaining > 0 && TAP_Booking::amount_already_paid($booking) > 0
 								/* translators: %s: importe del saldo pendiente */
-								? esc_html(sprintf(__('Pagar el saldo restante de %s', 'travel-agency-platform'), TAP_Currency::fmt($tap_remaining)))
+								? esc_html(sprintf(__('Pagar el saldo restante de %s', 'travel-agency-platform'), $currency_symbol . ' ' . number_format($tap_remaining, 2)))
 								: esc_html__('Completar el pago con PayPal', 'travel-agency-platform');
 								?>
                         </p>
@@ -614,7 +624,7 @@ class TAP_Shortcode_Booking {
                             <span class="tap-onvo-btn-text">
                                 <?php
                                 echo esc_html($tap_remaining > 0 && TAP_Booking::amount_already_paid($booking) > 0
-                                    ? sprintf(__('Pagar el saldo restante de %s', 'travel-agency-platform'), TAP_Currency::fmt($tap_remaining))
+                                    ? sprintf(__('Pagar el saldo restante de %s', 'travel-agency-platform'), $currency_symbol . ' ' . number_format($tap_remaining, 2))
                                     : __('Completar el pago con Onvo Pay', 'travel-agency-platform'));
                                 ?>
                             </span>
