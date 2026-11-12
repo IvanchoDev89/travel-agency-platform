@@ -27,6 +27,7 @@ class TAP_Dashboard_Settings {
         ]);
         register_setting('tap_settings', 'tap_booking_auto_confirm');
         register_setting('tap_settings', 'tap_stale_booking_hours');
+        register_setting('tap_settings', 'tap_payment_hold_minutes');
         register_setting('tap_settings', 'tap_payment_methods');
         register_setting('tap_settings', 'tap_terms_page');
         register_setting('tap_settings', 'tap_paypal_enabled');
@@ -357,6 +358,11 @@ class TAP_Dashboard_Settings {
                     <tr>
                         <th><label for="tap_stale_booking_hours"><?php esc_html_e('Cancelar pendientes tras (horas)', 'travel-agency-platform'); ?></label></th>
                         <td><input type="number" id="tap_stale_booking_hours" name="tap_stale_booking_hours" value="<?php echo esc_attr(get_option('tap_stale_booking_hours', '24')); ?>" min="1" step="1" class="regular-text"></td>
+                    </tr>
+                    <tr>
+                        <th><label for="tap_payment_hold_minutes"><?php esc_html_e('Hold de pago (minutos)', 'travel-agency-platform'); ?></label></th>
+                        <td><input type="number" id="tap_payment_hold_minutes" name="tap_payment_hold_minutes" value="<?php echo esc_attr(get_option('tap_payment_hold_minutes', '30')); ?>" min="5" step="5" class="regular-text">
+                        <p class="description"><?php esc_html_e('Tiempo que un usuario tiene para completar el pago antes de que la reserva se cancele automáticamente y se libere el slot.', 'travel-agency-platform'); ?></p></td>
                     </tr>
                     <tr>
                         <th><label for="tap_terms_page"><?php esc_html_e('Terms & Conditions Page', 'travel-agency-platform'); ?></label></th>

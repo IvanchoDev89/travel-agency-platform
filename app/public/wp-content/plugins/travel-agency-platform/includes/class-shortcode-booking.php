@@ -672,6 +672,42 @@ class TAP_Shortcode_Booking {
                 </div>
 					<?php endif; ?>
         </div>
+        ?>
+        <div class="tap-checkout-hold-timer" id="tap-hold-timer" data-created="<?php echo esc_attr($booking->created_at); ?>" data-hold-minutes="30">
+            <span class="tap-hold-timer-icon" aria-hidden="true">&#x23F1;</span>
+            <span class="tap-hold-timer-text"><?php esc_html_e('Tu reserva expira en', 'travel-agency-platform'); ?> <strong id="tap-hold-countdown">--:--</strong></span>
+        </div>
+        <script>
+        jQuery(document).ready(function($) {
+            var $timer = $('#tap-hold-timer');
+            if (!$timer.length) return;
+            var created = new Date($timer.data('created').replace(' ', 'T'));
+            var holdMinutes = parseInt($timer.data('hold-minutes'), 10) || 30;
+            var expiresAt = created.getTime() + holdMinutes * 60 * 1000;
+            var $countdown = $('#tap-hold-countdown');
+            var expired = false;
+
+            function updateCountdown() {
+                if (expired) return;
+                var now = Date.now();
+                var remaining = expiresAt - now;
+                if (remaining <= 0) {
+                    expired = true;
+                    $countdown.text('00:00');
+                    $timer.addClass('tap-hold-expired');
+                    $timer.find('.tap-hold-timer-text').html('<?php echo esc_js(__('Tu reserva ha expirado. El slot ha sido liberado.', 'travel-agency-platform')); ?>');
+                    $('#tap-onvo-pay-btn, #tap-paypal-button-container, .tap-onvo-payment').hide();
+                    return;
+                }
+                var mins = Math.floor(remaining / 60000);
+                var secs = Math.floor((remaining % 60000) / 1000);
+                $countdown.text((mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs);
+            }
+
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        });
+        </script>
         <?php
         return ob_get_clean();
     }

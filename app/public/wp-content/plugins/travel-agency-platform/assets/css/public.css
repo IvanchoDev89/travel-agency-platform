@@ -809,6 +809,10 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 .tap-booking-message { margin-bottom: var(--tap-space-4); font-size: var(--tap-text-sm); }
 .tap-booking-message.tap-error { color: var(--tap-error); }
 .tap-booking-message.tap-success { color: var(--tap-success); }
+.tap-checkout-hold-timer { display: flex; align-items: center; gap: var(--tap-space-2); padding: var(--tap-space-3) var(--tap-space-4); background: var(--tap-warning-bg, #fef3c7); border: 1px solid var(--tap-warning-border, #fcd34d); border-radius: var(--tap-radius-lg); margin-bottom: var(--tap-space-4); font-size: var(--tap-text-sm); color: var(--tap-warning-dark, #92400e); }
+.tap-checkout-hold-timer.tap-hold-expired { background: var(--tap-error-bg, #fef2f2); border-color: var(--tap-danger-border, #fecaca); color: var(--tap-danger-dark, #b91c1c); }
+.tap-hold-timer-icon { font-size: 1.2rem; }
+.tap-hold-timer-text strong { font-weight: 800; font-variant-numeric: tabular-nums; }
 .tap-onvo-btn-spinner { display: inline-block; width: 16px; height: 16px; margin-left: 8px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: tap-spin 0.6s linear infinite; vertical-align: middle; }
 @keyframes tap-spin { to { transform: rotate(360deg); } }
 @media (max-width: 640px) {

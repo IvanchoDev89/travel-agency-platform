@@ -594,6 +594,26 @@ class TAP_Booking {
     public static function cancel_stale_bookings() {
         global $wpdb;
         $table  = $wpdb->prefix . 'tap_bookings';
+
+        // 1. Release payment holds: unpaid pending bookings older than the
+        //    hold window (default 30 min) are cancelled and their slots freed.
+        $hold_minutes = (int) apply_filters('tap_payment_hold_minutes', get_option('tap_payment_hold_minutes', 30));
+        if ($hold_minutes >= 1) {
+            $hold_cutoff = gmdate('Y-m-d H:i:s', current_time('timestamp') - $hold_minutes * MINUTE_IN_SECONDS);
+            $hold_ids = $wpdb->get_col($wpdb->prepare(
+                "SELECT id FROM $table WHERE status = 'pending' AND payment_status = 'pending' AND created_at < %s",
+                $hold_cutoff
+            ));
+            foreach ($hold_ids as $id) {
+                $booking = self::get_booking((int) $id);
+                if (!$booking) continue;
+                $reason = __('La reserva se canceló automáticamente por no completarse el pago dentro del plazo.', 'travel-agency-platform');
+                self::apply_cancellation((int) $id, $booking, 'system', 'cancelled', $reason);
+            }
+        }
+
+        // 2. Cancel stale bookings (request/pending) older than the configured
+        //    hours (default 24h).
         $hours  = (int) apply_filters('tap_stale_booking_hours', get_option('tap_stale_booking_hours', 24));
         if ($hours < 1) return;
 
