@@ -113,9 +113,20 @@ if ($agencies) {
 }
 
 // ---- 11) employee route (reduced nav) ----
-$employees = get_users(['role' => 'tap_agency_employee', 'number' => 1, 'fields' => 'ID']);
-if ($employees) {
-    wp_set_current_user((int) $employees[0]);
+// Pick an employee that is still mapped to an existing agency: a crashed
+// suite can leave an orphan employee behind, and those render the
+// "no agency" callout instead of the dashboard sidebar.
+$employees = get_users(['role' => 'tap_agency_employee', 'number' => 50, 'fields' => 'ID']);
+$employee_uid = 0;
+foreach ($employees as $uid) {
+    $aid = (int) get_user_meta($uid, '_tap_agency_id', true);
+    if ($aid && get_post($aid) && get_post($aid)->post_type === 'tap_agency') {
+        $employee_uid = (int) $uid;
+        break;
+    }
+}
+if ($employee_uid) {
+    wp_set_current_user($employee_uid);
     $out = do_shortcode('[tap_front_dash]');
     tap_t_assert(strpos($out, 'tap-dash-sidebar') !== false, 'employee sees dashboard sidebar');
     tap_t_assert(strpos($out, 'Operaciones') !== false && strpos($out, 'Finanzas') === false, 'employee nav shows operaciones but hides finanzas');
