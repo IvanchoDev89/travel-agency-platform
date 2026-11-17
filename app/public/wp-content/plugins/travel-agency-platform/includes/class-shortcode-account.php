@@ -18,7 +18,12 @@ class TAP_Shortcode_Account {
         $is_agency = in_array('tap_agency_admin', (array) $user->roles, true) || in_array('tap_agency_employee', (array) $user->roles, true);
 
         if ($is_agency) {
-            return TAP_Shortcode_Agency_Panel::agency_panel($user);
+            /* Agency users are redirected to /mi-cuenta/ by
+               TAP_Front_Dash::dashboard_redirect() before this renders; the
+               legacy TAP_Shortcode_Agency_Panel was removed as dead code.
+               This fallback only covers non-GET or edge renders. */
+            return '<p class="tap-empty">' . esc_html__('Gestiona tus listados y reservas desde', 'travel-agency-platform')
+                . ' <a href="' . esc_url(home_url('/mi-cuenta/')) . '">' . esc_html__('Mi Cuenta', 'travel-agency-platform') . '</a>.</p>';
         }
 
         ob_start();
