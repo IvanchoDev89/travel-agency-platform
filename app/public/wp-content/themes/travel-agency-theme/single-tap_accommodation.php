@@ -321,9 +321,8 @@ while (have_posts()): the_post();
           </div>
           <?php endif; ?>
         </div>
-         </details>
-      </div>
-
+        </div>
+      </details>
     </div>
 
     <!-- Sidebar Booking Widget -->
@@ -662,6 +661,7 @@ jQuery(document).ready(function($) {
 })();
 </script>
 <?php endif; ?>
+</div><!-- .tap-acc-layout -->
 
 <!-- Similar accommodations -->
 <?php
