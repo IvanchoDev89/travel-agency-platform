@@ -628,6 +628,27 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .tap-bw-footer { text-align: center; font-size: var(--tap-text-xs); color: var(--tap-neutral-400); padding: var(--tap-space-3); border-top: 1px solid var(--tap-neutral-200); }
 .tap-bw-footer p { margin: 0; }
 
+/* Rating chip + price "from" (accommodation header) */
+.tap-acc-rating-chip { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; color: var(--tap-neutral-700); text-decoration: none; padding: 2px 10px; background: var(--tap-neutral-50); border: 1px solid var(--tap-neutral-200); border-radius: var(--tap-radius-full); transition: background 0.15s ease, border-color 0.15s ease; }
+.tap-acc-rating-chip:hover { background: var(--tap-primary-bg, rgba(13, 148, 136, 0.1)); border-color: var(--tap-primary); }
+.tap-acc-rating-star { color: #f59e0b; }
+.tap-acc-rating-count { font-weight: 400; color: var(--tap-neutral-500); }
+.tap-acc-price-from { font-weight: 600; color: var(--tap-primary); }
+
+/* Similar accommodations */
+.tap-similar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--tap-space-5); }
+.tap-similar-card { display: flex; flex-direction: column; background: var(--tap-surface, #fff); border: 1px solid var(--tap-neutral-200); border-radius: var(--tap-radius-xl); overflow: hidden; text-decoration: none; transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease; }
+.tap-similar-card:hover { transform: translateY(-2px); border-color: var(--tap-primary); box-shadow: var(--tap-shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1)); }
+.tap-similar-thumb { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: var(--tap-neutral-100); }
+.tap-similar-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tap-similar-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
+.tap-similar-body { padding: var(--tap-space-3) var(--tap-space-4) var(--tap-space-4); display: flex; flex-direction: column; gap: var(--tap-space-1); }
+.tap-similar-title { font-size: var(--tap-text-base); font-weight: 600; color: var(--tap-neutral-900); }
+.tap-similar-meta { display: flex; align-items: center; justify-content: space-between; gap: var(--tap-space-2); font-size: var(--tap-text-sm); }
+.tap-similar-type { color: var(--tap-neutral-500); }
+.tap-similar-price { font-weight: 700; color: var(--tap-neutral-900); white-space: nowrap; }
+.tap-similar-price small { font-weight: 400; color: var(--tap-neutral-400); }
+
 /* ===== Accommodation Archive ===== */
 .tap-acc-archive { max-width: var(--tap-container-max); margin: 0 auto; padding: var(--tap-space-8) var(--tap-container-padding) var(--tap-space-16); }
 .tap-acc-archive-header { margin-bottom: var(--tap-space-8); }
@@ -3374,9 +3395,6 @@ html.dark .tap-listing-toolbar .tap-listing-search { background: var(--tap-surfa
 /* Tour calendar selected day */
 .tap-avcal-day.is-selected { outline: 3px solid var(--tap-primary); outline-offset: -3px; transform: scale(1.02); box-shadow: 0 6px 18px rgba(0,0,0,0.12); z-index: 2; }
 
-/* Mobile booking CTA (accommodation) */
-.tap-acc-mobile-cta { display: none; }
-
 /* Mobile booking CTA (tour) */
 .tap-tour-mobile-cta { display: none; }
 @media (max-width: 768px) {
@@ -3384,12 +3402,6 @@ html.dark .tap-listing-toolbar .tap-listing-search { background: var(--tap-surfa
     .tap-tour-mobile-price { font-size: 20px; font-weight: 800; color: var(--tap-primary, #0d9488); }
     .tap-tour-mobile-price small { font-size: 12px; font-weight: 400; color: var(--tap-neutral-500, #64748b); }
     .tap-tour-mobile-book-btn { flex-shrink: 0; }
-}
-@media (max-width: 768px) {
-    .tap-acc-mobile-cta { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; margin-bottom: 8px; }
-    .tap-acc-mobile-price { font-size: 20px; font-weight: 800; color: var(--tap-primary, #0d9488); }
-    .tap-acc-mobile-price small { font-size: 12px; font-weight: 400; color: var(--tap-neutral-500, #64748b); }
-    .tap-acc-mobile-book-btn { flex-shrink: 0; }
 }
 
 /* Mobile booking bar */
@@ -4229,4 +4241,19 @@ html.dark .tap-btn-ghost:hover { color: var(--tap-neutral-900); background: var(
 .tap-avcal-wrap.tap-collapse > .tap-collapse-body {
     padding: 0;
     border: none;
+}
+/* ── Dark mode: accommodation header chips + similar grid ─────── */
+html.dark .tap-acc-rating-chip { background: var(--tap-surface-2, #1e293b); border-color: var(--tap-border, #334155); color: var(--tap-neutral-800, #f1f5f9); }
+html.dark .tap-acc-rating-chip:hover { background: var(--tap-primary-bg, #1e3a5f); border-color: var(--tap-primary, #0d9488); }
+html.dark .tap-acc-rating-count { color: var(--tap-neutral-500, #94a3b8); }
+html.dark .tap-acc-price-from { color: var(--tap-primary-light, #2dd4bf); }
+html.dark .tap-similar-card { background: var(--tap-surface-2, #1e293b); border-color: var(--tap-border, #334155); }
+html.dark .tap-similar-card:hover { border-color: var(--tap-primary, #0d9488); }
+html.dark .tap-similar-thumb { background: var(--tap-surface, #1a2540); }
+html.dark .tap-similar-title { color: var(--tap-neutral-900, #f1f5f9); }
+html.dark .tap-similar-type { color: var(--tap-neutral-500, #94a3b8); }
+html.dark .tap-similar-price { color: var(--tap-neutral-900, #f1f5f9); }
+html.dark .tap-similar-price small { color: var(--tap-neutral-400, #64748b); }
+@media (max-width: 640px) {
+    .tap-similar-grid { grid-template-columns: 1fr; }
 }

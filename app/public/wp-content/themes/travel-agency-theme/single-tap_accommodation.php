@@ -25,7 +25,6 @@ while (have_posts()): the_post();
     $lng = get_post_meta($id, '_tap_acc_lng', true);
     $gallery = get_post_meta($id, '_tap_acc_gallery', true);
     $gallery_ids = $gallery ? explode(',', $gallery) : [];
-    $amenities = wp_get_post_terms($id, 'tap_amenity', ['fields' => 'names']);
     $bedrooms = get_post_meta($id, '_tap_acc_bedrooms', true);
     $bathrooms = get_post_meta($id, '_tap_acc_bathrooms', true);
     $capacity = get_post_meta($id, '_tap_acc_capacity', true);
@@ -33,6 +32,36 @@ while (have_posts()): the_post();
     $rooms = TAP_Booking_Pricing::get_rooms_with_availability($id);
 
     $has_rooms = !empty($rooms);
+
+    /* Price "from": cheapest active room per night (rooms are the price
+       source of truth; price_fallback is only used when no rooms exist). */
+    $price_from = 0;
+    if ($has_rooms) {
+        foreach ($rooms as $r) {
+            $pn = (float) get_post_meta($r['id'], '_tap_room_price_per_night', true);
+            if ($pn > 0 && ($price_from <= 0 || $pn < $price_from)) {
+                $price_from = $pn;
+            }
+        }
+    }
+
+    /* Amenities shown on the property are the union of room amenities
+       (source of truth) merged with any taxonomy terms. */
+    $tax_amenities = wp_get_post_terms($id, 'tap_amenity', ['fields' => 'names']);
+    $room_amenities_all = [];
+    foreach ($rooms as $r) {
+        foreach (TAP_Post_Types::get_room_amenities($r['id']) as $a) {
+            $a = trim((string) $a);
+            if ($a === '') continue;
+            $key = mb_strtolower($a);
+            if (!isset($room_amenities_all[$key])) $room_amenities_all[$key] = $a;
+        }
+    }
+    $merged = array_unique(array_merge($tax_amenities, array_values($room_amenities_all)));
+    $amenities = array_values($merged);
+
+    /* Rating summary for the header chip (links to #tap-reviews). */
+    $rating_stats = class_exists('TAP_API') ? TAP_API::get_rating_stats('tap_accommodation', $id) : ['avg' => 0, 'count' => 0];
     $type_labels = [
         'hotel' => 'Hotel', 'hostel' => 'Hostel', 'resort' => 'Resort', 'villa' => 'Villa',
         'cabin' => 'Cabin', 'apartment' => 'Apartment', 'boutique' => 'Boutique Hotel',
@@ -97,14 +126,20 @@ while (have_posts()): the_post();
       <div class="tap-acc-stars"><?php echo str_repeat('★', intval($stars)) . str_repeat('☆', 5 - intval($stars)); ?></div>
       <?php endif; ?>
     </div>
-    <?php if ($price_fallback || $has_rooms): ?>
-    <div class="tap-acc-mobile-cta">
-      <span class="tap-acc-mobile-price"><?php echo esc_html($price_fallback ? TAP_Currency::fmt0($price_fallback) : ''); ?> <small><?php esc_html_e('por noche', 'travel-agency-platform'); ?></small></span>
-      <button type="button" class="tap-btn tap-btn-primary tap-acc-mobile-book-btn" onclick="document.getElementById('tap-booking-widget').scrollIntoView({behavior:'smooth',block:'start'});"><?php esc_html_e('Reservar', 'travel-agency-platform'); ?></button>
-    </div>
-    <?php endif; ?>
     <div class="tap-acc-meta">
       <span class="tap-acc-type"><?php echo esc_html($type_name); ?></span>
+      <?php if ($rating_stats['count'] > 0): ?>
+      <a href="#tap-reviews" class="tap-acc-rating-chip">
+        <span class="tap-acc-rating-star" aria-hidden="true">★</span>
+        <?php echo esc_html(number_format_i18n((float) $rating_stats['avg'], 1)); ?>
+        <span class="tap-acc-rating-count">(<?php echo esc_html($rating_stats['count']); ?>)</span>
+      </a>
+      <?php endif; ?>
+      <?php if ($price_from > 0): ?>
+      <span class="tap-acc-price-from">
+        <?php printf(/* translators: %s: precio por noche */ esc_html__('Desde %s / noche', 'travel-agency-platform'), esc_html(TAP_Currency::fmt0($price_from))); ?>
+      </span>
+      <?php endif; ?>
       <?php if ($address || $city): ?>
       <span class="tap-acc-location">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -591,7 +626,14 @@ jQuery(document).ready(function($) {
 <?php if ($price_fallback || $has_rooms): ?>
 <div class="tap-bw-mobile-bar" id="tap-bw-mobile-bar">
     <div class="tap-bw-mobile-price">
-        <span class="tap-bw-mobile-amount"><?php echo esc_html($price_fallback ? TAP_Currency::fmt0($price_fallback) : TAP_Currency::fmt0(0)); ?></span>
+        <span class="tap-bw-mobile-amount"><?php
+            if ($price_from > 0) {
+                /* translators: %s: precio por noche */
+                echo esc_html(sprintf(__('Desde %s', 'travel-agency-platform'), TAP_Currency::fmt0($price_from)));
+            } else {
+                echo esc_html(TAP_Currency::fmt0($price_fallback));
+            }
+        ?></span>
         <small><?php esc_html_e('por noche', 'travel-agency-platform'); ?></small>
     </div>
     <button type="button" class="tap-btn tap-btn-primary tap-bw-mobile-cta" id="tap-bw-mobile-cta"><?php esc_html_e('Reservar', 'travel-agency-platform'); ?></button>
@@ -619,6 +661,71 @@ jQuery(document).ready(function($) {
     }
 })();
 </script>
+<?php endif; ?>
+
+<!-- Similar accommodations -->
+<?php
+$similar_args = [
+    'post_type'      => 'tap_accommodation',
+    'post_status'    => 'publish',
+    'posts_per_page' => 3,
+    'post__not_in'   => [$id],
+    'orderby'        => 'rand',
+];
+if ($city) {
+    $similar_args['meta_query'] = [[
+        'key'     => '_tap_acc_city',
+        'value'   => $city,
+        'compare' => 'LIKE',
+    ]];
+}
+$similar = get_posts($similar_args);
+/* Fallback: fill with latest published if city filter came up short. */
+if (count($similar) < 3) {
+    $exclude = array_merge([$id], wp_list_pluck($similar, 'ID'));
+    $fill = get_posts([
+        'post_type' => 'tap_accommodation', 'post_status' => 'publish',
+        'posts_per_page' => 3 - count($similar), 'post__not_in' => $exclude,
+        'orderby' => 'modified', 'order' => 'DESC',
+    ]);
+    $similar = array_merge($similar, $fill);
+}
+if ($similar):
+?>
+<div class="tap-acc-section tap-similar-section">
+  <h2><?php esc_html_e('Alojamientos similares', 'travel-agency-platform'); ?></h2>
+  <div class="tap-similar-grid">
+    <?php foreach ($similar as $s):
+        $s_price = floatval(get_post_meta($s->ID, '_tap_acc_price_per_night', true));
+        $s_rooms_ids = get_posts(['post_type' => 'tap_room', 'post_status' => 'publish', 'posts_per_page' => 20, 'meta_key' => '_tap_room_accommodation_id', 'meta_value' => $s->ID, 'fields' => 'ids']);
+        foreach ($s_rooms_ids as $srid) {
+            $pn = floatval(get_post_meta($srid, '_tap_room_price_per_night', true));
+            if ($pn > 0 && ($s_price === 0.0 || $pn < $s_price)) $s_price = $pn;
+        }
+        $s_type = get_post_meta($s->ID, '_tap_acc_type', true);
+        $s_type_name = $type_labels[$s_type] ?? $s_type;
+    ?>
+    <a class="tap-similar-card" href="<?php echo esc_url(get_permalink($s->ID)); ?>">
+      <div class="tap-similar-thumb">
+        <?php if (has_post_thumbnail($s->ID)): ?>
+          <?php echo get_the_post_thumbnail($s->ID, 'medium', ['loading' => 'lazy', 'decoding' => 'async']); ?>
+        <?php else: ?>
+          <div class="tap-similar-placeholder" aria-hidden="true">🏠</div>
+        <?php endif; ?>
+      </div>
+      <div class="tap-similar-body">
+        <div class="tap-similar-title"><?php echo esc_html(get_the_title($s->ID)); ?></div>
+        <div class="tap-similar-meta">
+          <span class="tap-similar-type"><?php echo esc_html($s_type_name); ?></span>
+          <?php if ($s_price > 0): ?>
+            <span class="tap-similar-price"><?php echo esc_html(TAP_Currency::fmt0($s_price)); ?> <small>/ <?php esc_html_e('noche', 'travel-agency-platform'); ?></small></span>
+          <?php endif; ?>
+        </div>
+      </div>
+    </a>
+    <?php endforeach; ?>
+  </div>
+</div>
 <?php endif; ?>
 
 <?php

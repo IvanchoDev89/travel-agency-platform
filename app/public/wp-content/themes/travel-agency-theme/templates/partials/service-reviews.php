@@ -9,7 +9,7 @@ $rev_type = get_post_type();
 $rev_id   = get_the_ID();
 ?>
 
-<div class="tap-acc-section tap-reviews-section" data-service-type="<?php echo esc_attr($rev_type); ?>" data-service-id="<?php echo esc_attr($rev_id); ?>">
+<div class="tap-acc-section tap-reviews-section" id="tap-reviews" data-service-type="<?php echo esc_attr($rev_type); ?>" data-service-id="<?php echo esc_attr($rev_id); ?>">
   <h2><?php _e('Reviews', 'travel-agency-platform'); ?> <span class="tap-reviews-count"></span></h2>
   <div class="tap-reviews-summary">
     <div class="tap-reviews-average">
