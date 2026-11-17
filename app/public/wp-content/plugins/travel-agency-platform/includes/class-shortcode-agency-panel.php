@@ -107,26 +107,34 @@ class TAP_Shortcode_Agency_Panel {
             'tap_equipment'     => __('Equipment', 'travel-agency-platform'),
         ];
 
-        $listings = [];
+        // Get all listings (draft, pending, published) for this agency.
+        $all_listings = [];
         foreach ($listing_labels as $type => $label) {
-            $ids = get_posts([
-                'post_type' => $type, 'post_status' => 'publish', 'posts_per_page' => -1,
-                'meta_key' => TAP_Post_Types::agency_meta_key($type), 'meta_value' => $agency_id, 'fields' => 'ids',
+            $posts = get_posts([
+                'post_type' => $type, 'post_status' => ['publish', 'draft', 'pending'], 'posts_per_page' => -1,
+                'meta_key' => TAP_Post_Types::agency_meta_key($type), 'meta_value' => $agency_id,
+                'orderby' => 'post_title', 'order' => 'ASC',
             ]);
-            if ($ids) {
-                $listings[$type] = [
+            foreach ($posts as $p) {
+                $all_listings[] = [
+                    'id'     => $p->ID,
+                    'type'   => $type,
                     'label'  => $label,
-                    'ids'    => $ids,
-                    'count'  => count($ids),
-                    'edit'   => admin_url('edit.php?post_type=' . $type),
+                    'title'  => $p->post_title,
+                    'status' => $p->post_status,
+                    'thumb'  => get_the_post_thumbnail_url($p->ID, 'thumbnail'),
                 ];
             }
         }
+        $listings = $all_listings;
 
         /* translators: %s: porcentaje de comisión */
         $empty_state = sprintf(__('No bookings yet. Share your listing and start receiving reservations. Commission: %s%%', 'travel-agency-platform'), esc_html($commission));
         ?>
         <div class="tap-agency-panel">
+            <a href="<?php echo esc_url(home_url('/manage-listing/?new=tap_tour')); ?>" class="tap-fab" title="<?php esc_attr_e('Crear nuevo tour', 'travel-agency-platform'); ?>" aria-label="<?php esc_attr_e('Crear nuevo tour', 'travel-agency-platform'); ?>">
+                <span aria-hidden="true">+</span>
+            </a>
             <div class="tap-agency-header">
                 <div>
                     <h2><?php echo esc_html($agency_name); ?>
@@ -184,6 +192,42 @@ class TAP_Shortcode_Agency_Panel {
 endif;
 			?>
 
+            <!-- Commission transparency block -->
+            <div class="tap-commission-transparency">
+                <h3><?php esc_html_e('Tu plan y comisiones', 'travel-agency-platform'); ?></h3>
+                <div class="tap-commission-explain">
+                    <p><?php echo esc_html(sprintf(__('La plataforma cobra un %s%% de comisión por cada reserva confirmada y pagada. Tú recibes el resto directamente en tu cuenta.', 'travel-agency-platform'), $commission)); ?></p>
+                    <?php if ($can_money): ?>
+                    <div class="tap-commission-breakdown">
+                        <div class="tap-commission-row">
+                            <span><?php esc_html_e('Total cobrado', 'travel-agency-platform'); ?></span>
+                            <strong><?php echo esc_html(TAP_Currency::fmt($stats['revenue'])); ?></strong>
+                        </div>
+                        <div class="tap-commission-row">
+                            <span><?php esc_html_e('Comisión plataforma', 'travel-agency-platform'); ?> (<?php echo esc_html($commission); ?>%)</span>
+                            <strong class="tap-commission-negative">-<?php echo esc_html(TAP_Currency::fmt($stats['commission'])); ?></strong>
+                        </div>
+                        <div class="tap-commission-row tap-commission-total">
+                            <span><?php esc_html_e('Ganancia neta', 'travel-agency-platform'); ?></span>
+                            <strong><?php echo esc_html(TAP_Currency::fmt($stats['net'])); ?></strong>
+                        </div>
+                    </div>
+                    <?php
+                    $has_pending_payout = false;
+                    foreach ($settlements as $s) {
+                        if ('pending' === $s->status) { $has_pending_payout = true; break; }
+                    }
+                    if (($comm_rows->owed ?? 0) > 0 && !$has_pending_payout): ?>
+                    <button type="button" class="tap-btn tap-btn-primary tap-payout-request-btn" id="tap-payout-request-btn" data-nonce="<?php echo esc_attr(wp_create_nonce('tap_front_dash_nonce')); ?>">
+                        <?php esc_html_e('Solicitar retiro', 'travel-agency-platform'); ?>
+                    </button>
+                    <span id="tap-payout-request-msg" class="tap-agency-meta" style="margin-left:8px;"></span>
+                    <?php elseif ($has_pending_payout): ?>
+                    <p class="tap-agency-meta"><?php esc_html_e('Tienes una solicitud de retiro pendiente. El administrador la procesará pronto.', 'travel-agency-platform'); ?></p>
+                    <?php endif; ?>
+                    <?php endif; ?>
+            </div>
+
             <div class="tap-stats-grid">
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html($stats['total']); ?></span><span class="tap-stat-label"><?php esc_html_e('Total Bookings', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html($stats['pending']); ?></span><span class="tap-stat-label"><?php esc_html_e('Pending', 'travel-agency-platform'); ?></span></div>
@@ -229,6 +273,9 @@ endif;
 
             <div class="tap-panel-section">
                 <h3><?php esc_html_e('Bookings', 'travel-agency-platform'); ?></h3>
+                <div style="margin-bottom:12px;">
+                    <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php') . '?action=tap_export_bookings&agency=' . (int) $agency_id, 'tap_export_bookings_' . $user->ID)); ?>"><?php esc_html_e('Exportar CSV', 'travel-agency-platform'); ?></a>
+                </div>
                 <div class="tap-agency-tabs">
                     <?php
                     $tab_labels = [
@@ -247,7 +294,12 @@ endif;
                     <?php endforeach; ?>
                 </div>
                 <?php if (empty($bookings)): ?>
-                    <p class="tap-empty"><?php echo esc_html($empty_state); ?></p>
+                    <div class="tap-empty-state">
+                        <div class="tap-empty-state-icon" aria-hidden="true">📋</div>
+                        <h4><?php esc_html_e('Aún no tienes reservas', 'travel-agency-platform'); ?></h4>
+                        <p><?php echo esc_html($empty_state); ?></p>
+                        <a href="<?php echo esc_url(home_url('/manage-listing/')); ?>" class="tap-btn tap-btn-primary tap-btn-sm"><?php esc_html_e('Crear mi primer tour', 'travel-agency-platform'); ?></a>
+                    </div>
                 <?php else: ?>
                 <div class="tap-table-scroll">
                 <table class="tap-booking-table">
@@ -426,32 +478,73 @@ endif;
             <div class="tap-panel-section">
                 <div class="tap-section-head">
                     <h3><?php esc_html_e('Your Listings', 'travel-agency-platform'); ?></h3>
-                    <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(home_url('/manage-listing/')); ?>">+ <?php esc_html_e('Nuevo alojamiento', 'travel-agency-platform'); ?></a>
+                    <a class="tap-btn tap-btn-sm tap-btn-primary" href="<?php echo esc_url(home_url('/manage-listing/')); ?>">+ <?php esc_html_e('Nuevo servicio', 'travel-agency-platform'); ?></a>
                 </div>
-                <div class="tap-listing-grid">
-                    <?php
-                    foreach ($listings as $type => $info):
+
+                <!-- Filters -->
+                <div class="tap-listing-filters">
+                    <button type="button" class="tap-listing-filter is-active" data-filter="all"><?php esc_html_e('Todos', 'travel-agency-platform'); ?></button>
+                    <?php foreach ($listing_labels as $type => $label): ?>
+                        <?php if (in_array($type, array_column($listings, 'type'))): ?>
+                        <button type="button" class="tap-listing-filter" data-filter="<?php echo esc_attr($type); ?>"><?php echo esc_html($label); ?></button>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                    <button type="button" class="tap-listing-filter" data-filter="draft"><?php esc_html_e('Borradores', 'travel-agency-platform'); ?></button>
+                    <button type="button" class="tap-listing-filter" data-filter="pending"><?php esc_html_e('Pendientes', 'travel-agency-platform'); ?></button>
+                </div>
+
+                <div class="tap-listings-grid">
+                    <?php foreach ($listings as $item):
                         $booked = 0;
                         $revenue = 0.0;
-                        foreach ($info['ids'] as $pid) {
-                            if (!empty($booking_counts[$type . ':' . $pid])) {
-                                $booked += $booking_counts[$type . ':' . $pid][0];
-                                $revenue += $booking_counts[$type . ':' . $pid][1];
-                            }
+                        if (!empty($booking_counts[$item['type'] . ':' . $item['id']])) {
+                            $booked = $booking_counts[$item['type'] . ':' . $item['id']][0];
+                            $revenue = $booking_counts[$item['type'] . ':' . $item['id']][1];
                         }
-						?>
-                    <div class="tap-listing-card">
-                        <div class="tap-listing-title"><?php echo esc_html($info['label']); ?></div>
-                        <div class="tap-listing-count"><?php echo esc_html($info['count']); ?></div>
-                        <div class="tap-listing-meta"><?php echo esc_html__('listings', 'travel-agency-platform'); ?> &middot; <?php echo esc_html($booked); ?> <?php echo esc_html__('bookings', 'travel-agency-platform'); ?> &middot; <?php echo esc_html(TAP_Currency::fmt($revenue)); ?></div>
-                        <?php
-                        $manage_url = ('tap_accommodation' === $type)
-                            ? home_url('/manage-listing/?id=' . reset($info['ids']))
-                            : $info['edit'];
+                        $status_label = [
+                            'publish' => __('Publicado', 'travel-agency-platform'),
+                            'draft'   => __('Borrador', 'travel-agency-platform'),
+                            'pending' => __('Pendiente', 'travel-agency-platform'),
+                        ][$item['status']] ?? ucfirst($item['status']);
+                        $status_class = [
+                            'publish' => 'tap-status-confirmed',
+                            'draft'   => 'tap-status-pending',
+                            'pending' => 'tap-status-pending',
+                        ][$item['status']] ?? '';
+                        $manage_url = home_url('/manage-listing/?id=' . $item['id']);
                         ?>
-                        <a href="<?php echo esc_url($manage_url); ?>" class="tap-btn tap-btn-sm"><?php esc_html_e('Manage', 'travel-agency-platform'); ?></a>
+                    <div class="tap-listing-card" data-type="<?php echo esc_attr($item['type']); ?>" data-status="<?php echo esc_attr($item['status']); ?>">
+                        <div class="tap-listing-thumb">
+                            <?php if ($item['thumb']): ?>
+                                <img src="<?php echo esc_url($item['thumb']); ?>" alt="<?php echo esc_attr($item['title']); ?>" loading="lazy">
+                            <?php else: ?>
+                                <div class="tap-listing-thumb-placeholder"><?php echo esc_html(substr($item['label'], 0, 1)); ?></div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="tap-listing-info">
+                            <div class="tap-listing-title"><?php echo esc_html($item['title']); ?></div>
+                            <div class="tap-listing-type"><?php echo esc_html($item['label']); ?></div>
+                            <div class="tap-listing-meta">
+                                <span class="tap-status <?php echo esc_attr($status_class); ?>" style="font-size:11px;"><?php echo esc_html($status_label); ?></span>
+                                &middot; <?php echo esc_html($booked); ?> <?php esc_html_e('bookings', 'travel-agency-platform'); ?>
+                                &middot; <?php echo esc_html(TAP_Currency::fmt($revenue)); ?>
+                            </div>
+                        </div>
+                        <div class="tap-listing-actions">
+                            <a href="<?php echo esc_url($manage_url); ?>" class="tap-btn tap-btn-sm"><?php esc_html_e('Editar', 'travel-agency-platform'); ?></a>
+                            <a href="<?php echo esc_url(get_permalink($item['id'])); ?>" class="tap-btn tap-btn-sm tap-btn-ghost" target="_blank" rel="noopener"><?php esc_html_e('Ver', 'travel-agency-platform'); ?></a>
+                        </div>
                     </div>
                     <?php endforeach; ?>
+                </div>
+            </div>
+            <?php else: ?>
+            <div class="tap-panel-section">
+                <div class="tap-empty-state">
+                    <div class="tap-empty-state-icon" aria-hidden="true">🏠</div>
+                    <h4><?php esc_html_e('Aún no tienes servicios publicados', 'travel-agency-platform'); ?></h4>
+                    <p><?php esc_html_e('Crea tu primer alojamiento o tour y empieza a recibir reservas de viajeros.', 'travel-agency-platform'); ?></p>
+                    <a href="<?php echo esc_url(home_url('/manage-listing/')); ?>" class="tap-btn tap-btn-primary"><?php esc_html_e('Crear mi primer servicio', 'travel-agency-platform'); ?></a>
                 </div>
             </div>
             <?php endif; ?>
@@ -464,10 +557,8 @@ endif;
                 $promo_active = TAP_Promotions::active_promos($agency_id);
                 $promo_pending = TAP_Promotions::pending_promos($agency_id);
                 $promo_listings = [];
-                foreach ($listings as $type => $info) {
-                    foreach (array_slice($info['ids'], 0, 50) as $pid) {
-                        $promo_listings[] = ['id' => (int) $pid, 'type' => $type, 'label' => $info['label'], 'title' => get_the_title($pid)];
-                    }
+                foreach ($listings as $item) {
+                    $promo_listings[] = ['id' => (int) $item['id'], 'type' => $item['type'], 'label' => $item['label'], 'title' => $item['title']];
                 }
                 $promo_listings = array_slice($promo_listings, 0, 15);
                 $promo_active_ids = [];
@@ -762,6 +853,61 @@ endif;
             }
             var promoCheck = setInterval(function(){ if (typeof tapPayPal !== 'undefined') { initPromoPayPal(); clearInterval(promoCheck); } }, 300);
             setTimeout(function(){ clearInterval(promoCheck); }, 15000);
+
+            // Listing filters.
+            (function() {
+                var filters = document.querySelectorAll('.tap-listing-filter');
+                var cards = document.querySelectorAll('.tap-listing-card');
+                if (!filters.length || !cards.length) return;
+                filters.forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        var filter = btn.getAttribute('data-filter');
+                        filters.forEach(function(b) { b.classList.remove('is-active'); });
+                        btn.classList.add('is-active');
+                        cards.forEach(function(card) {
+                            var type = card.getAttribute('data-type');
+                            var status = card.getAttribute('data-status');
+                            var show = false;
+                            if (filter === 'all') show = true;
+                            else if (filter === 'draft' || filter === 'pending') show = (status === filter);
+                            else show = (type === filter);
+                            card.style.display = show ? '' : 'none';
+                        });
+                    });
+                });
+            })();
+
+            // Payout request handler.
+            var payoutBtn = document.getElementById('tap-payout-request-btn');
+            if (payoutBtn) {
+                payoutBtn.addEventListener('click', function() {
+                    var btn = this;
+                    var msg = document.getElementById('tap-payout-request-msg');
+                    btn.disabled = true;
+                    btn.textContent = '...';
+                    var fd = new FormData();
+                    fd.append('action', 'tap_agency_payout');
+                    fd.append('method', 'bank_transfer');
+                    fd.append('nonce', btn.getAttribute('data-nonce'));
+                    fetch((window.tapDash && window.tapDash.ajax_url) || '/wp-admin/admin-ajax.php', { method: 'POST', body: fd, credentials: 'same-origin' })
+                    .then(function(r) { return r.json(); })
+                    .then(function(res) {
+                        if (res && res.success) {
+                            if (msg) msg.textContent = res.data.message || 'Solicitud enviada.';
+                            btn.textContent = '✓ Enviado';
+                        } else {
+                            btn.disabled = false;
+                            btn.textContent = 'Solicitar retiro';
+                            if (msg) msg.textContent = (res && res.data && res.data.message) ? res.data.message : 'Error';
+                        }
+                    })
+                    .catch(function() {
+                        btn.disabled = false;
+                        btn.textContent = 'Solicitar retiro';
+                        if (msg) msg.textContent = 'Error de conexión';
+                    });
+                });
+            }
         })(jQuery);
         </script>
         <?php if ($paypal_ready): ?>

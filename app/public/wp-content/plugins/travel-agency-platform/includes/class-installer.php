@@ -44,6 +44,7 @@ class TAP_Installer {
                 nights int(11) DEFAULT 0,
                 bed_config text,
                 total_amount decimal(15,2) NOT NULL,
+                currency varchar(5) NOT NULL DEFAULT 'USD',
                 amount_paid decimal(15,2) DEFAULT 0.00,
                 commission_amount decimal(15,2) DEFAULT 0.00,
                 commission_percent decimal(5,2) DEFAULT 0.00,
@@ -684,6 +685,12 @@ class TAP_Installer {
         $cols_bk = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
         if (!in_array('slot_id', $cols_bk, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN slot_id bigint(20) DEFAULT 0 AFTER room_id");
+        }
+
+        // currency column on bookings (idempotent).
+        $cols_bk2 = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
+        if (!in_array('currency', $cols_bk2, true)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN currency varchar(5) NOT NULL DEFAULT 'USD' AFTER total_amount");
         }
 
         // Extend tap_daily_pricing for tours/experiences availability (Fase 2).

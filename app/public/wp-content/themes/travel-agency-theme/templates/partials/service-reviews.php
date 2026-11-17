@@ -18,7 +18,16 @@ $rev_id   = get_the_ID();
       <span class="tap-reviews-avg-total"><?php echo esc_html__('0 reseñas', 'travel-agency-platform'); ?></span>
     </div>
   </div>
-  <div class="tap-reviews-list"></div>
+  <div class="tap-reviews-list">
+    <div class="tap-skeleton-review">
+      <div class="tap-skeleton tap-skeleton-avatar"></div>
+      <div class="tap-skeleton-body">
+        <div class="tap-skeleton tap-skeleton-text" style="width:40%"></div>
+        <div class="tap-skeleton tap-skeleton-text" style="width:80%"></div>
+        <div class="tap-skeleton tap-skeleton-text" style="width:60%"></div>
+      </div>
+    </div>
+  </div>
 
   <?php if (is_user_logged_in()):
         $tap_can_review = class_exists('TAP_Reviews') && TAP_Reviews::can_review(get_current_user_id(), $rev_type, $rev_id);

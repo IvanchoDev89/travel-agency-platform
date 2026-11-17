@@ -497,7 +497,12 @@ class TAP_Booking {
 
                     // Book the tour slot (increment capacity).
                     if ($booking_id && !empty($tour_slot_id) && class_exists('TAP_Tour_Availability')) {
-                        TAP_Tour_Availability::book_slot($tour_slot_id, $adults + $children);
+                        $slot_booked = TAP_Tour_Availability::book_slot($tour_slot_id, $adults + $children);
+                        if (!$slot_booked) {
+                            // Slot filled between selection and booking — cancel the booking.
+                            $wpdb->update($wpdb->prefix . 'tap_bookings', ['status' => 'cancelled', 'cancel_reason' => __('El horario seleccionado se llenó. Por favor selecciona otro horario.', 'travel-agency-platform')], ['id' => $booking_id], ['%s', '%s'], ['%d']);
+                            $create_error = new WP_Error('slot_full', __('El horario seleccionado ya no tiene cupos disponibles. Por favor selecciona otro horario.', 'travel-agency-platform'));
+                        }
                     }
 
                     // Referral attribution (B2C growth loop).

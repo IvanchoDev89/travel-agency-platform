@@ -61,13 +61,6 @@
     </div>
 </footer>
 
-<div id="tap-install-bar" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#0f766e;color:#fff;padding:12px 16px;align-items:center;justify-content:space-between;gap:12px;">
-    <span style="font-size:14px;font-weight:600;"><?php esc_html_e('Instala la app para acceso rápido', 'travel-agency-platform'); ?></span>
-    <div style="display:flex;gap:8px;">
-        <button type="button" class="tap-btn tap-btn-sm" style="background:#fff;color:#0f766e;" onclick="tapInstallApp()"><?php esc_html_e('Instalar', 'travel-agency-platform'); ?></button>
-        <button type="button" class="tap-btn tap-btn-sm" style="background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.4);" onclick="document.getElementById('tap-install-bar').style.display='none';document.body.classList.remove('tap-install-visible');try{localStorage.setItem('tap-install-dismissed','1')}catch(e){}"><?php esc_html_e('Cerrar', 'travel-agency-platform'); ?></button>
-    </div>
-</div>
 <button type="button" id="tap-scroll-top" class="tap-scroll-top" aria-label="<?php esc_attr_e('Volver arriba', 'travel-agency-platform'); ?>" title="<?php esc_attr_e('Volver arriba', 'travel-agency-platform'); ?>">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="18 15 12 9 6 15"/></svg>
 </button>

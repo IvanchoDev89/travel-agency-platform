@@ -165,15 +165,21 @@
         if (e.key === 'Escape') {
             if (headerCenter.hasClass('open')) closeMobileMenu();
             if (searchOverlay.hasClass('open')) closeSearch();
-            if (userDropdown.hasClass('open')) closeUserDropdown();
+            if (userDropdown.hasClass('open')) {
+                closeUserDropdown();
+                userBtn.trigger('focus');
+            }
         }
     });
 
-    /* ===== User dropdown ===== */
+    /* ===== User dropdown =====
+       Never steal focus on outside-click: closeUserDropdown() must not call
+       userBtn.trigger('focus') on mouse interaction, otherwise every click on
+       the page (inputs, textareas, selects) loses focus to the nav button and
+       the user cannot type. Focus is only restored on Escape (keyboard use). */
     function closeUserDropdown() {
         userDropdown.removeClass('open');
         userBtn.attr('aria-expanded', 'false');
-        userBtn.trigger('focus');
     }
 
     userBtn.on('click', function(e) {
@@ -190,7 +196,7 @@
     });
 
     $(document).on('click', function(e) {
-        if (!$(e.target).closest('.nav-user-dropdown-wrapper').length) {
+        if (userDropdown.hasClass('open') && !$(e.target).closest('.nav-user-dropdown-wrapper').length) {
             closeUserDropdown();
         }
     });

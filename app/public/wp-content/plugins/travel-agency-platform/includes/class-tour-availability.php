@@ -73,6 +73,31 @@ $params[] = $to; }
         $t = self::table();
         $id = (int) $id;
         if (!$id) return false;
+
+        // Check for duplicate date+time if both are being updated.
+        $existing = self::get_slot($id);
+        if (!$existing) return false;
+        $new_date = isset($data['date']) ? sanitize_text_field($data['date']) : $existing->date;
+        $new_time = array_key_exists('time_slot', $data) ? ($data['time_slot'] ? sanitize_text_field($data['time_slot']) : '') : (string) ($existing->time_slot ?? '');
+        if ($new_date !== $existing->date || $new_time !== (string) ($existing->time_slot ?? '')) {
+            global $wpdb;
+            $t = self::table();
+            if ($new_time === '') {
+                $dup = $wpdb->get_var($wpdb->prepare(
+                    "SELECT id FROM {$t} WHERE service_type = %s AND service_id = %d AND date = %s AND (time_slot IS NULL OR time_slot = '') AND id != %d LIMIT 1",
+                    $existing->service_type, (int) $existing->service_id, $new_date, $id
+                ));
+            } else {
+                $dup = $wpdb->get_var($wpdb->prepare(
+                    "SELECT id FROM {$t} WHERE service_type = %s AND service_id = %d AND date = %s AND time_slot = %s AND id != %d LIMIT 1",
+                    $existing->service_type, (int) $existing->service_id, $new_date, $new_time, $id
+                ));
+            }
+            if ($dup) {
+                return false; // Duplicate.
+            }
+        }
+
         $fields = [];
         $formats = [];
         if (isset($data['date'])) { $fields['date'] = sanitize_text_field($data['date']);
@@ -106,11 +131,15 @@ $formats[] = '%d'; }
         return true;
     }
 
-    /** Check if a slot has enough capacity. */
-    public static function is_available($slot_id, $adults = 1) {
-        $slot = self::get_slot($slot_id);
-        if (!$slot) return false;
-        if ((int) $slot->is_blocked === 1) return false;
+    /**
+     * Compute the effective capacity for a slot, applying service-level
+     * fallback and overbooking percentage.
+     *
+     * @param object $slot Row from tap_daily_pricing.
+     * @return int Effective capacity (0 means unlimited/999).
+     */
+    public static function get_effective_capacity($slot) {
+        if (!$slot) return 0;
         $capacity = (int) $slot->capacity;
         if ($capacity <= 0) {
             // Fall back to service capacity.
@@ -118,10 +147,20 @@ $formats[] = '%d'; }
             $capacity = (int) get_post_meta((int) $slot->service_id, $meta_key, true);
             if ($capacity <= 0) $capacity = 999;
         }
-        $booked = (int) $slot->booked;
         $over_pct = (int) get_post_meta((int) $slot->service_id, '_tap_tour_overbooking_pct', true);
-        // overbooking for tours uses a generic meta; default 0.
-        if ($over_pct > 0) $capacity = (int) ceil($capacity * (1 + $over_pct / 100));
+        if ($over_pct > 0) {
+            $capacity = (int) ceil($capacity * (1 + $over_pct / 100));
+        }
+        return $capacity;
+    }
+
+    /** Check if a slot has enough capacity. */
+    public static function is_available($slot_id, $adults = 1) {
+        $slot = self::get_slot($slot_id);
+        if (!$slot) return false;
+        if ((int) $slot->is_blocked === 1) return false;
+        $capacity = self::get_effective_capacity($slot);
+        $booked = (int) $slot->booked;
         return ($booked + (int) $adults) <= $capacity;
     }
 
@@ -135,19 +174,7 @@ $formats[] = '%d'; }
         if (!$slot || (int) $slot->is_blocked === 1) return false;
         if (!self::is_available($slot_id, $adults)) return false;
 
-        $capacity = (int) $slot->capacity;
-        if ($capacity <= 0) {
-            $meta_key = $slot->service_type === 'tap_experience' ? '_tap_exp_capacity' : '_tap_tour_capacity';
-            $capacity = (int) get_post_meta((int) $slot->service_id, $meta_key, true);
-            if ($capacity <= 0) {
-                $capacity = 999;
-            }
-        }
-        // Apply overbooking % (same as is_available).
-        $over_pct = (int) get_post_meta((int) $slot->service_id, '_tap_tour_overbooking_pct', true);
-        if ($over_pct > 0) {
-            $capacity = (int) ceil($capacity * (1 + $over_pct / 100));
-        }
+        $capacity = self::get_effective_capacity($slot);
 
         $affected = $wpdb->query($wpdb->prepare(
             "UPDATE {$t} SET booked = booked + %d WHERE id = %d AND booked + %d <= %d",
@@ -175,8 +202,9 @@ $formats[] = '%d'; }
         $service_id = (int) $service_id;
         if (!$service_type || !$service_id) return 0;
 
-        $start = new DateTime($rule['start_date'] ?? 'today');
-        $end = new DateTime($rule['end_date'] ?? '+3 months');
+        $tz = new DateTimeZone(wp_timezone_string() ?: 'UTC');
+        $start = new DateTime($rule['start_date'] ?? 'today', $tz);
+        $end = new DateTime($rule['end_date'] ?? '+3 months', $tz);
         $days_of_week = isset($rule['days']) && is_array($rule['days']) ? $rule['days'] : [1, 2, 3, 4, 5]; // Mon-Fri default
         $time_slot = sanitize_text_field($rule['time_slot'] ?? '');
         $time_end = sanitize_text_field($rule['time_end'] ?? '');

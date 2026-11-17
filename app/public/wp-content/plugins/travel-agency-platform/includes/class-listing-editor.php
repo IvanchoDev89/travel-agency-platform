@@ -90,71 +90,154 @@ class TAP_Listing_Editor {
             <?php if ($new_type && isset($types[$new_type])): ?>
                 <?php echo self::render_manage_editor(0, $new_type); ?>
             <?php else: ?>
-            <div class="tap-grid tap-listings-grid">
-                <?php
-                $status_labels = [
-                    'publish' => __('Publicado', 'travel-agency-platform'),
-                    'pending' => __('En revisión', 'travel-agency-platform'),
-                    'draft'   => __('Borrador', 'travel-agency-platform'),
+            <?php
+            /* Unified listing grid: collect every service type into one list so
+               cards can be filtered by type/status and searched client-side. */
+            $all_listings = [];
+            foreach ($types as $pt => $label) {
+                $prefix = TAP_Post_Types::meta_prefix($pt);
+                $args = [
+                    'post_type'      => $pt,
+                    /* Drafts and pending listings must stay visible: with the
+                        explicit publish action they are a normal state. */
+                    'post_status'    => ['publish', 'pending', 'draft'],
+                    'posts_per_page' => 50,
+                    'orderby'        => 'modified',
+                    'order'          => 'DESC',
                 ];
-                $empty = true;
-                foreach ($types as $pt => $label) {
-                    $prefix = TAP_Post_Types::meta_prefix($pt);
-                    $args = [
-                        'post_type'      => $pt,
-                        /* Drafts and pending listings must stay visible: with the
-                            explicit publish action they are a normal state. */
-                        'post_status'    => ['publish', 'pending', 'draft'],
-                        'posts_per_page' => 50,
-                        'orderby'        => 'modified',
-                        'order'          => 'DESC',
+                if ($agency_id) {
+                    $args['meta_key']   = '_tap_' . $prefix . '_agency_id';
+                    $args['meta_value'] = $agency_id;
+                }
+                foreach (get_posts($args) as $l) {
+                    $all_listings[] = [
+                        'post'   => $l,
+                        'type'   => $pt,
+                        'label'  => $label,
+                        'prefix' => $prefix,
                     ];
-                    if ($agency_id) {
-                        $args['meta_key']   = '_tap_' . $prefix . '_agency_id';
-                        $args['meta_value'] = $agency_id;
-                    }
-                    $listings = get_posts($args);
-                    if (!$listings) {
-                        continue;
-                    }
-                    $empty = false;
-                    foreach ($listings as $l) {
-                        $active   = '1' === get_post_meta($l->ID, '_tap_' . $prefix . '_is_active', true);
-                        $city     = get_post_meta($l->ID, '_tap_' . $prefix . '_city', true)
-                                    ?: get_post_meta($l->ID, '_tap_' . $prefix . '_location', true)
-                                    ?: get_post_meta($l->ID, '_tap_' . $prefix . '_departure', true);
-                        $edit_url = home_url('/manage-listing/?id=' . $l->ID);
-                        $status   = $l->post_status;
-                        ?>
-                        <div class="tap-listing-card<?php echo 'publish' === $status ? '' : ' is-pending'; ?>">
-                            <div class="tap-listing-card-head">
-                                <strong><?php echo esc_html($l->post_title); ?></strong>
-                                <span class="tap-badge"><?php echo esc_html($label); ?></span>
+                }
+            }
+            $status_labels = [
+                'publish' => __('Publicado', 'travel-agency-platform'),
+                'pending' => __('En revisión', 'travel-agency-platform'),
+                'draft'   => __('Borrador', 'travel-agency-platform'),
+            ];
+
+            /* Toolbar: type + status chips and a title search box. */
+            $used_types = array_values(array_unique(array_column($all_listings, 'type')));
+            ?>
+            <div class="tap-listing-toolbar">
+                <div class="tap-listing-filters" role="group" aria-label="<?php esc_attr_e('Filtrar listados', 'travel-agency-platform'); ?>">
+                    <button type="button" class="tap-listing-filter is-active" data-filter="all" aria-pressed="true"><?php esc_html_e('Todos', 'travel-agency-platform'); ?></button>
+                    <?php foreach ($used_types as $pt): ?>
+                        <?php $tlabel = $types[$pt]; ?>
+                        <button type="button" class="tap-listing-filter" data-filter="type:<?php echo esc_attr($pt); ?>" aria-pressed="false"><?php echo esc_html($tlabel); ?></button>
+                    <?php endforeach; ?>
+                    <button type="button" class="tap-listing-filter" data-filter="status:publish" aria-pressed="false"><?php esc_html_e('Publicado', 'travel-agency-platform'); ?></button>
+                    <button type="button" class="tap-listing-filter" data-filter="status:pending" aria-pressed="false"><?php esc_html_e('En revisión', 'travel-agency-platform'); ?></button>
+                    <button type="button" class="tap-listing-filter" data-filter="status:draft" aria-pressed="false"><?php esc_html_e('Borrador', 'travel-agency-platform'); ?></button>
+                </div>
+                <input type="search" class="tap-input tap-listing-search" placeholder="<?php esc_attr_e('Buscar listados…', 'travel-agency-platform'); ?>" aria-label="<?php esc_attr_e('Buscar listados…', 'travel-agency-platform'); ?>">
+            </div>
+
+            <div class="tap-grid tap-listings-grid" data-empty-msg="<?php esc_attr_e('Ningún listado coincide con los filtros.', 'travel-agency-platform'); ?>">
+                <?php
+                $empty = empty($all_listings);
+                foreach ($all_listings as $item) {
+                    $l       = $item['post'];
+                    $label   = $item['label'];
+                    $prefix  = $item['prefix'];
+                    $active  = '1' === get_post_meta($l->ID, '_tap_' . $prefix . '_is_active', true);
+                    $city    = get_post_meta($l->ID, '_tap_' . $prefix . '_city', true)
+                                ?: get_post_meta($l->ID, '_tap_' . $prefix . '_location', true)
+                                ?: get_post_meta($l->ID, '_tap_' . $prefix . '_departure', true);
+                    $edit_url = home_url('/manage-listing/?id=' . $l->ID);
+                    $status  = $l->post_status;
+                    $thumb   = get_the_post_thumbnail_url($l->ID, 'medium');
+                    ?>
+                    <div class="tap-listing-card" data-type="<?php echo esc_attr($item['type']); ?>" data-status="<?php echo esc_attr($status); ?>" data-title="<?php echo esc_attr(mb_strtolower($l->post_title)); ?>">
+                        <div class="tap-listing-thumb">
+                            <?php if ($thumb): ?>
+                                <img src="<?php echo esc_url($thumb); ?>" alt="<?php echo esc_attr($l->post_title); ?>" loading="lazy">
+                            <?php else: ?>
+                                <div class="tap-listing-thumb-placeholder" aria-hidden="true"><?php echo esc_html(mb_substr($label, 0, 1)); ?></div>
+                            <?php endif; ?>
+                        </div>
+                        <div class="tap-listing-info">
+                            <div class="tap-listing-title"><?php echo esc_html($l->post_title); ?></div>
+                            <div class="tap-listing-type"><?php echo esc_html($label); ?><?php echo $city ? ' &middot; ' . esc_html($city) : ''; ?></div>
+                            <div class="tap-listing-meta">
                                 <?php if (isset($status_labels[$status])): ?>
-                                    <span class="tap-badge <?php echo 'publish' === $status ? 'tap-badge-ok' : 'tap-badge-off'; ?>">
-                                        <?php echo esc_html($status_labels[$status]); ?>
-                                    </span>
+                                    <span class="tap-badge <?php echo 'publish' === $status ? 'tap-badge-ok' : 'tap-badge-off'; ?>"><?php echo esc_html($status_labels[$status]); ?></span>
                                 <?php endif; ?>
                                 <span class="tap-badge <?php echo $active ? 'tap-badge-ok' : 'tap-badge-off'; ?>"><?php echo $active ? esc_html__('Activo', 'travel-agency-platform') : esc_html__('Inactivo', 'travel-agency-platform'); ?></span>
                             </div>
-                            <div class="tap-listing-card-meta">
-                                <span><?php echo esc_html($city ?: '—'); ?></span>
-                            </div>
-                            <a class="tap-btn tap-btn-sm" href="<?php echo esc_url($edit_url); ?>"><?php esc_html_e('Editar', 'travel-agency-platform'); ?></a>
                         </div>
-                        <?php
-                    }
+                        <div class="tap-listing-actions">
+                            <a href="<?php echo esc_url($edit_url); ?>" class="tap-btn tap-btn-sm"><?php esc_html_e('Editar', 'travel-agency-platform'); ?></a>
+                            <a href="<?php echo esc_url(get_permalink($l->ID)); ?>" class="tap-btn tap-btn-sm tap-btn-ghost" target="_blank" rel="noopener"><?php esc_html_e('Ver', 'travel-agency-platform'); ?></a>
+                        </div>
+                    </div>
+                    <?php
                 }
                 if ($empty) {
-                    echo '<div class="tap-dash-empty">';
-                    echo '<svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg>';
+                    echo '<div class="tap-empty-state">';
+                    echo '<div class="tap-empty-state-icon" aria-hidden="true">🏠</div>';
                     echo '<h3>' . esc_html__('Aún no tienes listados', 'travel-agency-platform') . '</h3>';
                     echo '<p>' . esc_html__('Crea tu primer servicio para empezar a recibir reservas.', 'travel-agency-platform') . '</p>';
-                    echo '<a href="' . esc_url(home_url('/manage-listing/?new=tap_tour')) . '" class="tap-btn tap-btn-primary">' . esc_html__('Crear tour', 'travel-agency-platform') . '</a>';
+                    echo '<a href="' . esc_url(home_url('/manage-listing/?new=tap_tour')) . '" class="tap-btn tap-btn-primary">' . esc_html__('Crear mi primer servicio', 'travel-agency-platform') . '</a>';
                     echo '</div>';
                 }
                 ?>
+                <div class="tap-listing-noresults" hidden><?php esc_html_e('Ningún listado coincide con los filtros.', 'travel-agency-platform'); ?></div>
             </div>
+            <script>
+            (function() {
+                var filters = document.querySelectorAll('.tap-listing-toolbar .tap-listing-filter');
+                var search = document.querySelector('.tap-listing-toolbar .tap-listing-search');
+                var grid = document.querySelector('.tap-listings-grid');
+                if (!grid) return;
+                var cards = Array.prototype.slice.call(grid.querySelectorAll('.tap-listing-card'));
+                var noResults = grid.querySelector('.tap-listing-noresults');
+                var norm = function(s) {
+                    /* Diacritic-insensitive search: "volcan" matches "volcán". */
+                    return (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+                };
+                var activeFilter = 'all';
+
+                function apply() {
+                    var q = norm(search ? search.value.trim().toLowerCase() : '');
+                    var visible = 0;
+                    cards.forEach(function(card) {
+                        var okFilter = activeFilter === 'all';
+                        if (!okFilter) {
+                            var parts = activeFilter.split(':');
+                            okFilter = parts[0] === 'type' ? card.getAttribute('data-type') === parts[1]
+                                     : card.getAttribute('data-status') === parts[1];
+                        }
+                        var okSearch = !q || norm(card.getAttribute('data-title')).indexOf(q) !== -1;
+                        var show = okFilter && okSearch;
+                        card.style.display = show ? '' : 'none';
+                        if (show) visible++;
+                    });
+                    if (noResults) noResults.hidden = visible > 0;
+                }
+
+                filters.forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        activeFilter = btn.getAttribute('data-filter');
+                        filters.forEach(function(b) {
+                            var on = b === btn;
+                            b.classList.toggle('is-active', on);
+                            b.setAttribute('aria-pressed', on ? 'true' : 'false');
+                        });
+                        apply();
+                    });
+                });
+                if (search) search.addEventListener('input', apply);
+            })();
+            </script>
             <?php endif; ?>
         <?php if (!($new_type && isset($types[$new_type]))): ?>
         </div>

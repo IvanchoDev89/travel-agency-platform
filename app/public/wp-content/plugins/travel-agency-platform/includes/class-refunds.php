@@ -100,14 +100,20 @@ class TAP_Refunds {
         $pct  = self::refund_percent($policy, $days_before);
         $total = floatval($booking->total_amount ?? 0);
         $paid  = floatval($booking->amount_paid ?? 0);
-        // Never base the refund on more than what was actually paid.
-        $base  = ($paid > 0 && $paid < $total) ? $paid : $total;
+        // Policy-based refund on the full total.
+        $policy_refund = round($total * ($pct / 100), 2);
+        // Cap at the amount actually paid (never refund more than captured).
+        if ($paid > 0 && $paid < $total) {
+            $refund_amount = min($policy_refund, $paid);
+        } else {
+            $refund_amount = $policy_refund;
+        }
 
         return [
             'policy'         => $policy,
             'days_before'    => $days_before,
             'refund_percent' => $pct,
-            'refund_amount'  => round($base * ($pct / 100), 2),
+            'refund_amount'  => round($refund_amount, 2),
         ];
     }
 

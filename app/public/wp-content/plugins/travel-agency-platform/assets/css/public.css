@@ -193,10 +193,142 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 .tap-checkout h2 { font-size: var(--tap-text-2xl); font-weight: 700; margin: 0 0 var(--tap-space-6); }
 .tap-checkout-summary { background: var(--tap-surface, #fff); border: 1px solid var(--tap-neutral-200); border-radius: var(--tap-radius-xl); padding: var(--tap-space-6); margin-bottom: var(--tap-space-6); }
 .tap-checkout-summary table { width: 100%; }
+.tap-checkout-summary-thumb { margin-bottom: var(--tap-space-4, 16px); border-radius: var(--tap-radius-lg, 12px); overflow: hidden; }
+.tap-checkout-summary-img { width: 100%; height: 160px; object-fit: cover; display: block; }
 .tap-checkout-summary td { padding: var(--tap-space-3) 0; border-bottom: 1px solid var(--tap-neutral-100); font-size: var(--tap-text-sm); }
 .tap-checkout-summary td:last-child { text-align: right; }
 .tap-checkout-summary tr:last-child td { border-bottom: none; font-size: var(--tap-text-lg); font-weight: 700; }
 .tap-checkout-payment { background: var(--tap-surface, #fff); border: 1px solid var(--tap-neutral-200); border-radius: var(--tap-radius-xl); padding: var(--tap-space-6); text-align: center; }
+
+/* Skeleton review placeholder */
+.tap-skeleton-review { display: flex; gap: 12px; padding: 16px 0; border-bottom: 1px solid var(--tap-neutral-100, #e2e8f0); }
+.tap-skeleton-review .tap-skeleton-avatar { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; }
+.tap-skeleton-review .tap-skeleton-body { flex: 1; }
+
+/* Focus visible for keyboard navigation */
+*:focus-visible { outline: 2px solid var(--tap-primary, #0d9488); outline-offset: 2px; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--tap-primary, #0d9488); outline-offset: 2px; }
+
+/* Inline validation */
+.tap-input.is-invalid { border-color: var(--tap-danger, #ef4444); box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15); }
+.tap-field-error { color: var(--tap-danger, #ef4444); font-size: 12px; margin-top: 4px; display: none; }
+.tap-field-error.is-visible { display: block; }
+
+/* Registration commission info box */
+.tap-commission-info-box { display: flex; gap: 12px; align-items: flex-start; padding: 12px 16px; margin-bottom: 16px; background: var(--tap-primary-bg, #f0fdfa); border: 1px solid var(--tap-primary-border, #99f6e4); border-radius: var(--tap-radius-lg, 12px); }
+.tap-commission-info-box .tap-commission-info-icon { font-size: 24px; flex-shrink: 0; }
+.tap-commission-info-box strong { display: block; margin-bottom: 4px; color: var(--tap-primary-dark, #0f766e); }
+.tap-commission-info-box p { margin: 0; font-size: 13px; color: var(--tap-neutral-600, #475569); line-height: 1.5; }
+
+/* Guest checkout hint */
+.tap-guest-checkout-hint { font-size: 12px; color: var(--tap-neutral-500, #64748b); font-style: italic; margin-top: 4px; }
+
+/* Checkout commission note */
+.tap-checkout-commission-note { font-size: 12px; color: var(--tap-neutral-500, #64748b); font-style: italic; margin-top: 8px; padding: 8px 12px; background: var(--tap-neutral-50, #f8fafc); border-radius: 8px; border-left: 3px solid var(--tap-primary, #0d9488); }
+
+/* Commission transparency */
+.tap-commission-transparency { background: var(--tap-surface, #fff); border: 1px solid var(--tap-neutral-200, #e2e8f0); border-radius: var(--tap-radius-lg, 12px); padding: var(--tap-space-5, 20px); margin-bottom: var(--tap-space-4, 16px); }
+.tap-commission-transparency h3 { margin: 0 0 var(--tap-space-3, 12px); font-size: var(--tap-text-lg, 18px); }
+.tap-commission-explain { margin-bottom: var(--tap-space-4, 16px); }
+.tap-commission-explain p { margin: 0; font-size: var(--tap-text-sm, 14px); color: var(--tap-neutral-600, #475569); line-height: 1.6; }
+.tap-commission-breakdown { display: flex; flex-direction: column; gap: 8px; margin-bottom: var(--tap-space-4, 16px); padding: 12px 16px; background: var(--tap-neutral-50, #f8fafc); border-radius: var(--tap-radius, 8px); }
+.tap-commission-row { display: flex; justify-content: space-between; align-items: center; font-size: var(--tap-text-sm, 14px); }
+.tap-commission-row strong { font-weight: 700; }
+.tap-commission-negative { color: var(--tap-danger, #ef4444); }
+.tap-commission-total { border-top: 1px solid var(--tap-neutral-200, #e2e8f0); padding-top: 8px; margin-top: 4px; }
+.tap-commission-total strong { font-size: var(--tap-text-lg, 18px); color: var(--tap-primary, #0d9488); }
+.tap-payout-request-btn { margin-top: 8px; }
+
+/* Floating action button (agency panel) */
+.tap-fab { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: var(--tap-primary, #0d9488); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 300; text-decoration: none; box-shadow: 0 4px 16px rgba(13, 148, 136, 0.4); z-index: 999; transition: transform 0.2s, box-shadow 0.2s; }
+.tap-fab:hover { transform: scale(1.1); box-shadow: 0 6px 24px rgba(13, 148, 136, 0.5); color: #fff; }
+.tap-fab:active { transform: scale(0.95); }
+@media (max-width: 768px) {
+    .tap-fab { bottom: 80px; right: 16px; width: 48px; height: 48px; font-size: 24px; }
+}
+
+/* Listing cards (agency panel) */
+.tap-listings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--tap-space-4, 16px); }
+.tap-listing-card { background: var(--tap-surface, #fff); border: 1px solid var(--tap-neutral-200, #e2e8f0); border-radius: var(--tap-radius-lg, 12px); overflow: hidden; display: flex; flex-direction: column; transition: box-shadow 0.2s, transform 0.2s; }
+.tap-listing-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-2px); }
+.tap-listing-thumb { width: 100%; height: 160px; overflow: hidden; background: var(--tap-neutral-100, #f1f5f9); display: flex; align-items: center; justify-content: center; }
+.tap-listing-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.tap-listing-thumb-placeholder { font-size: 48px; font-weight: 800; color: var(--tap-neutral-300, #cbd5e1); }
+.tap-listing-info { padding: var(--tap-space-3, 12px) var(--tap-space-4, 16px); flex: 1; }
+.tap-listing-title { font-weight: 700; font-size: var(--tap-text-base, 16px); color: var(--tap-neutral-800, #1e293b); margin-bottom: 2px; }
+.tap-listing-type { font-size: var(--tap-text-xs, 12px); color: var(--tap-neutral-500, #4b5563); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+.tap-listing-meta { font-size: var(--tap-text-xs, 12px); color: var(--tap-neutral-500, #4b5563); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.tap-listing-actions { padding: var(--tap-space-2, 8px) var(--tap-space-4, 16px) var(--tap-space-3, 12px); display: flex; gap: 8px; border-top: 1px solid var(--tap-neutral-100, #f1f5f9); }
+.tap-listing-actions .tap-btn { flex: 1; text-align: center; }
+.tap-listing-filters { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.tap-listing-filter { padding: 6px 14px; border: 1px solid var(--tap-neutral-200, #e2e8f0); border-radius: 999px; background: var(--tap-surface, #fff); color: var(--tap-neutral-600, #475569); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+.tap-listing-filter:hover { border-color: var(--tap-primary, #0d9488); color: var(--tap-primary, #0d9488); }
+.tap-listing-filter.is-active { background: var(--tap-primary, #0d9488); color: #fff; border-color: var(--tap-primary, #0d9488); }
+@media (max-width: 640px) {
+    .tap-listings-grid { grid-template-columns: 1fr; }
+}
+
+/* Empty state */
+.tap-empty-state { text-align: center; padding: 40px 20px; }
+.tap-empty-state-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.6; }
+.tap-empty-state h4 { margin: 0 0 8px; font-size: var(--tap-text-lg, 18px); color: var(--tap-neutral-800, #1e293b); }
+.tap-empty-state p { margin: 0 0 16px; color: var(--tap-neutral-500, #4b5563); font-size: var(--tap-text-sm, 14px); }
+.tap-empty-state .tap-btn { margin-top: 8px; }
+
+/* Booking filters */
+.tap-booking-filters { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.tap-booking-filter { padding: 6px 14px; border: 1px solid var(--tap-neutral-200, #e2e8f0); border-radius: 999px; background: var(--tap-surface, #fff); color: var(--tap-neutral-600, #475569); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+.tap-booking-filter:hover { border-color: var(--tap-primary, #0d9488); color: var(--tap-primary, #0d9488); }
+.tap-booking-filter.is-active { background: var(--tap-primary, #0d9488); color: #fff; border-color: var(--tap-primary, #0d9488); }
+
+/* My Bookings responsive cards on mobile */
+@media (max-width: 768px) {
+  .tap-my-bookings .tap-table-scroll { overflow: visible; }
+  .tap-my-bookings .tap-table thead { display: none; }
+  .tap-my-bookings .tap-table,
+  .tap-my-bookings .tap-table tbody,
+  .tap-my-bookings .tap-table tr,
+  .tap-my-bookings .tap-table td { display: block; width: 100%; }
+  .tap-my-bookings .tap-table tr {
+    background: var(--tap-surface, #fff);
+    border: 1px solid var(--tap-neutral-200, #e2e8f0);
+    border-radius: var(--tap-radius-lg, 12px);
+    padding: var(--tap-space-3, 12px);
+    margin-bottom: var(--tap-space-3, 12px);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .tap-my-bookings .tap-table td {
+    border: none;
+    padding: 4px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: var(--tap-text-sm, 14px);
+  }
+  .tap-my-bookings .tap-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--tap-neutral-500, #64748b);
+    font-size: var(--tap-text-xs, 12px);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .tap-my-bookings .tap-table td:first-child { font-weight: 700; font-size: var(--tap-text-base, 16px); border-bottom: 1px solid var(--tap-neutral-100, #f1f5f9); padding-bottom: 8px; margin-bottom: 4px; }
+  .tap-my-bookings .tap-table td:last-child { flex-direction: column; align-items: stretch; gap: 6px; padding-top: 8px; border-top: 1px solid var(--tap-neutral-100, #f1f5f9); margin-top: 4px; }
+  .tap-my-bookings .tap-table td:last-child .tap-btn { width: 100%; text-align: center; }
+}
+
+/* Booking widget loading spinner */
+.tap-bw-spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--tap-neutral-200, #e2e8f0); border-top-color: var(--tap-primary, #0d9488); border-radius: 50%; animation: tap-spin 0.6s linear infinite; vertical-align: middle; }
+
+/* Payment method tabs */
+.tap-payment-tabs { display: flex; gap: var(--tap-space-2, 8px); margin-bottom: var(--tap-space-4, 16px); border-bottom: 2px solid var(--tap-neutral-200, #e2e8f0); }
+.tap-payment-tab { flex: 1; padding: var(--tap-space-3, 12px) var(--tap-space-4, 16px); background: none; border: none; border-bottom: 3px solid transparent; margin-bottom: -2px; font-size: var(--tap-text-sm, 14px); font-weight: 600; color: var(--tap-neutral-500, #64748b); cursor: pointer; transition: color 0.15s, border-color 0.15s; }
+.tap-payment-tab:hover { color: var(--tap-neutral-700, #334155); }
+.tap-payment-tab.is-active { color: var(--tap-primary, #2563eb); border-bottom-color: var(--tap-primary, #2563eb); }
+.tap-payment-tab:focus-visible { outline: 2px solid var(--tap-primary, #2563eb); outline-offset: -2px; }
+.tap-payment-tab-panel { padding: var(--tap-space-4, 16px) 0; }
+.tap-payment-tab-panel[hidden] { display: none; }
 
 /* ===== Dashboard ===== */
 .tap-dashboard-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--tap-space-8); }
@@ -797,11 +929,6 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 .tap-booking-room { display: block; color: var(--tap-neutral-400); font-size: var(--tap-text-xs); }
 .tap-actions { white-space: nowrap; }
 .tap-status-btn[disabled] { opacity: 0.4; cursor: not-allowed; transform: none; }
-.tap-listing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: var(--tap-space-4); }
-.tap-listing-card { display: flex; flex-direction: column; gap: var(--tap-space-2); padding: var(--tap-space-4); background: var(--tap-neutral-50); border: 1px solid var(--tap-neutral-200); border-radius: var(--tap-radius-lg); }
-.tap-listing-title { font-weight: 700; color: var(--tap-neutral-700); font-size: var(--tap-text-sm); }
-.tap-listing-count { font-size: var(--tap-text-3xl); font-weight: 800; color: var(--tap-neutral-900); line-height: 1; }
-.tap-listing-meta { font-size: var(--tap-text-xs); color: var(--tap-neutral-500); }
 @media (max-width: 640px) {
     .tap-booking-table { display: block; overflow-x: auto; white-space: nowrap; }
 }
@@ -828,10 +955,6 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 .tap-panel-title { margin: 0 0 var(--tap-space-2); }
 .tap-panel-sub { margin: 0; color: var(--tap-neutral-500); font-size: var(--tap-text-sm); }
 .tap-section-head { display: flex; justify-content: space-between; align-items: center; gap: var(--tap-space-3); margin-bottom: var(--tap-space-4); }
-.tap-listings-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--tap-space-4); }
-.tap-listing-card { border: 1px solid var(--tap-border); border-radius: var(--tap-radius); padding: var(--tap-space-4); display: flex; flex-direction: column; gap: var(--tap-space-3); }
-.tap-listing-card-head { display: flex; justify-content: space-between; align-items: center; gap: var(--tap-space-2); }
-.tap-listing-card-meta { display: flex; gap: var(--tap-space-4); color: var(--tap-neutral-500); font-size: var(--tap-text-sm); }
 .tap-badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; }
 .tap-badge-ok { background: rgba(13,148,136,.12); color: #0f766e; }
 .tap-badge-off { background: rgba(100,116,139,.15); color: var(--tap-neutral-500); }
@@ -1087,7 +1210,7 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 .tap-table-scroll { overflow-x: auto; }
 
 .tap-voucher { max-width: 820px; margin: var(--tap-space-6) auto; }
-.tap-voucher-tools { display: flex; justify-content: space-between; gap: var(--tap-space-3); margin-bottom: var(--tap-space-4); }
+.tap-voucher-tools { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--tap-space-3); margin-bottom: var(--tap-space-4); }
 .tap-voucher-inner { border: 1px solid var(--tap-border); border-radius: var(--tap-radius-lg, var(--tap-radius)); overflow: hidden; background: var(--tap-surface, #fff); }
 .tap-voucher-head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--tap-space-4); padding: var(--tap-space-6); border-bottom: 2px solid var(--tap-primary); background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%); color: #fff; }
 .tap-voucher-head h2 { margin: 0 0 4px; color: #fff; font-size: 22px; }
@@ -1096,6 +1219,9 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 .tap-voucher-badges { display: flex; gap: var(--tap-space-2); }
 .tap-voucher-badges .tap-badge-ok { background: #fff; color: #0f766e; }
 .tap-voucher-badges .tap-badge { background: rgba(255,255,255,.18); color: #fff; }
+.tap-voucher-qr { margin-top: var(--tap-space-3, 12px); text-align: center; }
+.tap-voucher-qr img { border-radius: var(--tap-radius, 8px); background: #fff; padding: 4px; }
+.tap-voucher-qr-label { font-size: 11px; opacity: .8; margin-top: 4px; }
 .tap-voucher-body { padding: var(--tap-space-6); }
 .tap-voucher-service { margin-bottom: var(--tap-space-5); }
 .tap-voucher-service h3 { margin: 0 0 4px; }
@@ -2954,17 +3080,19 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 .tap-manage-form button[type="submit"]:disabled { opacity: .6; transform: none; }
 
 /* Listing cards */
-.tap-listing-card {
-    border: 0;
-    box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
-    border-radius: var(--tap-radius-xl);
-    background: var(--tap-surface, #fff);
-    transition: transform .15s ease, box-shadow .15s ease;
-    overflow: hidden;
-}
-.tap-listing-card:hover { transform: translateY(-2px); box-shadow: var(--tap-shadow-md); }
-.tap-listing-card-head { flex-wrap: wrap; gap: var(--tap-space-2); }
 .tap-badge { border-radius: 999px; padding: 3px 10px; font-size: 11px; font-weight: 700; }
+
+/* Listing toolbar (bo-listings): chips + search */
+.tap-listing-toolbar { display: flex; justify-content: space-between; align-items: center; gap: var(--tap-space-3, 12px); flex-wrap: wrap; margin-bottom: var(--tap-space-4, 16px); }
+.tap-listing-toolbar .tap-listing-filters { margin-bottom: 0; }
+.tap-listing-toolbar .tap-listing-search { max-width: 260px; width: 100%; padding: 8px 14px; border: 1px solid var(--tap-neutral-200, #e2e8f0); border-radius: 999px; background: var(--tap-surface, #fff); color: var(--tap-neutral-800, #1e293b); font-size: 14px; box-sizing: border-box; }
+.tap-listing-toolbar .tap-listing-search:focus { outline: 2px solid var(--tap-primary, #0d9488); outline-offset: 1px; }
+html.dark .tap-listing-toolbar .tap-listing-search { background: var(--tap-surface-2, #1a2540); border-color: var(--tap-neutral-200, #334155); color: var(--tap-neutral-100, #f1f5f9); }
+.tap-listing-noresults { grid-column: 1 / -1; text-align: center; padding: var(--tap-space-6, 32px) var(--tap-space-4, 16px); color: var(--tap-neutral-500, #4b5563); font-size: var(--tap-text-sm, 14px); }
+@media (max-width: 640px) {
+    .tap-listing-toolbar { flex-direction: column; align-items: stretch; }
+    .tap-listing-toolbar .tap-listing-search { max-width: none; }
+}
 
 /* Empty state */
 .tap-empty { text-align: center; padding: var(--tap-space-10); color: var(--tap-neutral-500); font-size: var(--tap-text-base); }
@@ -3245,6 +3373,24 @@ textarea.tap-input { min-height: 80px; resize: vertical; }
 
 /* Tour calendar selected day */
 .tap-avcal-day.is-selected { outline: 3px solid var(--tap-primary); outline-offset: -3px; transform: scale(1.02); box-shadow: 0 6px 18px rgba(0,0,0,0.12); z-index: 2; }
+
+/* Mobile booking CTA (accommodation) */
+.tap-acc-mobile-cta { display: none; }
+
+/* Mobile booking CTA (tour) */
+.tap-tour-mobile-cta { display: none; }
+@media (max-width: 768px) {
+    .tap-tour-mobile-cta { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; margin: 0 -16px 16px; background: var(--tap-surface, #fff); border-bottom: 1px solid var(--tap-neutral-200, #e2e8f0); }
+    .tap-tour-mobile-price { font-size: 20px; font-weight: 800; color: var(--tap-primary, #0d9488); }
+    .tap-tour-mobile-price small { font-size: 12px; font-weight: 400; color: var(--tap-neutral-500, #64748b); }
+    .tap-tour-mobile-book-btn { flex-shrink: 0; }
+}
+@media (max-width: 768px) {
+    .tap-acc-mobile-cta { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; margin-bottom: 8px; }
+    .tap-acc-mobile-price { font-size: 20px; font-weight: 800; color: var(--tap-primary, #0d9488); }
+    .tap-acc-mobile-price small { font-size: 12px; font-weight: 400; color: var(--tap-neutral-500, #64748b); }
+    .tap-acc-mobile-book-btn { flex-shrink: 0; }
+}
 
 /* Mobile booking bar */
 .tap-bw-mobile-bar { display: none; }

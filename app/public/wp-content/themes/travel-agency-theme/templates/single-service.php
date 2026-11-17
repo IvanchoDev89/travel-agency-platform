@@ -445,7 +445,9 @@ if ($deepest && class_exists('TAP_Destinations')) {
                         opt.value = sl.id;
                         var time = sl.time_slot ? sl.time_slot.substring(0,5) : '';
                         var avail = (sl.capacity || 0) > 0 ? Math.max(0, (sl.capacity || 0) - (sl.booked || 0)) : (sl.capacity || '∞');
-                        var label = (time || '<?php echo esc_js(__('Todo el día', 'travel-agency-platform')); ?>') + (sl.label ? ' · ' + sl.label : '') + ' — ' + avail + ' ' + (avail === 1 ? '<?php echo esc_js(__('plaza', 'travel-agency-platform')); ?>' : '<?php echo esc_js(__('plazas', 'travel-agency-platform')); ?>');
+                        var slotPrice = sl.price ? parseFloat(sl.price) : 0;
+                        var priceStr = slotPrice > 0 ? ' — ' + slotPrice.toFixed(2) : '';
+                        var label = (time || '<?php echo esc_js(__('Todo el día', 'travel-agency-platform')); ?>') + (sl.label ? ' · ' + sl.label : '') + ' — ' + avail + ' ' + (avail === 1 ? '<?php echo esc_js(__('plaza', 'travel-agency-platform')); ?>' : '<?php echo esc_js(__('plazas', 'travel-agency-platform')); ?>') + priceStr;
                         opt.textContent = label;
                         opt.disabled = !!sl.is_blocked || ((sl.capacity || 0) > 0 && (sl.booked || 0) >= (sl.capacity || 0));
                         opt.dataset.price = sl.price || 0;
@@ -594,6 +596,7 @@ if ($deepest && class_exists('TAP_Destinations')) {
               <div class="tap-bw-field">
                 <label><?php esc_html_e('Email de contacto', 'travel-agency-platform'); ?></label>
                 <input type="email" name="guest_email" id="bw-guest-email" class="tap-input" autocomplete="email" value="<?php echo esc_attr(wp_get_current_user()->user_email ?? ''); ?>">
+                <span class="tap-field-error" id="bw-email-error"><?php esc_html_e('Introduce un email válido', 'travel-agency-platform'); ?></span>
               </div>
               <div class="tap-bw-field">
                 <label><?php esc_html_e('Teléfono', 'travel-agency-platform'); ?></label>
@@ -756,6 +759,14 @@ jQuery(document).ready(function($) {
       alert('<?php echo esc_js(__('Error', 'travel-agency-platform')); ?>');
     });
   });
+});
+
+// Inline email validation.
+$('#bw-guest-email').on('blur', function() {
+  var val = $(this).val().trim();
+  var isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || val === '';
+  $(this).toggleClass('is-invalid', !isValid && val !== '');
+  $('#bw-email-error').toggleClass('is-visible', !isValid && val !== '');
 });
 </script>
 <?php if ('tap_tour' === $pt): ?>

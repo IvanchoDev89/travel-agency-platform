@@ -467,6 +467,12 @@ class TAP_Tour_Wizard_Steps {
                 </div>
 
                 <div class="tap-sched-list-wrap">
+                    <div class="tap-sched-bulk-bar" id="tap-sched-bulk-bar" style="display:none;">
+                        <span class="tap-sched-bulk-count">0 <?php esc_html_e('seleccionados', 'travel-agency-platform'); ?></span>
+                        <button type="button" class="tap-btn tap-btn-sm" data-bulk-op="block"><?php esc_html_e('Bloquear', 'travel-agency-platform'); ?></button>
+                        <button type="button" class="tap-btn tap-btn-sm" data-bulk-op="unblock"><?php esc_html_e('Desbloquear', 'travel-agency-platform'); ?></button>
+                        <button type="button" class="tap-btn tap-btn-sm tap-btn-danger" data-bulk-op="delete"><?php esc_html_e('Eliminar', 'travel-agency-platform'); ?></button>
+                    </div>
                     <div class="tap-sched-list-head">
                         <strong><?php esc_html_e('Próximas salidas', 'travel-agency-platform'); ?></strong>
                         <span class="tap-sched-count"></span>
@@ -955,6 +961,7 @@ class TAP_Tour_Wizard_Steps {
         ob_start();
         ?>
         <li class="<?php echo esc_attr($classes); ?>" data-slot="<?php echo (int) $slot['id']; ?>">
+            <input type="checkbox" class="tap-sched-select" data-slot="<?php echo (int) $slot['id']; ?>" aria-label="<?php esc_attr_e('Seleccionar horario', 'travel-agency-platform'); ?>">
             <span class="tap-sched-date"><?php echo esc_html((string) $slot['date_label']); ?></span>
             <span class="tap-sched-time"><?php echo esc_html((string) ($slot['time_slot'] ? substr((string) $slot['time_slot'], 0, 5) : __('Todo el día', 'travel-agency-platform'))); ?></span>
             <span class="tap-sched-places">

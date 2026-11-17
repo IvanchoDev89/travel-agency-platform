@@ -238,7 +238,7 @@ class TAP_Tour_Wizard {
                     ?>
                 </main>
 
-                <aside class="tap-wizard-rail" aria-label="<?php esc_attr_e('Resumen del alta', 'travel-agency-platform'); ?>">
+                <aside class="tap-wizard-rail" id="tap-wizard-rail" aria-label="<?php esc_attr_e('Resumen del alta', 'travel-agency-platform'); ?>">
                     <div class="tap-rail-card">
                         <div class="tap-rail-card-head">
                             <strong><?php esc_html_e('Tu progreso', 'travel-agency-platform'); ?></strong>
@@ -304,6 +304,8 @@ class TAP_Tour_Wizard {
         </div>
         <?php
         echo self::render_tour_wizard_script($listing_id);
+        ?>
+        <?php
         return ob_get_clean();
     }
 }

@@ -48,8 +48,9 @@ tap_t_assert(is_array($order) && $order['order_id'] === 'ORD-PP-1', 'create_orde
 tap_t_assert($order['approval_url'] === 'https://pp.test/approve', 'create_order extracts payer-action URL');
 tap_t_assert(get_post_meta($bid, '_tap_paypal_order_id', true) === 'ORD-PP-1', 'paypal order id persisted on booking');
 
-// currency sent to PayPal follows the platform option
-update_option('tap_currency', 'EUR');
+// currency sent to PayPal follows the service's currency meta
+$prefix = class_exists('TAP_Post_Types') ? TAP_Post_Types::meta_prefix($service_type) : '';
+if ($prefix) { update_post_meta($service_id, '_tap_' . $prefix . '_currency', 'EUR'); }
 $order_eur = TAP_PayPal::create_order($bid, home_url('/checkout'), home_url('/'));
 tap_t_assert(is_array($order_eur), 'create_order works with EUR currency too');
 $last_create = null;
@@ -61,7 +62,7 @@ foreach ($GLOBALS['tap_pp_log'] as $entry) {
 $sent_currency = $last_create['purchase_units'][0]['amount']['currency_code'] ?? '';
 tap_t_assert($sent_currency === 'EUR', 'paypal order body uses configured currency (EUR)');
 tap_t_assert($sent_currency !== 'USD', 'currency is not hardcoded');
-update_option('tap_currency', 'USD');
+if ($prefix) { update_post_meta($service_id, '_tap_' . $prefix . '_currency', 'USD'); }
 
 // 2) create_order_generic records a payment order ------------------------------
 $generic = TAP_PayPal::create_order_generic(15, 'Sub e2e', 'REF-SUB-1', 'subscription', 987);

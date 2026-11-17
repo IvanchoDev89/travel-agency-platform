@@ -37,48 +37,12 @@ echo $fonts_css;
 <link rel="alternate" hreflang="x-default" href="<?php echo esc_url(home_url($_SERVER['REQUEST_URI'] ?? '/')); ?>">
 <?php endif; ?>
 <script>
+// Unregister any previously-registered service workers (PWA removed).
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-        var registerSW = function() {
-            navigator.serviceWorker.register('<?php echo esc_url(get_template_directory_uri() . '/assets/sw.js?ver=' . TAT_VERSION); ?>').then(function(reg){ reg.update(); }).catch(function(){});
-        };
-        var cleanupKey = 'tap-sw-cleanup-v4';
-        try {
-            if (!localStorage.getItem(cleanupKey)) {
-                navigator.serviceWorker.getRegistrations().then(function(regs) {
-                    return Promise.all(regs.map(function(r) { return r.unregister(); }));
-                }).then(function() {
-                    try { localStorage.setItem(cleanupKey, '1'); } catch (e) {}
-                    registerSW();
-                }).catch(function() { registerSW(); });
-            } else {
-                registerSW();
-            }
-        } catch (e) { registerSW(); }
-    });
-}
-var tapDeferredPrompt = null;
-window.addEventListener('beforeinstallprompt', function(e) {
-    e.preventDefault();
-    tapDeferredPrompt = e;
-    var dismissed = false;
-    try { dismissed = localStorage.getItem('tap-install-dismissed') === '1'; } catch (err) {}
-    var bar = document.getElementById('tap-install-bar');
-    if (bar && !dismissed) {
-        bar.style.display = 'flex';
-        if (window.getComputedStyle(bar).display !== 'none') {
-            document.body.classList.add('tap-install-visible');
-        }
-    }
-});
-function tapInstallApp() {
-    if (!tapDeferredPrompt) return;
-    tapDeferredPrompt.prompt();
-    tapDeferredPrompt.userChoice.then(function() {
-        tapDeferredPrompt = null;
-        var bar = document.getElementById('tap-install-bar');
-        if (bar) bar.style.display = 'none';
-        document.body.classList.remove('tap-install-visible');
+        navigator.serviceWorker.getRegistrations().then(function(regs) {
+            return Promise.all(regs.map(function(r) { return r.unregister(); }));
+        }).catch(function(){});
     });
 }
 </script>
@@ -88,11 +52,6 @@ function tapInstallApp() {
 <a href="#main-content" class="tap-skip-link"><?php esc_html_e('Saltar al contenido principal', 'travel-agency-platform'); ?></a>
 
 <header class="site-header" id="site-header" data-touch="">
-<?php if (class_exists('TAP_Localization')): ?>
-<div class="tap-lang-selector" style="position:absolute;right:16px;top:12px;z-index:10;">
-    <?php echo TAP_Localization::switcher([]); ?>
-</div>
-<?php endif; ?>
     <div class="header-inner">
         <div class="site-branding">
             <?php if (function_exists('the_custom_logo') && has_custom_logo()): ?>
@@ -149,6 +108,11 @@ function tapInstallApp() {
             </nav>
 
             <div class="nav-actions">
+                <?php if (class_exists('TAP_Localization')): ?>
+                <div class="tap-lang-selector tap-lang-in-actions">
+                    <?php echo TAP_Localization::switcher([]); ?>
+                </div>
+                <?php endif; ?>
                 <button class="nav-action-btn nav-theme-toggle" id="nav-theme-toggle" aria-label="<?php esc_attr_e('Toggle dark mode', 'travel-agency-platform'); ?>" title="<?php esc_attr_e('Toggle dark mode', 'travel-agency-platform'); ?>">
                     <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
                     <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>

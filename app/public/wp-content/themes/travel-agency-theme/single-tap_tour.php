@@ -127,6 +127,10 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
             </div>
         </div>
     </div>
+    <div class="tap-tour-mobile-cta">
+        <span class="tap-tour-mobile-price"><?php echo esc_html(TAP_Currency::fmt0($price)); ?> <small><?php esc_html_e('por adulto', 'travel-agency-platform'); ?></small></span>
+        <button type="button" class="tap-btn tap-btn-primary tap-tour-mobile-book-btn" onclick="document.getElementById('tap-booking-widget').scrollIntoView({behavior:'smooth',block:'start'});"><?php esc_html_e('Reservar', 'travel-agency-platform'); ?></button>
+    </div>
     <?php if (!empty($gallery_ids)): ?>
     <div class="tap-tour-hero-thumbs">
         <?php foreach (array_slice($gallery_ids, 0, 5) as $gimg): ?>

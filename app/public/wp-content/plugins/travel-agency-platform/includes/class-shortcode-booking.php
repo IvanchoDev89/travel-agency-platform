@@ -254,6 +254,14 @@ class TAP_Shortcode_Booking {
         ?>
         <div class="tap-my-bookings">
             <h2><?php esc_html_e('My Bookings', 'travel-agency-platform'); ?></h2>
+            <?php if (!empty($bookings)): ?>
+            <div class="tap-booking-filters" role="tablist" aria-label="<?php esc_attr_e('My Bookings', 'travel-agency-platform'); ?>">
+                <button type="button" class="tap-booking-filter is-active" data-filter="all"><?php esc_html_e('Todas', 'travel-agency-platform'); ?></button>
+                <button type="button" class="tap-booking-filter" data-filter="pending"><?php esc_html_e('Pendientes', 'travel-agency-platform'); ?></button>
+                <button type="button" class="tap-booking-filter" data-filter="paid"><?php esc_html_e('Pagadas', 'travel-agency-platform'); ?></button>
+                <button type="button" class="tap-booking-filter" data-filter="cancelled"><?php esc_html_e('Canceladas', 'travel-agency-platform'); ?></button>
+            </div>
+            <?php endif; ?>
             <?php if (empty($bookings)): ?>
                 <p><?php esc_html_e('No bookings found.', 'travel-agency-platform'); ?></p>
             <?php else: ?>
@@ -280,11 +288,11 @@ class TAP_Shortcode_Booking {
                             if (empty($bc)) $bc = 'USD';
                             $currency_symbol = class_exists('TAP_Currency') ? TAP_Currency::symbol($bc) : $bc;
 							?>
-                        <tr>
-                            <td><?php echo esc_html($booking->booking_code); ?></td>
-                            <td><?php echo $service ? esc_html($service->post_title) : 'N/A'; ?></td>
-                            <td><?php echo esc_html($booking->check_in . ($booking->check_out ? ' - ' . $booking->check_out : '')); ?></td>
-                            <td>
+                        <tr data-status="<?php echo esc_attr($booking->status); ?>" data-payment="<?php echo esc_attr($booking->payment_status); ?>">
+                            <td data-label="<?php esc_attr_e('Code', 'travel-agency-platform'); ?>"><?php echo esc_html($booking->booking_code); ?></td>
+                            <td data-label="<?php esc_attr_e('Service', 'travel-agency-platform'); ?>"><?php echo $service ? esc_html($service->post_title) : 'N/A'; ?></td>
+                            <td data-label="<?php esc_attr_e('Dates', 'travel-agency-platform'); ?>"><?php echo esc_html($booking->check_in . ($booking->check_out ? ' - ' . $booking->check_out : '')); ?></td>
+                            <td data-label="<?php esc_attr_e('Total', 'travel-agency-platform'); ?>">
                                 <?php echo esc_html($currency_symbol . ' ' . number_format((float) $booking->total_amount, 2)); ?>
                                 <?php if ((float) ($booking->refund_amount ?? 0) > 0): ?>
                                     <br><span class="tap-refund-note"><?php echo esc_html(sprintf(/* translators: %s: importe reembolsado */ __('Reembolso: %s', 'travel-agency-platform'), $currency_symbol . ' ' . number_format((float) $booking->refund_amount, 2))); ?></span>
@@ -292,9 +300,9 @@ class TAP_Shortcode_Booking {
                                     <br><span class="tap-refund-note"><?php esc_html_e('Política no reembolsable', 'travel-agency-platform'); ?></span>
                                 <?php endif; ?>
                             </td>
-<td><span class="tap-status tap-status-<?php echo esc_attr($booking->status); ?>"><?php echo esc_html(TAP_Emails_Send::status_label($booking->status)); ?></span></td>
-                            <td><span class="tap-status tap-status-<?php echo esc_attr($booking->payment_status); ?>"><?php echo esc_html(ucfirst($booking->payment_status)); ?></span></td>
-                            <td>
+<td data-label="<?php esc_attr_e('Status', 'travel-agency-platform'); ?>"><span class="tap-status tap-status-<?php echo esc_attr($booking->status); ?>"><?php echo esc_html(TAP_Emails_Send::status_label($booking->status)); ?></span></td>
+                            <td data-label="<?php esc_attr_e('Payment', 'travel-agency-platform'); ?>"><span class="tap-status tap-status-<?php echo esc_attr($booking->payment_status); ?>"><?php echo esc_html(ucfirst($booking->payment_status)); ?></span></td>
+                            <td data-label="<?php esc_attr_e('Actions', 'travel-agency-platform'); ?>">
                                 <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(home_url('/booking-detail/?code=' . $booking->booking_code)); ?>"><?php esc_html_e('Ver voucher', 'travel-agency-platform'); ?></a>
                                 <?php if (TAP_Booking::is_payable($booking)): ?>
                                     <a class="tap-btn tap-btn-sm tap-btn-primary" href="<?php echo esc_url(home_url('/checkout?code=' . $booking->booking_code)); ?>"><?php esc_html_e('Pagar ahora', 'travel-agency-platform'); ?></a>
@@ -331,6 +339,28 @@ class TAP_Shortcode_Booking {
             });
         })(jQuery);
         </script>
+        <?php if (!empty($bookings)): ?>
+        <script>
+        (function($) {
+            $('.tap-booking-filter').on('click', function() {
+                var filter = $(this).data('filter');
+                $('.tap-booking-filter').removeClass('is-active');
+                $(this).addClass('is-active');
+                $('.tap-my-bookings tbody tr').each(function() {
+                    var $row = $(this);
+                    var status = $row.data('status');
+                    var payment = $row.data('payment');
+                    var show = false;
+                    if (filter === 'all') show = true;
+                    else if (filter === 'pending') show = (status === 'pending' || status === 'request');
+                    else if (filter === 'paid') show = (payment === 'paid');
+                    else if (filter === 'cancelled') show = (status === 'cancelled' || status === 'refunded');
+                    $row.toggle(show);
+                });
+            });
+        })(jQuery);
+        </script>
+        <?php endif; ?>
         <?php
         return ob_get_clean();
     }
@@ -441,6 +471,7 @@ class TAP_Shortcode_Booking {
             <?php if (!$can && $is_guest && !$guest_verified): ?>
                 <div class="tap-voucher-lookup">
                     <p><?php esc_html_e('Para pagar tu reserva, verifica el correo electrónico con el que la realizaste.', 'travel-agency-platform'); ?></p>
+                    <p class="tap-guest-checkout-hint"><?php esc_html_e('Esto es para proteger tu reserva y asegurar que solo tú puedas acceder a ella.', 'travel-agency-platform'); ?></p>
                     <form class="tap-manage-form" method="get" action="">
                         <div class="tap-form-grid">
                             <div class="tap-field tap-span-2">
@@ -485,6 +516,11 @@ class TAP_Shortcode_Booking {
                 <div class="tap-checkout-step"><span>3</span> <?php esc_html_e('Confirmación', 'travel-agency-platform'); ?></div>
             </div>
             <div class="tap-checkout-summary">
+                <?php if ($service && has_post_thumbnail($service)): ?>
+                <div class="tap-checkout-summary-thumb">
+                    <?php echo get_the_post_thumbnail($service, 'medium', ['class' => 'tap-checkout-summary-img']); ?>
+                </div>
+                <?php endif; ?>
                 <h3><?php esc_html_e('Booking Summary', 'travel-agency-platform'); ?></h3>
                 <table class="tap-table">
                     <tr><td><strong><?php esc_html_e('Code:', 'travel-agency-platform'); ?></strong></td><td><?php echo esc_html($booking->booking_code); ?></td></tr>
@@ -497,15 +533,35 @@ class TAP_Shortcode_Booking {
                     <?php endif; ?>
                     <tr><td><strong><?php esc_html_e('Adults:', 'travel-agency-platform'); ?></strong></td><td><?php echo esc_html($booking->adults); ?></td></tr>
                     <tr><td><strong><?php esc_html_e('Children:', 'travel-agency-platform'); ?></strong></td><td><?php echo esc_html($booking->children); ?></td></tr>
-                    <tr><td><strong><?php esc_html_e('Total:', 'travel-agency-platform'); ?></strong></td><td><strong><?php echo esc_html($currency_symbol . ' ' . number_format((float) $booking->total_amount, 2)); ?></strong></td></tr>
-                    <?php if ((float) ($booking->refund_amount ?? 0) > 0): ?>
-                    <tr><td><strong><?php esc_html_e('Reembolso aplicado:', 'travel-agency-platform'); ?></strong></td><td><span class="tap-refund-note">-<?php echo esc_html($currency_symbol . ' ' . number_format((float) $booking->refund_amount, 2)); ?></span></td></tr>
+                    <?php if ((float) ($booking->booking_fee ?? 0) > 0): ?>
+                    <tr><td><?php esc_html_e('Tarifa de servicio', 'travel-agency-platform'); ?>:</td><td><?php echo esc_html($currency_symbol . ' ' . number_format((float) $booking->booking_fee, 2)); ?></td></tr>
                     <?php endif; ?>
+                    <?php if ((float) ($booking->refund_amount ?? 0) > 0): ?>
+                    <tr><td><?php esc_html_e('Reembolso aplicado:', 'travel-agency-platform'); ?></td><td><span class="tap-refund-note">-<?php echo esc_html($currency_symbol . ' ' . number_format((float) $booking->refund_amount, 2)); ?></span></td></tr>
+                    <?php endif; ?>
+                    <tr><td><strong><?php esc_html_e('Total:', 'travel-agency-platform'); ?></strong></td><td><strong><?php echo esc_html($currency_symbol . ' ' . number_format((float) $booking->total_amount, 2)); ?></strong></td></tr>
                     <tr><td><strong><?php esc_html_e('Status:', 'travel-agency-platform'); ?></strong></td><td><span class="tap-status tap-status-<?php echo esc_attr($booking->status); ?>"><?php echo esc_html(ucfirst($booking->status)); ?></span></td></tr>
                 </table>
+                <?php
+                // Commission transparency note.
+                $tap_checkout_commission = 10;
+                if (!empty($booking->agency_id) && class_exists('TAP_Booking')) {
+                    $tap_checkout_commission = TAP_Booking::get_agency_commission((int) $booking->agency_id);
+                }
+                ?>
+                <p class="tap-checkout-commission-note"><?php echo esc_html(sprintf(__('El precio incluye una tarifa de plataforma del %s%% pagada por la agencia. No hay cargos adicionales para ti.', 'travel-agency-platform'), $tap_checkout_commission)); ?></p>
             </div>
 
 		<?php if ($booking->total_amount > 0 && $booking->payment_status !== 'paid' && $booking->status !== 'request'): ?>
+                <?php
+                $tap_paypal_ready = TAP_PayPal::is_ready();
+                $tap_onvo_ready   = TAP_Onvo::is_ready();
+                $tap_both_ready   = $tap_paypal_ready && $tap_onvo_ready;
+                ?>
+                <div class="tap-checkout-hold-timer" id="tap-hold-timer" data-created="<?php echo esc_attr($booking->created_at); ?>" data-hold-minutes="30">
+                    <span class="tap-hold-timer-icon" aria-hidden="true">&#x23F1;</span>
+                    <span class="tap-hold-timer-text"><?php esc_html_e('Tu reserva expira en', 'travel-agency-platform'); ?> <strong id="tap-hold-countdown">--:--</strong></span>
+                </div>
                 <div class="tap-checkout-payment">
                     <?php $tap_remaining = TAP_Booking::remaining_amount($booking); ?>
                     <?php if (TAP_Booking::amount_already_paid($booking) > 0 && $tap_remaining > 0): ?>
@@ -525,99 +581,113 @@ class TAP_Shortcode_Booking {
                     <?php elseif ('failed' === $booking->payment_status): ?>
                         <p class="tap-refund-note"><?php esc_html_e('Un intento de pago anterior falló. Reinicia el pago y vuelve a intentarlo.', 'travel-agency-platform'); ?></p>
                     <?php endif; ?>
-                    <h3><?php esc_html_e('Pay with PayPal', 'travel-agency-platform'); ?></h3>
-							<?php if (TAP_PayPal::is_ready()): ?>
-                    <div id="tap-paypal-button-container"></div>
-                    <div id="tap-paypal-message" class="tap-booking-message" role="status" aria-live="polite"></div>
-                    <p class="tap-pay-label">
-								<?php
-								echo $tap_remaining > 0 && TAP_Booking::amount_already_paid($booking) > 0
-								/* translators: %s: importe del saldo pendiente */
-								? esc_html(sprintf(__('Pagar el saldo restante de %s', 'travel-agency-platform'), $currency_symbol . ' ' . number_format($tap_remaining, 2)))
-								: esc_html__('Completar el pago con PayPal', 'travel-agency-platform');
-								?>
+
+                    <?php if ($tap_both_ready): ?>
+                    <div class="tap-payment-tabs" role="tablist" aria-label="<?php esc_attr_e('Método de pago', 'travel-agency-platform'); ?>">
+                        <button type="button" class="tap-payment-tab is-active" role="tab" aria-selected="true" aria-controls="tap-tab-paypal" id="tap-tab-btn-paypal" data-tab="paypal">
+                            <?php esc_html_e('PayPal', 'travel-agency-platform'); ?>
+                        </button>
+                        <button type="button" class="tap-payment-tab" role="tab" aria-selected="false" aria-controls="tap-tab-onvo" id="tap-tab-btn-onvo" data-tab="onvo">
+                            <?php esc_html_e('Onvo Pay', 'travel-agency-platform'); ?>
+                        </button>
+                    </div>
+                    <?php endif; ?>
+
+                    <?php if ($tap_paypal_ready): ?>
+                    <div class="tap-payment-tab-panel<?php echo $tap_both_ready ? '' : ' is-active'; ?>" id="tap-tab-paypal" role="tabpanel" aria-labelledby="tap-tab-btn-paypal" <?php echo $tap_both_ready ? 'hidden' : ''; ?>>
+                        <h3><?php esc_html_e('Pay with PayPal', 'travel-agency-platform'); ?></h3>
+                        <div id="tap-paypal-button-container"></div>
+                        <div id="tap-paypal-message" class="tap-booking-message" role="status" aria-live="polite"></div>
+                        <p class="tap-pay-label">
+                            <?php
+                            echo $tap_remaining > 0 && TAP_Booking::amount_already_paid($booking) > 0
+                            /* translators: %s: importe del saldo pendiente */
+                            ? esc_html(sprintf(__('Pagar el saldo restante de %s', 'travel-agency-platform'), $currency_symbol . ' ' . number_format($tap_remaining, 2)))
+                            : esc_html__('Completar el pago con PayPal', 'travel-agency-platform');
+                            ?>
                         </p>
 
-                    <script src="https://www.paypal.com/sdk/js?client-id=<?php echo esc_attr(TAP_PayPal::get_client_id()); ?>&currency=<?php echo esc_attr(TAP_Currency::code()); ?>" data-namespace="tapPayPal"></script>
-                <script>
-                jQuery(document).ready(function($) {
-                    var bookingId = <?php echo intval($booking->id); ?>;
-                    var paypalLoaded = false;
+                        <script src="https://www.paypal.com/sdk/js?client-id=<?php echo esc_attr(TAP_PayPal::get_client_id()); ?>&currency=<?php echo esc_attr(TAP_Currency::code()); ?>" data-namespace="tapPayPal"></script>
+                        <script>
+                        jQuery(document).ready(function($) {
+                            var bookingId = <?php echo intval($booking->id); ?>;
+                            var paypalLoaded = false;
 
-                    function loadPayPal() {
-                        if (typeof tapPayPal === 'undefined' || paypalLoaded) return;
-                        paypalLoaded = true;
+                            function loadPayPal() {
+                                if (typeof tapPayPal === 'undefined' || paypalLoaded) return;
+                                paypalLoaded = true;
 
-                        tapPayPal.Buttons({
-                            createOrder: function() {
-                                return $.ajax({
-                                    url: tap_ajax.ajax_url,
-                                    type: 'POST',
-                                    data: {
-                                        action: 'tap_create_paypal_order',
-                                        booking_id: bookingId,
-                                        nonce: tap_ajax.nonce
-                                    }
-                                }).then(function(res) {
-                                    if (res.success) {
-                                        return res.data.order_id;
-                                    }
-                                    throw new Error(res.data.message || '<?php echo esc_js(__('Error creating PayPal order', 'travel-agency-platform')); ?>');
-                                });
-                            },
-                            onApprove: function(data) {
-                                var msg = $('#tap-paypal-message');
-                                msg.removeClass('tap-error tap-success').html('<p><?php echo esc_js(__('Processing payment...', 'travel-agency-platform')); ?></p>');
+                                tapPayPal.Buttons({
+                                    createOrder: function() {
+                                        return $.ajax({
+                                            url: tap_ajax.ajax_url,
+                                            type: 'POST',
+                                            data: {
+                                                action: 'tap_create_paypal_order',
+                                                booking_id: bookingId,
+                                                nonce: tap_ajax.nonce
+                                            }
+                                        }).then(function(res) {
+                                            if (res.success) {
+                                                return res.data.order_id;
+                                            }
+                                            throw new Error(res.data.message || '<?php echo esc_js(__('Error creating PayPal order', 'travel-agency-platform')); ?>');
+                                        });
+                                    },
+                                    onApprove: function(data) {
+                                        var msg = $('#tap-paypal-message');
+                                        msg.removeClass('tap-error tap-success').html('<p><?php echo esc_js(__('Processing payment...', 'travel-agency-platform')); ?></p>');
 
-                                $.ajax({
-                                    url: tap_ajax.ajax_url,
-                                    type: 'POST',
-                                    data: {
-                                        action: 'tap_capture_paypal_order',
-                                        paypal_order_id: data.orderID,
-                                        nonce: tap_ajax.nonce
+                                        $.ajax({
+                                            url: tap_ajax.ajax_url,
+                                            type: 'POST',
+                                            data: {
+                                                action: 'tap_capture_paypal_order',
+                                                paypal_order_id: data.orderID,
+                                                nonce: tap_ajax.nonce
+                                            }
+                                        }).then(function(res) {
+                                            if (res.success) {
+                                                msg.removeClass('tap-error').addClass('tap-success')
+                                                    .html('<p><?php echo esc_js(__('Payment successful! Your booking is confirmed.', 'travel-agency-platform')); ?></p>');
+                                                setTimeout(function() {
+                                                    window.location.href = '<?php echo esc_url($uid ? home_url('/my-bookings') : home_url('/booking-detail/?code=' . rawurlencode($booking->booking_code))); ?>';
+                                                }, 2000);
+                                            } else {
+                                                msg.removeClass('tap-success').addClass('tap-error')
+                                                    .html('<p>' + (res.data.message || '<?php echo esc_js(__('Payment failed.', 'travel-agency-platform')); ?>') + '</p>');
+                                            }
+                                        });
+                                    },
+                                    onCancel: function() {
+                                        $('#tap-paypal-message').removeClass('tap-success').addClass('tap-error')
+                                            .html('<p><?php echo esc_js(__('Payment cancelled.', 'travel-agency-platform')); ?></p>');
+                                    },
+                                    onError: function(err) {
+                                        $('#tap-paypal-message').removeClass('tap-success').addClass('tap-error')
+                                            .html('<p><?php echo esc_js(__('An error occurred with PayPal.', 'travel-agency-platform')); ?></p>');
+                                        console.error('PayPal Error:', err);
                                     }
-                                }).then(function(res) {
-                                    if (res.success) {
-                                        msg.removeClass('tap-error').addClass('tap-success')
-                                            .html('<p><?php echo esc_js(__('Payment successful! Your booking is confirmed.', 'travel-agency-platform')); ?></p>');
-                                        setTimeout(function() {
-                                            window.location.href = '<?php echo esc_url($uid ? home_url('/my-bookings') : home_url('/booking-detail/?code=' . rawurlencode($booking->booking_code))); ?>';
-                                        }, 2000);
-                                    } else {
-                                        msg.removeClass('tap-success').addClass('tap-error')
-                                            .html('<p>' + (res.data.message || '<?php echo esc_js(__('Payment failed.', 'travel-agency-platform')); ?>') + '</p>');
-                                    }
-                                });
-                            },
-                            onCancel: function() {
-                                $('#tap-paypal-message').removeClass('tap-success').addClass('tap-error')
-                                    .html('<p><?php echo esc_js(__('Payment cancelled.', 'travel-agency-platform')); ?></p>');
-                            },
-                            onError: function(err) {
-                                $('#tap-paypal-message').removeClass('tap-success').addClass('tap-error')
-                                    .html('<p><?php echo esc_js(__('An error occurred with PayPal.', 'travel-agency-platform')); ?></p>');
-                                console.error('PayPal Error:', err);
+                                }).render('#tap-paypal-button-container');
                             }
-                        }).render('#tap-paypal-button-container');
-                    }
 
-                    var checkInterval = setInterval(function() {
-                        if (typeof tapPayPal !== 'undefined') {
-                            loadPayPal();
-                            clearInterval(checkInterval);
-                        }
-                    }, 300);
+                            var checkInterval = setInterval(function() {
+                                if (typeof tapPayPal !== 'undefined') {
+                                    loadPayPal();
+                                    clearInterval(checkInterval);
+                                }
+                            }, 300);
 
-                    setTimeout(function() { clearInterval(checkInterval); }, 15000);
-                });
-                </script>
-                    <?php else: ?>
+                            setTimeout(function() { clearInterval(checkInterval); }, 15000);
+                        });
+                        </script>
+                    </div>
+                    <?php elseif (!$tap_onvo_ready): ?>
                     <p class="tap-empty"><?php esc_html_e('Online payment is temporarily unavailable. Your reservation is registered and will be confirmed by the agency.', 'travel-agency-platform'); ?></p>
                     <?php endif; ?>
 
-                    <?php if (TAP_Onvo::is_ready()): ?>
-                    <div class="tap-onvo-payment" style="margin-top:16px; padding-top:16px; border-top:1px solid var(--tap-neutral-100, #e2e8f0);">
+                    <?php if ($tap_onvo_ready): ?>
+                    <div class="tap-payment-tab-panel<?php echo (!$tap_both_ready && !$tap_paypal_ready) ? ' is-active' : ''; ?>" id="tap-tab-onvo" role="tabpanel" aria-labelledby="tap-tab-btn-onvo" <?php echo ($tap_both_ready || $tap_paypal_ready) ? 'hidden' : ''; ?>>
                         <h3><?php esc_html_e('Pagar con Onvo Pay', 'travel-agency-platform'); ?></h3>
                         <p class="tap-pay-label"><?php esc_html_e('Tarjetas (Visa, Mastercard, Amex) y SINPE Móvil', 'travel-agency-platform'); ?></p>
                         <button type="button" class="tap-btn tap-btn-primary" id="tap-onvo-pay-btn" data-booking-id="<?php echo intval($booking->id); ?>">
@@ -631,52 +701,77 @@ class TAP_Shortcode_Booking {
                             <span class="tap-onvo-btn-spinner" style="display:none;" aria-hidden="true"></span>
                         </button>
                         <div id="tap-onvo-message" class="tap-booking-message" role="status" aria-live="polite"></div>
-                    </div>
-                    <script>
-                    jQuery(document).ready(function($) {
-                        $('#tap-onvo-pay-btn').on('click', function() {
-                            var btn = $(this);
-                            var msg = $('#tap-onvo-message');
-                            btn.prop('disabled', true);
-                            btn.find('.tap-onvo-btn-text').text('<?php echo esc_js(__('Procesando...', 'travel-agency-platform')); ?>');
-                            btn.find('.tap-onvo-btn-spinner').show();
-                            msg.removeClass('tap-error tap-success').html('');
+                        <script>
+                        jQuery(document).ready(function($) {
+                            $('#tap-onvo-pay-btn').on('click', function() {
+                                var btn = $(this);
+                                var msg = $('#tap-onvo-message');
+                                btn.prop('disabled', true);
+                                btn.find('.tap-onvo-btn-text').text('<?php echo esc_js(__('Procesando...', 'travel-agency-platform')); ?>');
+                                btn.find('.tap-onvo-btn-spinner').show();
+                                msg.removeClass('tap-error tap-success').html('');
 
-                            $.ajax({
-                                url: tap_ajax.ajax_url,
-                                type: 'POST',
-                                data: {
-                                    action: 'tap_create_onvo_checkout',
-                                    booking_id: btn.data('booking-id'),
-                                    nonce: tap_ajax.nonce
-                                }
-                            }).then(function(res) {
-                                if (res.success && res.data.redirect_url) {
-                                    window.location.href = res.data.redirect_url;
-                                } else {
+                                $.ajax({
+                                    url: tap_ajax.ajax_url,
+                                    type: 'POST',
+                                    data: {
+                                        action: 'tap_create_onvo_checkout',
+                                        booking_id: btn.data('booking-id'),
+                                        nonce: tap_ajax.nonce
+                                    }
+                                }).then(function(res) {
+                                    if (res.success && res.data.redirect_url) {
+                                        window.location.href = res.data.redirect_url;
+                                    } else {
+                                        btn.prop('disabled', false);
+                                        btn.find('.tap-onvo-btn-text').text('<?php echo esc_js(__('Completar el pago con Onvo Pay', 'travel-agency-platform')); ?>');
+                                        btn.find('.tap-onvo-btn-spinner').hide();
+                                        msg.addClass('tap-error').html('<p>' + (res.data.message || '<?php echo esc_js(__('Error al crear la sesión de pago.', 'travel-agency-platform')); ?>') + '</p>');
+                                    }
+                                }).fail(function() {
                                     btn.prop('disabled', false);
                                     btn.find('.tap-onvo-btn-text').text('<?php echo esc_js(__('Completar el pago con Onvo Pay', 'travel-agency-platform')); ?>');
                                     btn.find('.tap-onvo-btn-spinner').hide();
-                                    msg.addClass('tap-error').html('<p>' + (res.data.message || '<?php echo esc_js(__('Error al crear la sesión de pago.', 'travel-agency-platform')); ?>') + '</p>');
-                                }
-                            }).fail(function() {
-                                btn.prop('disabled', false);
-                                btn.find('.tap-onvo-btn-text').text('<?php echo esc_js(__('Completar el pago con Onvo Pay', 'travel-agency-platform')); ?>');
-                                btn.find('.tap-onvo-btn-spinner').hide();
-                                msg.addClass('tap-error').html('<p><?php echo esc_js(__('Error de conexión.', 'travel-agency-platform')); ?></p>');
+                                    msg.addClass('tap-error').html('<p><?php echo esc_js(__('Error de conexión.', 'travel-agency-platform')); ?></p>');
+                                });
                             });
                         });
-                    });
-                    </script>
+                        </script>
+                    </div>
                     <?php endif; ?>
                 </div>
 					<?php endif; ?>
+
+                <?php if (TAP_PayPal::is_ready() && TAP_Onvo::is_ready()): ?>
+                <script>
+                jQuery(document).ready(function($) {
+                    $('.tap-payment-tab').on('click', function() {
+                        var tab = $(this).data('tab');
+                        $('.tap-payment-tab').removeClass('is-active').attr('aria-selected', 'false');
+                        $(this).addClass('is-active').attr('aria-selected', 'true');
+                        $('.tap-payment-tab-panel').attr('hidden', true).removeClass('is-active');
+                        $('#tap-tab-' + tab).removeAttr('hidden').addClass('is-active');
+                    });
+                    // Keyboard navigation for tabs
+                    $('.tap-payment-tab').on('keydown', function(e) {
+                        var $tabs = $('.tap-payment-tab');
+                        var idx = $tabs.index(this);
+                        var newIdx = null;
+                        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                            newIdx = (idx + 1) % $tabs.length;
+                        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                            newIdx = (idx - 1 + $tabs.length) % $tabs.length;
+                        }
+                        if (newIdx !== null) {
+                            e.preventDefault();
+                            $tabs.eq(newIdx).focus().trigger('click');
+                        }
+                    });
+                });
+                </script>
+                <?php endif; ?>
         </div>
         ?>
-        <div class="tap-checkout-hold-timer" id="tap-hold-timer" data-created="<?php echo esc_attr($booking->created_at); ?>" data-hold-minutes="30">
-            <span class="tap-hold-timer-icon" aria-hidden="true">&#x23F1;</span>
-            <span class="tap-hold-timer-text"><?php esc_html_e('Tu reserva expira en', 'travel-agency-platform'); ?> <strong id="tap-hold-countdown">--:--</strong></span>
-        </div>
         <script>
         jQuery(document).ready(function($) {
             var $timer = $('#tap-hold-timer');
@@ -696,7 +791,7 @@ class TAP_Shortcode_Booking {
                     $countdown.text('00:00');
                     $timer.addClass('tap-hold-expired');
                     $timer.find('.tap-hold-timer-text').html('<?php echo esc_js(__('Tu reserva ha expirado. El slot ha sido liberado.', 'travel-agency-platform')); ?>');
-                    $('#tap-onvo-pay-btn, #tap-paypal-button-container, .tap-onvo-payment').hide();
+                    $('#tap-onvo-pay-btn, #tap-paypal-button-container, .tap-onvo-payment, .tap-payment-tab-panel, .tap-payment-tabs').hide();
                     return;
                 }
                 var mins = Math.floor(remaining / 60000);
@@ -849,6 +944,14 @@ class TAP_Shortcode_Booking {
                 <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(home_url('/my-bookings/')); ?>">&larr; <?php esc_html_e('Mis reservas', 'travel-agency-platform'); ?></a>
                 <button type="button" class="tap-btn tap-btn-sm" onclick="window.print()">🖨 <?php esc_html_e('Imprimir voucher', 'travel-agency-platform'); ?></button>
                 <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(add_query_arg(['action' => 'tap_calendar_download', 'code' => $booking->booking_code, 'nonce' => wp_create_nonce('tap_front_dash_nonce'), 'email' => !$uid ? $booking->guest_email : ''], admin_url('admin-ajax.php'))); ?>" download><?php esc_html_e('Añadir a calendario', 'travel-agency-platform'); ?></a>
+                <?php
+                $share_text = sprintf(__('Booking %s - %s', 'travel-agency-platform'), $booking->booking_code, $service_name);
+                $share_url = home_url('/booking-detail/?code=' . rawurlencode($booking->booking_code));
+                $wa_url = 'https://wa.me/?text=' . rawurlencode($share_text . ' ' . $share_url);
+                $email_url = 'mailto:?subject=' . rawurlencode($share_text) . '&body=' . rawurlencode($share_text . "\n\n" . $share_url);
+                ?>
+                <a class="tap-btn tap-btn-sm" href="<?php echo esc_url($wa_url); ?>" target="_blank" rel="noopener">WhatsApp</a>
+                <a class="tap-btn tap-btn-sm" href="<?php echo esc_url($email_url); ?>">Email</a>
                 <?php if ((int) $booking->client_id === $uid && in_array($booking->status, ['pending', 'confirmed', 'request'], true) && (!$booking->check_in || $booking->check_in >= current_time('Y-m-d'))): ?>
                     <button type="button" class="tap-btn tap-btn-sm tap-btn-danger tap-cancel-booking-btn" data-booking-id="<?php echo (int) $booking->id; ?>" data-confirm="<?php echo esc_attr($booking->booking_code); ?>" data-guest-email="<?php echo !$uid ? esc_attr($booking->guest_email) : ''; ?>"><?php esc_html_e('Cancelar reserva', 'travel-agency-platform'); ?></button>
                 <?php endif; ?>
@@ -865,6 +968,14 @@ class TAP_Shortcode_Booking {
                     <div class="tap-voucher-badges">
                         <span class="tap-badge tap-badge-ok"><?php echo esc_html($status_labels[$booking->status] ?? ucfirst($booking->status)); ?></span>
                         <span class="tap-badge"><?php echo esc_html($pstatus[$booking->payment_status] ?? ucfirst($booking->payment_status)); ?></span>
+                    </div>
+                    <?php
+                    $qr_data = rawurlencode($booking->booking_code . ' | ' . $service_name . ' | ' . $booking->check_in);
+                    $qr_url = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' . $qr_data;
+                    ?>
+                    <div class="tap-voucher-qr">
+                        <img src="<?php echo esc_url($qr_url); ?>" alt="<?php esc_attr_e('Ref', 'travel-agency-platform'); ?>" width="120" height="120" loading="lazy">
+                        <div class="tap-voucher-qr-label"><?php esc_html_e('Ref', 'travel-agency-platform'); ?></div>
                     </div>
                 </div>
 

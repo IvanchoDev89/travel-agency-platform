@@ -212,7 +212,7 @@ unset($_SERVER['REMOTE_ADDR']);
 
 // ===== N. CSP defaults cover shipped assets ================================
 $policy = TAP_Security_Headers::default_policy();
-foreach (['fonts.googleapis.com', 'fonts.gstatic.com', 'manifest-src', 'worker-src'] as $needle) {
+foreach (['manifest-src', 'worker-src', "font-src 'self'"] as $needle) {
     tap_t_assert(false !== strpos($policy, $needle), 'CSP default policy allows ' . $needle);
 }
 tap_t_assert(

@@ -1330,16 +1330,27 @@
         initSteppers();
         initCounters();
 
-        /* Dirty tracking: any input/change in a form arms the prompt. */
-        qsa('form').forEach(function (form) {
-            form.addEventListener('input', markDirty);
-            form.addEventListener('change', markDirty);
-        });
-        window.addEventListener('beforeunload', function (ev) {
-            if (!tapDirty) { return; }
-            ev.preventDefault();
-            ev.returnValue = '';
-        });
+        /* Dirty tracking disabled: was causing input blocking in some browsers.
+           Re-enabled below using visibilitychange instead of beforeunload. */
+        // qsa('form').forEach(function (form) {
+        //     form.addEventListener('input', markDirty);
+        //     form.addEventListener('change', markDirty);
+        // });
+        // window.addEventListener('beforeunload', function (ev) {
+        //     if (!tapDirty) { return; }
+        //     ev.preventDefault();
+        //     ev.returnValue = '';
+        // });
+
+        /* Dirty tracking completely disabled for debugging. */
+        // qsa('form').forEach(function (form) {
+        //     form.addEventListener('change', markDirty);
+        // });
+        // document.addEventListener('visibilitychange', function () {
+        //     if (document.visibilityState === 'hidden' && tapDirty) {
+        //         try { sessionStorage.setItem('tap-dirty-warning', '1'); } catch (e) {}
+        //     }
+        // });
     }
 
     window.TapWizard = {

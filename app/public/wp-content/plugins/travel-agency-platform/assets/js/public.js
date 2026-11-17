@@ -221,101 +221,6 @@ jQuery(document).ready(function($) {
         }
     };
 
-    /* ===== Reviews ===== */
-    var Reviews = {
-        init: function() {
-            var $section = $('.tap-reviews-section');
-            if (!$section.length) return;
-            this.serviceType = $section.find('input[name="service_type"]').val() || 'tap_accommodation';
-            this.serviceId = $section.find('input[name="service_id"]').val() || 0;
-            this.load();
-            this.bindForm();
-        },
-        load: function() {
-            var self = this;
-            $.getJSON((tap_ajax.rest_url || '/wp-json/tap/v1/') + 'reviews/' + this.serviceType + '/' + this.serviceId, function(reviews) {
-                self.render(reviews);
-            });
-        },
-        render: function(reviews) {
-            var $list = $('.tap-reviews-list');
-            $list.empty();
-
-            if (!reviews || !reviews.length) {
-                $list.html('<p class="tap-reviews-empty">' + (tapI18n.reviewsEmpty || 'Aún no hay reseñas.') + '</p>');
-                $('.tap-reviews-count').text('(0)');
-                return;
-            }
-
-            $('.tap-reviews-count').text('(' + reviews.length + ')');
-
-            var total = 0;
-            $.each(reviews, function(i, r) { total += parseFloat(r.rating); });
-            var avg = total / reviews.length;
-
-            $('.tap-reviews-avg-score').text(avg.toFixed(1));
-            $('.tap-reviews-avg-stars').html(Reviews.starsHtml(Math.round(avg)));
-            $('.tap-reviews-avg-total').text(reviews.length + ' ' + (reviews.length === 1 ? (tapI18n.reviewOne || 'reseña') : (tapI18n.reviewMany || 'reseñas')));
-
-            $.each(reviews, function(i, r) {
-                var $item = $('<div class="tap-review-item"></div>');
-                var avatar = (r.user_name || '?').toString().charAt(0).toUpperCase();
-                var $avatar = $('<div class="tap-review-avatar"></div>').text(avatar);
-                var $body = $('<div class="tap-review-body"></div>');
-                var $header = $('<div class="tap-review-header"></div>');
-                $header.append($('<strong></strong>').text(r.user_name || (tapI18n.anonymous || 'Anónimo')));
-                var date = r.created_at ? r.created_at.split(' ')[0] : '';
-                $header.append($('<span class="tap-review-date"></span>').text(date));
-                $body.append($header);
-                $body.append($('<div class="tap-review-stars-display"></div>').html(Reviews.starsHtml(r.rating)));
-                if (r.title) { $body.append($('<h4></h4>').text(r.title)); }
-                $body.append($('<p></p>').text(r.content));
-                $item.append($avatar).append($body);
-                $list.append($item);
-            });
-        },
-        starsHtml: function(rating) {
-            var s = '';
-            for (var i = 1; i <= 5; i++) {
-                s += '<span class="tap-star' + (i <= rating ? ' active' : '') + '">&#9733;</span>';
-            }
-            return s;
-        },
-        bindForm: function() {
-            var self = this;
-            $('.tap-review-form').on('submit', function(e) {
-                e.preventDefault();
-                var $form = $(this);
-                var $msg = $form.find('.tap-review-msg');
-                $msg.text(tapI18n.reviewsSending || 'Enviando...');
-
-                $.ajax({
-                    url: (tap_ajax.rest_url || '/wp-json/tap/v1/') + 'review',
-                    type: 'POST',
-                    beforeSend: function(xhr) {
-                        xhr.setRequestHeader('X-WP-Nonce', tap_ajax.rest_nonce);
-                    },
-                    data: {
-                        service_type: self.serviceType,
-                        service_id: self.serviceId,
-                        rating: $form.find('input[name="rating"]:checked').val(),
-                        title: $form.find('input[name="title"]').val(),
-                        content: $form.find('textarea[name="content"]').val()
-                    },
-                    success: function(res) {
-                        $msg.text(tapI18n.reviewsSent || '¡Reseña enviada! Pendiente de aprobación.').css('color', 'var(--tap-success)');
-                        $form[0].reset();
-                    },
-                    error: function(jqXHR) {
-                        var msg = tapI18n.reviewsError || 'Error al enviar';
-                        if (jqXHR.responseJSON && jqXHR.responseJSON.message) msg = jqXHR.responseJSON.message;
-                        $msg.text(msg).css('color', 'var(--tap-error)');
-                    }
-                });
-            });
-        }
-    };
-
     /* ===== Autocomplete ===== */
     var Autocomplete = {
         timer: null,
@@ -515,7 +420,7 @@ jQuery(document).ready(function($) {
     if (typeof tap_ajax !== 'undefined') {
         tap.init();
         Lightbox.init('.tap-lightbox-trigger');
-        Reviews.init();
+
         Autocomplete.init();
         Favorites.init();
         Chat.init();

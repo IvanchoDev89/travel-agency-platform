@@ -97,6 +97,12 @@ while (have_posts()): the_post();
       <div class="tap-acc-stars"><?php echo str_repeat('★', intval($stars)) . str_repeat('☆', 5 - intval($stars)); ?></div>
       <?php endif; ?>
     </div>
+    <?php if ($price_fallback || $has_rooms): ?>
+    <div class="tap-acc-mobile-cta">
+      <span class="tap-acc-mobile-price"><?php echo esc_html($price_fallback ? TAP_Currency::fmt0($price_fallback) : ''); ?> <small><?php esc_html_e('por noche', 'travel-agency-platform'); ?></small></span>
+      <button type="button" class="tap-btn tap-btn-primary tap-acc-mobile-book-btn" onclick="document.getElementById('tap-booking-widget').scrollIntoView({behavior:'smooth',block:'start'});"><?php esc_html_e('Reservar', 'travel-agency-platform'); ?></button>
+    </div>
+    <?php endif; ?>
     <div class="tap-acc-meta">
       <span class="tap-acc-type"><?php echo esc_html($type_name); ?></span>
       <?php if ($address || $city): ?>
@@ -312,22 +318,22 @@ while (have_posts()): the_post();
 
             <div class="tap-bw-dates">
               <div class="tap-bw-field">
-                <label><?php _e('Check-in', 'travel-agency-platform'); ?></label>
+                <label><?php esc_html_e('Entrada', 'travel-agency-platform'); ?></label>
                 <input type="date" name="check_in" id="bw-check-in" class="tap-input" min="<?php echo esc_attr(date('Y-m-d')); ?>">
               </div>
               <div class="tap-bw-field">
-                <label><?php _e('Check-out', 'travel-agency-platform'); ?></label>
+                <label><?php esc_html_e('Salida', 'travel-agency-platform'); ?></label>
                 <input type="date" name="check_out" id="bw-check-out" class="tap-input" min="<?php echo esc_attr(date('Y-m-d', strtotime('+1 day'))); ?>">
               </div>
             </div>
 
             <div class="tap-bw-guests">
               <div class="tap-bw-field">
-                <label><?php _e('Adults', 'travel-agency-platform'); ?></label>
+                <label><?php esc_html_e('Adultos', 'travel-agency-platform'); ?></label>
                 <input type="number" name="adults" id="bw-adults" class="tap-input" value="2" min="1" max="20">
               </div>
               <div class="tap-bw-field">
-                <label><?php _e('Children', 'travel-agency-platform'); ?></label>
+                <label><?php esc_html_e('Niños', 'travel-agency-platform'); ?></label>
                 <input type="number" name="children" id="bw-children" class="tap-input" value="0" min="0" max="10">
               </div>
             </div>
@@ -340,6 +346,7 @@ while (have_posts()): the_post();
               <div class="tap-bw-field">
                 <label><?php _e('Email de contacto', 'travel-agency-platform'); ?></label>
                 <input type="email" name="guest_email" id="bw-guest-email" class="tap-input" autocomplete="email" value="<?php echo esc_attr(wp_get_current_user()->user_email ?? ''); ?>">
+                <span class="tap-field-error" id="bw-email-error"><?php esc_html_e('Introduce un email válido', 'travel-agency-platform'); ?></span>
               </div>
               <div class="tap-bw-field">
                 <label><?php _e('Teléfono', 'travel-agency-platform'); ?></label>
@@ -443,6 +450,10 @@ jQuery(document).ready(function($) {
     var d1 = new Date(checkIn);
     var d2 = new Date(checkOut);
     if (d2 <= d1) { $('#bw-total').hide(); return; }
+
+    // Show loading spinner while calculating.
+    $('#bw-total-amount').html('<span class="tap-bw-spinner" aria-hidden="true"></span>');
+    $('#bw-submit').prop('disabled', true);
 
     $.post(tap_ajax.ajax_url, {
       action: 'tap_calculate_booking_total',
@@ -565,6 +576,14 @@ jQuery(document).ready(function($) {
       }
       window.location.href = (res.data.redirect || '<?php echo esc_url(home_url('/checkout')); ?>?code=' + res.data.booking_code);
     });
+  });
+
+  // Inline email validation.
+  $('#bw-guest-email').on('blur', function() {
+    var val = $(this).val().trim();
+    var isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || val === '';
+    $(this).toggleClass('is-invalid', !isValid && val !== '');
+    $('#bw-email-error').toggleClass('is-visible', !isValid && val !== '');
   });
 });
 </script>

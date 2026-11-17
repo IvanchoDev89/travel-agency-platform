@@ -16,10 +16,60 @@ class TAP_SEO {
     public static function init() {
         add_action('wp_head', [__CLASS__, 'output'], 1);
         add_filter('document_title_parts', [__CLASS__, 'document_title_parts'], 10, 1);
+        add_filter('pre_get_document_title', [__CLASS__, 'pre_get_document_title'], 10, 1);
+        add_filter('robots_txt', [__CLASS__, 'robots_txt'], 10, 2);
+    }
+
+    public static function pre_get_document_title($title) {
+        if (is_admin()) return $title;
+        if (is_singular('tap_tour')) {
+            $post = get_post();
+            if ($post instanceof WP_Post) {
+                return self::seo_title($post);
+            }
+        }
+        if (is_singular(self::$types)) {
+            $post = get_post();
+            if ($post instanceof WP_Post) {
+                return self::seo_title($post);
+            }
+        }
+        if (is_singular('tap_agency')) {
+            $post = get_post();
+            if ($post instanceof WP_Post) {
+                return self::seo_title($post);
+            }
+        }
+        return $title;
+    }
+
+    /**
+     * Add noindex to utility pages and improve robots.txt.
+     */
+    public static function robots_txt($output, $public) {
+        if (!$public) return $output;
+        $output .= "\n# TAP: block thin/utility pages\n";
+        $output .= "Disallow: /wp-json/\n";
+        $output .= "Disallow: /search-results/\n";
+        $output .= "Disallow: /checkout/\n";
+        $output .= "Disallow: /mi-cuenta/\n";
+        $output .= "Disallow: /my-bookings/\n";
+        $output .= "Disallow: /booking-detail/\n";
+        $output .= "Disallow: /manage-listing/\n";
+        $output .= "Disallow: /register/\n";
+        $output .= "Disallow: /?s=\n";
+        return $output;
     }
 
     public static function output() {
         if (is_admin() || is_feed()) {
+            return;
+        }
+
+        // Noindex on utility pages.
+        $noindex_slugs = ['checkout', 'mi-cuenta', 'my-bookings', 'booking-detail', 'manage-listing', 'register', 'search-results'];
+        if (is_page($noindex_slugs)) {
+            echo '<meta name="robots" content="noindex, follow">' . "\n";
             return;
         }
 
@@ -106,6 +156,21 @@ class TAP_SEO {
     }
 
     public static function document_title_parts($parts) {
+        // Optimize title for singular services.
+        if (!is_admin() && is_singular(self::$types)) {
+            $post = get_post();
+            if ($post instanceof WP_Post) {
+                $parts['title'] = self::seo_title($post);
+                return $parts;
+            }
+        }
+        if (!is_admin() && is_singular('tap_agency')) {
+            $post = get_post();
+            if ($post instanceof WP_Post) {
+                $parts['title'] = self::seo_title($post);
+                return $parts;
+            }
+        }
         if (!is_admin() && (is_post_type_archive() || is_archive())) {
             $pt = get_query_var('post_type');
             if (in_array($pt, self::$types, true) && is_post_type_archive()) {
@@ -125,7 +190,39 @@ class TAP_SEO {
     }
 
     protected static function seo_title($post) {
-        return get_post_meta($post->ID, '_tap_seo_title', true) ?: $post->post_title;
+        $custom = get_post_meta($post->ID, '_tap_seo_title', true);
+        if ($custom) return $custom;
+
+        $title = $post->post_title;
+        $type  = $post->post_type;
+
+        // Add location + price for services.
+        if (in_array($type, self::$types, true)) {
+            $location = '';
+            if ($type === 'tap_tour' || $type === 'tap_experience') {
+                $location = get_post_meta($post->ID, '_tap_tour_departure_city', true);
+            } else {
+                $city    = get_post_meta($post->ID, '_tap_acc_city', true);
+                $country = get_post_meta($post->ID, '_tap_acc_country', true);
+                $location = trim($city . ', ' . $country, ', ');
+            }
+            if ($location) {
+                $title .= ' - ' . $location;
+            }
+
+            $price_key = '';
+            if (class_exists('TAP_API')) {
+                $price_key = TAP_API::get_price_key($type) ?: '';
+            }
+            if ($price_key) {
+                $price = floatval(get_post_meta($post->ID, $price_key, true));
+                if ($price > 0) {
+                    $title .= ' | ' . TAP_Currency::fmt0($price);
+                }
+            }
+        }
+
+        return $title;
     }
 
     protected static function seo_description($post) {
@@ -149,6 +246,7 @@ class TAP_SEO {
 
     protected static function og_tags($post) {
         $image = get_the_post_thumbnail_url($post, 'large') ?: self::site_logo_url();
+        echo '<meta property="og:locale" content="' . esc_attr(str_replace('-', '_', get_locale())) . '">' . "\n";
         echo '<meta property="og:type" content="' . ($post->post_type === 'tap_agency' ? 'profile' : 'article') . '">' . "\n";
         echo '<meta property="og:site_name" content="' . esc_attr(get_bloginfo('name')) . '">' . "\n";
         echo '<meta property="og:title" content="' . esc_attr(self::seo_title($post)) . '">' . "\n";
@@ -157,6 +255,15 @@ class TAP_SEO {
         if ($image) {
             echo '<meta property="og:image" content="' . esc_url($image) . '">' . "\n";
             echo '<meta property="og:image:alt" content="' . esc_attr(self::seo_title($post)) . '">' . "\n";
+            // Add image dimensions.
+            $img_id = get_post_thumbnail_id($post);
+            if ($img_id) {
+                $meta = wp_get_attachment_metadata($img_id);
+                if (is_array($meta) && !empty($meta['width']) && !empty($meta['height'])) {
+                    echo '<meta property="og:image:width" content="' . (int) $meta['width'] . '">' . "\n";
+                    echo '<meta property="og:image:height" content="' . (int) $meta['height'] . '">' . "\n";
+                }
+            }
         }
     }
 
