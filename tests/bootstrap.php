@@ -82,8 +82,16 @@ if (!function_exists('tap_t_pass')) {
 
     /** Agency post id used as the default for seeded bookings. */
     function tap_t_test_agency() {
-        $posts = get_posts(['post_type' => 'tap_agency', 'post_status' => 'publish', 'posts_per_page' => 1, 'fields' => 'ids']);
-        return $posts ? (int) $posts[0] : 68;
+        $posts = get_posts(['post_type' => 'tap_agency', 'post_status' => 'publish', 'posts_per_page' => 20, 'fields' => 'ids']);
+        // Public search/booking flows hide listings of unapproved agencies.
+        // A crashed suite can leave a pending agency published behind, so
+        // never hand one to fixtures that must be publicly visible.
+        foreach ($posts as $id) {
+            if (!class_exists('TAP_Approval') || TAP_Approval::is_approved($id)) {
+                return (int) $id;
+            }
+        }
+        return 68;
     }
 
     function tap_t_clear_views($listing_id = null) {

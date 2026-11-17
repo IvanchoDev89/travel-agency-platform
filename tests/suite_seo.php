@@ -70,6 +70,11 @@ if ($found_singular && in_array($GLOBALS['post']->post_type, $service_types, tru
 
 // 2) Agency singular: TravelAgency schema + og profile
 $agency = get_posts(['post_type' => 'tap_agency', 'post_status' => 'publish', 'posts_per_page' => 1, 'fields' => 'ids']);
+// Breadcrumbs render for approved agencies only (public visibility gate).
+$agency_visible = tap_t_test_agency();
+if ($agency_visible && get_post($agency_visible)) {
+    $agency = [$agency_visible];
+}
 if ($agency) {
     $post = get_post($agency[0]);
     setup_postdata($post);

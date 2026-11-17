@@ -10,6 +10,10 @@ $ids = [];
 
 // 1) agency resolution (any site): find an agency post + its linked user
 $anchor = get_posts(['post_type' => 'tap_agency', 'post_status' => 'publish', 'posts_per_page' => 1, 'fields' => 'ids']);
+$visible_anchor = tap_t_test_agency();
+if ($visible_anchor && get_post($visible_anchor)) {
+    $anchor = [$visible_anchor];
+}
 tap_t_assert(!empty($anchor), 'at least one tap_agency post exists');
 $agency_id = $anchor ? (int) $anchor[0] : 0;
 $owner_mark = $agency_id ? get_post_meta($agency_id, '_tap_agency_user_id', true) : 0;
