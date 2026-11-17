@@ -59,10 +59,10 @@ tap_t_assert(
 // ===== E. Attribute-context output is escaped ==============================
 // Bare echoes into class=/value= attributes are the XSS-shaped half of the
 // EscapeOutput report; the fixed sites must stay fixed.
-// The agency panel was split out of this file in 1.5.17, so the source-level
+// The agency panel was merged into the front-dash, so the source-level
 // invariants below have to look at both halves.
 $account  = $src('includes/class-shortcode-account.php');
-$account .= $src('includes/class-shortcode-agency-panel.php');
+$account .= $src('includes/class-front-dash.php');
 tap_t_assert(
     false !== strpos($account, '<option value="<?php echo esc_attr($m); ?>">'),
     'plan duration option values are attribute-escaped'

@@ -99,51 +99,9 @@ $staff = get_user_by('id', (int) $staff_uid);
 $pc_booking_id = tap_t_seed_booking(['agency_id' => (int) $aid]);
 tap_t_assert($pc_booking_id > 0, 'fixture booking seeded for the agency');
 
-/* --- C6: money sections gated away from employees -------------------------- */
-// agency_panel echoes its markup (it is an echo-style shortcode renderer).
-$pc_panel = function ($user) {
-    ob_start();
-    TAP_Shortcode_Agency_Panel::agency_panel($user);
-    return (string) ob_get_clean();
-};
-wp_set_current_user($staff_uid);
-$html_emp = $pc_panel($staff);
-wp_set_current_user($owner_uid);
-$html_adm = $pc_panel($owner);
-wp_set_current_user(0);
-
-tap_t_assert(
-    false === strpos($html_emp, 'Liquidaciones de comisiones') && false === strpos($html_emp, 'Libro de comisiones'),
-    'employee panel hides settlements and commission ledger'
-);
-tap_t_assert(
-    false === strpos($html_emp, 'Disputas de tus reservas') && false === strpos($html_emp, 'Destacados (promociones)'),
-    'employee panel hides disputes and featured promos'
-);
-tap_t_assert(
-    false === strpos($html_emp, 'Por cobrar') && false === strpos($html_emp, 'Neto para ti'),
-    'employee panel hides commission stat cards'
-);
-tap_t_assert(
-    false === strpos($html_emp, '<th>Comisión</th>') && false === strpos($html_emp, '<th>Neto</th>'),
-    'employee bookings table hides commission/net columns'
-);
-tap_t_assert(
-    strpos($html_adm, 'Liquidaciones de comisiones') !== false && strpos($html_adm, 'Libro de comisiones') !== false,
-    'agency admin panel renders settlements and ledger'
-);
-tap_t_assert(
-    strpos($html_adm, '<th>Comisión</th>') !== false && strpos($html_adm, '<th>Neto</th>') !== false,
-    'agency admin bookings table keeps commission/net columns'
-);
-tap_t_assert(
-    strpos($html_adm, 'Destacados (promociones)') !== false && strpos($html_adm, 'Disputas de tus reservas') !== false,
-    'agency admin panel renders promos and disputes sections'
-);
-
 /* --- C6b: front-dash overview must not leak money stats to employees ------- */
 // /mi-cuenta/ (TAP_Front_Dash) is the live agency panel; its Resumen stats grid
-// must gate the net/receivable cards exactly like the legacy panel above.
+// must gate the net/receivable cards exactly like the legacy panel did.
 $pc_front = function ($user) {
     wp_set_current_user($user->ID);
     $_GET['seccion'] = 'overview';
@@ -163,26 +121,7 @@ tap_t_assert(
     'agency admin front-dash overview shows net and receivable money stats'
 );
 
-/* --- C20: approval status banner ------------------------------------------- */
-tap_t_assert(
-    strpos($html_adm, 'Tu agencia está en revisión') !== false,
-    'pending agency shows review banner to its owner'
-);
-TAP_Approval::approve($aid);
-$html_ok = $pc_panel($owner);
-tap_t_assert(
-    false === strpos($html_ok, 'Tu agencia está en revisión') && false === strpos($html_ok, 'Tu agencia no fue aprobada'),
-    'approved agency shows no approval banner'
-);
-TAP_Approval::reject($aid);
-$html_rej = $pc_panel($owner);
-tap_t_assert(
-    strpos($html_rej, 'Tu agencia no fue aprobada') !== false,
-    'rejected agency shows rejection banner'
-);
-TAP_Approval::pending($aid);
-
-/* --- C20b: /mi-cuenta/ (TAP_Front_Dash) carries the same banner -------------
+/* --- C20b: /mi-cuenta/ (TAP_Front_Dash) carries the approval banner ---------
  * TAP_Front_Dash is the dashboard agencies actually land on after registering,
  * so a missing banner there leaves a brand new agency with no idea it is still
  * under review. */
