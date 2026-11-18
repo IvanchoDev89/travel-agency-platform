@@ -231,7 +231,7 @@ class TAP_Destination_Spots {
 
         // Cache the full result set (no args = all spots) for 5 minutes.
         $ver = (int) get_option('tap_map_cache_version', 1);
-        $cache_key = 'tap_map_data_' . $ver . '_' . md5(wp_json_encode($args));
+        $cache_key = 'tap_map_data_v5_' . $ver . '_' . md5(wp_json_encode($args));
         $cached = get_transient($cache_key);
         if (is_array($cached)) {
             return $cached;
@@ -247,6 +247,22 @@ class TAP_Destination_Spots {
         }
 
         $data = [];
+        // Index location terms once: spots without an explicit link can still
+        // point to their destination from the map (title/name match).
+        $location_index = [];
+        $all_locations = get_terms([
+            'taxonomy'   => 'tap_location',
+            'hide_empty' => false,
+            'fields'     => 'all',
+        ]);
+        if (is_array($all_locations)) {
+            foreach ($all_locations as $loc) {
+                if (is_wp_error($loc)) continue;
+                $location_index[mb_strtolower($loc->name)] = $loc;
+                $location_index[$loc->slug] = $loc;
+            }
+            uksort($location_index, function ($a, $b) { return mb_strlen($b) <=> mb_strlen($a); });
+        }
         foreach (get_posts($args) as $post) {
             $lat = self::coord($post->ID, '_tap_spot_lat');
             $lng = self::coord($post->ID, '_tap_spot_lng');
@@ -257,19 +273,43 @@ class TAP_Destination_Spots {
             $types     = self::types_of($post->ID);
             $type_slug = $types ? $types[0]->slug : '';
             $type_name = $types ? $types[0]->name : '';
+            $dest_term = self::location_term($post->ID);
+            $province = (string) get_post_meta($post->ID, '_tap_spot_province', true);
+            $region   = (string) get_post_meta($post->ID, '_tap_spot_region', true);
+            if (!$dest_term && $location_index) {
+                $haystacks = [
+                    mb_strtolower(get_the_title($post)),
+                    mb_strtolower(trim($region . ' ' . $province)),
+                ];
+                foreach ($haystacks as $haystack) {
+                    foreach ($location_index as $key => $loc) {
+                        if (mb_strlen($key) > 4 && mb_strpos($haystack, $key) !== false) {
+                            $dest_term = $loc;
+                            break 2;
+                        }
+                    }
+                }
+            }
+
+            $dest_url  = $dest_term ? get_term_link($dest_term) : '';
+            if (is_wp_error($dest_url)) {
+                $dest_url = '';
+            }
 
             $data[] = [
                 'id'       => (int) $post->ID,
                 'title'    => get_the_title($post),
                 'url'      => get_permalink($post),
+                'destinationSlug' => $dest_term ? $dest_term->slug : '',
+                'destinationUrl'  => $dest_url,
                 'lat'      => $lat,
                 'lng'      => $lng,
                 'type'     => $type_slug,
                 'typeName' => $type_name,
                 'img'      => (string) get_the_post_thumbnail_url($post, 'medium_large'),
                 'excerpt'  => wp_strip_all_tags(get_the_excerpt($post)),
-                'province' => (string) get_post_meta($post->ID, '_tap_spot_province', true),
-                'region'   => (string) get_post_meta($post->ID, '_tap_spot_region', true),
+                'province' => $province,
+                'region'   => $region,
                 'ecosystem' => (string) get_post_meta($post->ID, '_tap_spot_ecosystem', true),
                 'altitude' => (string) get_post_meta($post->ID, '_tap_spot_altitude', true),
                 'bestSeason' => (string) get_post_meta($post->ID, '_tap_spot_best_season', true),
@@ -339,7 +379,7 @@ class TAP_Destination_Spots {
         }
 
         $ver = (int) get_option('tap_map_cache_version', 1);
-        $cache_key = 'tap_services_map_data_' . $ver . '_' . md5(wp_json_encode($args));
+        $cache_key = 'tap_services_map_data_v3_' . $ver . '_' . md5(wp_json_encode($args));
         $cached = get_transient($cache_key);
         if (is_array($cached)) {
             return $cached;
@@ -406,11 +446,13 @@ class TAP_Destination_Spots {
             $price_key = class_exists('TAP_API') ? TAP_API::get_price_key($type) : null;
             $price     = $price_key ? (float) get_post_meta($post->ID, $price_key, true) : 0.0;
             $rating    = class_exists('TAP_API') ? TAP_API::get_rating_stats($type, $post->ID) : ['avg' => 0, 'count' => 0];
+            $dest_term = !empty($candidate['terms']) ? $candidate['terms'][0] : null;
 
             $data[] = [
                 'id'        => (int) $post->ID,
                 'title'     => get_the_title($post),
                 'url'       => get_permalink($post),
+                'destinationSlug' => $dest_term ? $dest_term->slug : '',
                 'lat'       => (float) $lat,
                 'lng'       => (float) $lng,
                 'approx'    => $approx,

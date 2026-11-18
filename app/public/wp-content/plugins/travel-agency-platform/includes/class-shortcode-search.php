@@ -1216,6 +1216,7 @@ endif;
         wp_enqueue_script('tap-destinations-map', TAP_PLUGIN_URL . 'assets/js/destinations-map.js', ['jquery', 'tap-leaflet', 'tap-leaflet-cluster'], TAP_VERSION, true);
         wp_localize_script('tap-destinations-map', 'tapDestsMap', [
             'pluginUrl' => TAP_PLUGIN_URL,
+            'homeUrl'   => home_url('/'),
             'i18n'      => [
                 'all'      => __('Todos', 'travel-agency-platform'),
                 'result'   => __('%d lugar', 'travel-agency-platform'), // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
@@ -1239,6 +1240,17 @@ endif;
                 'viewService' => __('Ver servicio', 'travel-agency-platform'),
                 'details'  => __('Ver detalles', 'travel-agency-platform'),
                 'selectPrompt' => __('Selecciona un punto en el mapa para ver su ficha.', 'travel-agency-platform'),
+                'book'     => __('Reservar / Cotizar', 'travel-agency-platform'),
+                'servicesHere' => __('Ver servicios en este destino', 'travel-agency-platform'),
+                'addItin'  => __('Agregar al itinerario', 'travel-agency-platform'),
+                'addedItin' => __('En el itinerario ✓', 'travel-agency-platform'),
+                'removedItin' => __('Quitado del itinerario', 'travel-agency-platform'),
+                'share'    => __('Copiar enlace de esta vista', 'travel-agency-platform'),
+                'copied'   => __('Enlace copiado ✓', 'travel-agency-platform'),
+                'copyFail' => __('No se pudo copiar el enlace', 'travel-agency-platform'),
+                'sheetOpen' => __('Ocultar lista', 'travel-agency-platform'),
+                'sheetClosed' => __('Mostrar lista', 'travel-agency-platform'),
+                'emptySearch' => __('Sin resultados para esa búsqueda.', 'travel-agency-platform'),
             ],
         ]);
 
@@ -1264,6 +1276,10 @@ endif;
                             <span class="tap-destmap-layer-count"><?php echo (int) $total_services; ?></span>
                         </button>
                     </div>
+                    <button type="button" class="tap-destmap-share" data-role="share">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="10.5" x2="15.4" y2="6.5"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/></svg>
+                        <?php esc_html_e('Compartir vista', 'travel-agency-platform'); ?>
+                    </button>
 
                     <?php if (!empty($types)): ?>
                         <nav class="tap-destmap-filters tap-destmap-filters--spots" aria-label="<?php esc_attr_e('Filtrar por tipo de destino', 'travel-agency-platform'); ?>">
@@ -1308,33 +1324,38 @@ endif;
                         </div>
                     </div>
 
-                    <aside class="tap-destmap-panel" aria-live="polite">
+                    <aside class="tap-destmap-panel" aria-label="<?php esc_attr_e('Listado de destinos y servicios', 'travel-agency-platform'); ?>">
+                        <button type="button" class="tap-destmap-sheet-toggle" data-role="sheet-toggle" aria-expanded="true" aria-controls="tap-destmap-panel-body">
+                            <span class="tap-destmap-sheet-handle" aria-hidden="true"></span>
+                            <span data-role="sheet-toggle-label"><?php esc_html_e('Ocultar lista', 'travel-agency-platform'); ?></span>
+                        </button>
+                        <div class="tap-destmap-panel-body" id="tap-destmap-panel-body" aria-live="polite">
                         <div class="tap-destmap-panel-search">
                             <input type="search" id="tap-destmap-search" placeholder="<?php esc_attr_e('Buscar destino o servicio…', 'travel-agency-platform'); ?>" aria-label="<?php esc_attr_e('Buscar', 'travel-agency-platform'); ?>">
                         </div>
                         <div class="tap-destmap-panel-head">
                             <div class="tap-destmap-tabs" role="tablist">
-                                <button type="button" class="tap-destmap-tab is-active" role="tab" data-tab="spots" aria-selected="true">
+                                <button type="button" class="tap-destmap-tab is-active" id="tap-destmap-tab-spots" role="tab" data-tab="spots" aria-controls="tap-destmap-list" aria-selected="true">
                                     <?php esc_html_e('Destinos', 'travel-agency-platform'); ?>
                                     <span class="tap-destmap-tab-count"><?php echo (int) $total; ?></span>
                                 </button>
-                                <button type="button" class="tap-destmap-tab" role="tab" data-tab="services" aria-selected="false">
+                                <button type="button" class="tap-destmap-tab" id="tap-destmap-tab-services" role="tab" data-tab="services" aria-controls="tap-destmap-service-list" aria-selected="false">
                                     <?php esc_html_e('Servicios', 'travel-agency-platform'); ?>
                                     <span class="tap-destmap-tab-count"><?php echo (int) $total_services; ?></span>
                                 </button>
                             </div>
-                            <span class="tap-destmap-count" id="tap-destmap-count">
+                            <span class="tap-destmap-count" id="tap-destmap-count" aria-live="polite">
                             <?php
-                                printf(
-                                    /* translators: %d: number of places */
-                                    esc_html(_n('%d lugar', '%d lugares', $total + $total_services, 'travel-agency-platform')),
-                                    (int) ($total + $total_services)
-																					);
-							?>
+                            printf(
+                                /* translators: %d: number of places */
+                                esc_html(_n('%d lugar', '%d lugares', $total + $total_services, 'travel-agency-platform')),
+                                (int) ($total + $total_services)
+                            );
+                            ?>
                             </span>
                         </div>
 
-                        <ul class="tap-destmap-list" id="tap-destmap-list">
+                        <ul class="tap-destmap-list" id="tap-destmap-list" role="tabpanel" aria-labelledby="tap-destmap-tab-spots">
                             <?php foreach ($spots as $spot): ?>
                                 <li class="tap-destmap-item" data-spot-id="<?php echo (int) $spot['id']; ?>" data-item-id="<?php echo (int) $spot['id']; ?>" data-item-kind="spot">
                                     <button type="button" class="tap-destmap-item-btn" aria-expanded="false" aria-controls="tap-destmap-detail">
@@ -1357,7 +1378,7 @@ endif;
                             <?php endforeach; ?>
                         </ul>
 
-                        <ul class="tap-destmap-list tap-destmap-list--services" id="tap-destmap-service-list" hidden>
+                        <ul class="tap-destmap-list tap-destmap-list--services" id="tap-destmap-service-list" role="tabpanel" aria-labelledby="tap-destmap-tab-services" hidden>
                             <?php foreach ($services as $service): ?>
                                 <li class="tap-destmap-item tap-destmap-item--service" data-item-id="<?php echo (int) $service['id']; ?>" data-item-kind="service" data-service-type="<?php echo esc_attr($service['type']); ?>">
                                     <button type="button" class="tap-destmap-item-btn" aria-expanded="false" aria-controls="tap-destmap-detail">
@@ -1385,8 +1406,11 @@ endif;
                             <p class="tap-destmap-empty"><?php esc_html_e('Todavía no hay destinos ni servicios publicados. Agrégalos desde el panel de administración.', 'travel-agency-platform'); ?></p>
                         <?php endif; ?>
                         <p class="tap-destmap-empty" id="tap-destmap-no-results" hidden><?php esc_html_e('Sin resultados para esa búsqueda.', 'travel-agency-platform'); ?></p>
+                        </div><!-- .tap-destmap-panel-body -->
                     </aside>
                 </div>
+
+                <div class="tap-destmap-toast" id="tap-destmap-toast" role="status" aria-live="polite"></div>
 
                 <!-- Detail overlay modal -->
                 <div class="tap-destmap-modal" id="tap-destmap-modal" hidden aria-hidden="true">

@@ -2989,6 +2989,83 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .tap-destmap-layer { flex: 1 1 auto; justify-content: center; }
 }
 
+/* Map: conversion CTAs, share button, toast + mobile bottom sheet */
+.tap-destmap-toolbar { position: relative; }
+.tap-destmap-share {
+  display: inline-flex; align-items: center; gap: 7px; width: fit-content;
+  padding: 8px 14px; border: 1px solid var(--tap-border); border-radius: 999px;
+  background: var(--tap-surface); color: var(--tap-primary-dark);
+  font: inherit; font-size: var(--tap-text-sm); font-weight: 600; cursor: pointer;
+  transition: background .15s ease, border-color .15s ease;
+}
+.tap-destmap-share:hover { background: var(--tap-primary-bg); border-color: var(--tap-primary); }
+.tap-destmap-popup-cta {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 8px 10px; border-radius: var(--tap-radius-md);
+  background: var(--tap-primary); color: #fff;
+  font-size: var(--tap-text-xs); font-weight: 700; text-decoration: none;
+}
+.tap-destmap-popup-cta:hover { background: var(--tap-primary-dark); color: #fff; }
+.tap-destmap-detail-cta { margin-top: var(--tap-space-3); }
+.tap-destmap-detail-actions {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px;
+  margin-top: var(--tap-space-3);
+}
+.tap-destmap-detail-link {
+  padding: 0; border: 0; background: transparent;
+  color: var(--tap-primary-dark); font: inherit; font-size: var(--tap-text-sm);
+  font-weight: 600; text-decoration: underline; cursor: pointer;
+}
+.tap-destmap-detail-link:hover { color: var(--tap-primary); }
+.tap-destmap-itin-btn.is-added { color: var(--tap-success, #059669); }
+.tap-destmap-toast {
+  position: fixed; left: 50%; bottom: 24px; z-index: 1100;
+  transform: translate(-50%, 12px); opacity: 0; pointer-events: none;
+  padding: 10px 18px; border-radius: 999px;
+  background: var(--tap-neutral-900, #0f172a); color: #fff;
+  font-size: var(--tap-text-sm); font-weight: 600;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, .25);
+  transition: opacity .18s ease, transform .18s ease;
+}
+.tap-destmap-toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+.tap-destmap-sheet-toggle { display: none; }
+
+@media (max-width: 900px) {
+  .tap-destmap { padding-bottom: 76px; }
+  .tap-destmap-intro { padding: 14px 16px; }
+  .tap-destmap-intro h2 { font-size: 1.25rem; }
+  .tap-destmap-eyebrow { margin-bottom: 6px; }
+  .tap-destmap-lead {
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden; font-size: var(--tap-text-sm);
+  }
+  .tap-destmap-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .tap-destmap-filters { margin-bottom: 0; }
+  .tap-destmap-sheet-toggle {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; padding: 8px 0 10px; border: 0; background: transparent;
+    color: var(--tap-neutral-600); font: inherit; font-size: var(--tap-text-sm);
+    font-weight: 600; cursor: pointer;
+  }
+  .tap-destmap-sheet-handle {
+    display: block; width: 42px; height: 4px; border-radius: 999px;
+    background: var(--tap-neutral-300);
+  }
+  .tap-destmap-panel {
+    position: fixed; top: auto; left: 0; right: 0; bottom: 0; z-index: 600;
+    max-height: 64vh; border-radius: 16px 16px 0 0;
+    padding: 4px 16px max(16px, env(safe-area-inset-bottom));
+    box-shadow: 0 -8px 30px rgba(15, 23, 42, .18);
+    transition: transform .25s ease;
+  }
+  .tap-destmap.is-sheet-collapsed .tap-destmap-panel { transform: translateY(calc(100% - 56px)); }
+  .tap-destmap.is-sheet-collapsed .tap-destmap-panel-body { visibility: hidden; }
+  .tap-destmap-map { height: min(58vh, 520px) !important; }
+  .tap-destmap-filters { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+  .tap-destmap-filters .tap-destmap-chip { flex: 0 0 auto; }
+  .tap-destmap-toast { bottom: calc(64px + env(safe-area-inset-bottom)); }
+}
+
 /* --------------------------------------------------------------------------
    Spot profile blocks
    -------------------------------------------------------------------------- */
@@ -4256,4 +4333,19 @@ html.dark .tap-similar-price { color: var(--tap-neutral-900, #f1f5f9); }
 html.dark .tap-similar-price small { color: var(--tap-neutral-400, #64748b); }
 @media (max-width: 640px) {
     .tap-similar-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Dark mode: destination map surfaces ─────────────────────────────── */
+html.dark .tap-destmap-intro { background: linear-gradient(135deg, var(--tap-primary-bg), var(--tap-surface)); }
+html.dark .tap-destmap-legend { background: var(--tap-surface); }
+html.dark .tap-destmap-pin { border-color: var(--tap-surface); }
+html.dark .leaflet-popup-content-wrapper,
+html.dark .leaflet-popup-tip { background: var(--tap-surface-2); color: var(--tap-neutral-800); }
+html.dark .leaflet-popup-content a { color: var(--tap-primary-light, #2dd4bf); }
+html.dark .leaflet-container a.leaflet-popup-close-button { color: var(--tap-neutral-500); }
+html.dark .tap-destmap-detail-type--service,
+html.dark .tap-destmap-popup--service .tap-destmap-popup-type {
+  background: rgba(245, 158, 11, .18);
+  border-color: rgba(245, 158, 11, .35);
+  color: #fbbf24;
 }
