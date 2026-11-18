@@ -322,7 +322,7 @@ $wp_customize->add_control('tap_font_family', [
 ]);
 
 $wp_customize->add_setting('tap_heading_font', [
-    'default'           => 'fraunces',
+    'default'           => 'inter',
     'sanitize_callback' => 'sanitize_text_field',
     'transport'         => 'refresh',
 ]);
@@ -331,6 +331,8 @@ $wp_customize->add_control('tap_heading_font', [
     'section' => 'tap_typography',
     'type'    => 'select',
     'choices' => [
+        'inter'              => 'Inter (moderna y corporativa)',
+        'source-serif-4'    => 'Source Serif 4 (editorial)',
         'fraunces'          => 'Fraunces (serif cálido)',
         'playfair-display'  => 'Playfair Display (elegante)',
         'dm-serif-display'  => 'DM Serif Display (bold)',

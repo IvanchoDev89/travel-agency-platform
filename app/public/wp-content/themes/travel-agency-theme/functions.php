@@ -1,7 +1,7 @@
 <?php
 defined('ABSPATH') || exit;
 
-define('TAT_VERSION', '2.0.46');
+define('TAT_VERSION', '2.0.49');
 
 // Drop jQuery Migrate on the front end: it only adds a deprecation notice to
 // the console and the platform does not rely on deprecated jQuery APIs.
@@ -106,7 +106,7 @@ function tap_customizer_css() {
     $bg           = get_theme_mod('tap_color_background', '#ffffff');
     $border       = get_theme_mod('tap_color_border', '#e2e8f0');
     $font_family  = get_theme_mod('tap_font_family', 'plus-jakarta-sans');
-    $heading_font = get_theme_mod('tap_heading_font', 'fraunces');
+    $heading_font = get_theme_mod('tap_heading_font', 'inter');
     $font_size    = (int) get_theme_mod('tap_font_size_base', 16);
     $container    = (int) get_theme_mod('tap_container_max', 1200);
     $padding      = (int) get_theme_mod('tap_section_padding', 64);
@@ -130,13 +130,15 @@ function tap_customizer_css() {
     ];
     $font_stack = $fonts[$font_family] ?? $fonts['plus-jakarta-sans'];
     $heading_fonts = [
+        'inter'              => "'Inter', sans-serif",
+        'source-serif-4'    => "'Source Serif 4', Georgia, serif",
         'fraunces'          => "'Fraunces', serif",
         'playfair-display'  => "'Playfair Display', serif",
         'dm-serif-display'  => "'DM Serif Display', serif",
         'lora'              => "'Lora', serif",
         'plus-jakarta-sans' => "'Plus Jakarta Sans', sans-serif",
     ];
-    $heading_stack = $heading_fonts[$heading_font] ?? $heading_fonts['fraunces'];
+    $heading_stack = $heading_fonts[$heading_font] ?? $heading_fonts['inter'];
 
     $css = ':root {';
     $css .= '--tap-primary: ' . esc_attr($primary) . ';';

@@ -21,10 +21,14 @@
 $fonts_css = file_get_contents(get_template_directory() . '/assets/fonts/fonts.css');
 $fonts_css = str_replace('url(fraunces-', 'url(' . get_template_directory_uri() . '/assets/fonts/fraunces-', $fonts_css);
 $fonts_css = str_replace('url(plusjakarta-', 'url(' . get_template_directory_uri() . '/assets/fonts/plusjakarta-', $fonts_css);
+$fonts_css = str_replace('url(sourceserif4-', 'url(' . get_template_directory_uri() . '/assets/fonts/sourceserif4-', $fonts_css);
+$fonts_css = str_replace('url(inter-', 'url(' . get_template_directory_uri() . '/assets/fonts/inter-', $fonts_css);
 echo $fonts_css;
 ?>
+    :root { --tap-font-serif: 'Inter', sans-serif !important; }
     body { font-family: 'Plus Jakarta Sans', sans-serif !important; }
-    h1, h2, h3, h4, h5, h6, .tap-landing-hero-title, .tap-landing-head h2, .tap-landing-itinerary-copy h2, .tap-landing-cta-card h2, .tap-post-header h1, .tap-post-content h2 { font-family: 'Fraunces', serif !important; }
+    h1, h2, h3, h4, h5, h6, .tap-landing-hero-title, .tap-landing-head h2, .tap-landing-itinerary-copy h2, .tap-landing-cta-card h2, .tap-post-header h1, .tap-post-content h2,
+    .tap-acc-title, .tap-listing-title, .tap-destmap-item-title, .tap-destmap-detail-title, .tap-similar-title, .tap-acc-card h3, .tap-service-card h3 { font-family: 'Inter', sans-serif !important; letter-spacing: -0.02em; }
     </style>
     <?php wp_head(); ?>
 <link rel="manifest" href="<?php echo esc_url(get_template_directory_uri() . '/assets/manifest.json'); ?>">
