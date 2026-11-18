@@ -36,9 +36,10 @@ while (have_posts()): the_post();
         __('Horario', 'travel-agency-platform')       => get_post_meta($id, '_tap_spot_schedule', true),
         __('Tarifa', 'travel-agency-platform')        => get_post_meta($id, '_tap_spot_fee', true),
         __('Extensión', 'travel-agency-platform')     => get_post_meta($id, '_tap_spot_area', true),
-        __('Año de creación', 'travel-agency-platform') => get_post_meta($id, '_tap_spot_created', true),
+        __('Declaración u origen', 'travel-agency-platform') => get_post_meta($id, '_tap_spot_created', true),
         __('Accesibilidad', 'travel-agency-platform') => get_post_meta($id, '_tap_spot_accessibility', true),
         __('Sitio oficial', 'travel-agency-platform') => get_post_meta($id, '_tap_spot_website', true),
+        __('Fuente oficial de los datos', 'travel-agency-platform') => get_post_meta($id, '_tap_spot_official_url', true),
     ], function ($v) { return $v !== '' && $v !== null; });
 
     $profile = array_filter([
@@ -114,7 +115,13 @@ while (have_posts()): the_post();
             </header>
 
             <?php if (has_post_thumbnail()): ?>
+                <figure class="tap-spot-hero-figure">
                 <div class="tap-spot-hero"><?php the_post_thumbnail('large', ['loading' => 'eager']); ?></div>
+                <?php $photo_credit = (string) get_post_meta($id, '_tap_spot_photo_credit', true); ?>
+                <?php if ($photo_credit !== ''): ?>
+                    <figcaption class="tap-spot-photo-credit"><?php echo wp_kses_post($photo_credit); ?></figcaption>
+                <?php endif; ?>
+                </figure>
             <?php endif; ?>
 
             <div class="tap-spot-grid">

@@ -1251,6 +1251,7 @@ endif;
                 'sheetOpen' => __('Ocultar lista', 'travel-agency-platform'),
                 'sheetClosed' => __('Mostrar lista', 'travel-agency-platform'),
                 'emptySearch' => __('Sin resultados para esa búsqueda.', 'travel-agency-platform'),
+                'officialSource' => __('Fuente oficial de los datos', 'travel-agency-platform'),
             ],
         ]);
 

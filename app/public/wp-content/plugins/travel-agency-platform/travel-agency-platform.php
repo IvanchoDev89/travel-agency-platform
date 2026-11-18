@@ -17,7 +17,7 @@
 
 defined('ABSPATH') || exit;
 
-define('TAP_VERSION', '1.5.88');
+define('TAP_VERSION', '1.5.89');
 define('TAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -91,7 +91,8 @@ final class TravelAgencyPlatform {
         add_action('init', ['TAP_Destination_Spots', 'seed'], 8);
         add_action('init', ['TAP_Destination_Spots', 'sync_extra_spots'], 9);
         add_action('init', ['TAP_Destination_Spots', 'enrich_existing'], 10);
-        add_action('init', ['TAP_Destination_Spots', 'link_locations'], 11);
+        add_action('init', ['TAP_Destination_Spots', 'apply_content_corrections'], 11);
+        add_action('init', ['TAP_Destination_Spots', 'link_locations'], 12);
         add_action('init', ['TAP_Destination_Spots', 'ensure_page'], 30);
         add_action('template_redirect', ['TAP_Destination_Spots', 'redirect_linked_terms']);
         add_action('wp', [$this, 'enqueue_wizard_assets']);

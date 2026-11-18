@@ -4349,3 +4349,13 @@ html.dark .tap-destmap-popup--service .tap-destmap-popup-type {
   border-color: rgba(245, 158, 11, .35);
   color: #fbbf24;
 }
+
+/* ── Educational destination photos & attribution ──────────────────── */
+.tap-spot-hero-figure { margin: 0; }
+.tap-spot-photo-credit { margin: 6px 0 0; font-size: 11px; line-height: 1.5; color: var(--tap-neutral-500); }
+.tap-spot-photo-credit a, .tap-destmap-detail-photo-credit a, .tap-destmap-detail-source, .tap-photo-credits a { color: var(--tap-primary-dark); }
+.tap-destmap-detail-photo-caption { margin: 8px 0 2px; font-size: 12px; font-style: italic; color: var(--tap-neutral-500); }
+.tap-destmap-detail-photo-credit { margin: 0 0 10px; font-size: 11px; line-height: 1.5; color: var(--tap-neutral-500); }
+.tap-destmap-detail-source { display: inline-block; margin-top: 12px; font-size: var(--tap-text-xs); text-decoration: underline; }
+.tap-photo-credits { padding-left: 18px; }
+.tap-photo-credits li { margin-bottom: 6px; font-size: var(--tap-text-sm); color: var(--tap-neutral-600); }

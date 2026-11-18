@@ -1,7 +1,7 @@
 <?php
 defined('ABSPATH') || exit;
 
-define('TAT_VERSION', '2.0.45');
+define('TAT_VERSION', '2.0.46');
 
 // Drop jQuery Migrate on the front end: it only adds a deprecation notice to
 // the console and the platform does not rely on deprecated jQuery APIs.

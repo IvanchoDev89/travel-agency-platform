@@ -186,6 +186,12 @@
       if (spot.img) {
         html += '<div class="tap-destmap-detail-media"><img src="' + esc(spot.img) + '" alt="" loading="lazy" decoding="async"></div>';
       }
+      if (spot.photoCaption) {
+        html += '<p class="tap-destmap-detail-photo-caption">' + esc(spot.photoCaption) + '</p>';
+      }
+      if (spot.photoCredit) {
+        html += '<p class="tap-destmap-detail-photo-credit">' + spot.photoCredit + '</p>';
+      }
       html += '<div class="tap-destmap-detail-body">';
       if (spot.typeName) {
         html += '<span class="tap-destmap-detail-type">' + esc(spot.typeName) + '</span>';
@@ -259,6 +265,10 @@
         var servicesHref = spot.destinationUrl || destinationHref(spot.destinationSlug);
         html += '<a class="tap-destmap-detail-link" href="' + esc(servicesHref) + '">' +
           esc(i18n('servicesHere', 'Ver servicios en este destino')) + ' &rarr;</a>';
+      }
+      if (spot.officialUrl) {
+        html += '<a class="tap-destmap-detail-source" href="' + esc(spot.officialUrl) + '" target="_blank" rel="noopener noreferrer">' +
+          esc(i18n('officialSource', 'Fuente oficial de los datos')) + ' &nearr;</a>';
       }
       html += '</div>';
       html += '</div></div>';

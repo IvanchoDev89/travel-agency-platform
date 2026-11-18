@@ -24,6 +24,7 @@ class TAP_Shortcodes {
             'tap_search_results' => [TAP_Shortcode_Search::class, 'search_results'],
             'tap_chatbot'       => [TAP_Shortcode_Account::class, 'chatbot'],
             'tap_destinations_map' => [TAP_Shortcode_Search::class, 'destinations_map'],
+            'tap_image_credits'  => [TAP_Destination_Spots::class, 'image_credits'],
             'tap_waiver_form'      => [TAP_Waiver::class, 'shortcode'],
             'tap_driver_dashboard' => [TAP_Transport_Driver_Dashboard::class, 'render'],
             'tap_referral_dashboard' => [TAP_Customer_Referrals::class, 'shortcode_dashboard'],

@@ -1,6 +1,8 @@
 <?php
 defined('ABSPATH') || exit;
 
+require_once __DIR__ . '/data/destination-spot-corrections.php';
+
 /**
  * Educational destination spots — the data behind the interactive Destinations map.
  *
@@ -73,6 +75,7 @@ class TAP_Destination_Spots {
             '_tap_spot_created'    => ['label' => __('Año de creación', 'travel-agency-platform'), 'type' => 'text'],
             '_tap_spot_accessibility' => ['label' => __('Accesibilidad', 'travel-agency-platform'), 'type' => 'text'],
             '_tap_spot_website'    => ['label' => __('Sitio oficial', 'travel-agency-platform'), 'type' => 'url'],
+            '_tap_spot_official_url' => ['label' => __('Fuente oficial de los datos', 'travel-agency-platform'), 'type' => 'url', 'desc' => __('Enlace a SINAC, UNESCO u otra fuente verificable.', 'travel-agency-platform')],
         ];
     }
 
@@ -324,6 +327,9 @@ class TAP_Destination_Spots {
                 'created'  => (string) get_post_meta($post->ID, '_tap_spot_created', true),
                 'accessibility' => (string) get_post_meta($post->ID, '_tap_spot_accessibility', true),
                 'website'  => (string) get_post_meta($post->ID, '_tap_spot_website', true),
+                'officialUrl' => (string) get_post_meta($post->ID, '_tap_spot_official_url', true),
+                'photoCredit' => (string) get_post_meta($post->ID, '_tap_spot_photo_credit', true),
+                'photoCaption' => (string) get_post_meta($post->ID, '_tap_spot_photo_caption', true),
             ];
         }
         set_transient($cache_key, $data, 5 * MINUTE_IN_SECONDS);
@@ -1305,7 +1311,7 @@ class TAP_Destination_Spots {
         }
 
         $list_keys = ['interest', 'biodiversity', 'activities', 'tips'];
-        $text_keys = ['province', 'region', 'ecosystem', 'altitude', 'best_season', 'schedule', 'fee', 'area', 'created', 'accessibility', 'website', 'conservation'];
+        $text_keys = ['province', 'region', 'ecosystem', 'altitude', 'best_season', 'schedule', 'fee', 'area', 'created', 'accessibility', 'website', 'official_url', 'conservation'];
 
         update_post_meta($post_id, '_tap_spot_lat', $spot['lat']);
         update_post_meta($post_id, '_tap_spot_lng', $spot['lng']);
@@ -2799,8 +2805,96 @@ class TAP_Destination_Spots {
                 $spots[$slug] = array_merge($spots[$slug], $content);
             }
         }
+        // Evidence-based corrections are part of the seed, not a separate
+        // runtime patch: new installs and reseeds get the verified content.
+        foreach (tap_destination_spot_corrections() as $slug => $correction) {
+            if (isset($spots[$slug]) && is_array($correction)) {
+                $spots[$slug] = array_replace_recursive($spots[$slug], $correction);
+            }
+        }
         return $spots;
     }
+    /**
+     * Apply the verified content corrections to spots already in the database.
+     * Versioned and one-shot: the seed guard prevents reseeding, so existing
+     * sites need this explicit sync. Only keys present in the map are touched.
+     */
+    public static function apply_content_corrections() {
+        $version = 3;
+        if ((int) get_option('tap_spot_corrections_version') >= $version) {
+            return;
+        }
+        if (!post_type_exists(self::CPT)) {
+            return;
+        }
+
+        $list_keys = ['interest', 'biodiversity', 'activities', 'tips'];
+        $post_keys = ['title', 'excerpt', 'content'];
+
+        foreach (tap_destination_spot_corrections() as $slug => $fields) {
+            $post = get_page_by_path($slug, OBJECT, self::CPT);
+            if (!$post) {
+                continue;
+            }
+            $id = (int) $post->ID;
+            $post_data = ['ID' => $id];
+            foreach ($post_keys as $key) {
+                if (isset($fields[$key])) {
+                    $column = $key === 'title' ? 'post_title' : ($key === 'excerpt' ? 'post_excerpt' : 'post_content');
+                    $post_data[$column] = $fields[$key];
+                }
+            }
+            if (count($post_data) > 1) {
+                wp_update_post($post_data);
+            }
+
+            foreach ($fields as $key => $value) {
+                if (in_array($key, $post_keys, true)) {
+                    continue;
+                }
+                $meta_key = '_tap_spot_' . $key;
+                if ($value === '') {
+                    delete_post_meta($id, $meta_key);
+                    continue;
+                }
+                if (in_array($key, $list_keys, true) && is_array($value)) {
+                    $value = implode("\n", $value);
+                }
+                if (is_scalar($value)) {
+                    update_post_meta($id, $meta_key, $value);
+                }
+            }
+        }
+
+        self::clear_map_cache();
+        update_option('tap_spot_corrections_version', $version);
+    }
+
+    /**
+     * Credits for all destination photos (TASL), for the /creditos-imagenes page.
+     */
+    public static function image_credits() {
+        $spots = get_posts([
+            'post_type'      => self::CPT,
+            'post_status'    => 'publish',
+            'posts_per_page' => -1,
+            'orderby'        => 'title',
+            'order'          => 'ASC',
+        ]);
+        $rows = [];
+        foreach ($spots as $spot) {
+            $credit = (string) get_post_meta($spot->ID, '_tap_spot_photo_credit', true);
+            if ($credit === '') {
+                continue;
+            }
+            $rows[] = '<li><strong>' . esc_html(get_the_title($spot)) . '</strong> &mdash; ' . wp_kses_post($credit) . '</li>';
+        }
+        if (!$rows) {
+            return '<p>' . esc_html__('Todavía no hay fotografías acreditadas.', 'travel-agency-platform') . '</p>';
+        }
+        return '<p>' . esc_html__('Las fotografías de los destinos proceden de Wikimedia Commons y se usan bajo las licencias indicadas. Los créditos se muestran también en cada ficha y en el mapa interactivo.', 'travel-agency-platform') . '</p><ul class="tap-photo-credits">' . implode('', $rows) . '</ul>';
+    }
+
     /** Clear cached map data (call on post save). */
     public static function clear_map_cache() {
         $ver = (int) get_option('tap_map_cache_version', 1);
