@@ -268,4 +268,30 @@ $dash_src = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-conten
 tap_t_assert(2 === substr_count($dash_src, 'caller_is_agency_member'), 'client-chat dash endpoints reject agency members');
 tap_t_assert(method_exists('TAP_Ajax', 'caller_is_agency_member'), 'agency-member helper is publicly reusable');
 
+// ===== S. WordPress hardening ==============================================
+tap_t_assert(method_exists('TAP_Site_Hardening', 'block_user_discovery'), 'site hardening class loaded');
+tap_t_assert(false !== has_filter('xmlrpc_enabled', '__return_false'), 'XML-RPC is disabled');
+tap_t_assert(false !== has_filter('rest_pre_dispatch', ['TAP_Site_Hardening', 'block_user_discovery']), 'user enumeration filter hooked');
+$anon_req = new WP_REST_Request('GET', '/wp/v2/users');
+tap_t_assert(
+    is_wp_error(TAP_Site_Hardening::block_user_discovery(null, rest_get_server(), $anon_req)),
+    'anonymous /wp/v2/users is blocked'
+);
+wp_set_current_user(1);
+$admin_req = new WP_REST_Request('GET', '/wp/v2/users');
+tap_t_assert(
+    !is_wp_error(TAP_Site_Hardening::block_user_discovery(null, rest_get_server(), $admin_req)),
+    'admin /wp/v2/users still allowed'
+);
+tap_t_assert(
+    !is_wp_error(TAP_Site_Hardening::block_user_discovery(null, rest_get_server(), new WP_REST_Request('GET', '/tap/v1/search'))),
+    'public tap/v1 REST is not affected'
+);
+wp_set_current_user(0);
+$sec_headers_src = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-security-headers.php');
+tap_t_assert(false === strpos($sec_headers_src, 'cdn.jsdelivr.net'), 'unused jsdelivr CSP source removed');
+$wp_cfg = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-config.php');
+tap_t_assert(false !== strpos($wp_cfg, "'local' !== WP_ENVIRONMENT_TYPE"), 'production constants are env-guarded');
+tap_t_assert(false === strpos($wp_cfg, 'define( \'FORCE_SSL_ADMIN\', true );') || false !== strpos($wp_cfg, "'local' !== WP_ENVIRONMENT_TYPE"), 'SSL admin does not break local HTTP');
+
 tap_t_finish();

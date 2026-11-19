@@ -17,7 +17,7 @@
 
 defined('ABSPATH') || exit;
 
-define('TAP_VERSION', '1.5.95');
+define('TAP_VERSION', '1.5.96');
 define('TAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -73,6 +73,8 @@ final class TravelAgencyPlatform {
     }
 
     private function init_hooks() {
+        TAP_Site_Hardening::init();
+
         register_activation_hook(__FILE__, ['TAP_Installer', 'activate']);
         register_activation_hook(__FILE__, ['TAP_Requirements', 'block_activation']);
         register_deactivation_hook(__FILE__, ['TAP_Installer', 'deactivate']);

@@ -41,7 +41,7 @@ The following are out of scope:
 
 ## Security Practices
 
-- **Secrets:** All API keys, webhook secrets, and credentials are stored in `wp-config.php` or environment variables. Never in the database or code.
+- **Secrets:** Payment/webhook keys (Onvo) live in `wp-config.php` constants. Pexels (`TAP_PEXELS_API_KEY`) and Web Push (`TAP_VAPID_PUBLIC` / `TAP_VAPID_PRIVATE`) also accept constants and fall back to WP options for backwards compatibility; new deployments should define the constants and leave the options empty. Never commit real credentials to the repository.
 - **Nonces:** All AJAX handlers verify nonces (`check_ajax_referer`).
 - **Input sanitization:** All user input is sanitized (`sanitize_text_field`, `sanitize_email`, `intval`, etc.).
 - **Output escaping:** All output is escaped (`esc_html`, `esc_attr`, `esc_url`, `esc_js`).

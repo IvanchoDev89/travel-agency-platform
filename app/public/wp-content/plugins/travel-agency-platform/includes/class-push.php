@@ -18,11 +18,13 @@ class TAP_Push {
 
     /** VAPID public key (base64url). */
     public static function vapid_public() {
+        if (defined('TAP_VAPID_PUBLIC')) return (string) TAP_VAPID_PUBLIC;
         return (string) get_option('tap_vapid_public', '');
     }
 
     /** VAPID private key (base64url). */
     public static function vapid_private() {
+        if (defined('TAP_VAPID_PRIVATE')) return (string) TAP_VAPID_PRIVATE;
         return (string) get_option('tap_vapid_private', '');
     }
 
