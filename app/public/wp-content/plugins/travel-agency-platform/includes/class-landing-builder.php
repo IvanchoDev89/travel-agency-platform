@@ -338,6 +338,29 @@ class TAP_Landing_Builder {
                 <div class="notice notice-error"><p><?php esc_html_e('Error al guardar.', 'travel-agency-platform'); ?></p></div>
             <?php endif; ?>
 
+            <div class="tap-lb-presets" style="margin:12px 0;padding:14px;border:1px solid #ddd;border-radius:8px;background:#fff;max-width:900px;">
+                <h2 style="margin:0 0 10px;font-size:15px;"><?php esc_html_e('Presets e importación', 'travel-agency-platform'); ?></h2>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                    <select id="tap-lb-preset-select">
+                        <option value=""><?php esc_html_e('Seleccionar preset…', 'travel-agency-platform'); ?></option>
+                        <?php foreach (array_keys(self::presets()) as $preset_name): ?>
+                            <option value="<?php echo esc_attr($preset_name); ?>"><?php echo esc_html($preset_name); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <input type="text" id="tap-lb-preset-name" placeholder="<?php echo esc_attr__('Nombre del preset', 'travel-agency-platform'); ?>">
+                    <button type="button" class="button" data-preset="save"><?php esc_html_e('Guardar preset', 'travel-agency-platform'); ?></button>
+                    <button type="button" class="button" data-preset="load"><?php esc_html_e('Aplicar', 'travel-agency-platform'); ?></button>
+                    <button type="button" class="button" data-preset="delete"><?php esc_html_e('Eliminar', 'travel-agency-platform'); ?></button>
+                </div>
+                <div style="margin-top:10px;display:flex;gap:8px;align-items:flex-start;">
+                    <textarea id="tap-lb-json" rows="4" style="flex:1;font-family:monospace;" placeholder="<?php echo esc_attr__('Pega aquí un JSON de configuración para importar', 'travel-agency-platform'); ?>"></textarea>
+                    <div style="display:flex;flex-direction:column;gap:6px;">
+                        <button type="button" class="button" id="tap-lb-export"><?php esc_html_e('Exportar', 'travel-agency-platform'); ?></button>
+                        <button type="button" class="button" id="tap-lb-import"><?php esc_html_e('Importar', 'travel-agency-platform'); ?></button>
+                    </div>
+                </div>
+            </div>
+
             <div class="tap-landing-toolbar">
                 <button type="button" class="button button-primary" id="tap-lb-save"><?php esc_html_e('Guardar cambios', 'travel-agency-platform'); ?></button>
                 <button type="button" class="button" id="tap-lb-add"><?php esc_html_e('+ Agregar sección', 'travel-agency-platform'); ?></button>
@@ -451,10 +474,7 @@ class TAP_Landing_Builder {
                 });
             }
 
-            // Save via AJAX.
-            document.getElementById('tap-lb-save').addEventListener('click', function(){
-                var status = document.getElementById('tap-lb-status');
-                status.textContent = '<?php echo esc_js(__('Guardando...', 'travel-agency-platform')); ?>';
+            function collectConfig() {
                 var sections = [];
                 list.querySelectorAll('.tap-lb-section').forEach(function(sec, i){
                     var settings = {};
@@ -471,10 +491,17 @@ class TAP_Landing_Builder {
                         settings: settings,
                     });
                 });
+                return {version: <?php echo (int) self::VERSION; ?>, sections: sections};
+            }
+
+            // Save via AJAX.
+            document.getElementById('tap-lb-save').addEventListener('click', function(){
+                var status = document.getElementById('tap-lb-status');
+                status.textContent = '<?php echo esc_js(__('Guardando...', 'travel-agency-platform')); ?>';
                 var data = new FormData();
                 data.append('action', 'tap_landing_save_ajax');
                 data.append('nonce', '<?php echo wp_create_nonce('tap_landing_save_ajax'); ?>');
-                data.append('config', JSON.stringify({version: <?php echo (int) self::VERSION; ?>, sections: sections}));
+                data.append('config', JSON.stringify(collectConfig()));
 
                 fetch('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {method:'POST', body:data, credentials:'same-origin'})
                     .then(function(r){ return r.json(); })
@@ -493,6 +520,65 @@ class TAP_Landing_Builder {
                     .catch(function(){
                         status.textContent = '<?php echo esc_js(__('Error de conexión.', 'travel-agency-platform')); ?>';
                         status.style.color = 'red';
+                    });
+            });
+
+            // Presets + import/export.
+            var statusEl = document.getElementById('tap-lb-status');
+            function setStatus(text, ok) {
+                if (!statusEl) return;
+                statusEl.textContent = text;
+                statusEl.style.color = ok ? 'green' : 'red';
+            }
+            document.querySelectorAll('[data-preset]').forEach(function(btn){
+                btn.addEventListener('click', function(){
+                    var mode = btn.getAttribute('data-preset');
+                    var select = document.getElementById('tap-lb-preset-select');
+                    var name = mode === 'save'
+                        ? document.getElementById('tap-lb-preset-name').value.trim()
+                        : select.value;
+                    if (!name) { setStatus('<?php echo esc_js(__('Escribe un nombre.', 'travel-agency-platform')); ?>', false); return; }
+                    if ((mode === 'load' || mode === 'delete') && !confirm('<?php echo esc_js(__('¿Confirmar?', 'travel-agency-platform')); ?>')) return;
+                    var data = new FormData();
+                    data.append('action', 'tap_landing_preset');
+                    data.append('nonce', '<?php echo wp_create_nonce('tap_landing_save_ajax'); ?>');
+                    data.append('mode', mode);
+                    data.append('name', name);
+                    if (mode === 'save') data.append('config', JSON.stringify(collectConfig()));
+                    fetch('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {method:'POST', body:data, credentials:'same-origin'})
+                        .then(function(r){ return r.json(); })
+                        .then(function(res){
+                            setStatus(res.data && res.data.message ? res.data.message : '<?php echo esc_js(__('Listo.', 'travel-agency-platform')); ?>', !!res.success);
+                            if (res.success && mode === 'save' && name) {
+                                var opt = document.createElement('option');
+                                opt.value = name; opt.textContent = name;
+                                select.appendChild(opt);
+                                select.value = name;
+                                document.getElementById('tap-lb-preset-name').value = '';
+                            }
+                            if (res.success && mode !== 'save') window.location.reload();
+                        })
+                        .catch(function(){ setStatus('<?php echo esc_js(__('Error de conexión.', 'travel-agency-platform')); ?>', false); });
+                });
+            });
+            document.getElementById('tap-lb-export').addEventListener('click', function(){
+                document.getElementById('tap-lb-json').value = JSON.stringify(collectConfig(), null, 2);
+                setStatus('<?php echo esc_js(__('Configuración copiada al área de texto.', 'travel-agency-platform')); ?>', true);
+            });
+            document.getElementById('tap-lb-import').addEventListener('click', function(){
+                var raw = document.getElementById('tap-lb-json').value.trim();
+                var config;
+                try { config = JSON.parse(raw); } catch (e) { setStatus('<?php echo esc_js(__('JSON inválido.', 'travel-agency-platform')); ?>', false); return; }
+                if (!config.sections || !config.sections.length) { setStatus('<?php echo esc_js(__('JSON inválido.', 'travel-agency-platform')); ?>', false); return; }
+                var data = new FormData();
+                data.append('action', 'tap_landing_save_ajax');
+                data.append('nonce', '<?php echo wp_create_nonce('tap_landing_save_ajax'); ?>');
+                data.append('config', JSON.stringify(config));
+                fetch('<?php echo esc_url(admin_url('admin-ajax.php')); ?>', {method:'POST', body:data, credentials:'same-origin'})
+                    .then(function(r){ return r.json(); })
+                    .then(function(res){
+                        if (res.success) window.location.reload();
+                        else setStatus('<?php echo esc_js(__('Error al importar.', 'travel-agency-platform')); ?>', false);
                     });
             });
         })();
@@ -560,6 +646,19 @@ class TAP_Landing_Builder {
 
     public static function render_section_settings($type, $settings) {
         $text_fields = self::text_fields($type);
+        echo '<label>' . esc_html__('Visible para', 'travel-agency-platform') . '</label>';
+        echo '<select name="visible_to">';
+        foreach ([
+            'all'       => __('Todos', 'travel-agency-platform'),
+            'logged_in' => __('Usuarios registrados', 'travel-agency-platform'),
+            'guests'    => __('Solo visitantes', 'travel-agency-platform'),
+            'agency'    => __('Solo agencias', 'travel-agency-platform'),
+        ] as $value => $label) {
+            echo '<option value="' . esc_attr($value) . '"' . selected($value, (string) ($settings['visible_to'] ?? 'all'), false) . '>' . esc_html($label) . '</option>';
+        }
+        echo '</select>';
+        echo '<label><input type="checkbox" name="hide_on_mobile" value="1" ' . checked(1, $settings['hide_on_mobile'] ?? 0, false) . '> ' . esc_html__('Ocultar en móvil', 'travel-agency-platform') . '</label>';
+        echo '<label><input type="checkbox" name="hide_on_desktop" value="1" ' . checked(1, $settings['hide_on_desktop'] ?? 0, false) . '> ' . esc_html__('Ocultar en escritorio', 'travel-agency-platform') . '</label>';
         foreach ($text_fields as $key => $label) {
             $value = (string) ($settings[$key] ?? '');
             if ($key === 'button_url') {
@@ -607,6 +706,51 @@ class TAP_Landing_Builder {
             default:
                 echo '<p class="description">' . esc_html__('Sin opciones adicionales.', 'travel-agency-platform') . '</p>';
         }
+    }
+
+    /** Named layout presets stored alongside the active config. */
+    const PRESETS_OPTION = 'tap_landing_presets';
+
+    public static function presets() {
+        $presets = get_option(self::PRESETS_OPTION, []);
+        return is_array($presets) ? $presets : [];
+    }
+
+    public static function ajax_preset() {
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(['message' => __('Sin permiso.', 'travel-agency-platform')]);
+        }
+        check_ajax_referer('tap_landing_save_ajax', 'nonce');
+        $mode = sanitize_text_field(wp_unslash($_POST['mode'] ?? ''));
+        $name = sanitize_text_field(wp_unslash($_POST['name'] ?? ''));
+        $presets = self::presets();
+
+        if ('save' === $mode) {
+            $raw = wp_unslash($_POST['config'] ?? '');
+            $config = json_decode($raw, true);
+            if ($name === '' || !is_array($config)) {
+                wp_send_json_error(['message' => __('Nombre o configuración inválida.', 'travel-agency-platform')]);
+            }
+            $presets[$name] = $config;
+            update_option(self::PRESETS_OPTION, $presets);
+            wp_send_json_success(['message' => __('Preset guardado.', 'travel-agency-platform')]);
+        }
+        if ('load' === $mode || 'delete' === $mode) {
+            if (!isset($presets[$name])) {
+                wp_send_json_error(['message' => __('No existe ese preset.', 'travel-agency-platform')]);
+            }
+            if ('delete' === $mode) {
+                unset($presets[$name]);
+                update_option(self::PRESETS_OPTION, $presets);
+                wp_send_json_success(['message' => __('Preset eliminado.', 'travel-agency-platform')]);
+            }
+            if (is_array($presets[$name]['sections'] ?? null)) {
+                self::save($presets[$name]);
+                self::invalidate_cache();
+            }
+            wp_send_json_success(['message' => __('Preset aplicado.', 'travel-agency-platform')]);
+        }
+        wp_send_json_error(['message' => __('Acción desconocida.', 'travel-agency-platform')]);
     }
 
     /**

@@ -764,6 +764,10 @@ if (class_exists('TAP_Landing_Builder')) {
     }
 }
 foreach ($tap_lp_order as $tap_lp_type) {
+    if (function_exists('tap_lp_section_visible') && !tap_lp_section_visible($tap_lp_type)) {
+        unset($tap_lp_sections[$tap_lp_type]);
+        continue;
+    }
     if (!empty($tap_lp_sections[$tap_lp_type])) {
         echo $tap_lp_sections[$tap_lp_type]; // phpcs:ignore WordPress.Security.EscapeOutput -- rendered section
         unset($tap_lp_sections[$tap_lp_type]);

@@ -27,6 +27,27 @@ if (!function_exists('tap_lp_setting')) {
     }
 }
 
+/** Per-section visibility rules configured in the Landing Page Builder. */
+if (!function_exists('tap_lp_section_visible')) {
+    function tap_lp_section_visible($type) {
+        if (tap_lp_setting($type, 'hide_on_mobile', false) && wp_is_mobile()) {
+            return false;
+        }
+        if (tap_lp_setting($type, 'hide_on_desktop', false) && !wp_is_mobile()) {
+            return false;
+        }
+        $audience = (string) tap_lp_setting($type, 'visible_to', 'all');
+        if ('logged_in' === $audience && !is_user_logged_in()) return false;
+        if ('guests' === $audience && is_user_logged_in()) return false;
+        if ('agency' === $audience) {
+            if (!is_user_logged_in()) return false;
+            $roles = (array) wp_get_current_user()->roles;
+            if (!array_intersect($roles, ['tap_agency_admin', 'tap_agency_employee', 'administrator'])) return false;
+        }
+        return true;
+    }
+}
+
 // Drop jQuery Migrate on the front end: it only adds a deprecation notice to
 // the console and the platform does not rely on deprecated jQuery APIs.
 add_action('wp_default_scripts', function ($scripts) {
