@@ -358,13 +358,19 @@ class TAP_Emails_Send {
         }
         /* translators: %s: código de la reserva */
         $subject = sprintf(__('Recordatorio de pago — reserva %s', 'travel-agency-platform'), $booking->booking_code);
+        // Guests re-verify with ?email= (the 30-min pay token may have expired).
+        list($rem_email) = self::client_contact($booking);
+        $resume_url = home_url('/checkout?code=' . rawurlencode($booking->booking_code));
+        if ($rem_email) {
+            $resume_url .= '&email=' . rawurlencode($rem_email);
+        }
         $body = self::template(
             /* translators: %s: nombre del cliente */
             sprintf(__('Hola %s, tu reserva está esperando pago', 'travel-agency-platform'), $name),
             sprintf(
                 /* translators: %s: enlace de pago */
                 __('Tienes una reserva pendiente de pago. Completa el pago para mantenerla confirmada: <a href="%s" style="color:#0d9488;">Pagar ahora</a>.', 'travel-agency-platform'),
-                esc_url(home_url('/checkout?code=' . rawurlencode($booking->booking_code)))
+                esc_url($resume_url)
             ),
             self::build_context($booking),
             'pending'

@@ -27,10 +27,74 @@ class TAP_Automations {
             wp_schedule_event(time() + HOUR_IN_SECONDS, 'daily', 'tap_auto_hook');
         }
         add_action('tap_auto_hook', [__CLASS__, 'run_all']);
+
+        // Payment hold is ~30 min, so a daily reminder can never fire in time.
+        // A dedicated 10-minute sweep sends one nudge shortly after booking.
+        if (!wp_next_scheduled('tap_pay_reminder_hook')) {
+            wp_schedule_event(time() + 10 * MINUTE_IN_SECONDS, 'tap_every_10min', 'tap_pay_reminder_hook');
+        }
+        add_action('tap_pay_reminder_hook', [__CLASS__, 'payment_reminders_fast']);
+    }
+
+    /** Custom cron recurrence used by the fast payment reminder sweep. */
+    public static function add_intervals($schedules) {
+        $schedules['tap_every_10min'] = [
+            'interval' => 10 * MINUTE_IN_SECONDS,
+            /* translators: %s: number of minutes */
+            'display'  => sprintf(__('Cada %s minutos', 'travel-agency-platform'), 10),
+        ];
+        return $schedules;
+    }
+
+    /**
+     * Fast reminder: one nudge 5-10 minutes after the booking was created,
+     * while the payment hold (default 30 min) is still active.
+     */
+    public static function payment_reminders_fast() {
+        if ('1' !== (string) get_option('tap_auto_payment_reminders', '1')) {
+            return;
+        }
+        $minutes = max(1, min(20, (int) get_option('tap_payment_reminder_minutes', 10)));
+        $hold_raw = get_option('tap_payment_hold_minutes', '30');
+        $hold = (false === $hold_raw || '' === $hold_raw) ? 30 : max(1, (int) $hold_raw);
+        if ($minutes >= $hold) {
+            $minutes = max(1, $hold - 5); // never remind after the hold expired
+        }
+        $now = current_time('timestamp');
+
+        global $wpdb;
+        $t = $wpdb->prefix . 'tap_bookings';
+        list($ids, $finished) = self::batch_run('pay', function ($wpdb, $after_id, $limit) use ($t, $now, $hold, $minutes) {
+            return $wpdb->get_col($wpdb->prepare(
+                "SELECT id FROM {$t}
+                 WHERE status IN ('pending','confirmed')
+                   AND payment_status = 'pending'
+                   AND created_at BETWEEN %s AND %s
+                   AND id > %d
+                 ORDER BY created_at ASC, id ASC
+                 LIMIT %d",
+                gmdate('Y-m-d H:i:s', $now - $hold * MINUTE_IN_SECONDS),
+                gmdate('Y-m-d H:i:s', $now - $minutes * MINUTE_IN_SECONDS),
+                $after_id,
+                $limit
+            ));
+        });
+
+        foreach ($ids as $id) {
+            $id = (int) $id;
+            if (self::sent('pay', $id)) continue;
+            $booking = TAP_Booking::get_booking($id);
+            if (!$booking || !TAP_Booking::is_payable($booking)) continue;
+            if (TAP_Emails_Send::send_payment_reminder($booking)) {
+                self::mark('pay', $id);
+            }
+        }
+        self::end_batch('pay', $ids, $finished);
     }
 
     public static function run_all() {
-        self::payment_reminders();
+        // Payment reminders run on tap_pay_reminder_hook (every 10 min) because
+        // the 30-min hold makes a daily reminder useless.
         self::prearrival_messages();
         self::review_requests();
         self::expiry_warnings();

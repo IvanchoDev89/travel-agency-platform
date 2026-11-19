@@ -47,6 +47,35 @@ class TAP_Taxonomies {
         }
         self::seed_tour_types();
         self::seed_service_categories();
+        self::seed_property_types();
+        self::seed_tour_difficulties();
+    }
+
+    /** One-shot term seeding (was running term_exists() on every request). */
+    private static function seed_property_types() {
+        if (get_option('tap_property_types_seeded')) return;
+        $terms = [
+            'hotel' => 'Hotel', 'hostel' => 'Hostel', 'resort' => 'Resort',
+            'villa' => 'Villa', 'apartment' => 'Apartment', 'cabin' => 'Cabin',
+            'boutique' => 'Boutique Hotel', 'eco' => 'Eco-Lodge',
+            'guesthouse' => 'Guest House', 'bedbreakfast' => 'Bed & Breakfast',
+        ];
+        foreach ($terms as $slug => $name) {
+            if (!term_exists($slug, 'tap_property_type')) {
+                wp_insert_term($name, 'tap_property_type', ['slug' => $slug]);
+            }
+        }
+        update_option('tap_property_types_seeded', 1);
+    }
+
+    private static function seed_tour_difficulties() {
+        if (get_option('tap_difficulties_seeded')) return;
+        foreach (self::difficulty_terms() as $slug => $name) {
+            if (!term_exists($slug, 'tap_tour_difficulty')) {
+                wp_insert_term($name, 'tap_tour_difficulty', ['slug' => $slug]);
+            }
+        }
+        update_option('tap_difficulties_seeded', 1);
     }
 
     private static function register_service_category() {
@@ -94,23 +123,6 @@ class TAP_Taxonomies {
             'show_admin_column' => true,
         ]);
 
-        $default_terms = [
-            'hotel'    => 'Hotel',
-            'hostel'   => 'Hostel',
-            'resort'   => 'Resort',
-            'villa'    => 'Villa',
-            'apartment'=> 'Apartment',
-            'cabin'    => 'Cabin',
-            'boutique' => 'Boutique Hotel',
-            'eco'      => 'Eco-Lodge',
-            'guesthouse' => 'Guest House',
-            'bedbreakfast' => 'Bed & Breakfast',
-        ];
-        foreach ($default_terms as $slug => $name) {
-            if (!term_exists($slug, 'tap_property_type')) {
-                wp_insert_term($name, 'tap_property_type', ['slug' => $slug]);
-            }
-        }
     }
 
     private static function register_amenity() {
@@ -222,11 +234,6 @@ class TAP_Taxonomies {
             'show_admin_column' => true,
         ]);
 
-        foreach (self::difficulty_terms() as $slug => $name) {
-            if (!term_exists($slug, 'tap_tour_difficulty')) {
-                wp_insert_term($name, 'tap_tour_difficulty', ['slug' => $slug]);
-            }
-        }
     }
 
     private static function difficulty_terms() {

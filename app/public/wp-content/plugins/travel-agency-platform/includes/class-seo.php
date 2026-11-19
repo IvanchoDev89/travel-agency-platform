@@ -48,6 +48,9 @@ class TAP_SEO {
      */
     public static function robots_txt($output, $public) {
         if (!$public) return $output;
+        // Core already emits a Sitemap: line (priority 0); the plugin also
+        // echoes one via do_robots. Strip the core copy to avoid duplicates.
+        $output = preg_replace('/^Sitemap:.*\R/mi', '', $output);
         $output .= "\n# TAP: block thin/utility pages\n";
         $output .= "Disallow: /wp-json/\n";
         $output .= "Disallow: /search-results/\n";
@@ -89,6 +92,18 @@ class TAP_SEO {
             self::twitter_tags($post);
             self::agency_json_ld($post);
             self::breadcrumb_json_ld($post);
+        } elseif ($post instanceof WP_Post && $post->post_type === 'tap_spot' && is_singular()) {
+            self::canonical(get_permalink($post->ID));
+            self::meta_tags($post);
+            self::og_tags($post);
+            self::twitter_tags($post);
+            self::spot_json_ld($post);
+        } elseif ($post instanceof WP_Post && $post->post_type === 'tap_help' && is_singular()) {
+            self::canonical(get_permalink($post->ID));
+            self::meta_tags($post);
+            self::og_tags($post);
+            self::twitter_tags($post);
+            self::help_json_ld($post);
         } elseif (is_post_type_archive('tap_agency')) {
             self::archive_tags(__('Agencias', 'travel-agency-platform'), __('Agencias de viaje y operadores turísticos verificados en la plataforma.', 'travel-agency-platform'), get_post_type_archive_link('tap_agency'));
         } elseif (is_post_type_archive() && is_archive()) {
@@ -497,6 +512,68 @@ class TAP_SEO {
                 'addressCountry' => $country ?: '',
             ]);
         }
+
+        echo '<script type="application/ld+json">' . wp_json_encode($data, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '</script>' . "\n";
+    }
+
+    /** Educational destination page: TouristAttraction with geo + sameAs. */
+    protected static function spot_json_ld($post) {
+        $lat = get_post_meta($post->ID, '_tap_spot_lat', true);
+        $lng = get_post_meta($post->ID, '_tap_spot_lng', true);
+        $province = (string) get_post_meta($post->ID, '_tap_spot_province', true);
+        $site  = (string) get_post_meta($post->ID, '_tap_spot_website', true);
+        $official = (string) get_post_meta($post->ID, '_tap_spot_official_url', true);
+
+        $data = [
+            '@context'    => 'https://schema.org',
+            '@type'       => 'TouristAttraction',
+            'name'        => self::seo_title($post),
+            'description' => self::seo_description($post),
+            'url'         => get_permalink($post->ID),
+            'inLanguage'  => get_locale(),
+        ];
+        $img = get_the_post_thumbnail_url($post, 'large');
+        if ($img) $data['image'] = $img;
+        $lat = str_replace(',', '.', (string) $lat);
+        $lng = str_replace(',', '.', (string) $lng);
+        if (is_numeric($lat) && is_numeric($lng)) {
+            $data['geo'] = [
+                '@type' => 'GeoCoordinates',
+                'latitude' => (float) $lat,
+                'longitude' => (float) $lng,
+            ];
+        }
+        if ($province !== '') {
+            $data['address'] = [
+                '@type' => 'PostalAddress',
+                'addressLocality' => $province,
+                'addressCountry'  => 'CR',
+            ];
+        }
+        $same = array_filter([$site, $official]);
+        if ($same) $data['sameAs'] = array_values($same);
+
+        echo '<script type="application/ld+json">' . wp_json_encode($data, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '</script>' . "\n";
+    }
+
+    /** Help/knowledge-base article. */
+    protected static function help_json_ld($post) {
+        $data = [
+            '@context'      => 'https://schema.org',
+            '@type'         => 'Article',
+            'headline'      => self::seo_title($post),
+            'description'   => self::seo_description($post),
+            'url'           => get_permalink($post->ID),
+            'mainEntityOfPage' => ['@type' => 'WebPage', '@id' => get_permalink($post->ID)],
+            'datePublished' => get_the_date('c', $post),
+            'dateModified'  => get_the_modified_date('c', $post),
+            'inLanguage'    => get_locale(),
+            'wordCount'     => str_word_count(wp_strip_all_tags(get_post_field('post_content', $post))),
+        ];
+        $img = get_the_post_thumbnail_url($post, 'large') ?: self::site_logo_url();
+        if ($img) $data['image'] = $img;
+        $terms = get_the_terms($post->ID, 'tap_help_category');
+        if (is_array($terms) && $terms) $data['articleSection'] = $terms[0]->name;
 
         echo '<script type="application/ld+json">' . wp_json_encode($data, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) . '</script>' . "\n";
     }

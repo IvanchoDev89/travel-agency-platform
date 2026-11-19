@@ -141,6 +141,35 @@ tap_t_assert('Payment failure' === __('Fallo de pago', 'travel-agency-platform')
 TAP_Localization::set_lang('es');
 tap_t_assert('Fallo de pago' === __('Fallo de pago', 'travel-agency-platform'), 'ES identity for Fallo de pago');
 
+// ---- fast payment reminder (10-min hook) ----
+tap_t_assert(false !== has_action('tap_pay_reminder_hook', ['TAP_Automations', 'payment_reminders_fast']), 'fast payment reminder hooked');
+tap_t_assert(false !== has_filter('cron_schedules', ['TAP_Automations', 'add_intervals']), '10-minute cron interval registered');
+update_option('tap_auto_payment_reminders', '1');
+delete_option('tap_auto_sent_pay');
+$b_fast = auto_booking($wpdb, $base, [
+    'status' => 'pending', 'payment_status' => 'pending',
+    'created_at' => gmdate('Y-m-d H:i:s', current_time('timestamp') - 10 * MINUTE_IN_SECONDS),
+    'guest_email' => 'auto-fast@example.com', 'guest_name' => 'Fast T4',
+]);
+$wpdb->insert($wpdb->prefix . 'tap_bookings', $b_fast);
+$fast_id = $wpdb->insert_id;
+$mails_before = count($mails);
+tap_drain_automations(function () { TAP_Automations::payment_reminders_fast(); });
+tap_t_assert(in_array('auto-fast@example.com', $mails, true), 'fast reminder sends an email within the payment hold window');
+$logFast = get_option('tap_auto_sent_pay', []);
+tap_t_assert(isset($logFast[(string) $fast_id]), 'fast reminder is deduped per booking');
+$wpdb->delete($wpdb->prefix . 'tap_bookings', ['id' => $fast_id]);
+delete_option('tap_auto_sent_pay');
+
+// ---- resume URL carries guest email (inspect rendered email body) ----
+$body_probe = '';
+add_filter('wp_mail', function ($atts) use (&$body_probe) { $body_probe = $atts['message'] ?? ''; return $atts; }, 10);
+TAP_Emails_Send::send_payment_reminder((object) [
+    'booking_code' => 'RESUME-TEST', 'guest_email' => 'guest@example.com', 'guest_name' => 'Guest',
+]);
+remove_all_filters('wp_mail', 10);
+tap_t_assert(strpos($body_probe, 'email=guest%40example.com') !== false, 'payment reminder resume link includes email for guest re-verification');
+
 // ---- cleanup ----
 foreach ([[$bid1, $b1], [$bid2, $b2], [$bid3, $b3], [$bid4, $b4]] as $pair) {
     $wpdb->delete($wpdb->prefix . 'tap_bookings', ['id' => $pair[0]]);

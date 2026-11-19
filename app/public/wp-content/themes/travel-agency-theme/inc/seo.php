@@ -234,7 +234,7 @@ function tap_theme_seo_output() {
     }
 
     // Services and agencies are fully handled by the plugin's TAP_SEO.
-    if (class_exists('TAP_SEO') && is_singular(['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment', 'tap_agency'])) {
+    if (class_exists('TAP_SEO') && is_singular(['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment', 'tap_agency', 'tap_spot', 'tap_help'])) {
         return;
     }
 

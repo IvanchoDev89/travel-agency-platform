@@ -39,14 +39,24 @@ $experiences = [];
 $xpQuery = new WP_Query([
     'post_type'        => $tapTypes,
     'post_status'      => 'publish',
-    'posts_per_page'   => 60,
+    'posts_per_page'   => 24,
     'orderby'          => ['menu_order' => 'DESC', 'date' => 'DESC'],
     'suppress_filters' => true,
+    'no_found_rows'    => true,
 ]);
 $featured_limit = max(1, min(12, (int) tap_lp_setting('featured', 'count', 8)));
 $featured_mode  = (string) tap_lp_setting('featured', 'mode', 'auto');
 $featured_only  = ('manual' === $featured_mode && class_exists('TAP_Promotions'))
     ? array_map('intval', (array) TAP_Promotions::featured_ids($tapTypes)) : [];
+// Prime ratings for the whole result set in one query (get_rating_stats
+// below will then hit the per-request cache instead of adding N+1 queries).
+if (class_exists('TAP_API') && $xpQuery->have_posts()) {
+    $rating_pairs = [];
+    foreach ($xpQuery->posts as $xp) {
+        $rating_pairs[] = [$xp->post_type, (int) $xp->ID];
+    }
+    TAP_API::prime_rating_stats($rating_pairs);
+}
 if ($xpQuery->have_posts()) {
     foreach ($xpQuery->posts as $xp) {
         if (count($experiences) >= $featured_limit) break;
@@ -56,11 +66,12 @@ if ($xpQuery->have_posts()) {
         $price  = $priceK ? (float) get_post_meta($xp->ID, $priceK, true) : 0.0;
         $gallery = get_post_meta($xp->ID, '_tap_' . $xp->post_type . '_gallery', true);
         $img = '';
+        $img_id = 0;
         if ($gallery) {
             $first = (int) explode(',', (string) $gallery)[0];
-            $img = $first ? wp_get_attachment_image_url($first, 'medium_large') : '';
+            if ($first) { $img_id = $first; $img = wp_get_attachment_image_url($first, 'medium_large'); }
         }
-        if (!$img) $img = (string) get_the_post_thumbnail_url($xp->ID, 'medium_large');
+        if (!$img_id) { $img_id = (int) get_post_thumbnail_id($xp->ID); $img = $img_id ? wp_get_attachment_image_url($img_id, 'medium_large') : ''; }
 
         $location = '';
         $terms = get_the_terms($xp->ID, 'tap_location');
@@ -82,6 +93,7 @@ if ($xpQuery->have_posts()) {
             'title'    => get_the_title($xp->ID),
             'link'     => get_permalink($xp->ID),
             'img'      => $img,
+            'img_id'   => $img_id,
             'location' => $location,
             'price'    => $price,
             'avg'      => (float) ($rating['avg'] ?? 0),
@@ -119,6 +131,7 @@ $agenciesRaw = get_posts([
     'posts_per_page' => 12,
     'orderby'        => 'date',
     'order'          => 'ASC',
+    'no_found_rows'  => true,
 ]);
 $agenciesClean = [];
 foreach ($agenciesRaw as $ag) {
@@ -165,6 +178,7 @@ $postsQuery = new WP_Query([
     'post_status'    => 'publish',
     'posts_per_page' => 6,
     'ignore_sticky_posts' => true,
+    'no_found_rows'  => true,
 ]);
 $articles = $postsQuery->have_posts() ? array_map(function ($p) {
     $cats = get_the_category($p->ID);
@@ -173,6 +187,7 @@ $articles = $postsQuery->have_posts() ? array_map(function ($p) {
         'link'  => get_permalink($p),
         'date'  => get_the_date('', $p),
         'img'   => (string) get_the_post_thumbnail_url($p->ID, 'medium_large'),
+        'img_id' => (int) get_post_thumbnail_id($p->ID),
         'excerpt' => wp_trim_words(get_the_excerpt($p) ?: '', 18),
         'cat' => $cats ? $cats[0]->name : '',
         'cat_link' => $cats ? (string) get_category_link($cats[0]) : '',
@@ -193,6 +208,7 @@ $spotsQuery = new WP_Query([
     'posts_per_page'   => 80,
     'orderby'          => ['menu_order' => 'ASC', 'title' => 'ASC'],
     'suppress_filters' => true,
+    'no_found_rows'    => true,
 ]);
 if ($spotsQuery->have_posts()) {
     $withImage = [];
@@ -207,6 +223,7 @@ if ($spotsQuery->have_posts()) {
             'title'  => get_the_title($spot->ID),
             'link'   => get_permalink($spot->ID),
             'img'    => $img,
+            'img_id' => $thumbId,
             'region' => (string) get_post_meta($spot->ID, '_tap_spot_region', true),
             'type'   => (is_array($types) && $types) ? $types[0]->name : '',
         ];
@@ -282,9 +299,7 @@ foreach ($pillarDefs as $pDef) {
     <?php if (!empty($hero_poster)): ?>
     <div class="tap-landing-hero-poster" style="background-image:url('<?php echo esc_url($hero_poster); ?>')" aria-hidden="true"></div>
     <?php endif; ?>
-    <video class="tap-landing-hero-video" autoplay muted loop playsinline preload="none"<?php if (!empty($hero_poster)) echo ' poster="' . esc_url($hero_poster) . '"'; ?> aria-hidden="true">
-      <source src="<?php echo esc_url($hero_video); ?>" type="video/mp4">
-    </video>
+    <video class="tap-landing-hero-video" muted loop playsinline preload="none" data-src="<?php echo esc_url($hero_video); ?>"<?php if (!empty($hero_poster)) echo ' poster="' . esc_url($hero_poster) . '"'; ?> aria-hidden="true"></video>
     <div class="tap-landing-hero-overlay" style="opacity:<?php echo esc_attr($hero_overlay); ?>"></div>
   <?php else: ?>
     <div class="tap-hero-bg tap-landing-hero-bg" aria-hidden="true"<?php if ($hero_bg_field): ?> style="background-image:url('<?php echo esc_url(tap_media_url($hero_bg_field)); ?>');background-size:cover;background-position:center"<?php endif; ?>></div>
@@ -412,7 +427,7 @@ foreach ($pillarDefs as $pDef) {
         <a class="tap-landing-dest-card" href="<?php echo esc_url($spot['link']); ?>">
           <div class="tap-landing-dest-media">
             <?php if ($spot['img']): ?>
-              <img src="<?php echo esc_url($spot['img']); ?>" alt="<?php echo esc_attr($spot['title']); ?>" loading="lazy" decoding="async">
+              <?php echo wp_get_attachment_image((int) $spot['img_id'], 'medium_large', false, ['alt' => esc_attr($spot['title']), 'loading' => 'lazy', 'decoding' => 'async', 'sizes' => '(max-width: 600px) 100vw, 33vw']); ?>
             <?php else: ?>
               <div class="tap-landing-dest-ph" aria-hidden="true"><?php echo esc_html(mb_substr($spot['title'], 0, 1)); ?></div>
             <?php endif; ?>
@@ -505,7 +520,7 @@ if ($featured_tour_ids) {
         <a class="tap-landing-card" href="<?php echo esc_url($xp['link']); ?>">
           <div class="tap-landing-card-media">
             <?php if ($xp['img']): ?>
-              <img src="<?php echo esc_url($xp['img']); ?>" alt="<?php echo esc_attr($xp['title']); ?>" loading="lazy" decoding="async">
+              <?php echo wp_get_attachment_image((int) $xp['img_id'], 'medium_large', false, ['alt' => esc_attr($xp['title']), 'loading' => 'lazy', 'decoding' => 'async', 'sizes' => '(max-width: 600px) 100vw, 33vw']); ?>
             <?php else: ?>
               <div class="tap-landing-card-ph"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
             <?php endif; ?>
@@ -684,7 +699,7 @@ if ($featured_tour_ids) {
         <a class="tap-landing-article-card" href="<?php echo esc_url($art['link']); ?>">
           <div class="tap-landing-article-media">
             <?php if ($art['img']): ?>
-              <img src="<?php echo esc_url($art['img']); ?>" alt="<?php echo esc_attr($art['title']); ?>" loading="lazy" decoding="async">
+              <?php echo wp_get_attachment_image((int) $art['img_id'], 'medium_large', false, ['alt' => esc_attr($art['title']), 'loading'=>'lazy', 'decoding' => 'async', 'sizes' => '(max-width: 600px) 100vw, 33vw']); ?>
             <?php else: ?>
               <div class="tap-landing-article-ph"><?php echo esc_html(mb_substr($art['title'], 0, 1)); ?></div>
             <?php endif; ?>
@@ -792,6 +807,30 @@ unset($tap_lp_sections, $tap_lp_order, $tap_lp_type, $tap_lp_html);
 </style>
 <script>
 (function(){
+    // Load the hero video only when visible, never on mobile/reduced-motion/
+    // Save-Data. The poster is already shown, so this is a pure improvement.
+    (function(){
+        var v = document.querySelector('.tap-landing-hero-video');
+        if (!v || !v.dataset.src) return;
+        var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var small  = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+        var save   = navigator.connection && navigator.connection.saveData;
+        if (reduce || small || save || !('IntersectionObserver' in window)) return;
+        var loadVideo = function(){
+            if (v.src) return;
+            v.src = v.dataset.src;
+            var p = v.play();
+            if (p && p.catch) p.catch(function(){});
+            heroObserver.disconnect();
+        };
+        var heroObserver = new IntersectionObserver(function(entries){
+            if (entries.some(function(e){ return e.isIntersecting; })) loadVideo();
+        }, {threshold: 0.5});
+        heroObserver.observe(v);
+        // Click-to-play fallback for users whose autoplay is blocked.
+        v.addEventListener('click', loadVideo);
+    })();
+
     if (!('IntersectionObserver' in window)) return;
     var els = document.querySelectorAll('.tap-section, .tap-landing-dest-card, .tap-landing-card, .tap-landing-article-card, .tap-landing-pillar-card, .tap-landing-review-card, .tap-landing-agency-card, .tap-stat-card');
     els.forEach(function(el){ el.classList.add('tap-landing-animate'); });

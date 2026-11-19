@@ -17,7 +17,7 @@
 
 defined('ABSPATH') || exit;
 
-define('TAP_VERSION', '1.5.96');
+define('TAP_VERSION', '1.5.97');
 define('TAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -160,6 +160,7 @@ final class TravelAgencyPlatform {
         add_action('pre_get_posts', ['TAP_Archive_Query', 'filter_archive_query'], 10);
         add_filter('posts_clauses', ['TAP_Archive_Query', 'rating_sort_clauses'], 10, 2);
         add_filter('posts_clauses', ['TAP_Archive_Query', 'featured_sort_clauses'], 11, 2);
+        add_filter('cron_schedules', ['TAP_Automations', 'add_intervals']);
         add_action('init', function () {
             if (!wp_next_scheduled('tap_maintenance_hook')) {
                 wp_schedule_event(time(), 'hourly', 'tap_maintenance_hook');

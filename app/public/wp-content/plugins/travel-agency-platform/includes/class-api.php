@@ -763,6 +763,45 @@ class TAP_API {
         return $count;
     }
 
+    /**
+     * Prime the per-request rating cache for many services in one query.
+     * get_rating_stats() then finds every pair in wp_cache and issues no SQL.
+     *
+     * @param array<int,array{0:string,1:int}> $pairs [type, service_id] tuples.
+     */
+    public static function prime_rating_stats(array $pairs) {
+        global $wpdb;
+        $todo = [];
+        foreach ($pairs as $pair) {
+            $type = (string) ($pair[0] ?? '');
+            $id   = (int) ($pair[1] ?? 0);
+            if ($type === '' || $id <= 0) continue;
+            $key = 'tap_rating_' . $type . '_' . $id;
+            if (false === wp_cache_get($key, 'tap_ratings')) {
+                $todo[$key] = ['type' => $type, 'id' => $id];
+                wp_cache_set($key, ['avg' => 0.0, 'count' => 0], 'tap_ratings', 300);
+            }
+        }
+        if (!$todo) return;
+
+        // One grouped query instead of two per service.
+        $rows = $wpdb->get_results(
+            "SELECT service_type, service_id, AVG(rating) AS avg_rating, COUNT(*) AS total
+             FROM {$wpdb->prefix}tap_reviews
+             WHERE is_approved = 1
+             GROUP BY service_type, service_id"
+        );
+        foreach ((array) $rows as $row) {
+            $key = 'tap_rating_' . $row->service_type . '_' . (int) $row->service_id;
+            if (isset($todo[$key])) {
+                wp_cache_set($key, [
+                    'avg'   => floatval($row->avg_rating),
+                    'count' => intval($row->total),
+                ], 'tap_ratings', 300);
+            }
+        }
+    }
+
     public static function get_rating_stats($type, $service_id) {
         global $wpdb;
         $key   = 'tap_rating_' . $type . '_' . (int) $service_id;
