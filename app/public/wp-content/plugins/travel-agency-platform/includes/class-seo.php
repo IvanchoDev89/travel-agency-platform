@@ -372,7 +372,8 @@ class TAP_SEO {
         self::faq_json_ld($post, $type);
     }
 
-    protected static function faq_json_ld($post, $type) {
+    /** Shared source for the visible service FAQ and its FAQPage schema. */
+    public static function faq_items($post, $type) {
         $title   = self::seo_title($post);
         $agency_id = (int) get_post_meta($post->ID, '_tap_' . (TAP_Promotions::prefix_for_type($type) ?: '') . '_agency_id', true);
         $agency_name = '';
@@ -399,6 +400,11 @@ class TAP_SEO {
             $qa[] = ['q' => __('¿Quién opera este servicio?', 'travel-agency-platform'), 'a' => sprintf(__('%s es la agencia de viajes verificada que opera este listado.', 'travel-agency-platform'), $agency_name)];
         }
         $qa[] = ['q' => __('¿Cómo pago?', 'travel-agency-platform'), 'a' => __('Aceptamos pago online seguro con tarjeta o PayPal al confirmar la reserva.', 'travel-agency-platform')];
+        return $qa;
+    }
+
+    protected static function faq_json_ld($post, $type) {
+        $qa = self::faq_items($post, $type);
 
         $main_entity = [];
         foreach ($qa as $i => $item) {

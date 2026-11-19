@@ -1,6 +1,14 @@
 <?php
 defined('ABSPATH') || exit;
 
+/** Single source of truth for the public support address. */
+if (!function_exists('tap_support_email')) {
+    function tap_support_email() {
+        $email = (string) get_option('tap_support_email', 'soporte@visitnuevoarenal.com');
+        return is_email($email) ? $email : 'soporte@visitnuevoarenal.com';
+    }
+}
+
 /**
  * Shortcode: [tap_support_center]
  *
@@ -163,7 +171,7 @@ class TAP_Shortcode_Support {
             <section class="tap-support-contact">
                 <h2><?php esc_html_e('¿No encuentras lo que buscas?', 'travel-agency-platform'); ?></h2>
                 <p><?php esc_html_e('Contáctanos y te ayudamos.', 'travel-agency-platform'); ?></p>
-                <a href="mailto:soporte@travelagencypatform.com" class="tap-btn tap-btn-primary"><?php esc_html_e('Contactar soporte', 'travel-agency-platform'); ?></a>
+                <a href="mailto:<?php echo esc_attr(tap_support_email()); ?>" class="tap-btn tap-btn-primary"><?php esc_html_e('Contactar soporte', 'travel-agency-platform'); ?></a>
             </section>
         </div>
 

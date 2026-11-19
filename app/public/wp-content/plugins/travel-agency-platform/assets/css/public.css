@@ -4359,3 +4359,12 @@ html.dark .tap-destmap-popup--service .tap-destmap-popup-type {
 .tap-destmap-detail-source { display: inline-block; margin-top: 12px; font-size: var(--tap-text-xs); text-decoration: underline; }
 .tap-photo-credits { padding-left: 18px; }
 .tap-photo-credits li { margin-bottom: 6px; font-size: var(--tap-text-sm); color: var(--tap-neutral-600); }
+
+/* ── Visible service FAQ (matches FAQPage schema) ───────────────────── */
+.tap-service-faq-list { display: grid; gap: 8px; }
+.tap-service-faq-item { border: 1px solid var(--tap-border); border-radius: var(--tap-radius-lg); background: var(--tap-surface); padding: 12px 16px; }
+.tap-service-faq-item summary { cursor: pointer; font-weight: 600; color: var(--tap-neutral-900); list-style: none; }
+.tap-service-faq-item summary::-webkit-details-marker { display: none; }
+.tap-service-faq-item summary::after { content: "+"; float: right; color: var(--tap-primary-dark); }
+.tap-service-faq-item[open] summary::after { content: "\2212"; }
+.tap-service-faq-item p { margin: 10px 0 0; font-size: var(--tap-text-sm); color: var(--tap-neutral-600); line-height: 1.6; }

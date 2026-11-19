@@ -1443,6 +1443,17 @@ img { max-width: 100%; height: auto; }
   z-index: 0;
 }
 
+/* Static poster: shown on mobile / reduced motion, and while the video loads. */
+.tap-landing-hero-poster {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+.tap-landing-hero-video + .tap-landing-hero-overlay { z-index: 1; }
+
 .tap-landing-hero-overlay {
   position: absolute;
   inset: 0;

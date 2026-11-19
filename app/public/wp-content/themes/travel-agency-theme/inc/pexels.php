@@ -308,7 +308,10 @@ function tap_pexels_pool_pick($pool) {
     if (empty($valid)) {
         return null;
     }
-    return $valid[wp_rand(0, count($valid) - 1)];
+    // Deterministic: a rotating random hero defeats browser/CDN caching and
+    // can suddenly serve a very heavy file. Admins control the order in the
+    // pool, so the first usable entry is always the chosen hero.
+    return $valid[0];
 }
 
 function tap_pexels_ajax_pool_add() {

@@ -59,14 +59,14 @@ $mixed  = tap_pexels_pool_pick([
 ]);
 tap_t_assert(is_array($mixed) && $mixed['url'] === $rel_url, 'unusable entries are skipped, usable ones are picked');
 
-/* 5) Random rotation reaches every valid entry ------------------------------- */
+/* 5) Pool pick is deterministic (first usable entry) ------------------------ */
 $two  = [['url' => $rel_url], ['url' => $remote]];
-$seen = [];
-for ($i = 0; $i < 60; $i++) {
+$picks = [];
+for ($i = 0; $i < 10; $i++) {
     $pick = tap_pexels_pool_pick($two);
-    $seen[$pick['url'] ?? ''] = true;
+    $picks[$pick['url'] ?? ''] = true;
 }
-tap_t_assert(count($seen) === 2, 'every reload can pick any video of the pool (' . count($seen) . '/2 seen)');
+tap_t_assert(count($picks) === 1 && isset($picks[$rel_url]), 'the first usable pool entry is picked consistently');
 
 /* 6) tap_pexels_pool_get() normalizes the theme_mod -------------------------- */
 $orig    = get_theme_mod('tap_hero_video_pool', null);

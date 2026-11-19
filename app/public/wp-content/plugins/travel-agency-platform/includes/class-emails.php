@@ -33,7 +33,19 @@ class TAP_Emails {
         add_filter('wp_mail_content_type', [__CLASS__, 'set_html_content_type']);
         add_action('wp_mail_failed', function ($error) {
             // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-            error_log('TAP email failed: code=' . $error->get_error_code() . ' msg_hash=' . md5($error->get_error_message()));
+            $data = $error->get_error_data('wp_mail_failed');
+            $to = is_array($data) && isset($data['to'])
+                ? (is_array($data['to']) ? implode(',', $data['to']) : (string) $data['to']) : '';
+            $subject = is_array($data) && isset($data['subject']) ? (string) $data['subject'] : '';
+            error_log(sprintf(
+                'TAP email failed: to=%s subject=%s error=%s',
+                $to,
+                $subject,
+                $error->get_error_message()
+            ));
+        });
+        add_filter('wp_mail_from', function ($from) {
+            return function_exists('tap_support_email') ? tap_support_email() : $from;
         });
     }
 

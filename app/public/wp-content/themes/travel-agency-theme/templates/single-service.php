@@ -493,6 +493,23 @@ if ($deepest && class_exists('TAP_Destinations')) {
         </script>
         <?php endif; ?>
 
+        <?php if (class_exists('TAP_SEO')):
+            $service_faq = TAP_SEO::faq_items(get_post(), $pt);
+            if ($service_faq):
+        ?>
+        <div class="tap-acc-section tap-service-faq">
+          <h2><?php esc_html_e('Preguntas frecuentes', 'travel-agency-platform'); ?></h2>
+          <div class="tap-service-faq-list">
+            <?php foreach ($service_faq as $i => $faq): ?>
+              <details class="tap-service-faq-item"<?php echo 0 === $i ? ' open' : ''; ?>>
+                <summary><?php echo esc_html($faq['q']); ?></summary>
+                <p><?php echo esc_html($faq['a']); ?></p>
+              </details>
+            <?php endforeach; ?>
+          </div>
+        </div>
+        <?php endif; endif; ?>
+
         <?php get_template_part('templates/partials/service-reviews'); ?>
       </div>
     </div>

@@ -35,7 +35,6 @@ if (is_array($locTerms) && !is_wp_error($locTerms)) {
 }
 
 // ---------- Featured experiences ----------
-$fixtureRx = '/(E2E|NoMode|RTB|Lead Tour|Instant|Request|Saved)/i';
 $experiences = [];
 $xpQuery = new WP_Query([
     'post_type'        => $tapTypes,
@@ -52,7 +51,6 @@ if ($xpQuery->have_posts()) {
     foreach ($xpQuery->posts as $xp) {
         if (count($experiences) >= $featured_limit) break;
         if ($featured_only && !in_array((int) $xp->ID, $featured_only, true)) continue;
-        if (preg_match($fixtureRx, $xp->post_title)) continue;
         $type   = $xp->post_type;
         $priceK = class_exists('TAP_API') ? TAP_API::get_price_key($type) : null;
         $price  = $priceK ? (float) get_post_meta($xp->ID, $priceK, true) : 0.0;
@@ -125,7 +123,6 @@ $agenciesRaw = get_posts([
 $agenciesClean = [];
 foreach ($agenciesRaw as $ag) {
     if (count($agenciesClean) >= 4) break;
-    if (preg_match($fixtureRx, $ag->post_title)) continue;
     if (class_exists('TAP_Approval') && !TAP_Approval::is_approved($ag->ID)) continue;
     $agenciesClean[] = [
         'id'    => $ag->ID,
@@ -150,7 +147,7 @@ if ($tableExists) {
         3
     ));
     foreach ((array) $rows as $rw) {
-        if (!preg_match($fixtureRx, (string) $rw->content) && trim((string) $rw->content)) {
+        if (trim((string) $rw->content)) {
             $testimonials[] = [
                 'text'   => $rw->content,
                 'rating' => (int) $rw->rating,
@@ -201,7 +198,6 @@ if ($spotsQuery->have_posts()) {
     $withImage = [];
     $phOnly    = [];
     foreach ($spotsQuery->posts as $spot) {
-        if (preg_match($fixtureRx, $spot->post_title)) continue;
         $thumbId = (int) get_post_thumbnail_id($spot->ID);
         $img     = $thumbId ? wp_get_attachment_image_url($thumbId, 'medium_large') : '';
         $types   = class_exists('TAP_Destination_Spots') && taxonomy_exists(TAP_Destination_Spots::TAX)
@@ -283,7 +279,10 @@ foreach ($pillarDefs as $pDef) {
 <?php if (tap_lp_enabled('hero')): ob_start(); ?>
 <section class="tap-hero tap-landing-hero" id="home">
   <?php if (!empty($hero_video)): ?>
-    <video class="tap-landing-hero-video" autoplay muted loop playsinline preload="metadata"<?php if (!empty($hero_poster)) echo ' poster="' . esc_url($hero_poster) . '"'; ?> aria-hidden="true">
+    <?php if (!empty($hero_poster)): ?>
+    <div class="tap-landing-hero-poster" style="background-image:url('<?php echo esc_url($hero_poster); ?>')" aria-hidden="true"></div>
+    <?php endif; ?>
+    <video class="tap-landing-hero-video" autoplay muted loop playsinline preload="none"<?php if (!empty($hero_poster)) echo ' poster="' . esc_url($hero_poster) . '"'; ?> aria-hidden="true">
       <source src="<?php echo esc_url($hero_video); ?>" type="video/mp4">
     </video>
     <div class="tap-landing-hero-overlay" style="opacity:<?php echo esc_attr($hero_overlay); ?>"></div>
@@ -462,7 +461,6 @@ if ($featured_tour_ids) {
     foreach ($featured_tour_ids as $fid) {
         $fp = get_post($fid);
         if (!$fp || 'publish' !== $fp->post_status) continue;
-        if (preg_match($fixtureRx, $fp->post_title)) continue;
         $featured_tours[] = $fp;
         if (count($featured_tours) >= 6) break;
     }
