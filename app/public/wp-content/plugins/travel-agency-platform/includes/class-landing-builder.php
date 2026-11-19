@@ -321,6 +321,7 @@ class TAP_Landing_Builder {
         if (!current_user_can('manage_options')) {
             wp_die(__('No tienes permiso.', 'travel-agency-platform'));
         }
+        wp_enqueue_media();
         $config = self::load();
         $types = self::section_types();
         $saved = isset($_GET['saved']);
@@ -386,7 +387,7 @@ class TAP_Landing_Builder {
         </div>
 
         <!-- SortableJS -->
-        <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+        <script src="<?php echo esc_url(TAP_PLUGIN_URL . 'assets/js/vendor/sortable.min.js'); ?>"></script>
         <script>
         (function(){
             var list = document.getElementById('tap-lb-sections');
@@ -409,6 +410,20 @@ class TAP_Landing_Builder {
                         e.target.closest('.tap-lb-section').remove();
                     }
                 }
+            });
+
+            // Media picker for section background.
+            document.addEventListener('click', function(e){
+                var btn = e.target.closest('.tap-lb-pick-media');
+                if (!btn || typeof wp === 'undefined' || !wp.media) return;
+                e.preventDefault();
+                var input = btn.parentNode.querySelector('input[name="background"]');
+                var frame = wp.media({ title: '<?php echo esc_js(__('Elegir imagen', 'travel-agency-platform')); ?>', button: { text: '<?php echo esc_js(__('Usar imagen', 'travel-agency-platform')); ?>' }, multiple: false });
+                frame.on('select', function(){
+                    var att = frame.state().get('selection').first().toJSON();
+                    if (input && att.url) { input.value = att.url; input.dispatchEvent(new Event('change', { bubbles: true })); }
+                });
+                frame.open();
             });
 
             // Add section.
@@ -498,6 +513,8 @@ class TAP_Landing_Builder {
         .tap-lb-settings { flex-basis: 100%; margin-top: 12px; padding: 12px; border-top: 1px solid #eee; }
         .tap-lb-settings label { display: block; margin-bottom: 8px; font-size: 13px; }
         .tap-lb-settings input, .tap-lb-settings select, .tap-lb-settings textarea { width: 100%; padding: 6px 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .tap-lb-media { display: flex; gap: 6px; align-items: center; }
+        .tap-lb-media .button { width: auto; white-space: nowrap; }
         .tap-lb-toolbar { margin: 16px 0; display: flex; align-items: center; gap: 8px; }
         </style>
         <?php
@@ -513,8 +530,11 @@ class TAP_Landing_Builder {
                 echo '<input type="text" name="title" value="' . esc_attr($settings['title'] ?? '') . '">';
                 echo '<label>' . esc_html__('Subtítulo', 'travel-agency-platform') . '</label>';
                 echo '<textarea name="subtitle" rows="2">' . esc_textarea($settings['subtitle'] ?? '') . '</textarea>';
-                echo '<label>' . esc_html__('Imagen de fondo (URL)', 'travel-agency-platform') . '</label>';
-                echo '<input type="url" name="background" value="' . esc_attr($settings['background'] ?? '') . '">';
+                echo '<label>' . esc_html__('Imagen de fondo', 'travel-agency-platform') . '</label>';
+                echo '<div class="tap-lb-media">';
+                echo '<input type="text" name="background" value="' . esc_attr($settings['background'] ?? '') . '" placeholder="https://…">';
+                echo '<button type="button" class="button tap-lb-pick-media">' . esc_html__('Elegir imagen', 'travel-agency-platform') . '</button>';
+                echo '</div>';
                 echo '<label><input type="checkbox" name="show_search" value="1" ' . checked(1, $settings['show_search'] ?? 1, false) . '> ' . esc_html__('Mostrar buscador', 'travel-agency-platform') . '</label>';
                 break;
             case 'featured':

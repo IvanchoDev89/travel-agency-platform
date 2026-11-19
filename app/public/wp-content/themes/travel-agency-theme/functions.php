@@ -3,6 +3,30 @@ defined('ABSPATH') || exit;
 
 define('TAT_VERSION', '2.0.51');
 
+/**
+ * Read a landing-builder section setting with a safe fallback.
+ * The default keeps the current look when the field has never been edited.
+ */
+if (!function_exists('tap_lp_setting')) {
+    function tap_lp_setting($type, $key, $default = '') {
+        if (!class_exists('TAP_Landing_Builder')) {
+            return $default;
+        }
+        $settings = TAP_Landing_Builder::section_settings($type);
+        if (!array_key_exists($key, $settings)) {
+            return $default;
+        }
+        $value = $settings[$key];
+        if (is_bool($default)) {
+            return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+        }
+        if (is_string($value)) {
+            $value = trim($value);
+        }
+        return ($value === '' || $value === null) ? $default : $value;
+    }
+}
+
 // Drop jQuery Migrate on the front end: it only adds a deprecation notice to
 // the console and the platform does not rely on deprecated jQuery APIs.
 add_action('wp_default_scripts', function ($scripts) {

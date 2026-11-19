@@ -44,9 +44,14 @@ $xpQuery = new WP_Query([
     'orderby'          => ['menu_order' => 'DESC', 'date' => 'DESC'],
     'suppress_filters' => true,
 ]);
+$featured_limit = max(1, min(12, (int) tap_lp_setting('featured', 'count', 8)));
+$featured_mode  = (string) tap_lp_setting('featured', 'mode', 'auto');
+$featured_only  = ('manual' === $featured_mode && class_exists('TAP_Promotions'))
+    ? array_map('intval', (array) TAP_Promotions::featured_ids($tapTypes)) : [];
 if ($xpQuery->have_posts()) {
     foreach ($xpQuery->posts as $xp) {
-        if (count($experiences) >= 8) break;
+        if (count($experiences) >= $featured_limit) break;
+        if ($featured_only && !in_array((int) $xp->ID, $featured_only, true)) continue;
         if (preg_match($fixtureRx, $xp->post_title)) continue;
         $type   = $xp->post_type;
         $priceK = class_exists('TAP_API') ? TAP_API::get_price_key($type) : null;
@@ -177,6 +182,7 @@ $articles = $postsQuery->have_posts() ? array_map(function ($p) {
         'read' => function_exists('tap_reading_time') ? tap_reading_time($p->ID) : 0,
     ];
 }, $postsQuery->posts) : [];
+$articles = array_slice($articles, 0, max(1, min(6, (int) tap_lp_setting('blog', 'count', 6))));
 wp_reset_postdata();
 
 // ---------- Destinations (tap_spot teaser) ----------
@@ -220,11 +226,12 @@ $builderPage = get_page_by_path('armar-mi-viaje');
 $itinUrl    = $builderPage ? get_permalink($builderPage) : $searchUrl;
 $fest     = function ($n) { return (int) $n; };
 
-$hero_eyebrow  = get_theme_mod('tap_hero_eyebrow', __('Costa Rica, de verdad', 'travel-agency-platform'));
-$hero_title    = get_theme_mod('tap_hero_title', __('Descubrí lo que tu viaje puede ser', 'travel-agency-platform'));
-$hero_subtitle = get_theme_mod('tap_hero_subtitle', __('Tours, alojamientos y experiencias de agencias locales verificadas. Elegí tus intereses y armá tu propio itinerario.', 'travel-agency-platform'));
+$hero_eyebrow  = tap_lp_setting('hero', 'eyebrow', get_theme_mod('tap_hero_eyebrow', __('Costa Rica, de verdad', 'travel-agency-platform')));
+$hero_title    = tap_lp_setting('hero', 'title', get_theme_mod('tap_hero_title', __('Descubrí lo que tu viaje puede ser', 'travel-agency-platform')));
+$hero_subtitle = tap_lp_setting('hero', 'subtitle', get_theme_mod('tap_hero_subtitle', __('Tours, alojamientos y experiencias de agencias locales verificadas. Elegí tus intereses y armá tu propio itinerario.', 'travel-agency-platform')));
 $hero_video    = tap_media_url(get_theme_mod('tap_hero_video_url', ''));
 $hero_poster   = tap_media_url(get_theme_mod('tap_hero_video_poster', ''));
+$hero_bg_field = tap_lp_setting('hero', 'background', '');
 
 /*
  * Hero pool: when the admin registered several Pexels videos, one is picked
@@ -238,7 +245,7 @@ if (null !== $hero_pick) {
 }
 
 $hero_overlay  = (float) get_theme_mod('tap_hero_overlay_opacity', 0.4);
-$hero_search   = get_theme_mod('tap_hero_show_search', true);
+$hero_search   = tap_lp_setting('hero', 'show_search', get_theme_mod('tap_hero_show_search', true));
 if ($hero_overlay < 0) { $hero_overlay = 0; }
 if ($hero_overlay > 0.8) { $hero_overlay = 0.8; }
 
@@ -281,7 +288,7 @@ foreach ($pillarDefs as $pDef) {
     </video>
     <div class="tap-landing-hero-overlay" style="opacity:<?php echo esc_attr($hero_overlay); ?>"></div>
   <?php else: ?>
-    <div class="tap-hero-bg tap-landing-hero-bg" aria-hidden="true"></div>
+    <div class="tap-hero-bg tap-landing-hero-bg" aria-hidden="true"<?php if ($hero_bg_field): ?> style="background-image:url('<?php echo esc_url(tap_media_url($hero_bg_field)); ?>');background-size:cover;background-position:center"<?php endif; ?>></div>
   <?php endif; ?>
   <div class="tap-container tap-landing-hero-inner">
     <div class="tap-landing-hero-content">
@@ -397,7 +404,9 @@ foreach ($pillarDefs as $pDef) {
       <p class="tap-landing-eyebrow tap-landing-eyebrow-dark"><?php esc_html_e('Parques, reservas y pueblos', 'travel-agency-platform'); ?></p>
       <h2><?php esc_html_e('Explorá los destinos', 'travel-agency-platform'); ?></h2>
       <p class="tap-landing-sub"><?php esc_html_e('De los volcanes del norte a la península de Osa: guías editoriales con datos prácticos, biodiversidad y su ubicación exacta en el mapa.', 'travel-agency-platform'); ?></p>
+      <?php if (tap_lp_setting('destinations', 'show_map', true)): ?>
       <a class="tap-btn tap-btn-outline" href="<?php echo esc_url($destUrl); ?>"><?php esc_html_e('Explorar el mapa de destinos', 'travel-agency-platform'); ?></a>
+      <?php endif; ?>
     </div>
     <div class="tap-landing-dest-grid">
       <?php foreach ($spots as $spot): ?>
@@ -489,7 +498,7 @@ if ($featured_tour_ids) {
   <div class="tap-container">
     <div class="tap-landing-head">
       <p class="tap-landing-eyebrow tap-landing-eyebrow-dark"><?php esc_html_e('Hecho para viajeros reales', 'travel-agency-platform'); ?></p>
-      <h2><?php esc_html_e('Experiencias seleccionadas', 'travel-agency-platform'); ?></h2>
+      <h2><?php echo esc_html(tap_lp_setting('featured', 'title', __('Experiencias seleccionadas', 'travel-agency-platform'))); ?></h2>
       <p class="tap-landing-sub"><?php esc_html_e('Servicios publicados por agencias verificadas, con precio claro y reserva directa.', 'travel-agency-platform'); ?></p>
       <a class="tap-btn tap-btn-outline" href="<?php echo esc_url($searchUrl); ?>"><?php esc_html_e('Ver todas las experiencias', 'travel-agency-platform'); ?></a>
     </div>
@@ -668,7 +677,7 @@ if ($featured_tour_ids) {
   <div class="tap-container">
     <div class="tap-landing-head">
       <p class="tap-landing-eyebrow tap-landing-eyebrow-dark"><?php esc_html_e('Recién publicado', 'travel-agency-platform'); ?></p>
-      <h2><?php esc_html_e('Guías para planificar tu viaje', 'travel-agency-platform'); ?></h2>
+      <h2><?php echo esc_html(tap_lp_setting('blog', 'title', __('Guías para planificar tu viaje', 'travel-agency-platform'))); ?></h2>
       <p class="tap-landing-sub"><?php esc_html_e('Itinerarios, temporadas y consejos prácticos para viajar mejor por Costa Rica.', 'travel-agency-platform'); ?></p>
       <a class="tap-btn tap-btn-outline" href="<?php echo esc_url($blogUrl); ?>"><?php esc_html_e('Ver todas las guías', 'travel-agency-platform'); ?></a>
     </div>
@@ -728,10 +737,10 @@ if ($featured_tour_ids) {
 <section class="tap-section tap-landing-cta">
   <div class="tap-container">
     <div class="tap-landing-cta-card">
-      <h2><?php esc_html_e('¿Tenés una agencia de viajes?', 'travel-agency-platform'); ?></h2>
-      <p><?php esc_html_e('Sumá tus servicios a la plataforma y llegá a viajeros que buscan experiencias reales.', 'travel-agency-platform'); ?></p>
+      <h2><?php echo esc_html(tap_lp_setting('cta', 'title', __('¿Tenés una agencia de viajes?', 'travel-agency-platform'))); ?></h2>
+      <p><?php echo esc_html(tap_lp_setting('cta', 'description', __('Sumá tus servicios a la plataforma y llegá a viajeros que buscan experiencias reales.', 'travel-agency-platform'))); ?></p>
       <div class="tap-landing-cta-actions">
-        <a href="<?php echo esc_url(home_url('/register')); ?>" class="tap-btn tap-btn-lg tap-btn-primary"><?php esc_html_e('Registrar mi agencia', 'travel-agency-platform'); ?></a>
+        <a href="<?php echo esc_url(tap_lp_setting('cta', 'button_url', home_url('/register'))); ?>" class="tap-btn tap-btn-lg tap-btn-primary"><?php echo esc_html(tap_lp_setting('cta', 'button_text', __('Registrar mi agencia', 'travel-agency-platform'))); ?></a>
         <a href="<?php echo esc_url(home_url('/sobre-nosotros')); ?>" class="tap-btn tap-btn-lg tap-btn-ghost"><?php esc_html_e('Conocé más', 'travel-agency-platform'); ?></a>
       </div>
     </div>
