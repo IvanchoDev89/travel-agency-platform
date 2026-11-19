@@ -10,7 +10,23 @@ defined('ABSPATH') || exit;
 
 /** Educational FAQ shown on the landing page (and mirrored as FAQPage schema). */
 function tap_landing_faq_items() {
-    return [
+    // The builder can override the FAQ with one "Question | Answer" per line.
+    // Both the visible accordion and the JSON-LD call this function.
+    if (function_exists('tap_lp_setting')) {
+        $custom = (string) tap_lp_setting('faq', 'faq_text', '');
+        if ($custom !== '') {
+            $items = [];
+            foreach (preg_split('/\r\n|\r|\n/', $custom) as $line) {
+                $line = trim($line);
+                if ($line === '' || strpos($line, '|') === false) continue;
+                $parts = array_map('trim', explode('|', $line, 2));
+                if ($parts[0] === '' || $parts[1] === '') continue;
+                $items[] = ['q' => $parts[0], 'a' => $parts[1]];
+            }
+            if ($items) return $items;
+        }
+    }
+    $defaults = [
         [
             'q' => __('¿Cuál es la mejor época para visitar Costa Rica?', 'travel-agency-platform'),
             'a' => __('La temporada seca va de diciembre a abril: ideal para playas del Pacífico y actividades al aire libre. De mayo a noviembre el paisaje está verde y hay menos gente, con lluvias cortadas por la tarde. El Caribe tiene su propio ritmo: de septiembre a octubre suele ser su mejor momento.', 'travel-agency-platform'),
@@ -40,6 +56,7 @@ function tap_landing_faq_items() {
             'a' => __('Depende del estilo: en zonas turísticas consolidadas (Guacalillo, Tamarindo, La Fortuna) los precios se acercan a los del sur de Europa. Viajando en temporada media, comiendo en sodas locales y alojándote en cabañas o hostales, el costo baja notablemente sin renunciar a la experiencia.', 'travel-agency-platform'),
         ],
     ];
+    return $defaults;
 }
 
 /** Reading time estimate in minutes (min 1). */

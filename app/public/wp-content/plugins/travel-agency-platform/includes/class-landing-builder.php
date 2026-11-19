@@ -523,13 +523,55 @@ class TAP_Landing_Builder {
     /**
      * Render settings fields for a section type.
      */
+    /**
+     * Editable text fields per section type. Labels double as the admin
+     * field labels; theme defaults keep the current copy when unset.
+     */
+    public static function text_fields($type) {
+        $all = [
+            'eyebrow'     => __('Etiqueta superior', 'travel-agency-platform'),
+            'title'       => __('Título', 'travel-agency-platform'),
+            'subtitle'    => __('Subtítulo', 'travel-agency-platform'),
+            'button_text' => __('Texto del botón', 'travel-agency-platform'),
+            'button_url'  => __('URL del botón', 'travel-agency-platform'),
+        ];
+        $map = [
+            'hero'         => ['eyebrow', 'title', 'subtitle'],
+            'destinations' => ['eyebrow', 'title', 'subtitle', 'button_text'],
+            'interests'    => ['eyebrow', 'title', 'subtitle', 'button_text'],
+            'promoted'     => ['eyebrow', 'title', 'subtitle'],
+            'featured'     => ['eyebrow', 'title', 'subtitle', 'button_text'],
+            'pillars'      => ['eyebrow', 'title', 'subtitle'],
+            'referrals'    => ['eyebrow', 'title', 'subtitle', 'button_text'],
+            'agencies_cta' => ['eyebrow', 'title', 'subtitle', 'button_text'],
+            'itinerary'    => ['eyebrow', 'title', 'button_text'],
+            'agencies'     => ['eyebrow', 'title'],
+            'testimonials' => ['eyebrow', 'title'],
+            'blog'         => ['eyebrow', 'title', 'subtitle', 'button_text'],
+            'faq'          => ['eyebrow', 'title', 'subtitle'],
+            'cta'          => ['title', 'subtitle', 'button_text', 'button_url'],
+        ];
+        $out = [];
+        foreach (($map[$type] ?? []) as $key) {
+            $out[$key] = $all[$key];
+        }
+        return $out;
+    }
+
     public static function render_section_settings($type, $settings) {
+        $text_fields = self::text_fields($type);
+        foreach ($text_fields as $key => $label) {
+            $value = (string) ($settings[$key] ?? '');
+            if ($key === 'button_url') {
+                echo '<label>' . esc_html($label) . '</label><input type="url" name="button_url" value="' . esc_attr($value) . '" placeholder="https://…">';
+            } elseif ($key === 'subtitle') {
+                echo '<label>' . esc_html($label) . '</label><textarea name="subtitle" rows="2">' . esc_textarea($value) . '</textarea>';
+            } else {
+                echo '<label>' . esc_html($label) . '</label><input type="text" name="' . esc_attr($key) . '" value="' . esc_attr($value) . '">';
+            }
+        }
         switch ($type) {
             case 'hero':
-                echo '<label>' . esc_html__('Título', 'travel-agency-platform') . '</label>';
-                echo '<input type="text" name="title" value="' . esc_attr($settings['title'] ?? '') . '">';
-                echo '<label>' . esc_html__('Subtítulo', 'travel-agency-platform') . '</label>';
-                echo '<textarea name="subtitle" rows="2">' . esc_textarea($settings['subtitle'] ?? '') . '</textarea>';
                 echo '<label>' . esc_html__('Imagen de fondo', 'travel-agency-platform') . '</label>';
                 echo '<div class="tap-lb-media">';
                 echo '<input type="text" name="background" value="' . esc_attr($settings['background'] ?? '') . '" placeholder="https://…">';
@@ -538,28 +580,16 @@ class TAP_Landing_Builder {
                 echo '<label><input type="checkbox" name="show_search" value="1" ' . checked(1, $settings['show_search'] ?? 1, false) . '> ' . esc_html__('Mostrar buscador', 'travel-agency-platform') . '</label>';
                 break;
             case 'featured':
-                echo '<label>' . esc_html__('Título', 'travel-agency-platform') . '</label>';
-                echo '<input type="text" name="title" value="' . esc_attr($settings['title'] ?? '') . '">';
                 echo '<label>' . esc_html__('Cantidad', 'travel-agency-platform') . '</label>';
                 echo '<input type="number" name="count" value="' . esc_attr($settings['count'] ?? 6) . '" min="3" max="12">';
                 echo '<label>' . esc_html__('Modo', 'travel-agency-platform') . '</label>';
                 echo '<select name="mode"><option value="auto"' . selected('auto', $settings['mode'] ?? 'auto', false) . '>Automático (por rating)</option><option value="manual"' . selected('manual', $settings['mode'] ?? 'auto', false) . '>Manual</option></select>';
                 break;
             case 'blog':
-                echo '<label>' . esc_html__('Título', 'travel-agency-platform') . '</label>';
-                echo '<input type="text" name="title" value="' . esc_attr($settings['title'] ?? '') . '">';
                 echo '<label>' . esc_html__('Cantidad de posts', 'travel-agency-platform') . '</label>';
                 echo '<input type="number" name="count" value="' . esc_attr($settings['count'] ?? 3) . '" min="1" max="6">';
                 break;
             case 'cta':
-                echo '<label>' . esc_html__('Título', 'travel-agency-platform') . '</label>';
-                echo '<input type="text" name="title" value="' . esc_attr($settings['title'] ?? '') . '">';
-                echo '<label>' . esc_html__('Descripción', 'travel-agency-platform') . '</label>';
-                echo '<textarea name="description" rows="2">' . esc_textarea($settings['description'] ?? '') . '</textarea>';
-                echo '<label>' . esc_html__('Texto del botón', 'travel-agency-platform') . '</label>';
-                echo '<input type="text" name="button_text" value="' . esc_attr($settings['button_text'] ?? '') . '">';
-                echo '<label>' . esc_html__('URL del botón', 'travel-agency-platform') . '</label>';
-                echo '<input type="url" name="button_url" value="' . esc_attr($settings['button_url'] ?? '') . '">';
                 break;
             case 'newsletter':
                 echo '<label>' . esc_html__('Título', 'travel-agency-platform') . '</label>';
@@ -569,6 +599,10 @@ class TAP_Landing_Builder {
                 break;
             case 'destinations':
                 echo '<label><input type="checkbox" name="show_map" value="1" ' . checked(1, $settings['show_map'] ?? 1, false) . '> ' . esc_html__('Mostrar mapa', 'travel-agency-platform') . '</label>';
+                break;
+            case 'faq':
+                echo '<label>' . esc_html__('Preguntas (una por línea: Pregunta | Respuesta)', 'travel-agency-platform') . '</label>';
+                echo '<textarea name="faq_text" rows="6">' . esc_textarea($settings['faq_text'] ?? '') . '</textarea>';
                 break;
             default:
                 echo '<p class="description">' . esc_html__('Sin opciones adicionales.', 'travel-agency-platform') . '</p>';

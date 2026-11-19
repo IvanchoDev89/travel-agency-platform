@@ -401,11 +401,11 @@ foreach ($pillarDefs as $pDef) {
 <section class="tap-section tap-landing-destinations" id="destinos">
   <div class="tap-container">
     <div class="tap-landing-head">
-      <p class="tap-landing-eyebrow tap-landing-eyebrow-dark"><?php esc_html_e('Parques, reservas y pueblos', 'travel-agency-platform'); ?></p>
-      <h2><?php esc_html_e('Explorá los destinos', 'travel-agency-platform'); ?></h2>
-      <p class="tap-landing-sub"><?php esc_html_e('De los volcanes del norte a la península de Osa: guías editoriales con datos prácticos, biodiversidad y su ubicación exacta en el mapa.', 'travel-agency-platform'); ?></p>
+      <p class="tap-landing-eyebrow tap-landing-eyebrow-dark"><?php echo esc_html(tap_lp_setting('destinations', 'eyebrow', __('Parques, reservas y pueblos', 'travel-agency-platform'))); ?></p>
+      <h2><?php echo esc_html(tap_lp_setting('destinations', 'title', __('Explorá los destinos', 'travel-agency-platform'))); ?></h2>
+      <p class="tap-landing-sub"><?php echo esc_html(tap_lp_setting('destinations', 'subtitle', __('De los volcanes del norte a la península de Osa: guías editoriales con datos prácticos, biodiversidad y su ubicación exacta en el mapa.', 'travel-agency-platform'))); ?></p>
       <?php if (tap_lp_setting('destinations', 'show_map', true)): ?>
-      <a class="tap-btn tap-btn-outline" href="<?php echo esc_url($destUrl); ?>"><?php esc_html_e('Explorar el mapa de destinos', 'travel-agency-platform'); ?></a>
+      <a class="tap-btn tap-btn-outline" href="<?php echo esc_url($destUrl); ?>"><?php echo esc_html(tap_lp_setting('destinations', 'button_text', __('Explorar el mapa de destinos', 'travel-agency-platform'))); ?></a>
       <?php endif; ?>
     </div>
     <div class="tap-landing-dest-grid">
@@ -438,9 +438,9 @@ foreach ($pillarDefs as $pDef) {
 <section class="tap-section tap-landing-interests">
   <div class="tap-container">
     <div class="tap-landing-head">
-      <p class="tap-landing-eyebrow tap-landing-eyebrow-dark"><?php esc_html_e('Empezá por lo que te apasiona', 'travel-agency-platform'); ?></p>
-      <h2><?php esc_html_e('Explorá por interés', 'travel-agency-platform'); ?></h2>
-      <p class="tap-landing-sub"><?php esc_html_e('Aventura, naturaleza, gastronomía… cada interés abre una forma distinta de viajar por Costa Rica.', 'travel-agency-platform'); ?></p>
+      <p class="tap-landing-eyebrow tap-landing-eyebrow-dark"><?php echo esc_html(tap_lp_setting('interests', 'eyebrow', __('Empezá por lo que te apasiona', 'travel-agency-platform'))); ?></p>
+      <h2><?php echo esc_html(tap_lp_setting('interests', 'title', __('Explorá por interés', 'travel-agency-platform'))); ?></h2>
+      <p class="tap-landing-sub"><?php echo esc_html(tap_lp_setting('interests', 'subtitle', __('Aventura, naturaleza, gastronomía… cada interés abre una forma distinta de viajar por Costa Rica.', 'travel-agency-platform'))); ?></p>
     </div>
     <div class="tap-landing-chips">
       <?php foreach ($interests as $interest): ?>
@@ -449,7 +449,7 @@ foreach ($pillarDefs as $pDef) {
           <?php echo esc_html($interest->name); ?>
         </a>
       <?php endforeach; ?>
-      <a class="tap-landing-chip tap-landing-chip-all" href="<?php echo esc_url($searchUrl); ?>"><?php esc_html_e('Ver todo', 'travel-agency-platform'); ?></a>
+      <a class="tap-landing-chip tap-landing-chip-all" href="<?php echo esc_url($searchUrl); ?>"><?php echo esc_html(tap_lp_setting('interests', 'button_text', __('Ver todo', 'travel-agency-platform'))); ?></a>
     </div>
   </div>
 </section>
@@ -472,9 +472,9 @@ if ($featured_tour_ids) {
 <section class="tap-section tap-featured-tours">
   <div class="tap-container">
     <div class="tap-landing-head">
-      <p class="tap-landing-eyebrow"><?php esc_html_e('Patrocinado', 'travel-agency-platform'); ?></p>
-      <h2><?php esc_html_e('Tours destacados', 'travel-agency-platform'); ?></h2>
-      <p class="tap-landing-sub"><?php esc_html_e('Servicios promocionados por agencias verificadas.', 'travel-agency-platform'); ?></p>
+      <p class="tap-landing-eyebrow"><?php echo esc_html(tap_lp_setting('promoted', 'eyebrow', __('Patrocinado', 'travel-agency-platform'))); ?></p>
+      <h2><?php echo esc_html(tap_lp_setting('promoted', 'title', __('Tours destacados', 'travel-agency-platform'))); ?></h2>
+      <p class="tap-landing-sub"><?php echo esc_html(tap_lp_setting('promoted', 'subtitle', __('Servicios promocionados por agencias verificadas.', 'travel-agency-platform'))); ?></p>
     </div>
     <div class="tap-landing-xp-grid">
       <?php foreach ($featured_tours as $ft): ?>
@@ -497,10 +497,10 @@ if ($featured_tour_ids) {
 <section class="tap-section tap-section-alt tap-landing-experiences">
   <div class="tap-container">
     <div class="tap-landing-head">
-      <p class="tap-landing-eyebrow tap-landing-eyebrow-dark"><?php esc_html_e('Hecho para viajeros reales', 'travel-agency-platform'); ?></p>
+      <p class="tap-landing-eyebrow tap-landing-eyebrow-dark"><?php echo esc_html(tap_lp_setting('featured', 'eyebrow', __('Hecho para viajeros reales', 'travel-agency-platform'))); ?></p>
       <h2><?php echo esc_html(tap_lp_setting('featured', 'title', __('Experiencias seleccionadas', 'travel-agency-platform'))); ?></h2>
-      <p class="tap-landing-sub"><?php esc_html_e('Servicios publicados por agencias verificadas, con precio claro y reserva directa.', 'travel-agency-platform'); ?></p>
-      <a class="tap-btn tap-btn-outline" href="<?php echo esc_url($searchUrl); ?>"><?php esc_html_e('Ver todas las experiencias', 'travel-agency-platform'); ?></a>
+      <p class="tap-landing-sub"><?php echo esc_html(tap_lp_setting('featured', 'subtitle', __('Servicios publicados por agencias verificadas, con precio claro y reserva directa.', 'travel-agency-platform'))); ?></p>
+      <a class="tap-btn tap-btn-outline" href="<?php echo esc_url($searchUrl); ?>"><?php echo esc_html(tap_lp_setting('featured', 'button_text', __('Ver todas las experiencias', 'travel-agency-platform'))); ?></a>
     </div>
     <div class="tap-landing-xp-grid">
       <?php foreach ($experiences as $xp): $suffix = $priceSuffix[$xp['type']] ?? ''; ?>
@@ -540,9 +540,9 @@ if ($featured_tour_ids) {
 <section class="tap-section tap-landing-pillars">
   <div class="tap-container">
     <div class="tap-landing-head">
-      <p class="tap-landing-eyebrow tap-landing-eyebrow-dark"><?php esc_html_e('Antes de armar la maleta', 'travel-agency-platform'); ?></p>
-      <h2><?php esc_html_e('Todo lo que querés saber de Costa Rica', 'travel-agency-platform'); ?></h2>
-      <p class="tap-landing-sub"><?php esc_html_e('Guías escritas con información local: la mejor época, presupuestos reales y cómo moverse pueblo por pueblo.', 'travel-agency-platform'); ?></p>
+      <p class="tap-landing-eyebrow tap-landing-eyebrow-dark"><?php echo esc_html(tap_lp_setting('pillars', 'eyebrow', __('Antes de armar la maleta', 'travel-agency-platform'))); ?></p>
+      <h2><?php echo esc_html(tap_lp_setting('pillars', 'title', __('Todo lo que querés saber de Costa Rica', 'travel-agency-platform'))); ?></h2>
+      <p class="tap-landing-sub"><?php echo esc_html(tap_lp_setting('pillars', 'subtitle', __('Guías escritas con información local: la mejor época, presupuestos reales y cómo moverse pueblo por pueblo.', 'travel-agency-platform'))); ?></p>
     </div>
     <div class="tap-landing-pillar-grid">
       <?php foreach ($pillars as $pillar): ?>
@@ -565,12 +565,12 @@ if ($featured_tour_ids) {
 <section class="tap-section tap-landing-referrals">
   <div class="tap-container">
     <div class="tap-landing-head">
-      <p class="tap-landing-eyebrow"><?php esc_html_e('Invita y gana', 'travel-agency-platform'); ?></p>
-      <h2><?php esc_html_e('Comparte tu viaje y gana puntos', 'travel-agency-platform'); ?></h2>
-      <p class="tap-landing-sub"><?php esc_html_e('Cada amigo que reserve con tu código te da puntos canjeables por descuentos. Sin límites.', 'travel-agency-platform'); ?></p>
+      <p class="tap-landing-eyebrow"><?php echo esc_html(tap_lp_setting('referrals', 'eyebrow', __('Invita y gana', 'travel-agency-platform'))); ?></p>
+      <h2><?php echo esc_html(tap_lp_setting('referrals', 'title', __('Comparte tu viaje y gana puntos', 'travel-agency-platform'))); ?></h2>
+      <p class="tap-landing-sub"><?php echo esc_html(tap_lp_setting('referrals', 'subtitle', __('Cada amigo que reserve con tu código te da puntos canjeables por descuentos. Sin límites.', 'travel-agency-platform'))); ?></p>
     </div>
     <div style="text-align:center;margin-top:24px;">
-      <a class="tap-btn tap-btn-primary tap-btn-lg" href="<?php echo esc_url(home_url('/invita-y-gana/')); ?>"><?php esc_html_e('Ver mi código de referido', 'travel-agency-platform'); ?></a>
+      <a class="tap-btn tap-btn-primary tap-btn-lg" href="<?php echo esc_url(home_url('/invita-y-gana/')); ?>"><?php echo esc_html(tap_lp_setting('referrals', 'button_text', __('Ver mi código de referido', 'travel-agency-platform'))); ?></a>
     </div>
   </div>
 </section>
@@ -580,12 +580,12 @@ if ($featured_tour_ids) {
 <section class="tap-section tap-section-alt tap-landing-agencies-cta">
   <div class="tap-container">
     <div class="tap-landing-head">
-      <p class="tap-landing-eyebrow"><?php esc_html_e('Para agencias', 'travel-agency-platform'); ?></p>
-      <h2><?php esc_html_e('Publica tus tours y recibe reservas', 'travel-agency-platform'); ?></h2>
-      <p class="tap-landing-sub"><?php esc_html_e('Dashboard completo, comisiones escalonadas, referidos y destacados pagados.', 'travel-agency-platform'); ?></p>
+      <p class="tap-landing-eyebrow"><?php echo esc_html(tap_lp_setting('agencies_cta', 'eyebrow', __('Para agencias', 'travel-agency-platform'))); ?></p>
+      <h2><?php echo esc_html(tap_lp_setting('agencies_cta', 'title', __('Publica tus tours y recibe reservas', 'travel-agency-platform'))); ?></h2>
+      <p class="tap-landing-sub"><?php echo esc_html(tap_lp_setting('agencies_cta', 'subtitle', __('Dashboard completo, comisiones escalonadas, referidos y destacados pagados.', 'travel-agency-platform'))); ?></p>
     </div>
     <div style="text-align:center;margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-      <a class="tap-btn tap-btn-primary tap-btn-lg" href="<?php echo esc_url(home_url('/register/')); ?>"><?php esc_html_e('Registrar mi agencia', 'travel-agency-platform'); ?></a>
+      <a class="tap-btn tap-btn-primary tap-btn-lg" href="<?php echo esc_url(home_url('/register/')); ?>"><?php echo esc_html(tap_lp_setting('agencies_cta', 'button_text', __('Registrar mi agencia', 'travel-agency-platform'))); ?></a>
       <a class="tap-btn tap-btn-outline tap-btn-lg" href="<?php echo esc_url(home_url('/planes/')); ?>"><?php esc_html_e('Ver planes', 'travel-agency-platform'); ?></a>
     </div>
   </div>
@@ -597,14 +597,14 @@ if ($featured_tour_ids) {
   <div class="tap-container">
     <div class="tap-landing-itinerary-card">
       <div class="tap-landing-itinerary-copy">
-        <p class="tap-landing-eyebrow"><?php esc_html_e('Tu itinerario, tu forma de viajar', 'travel-agency-platform'); ?></p>
-        <h2><?php esc_html_e('Diseñá tu propio viaje en 3 pasos', 'travel-agency-platform'); ?></h2>
+        <p class="tap-landing-eyebrow"><?php echo esc_html(tap_lp_setting('itinerary', 'eyebrow', __('Tu itinerario, tu forma de viajar', 'travel-agency-platform'))); ?></p>
+        <h2><?php echo esc_html(tap_lp_setting('itinerary', 'title', __('Diseñá tu propio viaje en 3 pasos', 'travel-agency-platform'))); ?></h2>
         <ol class="tap-landing-itinerary-steps">
           <li><?php esc_html_e('Elegí tus intereses, destinos y presupuesto.', 'travel-agency-platform'); ?></li>
           <li><?php esc_html_e('Armá tu plan día a día con tours y alojamientos reales.', 'travel-agency-platform'); ?></li>
           <li><?php esc_html_e('Pedí tu cotización y reservá directo con la agencia.', 'travel-agency-platform'); ?></li>
         </ol>
-        <a class="tap-btn tap-btn-lg tap-btn-secondary" href="<?php echo esc_url($itinUrl); ?>"><?php esc_html_e('Comenzar mi itinerario', 'travel-agency-platform'); ?></a>
+        <a class="tap-btn tap-btn-lg tap-btn-secondary" href="<?php echo esc_url($itinUrl); ?>"><?php echo esc_html(tap_lp_setting('itinerary', 'button_text', __('Comenzar mi itinerario', 'travel-agency-platform'))); ?></a>
       </div>
       <div class="tap-landing-itinerary-art" aria-hidden="true">
         <div class="tap-landing-itinerary-art-inner">
@@ -623,8 +623,8 @@ if ($featured_tour_ids) {
 <section class="tap-section tap-landing-agencies">
   <div class="tap-container">
     <div class="tap-landing-head">
-      <p class="tap-landing-eyebrow tap-landing-eyebrow-dark"><?php esc_html_e('Gente local, servicios reales', 'travel-agency-platform'); ?></p>
-      <h2><?php esc_html_e('Agencias verificadas en la plataforma', 'travel-agency-platform'); ?></h2>
+      <p class="tap-landing-eyebrow tap-landing-eyebrow-dark"><?php echo esc_html(tap_lp_setting('agencies', 'eyebrow', __('Gente local, servicios reales', 'travel-agency-platform'))); ?></p>
+      <h2><?php echo esc_html(tap_lp_setting('agencies', 'title', __('Agencias verificadas en la plataforma', 'travel-agency-platform'))); ?></h2>
     </div>
     <div class="tap-landing-agency-grid">
       <?php foreach ($agenciesClean as $ag):
@@ -654,8 +654,8 @@ if ($featured_tour_ids) {
 <section class="tap-section tap-section-alt tap-landing-reviews">
   <div class="tap-container">
     <div class="tap-landing-head">
-      <p class="tap-landing-eyebrow tap-landing-eyebrow-dark"><?php esc_html_e('Lo que dicen los viajeros', 'travel-agency-platform'); ?></p>
-      <h2><?php esc_html_e('Experiencias de quienes ya viajaron', 'travel-agency-platform'); ?></h2>
+      <p class="tap-landing-eyebrow tap-landing-eyebrow-dark"><?php echo esc_html(tap_lp_setting('testimonials', 'eyebrow', __('Lo que dicen los viajeros', 'travel-agency-platform'))); ?></p>
+      <h2><?php echo esc_html(tap_lp_setting('testimonials', 'title', __('Experiencias de quienes ya viajaron', 'travel-agency-platform'))); ?></h2>
     </div>
     <div class="tap-landing-review-grid">
       <?php foreach ($testimonials as $testi): ?>
@@ -676,10 +676,10 @@ if ($featured_tour_ids) {
 <section class="tap-section tap-section-alt tap-landing-articles">
   <div class="tap-container">
     <div class="tap-landing-head">
-      <p class="tap-landing-eyebrow tap-landing-eyebrow-dark"><?php esc_html_e('Recién publicado', 'travel-agency-platform'); ?></p>
+      <p class="tap-landing-eyebrow tap-landing-eyebrow-dark"><?php echo esc_html(tap_lp_setting('blog', 'eyebrow', __('Recién publicado', 'travel-agency-platform'))); ?></p>
       <h2><?php echo esc_html(tap_lp_setting('blog', 'title', __('Guías para planificar tu viaje', 'travel-agency-platform'))); ?></h2>
-      <p class="tap-landing-sub"><?php esc_html_e('Itinerarios, temporadas y consejos prácticos para viajar mejor por Costa Rica.', 'travel-agency-platform'); ?></p>
-      <a class="tap-btn tap-btn-outline" href="<?php echo esc_url($blogUrl); ?>"><?php esc_html_e('Ver todas las guías', 'travel-agency-platform'); ?></a>
+      <p class="tap-landing-sub"><?php echo esc_html(tap_lp_setting('blog', 'subtitle', __('Itinerarios, temporadas y consejos prácticos para viajar mejor por Costa Rica.', 'travel-agency-platform'))); ?></p>
+      <a class="tap-btn tap-btn-outline" href="<?php echo esc_url($blogUrl); ?>"><?php echo esc_html(tap_lp_setting('blog', 'button_text', __('Ver todas las guías', 'travel-agency-platform'))); ?></a>
     </div>
     <div class="tap-landing-article-grid">
       <?php foreach ($articles as $art): ?>
@@ -711,9 +711,9 @@ if ($featured_tour_ids) {
 <section class="tap-section tap-landing-faq" id="preguntas">
   <div class="tap-container tap-landing-faq-wrap">
     <div class="tap-landing-head">
-      <p class="tap-landing-eyebrow tap-landing-eyebrow-dark"><?php esc_html_e('Resolvé tus dudas', 'travel-agency-platform'); ?></p>
-      <h2><?php esc_html_e('Preguntas frecuentes sobre viajar a Costa Rica', 'travel-agency-platform'); ?></h2>
-      <p class="tap-landing-sub"><?php esc_html_e('Lo que más nos preguntan, respondido con información actualizada y experiencia local.', 'travel-agency-platform'); ?></p>
+      <p class="tap-landing-eyebrow tap-landing-eyebrow-dark"><?php echo esc_html(tap_lp_setting('faq', 'eyebrow', __('Resolvé tus dudas', 'travel-agency-platform'))); ?></p>
+      <h2><?php echo esc_html(tap_lp_setting('faq', 'title', __('Preguntas frecuentes sobre viajar a Costa Rica', 'travel-agency-platform'))); ?></h2>
+      <p class="tap-landing-sub"><?php echo esc_html(tap_lp_setting('faq', 'subtitle', __('Lo que más nos preguntan, respondido con información actualizada y experiencia local.', 'travel-agency-platform'))); ?></p>
     </div>
     <div class="tap-landing-faq-list">
       <?php foreach ($faqItems as $faqIndex => $faqItem): ?>
@@ -738,7 +738,7 @@ if ($featured_tour_ids) {
   <div class="tap-container">
     <div class="tap-landing-cta-card">
       <h2><?php echo esc_html(tap_lp_setting('cta', 'title', __('¿Tenés una agencia de viajes?', 'travel-agency-platform'))); ?></h2>
-      <p><?php echo esc_html(tap_lp_setting('cta', 'description', __('Sumá tus servicios a la plataforma y llegá a viajeros que buscan experiencias reales.', 'travel-agency-platform'))); ?></p>
+      <p><?php echo esc_html(tap_lp_setting('cta', 'subtitle', tap_lp_setting('cta', 'description', __('Sumá tus servicios a la plataforma y llegá a viajeros que buscan experiencias reales.', 'travel-agency-platform')))); ?></p>
       <div class="tap-landing-cta-actions">
         <a href="<?php echo esc_url(tap_lp_setting('cta', 'button_url', home_url('/register'))); ?>" class="tap-btn tap-btn-lg tap-btn-primary"><?php echo esc_html(tap_lp_setting('cta', 'button_text', __('Registrar mi agencia', 'travel-agency-platform'))); ?></a>
         <a href="<?php echo esc_url(home_url('/sobre-nosotros')); ?>" class="tap-btn tap-btn-lg tap-btn-ghost"><?php esc_html_e('Conocé más', 'travel-agency-platform'); ?></a>
