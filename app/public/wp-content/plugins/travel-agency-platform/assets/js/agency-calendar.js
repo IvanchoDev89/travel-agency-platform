@@ -32,7 +32,7 @@
     function escapeHtml(s) {
         var d = document.createElement('div');
         d.textContent = s == null ? '' : String(s);
-        return d.innerHTML;
+        return d.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
     function t(key, fallback) { return i18n[key] != null ? i18n[key] : fallback; }

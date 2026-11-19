@@ -250,4 +250,22 @@ tap_t_assert(false !== strpos($public_src, "\$_POST['tap_hp']"), 'Q&A checks the
 $collab_src = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-itinerary-collab.php');
 tap_t_assert(false !== strpos($collab_src, "\$params['tap_hp']"), 'itinerary comments check the honeypot');
 
+// ===== R. Security fixes: XSS, SSRF, IDOR, privacy ==========================
+$seo_src = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-seo.php');
+tap_t_assert(false !== strpos($seo_src, 'JSON_HEX_TAG'), 'JSON-LD escapes < to block </script> injection');
+tap_t_assert(false === strpos($seo_src, 'JSON_UNESCAPED_SLASHES'), 'JSON-LD no longer leaves raw slashes');
+$spots_src = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-destination-spots.php');
+tap_t_assert(false !== strpos($spots_src, "wp_kses_post((string) get_post_meta(\$post->ID, '_tap_spot_photo_credit'"), 'map photo credit is sanitized but keeps links');
+$emails_src = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-emails.php');
+tap_t_assert(false !== strpos($emails_src, 'to_hash=') && false === strpos($emails_src, "'TAP email failed: to=%s"), 'mail failures log hashes, not PII');
+$push_src = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-push.php');
+tap_t_assert(false !== strpos($push_src, 'safe_endpoint(') && false !== strpos($push_src, "TAP_ICal_Import::is_safe_url"), 'push endpoints validated at subscribe and send');
+$trans_src = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-transport.php');
+tap_t_assert(false !== strpos($trans_src, "owns_booking") && false !== strpos($trans_src, "'passengers' => \$passengers"), 'transport live checks trip ownership');
+$ical_src = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-ical.php');
+tap_t_assert(false === strpos($ical_src, "'UID:booking-'"), 'public iCal feed does not leak booking codes');
+$dash_src = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-ajax-dash.php');
+tap_t_assert(2 === substr_count($dash_src, 'caller_is_agency_member'), 'client-chat dash endpoints reject agency members');
+tap_t_assert(method_exists('TAP_Ajax', 'caller_is_agency_member'), 'agency-member helper is publicly reusable');
+
 tap_t_finish();

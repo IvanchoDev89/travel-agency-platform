@@ -493,6 +493,9 @@ continue;
         if (!$booking) {
             wp_send_json_error(['message' => __('Reserva no encontrada.', 'travel-agency-platform')], 404);
         }
+        if (class_exists('TAP_Ajax') && TAP_Ajax::caller_is_agency_member($user->ID)) {
+            wp_send_json_error(['message' => __('Usa el panel de la agencia para responder en el chat.', 'travel-agency-platform')], 403);
+        }
         list($ok, $name) = TAP_Chat::can_client_chat($booking, $user->ID);
         if (!$ok) {
             wp_send_json_error(['message' => __('No tienes permiso sobre esta reserva.', 'travel-agency-platform')], 403);
@@ -523,6 +526,9 @@ continue;
         $booking = $booking_id ? TAP_Booking::get_booking($booking_id) : null;
         if (!$booking) {
             wp_send_json_error(['message' => __('Reserva no encontrada.', 'travel-agency-platform')], 404);
+        }
+        if (class_exists('TAP_Ajax') && TAP_Ajax::caller_is_agency_member($user->ID)) {
+            wp_send_json_error(['message' => __('Usa el panel de la agencia para responder en el chat.', 'travel-agency-platform')], 403);
         }
         list($ok, $name) = TAP_Chat::can_client_chat($booking, $user->ID);
         if (!$ok) {

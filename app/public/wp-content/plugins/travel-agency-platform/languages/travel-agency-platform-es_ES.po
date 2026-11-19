@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-19T18:53:16+00:00\n"
+"POT-Creation-Date: 2026-11-19T19:19:26+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -1581,7 +1581,7 @@ msgid "Guarda el paso 1"
 msgstr "Guarda el paso 1"
 
 #: includes/class-acc-wizard.php:185 includes/class-tour-wizard.php:212
-#: includes/class-transport.php:508
+#: includes/class-transport.php:527
 msgid "Completado"
 msgstr "Completado"
 
@@ -1609,7 +1609,7 @@ msgstr ""
 msgid "Ir a: %s"
 msgstr "Ir a: %s"
 
-#: includes/class-acc-wizard.php:255 includes/class-emails.php:170
+#: includes/class-acc-wizard.php:255 includes/class-emails.php:172
 #: includes/class-tour-wizard.php:282
 msgid "¿Necesitas ayuda?"
 msgstr "¿Necesitas ayuda?"
@@ -1737,7 +1737,7 @@ msgstr "Tope por reserva"
 #: includes/class-transport-admin.php:167
 #: includes/class-transport-admin.php:234
 #: includes/class-transport-admin.php:253
-#: includes/class-transport-admin.php:377 includes/class-transport.php:410
+#: includes/class-transport-admin.php:377 includes/class-transport.php:429
 msgid "Estado"
 msgstr "Estado"
 
@@ -1748,7 +1748,7 @@ msgstr "Pendiente (revisión)"
 #: includes/class-affiliates.php:244 includes/class-coupons.php:175
 #: includes/class-coupons.php:189 includes/class-listing-editor.php:174
 #: includes/class-metaboxes.php:96 includes/class-transport-admin.php:141
-#: includes/class-transport-admin.php:236 includes/class-transport.php:409
+#: includes/class-transport-admin.php:236 includes/class-transport.php:428
 msgid "Activo"
 msgstr "Activo"
 
@@ -2054,7 +2054,7 @@ msgstr "No se pudo crear la sesión de pago de Onvo."
 #: includes/class-ajax-dash.php:277 includes/class-ajax-dash.php:308
 #: includes/class-ajax-dash.php:390 includes/class-ajax-dash.php:411
 #: includes/class-ajax-dash.php:432 includes/class-ajax-dash.php:489
-#: includes/class-ajax-dash.php:520 includes/class-ajax-public.php:59
+#: includes/class-ajax-dash.php:523 includes/class-ajax-public.php:59
 #: includes/class-ajax-public.php:88
 msgid "No autenticado."
 msgstr "No autenticado."
@@ -2078,8 +2078,8 @@ msgid "Solicitud de liquidación enviada al administrador."
 msgstr "Solicitud de liquidación enviada al administrador."
 
 #: includes/class-ajax-dash.php:42 includes/class-ajax-dash.php:92
-#: includes/class-ajax-dash.php:494 includes/class-ajax-dash.php:525
-#: includes/class-ajax-dash.php:557 includes/class-ajax.php:201
+#: includes/class-ajax-dash.php:494 includes/class-ajax-dash.php:528
+#: includes/class-ajax-dash.php:563 includes/class-ajax.php:201
 #: includes/class-ajax.php:251 includes/class-ajax.php:515
 #: includes/class-booking.php:674 includes/class-booking.php:688
 #: includes/class-booking.php:694 includes/class-booking.php:838
@@ -2093,7 +2093,7 @@ msgstr "Reserva no encontrada."
 
 #: includes/class-ajax-dash.php:45 includes/class-ajax-dash.php:51
 #: includes/class-ajax-dash.php:95 includes/class-ajax-dash.php:101
-#: includes/class-ajax-dash.php:498 includes/class-ajax-dash.php:529
+#: includes/class-ajax-dash.php:501 includes/class-ajax-dash.php:535
 #: includes/class-ajax.php:257 includes/class-booking.php:850
 #: includes/class-booking.php:868
 msgid "No tienes permiso sobre esta reserva."
@@ -2131,10 +2131,11 @@ msgstr "Sin agencia vinculada."
 msgid "Procesadas: %d OK, %d con error."
 msgstr "Procesadas: %d OK, %d con error."
 
-#: includes/class-ajax-dash.php:190 includes/class-ajax-dash.php:575
+#: includes/class-ajax-dash.php:190 includes/class-ajax-dash.php:581
 #: includes/class-ajax-public.php:75 includes/class-ajax.php:521
 #: includes/class-landing-builder.php:721 includes/class-transport.php:303
 #: includes/class-transport.php:324 includes/class-transport.php:341
+#: includes/class-transport.php:368
 msgid "Sin permiso."
 msgstr "Sin permiso."
 
@@ -2224,13 +2225,18 @@ msgstr "La contraseña debe tener al menos 8 caracteres."
 msgid "Las contraseñas no coinciden."
 msgstr "Las contraseñas no coinciden."
 
-#: includes/class-ajax-dash.php:534 includes/class-chat.php:49
+#: includes/class-ajax-dash.php:497 includes/class-ajax-dash.php:531
+#: includes/class-ajax.php:214
+msgid "Usa el panel de la agencia para responder en el chat."
+msgstr "Usa el panel de la agencia para responder en el chat."
+
+#: includes/class-ajax-dash.php:540 includes/class-chat.php:49
 #: includes/class-chat.php:180 includes/class-chat.php:186
 #: includes/class-dashboard-money.php:593
 msgid "Huésped"
 msgstr "Huésped"
 
-#: includes/class-ajax-dash.php:549
+#: includes/class-ajax-dash.php:555
 msgid "Código inválido."
 msgstr "Código inválido."
 
@@ -2311,7 +2317,7 @@ msgstr "Enviado a revisión. Un administrador lo aprobará y quedará visible."
 
 #: includes/class-ajax-listing.php:541 includes/class-ajax-public.php:441
 #: includes/class-booking.php:698 includes/class-booking.php:833
-#: includes/class-transport.php:370
+#: includes/class-transport.php:389
 msgid "Debes iniciar sesión."
 msgstr "Debes iniciar sesión."
 
@@ -2491,10 +2497,6 @@ msgstr "Reserva inválida."
 msgid "Tu reserva ha sido cancelada."
 msgstr "Tu reserva ha sido cancelada."
 
-#: includes/class-ajax.php:214
-msgid "Usa el panel de la agencia para responder en el chat."
-msgstr "Usa el panel de la agencia para responder en el chat."
-
 #: includes/class-ajax.php:218
 msgid "No tienes permiso para escribir aquí."
 msgstr "No tienes permiso para escribir aquí."
@@ -2506,7 +2508,8 @@ msgstr "Verifica el correo de la reserva para escribir."
 #: includes/class-ajax.php:226
 msgid ""
 "Estás enviando mensajes muy rápido. Esperá unos minutos e intentá de nuevo."
-msgstr "Estás enviando mensajes muy rápido. Esperá unos minutos e intentá de nuevo."
+msgstr ""
+"Estás enviando mensajes muy rápido. Esperá unos minutos e intentá de nuevo."
 
 #: includes/class-ajax.php:284
 msgid "Unauthorized"
@@ -2712,7 +2715,7 @@ msgid "Cédula jurídica"
 msgstr "Cédula jurídica"
 
 #: includes/class-automations.php:204 includes/class-dashboard-market.php:176
-#: includes/class-dashboard-market.php:202 includes/class-emails.php:683
+#: includes/class-dashboard-market.php:202 includes/class-emails.php:685
 #: includes/class-front-dash.php:1508
 msgid "Plan"
 msgstr "Plan"
@@ -3456,7 +3459,7 @@ msgstr "Cliente"
 #: includes/class-dashboard-content.php:77
 #: includes/class-dashboard-market.php:68
 #: includes/class-dashboard-market.php:110 includes/class-emails-send.php:773
-#: includes/class-emails.php:706 includes/class-front-dash-client.php:218
+#: includes/class-emails.php:708 includes/class-front-dash-client.php:218
 #: includes/class-front-dash.php:507 includes/class-front-dash.php:977
 #: includes/class-front-dash.php:1640 includes/class-front-dash.php:1683
 #: includes/class-invoices.php:125 includes/class-privacy.php:386
@@ -9500,11 +9503,11 @@ msgstr "Cancelación o modificación"
 msgid "Otro"
 msgstr "Otro"
 
-#: includes/class-disputes.php:35 includes/class-emails.php:375
+#: includes/class-disputes.php:35 includes/class-emails.php:377
 msgid "Disputa abierta"
 msgstr "Disputa abierta"
 
-#: includes/class-disputes.php:36 includes/class-emails.php:396
+#: includes/class-disputes.php:36 includes/class-emails.php:398
 msgid "Resuelta a favor de la agencia"
 msgstr "Resuelta a favor de la agencia"
 
@@ -10122,7 +10125,7 @@ msgstr "Alquiler de auto"
 
 #: includes/class-emails-send.php:775 includes/class-metaboxes.php:1351
 #: includes/class-shortcode-booking.php:998
-#: includes/class-shortcode-search.php:40 includes/class-transport.php:457
+#: includes/class-shortcode-search.php:40 includes/class-transport.php:476
 msgid "Check-in"
 msgstr "Entrada"
 
@@ -10154,13 +10157,13 @@ msgid "Notificación interna"
 msgstr "Notificación interna"
 
 #. translators: %s: nombre de la agencia
-#: includes/class-emails.php:89
+#: includes/class-emails.php:91
 #, php-format
 msgid "Bienvenido, %s!"
 msgstr "Bienvenido, %s!"
 
 #. translators: 1: nombre de la agencia, 2: enlace al panel de agencia
-#: includes/class-emails.php:92
+#: includes/class-emails.php:94
 #, php-format
 msgid ""
 "Tu agencia <strong>%s</strong> ha sido registrada y ahora está <strong>en "
@@ -10175,23 +10178,23 @@ msgstr ""
 "podrás publicar tus servicios y recibir reservas. Accede a tu <a href=\"%s\" "
 "style=\"color:#0d9488;\">panel de agencia</a> para adelantar tus listados."
 
-#: includes/class-emails.php:100 includes/class-front-dash.php:281
+#: includes/class-emails.php:102 includes/class-front-dash.php:281
 #: includes/class-listing-editor.php:32
 msgid "Tu agencia está en revisión"
 msgstr "Tu agencia está en revisión"
 
 #. translators: %s: nombre de la agencia
-#: includes/class-emails.php:123
+#: includes/class-emails.php:125
 #, php-format
 msgid "[Aprobar agencia] %s"
 msgstr "[Aprobar agencia] %s"
 
-#: includes/class-emails.php:125
+#: includes/class-emails.php:127
 msgid "Nueva agencia pendiente de aprobación"
 msgstr "Nueva agencia pendiente de aprobación"
 
 #. translators: 1: nombre de la agencia, 2: correo del usuario registrador, 3: resumen del estado del KYC, 4: enlace al panel de agencias
-#: includes/class-emails.php:128
+#: includes/class-emails.php:130
 #, php-format
 msgid ""
 "La agencia <strong>%s</strong> (%s) se registró y espera la verificación de "
@@ -10202,11 +10205,11 @@ msgstr ""
 "sus datos.<br>KYC: %s<br><br><a href=\"%s\" style=\"color:#0d9488;\">Revisar "
 "en el panel de agencias</a>."
 
-#: includes/class-emails.php:145
+#: includes/class-emails.php:147
 msgid "Primer paso: crea tu primer tour"
 msgstr "Primer paso: crea tu primer tour"
 
-#: includes/class-emails.php:147
+#: includes/class-emails.php:149
 #, php-format
 msgid ""
 "Hola %s, ya puedes empezar a preparar tus listados. Crea tu primer tour "
@@ -10217,11 +10220,11 @@ msgstr ""
 "desde tu panel y añade fotos, precios y disponibilidad. Cuando tu agencia "
 "sea aprobada, estará listo para publicar."
 
-#: includes/class-emails.php:159
+#: includes/class-emails.php:161
 msgid "Configura tus precios y disponibilidad"
 msgstr "Configura tus precios y disponibilidad"
 
-#: includes/class-emails.php:160
+#: includes/class-emails.php:162
 msgid ""
 "Recuerda definir precios por persona, capacidad y salidas recurrentes. Sin "
 "fechas disponibles, tu tour no podrá recibir reservas."
@@ -10229,7 +10232,7 @@ msgstr ""
 "Recuerda definir precios por persona, capacidad y salidas recurrentes. Sin "
 "fechas disponibles, tu tour no podrá recibir reservas."
 
-#: includes/class-emails.php:171
+#: includes/class-emails.php:173
 msgid ""
 "Si tienes dudas sobre cómo publicar tu primer tour, responde a este correo o "
 "visita tu panel. Estamos aquí para ayudarte."
@@ -10237,18 +10240,18 @@ msgstr ""
 "Si tienes dudas sobre cómo publicar tu primer tour, responde a este correo o "
 "visita tu panel. Estamos aquí para ayudarte."
 
-#: includes/class-emails.php:182
+#: includes/class-emails.php:184
 msgid "¡Tu agencia fue aprobada!"
 msgstr "¡Tu agencia fue aprobada!"
 
 #. translators: %s: nombre de la agencia
-#: includes/class-emails.php:185
+#: includes/class-emails.php:187
 #, php-format
 msgid "Aprobada — %s"
 msgstr "Aprobada — %s"
 
 #. translators: 1: nombre de la agencia, 2: enlace al panel de agencia
-#: includes/class-emails.php:188
+#: includes/class-emails.php:190
 #, php-format
 msgid ""
 "Tu agencia <strong>%s</strong> fue aprobada y ya es visible para los "
@@ -10259,18 +10262,18 @@ msgstr ""
 "viajeros.<br><br>Ya puedes publicar servicios y recibir reservas desde tu <a "
 "href=\"%s\" style=\"color:#0d9488;\">panel de agencia</a>."
 
-#: includes/class-emails.php:203 includes/class-front-dash.php:285
+#: includes/class-emails.php:205 includes/class-front-dash.php:285
 msgid "Tu agencia no fue aprobada"
 msgstr "Tu agencia no fue aprobada"
 
 #. translators: %s: nombre de la agencia
-#: includes/class-emails.php:206
+#: includes/class-emails.php:208
 #, php-format
 msgid "Agencia en revisión — %s"
 msgstr "Agencia en revisión — %s"
 
 #. translators: 1: nombre de la agencia, 2: enlace de contacto de soporte
-#: includes/class-emails.php:209
+#: includes/class-emails.php:211
 #, php-format
 msgid ""
 "Lamentablemente tu agencia <strong>%s</strong> no fue aprobada en esta "
@@ -10284,13 +10287,13 @@ msgstr ""
 "volver a intentarlo."
 
 #. translators: %s: nombre de la agencia
-#: includes/class-emails.php:227
+#: includes/class-emails.php:229
 #, php-format
 msgid "Liquidación registrada — %s"
 msgstr "Liquidación registrada — %s"
 
 #. translators: 1: importe de la liquidación, 2: identificador de la liquidación
-#: includes/class-emails.php:230
+#: includes/class-emails.php:232
 #, php-format
 msgid ""
 "Hemos registrado una liquidación de comisiones por <strong>%s</strong> "
@@ -10301,48 +10304,48 @@ msgstr ""
 "(referencia #%d).<br><br>Los montos ya figuran como cobrados en tu panel de "
 "agencia. Si necesitas el comprobante, contacta a soporte."
 
-#: includes/class-emails.php:234
+#: includes/class-emails.php:236
 msgid "Liquidación de comisiones"
 msgstr "Liquidación de comisiones"
 
-#: includes/class-emails.php:248
+#: includes/class-emails.php:250
 msgid "Nuevo mensaje de contacto"
 msgstr "Nuevo mensaje de contacto"
 
 #. translators: %s: nombre de quien envió el mensaje
-#: includes/class-emails.php:251
+#: includes/class-emails.php:253
 #, php-format
 msgid "Recibiste un mensaje de <strong>%s</strong>."
 msgstr "Recibiste un mensaje de <strong>%s</strong>."
 
 #. translators: %s: nombre del servicio de interés
-#: includes/class-emails.php:254
+#: includes/class-emails.php:256
 #, php-format
 msgid "Servicio de interés: <strong>%s</strong>"
 msgstr "Servicio de interés: <strong>%s</strong>"
 
-#: includes/class-emails.php:256
+#: includes/class-emails.php:258
 msgid "Correo: "
 msgstr "Correo: "
 
-#: includes/class-emails.php:258
+#: includes/class-emails.php:260
 msgid "Teléfono: "
 msgstr "Teléfono: "
 
-#: includes/class-emails.php:267
+#: includes/class-emails.php:269
 msgid "[Nuevo lead] Mensaje de contacto en tu agencia"
 msgstr "[Nuevo lead] Mensaje de contacto en tu agencia"
 
-#: includes/class-emails.php:274
+#: includes/class-emails.php:276
 msgid "Recibimos tu mensaje"
 msgstr "Recibimos tu mensaje"
 
-#: includes/class-emails.php:276
+#: includes/class-emails.php:278
 msgid "Gracias por contactarnos"
 msgstr "Gracias por contactarnos"
 
 #. translators: 1: nombre del servicio, 2: enlace a la página de búsqueda
-#: includes/class-emails.php:279
+#: includes/class-emails.php:281
 #, php-format
 msgid ""
 "Recibimos tu mensaje sobre <strong>%s</strong>. La agencia te responderá lo "
@@ -10353,26 +10356,26 @@ msgstr ""
 "antes posible.<br><br>Mientras tanto, puedes seguir explorando nuestras <a "
 "href=\"%s\" style=\"color:#0d9488;\">experiencias y alojamientos</a>."
 
-#: includes/class-emails.php:280
+#: includes/class-emails.php:282
 msgid "nuestros servicios"
 msgstr "nuestros servicios"
 
-#: includes/class-emails.php:290 includes/class-promotions.php:202
+#: includes/class-emails.php:292 includes/class-promotions.php:202
 msgid "tu plan"
 msgstr "tu plan"
 
 #. translators: %s: código de la reserva
-#: includes/class-emails.php:308
+#: includes/class-emails.php:310
 #, php-format
 msgid "El pago de la reserva %s no pudo completarse"
 msgstr "El pago de la reserva %s no pudo completarse"
 
-#: includes/class-emails.php:310
+#: includes/class-emails.php:312
 msgid "No pudimos procesar tu pago"
 msgstr "No pudimos procesar tu pago"
 
 #. translators: 1: código de la reserva, 2: enlace de pago
-#: includes/class-emails.php:313
+#: includes/class-emails.php:315
 #, php-format
 msgid ""
 "Tu reserva <strong>%s</strong> sigue activa, pero su pago falló. Puedes "
@@ -10384,17 +10387,17 @@ msgstr ""
 "\">checkout</a>."
 
 #. translators: %s: código de la reserva
-#: includes/class-emails.php:325
+#: includes/class-emails.php:327
 #, php-format
 msgid "[Pago fallido] Reserva %s"
 msgstr "[Pago fallido] Reserva %s"
 
-#: includes/class-emails.php:327
+#: includes/class-emails.php:329
 msgid "Fallo de pago"
 msgstr "Fallo de pago"
 
 #. translators: 1: código de la reserva, 2: tipo de servicio
-#: includes/class-emails.php:330
+#: includes/class-emails.php:332
 #, php-format
 msgid ""
 "El pago de la reserva <strong>%s</strong> (%s) falló y requiere revisión."
@@ -10402,17 +10405,17 @@ msgstr ""
 "El pago de la reserva <strong>%s</strong> (%s) falló y requiere revisión."
 
 #. translators: %s: código de la reserva
-#: includes/class-emails.php:352
+#: includes/class-emails.php:354
 #, php-format
 msgid "Reembolso de la reserva %s"
 msgstr "Reembolso de la reserva %s"
 
-#: includes/class-emails.php:354
+#: includes/class-emails.php:356
 msgid "Reembolso procesado"
 msgstr "Reembolso procesado"
 
 #. translators: 1: importe reembolsado, 2: código de la reserva
-#: includes/class-emails.php:357
+#: includes/class-emails.php:359
 #, php-format
 msgid ""
 "Hemos reembolsado <strong>%s</strong> por la reserva <strong>%s</strong>. El "
@@ -10421,12 +10424,12 @@ msgstr ""
 "Hemos reembolsado <strong>%s</strong> por la reserva <strong>%s</strong>. El "
 "dinero regresará a tu cuenta en los próximos días."
 
-#: includes/class-emails.php:373
+#: includes/class-emails.php:375
 msgid "Se abrió una disputa en una de tus reservas"
 msgstr "Se abrió una disputa en una de tus reservas"
 
 #. translators: %s: código de la reserva
-#: includes/class-emails.php:378
+#: includes/class-emails.php:380
 #, php-format
 msgid ""
 "Un viajero abrió una disputa sobre la reserva <strong>%s</strong>. La "
@@ -10435,24 +10438,24 @@ msgstr ""
 "Un viajero abrió una disputa sobre la reserva <strong>%s</strong>. La "
 "revisaremos y te notificaremos el resultado."
 
-#: includes/class-emails.php:397
+#: includes/class-emails.php:399
 msgid "Resuelta a favor del viajero"
 msgstr "Resuelta a favor del viajero"
 
-#: includes/class-emails.php:398
+#: includes/class-emails.php:400
 msgid "Retirada por el viajero"
 msgstr "Retirada por el viajero"
 
-#: includes/class-emails.php:403
+#: includes/class-emails.php:405
 msgid "Actualización de tu disputa"
 msgstr "Actualización de tu disputa"
 
-#: includes/class-emails.php:405
+#: includes/class-emails.php:407
 msgid "Disputa resuelta"
 msgstr "Disputa resuelta"
 
 #. translators: 1: código de la reserva, 2: resultado de la disputa
-#: includes/class-emails.php:408
+#: includes/class-emails.php:410
 #, php-format
 msgid ""
 "La disputa asociada a la reserva <strong>%s</strong> fue resuelta: "
@@ -10461,22 +10464,22 @@ msgstr ""
 "La disputa asociada a la reserva <strong>%s</strong> fue resuelta: "
 "<strong>%s</strong>."
 
-#: includes/class-emails.php:423 includes/class-shortcode-booking.php:508
+#: includes/class-emails.php:425 includes/class-shortcode-booking.php:508
 msgid "Motivo:"
 msgstr "Motivo:"
 
 #. translators: %s: código de la reserva
-#: includes/class-emails.php:430
+#: includes/class-emails.php:432
 #, php-format
 msgid "Tu reserva %s fue cancelada"
 msgstr "Tu reserva %s fue cancelada"
 
-#: includes/class-emails.php:432
+#: includes/class-emails.php:434
 msgid "Reserva cancelada"
 msgstr "Reserva cancelada"
 
 #. translators: 1: nombre del cliente, 2: código de la reserva, 3: nombre del servicio, 4: texto sobre el motivo de cancelación, 5: enlace al detalle de la reserva
-#: includes/class-emails.php:435
+#: includes/class-emails.php:437
 #, php-format
 msgid ""
 "Hola %s, tu reserva <strong>%s</strong> (%s) quedó cancelada. %sSi esperabas "
@@ -10488,17 +10491,17 @@ msgstr ""
 "style=\"color:#0d9488;\">Ver detalle</a>."
 
 #. translators: %s: código de la reserva
-#: includes/class-emails.php:450
+#: includes/class-emails.php:452
 #, php-format
 msgid "Reserva %s cancelada"
 msgstr "Reserva %s cancelada"
 
-#: includes/class-emails.php:452
+#: includes/class-emails.php:454
 msgid "Cancelación de reserva"
 msgstr "Cancelación de reserva"
 
 #. translators: 1: código de la reserva, 2: nombre del servicio, 3: texto sobre el motivo de cancelación
-#: includes/class-emails.php:455
+#: includes/class-emails.php:457
 #, php-format
 msgid ""
 "La reserva <strong>%s</strong> (%s) quedó cancelada. %sSi tenía comisión "
@@ -10508,17 +10511,17 @@ msgstr ""
 "devengada, se anuló."
 
 #. translators: %s: código de la reserva
-#: includes/class-emails.php:475
+#: includes/class-emails.php:477
 #, php-format
 msgid "Pago aprobado — reserva %s"
 msgstr "Pago aprobado — reserva %s"
 
-#: includes/class-emails.php:477
+#: includes/class-emails.php:479
 msgid "¡Pago recibido!"
 msgstr "¡Pago recibido!"
 
 #. translators: 1: nombre del servicio, 2: código de la reserva, 3: método de pago, 4: enlace a tu cuenta
-#: includes/class-emails.php:480
+#: includes/class-emails.php:482
 #, php-format
 msgid ""
 "Se aprobó el pago de <strong>%s</strong> para la reserva <strong>%s</strong> "
@@ -10530,17 +10533,17 @@ msgstr ""
 "href=\"%s\" style=\"color:#0d9488;\">tu cuenta</a>."
 
 #. translators: %d: identificador de la agencia
-#: includes/class-emails.php:502
+#: includes/class-emails.php:504
 #, php-format
 msgid "Solicitud de liquidación — agencia #%d"
 msgstr "Solicitud de liquidación — agencia #%d"
 
-#: includes/class-emails.php:504
+#: includes/class-emails.php:506
 msgid "Nueva solicitud de pago"
 msgstr "Nueva solicitud de pago"
 
 #. translators: 1: nombre de la agencia, 2: importe solicitado, 3: identificador de la liquidación, 4: enlace al panel de comisiones
-#: includes/class-emails.php:507
+#: includes/class-emails.php:509
 #, php-format
 msgid ""
 "La agencia <strong>%s</strong> solicitó una liquidación de <strong>%s</"
@@ -10552,17 +10555,17 @@ msgstr ""
 "#0d9488;\">panel de comisiones</a>."
 
 #. translators: %s: código de la reserva
-#: includes/class-emails.php:526
+#: includes/class-emails.php:528
 #, php-format
 msgid "[Reintento de reembolso] Reserva %s"
 msgstr "[Reintento de reembolso] Reserva %s"
 
-#: includes/class-emails.php:528
+#: includes/class-emails.php:530
 msgid "Reembolso reintentado"
 msgstr "Reembolso reintentado"
 
 #. translators: 1: código de la reserva, 2: tipo de servicio
-#: includes/class-emails.php:531
+#: includes/class-emails.php:533
 #, php-format
 msgid ""
 "Se reintentó el reembolso automático de la reserva <strong>%s</strong> (%s). "
@@ -10571,20 +10574,20 @@ msgstr ""
 "Se reintentó el reembolso automático de la reserva <strong>%s</strong> (%s). "
 "Si volvió a fallar, requiere revisión manual del equipo de soporte."
 
-#: includes/class-emails.php:552
+#: includes/class-emails.php:554
 msgid "Pago de comisiones confirmado"
 msgstr "Pago de comisiones confirmado"
 
-#: includes/class-emails.php:552 includes/class-emails.php:554
+#: includes/class-emails.php:554 includes/class-emails.php:556
 msgid "Liquidación cancelada"
 msgstr "Liquidación cancelada"
 
-#: includes/class-emails.php:554
+#: includes/class-emails.php:556
 msgid "Liquidación transferida"
 msgstr "Liquidación transferida"
 
 #. translators: 1: importe de la liquidación, 2: identificador de la liquidación
-#: includes/class-emails.php:558
+#: includes/class-emails.php:560
 #, php-format
 msgid ""
 "Tu liquidación de comisiones por <strong>%s</strong> (referencia #%d) fue "
@@ -10594,7 +10597,7 @@ msgstr ""
 "confirmada como transferida."
 
 #. translators: 1: importe de la liquidación, 2: identificador de la liquidación
-#: includes/class-emails.php:564
+#: includes/class-emails.php:566
 #, php-format
 msgid ""
 "La liquidación de comisiones por <strong>%s</strong> (referencia #%d) fue "
@@ -10603,16 +10606,16 @@ msgstr ""
 "La liquidación de comisiones por <strong>%s</strong> (referencia #%d) fue "
 "cancelada y los montos volvieron a estado \"por cobrar\"."
 
-#: includes/class-emails.php:584
+#: includes/class-emails.php:586
 msgid "Liquidación fallida"
 msgstr "Liquidación fallida"
 
-#: includes/class-emails.php:586
+#: includes/class-emails.php:588
 msgid "No se pudo completar tu liquidación"
 msgstr "No se pudo completar tu liquidación"
 
 #. translators: 1: importe de la liquidación, 2: identificador de la liquidación
-#: includes/class-emails.php:589
+#: includes/class-emails.php:591
 #, php-format
 msgid ""
 "La liquidación de comisiones por <strong>%s</strong> (referencia #%d) no "
@@ -10624,23 +10627,23 @@ msgstr ""
 "puedas solicitarla de nuevo."
 
 #. translators: %s: código de la reserva
-#: includes/class-emails.php:633
+#: includes/class-emails.php:635
 #, php-format
 msgid "Nuevo mensaje de la agencia — reserva %s"
 msgstr "Nuevo mensaje de la agencia — reserva %s"
 
-#: includes/class-emails.php:635 includes/class-emails.php:661
+#: includes/class-emails.php:637 includes/class-emails.php:663
 msgid "Tienes un nuevo mensaje"
 msgstr "Tienes un nuevo mensaje"
 
 #. translators: %s: código de la reserva
-#: includes/class-emails.php:638
+#: includes/class-emails.php:640
 #, php-format
 msgid "La agencia escribió sobre tu reserva <strong>%s</strong>:"
 msgstr "La agencia escribió sobre tu reserva <strong>%s</strong>:"
 
 #. translators: %s: enlace al detalle de la reserva
-#: includes/class-emails.php:644
+#: includes/class-emails.php:646
 #, php-format
 msgid ""
 "<a href=\"%s\" style=\"color:#0d9488;\">Responde desde el detalle de la "
@@ -10650,33 +10653,33 @@ msgstr ""
 "reserva</a>."
 
 #. translators: %s: código de la reserva
-#: includes/class-emails.php:659
+#: includes/class-emails.php:661
 #, php-format
 msgid "Nuevo mensaje del huésped — reserva %s"
 msgstr "Nuevo mensaje del huésped — reserva %s"
 
 #. translators: %s: código de la reserva
-#: includes/class-emails.php:664
+#: includes/class-emails.php:666
 #, php-format
 msgid "El huésped escribió sobre la reserva <strong>%s</strong>:"
 msgstr "El huésped escribió sobre la reserva <strong>%s</strong>:"
 
 #. translators: %s: enlace al panel de agencia
-#: includes/class-emails.php:670
+#: includes/class-emails.php:672
 #, php-format
 msgid "<a href=\"%s\" style=\"color:#0d9488;\">Responde desde tu panel</a>."
 msgstr "<a href=\"%s\" style=\"color:#0d9488;\">Responde desde tu panel</a>."
 
-#: includes/class-emails.php:686
+#: includes/class-emails.php:688
 msgid "Solicitud de suscripción pendiente"
 msgstr "Solicitud de suscripción pendiente"
 
-#: includes/class-emails.php:688
+#: includes/class-emails.php:690
 msgid "Nueva suscripción por revisar"
 msgstr "Nueva suscripción por revisar"
 
 #. translators: 1: nombre de la agencia, 2: nombre del plan, 3: enlace al panel de suscripciones
-#: includes/class-emails.php:691
+#: includes/class-emails.php:693
 #, php-format
 msgid ""
 "La agencia <strong>%s</strong> solicitó el plan <strong>%s</strong>. Revisa "
@@ -10687,16 +10690,16 @@ msgstr ""
 "su pago en el <a href=\"%s\" style=\"color:#0d9488;\">panel de "
 "suscripciones</a>."
 
-#: includes/class-emails.php:709
+#: includes/class-emails.php:711
 msgid "Solicitud de promoción pendiente"
 msgstr "Solicitud de promoción pendiente"
 
-#: includes/class-emails.php:711
+#: includes/class-emails.php:713
 msgid "Nueva promoción por revisar"
 msgstr "Nueva promoción por revisar"
 
 #. translators: 1: nombre de la agencia, 2: nombre del listado, 3: enlace al panel de promociones
-#: includes/class-emails.php:714
+#: includes/class-emails.php:716
 #, php-format
 msgid ""
 "La agencia <strong>%s</strong> solicitó destacar <strong>%s</strong>. Revisa "
@@ -10786,7 +10789,7 @@ msgid "Puntos y referidos"
 msgstr "Puntos y referidos"
 
 #: includes/class-front-dash-client.php:49
-#: includes/class-front-dash-client.php:723 includes/class-transport.php:517
+#: includes/class-front-dash-client.php:723 includes/class-transport.php:536
 msgid "Mi perfil"
 msgstr "Mi perfil"
 
@@ -10934,7 +10937,7 @@ msgid "Buscar transportes"
 msgstr "Buscar transportes"
 
 #: includes/class-front-dash-client.php:478
-#: includes/class-shortcode-booking.php:1250 includes/class-transport.php:520
+#: includes/class-shortcode-booking.php:1250 includes/class-transport.php:539
 msgid "Estado:"
 msgstr "Estado:"
 
@@ -11741,7 +11744,7 @@ msgstr "Mis puntos"
 msgid "Ayuda"
 msgstr "Ayuda"
 
-#: includes/class-front-dash.php:1798 includes/class-transport.php:419
+#: includes/class-front-dash.php:1798 includes/class-transport.php:438
 msgid "Perfil"
 msgstr "Perfil"
 
@@ -12531,7 +12534,7 @@ msgid "Ningún listado coincide con los filtros."
 msgstr "Ningún listado coincide con los filtros."
 
 #: includes/class-listing-editor.php:174 includes/class-transport-admin.php:143
-#: includes/class-transport-admin.php:237 includes/class-transport.php:409
+#: includes/class-transport-admin.php:237 includes/class-transport.php:428
 msgid "Inactivo"
 msgstr "Inactivo"
 
@@ -14419,102 +14422,106 @@ msgstr ""
 msgid "Confirmada el %s por el administrador"
 msgstr "Confirmada el %s por el administrador"
 
-#: includes/class-push.php:79
+#: includes/class-push.php:93
 msgid "Recordatorio de tu tour"
 msgstr "Recordatorio de tu tour"
 
-#: includes/class-push.php:79
+#: includes/class-push.php:93
 #, php-format
 msgid "Tu tour es mañana. Reserva %s."
 msgstr "Tu tour es mañana. Reserva %s."
 
-#: includes/class-push.php:83
+#: includes/class-push.php:97
 msgid "Recordatorio de tour"
 msgstr "Recordatorio de tour"
 
-#: includes/class-push.php:83
+#: includes/class-push.php:97
 #, php-format
 msgid "Tienes un tour mañana: reserva %s."
 msgstr "Tienes un tour mañana: reserva %s."
 
-#: includes/class-push.php:99
+#: includes/class-push.php:113
 msgid "Nuevo mensaje de cliente"
 msgstr "Nuevo mensaje de cliente"
 
-#: includes/class-push.php:99
+#: includes/class-push.php:113
 #, php-format
 msgid "Tienes un mensaje nuevo en la reserva %s."
 msgstr "Tienes un mensaje nuevo en la reserva %s."
 
-#: includes/class-push.php:102
+#: includes/class-push.php:116
 msgid "Nuevo mensaje de la agencia"
 msgstr "Nuevo mensaje de la agencia"
 
-#: includes/class-push.php:102
+#: includes/class-push.php:116
 #, php-format
 msgid "La agencia respondió en la reserva %s."
 msgstr "La agencia respondió en la reserva %s."
 
-#: includes/class-push.php:115
+#: includes/class-push.php:129
 msgid "Tu conductor está abordando. Prepárate para salir."
 msgstr "Tu conductor está abordando. Prepárate para salir."
 
-#: includes/class-push.php:116
+#: includes/class-push.php:130
 msgid "Tu viaje ha iniciado. ¡Buen viaje!"
 msgstr "Tu viaje ha iniciado. ¡Buen viaje!"
 
-#: includes/class-push.php:117
+#: includes/class-push.php:131
 msgid "Tu viaje ha finalizado. ¡Gracias por viajar con nosotros!"
 msgstr "Tu viaje ha finalizado. ¡Gracias por viajar con nosotros!"
 
-#: includes/class-push.php:118
+#: includes/class-push.php:132
 msgid "Tu viaje ha sido cancelado."
 msgstr "Tu viaje ha sido cancelado."
 
-#: includes/class-push.php:121
+#: includes/class-push.php:135
 msgid "Estado del viaje"
 msgstr "Estado del viaje"
 
-#: includes/class-push.php:161
+#: includes/class-push.php:175
 msgid "Ver más"
 msgstr "Ver más"
 
-#: includes/class-push.php:340
+#: includes/class-push.php:357
 msgid "Nueva reserva"
 msgstr "Nueva reserva"
 
-#: includes/class-push.php:340
+#: includes/class-push.php:357
 #, php-format
 msgid "Reserva %s creada."
 msgstr "Reserva %s creada."
 
-#: includes/class-push.php:356 includes/class-push.php:360
+#: includes/class-push.php:373 includes/class-push.php:377
 msgid "Pago recibido"
 msgstr "Pago recibido"
 
-#: includes/class-push.php:356
+#: includes/class-push.php:373
 #, php-format
 msgid "Tu pago para la reserva %s fue recibido."
 msgstr "Tu pago para la reserva %s fue recibido."
 
-#: includes/class-push.php:360
+#: includes/class-push.php:377
 #, php-format
 msgid "Pago recibido para la reserva %s."
 msgstr "Pago recibido para la reserva %s."
 
-#: includes/class-push.php:370
+#: includes/class-push.php:387
 msgid "Datos de suscripción inválidos."
 msgstr "Datos de suscripción inválidos."
 
-#: includes/class-push.php:380
+#: includes/class-push.php:391
+msgid "El endpoint debe ser una URL HTTPS pública válida."
+msgstr "El endpoint debe ser una URL HTTPS pública válida."
+
+#: includes/class-push.php:400
 msgid "Endpoint requerido."
 msgstr "Endpoint requerido."
 
-#: includes/class-push.php:388
+#: includes/class-push.php:408
 msgid "Las notificaciones push no están configuradas."
 msgstr "Las notificaciones push no están configuradas."
 
-#: includes/class-push.php:392
+#: includes/class-push.php:412
 msgid "Activar notificaciones"
 msgstr "Activar notificaciones"
 
@@ -17653,15 +17660,15 @@ msgstr "Duración (min)"
 msgid "No hay rutas."
 msgstr "No hay rutas."
 
-#: includes/class-transport-admin.php:378 includes/class-transport.php:446
+#: includes/class-transport-admin.php:378 includes/class-transport.php:465
 msgid "Pasajeros"
 msgstr "Pasajeros"
 
-#: includes/class-transport-admin.php:392 includes/class-transport.php:466
+#: includes/class-transport-admin.php:392 includes/class-transport.php:485
 msgid "Iniciar abordaje"
 msgstr "Iniciar abordaje"
 
-#: includes/class-transport-admin.php:394 includes/class-transport.php:468
+#: includes/class-transport-admin.php:394 includes/class-transport.php:487
 msgid "Iniciar viaje"
 msgstr "Iniciar viaje"
 
@@ -17690,91 +17697,91 @@ msgstr "Estado actualizado."
 msgid "Check-in realizado."
 msgstr "Check-in realizado."
 
-#: includes/class-transport.php:375
+#: includes/class-transport.php:394
 msgid "No tienes un perfil de conductor."
 msgstr "No tienes un perfil de conductor."
 
-#: includes/class-transport.php:390
+#: includes/class-transport.php:409
 msgid "Mi panel de conductor"
 msgstr "Mi panel de conductor"
 
-#: includes/class-transport.php:391
+#: includes/class-transport.php:410
 msgid "Sin vehículo asignado"
 msgstr "Sin vehículo asignado"
 
-#: includes/class-transport.php:398
+#: includes/class-transport.php:417
 msgid "Viajes hoy"
 msgstr "Viajes hoy"
 
-#: includes/class-transport.php:402 includes/class-transport.php:417
+#: includes/class-transport.php:421 includes/class-transport.php:436
 msgid "Próximos"
 msgstr "Próximos"
 
-#: includes/class-transport.php:406
+#: includes/class-transport.php:425
 msgid "Completados (30d)"
 msgstr "Completados (30d)"
 
-#: includes/class-transport.php:416
+#: includes/class-transport.php:435
 msgid "Hoy"
 msgstr "Hoy"
 
-#: includes/class-transport.php:418
+#: includes/class-transport.php:437
 msgid "Historial"
 msgstr "Historial"
 
-#: includes/class-transport.php:424
+#: includes/class-transport.php:443
 msgid "Mis viajes de hoy"
 msgstr "Mis viajes de hoy"
 
-#: includes/class-transport.php:426
+#: includes/class-transport.php:445
 msgid "No tienes viajes asignados para hoy."
 msgstr "No tienes viajes asignados para hoy."
 
-#: includes/class-transport.php:448
+#: includes/class-transport.php:467
 msgid "Sin pasajeros."
 msgstr "Sin pasajeros."
 
-#: includes/class-transport.php:470
+#: includes/class-transport.php:489
 msgid "Completar viaje"
 msgstr "Completar viaje"
 
-#: includes/class-transport.php:472
+#: includes/class-transport.php:491
 msgid "Actualizar posición"
 msgstr "Actualizar posición"
 
-#: includes/class-transport.php:481
+#: includes/class-transport.php:500
 msgid "Próximos viajes"
 msgstr "Próximos viajes"
 
-#: includes/class-transport.php:483
+#: includes/class-transport.php:502
 msgid "No tienes viajes programados."
 msgstr "No tienes viajes programados."
 
-#: includes/class-transport.php:499
+#: includes/class-transport.php:518
 msgid "Historial (últimos 30 días)"
 msgstr "Historial (últimos 30 días)"
 
-#: includes/class-transport.php:501
+#: includes/class-transport.php:520
 msgid "No hay viajes completados."
 msgstr "No hay viajes completados."
 
-#: includes/class-transport.php:519
+#: includes/class-transport.php:538
 msgid "Licencia:"
 msgstr "Licencia:"
 
-#: includes/class-transport.php:522
+#: includes/class-transport.php:541
 msgid "Vehículo:"
 msgstr "Vehículo:"
 
-#: includes/class-transport.php:522
+#: includes/class-transport.php:541
 msgid "pasajeros"
 msgstr "pasajeros"
 
-#: includes/class-transport.php:524
+#: includes/class-transport.php:543
 msgid "Sin vehículo asignado. Contacta a tu agencia."
 msgstr "Sin vehículo asignado. Contacta a tu agencia."
 
-#: includes/class-transport.php:526
+#: includes/class-transport.php:545
 msgid "Agencia:"
 msgstr "Agencia:"
 

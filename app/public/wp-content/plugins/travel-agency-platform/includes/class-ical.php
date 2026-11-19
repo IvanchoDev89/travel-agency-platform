@@ -61,21 +61,9 @@ class TAP_ICal {
             }
         }
 
-        // Bookings for this service
-        $bookings = $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM {$wpdb->prefix}tap_bookings WHERE service_id = %d AND service_type = %s AND status NOT IN ('cancelled','refunded') AND check_in >= CURDATE()",
-            $service_id, $service_type
-        ));
-        foreach ($bookings as $b) {
-            $start = str_replace('-', '', $b->check_in);
-            $end   = $b->check_out ? str_replace('-', '', $b->check_out) : $start;
-            $lines[] = 'BEGIN:VEVENT';
-            $lines[] = 'UID:booking-' . $b->id . '@tap';
-            $lines[] = 'DTSTART;VALUE=DATE:' . $start;
-            $lines[] = 'DTEND;VALUE=DATE:' . $end;
-            $lines[] = 'SUMMARY:' . self::escape('Reserva ' . $b->booking_code);
-            $lines[] = 'END:VEVENT';
-        }
+        // Booking events are intentionally NOT published here: booking codes
+        // are bearer handles for guest checkout/payment/cancellation. This
+        // public feed exposes only blocked dates.
 
         $lines[] = 'END:VCALENDAR';
 

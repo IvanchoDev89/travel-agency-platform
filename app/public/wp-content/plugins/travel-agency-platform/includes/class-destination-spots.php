@@ -328,7 +328,7 @@ class TAP_Destination_Spots {
                 'accessibility' => (string) get_post_meta($post->ID, '_tap_spot_accessibility', true),
                 'website'  => (string) get_post_meta($post->ID, '_tap_spot_website', true),
                 'officialUrl' => (string) get_post_meta($post->ID, '_tap_spot_official_url', true),
-                'photoCredit' => (string) get_post_meta($post->ID, '_tap_spot_photo_credit', true),
+                'photoCredit' => wp_kses_post((string) get_post_meta($post->ID, '_tap_spot_photo_credit', true)),
                 'photoCaption' => (string) get_post_meta($post->ID, '_tap_spot_photo_caption', true),
             ];
         }

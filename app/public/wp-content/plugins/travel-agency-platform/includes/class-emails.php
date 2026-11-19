@@ -37,10 +37,12 @@ class TAP_Emails {
             $to = is_array($data) && isset($data['to'])
                 ? (is_array($data['to']) ? implode(',', $data['to']) : (string) $data['to']) : '';
             $subject = is_array($data) && isset($data['subject']) ? (string) $data['subject'] : '';
+            // Log hashes only (no traveler PII in log files), keep the real
+            // mailer error for diagnostics.
             error_log(sprintf(
-                'TAP email failed: to=%s subject=%s error=%s',
-                $to,
-                $subject,
+                'TAP email failed: to_hash=%s subject_hash=%s error=%s',
+                md5($to),
+                md5($subject),
                 $error->get_error_message()
             ));
         });

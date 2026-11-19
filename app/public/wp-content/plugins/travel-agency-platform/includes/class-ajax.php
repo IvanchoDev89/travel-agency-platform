@@ -589,7 +589,7 @@ class TAP_Ajax {
      * platform administrator. Used to keep the client-side chat endpoint from
      * accepting the agency as the traveler.
      */
-    private static function caller_is_agency_member($user_id) {
+    public static function caller_is_agency_member($user_id) {
         if (user_can((int) $user_id, 'manage_options')) {
             return true;
         }

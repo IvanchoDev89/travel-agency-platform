@@ -350,8 +350,27 @@ class TAP_Transport_Ajax {
         $trip_id = absint($_POST['trip_id'] ?? 0);
         $trip = TAP_Transport_Trips::get($trip_id);
         if (!$trip) wp_send_json_error(['message' => __('Viaje no encontrado.', 'travel-agency-platform')], 404);
+
+        $uid      = get_current_user_id();
+        $is_admin = current_user_can('manage_options');
+        $driver   = class_exists('TAP_Transport_Drivers') ? TAP_Transport_Drivers::by_user($uid) : null;
+        $is_driver = $driver && (int) $driver->id === (int) $trip->driver_id;
+        // A client may only track a trip they actually booked.
+        $owns_booking = false;
+        global $wpdb;
+        if (!$is_admin && !$is_driver) {
+            $owns_booking = (bool) $wpdb->get_var($wpdb->prepare(
+                "SELECT 1 FROM {$wpdb->prefix}tap_bookings WHERE trip_id = %d AND client_id = %d LIMIT 1",
+                $trip_id, $uid
+            ));
+        }
+        if (!$is_admin && !$is_driver && !$owns_booking) {
+            wp_send_json_error(['message' => __('Sin permiso.', 'travel-agency-platform')], 403);
+        }
+
         $pos = TAP_Transport_Tracking::latest($trip_id);
-        $passengers = TAP_Transport_Trips::passengers($trip_id);
+        // Passenger names and booking IDs are sensitive: only staff see them.
+        $passengers = ($is_admin || $is_driver) ? TAP_Transport_Trips::passengers($trip_id) : [];
         wp_send_json_success([
             'trip' => $trip,
             'position' => $pos,

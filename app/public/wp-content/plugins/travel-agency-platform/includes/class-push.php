@@ -31,8 +31,22 @@ class TAP_Push {
         return '' !== self::vapid_public() && '' !== self::vapid_private();
     }
 
+    /** SSRF guard shared by every subscription entry point. */
+    public static function safe_endpoint($endpoint) {
+        $endpoint = esc_url_raw((string) $endpoint);
+        if ($endpoint === '' || !class_exists('TAP_ICal_Import') || !TAP_ICal_Import::is_safe_url($endpoint)) {
+            return '';
+        }
+        $parts = wp_parse_url($endpoint);
+        return (strtolower($parts['scheme'] ?? '') === 'https') ? $endpoint : '';
+    }
+
     /** Subscribe a user. */
     public static function subscribe($user_id, $endpoint, $p256dh, $auth) {
+        $endpoint = self::safe_endpoint($endpoint);
+        if ($endpoint === '' || !$p256dh || !$auth) {
+            return 0;
+        }
         global $wpdb;
         $t = self::table();
         // Remove existing subscription for same endpoint.
@@ -172,6 +186,9 @@ class TAP_Push {
      * Simplified implementation using VAPID. Returns true on success.
      */
     private static function send_push($sub, $title, $body, $url) {
+        // Revalidate at send time: a stored endpoint could have been poisoned
+        // earlier or become internal via DNS changes.
+        if (self::safe_endpoint($sub->endpoint) === '') return false;
         // Without a full web-push library, we attempt a best-effort POST.
         // Real delivery requires VAPID JWT signing; if openssl is available
         // we sign, otherwise we skip (email fallback handles delivery).
@@ -370,6 +387,9 @@ class TAP_Push {
             return new WP_Error('invalid', __('Datos de suscripción inválidos.', 'travel-agency-platform'), ['status' => 400]);
         }
         $id = self::subscribe(get_current_user_id(), $endpoint, $p256dh, $auth);
+        if (!$id) {
+            return new WP_Error('invalid_endpoint', __('El endpoint debe ser una URL HTTPS pública válida.', 'travel-agency-platform'), ['status' => 400]);
+        }
         return rest_ensure_response(['id' => $id, 'vapid_public' => self::vapid_public()]);
     }
 

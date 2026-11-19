@@ -20,7 +20,7 @@
     function escapeHtml(value) {
         var d = document.createElement('div');
         d.textContent = value == null ? '' : String(value);
-        return d.innerHTML;
+        return d.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
     function t(key, fallback) {
