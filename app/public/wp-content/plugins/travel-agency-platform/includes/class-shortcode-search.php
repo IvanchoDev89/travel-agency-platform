@@ -647,6 +647,7 @@ endif;
                     <form id="tap-qa-ask" style="margin-top:var(--tap-space-3);">
                         <input type="hidden" name="service_type" value="<?php echo esc_attr($type); ?>">
                         <input type="hidden" name="service_id" value="<?php echo (int) $post->ID; ?>">
+                        <input type="hidden" name="tap_hp" value="" aria-hidden="true" autocomplete="off" tabindex="-1">
                         <textarea name="question" rows="3" placeholder="<?php esc_attr_e('Haz una pregunta sobre este servicio…', 'travel-agency-platform'); ?>" style="width:100%;padding:8px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);"></textarea>
                         <button type="submit" class="tap-btn tap-btn-sm tap-btn-primary" style="margin-top:6px;"><?php esc_html_e('Preguntar', 'travel-agency-platform'); ?></button>
                         <span class="tap-qa-msg" style="margin-left:8px;font-size:var(--tap-text-sm);"></span>

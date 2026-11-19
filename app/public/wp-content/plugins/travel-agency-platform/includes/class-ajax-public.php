@@ -23,6 +23,15 @@ class TAP_Ajax_Public {
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => __('Inicia sesión para preguntar.', 'travel-agency-platform')], 401);
         }
+        // Honeypot: bots fill it, humans never see it. Fake success so bots
+        // believe the submission worked without storing anything.
+        if (!empty($_POST['tap_hp'])) {
+            wp_send_json_success(['message' => __('Pregunta enviada. Será revisada por la agencia.', 'travel-agency-platform')]);
+        }
+        $uid = get_current_user_id();
+        if (TAP_Rate_Limit::too_many('qa_submit', 5, HOUR_IN_SECONDS, 'u' . $uid)) {
+            wp_send_json_error(['message' => __('Has enviado muchas preguntas. Intentá más tarde.', 'travel-agency-platform')]);
+        }
         global $wpdb;
         $service_type = sanitize_text_field(wp_unslash($_POST['service_type'] ?? ''));
         $service_id   = absint($_POST['service_id'] ?? 0);
@@ -39,9 +48,9 @@ class TAP_Ajax_Public {
             'service_id'   => $service_id,
             'user_id'      => get_current_user_id(),
             'question'     => $question,
-            'is_approved'  => 1,
+            'is_approved'  => 0,
         ]);
-        wp_send_json_success(['message' => __('Pregunta enviada.', 'travel-agency-platform')]);
+        wp_send_json_success(['message' => __('Pregunta enviada. Será revisada por la agencia.', 'travel-agency-platform')]);
     }
 
     public static function answer_question() {

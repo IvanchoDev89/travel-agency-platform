@@ -183,6 +183,10 @@ class TAP_Itinerary_Collab {
             return new WP_Error('rate_limited', __('Demasiadas solicitudes. Intenta más tarde.', 'travel-agency-platform'), ['status' => 429]);
         }
         $params = $request->get_params();
+        // Honeypot: pretend success for bots without storing a comment.
+        if (!empty($params['tap_hp'])) {
+            return rest_ensure_response(['id' => 0]);
+        }
         $token  = sanitize_text_field($params['token'] ?? '');
         $itin   = self::by_token($token);
         if (!$itin) return new WP_Error('not_found', __('Itinerario no encontrado.', 'travel-agency-platform'), ['status' => 404]);
@@ -241,6 +245,7 @@ class TAP_Itinerary_Collab {
                 <h3><?php esc_html_e('Comentarios', 'travel-agency-platform'); ?></h3>
                 <div id="tap-itin-comments" style="display:grid;gap:8px;"></div>
                 <form id="tap-itin-comment-form" style="margin-top:12px;display:grid;gap:8px;">
+                    <input type="hidden" name="tap_hp" value="" aria-hidden="true" autocomplete="off" tabindex="-1">
                     <input type="text" name="name" placeholder="<?php esc_attr_e('Tu nombre', 'travel-agency-platform'); ?>" style="padding:8px 12px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);">
                     <textarea name="comment" rows="3" placeholder="<?php esc_attr_e('Comentario…', 'travel-agency-platform'); ?>" style="padding:8px 12px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);"></textarea>
                     <button type="submit" class="tap-btn tap-btn-sm tap-btn-primary"><?php esc_html_e('Comentar', 'travel-agency-platform'); ?></button>

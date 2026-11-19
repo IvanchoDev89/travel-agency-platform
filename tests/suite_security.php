@@ -233,4 +233,21 @@ tap_t_assert(method_exists('TAP_Customer_Referrals', 'reject_pending'), 'high-po
 tap_t_assert(false !== strpos($ref_src, "'pending_review'"), 'referrals support a pending-review state');
 tap_t_assert(false !== strpos($ref_src, 'is_suspicious'), 'referrals are flagged when the fingerprint repeats');
 
+// ===== Q. Anti-spam guards (chat / Q&A / itinerary) ========================
+$ajax_src = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-ajax.php');
+tap_t_assert(
+    false !== strpos($ajax_src, "too_many('chat_client'") && false !== strpos($ajax_src, "chat_client_send"),
+    'client chat sending is rate limited'
+);
+tap_t_assert(
+    false === strpos(substr($ajax_src, strpos($ajax_src, 'chat_client_thread')), "too_many('chat_client'"),
+    'client chat read-poll is NOT rate limited (15s polling)'
+);
+$public_src = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-ajax-public.php');
+tap_t_assert(false !== strpos($public_src, "too_many('qa_submit'"), 'Q&A submits are rate limited');
+tap_t_assert(false !== strpos($public_src, "'is_approved'  => 0"), 'Q&A answers start unapproved');
+tap_t_assert(false !== strpos($public_src, "\$_POST['tap_hp']"), 'Q&A checks the honeypot');
+$collab_src = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-itinerary-collab.php');
+tap_t_assert(false !== strpos($collab_src, "\$params['tap_hp']"), 'itinerary comments check the honeypot');
+
 tap_t_finish();

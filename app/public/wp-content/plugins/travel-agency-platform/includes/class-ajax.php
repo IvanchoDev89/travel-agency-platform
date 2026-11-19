@@ -219,6 +219,13 @@ class TAP_Ajax {
             wp_send_json_error(['message' => $msg], 403);
         }
 
+        // Throttle messages (not the read-poll endpoint, which runs every 15s).
+        // Scope by user/email so a shared NAT IP does not exhaust one budget.
+        $chat_id = $uid ? 'u' . $uid : 'g' . md5($guest_email);
+        if (TAP_Rate_Limit::too_many('chat_client', 5, 5 * MINUTE_IN_SECONDS, $chat_id)) {
+            wp_send_json_error(['message' => __('Estás enviando mensajes muy rápido. Esperá unos minutos e intentá de nuevo.', 'travel-agency-platform')]);
+        }
+
         $result = TAP_Chat::send($booking->id, 'client', $uid, $name, $message);
         if (is_wp_error($result)) {
             wp_send_json_error(['message' => $result->get_error_message()]);
