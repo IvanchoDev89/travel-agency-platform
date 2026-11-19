@@ -1,7 +1,7 @@
 <?php
 defined('ABSPATH') || exit;
 
-define('TAT_VERSION', '2.0.49');
+define('TAT_VERSION', '2.0.51');
 
 // Drop jQuery Migrate on the front end: it only adds a deprecation notice to
 // the console and the platform does not rely on deprecated jQuery APIs.
@@ -151,8 +151,8 @@ function tap_customizer_css() {
     $css .= '--tap-surface: #ffffff;';
     $css .= '--tap-surface-2: #f8fafc;';
     $css .= '--tap-surface-muted: #f8fafc;';
-    $css .= '--tap-font-sans: ' . esc_attr($font_stack) . ';';
-    $css .= '--tap-font-serif: ' . esc_attr($heading_stack) . ';';
+    $css .= '--tap-font-sans: ' . wp_strip_all_tags($font_stack) . ';';
+    $css .= '--tap-font-serif: ' . wp_strip_all_tags($heading_stack) . ';';
     $css .= '--tap-text-base: ' . $font_size . 'px;';
     $css .= '--tap-container-max: ' . $container . 'px;';
     $css .= '--tap-section-padding: ' . $padding . 'px;';
@@ -185,7 +185,7 @@ function tap_customizer_css() {
     }
     echo '<style id="tap-customizer-css">' . $css . '</style>';
 }
-add_action('wp_head', 'tap_customizer_css', 5);
+add_action('wp_head', 'tap_customizer_css', 100);
 
 add_action('wp_enqueue_scripts', 'travel_agency_theme_assets');
 
