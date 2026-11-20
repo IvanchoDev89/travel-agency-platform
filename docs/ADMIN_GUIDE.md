@@ -97,10 +97,12 @@ Vista resumen del negocio:
 
 La portada (`front-page.php`) se compone de secciones independientes. El builder permite **arrastrar para reordenar** y **activar/desactivar** cada sección; el orden y los toggles se aplican en el front-end en la siguiente visita.
 
-- Secciones disponibles: hero, estadísticas, datos de Costa Rica, destinos, intereses (chips), tours destacados, servicios destacados, pilares del blog, CTA de referidos, CTA de agencias, itinerario, agencias verificadas, testimonios, blog, FAQ, newsletter y CTA final.
+- Secciones disponibles: hero, estadísticas, datos de Costa Rica, destinos, intereses (chips), tours destacados, servicios destacados, pilares del blog, CTA de referidos, CTA de agencias, itinerario, agencias verificadas, testimonios, blog, FAQ y CTA final (`newsletter` fue eliminado en la configuración v3).
 - **Tours destacados** (`promoted`) muestra los listados con promoción activa; **servicios destacados** (`featured`) muestra las experiencias mejor valoradas. Son secciones distintas.
 - Los toggles son independientes: desactivar **Destinos** no oculta **Datos de Costa Rica**, y desactivar **Blog** no oculta los **Pilares**.
-- El botón **Editar** abre los ajustes propios de la sección (título, cantidad, imagen, etc.) cuando aplican.
+- El botón **Editar** abre los ajustes propios de la sección (etiqueta, título, subtítulo, botón, cantidad, modo destacado, imagen de fondo con selector de medios) y los controles de visibilidad (**Visible para**: todos / registrados / visitantes / agencias; **Ocultar en móvil / escritorio**).
+- **Presets e importación**: guarde la configuración actual con nombre, aplique/elimine presets, exporte el JSON y péguelo en **Importar** para restaurarlo.
+- El FAQ de la portada se edita en la sección FAQ (una entrada `Pregunta | Respuesta` por línea) y es la misma fuente del esquema `FAQPage`.
 - Las secciones sin contenido se omiten automáticamente aunque estén activas.
 - Al guardar se eliminan tipos duplicados. La configuración se migra sola desde versiones anteriores (`categories` se fusiona con `intereses` y los tipos que la portada no puede renderizar se descartan).
 
@@ -311,12 +313,13 @@ Planes por defecto:
 | Auto-confirm | Modo de confirmación automática de reservas (ver [modos de reserva](USER_GUIDE.md#estados-y-modos-de-reserva)). |
 | Horas pendientes | Ventana (default 24 h) tras la cual las reservas `pending` se cancelan por cron. |
 | Página de términos | Página enlazada en el checkout/contacto. |
-| Gateway | Método de pago (actualmente **PayPal**). |
+| Gateway | Método de pago (**PayPal** y **Onvo Pay**). |
 | Booking fee | `none`, `fixed` o `percent` (tarifa del cliente sobre el servicio). |
 | Políticas de cancelación | Por tipo de servicio, sanitizadas a `flexible`. |
 | Auto-completar | Habilitar `complete_past_bookings` (solo completa reservas **pagadas**). |
 | Automatizaciones | Toggles de los 6 automatismos cron: recordatorio de pago, mensaje pre-arrival, solicitud de reseña, warnings de expiración, etc. |
 | **PayPal** | Habilitar, modo **Sandbox/Live**, **Client ID**, **Secret** y **Webhook ID**. |
+| **Onvo Pay** | Habilitar, `ONVO_SECRET_KEY` / `ONVO_PUBLISHABLE_KEY` en `wp-config.php`, webhook en `/wp-json/tap/v1/onvo-webhook` (firma HMAC verificada). |
 
 **Webhook PayPal** a registrar en el panel de PayPal: `https://<su-sitio>/wp-json/tap/v1/paypal-webhook`.
 
@@ -396,7 +399,7 @@ Garantías implementadas en v1.5.7 (ver [`CHANGELOG.md`](CHANGELOG.md)):
 ### Settings → Seguridad HTTP
 - HSTS (HTTPS only).
 - CSP mode (disabled / report-only / enforce). Keep `report-only` for 48h, review reports, then switch to `enforce`. Rollback: set the mode back to `report-only`.
-- CSP policy editor (default policy already allows Google Fonts, jsDelivr, PayPal, Worker blobs and manifests).
+- CSP policy editor (default policy allows PayPal, Worker blobs and manifests; SortableJS is local, jsDelivr was removed).
 - Report-uri for violations, rate-limited to 60 reports/minute per IP.
 - Violations are logged and counted per day (`tap_csp_report_stats`).
 

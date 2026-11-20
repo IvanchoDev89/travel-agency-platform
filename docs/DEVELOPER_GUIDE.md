@@ -89,7 +89,8 @@ The public landing page is driven by `TAP_Landing_Builder` (`includes/class-land
 
 - **Storage:** the JSON option `tap_landing_config` holds `{version, sections[]}`. Each section has `type`, `enabled`, `order` and `settings`.
 - **Source of truth:** `section_types()` lists the valid types; `default_config()` defines the canonical order and is bumped with `TAP_Landing_Builder::VERSION` (currently `3`).
-- **Admin:** Travel Platform → Landing Page (`tap-landing`) exposes drag-and-drop ordering and enabled toggles over AJAX (`tap_landing_save_ajax`).
+- **Admin:** Travel Platform → Landing Page (`tap-landing`) exposes drag-and-drop ordering, enabled toggles, editable copy (`text_fields()` map), audience/device visibility, and presets/JSON import-export over AJAX (`tap_landing_save_ajax`, `tap_landing_preset`). SortableJS is served locally from `assets/js/vendor/`.
+- **Theme helpers:** `tap_lp_setting($type, $key, $default)` reads any section setting with a safe default; `tap_lp_section_visible($type)` applies the audience/device rules in the final render loop. The FAQ section is the single source for the visible accordion and the `FAQPage` JSON-LD emitted by `TAP_SEO::faq_items()`.
 - **Front-end contract:** every section is rendered through `tap_lp_enabled('type')` and buffered with `ob_start()` / `ob_get_clean()` into `$tap_lp_sections['type']`. After all sections are computed, `front-page.php` prints them in `TAP_Landing_Builder::ordered_sections()` order. Sections rendered by the theme but absent from the stored config keep their legacy order at the end.
 - **Migration:** `load()` upgrades configs with `version < 3` through `canonicalize_sections()`. This preserves `enabled`/`settings`, aliases the legacy `categories` type to `interests`, merges duplicates, adds missing canonical sections and drops types the front-end cannot render (`newsletter`, `video`, `text`, `gallery`). Because the old front-end ignored `order`, reordering on upgrade is safe.
 - **`is_enabled()` fallback:** a type missing from the stored config is treated as enabled, so newly added theme sections keep rendering until the builder config is migrated.
@@ -701,9 +702,12 @@ The visitor-facing UI is **bilingual (ES/EN)** with **Spanish as the default**. 
 - All classes are prefixed `TAP_`; public methods are `public static`.
 - All public-facing text is translatable via the `travel-agency-platform` text domain.
 - All database access goes through `$wpdb` (never raw `mysqli`).
+- `TAP_Site_Hardening` (v1.5.96): XML-RPC off, scoped `/wp/v2/users` block via `rest_pre_dispatch`, author-archive redirect.
+- `TAP_Automations::payment_reminders_fast()` (v1.5.97): dedicated 10-min cron within the payment hold; resume links include guest email.
+
 - Money is stored as `decimal(15,2)` and formatted with `TAP_Currency`.
 - Migrations must remain **idempotent**.
-## New classes (v1.5.53-v1.5.55)
+## New classes (v1.5.53+)
 
 ### Referrals & Growth
 - `TAP_Customer_Referrals`: customer referral program (code, discount, points, tiers, QR, dashboard).

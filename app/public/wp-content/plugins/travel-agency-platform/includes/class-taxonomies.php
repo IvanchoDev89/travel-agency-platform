@@ -122,7 +122,6 @@ class TAP_Taxonomies {
             'show_in_rest' => true,
             'show_admin_column' => true,
         ]);
-
     }
 
     private static function register_amenity() {
@@ -233,7 +232,6 @@ class TAP_Taxonomies {
             'show_in_rest' => true,
             'show_admin_column' => true,
         ]);
-
     }
 
     private static function difficulty_terms() {

@@ -13,7 +13,7 @@
 
 If you discover a security vulnerability in Travel Agency Platform, please report it responsibly:
 
-1. **Email:** Send details to **security@travelagencypatform.com** (or the maintainer's email).
+1. **Email:** Send details to **security@travelagencyplatform.com** (or the maintainer's email).
 2. **Include:**
    - Description of the vulnerability
    - Steps to reproduce
@@ -46,7 +46,9 @@ The following are out of scope:
 - **Input sanitization:** All user input is sanitized (`sanitize_text_field`, `sanitize_email`, `intval`, etc.).
 - **Output escaping:** All output is escaped (`esc_html`, `esc_attr`, `esc_url`, `esc_js`).
 - **SQL:** All queries use `$wpdb->prepare()` with placeholders.
-- **CSP:** Content Security Policy is in report-only mode (will be enforced after violation review).
+- **CSP:** Content Security Policy is in report-only mode by default (enforcing would break third-party font/worker sources). Review reports before switching to `enforce`.
+- **Site hardening:** XML-RPC disabled, anonymous `/wp/v2/users` enumeration blocked and author archives redirected (`TAP_Site_Hardening`).
+- **Anti-spam:** honeypot + rate limits on client chat, Q&A and itinerary comments; moderation for Q&A and reviews.
 - **Payments:** PCI scope is minimized via hosted checkout / client-side tokenization. Raw card data never touches the server.
 - **Webhooks:** All payment webhooks are verified via HMAC-SHA256 signature.
 
@@ -58,5 +60,5 @@ The following are out of scope:
 
 ## Contact
 
-- **Security email:** security@travelagencypatform.com
+- **Security email:** security@travelagencyplatform.com
 - **Maintainer:** Ivan Bermudez (ivanbermudez@protonmail.ch)

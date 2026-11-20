@@ -264,7 +264,9 @@ class TAP_Destination_Spots {
                 $location_index[mb_strtolower($loc->name)] = $loc;
                 $location_index[$loc->slug] = $loc;
             }
-            uksort($location_index, function ($a, $b) { return mb_strlen($b) <=> mb_strlen($a); });
+            uksort($location_index, function ($a, $b) {
+                return mb_strlen($b) <=> mb_strlen($a);
+            });
         }
         foreach (get_posts($args) as $post) {
             $lat = self::coord($post->ID, '_tap_spot_lat');

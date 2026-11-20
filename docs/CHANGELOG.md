@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.97 / Theme 2.0.52] — 2026-11-19
+
+### Added
+- **Destinations map conversion**: booking/quote CTAs, itinerary "add", shareable URL state, copy-link button, diacritic-insensitive search synced to markers, mobile bottom sheet and dark-mode fixes.
+- **Verified destination content**: 31 spots with SINAC/UNESCO-corrected data, official-source links and stable fee text; `tap_help` articles included.
+- **Creative Commons imagery**: 31/31 spots with locally hosted CC0/PD/CC BY(-SA) photos, TASL attribution on each ficha/map modal and a `/creditos-imagenes` page.
+- **Low-code Landing Builder**: existing settings now actually drive the home page; editable copy for all sections + FAQ; presets, JSON import/export and per-section audience/device visibility.
+- **Security**: XML-RPC disabled, user enumeration blocked, anti-spam guards on chat/Q&A/itinerary, SSRF/IDOR/XSS fixes (P1/P2/P3), env-guarded production constants.
+
+### Changed
+- **Typography**: self-hosted Inter for headings, Plus Jakarta Sans body; the Customizer typography controls now work (priority + escaping fixed) and all offered fonts are bundled locally.
+- **Performance**: hero video defers via IntersectionObserver (never on mobile/Save-Data), 28 queries/request removed, ratings batched (12→1), `srcset` on all cards, bounded post fetches.
+- **SEO**: `TouristAttraction` schema for spots and `Article` for help pages, false hreflang tags removed, single `Sitemap:` line in robots.txt.
+- **Booking recovery**: dedicated 10-min reminder hook within the payment hold, resume link with guest email.
+- **nginx hardening**: `server_tokens off`, 64 MB body limit, PHP rate limiting, 30-day immutable assets (reference templates in `infra/nginx/`).
+
+### Fixed
+- Support email typo (`travelagencypatform.com` → `soporte@visitnuevoarenal.com`), transaction mail error logging and sender domain.
+- Test fixtures no longer render on the home page; dead landing-builder renderer left untouched but documented.
+
 ## [Theme 2.0.30] — 2026-11-09
 
 ### Fixed
