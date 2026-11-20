@@ -1010,6 +1010,7 @@ jQuery(document).ready(function($) {
       guest_phone: $('#bw-guest-phone').val() || '',
       private_upgrade: $('#bw-private-upgrade').is(':checked') ? 1 : 0,
       coupon_code: $('#bw-coupon-code').val() || '',
+      referral_code: $('input[name="referral_code"]').val() || '',
       extras: $form.find('input[name="extras[]"]:checked').map(function(){ return this.value; }).get(),
       tap_privacy_consent: $form.find('input[name="tap_privacy_consent"]').is(':checked') ? '1' : ''
     }).done(function(res) {

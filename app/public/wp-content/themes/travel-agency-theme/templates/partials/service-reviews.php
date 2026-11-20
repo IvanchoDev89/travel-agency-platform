@@ -159,6 +159,8 @@ jQuery(document).ready(function($) {
           content: $form.find('textarea[name=content]').val(),
           images: ids,
         };
+        var reviewId = new URLSearchParams(window.location.search).get('tap_review_id');
+        if (reviewId) data.booking_id = parseInt(reviewId, 10) || 0;
         $.ajax({
           url: restBase + '/review',
           method: 'POST',

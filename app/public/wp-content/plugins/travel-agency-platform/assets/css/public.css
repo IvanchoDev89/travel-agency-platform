@@ -4368,3 +4368,9 @@ html.dark .tap-destmap-popup--service .tap-destmap-popup-type {
 .tap-service-faq-item summary::after { content: "+"; float: right; color: var(--tap-primary-dark); }
 .tap-service-faq-item[open] summary::after { content: "\2212"; }
 .tap-service-faq-item p { margin: 10px 0 0; font-size: var(--tap-text-sm); color: var(--tap-neutral-600); line-height: 1.6; }
+
+/* Local voucher code (no third-party QR by default) */
+.tap-voucher-code { margin-top: var(--tap-space-3, 12px); display: grid; gap: 4px; justify-items: center; }
+.tap-voucher-code span { font-size: 11px; opacity: .8; text-transform: uppercase; letter-spacing: .05em; }
+.tap-voucher-code strong { font-size: 1.05rem; letter-spacing: .04em; word-break: break-all; text-align: center; }
+.tap-voucher-code .tap-btn { margin-top: 4px; }

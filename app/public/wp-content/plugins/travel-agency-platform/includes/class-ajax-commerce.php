@@ -387,7 +387,12 @@ class TAP_Ajax_Commerce {
         }
 
         if (!TAP_Booking::is_payable($booking)) {
-            wp_send_json_error(['message' => __('Esta solicitud aún no ha sido aceptada por la agencia. Cuando sea confirmada podrás pagar.', 'travel-agency-platform')]);
+            // Distinguish a cancelled/refunded booking from one still awaiting
+            // the agency, so the message matches what the client sees on screen.
+            $msg = in_array($booking->status, ['cancelled', 'refunded'], true)
+                ? __('Esta reserva fue cancelada y ya no puede pagarse.', 'travel-agency-platform')
+                : __('Esta solicitud aún no ha sido aceptada por la agencia. Cuando sea confirmada podrás pagar.', 'travel-agency-platform');
+            wp_send_json_error(['message' => $msg]);
         }
 
         $return_url = home_url('/checkout?code=' . $booking->booking_code . '&status=success');
@@ -430,7 +435,12 @@ class TAP_Ajax_Commerce {
         }
 
         if (!TAP_Booking::is_payable($booking)) {
-            wp_send_json_error(['message' => __('Esta solicitud aún no ha sido aceptada por la agencia. Cuando sea confirmada podrás pagar.', 'travel-agency-platform')]);
+            // Distinguish a cancelled/refunded booking from one still awaiting
+            // the agency, so the message matches what the client sees on screen.
+            $msg = in_array($booking->status, ['cancelled', 'refunded'], true)
+                ? __('Esta reserva fue cancelada y ya no puede pagarse.', 'travel-agency-platform')
+                : __('Esta solicitud aún no ha sido aceptada por la agencia. Cuando sea confirmada podrás pagar.', 'travel-agency-platform');
+            wp_send_json_error(['message' => $msg]);
         }
 
         if (!class_exists('TAP_Onvo') || !TAP_Onvo::is_ready()) {

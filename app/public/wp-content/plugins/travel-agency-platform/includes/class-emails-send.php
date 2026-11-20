@@ -410,7 +410,10 @@ class TAP_Emails_Send {
         if (!$email) {
             return false;
         }
-        $review_url = add_query_arg('tap_review', $booking->booking_code, get_permalink($booking->service_id));
+        $review_url = add_query_arg(
+            ['tap_review' => $booking->booking_code, 'tap_review_id' => (int) $booking->id],
+            get_permalink($booking->service_id)
+        );
         $service = self::get_service_name($booking);
         /* translators: %s: nombre del servicio */
         $subject = sprintf(__('¿Cómo fue tu experiencia en %s?', 'travel-agency-platform'), $service);

@@ -507,7 +507,9 @@ class TAP_Shortcode_Booking {
                     <?php if (!empty($booking->cancel_reason)): ?>
                         <p><strong><?php esc_html_e('Motivo:', 'travel-agency-platform'); ?></strong> <?php echo esc_html($booking->cancel_reason); ?></p>
                     <?php endif; ?>
+                    <p><a href="<?php echo esc_url(home_url('/search-results/')); ?>" class="tap-btn tap-btn-primary"><?php esc_html_e('Buscar otras experiencias', 'travel-agency-platform'); ?></a></p>
                 </div>
+                <?php return ob_get_clean(); ?>
             <?php endif; ?>
 
             <div class="tap-checkout-steps">
@@ -552,7 +554,7 @@ class TAP_Shortcode_Booking {
                 <p class="tap-checkout-commission-note"><?php echo esc_html(sprintf(__('El precio incluye una tarifa de plataforma del %s%% pagada por la agencia. No hay cargos adicionales para ti.', 'travel-agency-platform'), $tap_checkout_commission)); ?></p>
             </div>
 
-		<?php if ($booking->total_amount > 0 && $booking->payment_status !== 'paid' && $booking->status !== 'request'): ?>
+		<?php if ($booking->total_amount > 0 && $booking->payment_status !== 'paid' && $booking->status !== 'request' && !in_array($booking->status, ['cancelled', 'refunded'], true)): ?>
                 <?php
                 $tap_paypal_ready = TAP_PayPal::is_ready();
                 $tap_onvo_ready   = TAP_Onvo::is_ready();
@@ -807,6 +809,34 @@ class TAP_Shortcode_Booking {
         return ob_get_clean();
     }
 
+    /** Reusable voucher lookup form with an inline error message. */
+    private static function voucher_lookup_form($error, $uid, $code = '', $email = '') {
+        ob_start();
+        ?>
+        <div class="tap-voucher-lookup">
+            <p class="tap-error"><?php echo esc_html($error); ?></p>
+            <form class="tap-manage-form" method="get" action="">
+                <div class="tap-form-grid">
+                    <div class="tap-field tap-span-2">
+                        <label><?php esc_html_e('Código de reserva', 'travel-agency-platform'); ?></label>
+                        <input type="text" name="code" required value="<?php echo esc_attr($code); ?>" placeholder="TAP-XXXXXXXX-XXXXXX">
+                    </div>
+                    <?php if (!$uid): ?>
+                    <div class="tap-field tap-span-2">
+                        <label><?php esc_html_e('Correo electrónico de la reserva', 'travel-agency-platform'); ?></label>
+                        <input type="email" name="email" required autocomplete="email" value="<?php echo esc_attr($email); ?>" placeholder="<?php echo esc_attr__('tucorreo@ejemplo.com', 'travel-agency-platform'); ?>">
+                    </div>
+                    <?php endif; ?>
+                    <div class="tap-field tap-field-actions">
+                        <button type="submit" class="tap-btn tap-btn-primary"><?php esc_html_e('Ver voucher', 'travel-agency-platform'); ?></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
     public static function booking_detail($atts) {
         global $wpdb;
         $code  = isset($_GET['code']) ? sanitize_text_field(wp_unslash($_GET['code'])) : '';
@@ -845,7 +875,10 @@ class TAP_Shortcode_Booking {
             $code
         ));
         if (!$booking) {
-            return '<p class="tap-empty">' . esc_html__('Booking not found.', 'travel-agency-platform') . '</p>';
+            return self::voucher_lookup_form(
+                __('No encontramos esa reserva. Revisa el código e inténtalo de nuevo.', 'travel-agency-platform'),
+                $uid, $code, ''
+            );
         }
 
         if ($uid) {
@@ -884,7 +917,10 @@ class TAP_Shortcode_Booking {
                 return ob_get_clean();
             }
             if (strcasecmp($email, (string) $booking->guest_email) !== 0) {
-                return '<p class="tap-empty">' . esc_html__('El correo introducido no coincide con el de la reserva.', 'travel-agency-platform') . '</p>';
+                return self::voucher_lookup_form(
+                    __('Ese correo no coincide con el de la reserva. Inténtalo de nuevo.', 'travel-agency-platform'),
+                    $uid, $code, $email
+                );
             }
             $can = true;
         }
@@ -971,11 +1007,20 @@ class TAP_Shortcode_Booking {
                     </div>
                     <?php
                     $qr_data = rawurlencode($booking->booking_code . ' | ' . $service_name . ' | ' . $booking->check_in);
+                    // Third-party QR is opt-in: production can disable it to
+                    // avoid sending booking data to an external service.
+                    $show_qr = apply_filters('tap_voucher_show_external_qr', false);
                     $qr_url = 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=' . $qr_data;
                     ?>
+                    <?php if ($show_qr): ?>
                     <div class="tap-voucher-qr">
                         <img src="<?php echo esc_url($qr_url); ?>" alt="<?php esc_attr_e('Ref', 'travel-agency-platform'); ?>" width="120" height="120" loading="lazy">
-                        <div class="tap-voucher-qr-label"><?php esc_html_e('Ref', 'travel-agency-platform'); ?></div>
+                    </div>
+                    <?php endif; ?>
+                    <div class="tap-voucher-code">
+                        <span><?php esc_html_e('Código de reserva', 'travel-agency-platform'); ?></span>
+                        <strong><?php echo esc_html($booking->booking_code); ?></strong>
+                        <button type="button" class="tap-btn tap-btn-ghost tap-btn-sm tap-voucher-copy" data-code="<?php echo esc_attr($booking->booking_code); ?>"><?php esc_html_e('Copiar', 'travel-agency-platform'); ?></button>
                     </div>
                 </div>
 
@@ -1048,7 +1093,11 @@ class TAP_Shortcode_Booking {
                     <div class="tap-voucher-two-col">
                         <div class="tap-voucher-info">
                             <h4><?php esc_html_e('Titular', 'travel-agency-platform'); ?></h4>
-                            <p><strong><?php echo $user ? esc_html($user->display_name) : 'N/A'; ?></strong><br><?php echo $user ? esc_html($user->user_email) : ''; ?></p>
+                            <?php
+                            $holder_name  = $user ? $user->display_name : ($booking->guest_name ?: __('Invitado', 'travel-agency-platform'));
+                            $holder_email = $user ? $user->user_email : ($booking->guest_email ?: '');
+                            ?>
+                            <p><strong><?php echo esc_html($holder_name); ?></strong><?php echo $holder_email ? '<br>' . esc_html($holder_email) : ''; ?></p>
                             <?php if ($booking->guest_name): ?>
                             <h4><?php esc_html_e('Huésped de contacto', 'travel-agency-platform'); ?></h4>
                             <p>
@@ -1162,6 +1211,18 @@ class TAP_Shortcode_Booking {
                         else { alert(res && res.data && res.data.message ? res.data.message : '<?php echo esc_js(__('Error', 'travel-agency-platform')); ?>'); $btn.prop('disabled', false).text('<?php echo esc_js(__('Cancelar reserva', 'travel-agency-platform')); ?>'); }
                     })
                     .fail(function() { alert('<?php echo esc_js(__('Error', 'travel-agency-platform')); ?>'); $btn.prop('disabled', false).text('<?php echo esc_js(__('Cancelar reserva', 'travel-agency-platform')); ?>'); });
+            });
+
+            $('.tap-voucher-copy').on('click', function(){
+                var code = $(this).data('code'), $btn = $(this), old = $btn.text();
+                function copied(){ $btn.text('<?php echo esc_js(__('Copiado ✓', 'travel-agency-platform')); ?>'); setTimeout(function(){ $btn.text(old); }, 2000); }
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(code).then(copied).catch(function(){});
+                } else {
+                    var $t = $('<textarea>').val(code).appendTo('body'); $t.select();
+                    try { document.execCommand('copy'); copied(); } catch (e) {}
+                    $t.remove();
+                }
             });
 
             $('.tap-chat-form').on('submit', function(e) {

@@ -205,12 +205,12 @@ class TAP_Emails {
             __('Tu agencia no fue aprobada', 'travel-agency-platform'),
             TAP_Emails_Send::info_template(
                 /* translators: %s: nombre de la agencia */
-                sprintf(__('Agencia en revisión — %s', 'travel-agency-platform'), $agency->post_title),
+                sprintf(__('Agencia no aprobada — %s', 'travel-agency-platform'), $agency->post_title),
                 sprintf(
                     /* translators: 1: nombre de la agencia, 2: enlace de contacto de soporte */
-                    __('Lamentablemente tu agencia <strong>%s</strong> no fue aprobada en esta revisión.<br><br>Contacta a soporte en <a href="%s" style="color:#0d9488;">info@visitnuevoarenal.com</a> para corregir los datos de identificación y volver a intentarlo.', 'travel-agency-platform'),
+                    __('Lamentablemente tu agencia <strong>%s</strong> no fue aprobada en esta revisión.<br><br>Contacta a soporte en <a href="%s" style="color:#0d9488;">soporte@visitnuevoarenal.com</a> para corregir los datos de identificación y volver a intentarlo.', 'travel-agency-platform'),
                     esc_html($agency->post_title),
-                    esc_url(home_url('/'))
+                    esc_attr('mailto:' . tap_support_email())
                 )
             )
         );

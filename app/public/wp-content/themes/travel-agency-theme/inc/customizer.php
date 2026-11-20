@@ -508,6 +508,34 @@ $wp_customize->add_control('tap_footer_show_social', [
     'section' => 'tap_footer',
     'type'    => 'checkbox',
 ]);
+foreach ([
+    'tap_footer_facebook'  => __('URL de Facebook', 'travel-agency-platform'),
+    'tap_footer_instagram' => __('URL de Instagram', 'travel-agency-platform'),
+    'tap_footer_twitter'   => __('URL de X / Twitter', 'travel-agency-platform'),
+] as $setting => $label) {
+    $wp_customize->add_setting($setting, [
+        'default'           => '',
+        'sanitize_callback' => 'esc_url_raw',
+        'transport'         => 'refresh',
+    ]);
+    $wp_customize->add_control($setting, [
+        'label'   => $label,
+        'section' => 'tap_footer',
+        'type'    => 'url',
+    ]);
+}
+
+// ===== Plausible analytics (optional, privacy-friendly) =====
+$wp_customize->add_setting('tap_plausible_url', [
+    'default'           => '',
+    'sanitize_callback' => 'esc_url_raw',
+    'transport'         => 'refresh',
+]);
+$wp_customize->add_control('tap_plausible_url', [
+    'label'       => __('URL del script de Plausible (dejar vacío para desactivar)', 'travel-agency-platform'),
+    'section'     => 'tap_footer',
+    'type'        => 'url',
+]);
 
 // ===== Custom CSS =====
 $wp_customize->add_section('tap_custom_css', [

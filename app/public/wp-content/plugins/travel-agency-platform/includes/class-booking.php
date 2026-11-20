@@ -106,7 +106,18 @@ class TAP_Booking {
     public static function is_payable($booking) {
         if (!$booking) return false;
         if ('paid' === $booking->payment_status) return false;
-        return in_array($booking->status, ['pending', 'confirmed'], true);
+        if (!in_array($booking->status, ['pending', 'confirmed'], true)) return false;
+        // The client-side countdown is cosmetic; the server is authoritative.
+        // Once the hold minutes elapse, payment must be refused (the hourly
+        // cron will cancel the booking shortly after).
+        $created = strtotime((string) ($booking->created_at ?? ''));
+        if ($created) {
+            $hold = (int) apply_filters('tap_payment_hold_minutes', get_option('tap_payment_hold_minutes', 30));
+            if ($hold > 0 && current_time('timestamp') > $created + $hold * MINUTE_IN_SECONDS) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

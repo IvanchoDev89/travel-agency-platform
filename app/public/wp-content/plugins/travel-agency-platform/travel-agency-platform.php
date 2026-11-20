@@ -7,7 +7,7 @@
  * Plugin Name: Travel Agency Platform
  * Plugin URI: https://ivanchodev.com
  * Description: Multi-agency travel platform B2B & B2C. Manage accommodations, tours, transports, car rentals, boats and packages.
- * Version:           1.5.98
+ * Version:           1.5.99
  * Requires at least: 6.4
  * Requires PHP:      8.2.35
  * Author: IvanchoDev
@@ -20,7 +20,7 @@ defined('ABSPATH') || exit;
 // Standalone helpers (non-class files are not picked up by the classmap).
 require_once __DIR__ . '/includes/support-email.php';
 
-define('TAP_VERSION', '1.5.98');
+define('TAP_VERSION', '1.5.99');
 define('TAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -77,6 +77,7 @@ final class TravelAgencyPlatform {
 
     private function init_hooks() {
         TAP_Site_Hardening::init();
+        TAP_Launch_Check::init();
 
         register_activation_hook(__FILE__, ['TAP_Installer', 'activate']);
         register_activation_hook(__FILE__, ['TAP_Requirements', 'block_activation']);

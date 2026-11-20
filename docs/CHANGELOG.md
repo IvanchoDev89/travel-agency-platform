@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.99 / Theme 2.0.52] — 2026-11-20
+
+### Fixed (viajero)
+- Reservas canceladas/reembolsadas ya no muestran botones de pago; muestran CTA para buscar otras experiencias.
+- El servidor now expira el hold de pago (is_payable) en lugar de depender solo del JS.
+- `referral_code` se envía en la creación de reserva (antes el descuento mostrado no se aplicaba).
+- Voucher: mensajes claros con formulario reutilizable para código/correo equivocados; titular de invitado correcto (no "N/A").
+- QR de terceros desactivado por defecto (filtro `tap_voucher_show_external_qr`); código copiable localmente.
+- Aviso honesto cuando la búsqueda recibe fechas/huéspedes (se confirman con la agencia).
+- La reseña del email de review incluye `tap_review_id` y se asocia al booking correcto.
+
+### Added (lanzamiento)
+- `TAP_Launch_Check`: página admin que detecta URLs localhost, email dev, falta de HTTPS/SMTP, entorno local.
+- Redes sociales del footer configurables desde el Customizer (sin enlaces `href="#"`).
+- Analytics opcional de Plausible (sin cookies) configurable en Customizer.
+- Email de rechazo de agencia con texto correcto y `mailto:soporte@visitnuevoarenal.com`.
+
 ## [1.5.98] — 2026-11-19
 
 ### Fixed

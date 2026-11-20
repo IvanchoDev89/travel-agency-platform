@@ -72,6 +72,9 @@ class TAP_Shortcode_Search {
         $min_price = isset($_GET['min_price']) && $_GET['min_price'] !== '' ? floatval($_GET['min_price']) : null;
         $max_price = isset($_GET['max_price']) && $_GET['max_price'] !== '' ? floatval($_GET['max_price']) : null;
         $sort      = sanitize_key(wp_unslash($_GET['sort'] ?? 'relevance'));
+        $check_in  = sanitize_text_field(wp_unslash($_GET['check_in'] ?? ''));
+        $check_out = sanitize_text_field(wp_unslash($_GET['check_out'] ?? ''));
+        $guests    = intval($_GET['guests'] ?? 0);
 
         // Difficulty and tour-type only apply to tours; force the tour type.
         if ($difficulty || $tour_type) {
@@ -192,6 +195,9 @@ class TAP_Shortcode_Search {
         }
 
         echo '<div class="tap-search-results" aria-live="polite" aria-atomic="true">';
+        if ($check_in || $check_out || $guests > 0) {
+            echo '<p class="tap-notice">' . esc_html__('Las fechas y el número de huéspedes se confirman directamente con la agencia antes de completar la reserva.', 'travel-agency-platform') . '</p>';
+        }
         if ($total) {
             /* translators: %d: number of results found. */
             echo '<p class="tap-results-count">' . esc_html(sprintf(_n('%d resultado encontrado', '%d resultados encontrados', $total, 'travel-agency-platform'), $total)) . '</p>';

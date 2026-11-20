@@ -6,17 +6,20 @@
             <div class="footer-brand">
                 <h3><?php bloginfo('name'); ?></h3>
                 <p><?php _e('Your trusted multi-agency travel platform. Discover, compare, and book the best travel experiences from verified local agencies.', 'travel-agency-platform'); ?></p>
-                <?php if (get_theme_mod('tap_footer_show_social', true)): ?>
+                <?php
+                $socials = [
+                    'facebook'  => [get_theme_mod('tap_footer_facebook', ''), __('Facebook', 'travel-agency-platform'), '<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>'],
+                    'instagram' => [get_theme_mod('tap_footer_instagram', ''), __('Instagram', 'travel-agency-platform'), '<rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5"/>'],
+                    'twitter'   => [get_theme_mod('tap_footer_twitter', ''), __('X / Twitter', 'travel-agency-platform'), '<path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/>'],
+                ];
+                $active_socials = array_filter($socials, function ($s) { return $s[0] !== ''; });
+                if (get_theme_mod('tap_footer_show_social', true) && $active_socials): ?>
                 <div class="footer-social">
-                    <a href="#" aria-label="Facebook">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+                    <?php foreach ($active_socials as $key => $social): ?>
+                    <a href="<?php echo esc_url($social[0]); ?>" target="_blank" rel="noopener noreferrer" aria-label="<?php echo esc_attr($social[1]); ?>">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><?php echo $social[2]; // phpcs:ignore WordPress.Security.EscapeOutput -- fixed inline SVG paths. ?></svg>
                     </a>
-                    <a href="#" aria-label="Instagram">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r="1.5"/></svg>
-                    </a>
-                    <a href="#" aria-label="Twitter">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg>
-                    </a>
+                    <?php endforeach; ?>
                 </div>
                 <?php endif; ?>
             </div>
@@ -79,6 +82,13 @@
     });
 })();
 </script>
+<?php
+// Optional privacy-friendly analytics (Plausible). Configure the script URL
+// in Customizer -> Footer; leave empty to disable. No cookies, GDPR-friendly.
+$plausible_url = trim((string) get_theme_mod('tap_plausible_url', ''));
+if ($plausible_url !== '' && preg_match('#^https://[a-z0-9.-]+\.[a-z]{2,}/js/plausible\.js$#i', $plausible_url)): ?>
+<script defer data-domain="<?php echo esc_attr(parse_url(home_url(), PHP_URL_HOST)); ?>" src="<?php echo esc_url($plausible_url); ?>"></script>
+<?php endif; ?>
 <?php wp_footer(); ?>
 </body>
 </html>
