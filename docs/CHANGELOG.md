@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.6.1] — 2026-11-20
+
+### Changed (finanzas de agencia)
+- `commission_amount` se presenta correctamente como la comisión que la agencia paga a la plataforma (no como su ingreso).
+- Finanzas muestra la comisión como información + nota de que las transferencias se coordinan con el administrador; se eliminó el formulario e historial de "Solicitar liquidación" del panel de agencia.
+- El "Neto para ti" del Resumen sigue siendo la cifra de ingreso de la agencia.
+
+### Removed
+- AJAX `tap_dash_agency_payout` y su JS asociado (el backend de liquidaciones sigue disponible solo para el administrador).
+
 ## [1.6.0] — 2026-11-20
 
 ### Fixed (panel de agencias)

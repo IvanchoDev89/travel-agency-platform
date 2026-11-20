@@ -9,10 +9,12 @@ require __DIR__ . '/bootstrap.php';
 global $wpdb;
 $src = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-front-dash.php');
 
-// 1) Payout request form available in the failed-payout state
-tap_t_assert(strpos($src, 'private static function payout_request_form') !== false, 'payout form extracted to a reusable helper');
-tap_t_assert(substr_count($src, 'self::payout_request_form(') >= 2, 'payout form used in both normal and failed states');
-tap_t_assert(strpos($src, 'Solicita de nuevo una liquidación') === false, 'no misleading "request again" copy without a form');
+// 1) Commission is presented as the platform's cut, not the agency's receivable
+tap_t_assert(strpos($src, 'Comisión de la plataforma pendiente') !== false, 'commission stats relabeled as the platform cut');
+tap_t_assert(strpos($src, 'Comisión de la plataforma por mes') !== false, 'monthly chart relabeled');
+tap_t_assert(strpos($src, 'tap-bo-payout') === false && strpos($src, 'payout_request_form') === false, 'agency payout request form removed');
+tap_t_assert(strpos($src, 'Historial de liquidaciones') === false, 'agency payout history removed');
+tap_t_assert(strpos($src, 'Tus transferencias se coordinan') !== false || strpos($src, 'transferencias a tu agencia se coordinan') !== false, 'informational transfer note shown');
 
 // 2) Onboarding: real selector + correct nonce
 tap_t_assert(strpos($src, 'a[href*="manage-listing"]') !== false, 'onboarding targets the real "Nuevo" link');

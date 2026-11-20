@@ -187,8 +187,8 @@ tap_t_assert(false === TAP_Payouts::complete($pid2), 'a cancelled payout cannot 
 // ── 7) front-office sections + wiring ────────────────────────────────
 $src  = file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-front-dash.php');
 $src .= file_get_contents(WP_PLUGIN_DIR . '/travel-agency-platform/includes/class-front-dash-client.php');
-tap_t_assert(false !== strpos($src, 'tap_dash_agency_booking') && false !== strpos($src, 'tap_dash_agency_payout'), 'dashboard class defines the book-office AJAX actions');
-tap_t_assert(has_action('wp_ajax_tap_dash_agency_booking') && has_action('wp_ajax_tap_dash_agency_payout'), 'book-office AJAX endpoints are registered');
+tap_t_assert(false !== strpos($src, 'tap_dash_agency_booking') && false === strpos($src, 'tap_dash_agency_payout'), 'dashboard class defines the book-office AJAX actions');
+tap_t_assert(has_action('wp_ajax_tap_dash_agency_booking') && !has_action('wp_ajax_tap_dash_agency_payout'), 'book-office AJAX endpoints are registered');
 tap_t_assert(false !== strpos($src, "'bo-operations'") && false !== strpos($src, "'bo-finances'") && false !== strpos($src, "'bo-listings'"), 'back-office sections wired in the dashboard nav/routing');
 
 wp_set_current_user($owner_uid);
@@ -206,7 +206,7 @@ tap_t_assert(false !== strpos($out, 'Confirmar') && false !== strpos($out, 'Canc
 $_GET['seccion'] = 'bo-finances';
 $out = do_shortcode('[tap_front_dash]');
 unset($_GET['seccion']);
-tap_t_assert(false !== strpos($out, 'Finanzas') && false !== strpos($out, 'tap-bo-payout'), 'agency admin sees the finances section with the payout form');
+tap_t_assert(false !== strpos($out, 'Finanzas') && false !== strpos($out, 'Comisión de la plataforma'), 'agency admin sees informational finances section (no payout form)');
 
 wp_set_current_user($emp_uid);
 $_GET['seccion'] = 'overview';

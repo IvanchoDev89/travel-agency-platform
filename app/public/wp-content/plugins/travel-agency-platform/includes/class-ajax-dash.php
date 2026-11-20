@@ -5,31 +5,6 @@ defined('ABSPATH') || exit;
  * Dashboard AJAX handlers: the client actions (cancel booking, favourites,\n * delete review, chat) and the agency back-office actions (booking and payout\n * state). Every handler verifies tap_front_dash_nonce. Split out of\n * TAP_Front_Dash so that class keeps only views and routing.
  */
 class TAP_Ajax_Dash {
-    public static function ajax_agency_payout() {
-        check_ajax_referer('tap_front_dash_nonce', 'nonce');
-        if (!is_user_logged_in()) {
-            wp_send_json_error(['message' => __('No autenticado.', 'travel-agency-platform')], 401);
-        }
-
-        $user = wp_get_current_user();
-        if (!TAP_Roles::is_agency_admin($user)) {
-            wp_send_json_error(['message' => __('Solo el administrador de la agencia puede solicitar liquidaciones.', 'travel-agency-platform')], 403);
-        }
-
-        $agency = TAP_Booking::get_agency_for_user($user->ID);
-        if (!$agency) {
-            wp_send_json_error(['message' => __('No tienes una agencia vinculada.', 'travel-agency-platform')], 400);
-        }
-
-        $method = sanitize_key(wp_unslash($_POST['method'] ?? 'bank_transfer'));
-        $note   = sanitize_textarea_field(wp_unslash($_POST['note'] ?? ''));
-        $res    = TAP_Payouts::request($agency, $method, $note);
-        if (is_wp_error($res)) {
-            wp_send_json_error(['message' => $res->get_error_message()], 400);
-        }
-        wp_send_json_success(['message' => __('Solicitud de liquidación enviada al administrador.', 'travel-agency-platform'), 'payout_id' => (int) $res]);
-    }
-
     public static function ajax_chat_send() {
         check_ajax_referer('tap_front_dash_nonce', 'nonce');
         $user = wp_get_current_user();

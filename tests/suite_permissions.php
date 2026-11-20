@@ -113,11 +113,11 @@ $html_fe_emp = $pc_front($staff);
 $html_fe_adm = $pc_front($owner);
 wp_set_current_user(0);
 tap_t_assert(
-    false === strpos($html_fe_emp, 'Neto para ti') && false === strpos($html_fe_emp, 'Por cobrar'),
+    false === strpos($html_fe_emp, 'Neto para ti') && false === strpos($html_fe_emp, 'Comisión de la plataforma pendiente'),
     'employee front-dash overview hides net and receivable money stats'
 );
 tap_t_assert(
-    strpos($html_fe_adm, 'Neto para ti') !== false && strpos($html_fe_adm, 'Por cobrar') !== false,
+    strpos($html_fe_adm, 'Neto para ti') !== false && strpos($html_fe_adm, 'Comisión de la plataforma pendiente') !== false,
     'agency admin front-dash overview shows net and receivable money stats'
 );
 
