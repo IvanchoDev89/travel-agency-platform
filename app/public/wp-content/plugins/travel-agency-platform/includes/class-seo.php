@@ -13,11 +13,43 @@ class TAP_SEO {
         'tap_equipment',
     ];
 
+    /**
+     * True when Yoast SEO is active. In that case TAP stops emitting the
+     * duplicate meta/canonical/OG/title/robots signals, but keeps its own
+     * service JSON-LD (Yoast does not know about our custom CPts).
+     */
+    public static function yoast_active() {
+        return defined('WPSEO_VERSION');
+    }
+
     public static function init() {
-        add_action('wp_head', [__CLASS__, 'output'], 1);
-        add_filter('document_title_parts', [__CLASS__, 'document_title_parts'], 10, 1);
-        add_filter('pre_get_document_title', [__CLASS__, 'pre_get_document_title'], 10, 1);
-        add_filter('robots_txt', [__CLASS__, 'robots_txt'], 10, 2);
+        if (!self::yoast_active()) {
+            add_action('wp_head', [__CLASS__, 'output'], 1);
+            add_filter('document_title_parts', [__CLASS__, 'document_title_parts'], 10, 1);
+            add_filter('pre_get_document_title', [__CLASS__, 'pre_get_document_title'], 10, 1);
+            add_filter('robots_txt', [__CLASS__, 'robots_txt'], 10, 2);
+        }
+        // Schema is TAP-specific: always emit it, even alongside Yoast.
+        add_action('wp_head', [__CLASS__, 'schema_output'], 12);
+    }
+
+    /** Emit only the structured data for singular service/agency/spot/help pages. */
+    public static function schema_output() {
+        if (is_admin() || is_feed()) return;
+        $post = get_post();
+        if (!$post instanceof WP_Post || !is_singular()) return;
+
+        if (in_array($post->post_type, self::$types, true)) {
+            self::json_ld($post);
+            self::breadcrumb_json_ld($post);
+        } elseif ($post->post_type === 'tap_agency') {
+            self::agency_json_ld($post);
+            self::breadcrumb_json_ld($post);
+        } elseif ($post->post_type === 'tap_spot') {
+            self::spot_json_ld($post);
+        } elseif ($post->post_type === 'tap_help') {
+            self::help_json_ld($post);
+        }
     }
 
     public static function pre_get_document_title($title) {
@@ -83,27 +115,21 @@ class TAP_SEO {
             self::meta_tags($post);
             self::og_tags($post);
             self::twitter_tags($post);
-            self::json_ld($post);
-            self::breadcrumb_json_ld($post);
         } elseif ($post instanceof WP_Post && $post->post_type === 'tap_agency' && is_singular()) {
             self::canonical(get_permalink($post->ID));
             self::meta_tags($post);
             self::og_tags($post);
             self::twitter_tags($post);
-            self::agency_json_ld($post);
-            self::breadcrumb_json_ld($post);
         } elseif ($post instanceof WP_Post && $post->post_type === 'tap_spot' && is_singular()) {
             self::canonical(get_permalink($post->ID));
             self::meta_tags($post);
             self::og_tags($post);
             self::twitter_tags($post);
-            self::spot_json_ld($post);
         } elseif ($post instanceof WP_Post && $post->post_type === 'tap_help' && is_singular()) {
             self::canonical(get_permalink($post->ID));
             self::meta_tags($post);
             self::og_tags($post);
             self::twitter_tags($post);
-            self::help_json_ld($post);
         } elseif (is_post_type_archive('tap_agency')) {
             self::archive_tags(__('Agencias', 'travel-agency-platform'), __('Agencias de viaje y operadores turísticos verificados en la plataforma.', 'travel-agency-platform'), get_post_type_archive_link('tap_agency'));
         } elseif (is_post_type_archive() && is_archive()) {

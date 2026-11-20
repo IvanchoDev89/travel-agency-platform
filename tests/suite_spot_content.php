@@ -211,6 +211,22 @@ tap_t_assert(
     'the back-fill restores the seeded value'
 );
 
+/* Attribution: every spot carries a TASL credit rendered on the credits page. */
+$ids_credit = get_posts(['post_type' => 'tap_spot', 'post_status' => 'publish', 'posts_per_page' => -1, 'fields' => 'ids']);
+$with_credit = 0;
+$checked = 0;
+foreach ($ids_credit as $cid) {
+    if (get_post_field('post_name', $cid) === $probe_slug) continue; // test fixture
+    $checked++;
+    if ((string) get_post_meta($cid, '_tap_spot_photo_credit', true) !== '') $with_credit++;
+}
+tap_t_assert($with_credit === $checked, "all published spots have photo credits ({$with_credit}/{$checked})");
+$credits_page = get_page_by_path('creditos-imagenes');
+tap_t_assert($credits_page instanceof WP_Post, 'image credits page exists');
+if ($credits_page) {
+    tap_t_assert(strpos((string) $credits_page->post_content, 'tap_image_credits') !== false, 'credits page uses the TASL shortcode');
+}
+
 // ---------------------------------------------------------------------------
 // 8. The extra destinations are inserted on an install that lacked them
 // ---------------------------------------------------------------------------

@@ -161,6 +161,11 @@ tap_t_assert(isset($logFast[(string) $fast_id]), 'fast reminder is deduped per b
 $wpdb->delete($wpdb->prefix . 'tap_bookings', ['id' => $fast_id]);
 delete_option('tap_auto_sent_pay');
 
+// cursors: fast and legacy reminder jobs must not share a pagination cursor
+$src_auto = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-automations.php');
+tap_t_assert(strpos($src_auto, "'pay_fast'") !== false, 'fast reminder uses a dedicated pay_fast cursor');
+tap_t_assert(strpos($src_auto, "self::sent('pay', \$id)") !== false, 'fast reminder shares the pay sent-log to avoid duplicate emails');
+
 // ---- resume URL carries guest email (inspect rendered email body) ----
 $body_probe = '';
 add_filter('wp_mail', function ($atts) use (&$body_probe) { $body_probe = $atts['message'] ?? ''; return $atts; }, 10);

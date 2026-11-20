@@ -11,6 +11,8 @@ global $wp_query, $wp_the_query;
 function tap_seo_render() {
     ob_start();
     TAP_SEO::output();
+    // Schema now lives in its own hook so it survives a Yoast guard.
+    TAP_SEO::schema_output();
     return ob_get_clean();
 }
 
@@ -18,6 +20,7 @@ $service_types = ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_ren
 
 // 1) Service singular: canonical + meta description + twitter + JSON-LD type
 $found_singular = false;
+$tested_types = [];
 foreach ($service_types as $pt) {
     $ids = get_posts(['post_type' => $pt, 'post_status' => 'publish', 'posts_per_page' => 1, 'fields' => 'ids']);
     if (!$ids) {
@@ -42,10 +45,11 @@ foreach ($service_types as $pt) {
     } elseif ($pt === 'tap_accommodation') {
         tap_t_assert(strpos($out, '"@type":"Hotel"') !== false, "[seo] accommodation uses Hotel schema");
     }
+    $tested_types[$pt] = true;
     $found_singular = true;
-    break;
+    // Test every type, not just the first one found.
 }
-tap_t_assert($found_singular, "[seo] at least one service singular tested");
+tap_t_assert(isset($tested_types['tap_tour']) || isset($tested_types['tap_accommodation']), "[seo] tour/accommodation schema tested");
 
 // 1b) FAQ + ContactPoint rich results on service singular
 $faq_ok = strpos($out, 'FAQPage') !== false && strpos($out, 'Question') !== false;
@@ -160,6 +164,23 @@ if (function_exists('wp_sitemaps_get_server')) {
     $want = ['tap_location', 'tap_service_cat', 'tap_property_type', 'tap_tour_type', 'tap_vehicle_type', 'tap_boat_type', 'tap_amenity'];
     $missing_tax = array_diff($want, array_keys($taxs));
     tap_t_assert(empty($missing_tax), "[seo] sitemap taxonomies covers platform taxonomies");
+}
+
+// 9) tap_spot / tap_help dedicated SEO (TouristAttraction / Article)
+foreach (['tap_spot' => 'TouristAttraction', 'tap_help' => 'Article'] as $seo_pt => $schema) {
+    $ids = get_posts(['post_type' => $seo_pt, 'post_status' => 'publish', 'posts_per_page' => 1, 'fields' => 'ids']);
+    if (!$ids) continue;
+    $post = get_post($ids[0]);
+    setup_postdata($post);
+    $wp_query = new WP_Query();
+    $wp_query->is_single = true; $wp_query->is_singular = true;
+    $wp_query->queried_object = $post; $wp_query->queried_object_id = $post->ID;
+    $GLOBALS['post'] = $post; $wp_the_query = $wp_query;
+    $out = tap_seo_render();
+    tap_t_assert(strpos($out, 'rel="canonical"') !== false, "[seo] {$seo_pt} canonical present");
+    tap_t_assert(strpos($out, '<meta name="description"') !== false, "[seo] {$seo_pt} meta description present");
+    tap_t_assert(strpos($out, 'og:title') !== false, "[seo] {$seo_pt} OG tags present");
+    tap_t_assert(strpos($out, $schema) !== false, "[seo] {$seo_pt} uses {$schema} schema");
 }
 
 tap_t_finish();

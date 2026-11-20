@@ -245,7 +245,11 @@ function tap_theme_seo_output() {
         }
         tap_theme_meta($desc, home_url('/'));
         tap_theme_home_json_ld();
-        if (get_theme_mod('tap_landing_show_faq', true)) {
+        // Emit FAQPage schema only when the visible FAQ accordion is actually
+        // rendered: it needs both the theme toggle and the builder section.
+        $faq_visible = get_theme_mod('tap_landing_show_faq', true)
+            && (!function_exists('tap_lp_enabled') || tap_lp_enabled('faq'));
+        if ($faq_visible) {
             tap_theme_faq_json_ld();
         }
         return;

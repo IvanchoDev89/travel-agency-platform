@@ -78,7 +78,7 @@ class TAP_Automations {
                 $after_id,
                 $limit
             ));
-        });
+        }, 'pay_fast');
 
         foreach ($ids as $id) {
             $id = (int) $id;
@@ -144,7 +144,7 @@ class TAP_Automations {
                 self::mark('pay', $id);
             }
         }
-        self::end_batch('pay', $ids, $finished);
+        self::end_batch('pay', $ids, $finished, 'pay_fast');
     }
 
     /* =========================================================
@@ -304,18 +304,19 @@ class TAP_Automations {
      * Returns [rows, finished] where finished tells end_batch()
      * whether a cursor should be persisted.
      */
-    private static function batch_run($task, callable $query) {
+    private static function batch_run($task, callable $query, $cursor_key = '') {
         global $wpdb;
-        $cursor = (int) get_option('tap_auto_cursor_' . $task, 0);
+        $cursor = (int) get_option('tap_auto_cursor_' . ($cursor_key ?: $task), 0);
         $rows = $query($wpdb, $cursor, self::BATCH);
         $rows = is_array($rows) ? $rows : [];
         $finished = count($rows) < self::BATCH;
         return [$rows, $finished];
     }
 
-    private static function end_batch($task, array $rows, $finished) {
+    private static function end_batch($task, array $rows, $finished, $cursor_key = '') {
+        $cursor_key = $cursor_key ?: $task;
         if ($finished) {
-            delete_option('tap_auto_cursor_' . $task);
+            delete_option('tap_auto_cursor_' . $cursor_key);
             return;
         }
         $last = 0;

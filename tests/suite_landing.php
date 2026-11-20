@@ -66,4 +66,13 @@ foreach ($expected as $type) {
     tap_t_assert(strpos($front, '$tap_lp_sections[\'' . $type . '\']') !== false, "[landing] front-page buffers the {$type} section");
 }
 
+/* Low-code builder: presets + audience/device visibility helpers. */
+$lb_src = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-landing-builder.php');
+tap_t_assert(false !== strpos($lb_src, 'ajax_preset'), '[landing] preset AJAX handler exists');
+tap_t_assert(false !== strpos($lb_src, 'PRESETS_OPTION'), '[landing] presets are stored in a dedicated option');
+tap_t_assert(false !== strpos($lb_src, "data-preset"), '[landing] admin UI exposes preset buttons');
+$theme_fn = (string) file_get_contents(get_template_directory() . '/functions.php');
+tap_t_assert(false !== strpos($theme_fn, 'function tap_lp_section_visible'), '[landing] visibility helper exists');
+tap_t_assert(false !== strpos($theme_fn, 'hide_on_mobile') && false !== strpos($theme_fn, 'visible_to'), '[landing] visibility covers audience and device');
+
 tap_t_finish();

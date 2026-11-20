@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.5.98] — 2026-11-19
+
+### Fixed
+- **Yoast coexistence**: `TAP_SEO` detects `WPSEO_VERSION` and suppresses duplicate meta/canonical/OG/title/robots output; service/spot/help JSON-LD now emits on its own hook so structured data is never lost.
+- **FAQ schema** only emitted when the visible FAQ accordion is actually rendered (builder section + theme toggle).
+- **Rating batch query** scoped with `WHERE ... IN (...)` (no full scan) while keeping one query and per-request zero cache.
+- **Payment reminder cursors**: the fast (10-min) job uses `pay_fast`, avoiding clobbering the legacy daily cursor; the sent-log stays shared to prevent duplicate emails.
+- **Mail sender**: default From is now `soporte@visitnuevoarenal.com` (no more `.local`); optional SMTP via `TAP_SMTP_*` constants.
+
+### Added
+- 59 E2E suites (reactivated `suite_agency_team`) plus coverage for presets, section visibility, image credits and spot/help SEO.
+
 ## [1.5.97 / Theme 2.0.52] — 2026-11-19
 
 ### Added

@@ -1,3 +1,5 @@
+> **MIGRACIÓN (2026-11-19):** instalación limpia + migración de contenido mapeado; no clonar la BD local (datos E2E, remitente `.local`, claves test). Configurar `TAP_SMTP_*` y resolver Yoast antes de publicar.
+
 # Plan de integración en sitio WordPress existente (theme Rara Themes)
 
 > Contexto: quieres implantar `travel-agency-platform` en una página WordPress que ya

@@ -772,6 +772,8 @@ class TAP_API {
     public static function prime_rating_stats(array $pairs) {
         global $wpdb;
         $todo = [];
+        $types = [];
+        $ids = [];
         foreach ($pairs as $pair) {
             $type = (string) ($pair[0] ?? '');
             $id   = (int) ($pair[1] ?? 0);
@@ -779,18 +781,30 @@ class TAP_API {
             $key = 'tap_rating_' . $type . '_' . $id;
             if (false === wp_cache_get($key, 'tap_ratings')) {
                 $todo[$key] = ['type' => $type, 'id' => $id];
+                $types[$type] = $type;
+                $ids[$id] = $id;
+                // wp_cache is per-request (non-persistent): a zero here is
+                // harmless and stops get_rating_stats() from issuing 2 SQL
+                // queries for services with no reviews.
                 wp_cache_set($key, ['avg' => 0.0, 'count' => 0], 'tap_ratings', 300);
             }
         }
         if (!$todo) return;
 
-        // One grouped query instead of two per service.
-        $rows = $wpdb->get_results(
+        // One grouped query, scoped to the requested services (no full scan).
+        // The zero entries above are overwritten only for services with real
+        // approved reviews.
+        $type_ph = implode(',', array_fill(0, count($types), '%s'));
+        $id_ph   = implode(',', array_fill(0, count($ids), '%d'));
+        $rows = $wpdb->get_results($wpdb->prepare(
             "SELECT service_type, service_id, AVG(rating) AS avg_rating, COUNT(*) AS total
              FROM {$wpdb->prefix}tap_reviews
              WHERE is_approved = 1
-             GROUP BY service_type, service_id"
-        );
+               AND service_type IN ($type_ph)
+               AND service_id IN ($id_ph)
+             GROUP BY service_type, service_id",
+            array_merge(array_values($types), array_values($ids))
+        ));
         foreach ((array) $rows as $row) {
             $key = 'tap_rating_' . $row->service_type . '_' . (int) $row->service_id;
             if (isset($todo[$key])) {
