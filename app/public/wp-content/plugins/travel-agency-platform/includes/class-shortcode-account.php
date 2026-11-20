@@ -726,7 +726,18 @@ break; }
                         <span class="tap-commission-info-icon" aria-hidden="true">💰</span>
                         <div>
                             <strong><?php esc_html_e('Cómo funcionan las comisiones', 'travel-agency-platform'); ?></strong>
-                            <p><?php esc_html_e('La plataforma cobra una comisión por cada reserva confirmada. Tú recibes el resto directamente en tu cuenta. Sin costos fijos mensuales (plan gratuito disponible). Comisión típica: 10% (varía según el plan).', 'travel-agency-platform'); ?></p>
+                            <?php
+                            $signup_commission = (float) apply_filters('tap_signup_commission', get_option('tap_commission_default', 10));
+                            ?>
+                            <p>
+                                <?php
+                                echo esc_html(sprintf(
+                                    /* translators: %s: porcentaje de comisión de la plataforma */
+                                    __('La plataforma cobra una comisión por cada reserva confirmada. Tú recibes el resto directamente en tu cuenta. Sin costos fijos mensuales (plan gratuito disponible). Comisión típica: %s%% (varía según el plan).', 'travel-agency-platform'),
+                                    number_format_i18n($signup_commission, 0)
+                                ));
+                                ?>
+                            </p>
                         </div>
                     </div>
                 <div class="tap-input-group">

@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.6.0] — 2026-11-20
+
+### Fixed (panel de agencias)
+- Failed payout state now shows the payout request form instead of a dead-end notice.
+- Onboarding tour: posts the correct `tapDash` nonce and targets the real "Nuevo" link; it no longer reappears on every load.
+- Session expiry redirects to `wp_login_url()` instead of the nonexistent `/login/`.
+- Signup copy shows the configured commission (was hardcoded 10% while the install uses 15%).
+- Raw payout methods (`bank_transfer`, …) and audit codes (`booking_confirmed`, …) now render as human labels.
+- The Finanzas "En disputa" metric is actionable: new `Disputas` section in nav/routing.
+- Dual-role agency users (admin + employee) are treated as admins consistently in nav and section guards.
+
+### Added
+- `tests/suite_agency_panel.php` (60 E2E suites total) covering all of the above.
+
+### Deferred (needs a business decision, documented in financial-logic-analysis.md)
+- Commission sign convention (platform cut vs agency receivable) and cross-section number reconciliation.
+
 ## [1.5.99 / Theme 2.0.52] — 2026-11-20
 
 ### Fixed (viajero)

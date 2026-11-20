@@ -300,6 +300,9 @@ class TAP_Front_Dash {
                     case 'bo-audit':
                         echo self::agency_audit($user);
                         break;
+                    case 'bo-disputas':
+                        echo self::agency_disputes($user);
+                        break;
                     case 'bo-listings':
                         echo TAP_Listing_Editor::agency_manage([]);
                         break;
@@ -629,9 +632,107 @@ class TAP_Front_Dash {
 
     /* ── agency back-office: finances ───────────────────────────────── */
 
+    /** Agency disputes list (the Finanzas "En disputa" metric is now actionable). */
+    private static function agency_disputes($user) {
+        $agency = (int) TAP_Booking::get_agency_for_user($user->ID);
+        ob_start();
+        echo '<div class="tap-panel-section"><h2>' . esc_html__('Disputas', 'travel-agency-platform') . '</h2>';
+        if (!$agency || !class_exists('TAP_Disputes')) {
+            echo '<p class="tap-empty">' . esc_html__('No hay disputas que mostrar.', 'travel-agency-platform') . '</p></div>';
+            return ob_get_clean();
+        }
+        $rows = TAP_Disputes::for_agency($agency);
+        if (!$rows) {
+            echo '<p class="tap-empty">' . esc_html__('No tienes disputas abiertas ni cerradas.', 'travel-agency-platform') . '</p>';
+        } else {
+            echo '<div class="tap-table-scroll"><table class="tap-table tap-table-compact"><thead><tr>'
+                . '<th>' . esc_html__('Reserva', 'travel-agency-platform') . '</th>'
+                . '<th>' . esc_html__('Motivo', 'travel-agency-platform') . '</th>'
+                . '<th>' . esc_html__('Estado', 'travel-agency-platform') . '</th>'
+                . '<th>' . esc_html__('Fecha', 'travel-agency-platform') . '</th>'
+                . '</tr></thead><tbody>';
+            foreach ($rows as $d) {
+                echo '<tr>';
+                echo '<td>#' . (int) ($d->booking_id ?? 0) . '</td>';
+                echo '<td>' . esc_html((string) ($d->reason ?? '')) . '</td>';
+                echo '<td>' . esc_html((string) ($d->status ?? '')) . '</td>';
+                echo '<td>' . esc_html((string) ($d->created_at ?? '')) . '</td>';
+                echo '</tr>';
+            }
+            echo '</tbody></table></div>';
+        }
+        echo '</div>';
+        return ob_get_clean();
+    }
+
+    /** Human-readable labels for raw payout/audit codes in the agency UI. */
+    public static function payout_method_label($code) {
+        $labels = [
+            'bank_transfer' => __('Transferencia bancaria', 'travel-agency-platform'),
+            'paypal'        => 'PayPal',
+            'cheque'        => __('Cheque', 'travel-agency-platform'),
+            'cash'          => __('Efectivo', 'travel-agency-platform'),
+        ];
+        return $labels[(string) $code] ?? (string) $code;
+    }
+
+    public static function audit_action_label($code) {
+        $labels = [
+            'booking_confirmed'       => __('Reserva confirmada', 'travel-agency-platform'),
+            'agency_profile_updated'  => __('Perfil de agencia actualizado', 'travel-agency-platform'),
+            'listing_published'       => __('Listado publicado', 'travel-agency-platform'),
+            'payout_requested'        => __('Liquidación solicitada', 'travel-agency-platform'),
+            'team_member_added'       => __('Miembro del equipo añadido', 'travel-agency-platform'),
+        ];
+        $code = (string) $code;
+        if (isset($labels[$code])) return $labels[$code];
+        if (preg_match('/^booking\s+#(\d+)$/i', $code, $m)) {
+            return sprintf(__('Reserva #%d', 'travel-agency-platform'), (int) $m[1]);
+        }
+        return $code;
+    }
+
+    /**
+     * Canonical agency role check for section access. A user with both the
+     * admin and employee roles must be treated as an admin (same rule as the
+     * nav), otherwise they see Finanzas/Equipo and the handler rejects them.
+     */
+    private static function is_employee_only($user) {
+        $roles = (array) $user->roles;
+        return in_array('tap_agency_employee', $roles, true)
+            && !in_array('tap_agency_admin', $roles, true)
+            && !user_can($user, 'manage_options');
+    }
+
+    /** Shared payout request form (used for the normal and failed-payout states). */
+    private static function payout_request_form($owed) {
+        ob_start();
+        ?>
+        <div class="tap-dash-card" style="margin-top:16px;">
+            <h3><?php esc_html_e('Solicitar liquidación', 'travel-agency-platform'); ?></h3>
+            <p class="tap-agency-meta"><?php esc_html_e('Tu comisión por cobrar queda agrupada en una sola solicitud que el administrador confirma antes de transferirte.', 'travel-agency-platform'); ?></p>
+            <form id="tap-bo-payout" class="tap-bo-form">
+                <label><?php esc_html_e('Método de cobro', 'travel-agency-platform'); ?>
+                    <select name="method">
+                        <option value="bank_transfer"><?php esc_html_e('Transferencia bancaria', 'travel-agency-platform'); ?></option>
+                        <option value="paypal">PayPal</option>
+                        <option value="cheque"><?php esc_html_e('Cheque', 'travel-agency-platform'); ?></option>
+                        <option value="cash"><?php esc_html_e('Efectivo', 'travel-agency-platform'); ?></option>
+                    </select>
+                </label>
+                <label><?php esc_html_e('Nota (opcional)', 'travel-agency-platform'); ?>
+                    <textarea name="note" rows="2" placeholder="<?php echo esc_attr__('Referencia para el administrador', 'travel-agency-platform'); ?>"></textarea>
+                </label>
+                <button type="submit" class="tap-btn tap-btn-primary"><?php echo esc_html(sprintf(/* translators: %s: importe solicitado */ __('Solicitar %s', 'travel-agency-platform'), TAP_Currency::fmt($owed))); ?></button>
+            </form>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
     private static function agency_finances($user) {
         global $wpdb;
-        if (TAP_Roles::is_agency_employee($user)) {
+        if (self::is_employee_only($user)) {
             return '<p class="tap-empty">' . esc_html__('Solo el administrador de la agencia gestiona las finanzas.', 'travel-agency-platform') . '</p>';
         }
         $agency = TAP_Booking::get_agency_for_user($user->ID);
@@ -723,27 +824,13 @@ class TAP_Front_Dash {
             <?php if (!$tap_pending_blocked && $failed_count > 0) : ?>
                 <div class="tap-notice tap-notice-error">
                     <span class="tap-notice-icon" aria-hidden="true">⚠</span>
-                    <span><?php echo esc_html(sprintf(/* translators: %d: número de liquidaciones fallidas */ __('Tienes %d liquidación(es) fallida(s): el pago no llegó a completarse. Solicita de nuevo una liquidación o contacta al administrador.', 'travel-agency-platform'), $failed_count)); ?></span>
+                    <span><?php echo esc_html(sprintf(/* translators: %d: número de liquidaciones fallidas */ __('Tienes %d liquidación(es) fallida(s): el pago no llegó a completarse. Puedes solicitar una nueva liquidación o contactar al administrador.', 'travel-agency-platform'), $failed_count)); ?></span>
                 </div>
+                <?php if (isset($totals->owed) && (float) $totals->owed > 0): ?>
+                    <?php echo self::payout_request_form($totals->owed); // phpcs:ignore WordPress.Security.EscapeOutput -- escaper inside. ?>
+                <?php endif; ?>
             <?php elseif (!$tap_pending_blocked && isset($totals->owed) && (float) $totals->owed > 0): ?>
-                <div class="tap-dash-card" style="margin-top:16px;">
-                    <h3><?php esc_html_e('Solicitar liquidación', 'travel-agency-platform'); ?></h3>
-                    <p class="tap-agency-meta"><?php esc_html_e('Tu comisión por cobrar queda agrupada en una sola solicitud que el administrador confirma antes de transferirte.', 'travel-agency-platform'); ?></p>
-                    <form id="tap-bo-payout" class="tap-bo-form">
-                        <label><?php esc_html_e('Método de cobro', 'travel-agency-platform'); ?>
-                            <select name="method">
-                                <option value="bank_transfer"><?php esc_html_e('Transferencia bancaria', 'travel-agency-platform'); ?></option>
-                                <option value="paypal">PayPal</option>
-                                <option value="cheque"><?php esc_html_e('Cheque', 'travel-agency-platform'); ?></option>
-                                <option value="cash"><?php esc_html_e('Efectivo', 'travel-agency-platform'); ?></option>
-                            </select>
-                        </label>
-                        <label><?php esc_html_e('Nota (opcional)', 'travel-agency-platform'); ?>
-                            <textarea name="note" rows="2" placeholder="<?php echo esc_attr__('Referencia para el administrador', 'travel-agency-platform'); ?>"></textarea>
-                        </label>
-                        <button type="submit" class="tap-btn tap-btn-primary"><?php echo esc_html(sprintf(/* translators: %s: importe solicitado */ __('Solicitar %s', 'travel-agency-platform'), TAP_Currency::fmt($totals->owed))); ?></button>
-                    </form>
-                </div>
+                <?php echo self::payout_request_form($totals->owed); // phpcs:ignore WordPress.Security.EscapeOutput -- escaper inside. ?>
             <?php elseif (!$tap_pending_blocked) : ?>
                 <p class="tap-agency-meta"><?php esc_html_e('No tienes comisiones por cobrar disponibles para liquidar.', 'travel-agency-platform'); ?></p>
             <?php endif; ?>
@@ -806,7 +893,7 @@ class TAP_Front_Dash {
                     <tr>
                         <td>#<?php echo (int) $h->id; ?></td>
                         <td><?php echo esc_html(TAP_Currency::fmt($h->amount)); ?></td>
-                        <td><?php echo esc_html($h->method); ?></td>
+                        <td><?php echo esc_html(self::payout_method_label($h->method)); ?></td>
                         <td><?php echo 'agency' === ($h->source ?? 'admin') ? esc_html__('Sol. agencia', 'travel-agency-platform') : esc_html__('Admin', 'travel-agency-platform'); ?></td>
                         <td><?php echo esc_html($h->note); ?></td>
                         <td><span class="tap-status <?php echo 'completed' === $h->status ? 'tap-status-confirmed' : ('failed' === $h->status ? 'tap-status-cancelled' : 'tap-status-pending'); ?>"><?php echo esc_html(TAP_Payouts::status_label($h->status)); ?></span></td>
@@ -824,7 +911,7 @@ class TAP_Front_Dash {
     /* ── agency back-office: team (employees) ──────────────────────── */
 
     private static function agency_referrals($user) {
-        if (TAP_Roles::is_agency_employee($user)) {
+        if (self::is_employee_only($user)) {
             return '<p class="tap-empty">' . esc_html__('Solo el administrador de la agencia gestiona los referidos.', 'travel-agency-platform') . '</p>';
         }
         $agency = (int) TAP_Booking::get_agency_for_user($user->ID);
@@ -913,7 +1000,7 @@ class TAP_Front_Dash {
     }
 
     private static function agency_analytics($user) {
-        if (TAP_Roles::is_agency_employee($user)) {
+        if (self::is_employee_only($user)) {
             return '<p class="tap-empty">' . esc_html__('Solo el administrador de la agencia ve los analytics.', 'travel-agency-platform') . '</p>';
         }
         $agency = (int) TAP_Booking::get_agency_for_user($user->ID);
@@ -994,7 +1081,7 @@ class TAP_Front_Dash {
     }
 
     private static function agency_audit($user) {
-        if (TAP_Roles::is_agency_employee($user)) {
+        if (self::is_employee_only($user)) {
             return '<p class="tap-empty">' . esc_html__('Solo el administrador de la agencia ve el historial de actividad.', 'travel-agency-platform') . '</p>';
         }
         $agency = (int) TAP_Booking::get_agency_for_user($user->ID);
@@ -1032,7 +1119,7 @@ class TAP_Front_Dash {
 						echo esc_html($u ? $u->display_name : '#' . $l->user_id);
 						?>
                         </td>
-                        <td><?php echo esc_html($l->action); ?></td>
+                        <td><?php echo esc_html(self::audit_action_label($l->action)); ?></td>
                         <td><?php echo esc_html(($l->object_type ?: '') . ($l->object_id ? ' #' . $l->object_id : '')); ?></td>
                         <td><?php echo esc_html($l->details ?: '—'); ?></td>
                     </tr>
@@ -1046,7 +1133,7 @@ class TAP_Front_Dash {
     }
 
     private static function agency_profile($user) {
-        if (TAP_Roles::is_agency_employee($user)) {
+        if (self::is_employee_only($user)) {
             return '<p class="tap-empty">' . esc_html__('Solo el administrador de la agencia edita el perfil.', 'travel-agency-platform') . '</p>';
         }
         $agency_id = (int) TAP_Booking::get_agency_for_user($user->ID);
@@ -1148,7 +1235,7 @@ class TAP_Front_Dash {
     }
 
     private static function agency_team($user) {
-        if (TAP_Roles::is_agency_employee($user)) {
+        if (self::is_employee_only($user)) {
             return '<p class="tap-empty">' . esc_html__('Solo el administrador de la agencia gestiona el equipo.', 'travel-agency-platform') . '</p>';
         }
         $agency = (int) TAP_Booking::get_agency_for_user($user->ID);
@@ -1205,7 +1292,7 @@ class TAP_Front_Dash {
     /* ── agency back-office: destacadoss (promos) ───────────────────── */
 
     private static function agency_promos($user) {
-        if (TAP_Roles::is_agency_employee($user)) {
+        if (self::is_employee_only($user)) {
             return '<p class="tap-empty">' . esc_html__('Solo el administrador de la agencia gestiona los destacados.', 'travel-agency-platform') . '</p>';
         }
         $agency = (int) TAP_Booking::get_agency_for_user($user->ID);
@@ -1709,7 +1796,7 @@ endif;
         <script>
         (function(){
             var steps = [
-                { sel: '[data-onboarding="new-listing"]', text: 'Usa "Nuevo" para crear tu primer servicio (tour, alojamiento, etc.).' },
+                { sel: 'a[href*="manage-listing"]', text: 'Usa "Nuevo" para crear tu primer servicio (tour, alojamiento, etc.).' },
                 { sel: '[data-onboarding="checklist"]', text: 'Este checklist te guía paso a paso para publicar tu primer servicio.' },
                 { sel: '[data-onboarding="plan"]', text: 'Aquí ves tu plan, límites y comisión.' },
             ];
@@ -1744,7 +1831,7 @@ endif;
                 overlay.remove();
                 tooltip.remove();
                 if (typeof tap_ajax !== 'undefined') {
-                    jQuery.post(tap_ajax.ajax_url, { action: 'tap_onboarding_tour_done', nonce: tap_ajax.nonce });
+                    jQuery.post((window.tapDash && window.tapDash.ajax_url) || tap_ajax.ajax_url, { action: 'tap_onboarding_tour_done', nonce: (window.tapDash && window.tapDash.nonce) || tap_ajax.nonce });
                 }
             }
             tooltip.addEventListener('click', function(e){
@@ -1790,6 +1877,7 @@ endif;
             $nav[] = ['key' => 'bo-finances', 'label' => __('Finanzas', 'travel-agency-platform'), 'icon' => 'wallet', 'url' => add_query_arg('seccion', 'bo-finances', $base)];
             $nav[] = ['key' => 'bo-analytics', 'label' => __('Analytics', 'travel-agency-platform'), 'icon' => 'chart', 'url' => add_query_arg('seccion', 'bo-analytics', $base)];
             $nav[] = ['key' => 'bo-audit', 'label' => __('Actividad', 'travel-agency-platform'), 'icon' => 'list', 'url' => add_query_arg('seccion', 'bo-audit', $base)];
+            $nav[] = ['key' => 'bo-disputas', 'label' => __('Disputas', 'travel-agency-platform'), 'icon' => 'flag', 'url' => add_query_arg('seccion', 'bo-disputas', $base)];
         }
         $nav[] = ['key' => 'bo-listings', 'label' => __('Listados', 'travel-agency-platform'), 'icon' => 'grid', 'url' => add_query_arg('seccion', 'bo-listings', $base)];
         $nav[] = ['key' => 'loyalty', 'label' => __('Mis puntos', 'travel-agency-platform'), 'icon' => 'star', 'url' => add_query_arg('seccion', 'loyalty', $base)];
@@ -1933,7 +2021,7 @@ endif;
 
     public static function bookings_csv_download() {
         if (!is_user_logged_in()) {
-            wp_safe_redirect(home_url('/login/'));
+            wp_safe_redirect(wp_login_url(home_url('/mi-cuenta/')));
             exit;
         }
         $user_agency = (int) TAP_Booking::get_agency_for_user(get_current_user_id());
@@ -1975,7 +2063,7 @@ endif;
 
     public static function finances_csv_download() {
         if (!is_user_logged_in()) {
-            wp_safe_redirect(home_url('/login/'));
+            wp_safe_redirect(wp_login_url(home_url('/mi-cuenta/')));
             exit;
         }
         $user_agency = (int) TAP_Booking::get_agency_for_user(get_current_user_id());
