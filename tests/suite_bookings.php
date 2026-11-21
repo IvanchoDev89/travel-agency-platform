@@ -61,6 +61,15 @@ $rate_high = (float) TAP_Booking::get_agency_commission($agency_id);
 $expected_high = max($rate_before - 2, $rate_before * 0.5);
 tap_t_assert(abs($rate_high - $expected_high) < 0.01, "high volume lowers commission by 2 with 50% floor ({$rate_before} -> {$rate_high})");
 tap_t_assert($rate_high >= $rate_before * 0.5 - 0.01, 'commission never drops below 50% of the negotiated base');
+
+// Options are configurable: changing them changes the computed rate.
+update_option('tap_volume_tier3_discount', 3);
+$rate_custom = (float) TAP_Booking::get_agency_commission($agency_id);
+$expected_custom = max($rate_before - 3, $rate_before * 0.5);
+tap_t_assert(abs($rate_custom - $expected_custom) < 0.01, 'configurable tier3 discount changes the rate');
+delete_option('tap_volume_tier3_discount');
+$rate_restored = (float) TAP_Booking::get_agency_commission($agency_id);
+tap_t_assert(abs($rate_restored - $rate_high) < 0.01, 'removing the option restores the default tier');
 foreach ($cleanup_rates as $cid) {
     $wpdb->delete($wpdb->prefix . 'tap_bookings', ['id' => $cid]);
 }

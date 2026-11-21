@@ -1614,17 +1614,22 @@ class TAP_Booking {
         }
 
         // Tiered commission by monthly paid booking volume: growing agencies
-        // pay LESS (a loyalty incentive), but the platform keeps at least half
-        // of the negotiated base rate so the margin never disappears.
+        // pay LESS (a loyalty incentive). Thresholds/discounts/floor are
+        // configurable under Travel Platform -> Settings -> General.
         $count = self::monthly_paid_bookings($agency_id);
+        $tier2_min      = max(0, (float) get_option('tap_volume_tier2_min', 11));
+        $tier3_min      = max(0, (float) get_option('tap_volume_tier3_min', 31));
+        $tier2_discount = max(0, (float) get_option('tap_volume_tier2_discount', 1));
+        $tier3_discount = max(0, (float) get_option('tap_volume_tier3_discount', 2));
+        $floor_pct      = max(0, min(100, (float) get_option('tap_volume_floor_pct', 50)));
         $discount = 0.0;
-        if ($count >= 31) {
-            $discount = 2.0;
-        } elseif ($count >= 11) {
-            $discount = 1.0;
+        if ($count >= $tier3_min) {
+            $discount = $tier3_discount;
+        } elseif ($count >= $tier2_min) {
+            $discount = $tier2_discount;
         }
         $rate = $base - $discount;
-        $floor = $base * 0.5;
+        $floor = $base * ($floor_pct / 100);
         if ($rate < $floor) {
             $rate = $floor;
         }

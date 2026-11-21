@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.6.3] — 2026-11-21
+
+### Added
+- Volume incentive tiers are now configurable in `Travel Platform → Ajustes → General`: thresholds (11/31 bookings), discounts (1/2 points) and minimum-rate floor (50% of base). No code edits needed to tune the incentive. Existing installs keep the current behavior via option defaults.
+
 ## [1.6.2] — 2026-11-20
 
 ### Changed (comisiones)

@@ -18,6 +18,28 @@ defined('ABSPATH') || exit;
 class TAP_Dashboard_Settings {
     public static function register_settings() {
         register_setting('tap_settings', 'tap_commission_default');
+        // Volume incentive tiers (sanitized in save handler below).
+        foreach ([
+            'tap_volume_tier2_min', 'tap_volume_tier3_min',
+            'tap_volume_tier2_discount', 'tap_volume_tier3_discount',
+            'tap_volume_floor_pct',
+        ] as $tap_vol_key) {
+            register_setting('tap_settings', $tap_vol_key, [
+                'type' => 'number',
+                'sanitize_callback' => function ($v) use ($tap_vol_key) {
+                    $n = floatval($v);
+                    $caps = [
+                        'tap_volume_tier2_min' => [0, 100000],
+                        'tap_volume_tier3_min' => [0, 100000],
+                        'tap_volume_tier2_discount' => [0, 25],
+                        'tap_volume_tier3_discount' => [0, 25],
+                        'tap_volume_floor_pct' => [0, 100],
+                    ];
+                    $range = $caps[$tap_vol_key];
+                    return max($range[0], min($range[1], $n));
+                },
+            ]);
+        }
         register_setting('tap_settings', 'tap_currency', [
             'type' => 'string',
             'sanitize_callback' => function ($value) {
@@ -338,6 +360,31 @@ class TAP_Dashboard_Settings {
                     <tr>
                         <th><label for="tap_commission_default"><?php esc_html_e('Default Commission %', 'travel-agency-platform'); ?></label></th>
                         <td><input type="number" id="tap_commission_default" name="tap_commission_default" value="<?php echo esc_attr(get_option('tap_commission_default', '10')); ?>" step="0.01" class="regular-text"></td>
+                    </tr>
+                    <tr>
+                        <th colspan="2"><h3><?php esc_html_e('Incentivo por volumen', 'travel-agency-platform'); ?></h3>
+                            <p class="description"><?php esc_html_e('Las agencias con más reservas pagadas al mes pagan menos comisión. La tasa nunca baja del porcentaje mínimo de la tasa pactada.', 'travel-agency-platform'); ?></p>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th><label for="tap_volume_tier2_min"><?php esc_html_e('Nivel 2 — desde reservas/mes', 'travel-agency-platform'); ?></label></th>
+                        <td><input type="number" id="tap_volume_tier2_min" name="tap_volume_tier2_min" value="<?php echo esc_attr(get_option('tap_volume_tier2_min', '11')); ?>" min="0" step="1" class="small-text"></td>
+                    </tr>
+                    <tr>
+                        <th><label for="tap_volume_tier2_discount"><?php esc_html_e('Nivel 2 — descuento (puntos)', 'travel-agency-platform'); ?></label></th>
+                        <td><input type="number" id="tap_volume_tier2_discount" name="tap_volume_tier2_discount" value="<?php echo esc_attr(get_option('tap_volume_tier2_discount', '1')); ?>" min="0" step="0.01" class="small-text"></td>
+                    </tr>
+                    <tr>
+                        <th><label for="tap_volume_tier3_min"><?php esc_html_e('Nivel 3 — desde reservas/mes', 'travel-agency-platform'); ?></label></th>
+                        <td><input type="number" id="tap_volume_tier3_min" name="tap_volume_tier3_min" value="<?php echo esc_attr(get_option('tap_volume_tier3_min', '31')); ?>" min="0" step="1" class="small-text"></td>
+                    </tr>
+                    <tr>
+                        <th><label for="tap_volume_tier3_discount"><?php esc_html_e('Nivel 3 — descuento (puntos)', 'travel-agency-platform'); ?></label></th>
+                        <td><input type="number" id="tap_volume_tier3_discount" name="tap_volume_tier3_discount" value="<?php echo esc_attr(get_option('tap_volume_tier3_discount', '2')); ?>" min="0" step="0.01" class="small-text"></td>
+                    </tr>
+                    <tr>
+                        <th><label for="tap_volume_floor_pct"><?php esc_html_e('Tasa mínima (% de la base)', 'travel-agency-platform'); ?></label></th>
+                        <td><input type="number" id="tap_volume_floor_pct" name="tap_volume_floor_pct" value="<?php echo esc_attr(get_option('tap_volume_floor_pct', '50')); ?>" min="0" max="100" step="1" class="small-text"> %</td>
                     </tr>
                     <tr>
                         <th><label for="tap_currency"><?php esc_html_e('Default Currency', 'travel-agency-platform'); ?></label></th>

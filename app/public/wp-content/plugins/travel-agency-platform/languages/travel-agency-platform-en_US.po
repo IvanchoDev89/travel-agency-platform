@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-20T19:36:09+00:00\n"
+"POT-Creation-Date: 2026-11-21T13:54:18+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -386,7 +386,7 @@ msgstr "Direct booking"
 
 #: includes/class-acc-wizard-steps.php:109
 #: includes/class-acc-wizard-steps.php:292
-#: includes/class-dashboard-settings.php:330
+#: includes/class-dashboard-settings.php:352
 #: includes/class-tour-wizard-steps.php:689
 msgid "Cancelación"
 msgstr "Cancellation"
@@ -3301,10 +3301,10 @@ msgstr "Copied"
 #: includes/class-dashboard-bookings.php:211
 #: includes/class-dashboard-money.php:216
 #: includes/class-dashboard-money.php:543
-#: includes/class-dashboard-settings.php:98
-#: includes/class-dashboard-settings.php:156
-#: includes/class-dashboard-settings.php:235
-#: includes/class-dashboard-settings.php:322
+#: includes/class-dashboard-settings.php:120
+#: includes/class-dashboard-settings.php:178
+#: includes/class-dashboard-settings.php:257
+#: includes/class-dashboard-settings.php:344
 #: includes/class-email-campaigns.php:161
 #: includes/class-email-campaigns.php:183
 #: includes/class-email-campaigns.php:192
@@ -4378,7 +4378,7 @@ msgid "Canceladas"
 msgstr "Cancelled"
 
 #: includes/class-dashboard-money.php:300
-#: includes/class-dashboard-settings.php:329
+#: includes/class-dashboard-settings.php:351
 msgid "Booking"
 msgstr "Booking"
 
@@ -4409,7 +4409,7 @@ msgstr "Payment method"
 
 #: includes/class-dashboard-money.php:353
 #: includes/class-dashboard-money.php:478
-#: includes/class-dashboard-settings.php:567 includes/class-front-dash.php:669
+#: includes/class-dashboard-settings.php:614 includes/class-front-dash.php:669
 #: includes/class-payment.php:70
 msgid "Transferencia bancaria"
 msgstr "Bank transfer"
@@ -4581,15 +4581,15 @@ msgstr "Resolution note"
 msgid "Guardar resolución"
 msgstr "Save resolution"
 
-#: includes/class-dashboard-settings.php:124
+#: includes/class-dashboard-settings.php:146
 msgid "Plans saved."
 msgstr "Plans saved."
 
-#: includes/class-dashboard-settings.php:127
+#: includes/class-dashboard-settings.php:149
 msgid "Subscription Plans"
 msgstr "Subscription Plans"
 
-#: includes/class-dashboard-settings.php:128
+#: includes/class-dashboard-settings.php:150
 msgid ""
 "Commission rate (%) is used while the plan is active; leave blank to keep "
 "the agency/global commission. Listing limit -1 = unlimited."
@@ -4597,70 +4597,70 @@ msgstr ""
 "Commission rate (%) is used while the plan is active; leave blank to keep "
 "the agency/global commission. Listing limit -1 = unlimited."
 
-#: includes/class-dashboard-settings.php:141
+#: includes/class-dashboard-settings.php:163
 msgid "estándar"
 msgstr "standard"
 
-#: includes/class-dashboard-settings.php:144
+#: includes/class-dashboard-settings.php:166
 msgid "una por línea"
 msgstr "one per line"
 
-#: includes/class-dashboard-settings.php:149
+#: includes/class-dashboard-settings.php:171
 msgid "Save plans"
 msgstr "Save plans"
 
 #. translators: %s: fecha de vencimiento de la suscripción.
-#: includes/class-dashboard-settings.php:170
+#: includes/class-dashboard-settings.php:192
 #, php-format
 msgid "Subscription marked as paid until %s"
 msgstr "Subscription marked as paid until %s"
 
-#: includes/class-dashboard-settings.php:176
+#: includes/class-dashboard-settings.php:198
 msgid "Subscription expired."
 msgstr "Subscription expired."
 
-#: includes/class-dashboard-settings.php:190
+#: includes/class-dashboard-settings.php:212
 msgid "Agency Subscriptions"
 msgstr "Agency Subscriptions"
 
-#: includes/class-dashboard-settings.php:192
+#: includes/class-dashboard-settings.php:214
 msgid "Activas"
 msgstr "Active"
 
-#: includes/class-dashboard-settings.php:193
-#: includes/class-dashboard-settings.php:275
+#: includes/class-dashboard-settings.php:215
+#: includes/class-dashboard-settings.php:297
 msgid "Pendientes de pago"
 msgstr "Pending payment"
 
-#: includes/class-dashboard-settings.php:201
+#: includes/class-dashboard-settings.php:223
 msgid "No subscriptions yet."
 msgstr "No subscriptions yet."
 
-#: includes/class-dashboard-settings.php:218
+#: includes/class-dashboard-settings.php:240
 msgid "Marcar pagado"
 msgstr "Mark paid"
 
-#: includes/class-dashboard-settings.php:224
-#: includes/class-dashboard-settings.php:311
+#: includes/class-dashboard-settings.php:246
+#: includes/class-dashboard-settings.php:333
 msgid "Expirar"
 msgstr "Expire"
 
 #. translators: %s: fecha de vencimiento de la promoción.
-#: includes/class-dashboard-settings.php:247
+#: includes/class-dashboard-settings.php:269
 #, php-format
 msgid "Promotion activated until %s"
 msgstr "Promotion activated until %s"
 
-#: includes/class-dashboard-settings.php:255
+#: includes/class-dashboard-settings.php:277
 msgid "Promotion expired."
 msgstr "Promotion expired."
 
-#: includes/class-dashboard-settings.php:270
+#: includes/class-dashboard-settings.php:292
 msgid "Listado Promotions (Destacados)"
 msgstr "Listed Promotions (Featured)"
 
 #. translators: %s: precio mensual del destacado
-#: includes/class-dashboard-settings.php:272
+#: includes/class-dashboard-settings.php:294
 #, php-format
 msgid ""
 "Precio por destacado: %s/mes por listado. Confirma el pago para activar la "
@@ -4669,64 +4669,92 @@ msgstr ""
 "Price per featured listing: %s/month per listing. Confirm the payment to "
 "activate the promotion until the corresponding date."
 
-#: includes/class-dashboard-settings.php:274
+#: includes/class-dashboard-settings.php:296
 msgid "Activos"
 msgstr "Active"
 
-#: includes/class-dashboard-settings.php:276
+#: includes/class-dashboard-settings.php:298
 msgid "Facturado en destacados"
 msgstr "Billed in featured"
 
-#: includes/class-dashboard-settings.php:284
+#: includes/class-dashboard-settings.php:306
 msgid "No promotions yet."
 msgstr "No promotions yet."
 
-#: includes/class-dashboard-settings.php:289
+#: includes/class-dashboard-settings.php:311
 msgid "Listado borrado"
 msgstr "Listing deleted"
 
-#: includes/class-dashboard-settings.php:305
+#: includes/class-dashboard-settings.php:327
 msgid "Marcar activo"
 msgstr "Mark active"
 
-#: includes/class-dashboard-settings.php:326
+#: includes/class-dashboard-settings.php:348
 msgid "Travel Platform Settings"
 msgstr "Travel Platform Settings"
 
-#: includes/class-dashboard-settings.php:328
+#: includes/class-dashboard-settings.php:350
 msgid "General"
 msgstr "General"
 
-#: includes/class-dashboard-settings.php:331
+#: includes/class-dashboard-settings.php:353
 msgid "Automations"
 msgstr "Automations"
 
-#: includes/class-dashboard-settings.php:332
+#: includes/class-dashboard-settings.php:354
 #: includes/class-front-dash-client.php:286
 msgid "Pagos"
 msgstr "Payments"
 
-#: includes/class-dashboard-settings.php:339
+#: includes/class-dashboard-settings.php:361
 msgid "Default Commission %"
 msgstr "Default Commission %"
 
-#: includes/class-dashboard-settings.php:343
+#: includes/class-dashboard-settings.php:365
+msgid "Incentivo por volumen"
+msgstr "Volume incentive"
+
+#: includes/class-dashboard-settings.php:366
+msgid "Las agencias con más reservas pagadas al mes pagan menos comisión. La tasa nunca baja del porcentaje mínimo de la tasa pactada."
+msgstr "Agencies with more paid bookings per month pay less commission. The rate never drops below the minimum percentage of the negotiated rate."
+
+#: includes/class-dashboard-settings.php:370
+msgid "Nivel 2 — desde reservas/mes"
+msgstr "Tier 2 — from bookings/month"
+
+#: includes/class-dashboard-settings.php:374
+msgid "Nivel 2 — descuento (puntos)"
+msgstr "Tier 2 — discount (points)"
+
+#: includes/class-dashboard-settings.php:378
+msgid "Nivel 3 — desde reservas/mes"
+msgstr "Tier 3 — from bookings/month"
+
+#: includes/class-dashboard-settings.php:382
+msgid "Nivel 3 — descuento (puntos)"
+msgstr "Tier 3 — discount (points)"
+
+#: includes/class-dashboard-settings.php:386
+msgid "Tasa mínima (% de la base)"
+msgstr "Minimum rate (% of base)"
+
+#: includes/class-dashboard-settings.php:390
 msgid "Default Currency"
 msgstr "Default Currency"
 
-#: includes/class-dashboard-settings.php:355
+#: includes/class-dashboard-settings.php:402
 msgid "Auto-confirm Bookings"
 msgstr "Auto-confirm Bookings"
 
-#: includes/class-dashboard-settings.php:359
+#: includes/class-dashboard-settings.php:406
 msgid "Cancelar pendientes tras (horas)"
 msgstr "Cancel pending after (hours)"
 
-#: includes/class-dashboard-settings.php:363
+#: includes/class-dashboard-settings.php:410
 msgid "Hold de pago (minutos)"
 msgstr "Payment hold (minutes)"
 
-#: includes/class-dashboard-settings.php:365
+#: includes/class-dashboard-settings.php:412
 msgid ""
 "Tiempo que un usuario tiene para completar el pago antes de que la reserva "
 "se cancele automáticamente y se libere el slot."
@@ -4734,49 +4762,49 @@ msgstr ""
 "Time a user has to complete payment before the booking is automatically "
 "cancelled and the slot is released."
 
-#: includes/class-dashboard-settings.php:368
+#: includes/class-dashboard-settings.php:415
 msgid "Terms & Conditions Page"
 msgstr "Terms & Conditions Page"
 
-#: includes/class-dashboard-settings.php:369 includes/class-metaboxes.php:1241
+#: includes/class-dashboard-settings.php:416 includes/class-metaboxes.php:1241
 msgid "-- Select --"
 msgstr "-- Select --"
 
-#: includes/class-dashboard-settings.php:372
+#: includes/class-dashboard-settings.php:419
 msgid "Default Payment Gateway"
 msgstr "Default Payment Gateway"
 
-#: includes/class-dashboard-settings.php:375 includes/class-payment.php:58
+#: includes/class-dashboard-settings.php:422 includes/class-payment.php:58
 #: includes/class-shortcode-booking.php:590
 msgid "PayPal"
 msgstr "PayPal"
 
-#: includes/class-dashboard-settings.php:376
+#: includes/class-dashboard-settings.php:423
 #: includes/class-shortcode-booking.php:593
 msgid "Onvo Pay"
 msgstr "Onvo Pay"
 
-#: includes/class-dashboard-settings.php:384
+#: includes/class-dashboard-settings.php:431
 msgid "Booking Fee (client)"
 msgstr "Booking Fee (client)"
 
-#: includes/class-dashboard-settings.php:387
+#: includes/class-dashboard-settings.php:434
 msgid "Fee Type"
 msgstr "Fee Type"
 
-#: includes/class-dashboard-settings.php:390
+#: includes/class-dashboard-settings.php:437
 msgid "No fee"
 msgstr "No fee"
 
-#: includes/class-dashboard-settings.php:391
+#: includes/class-dashboard-settings.php:438
 msgid "Fixed amount"
 msgstr "Fixed amount"
 
-#: includes/class-dashboard-settings.php:392
+#: includes/class-dashboard-settings.php:439
 msgid "Percentage of total"
 msgstr "Percentage of total"
 
-#: includes/class-dashboard-settings.php:394
+#: includes/class-dashboard-settings.php:441
 msgid ""
 "Charged to the client on top of the booking total. This revenue belongs to "
 "the platform (not the agency)."
@@ -4784,23 +4812,23 @@ msgstr ""
 "Charged to the client on top of the booking total. This revenue belongs to "
 "the platform (not the agency)."
 
-#: includes/class-dashboard-settings.php:398
+#: includes/class-dashboard-settings.php:445
 msgid "Fee Value"
 msgstr "Fee Value"
 
-#: includes/class-dashboard-settings.php:405
+#: includes/class-dashboard-settings.php:452
 msgid "Cancellation policies (T7, booking lifecycle)"
 msgstr "Cancellation policies (booking lifecycle)"
 
-#: includes/class-dashboard-settings.php:408
+#: includes/class-dashboard-settings.php:455
 msgid "Definiciones"
 msgstr "Definitions"
 
-#: includes/class-dashboard-settings.php:411
+#: includes/class-dashboard-settings.php:458
 msgid "Flexible — reembolso total si cancelas al menos 24h antes del check-in."
 msgstr "Flexible — full refund if you cancel at least 24h before check-in."
 
-#: includes/class-dashboard-settings.php:412
+#: includes/class-dashboard-settings.php:459
 msgid ""
 "Moderada — reembolso total 5 días antes; 50% entre 2 y 5 días; 0% menos de 2 "
 "días."
@@ -4808,15 +4836,15 @@ msgstr ""
 "Moderate — full refund 5 days before; 50% between 2 and 5 days; 0% less than "
 "2 days."
 
-#: includes/class-dashboard-settings.php:413
+#: includes/class-dashboard-settings.php:460
 msgid "Estricta — 50% de reembolso hasta 7 días antes; 0% después."
 msgstr "Strict — 50% refund up to 7 days before; 0% after."
 
-#: includes/class-dashboard-settings.php:414
+#: includes/class-dashboard-settings.php:461
 msgid "No reembolsable — sin reembolso."
 msgstr "Non-refundable — no refund."
 
-#: includes/class-dashboard-settings.php:416
+#: includes/class-dashboard-settings.php:463
 msgid ""
 "La política efectiva de un listado se resuelve así: política propia del "
 "listado → política por defecto del tipo de servicio (abajo). La agencia "
@@ -4827,11 +4855,11 @@ msgstr ""
 "the service type default (below). The agency can set a listing-level policy "
 "in its accommodation/tour editor."
 
-#: includes/class-dashboard-settings.php:432
+#: includes/class-dashboard-settings.php:479
 msgid "Auto-completar reservas"
 msgstr "Auto-complete bookings"
 
-#: includes/class-dashboard-settings.php:435
+#: includes/class-dashboard-settings.php:482
 msgid ""
 "Marcar automáticamente como \"completada\" toda reserva confirmada cuya "
 "fecha de salida ya pasó."
@@ -4839,43 +4867,43 @@ msgstr ""
 "Automatically mark confirmed bookings whose check-out date has passed as "
 "completed."
 
-#: includes/class-dashboard-settings.php:442
+#: includes/class-dashboard-settings.php:489
 msgid "Automations (T4, daily cron)"
 msgstr "Automations (T4, daily cron)"
 
-#: includes/class-dashboard-settings.php:445
+#: includes/class-dashboard-settings.php:492
 msgid "Payment reminders"
 msgstr "Payment reminders"
 
-#: includes/class-dashboard-settings.php:448
+#: includes/class-dashboard-settings.php:495
 msgid "Email guests with pending/request bookings that never got paid."
 msgstr "Email guests with pending/request bookings that never got paid."
 
-#: includes/class-dashboard-settings.php:452
+#: includes/class-dashboard-settings.php:499
 msgid "Remind after (hours)"
 msgstr "Remind after (hours)"
 
-#: includes/class-dashboard-settings.php:456
+#: includes/class-dashboard-settings.php:503
 msgid "Pre-arrival message"
 msgstr "Pre-arrival message"
 
-#: includes/class-dashboard-settings.php:459
+#: includes/class-dashboard-settings.php:506
 msgid "Send guests a heads-up when their confirmed stay starts within 48h."
 msgstr "Send guests a heads-up when their confirmed stay starts within 48h."
 
-#: includes/class-dashboard-settings.php:463
+#: includes/class-dashboard-settings.php:510
 msgid "Post-stay review request"
 msgstr "Post-stay review request"
 
-#: includes/class-dashboard-settings.php:466
+#: includes/class-dashboard-settings.php:513
 msgid "Ask guests to leave a review a few days after a completed stay."
 msgstr "Ask guests to leave a review a few days after a completed stay."
 
-#: includes/class-dashboard-settings.php:470
+#: includes/class-dashboard-settings.php:517
 msgid "Expiry warnings"
 msgstr "Expiry warnings"
 
-#: includes/class-dashboard-settings.php:473
+#: includes/class-dashboard-settings.php:520
 msgid ""
 "Email agencies when their plan subscription or a featured listing is near "
 "expiry."
@@ -4883,27 +4911,27 @@ msgstr ""
 "Email agencies when their plan subscription or a featured listing is near "
 "expiry."
 
-#: includes/class-dashboard-settings.php:477
+#: includes/class-dashboard-settings.php:524
 msgid "Warn days before expiry"
 msgstr "Warn days before expiry"
 
-#: includes/class-dashboard-settings.php:481
+#: includes/class-dashboard-settings.php:528
 msgid "Contact auto-reply"
 msgstr "Contact auto-reply"
 
-#: includes/class-dashboard-settings.php:484
+#: includes/class-dashboard-settings.php:531
 msgid "Send an acknowledgment email to people who use the contact form."
 msgstr "Send an acknowledgment email to people who use the contact form."
 
-#: includes/class-dashboard-settings.php:491
+#: includes/class-dashboard-settings.php:538
 msgid "PayPal Settings"
 msgstr "PayPal Settings"
 
-#: includes/class-dashboard-settings.php:494
+#: includes/class-dashboard-settings.php:541
 msgid "PayPal no está configurado."
 msgstr "PayPal is not configured."
 
-#: includes/class-dashboard-settings.php:495
+#: includes/class-dashboard-settings.php:542
 msgid ""
 "Las credenciales guardadas son de ejemplo o están vacías, así que «Pagar con "
 "PayPal» fallará. Pega el Client ID y el Secret de tu aplicación de PayPal "
@@ -4912,45 +4940,45 @@ msgstr ""
 "The saved credentials are sample values or empty, so “Pay with PayPal” will "
 "fail. Paste the Client ID and Secret from your PayPal app to enable payments."
 
-#: includes/class-dashboard-settings.php:500
+#: includes/class-dashboard-settings.php:547
 msgid "Enable PayPal"
 msgstr "Enable PayPal"
 
-#: includes/class-dashboard-settings.php:504
+#: includes/class-dashboard-settings.php:551
 msgid "Sandbox Mode"
 msgstr "Sandbox Mode"
 
-#: includes/class-dashboard-settings.php:505
+#: includes/class-dashboard-settings.php:552
 msgid "Enable to test payments in PayPal Sandbox"
 msgstr "Enable to test payments in PayPal Sandbox"
 
-#: includes/class-dashboard-settings.php:508
+#: includes/class-dashboard-settings.php:555
 msgid "Client ID"
 msgstr "Client ID"
 
-#: includes/class-dashboard-settings.php:512
-#: includes/class-dashboard-settings.php:536
+#: includes/class-dashboard-settings.php:559
+#: includes/class-dashboard-settings.php:583
 msgid "Secret Key"
 msgstr "Secret Key"
 
-#: includes/class-dashboard-settings.php:516
+#: includes/class-dashboard-settings.php:563
 msgid "Webhook ID"
 msgstr "Webhook ID"
 
-#: includes/class-dashboard-settings.php:518
-#: includes/class-dashboard-settings.php:546
+#: includes/class-dashboard-settings.php:565
+#: includes/class-dashboard-settings.php:593
 msgid "Webhook URL:"
 msgstr "Webhook URL:"
 
-#: includes/class-dashboard-settings.php:523
+#: includes/class-dashboard-settings.php:570
 msgid "Onvo Pay (Costa Rica)"
 msgstr "Onvo Pay (Costa Rica)"
 
-#: includes/class-dashboard-settings.php:526 includes/class-onvo.php:103
+#: includes/class-dashboard-settings.php:573 includes/class-onvo.php:103
 msgid "Onvo Pay no está configurado."
 msgstr "Onvo Pay is not configured."
 
-#: includes/class-dashboard-settings.php:527
+#: includes/class-dashboard-settings.php:574
 msgid ""
 "Pega el Secret Key y el Publishable Key de tu cuenta de Onvo para activar "
 "los pagos."
@@ -4958,60 +4986,60 @@ msgstr ""
 "Paste the Secret Key and Publishable Key from your Onvo account to activate "
 "payments."
 
-#: includes/class-dashboard-settings.php:532
+#: includes/class-dashboard-settings.php:579
 msgid "Enable Onvo Pay"
 msgstr "Enable Onvo Pay"
 
-#: includes/class-dashboard-settings.php:540
+#: includes/class-dashboard-settings.php:587
 msgid "Publishable Key"
 msgstr "Publishable Key"
 
-#: includes/class-dashboard-settings.php:544
+#: includes/class-dashboard-settings.php:591
 msgid "Webhook Secret"
 msgstr "Webhook Secret"
 
-#: includes/class-dashboard-settings.php:550
+#: includes/class-dashboard-settings.php:597
 msgid "Comisión de plataforma (%)"
 msgstr "Platform commission (%)"
 
-#: includes/class-dashboard-settings.php:551
+#: includes/class-dashboard-settings.php:598
 msgid "Porcentaje que la plataforma retiene de cada pago (marketplaceAppFee)."
 msgstr ""
 "Percentage that the platform retains from each payment (marketplaceAppFee)."
 
-#: includes/class-dashboard-settings.php:555
+#: includes/class-dashboard-settings.php:602
 msgid "SINPE Móvil (Costa Rica)"
 msgstr "SINPE Móvil (Costa Rica)"
 
-#: includes/class-dashboard-settings.php:558
+#: includes/class-dashboard-settings.php:605
 msgid "Enable SINPE Móvil"
 msgstr "Enable SINPE Móvil"
 
-#: includes/class-dashboard-settings.php:562
+#: includes/class-dashboard-settings.php:609
 msgid "Teléfono SINPE"
 msgstr "SINPE phone"
 
-#: includes/class-dashboard-settings.php:570
+#: includes/class-dashboard-settings.php:617
 msgid "Enable transferencia"
 msgstr "Enable bank transfer"
 
-#: includes/class-dashboard-settings.php:574
+#: includes/class-dashboard-settings.php:621
 msgid "Datos bancarios"
 msgstr "Bank details"
 
-#: includes/class-dashboard-settings.php:579
+#: includes/class-dashboard-settings.php:626
 msgid "Web Push Notifications"
 msgstr "Web Push Notifications"
 
-#: includes/class-dashboard-settings.php:582
+#: includes/class-dashboard-settings.php:629
 msgid "VAPID Public Key"
 msgstr "VAPID Public Key"
 
-#: includes/class-dashboard-settings.php:586
+#: includes/class-dashboard-settings.php:633
 msgid "VAPID Private Key"
 msgstr "VAPID Private Key"
 
-#: includes/class-dashboard-settings.php:588
+#: includes/class-dashboard-settings.php:635
 msgid ""
 "Genera las claves en https://vapidkeys.com/ o con web-push. Sin ellas, las "
 "notificaciones caen a email."
@@ -11238,8 +11266,14 @@ msgid "Finanzas de la agencia"
 msgstr "Agency finances"
 
 #: includes/class-front-dash.php:780
-msgid "Tu ingreso neto es el total de las reservas menos la comisión de la plataforma. Las transferencias a tu agencia se coordinan directamente con el administrador; esta sección es informativa."
-msgstr "Your net income is the total of bookings minus the platform commission. Transfers to your agency are coordinated directly with the administrator; this section is informational."
+msgid ""
+"Tu ingreso neto es el total de las reservas menos la comisión de la "
+"plataforma. Las transferencias a tu agencia se coordinan directamente con el "
+"administrador; esta sección es informativa."
+msgstr ""
+"Your net income is the total of bookings minus the platform commission. "
+"Transfers to your agency are coordinated directly with the administrator; "
+"this section is informational."
 
 #: includes/class-front-dash.php:783 includes/class-front-dash.php:1571
 msgid "Comisión de la plataforma pendiente"
