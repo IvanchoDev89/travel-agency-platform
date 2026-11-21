@@ -50,7 +50,6 @@ class TAP_Dashboard_Settings {
         register_setting('tap_settings', 'tap_booking_auto_confirm');
         register_setting('tap_settings', 'tap_stale_booking_hours');
         register_setting('tap_settings', 'tap_payment_hold_minutes');
-        register_setting('tap_settings', 'tap_payment_methods');
         register_setting('tap_settings', 'tap_terms_page');
         register_setting('tap_settings', 'tap_paypal_enabled');
         register_setting('tap_settings', 'tap_paypal_sandbox');
@@ -400,7 +399,7 @@ class TAP_Dashboard_Settings {
                     </tr>
                     <tr>
                         <th><label for="tap_booking_auto_confirm"><?php esc_html_e('Auto-confirm Bookings', 'travel-agency-platform'); ?></label></th>
-                        <td><input type="checkbox" id="tap_booking_auto_confirm" name="tap_booking_auto_confirm" value="1" <?php checked('1', get_option('tap_booking_auto_confirm', '0')); ?>></td>
+                        <td><input type="hidden" name="tap_booking_auto_confirm" value="0"><input type="checkbox" id="tap_booking_auto_confirm" name="tap_booking_auto_confirm" value="1" <?php checked('1', get_option('tap_booking_auto_confirm', '0')); ?>></td>
                     </tr>
                     <tr>
                         <th><label for="tap_stale_booking_hours"><?php esc_html_e('Cancelar pendientes tras (horas)', 'travel-agency-platform'); ?></label></th>
@@ -478,6 +477,7 @@ class TAP_Dashboard_Settings {
                     <tr>
                         <th><label for="tap_booking_auto_complete"><?php esc_html_e('Auto-completar reservas', 'travel-agency-platform'); ?></label></th>
                         <td>
+                            <input type="hidden" name="tap_booking_auto_complete" value="0">
                             <input type="checkbox" id="tap_booking_auto_complete" name="tap_booking_auto_complete" value="1" <?php checked('1', get_option('tap_booking_auto_complete', '1')); ?>>
                             <p class="description"><?php esc_html_e('Marcar automáticamente como "completada" toda reserva confirmada cuya fecha de salida ya pasó.', 'travel-agency-platform'); ?></p>
                         </td>
@@ -491,6 +491,7 @@ class TAP_Dashboard_Settings {
                     <tr>
                         <th><label for="tap_auto_payment_reminders"><?php esc_html_e('Payment reminders', 'travel-agency-platform'); ?></label></th>
                         <td>
+                            <input type="hidden" name="tap_auto_payment_reminders" value="0">
                             <input type="checkbox" id="tap_auto_payment_reminders" name="tap_auto_payment_reminders" value="1" <?php checked('1', get_option('tap_auto_payment_reminders', '0')); ?>>
                             <p class="description"><?php esc_html_e('Email guests with pending/request bookings that never got paid.', 'travel-agency-platform'); ?></p>
                         </td>
@@ -502,6 +503,7 @@ class TAP_Dashboard_Settings {
                     <tr>
                         <th><label for="tap_auto_prearrival"><?php esc_html_e('Pre-arrival message', 'travel-agency-platform'); ?></label></th>
                         <td>
+                            <input type="hidden" name="tap_auto_prearrival" value="0">
                             <input type="checkbox" id="tap_auto_prearrival" name="tap_auto_prearrival" value="1" <?php checked('1', get_option('tap_auto_prearrival', '0')); ?>>
                             <p class="description"><?php esc_html_e('Send guests a heads-up when their confirmed stay starts within 48h.', 'travel-agency-platform'); ?></p>
                         </td>
@@ -509,6 +511,7 @@ class TAP_Dashboard_Settings {
                     <tr>
                         <th><label for="tap_auto_review_request"><?php esc_html_e('Post-stay review request', 'travel-agency-platform'); ?></label></th>
                         <td>
+                            <input type="hidden" name="tap_auto_review_request" value="0">
                             <input type="checkbox" id="tap_auto_review_request" name="tap_auto_review_request" value="1" <?php checked('1', get_option('tap_auto_review_request', '0')); ?>>
                             <p class="description"><?php esc_html_e('Ask guests to leave a review a few days after a completed stay.', 'travel-agency-platform'); ?></p>
                         </td>
@@ -516,6 +519,7 @@ class TAP_Dashboard_Settings {
                     <tr>
                         <th><label for="tap_auto_expiry_warnings"><?php esc_html_e('Expiry warnings', 'travel-agency-platform'); ?></label></th>
                         <td>
+                            <input type="hidden" name="tap_auto_expiry_warnings" value="0">
                             <input type="checkbox" id="tap_auto_expiry_warnings" name="tap_auto_expiry_warnings" value="1" <?php checked('1', get_option('tap_auto_expiry_warnings', '0')); ?>>
                             <p class="description"><?php esc_html_e('Email agencies when their plan subscription or a featured listing is near expiry.', 'travel-agency-platform'); ?></p>
                         </td>
@@ -527,6 +531,7 @@ class TAP_Dashboard_Settings {
                     <tr>
                         <th><label for="tap_auto_lead_ack"><?php esc_html_e('Contact auto-reply', 'travel-agency-platform'); ?></label></th>
                         <td>
+                            <input type="hidden" name="tap_auto_lead_ack" value="0">
                             <input type="checkbox" id="tap_auto_lead_ack" name="tap_auto_lead_ack" value="1" <?php checked('1', get_option('tap_auto_lead_ack', '1')); ?>>
                             <p class="description"><?php esc_html_e('Send an acknowledgment email to people who use the contact form.', 'travel-agency-platform'); ?></p>
                         </td>
@@ -545,11 +550,11 @@ class TAP_Dashboard_Settings {
                 <table class="form-table">
                     <tr>
                         <th><label for="tap_paypal_enabled"><?php esc_html_e('Enable PayPal', 'travel-agency-platform'); ?></label></th>
-                        <td><input type="checkbox" id="tap_paypal_enabled" name="tap_paypal_enabled" value="1" <?php checked('1', get_option('tap_paypal_enabled', '0')); ?>></td>
+                        <td><input type="hidden" name="tap_paypal_enabled" value="0"><input type="checkbox" id="tap_paypal_enabled" name="tap_paypal_enabled" value="1" <?php checked('1', get_option('tap_paypal_enabled', '0')); ?>></td>
                     </tr>
                     <tr>
                         <th><label for="tap_paypal_sandbox"><?php esc_html_e('Sandbox Mode', 'travel-agency-platform'); ?></label></th>
-                        <td><input type="checkbox" id="tap_paypal_sandbox" name="tap_paypal_sandbox" value="1" <?php checked('1', get_option('tap_paypal_sandbox', '1')); ?>> <span class="description"><?php esc_html_e('Enable to test payments in PayPal Sandbox', 'travel-agency-platform'); ?></span></td>
+                        <td><input type="hidden" name="tap_paypal_sandbox" value="0"><input type="checkbox" id="tap_paypal_sandbox" name="tap_paypal_sandbox" value="1" <?php checked('1', get_option('tap_paypal_sandbox', '1')); ?>> <span class="description"><?php esc_html_e('Enable to test payments in PayPal Sandbox', 'travel-agency-platform'); ?></span></td>
                     </tr>
                     <tr>
                         <th><label for="tap_paypal_client_id"><?php esc_html_e('Client ID', 'travel-agency-platform'); ?></label></th>
@@ -577,7 +582,7 @@ class TAP_Dashboard_Settings {
                 <table class="form-table">
                     <tr>
                         <th><label for="tap_onvo_enabled"><?php esc_html_e('Enable Onvo Pay', 'travel-agency-platform'); ?></label></th>
-                        <td><input type="checkbox" id="tap_onvo_enabled" name="tap_onvo_enabled" value="1" <?php checked('1', get_option('tap_onvo_enabled', '0')); ?>></td>
+                        <td><input type="hidden" name="tap_onvo_enabled" value="0"><input type="checkbox" id="tap_onvo_enabled" name="tap_onvo_enabled" value="1" <?php checked('1', get_option('tap_onvo_enabled', '0')); ?>></td>
                     </tr>
                     <tr>
                         <th><label for="tap_onvo_secret_key"><?php esc_html_e('Secret Key', 'travel-agency-platform'); ?></label></th>
@@ -603,7 +608,7 @@ class TAP_Dashboard_Settings {
                 <table class="form-table">
                     <tr>
                         <th><label for="tap_sinpe_enabled"><?php esc_html_e('Enable SINPE Móvil', 'travel-agency-platform'); ?></label></th>
-                        <td><input type="checkbox" id="tap_sinpe_enabled" name="tap_sinpe_enabled" value="1" <?php checked('1', get_option('tap_sinpe_enabled', '0')); ?>></td>
+                        <td><input type="hidden" name="tap_sinpe_enabled" value="0"><input type="checkbox" id="tap_sinpe_enabled" name="tap_sinpe_enabled" value="1" <?php checked('1', get_option('tap_sinpe_enabled', '0')); ?>></td>
                     </tr>
                     <tr>
                         <th><label for="tap_sinpe_phone"><?php esc_html_e('Teléfono SINPE', 'travel-agency-platform'); ?></label></th>
@@ -615,7 +620,7 @@ class TAP_Dashboard_Settings {
                 <table class="form-table">
                     <tr>
                         <th><label for="tap_manual_payment_enabled"><?php esc_html_e('Enable transferencia', 'travel-agency-platform'); ?></label></th>
-                        <td><input type="checkbox" id="tap_manual_payment_enabled" name="tap_manual_payment_enabled" value="1" <?php checked('1', get_option('tap_manual_payment_enabled', '0')); ?>></td>
+                        <td><input type="hidden" name="tap_manual_payment_enabled" value="0"><input type="checkbox" id="tap_manual_payment_enabled" name="tap_manual_payment_enabled" value="1" <?php checked('1', get_option('tap_manual_payment_enabled', '0')); ?>></td>
                     </tr>
                     <tr>
                         <th><label for="tap_manual_bank_info"><?php esc_html_e('Datos bancarios', 'travel-agency-platform'); ?></label></th>

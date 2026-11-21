@@ -174,4 +174,17 @@ $wpdb->delete($requests, ['email' => $email]);
 $wpdb->delete($consents, ['email' => $bk_email]);
 $wpdb->delete($consents, ['email' => $ag_email]);
 
+// Regression: privacy settings must live in their own options group. Sharing
+// 'tap_settings' made core options.php wipe all other settings on save.
+TAP_Dashboard_Settings::register_settings();
+TAP_Privacy::register_settings();
+$registered = get_registered_settings();
+$pg = isset($registered['tap_privacy_contact']['group']) ? $registered['tap_privacy_contact']['group'] : '';
+tap_t_assert('tap_privacy_group' === $pg, 'privacy contact uses its own settings group');
+tap_t_assert(!isset($registered['tap_payment_methods']), 'orphan tap_payment_methods option is not registered');
+$privacy_page = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-privacy.php');
+tap_t_assert(false !== strpos($privacy_page, "settings_fields('tap_privacy_group')"), 'privacy form uses the dedicated group');
+$settings_src = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-dashboard-settings.php');
+tap_t_assert(substr_count($settings_src, 'type="hidden" name="tap_') >= 10, 'settings checkboxes have hidden 0 fallbacks');
+
 tap_t_finish();

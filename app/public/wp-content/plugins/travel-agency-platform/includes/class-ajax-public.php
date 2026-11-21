@@ -18,8 +18,21 @@ defined('ABSPATH') || exit;
  * audit (every write stays in one file).
  */
 class TAP_Ajax_Public {
+    /**
+     * Public endpoints are reached both from /mi-cuenta/ (tapDash nonce) and
+     * from public pages (tap_ajax.nonce = tap_nonce). Accept either so the
+     * action works everywhere; both are per-user nonces, so no CSRF gap.
+     */
+    private static function check_public_nonce() {
+        $nonce = isset($_REQUEST['nonce']) ? sanitize_text_field(wp_unslash($_REQUEST['nonce'])) : '';
+        if ($nonce && (wp_verify_nonce($nonce, 'tap_front_dash_nonce') || wp_verify_nonce($nonce, 'tap_nonce'))) {
+            return;
+        }
+        wp_send_json_error(['message' => __('Nonce inválido.', 'travel-agency-platform')], 403);
+    }
+
     public static function submit_question() {
-        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        self::check_public_nonce();
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => __('Inicia sesión para preguntar.', 'travel-agency-platform')], 401);
         }
@@ -54,7 +67,7 @@ class TAP_Ajax_Public {
     }
 
     public static function answer_question() {
-        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        self::check_public_nonce();
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => __('No autenticado.', 'travel-agency-platform')], 401);
         }
@@ -83,7 +96,7 @@ class TAP_Ajax_Public {
     }
 
     public static function push_subscribe_client() {
-        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        self::check_public_nonce();
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => __('No autenticado.', 'travel-agency-platform')], 401);
         }
@@ -109,7 +122,7 @@ class TAP_Ajax_Public {
     }
 
     public static function save_push_prefs() {
-        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        self::check_public_nonce();
         if (!is_user_logged_in()) {
             wp_send_json_error(['message' => __('No autorizado.', 'travel-agency-platform')], 403);
         }
@@ -121,7 +134,7 @@ class TAP_Ajax_Public {
     }
 
     public static function set_currency() {
-        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        self::check_public_nonce();
         $code = strtoupper(sanitize_text_field(wp_unslash($_POST['currency'] ?? '')));
         if (!$code) {
             wp_send_json_error(['message' => __('Moneda inválida.', 'travel-agency-platform')]);

@@ -445,35 +445,6 @@
         tapChatSchedule();
     }
 
-    /* ── Agency back-office: payout request ───────────────────────── */
-    $(document).on('submit', '#tap-bo-payout', function (e) {
-        e.preventDefault();
-        var $form = $(this);
-
-        if (!confirm(cfg.i18n && cfg.i18n.confirm_payout ? cfg.i18n.confirm_payout : '¿Enviar solicitud?')) {
-            return;
-        }
-
-        var $btn = $form.find('button[type="submit"]').prop('disabled', true).text('…');
-
-        $.post(cfg.ajax_url, {
-            action: 'tap_dash_agency_payout',
-            nonce:  cfg.nonce,
-            method: $form.find('[name="method"]').val(),
-            note:   $form.find('[name="note"]').val() || ''
-        }).done(function (res) {
-            if (res && res.success) {
-                location.reload();
-            } else {
-                tapToast(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error), 'error');
-                $btn.prop('disabled', false);
-            }
-        }).fail(function () {
-            tapToast(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error', 'error');
-            $btn.prop('disabled', false);
-        });
-    });
-
     /* ── Agency back-office: team management ──────────────────────── */
     $(document).on('submit', '#tap-team-add', function (e) {
         e.preventDefault();

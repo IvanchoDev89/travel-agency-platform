@@ -51,7 +51,7 @@ class TAP_Automations {
      * while the payment hold (default 30 min) is still active.
      */
     public static function payment_reminders_fast() {
-        if ('1' !== (string) get_option('tap_auto_payment_reminders', '1')) {
+        if ('1' !== (string) get_option('tap_auto_payment_reminders', '0')) {
             return;
         }
         $minutes = max(1, min(20, (int) get_option('tap_payment_reminder_minutes', 10)));

@@ -152,10 +152,20 @@ foreach ($files as $file) {
             continue;
         }
         $hasNonce = (bool) preg_match('/\b(check_ajax_referer|wp_verify_nonce|check_admin_referer)\s*\(/', $body);
+        // A handler may delegate nonce checking to a private helper
+        // (e.g. self::check_public_nonce()). Follow that helper: it must exist
+        // in the same class and actually call a wp_verify_nonce() variant.
+        $delegated = false;
+        if (!$hasNonce && preg_match('/\$this->([a-z_]+nonce[a-z_]*)\s*\(|self::([a-z_]+nonce[a-z_]*)\s*\(/i', $body, $dm)) {
+            $helper = $dm[1] ?: $dm[2];
+            $helperBody = tap_method_body(file_get_contents($classMap[$class]), $helper);
+            $delegated = $helperBody !== null
+                && (bool) preg_match('/\bwp_verify_nonce\s*\(|\bcheck_ajax_referer\s*\(/', $helperBody);
+        }
         $handlers[$action] = [
             'class' => $class,
             'method' => $method,
-            'nonce' => $hasNonce,
+            'nonce' => $hasNonce || $delegated,
             'file' => $classMap[$class],
         ];
     }

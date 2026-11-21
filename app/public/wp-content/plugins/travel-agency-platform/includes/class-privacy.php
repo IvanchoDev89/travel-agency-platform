@@ -528,7 +528,7 @@ class TAP_Privacy {
     }
 
     public static function register_settings() {
-        register_setting('tap_settings', 'tap_privacy_contact', [
+        register_setting('tap_privacy_group', 'tap_privacy_contact', [
             'type' => 'string',
             'sanitize_callback' => 'sanitize_email',
         ]);
@@ -640,7 +640,7 @@ endif;
 
             <h2><?php esc_html_e('Configuración de contacto', 'travel-agency-platform'); ?></h2>
             <form method="post" action="options.php">
-                <?php settings_fields('tap_settings'); ?>
+                <?php settings_fields('tap_privacy_group'); ?>
                 <table class="form-table" role="presentation">
                     <tr>
                         <th scope="row"><label for="tap_privacy_contact"><?php esc_html_e('Correo de contacto para datos personales', 'travel-agency-platform'); ?></label></th>

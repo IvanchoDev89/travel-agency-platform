@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.6.4] — 2026-11-21
+
+### Fixed (admin settings)
+- CRITICAL: Privacy page no longer wipes all plugin settings on save. It had
+  shared the `tap_settings` options group, so core options.php nulled every
+  option absent from the privacy form (commission, volume tiers, gateways…).
+  It now uses its own `tap_privacy_group`.
+- Removed orphan `tap_payment_methods` registration (never rendered/read).
+- Public AJAX actions (currency, Q&A submit/answer, push subscribe) now accept
+  both public `tap_nonce` and dashboard `tap_front_dash_nonce`; they were
+  failing silently on public pages due to a nonce mismatch.
+- Removed stale JS posting to the deleted agency payout endpoint.
+- Unified `tap_auto_payment_reminders` default to '0' in UI and cron.
+- Settings checkboxes now have hidden value="0" fallbacks.
+- `tools/ajax-nonce-check.php` now follows delegated nonce helpers instead of
+  just detecting any nonce call in the handler body.
+
 ## [1.6.3] — 2026-11-21
 
 ### Added
