@@ -294,4 +294,20 @@ $wp_cfg = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-config.p
 tap_t_assert(false !== strpos($wp_cfg, "'local' !== WP_ENVIRONMENT_TYPE"), 'production constants are env-guarded');
 tap_t_assert(false === strpos($wp_cfg, 'define( \'FORCE_SSL_ADMIN\', true );') || false !== strpos($wp_cfg, "'local' !== WP_ENVIRONMENT_TYPE"), 'SSL admin does not break local HTTP');
 
+// ===== T. Public nonce acceptance (real wp_create_nonce round-trip) ========
+$uid_before = get_current_user_id();
+wp_set_current_user(1);
+$n_front = wp_create_nonce('tap_front_dash_nonce');
+$n_plain = wp_create_nonce('tap_nonce');
+tap_t_assert(TAP_Ajax_Public::public_nonce_ok($n_front), 'dashboard nonce accepted by public handlers');
+tap_t_assert(TAP_Ajax_Public::public_nonce_ok($n_plain), 'public tap_nonce accepted by public handlers');
+tap_t_assert(!TAP_Ajax_Public::public_nonce_ok(wp_create_nonce('tap_other_action')), 'unrelated nonce rejected');
+tap_t_assert(!TAP_Ajax_Public::public_nonce_ok(''), 'empty nonce rejected');
+// A nonce from another user/session must not verify for this user.
+wp_set_current_user(0);
+$anon_nonce = wp_create_nonce('tap_nonce');
+wp_set_current_user(1);
+tap_t_assert(!TAP_Ajax_Public::public_nonce_ok($anon_nonce), 'anonymous nonce cannot authenticate a logged-in user');
+wp_set_current_user($uid_before);
+
 tap_t_finish();

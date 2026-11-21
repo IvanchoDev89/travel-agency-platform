@@ -18,6 +18,15 @@ defined('ABSPATH') || exit;
  * audit (every write stays in one file).
  */
 class TAP_Ajax_Public {
+    /** True when the nonce is one of the front-end nonces we accept. */
+    public static function public_nonce_ok($nonce) {
+        if (!is_string($nonce) || $nonce === '') {
+            return false;
+        }
+        return (bool) wp_verify_nonce($nonce, 'tap_front_dash_nonce')
+            || (bool) wp_verify_nonce($nonce, 'tap_nonce');
+    }
+
     /**
      * Public endpoints are reached both from /mi-cuenta/ (tapDash nonce) and
      * from public pages (tap_ajax.nonce = tap_nonce). Accept either so the
@@ -25,7 +34,7 @@ class TAP_Ajax_Public {
      */
     private static function check_public_nonce() {
         $nonce = isset($_REQUEST['nonce']) ? sanitize_text_field(wp_unslash($_REQUEST['nonce'])) : '';
-        if ($nonce && (wp_verify_nonce($nonce, 'tap_front_dash_nonce') || wp_verify_nonce($nonce, 'tap_nonce'))) {
+        if (self::public_nonce_ok($nonce)) {
             return;
         }
         wp_send_json_error(['message' => __('Nonce inválido.', 'travel-agency-platform')], 403);

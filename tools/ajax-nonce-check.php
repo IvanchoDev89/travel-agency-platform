@@ -156,11 +156,24 @@ foreach ($files as $file) {
         // (e.g. self::check_public_nonce()). Follow that helper: it must exist
         // in the same class and actually call a wp_verify_nonce() variant.
         $delegated = false;
-        if (!$hasNonce && preg_match('/\$this->([a-z_]+nonce[a-z_]*)\s*\(|self::([a-z_]+nonce[a-z_]*)\s*\(/i', $body, $dm)) {
-            $helper = $dm[1] ?: $dm[2];
-            $helperBody = tap_method_body(file_get_contents($classMap[$class]), $helper);
-            $delegated = $helperBody !== null
-                && (bool) preg_match('/\bwp_verify_nonce\s*\(|\bcheck_ajax_referer\s*\(/', $helperBody);
+        if (!$hasNonce) {
+            $classSrc = file_get_contents($classMap[$class]);
+            // Follow up to 3 levels of delegated nonce helpers (e.g. a guard
+            // calling self::check_public_nonce() which calls public_nonce_ok()).
+            $seen = [];
+            for ($depth = 0; $depth < 3; $depth++) {
+                if (!preg_match('/\$this->([a-z_]+nonce[a-z_]*)\s*\(|self::([a-z_]+nonce[a-z_]*)\s*\(/i', $body, $dm)) break;
+                $helper = $dm[1] ?: $dm[2];
+                if (isset($seen[$helper])) break;
+                $seen[$helper] = true;
+                $helperBody = tap_method_body($classSrc, $helper);
+                if ($helperBody === null) break;
+                if (preg_match('/\bwp_verify_nonce\s*\(|\bcheck_ajax_referer\s*\(|\bcheck_admin_referer\s*\(/', $helperBody)) {
+                    $delegated = true;
+                    break;
+                }
+                $body = $helperBody;
+            }
         }
         $handlers[$action] = [
             'class' => $class,

@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-21T16:04:39+00:00\n"
+"POT-Creation-Date: 2026-11-21T16:56:06+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -1152,7 +1152,7 @@ msgstr ""
 "if you can."
 
 #: includes/class-acc-wizard-steps.php:730
-#: includes/class-acc-wizard-steps.php:929 includes/class-ajax-public.php:554
+#: includes/class-acc-wizard-steps.php:929 includes/class-ajax-public.php:563
 #: includes/class-listing-editor.php:460
 #: includes/class-tour-wizard-steps.php:741
 #: includes/class-transport-admin.php:302
@@ -1834,7 +1834,7 @@ msgid "No puedes adjuntar imágenes a esa unidad."
 msgstr "You cannot attach images to that unit."
 
 #: includes/class-agency-media.php:38 includes/class-agency-media.php:70
-#: includes/class-ajax-public.php:468 includes/class-ajax-public.php:474
+#: includes/class-ajax-public.php:477 includes/class-ajax-public.php:483
 msgid "No se recibió ningún archivo."
 msgstr "No file was received."
 
@@ -1866,7 +1866,7 @@ msgstr "Server error: the file could not be written."
 msgid "Una extensión de PHP bloqueó la subida."
 msgstr "A PHP extension blocked the upload."
 
-#: includes/class-agency-media.php:75 includes/class-ajax-public.php:479
+#: includes/class-agency-media.php:75 includes/class-ajax-public.php:488
 msgid "Formato no permitido. Usa JPG, PNG, WEBP o GIF."
 msgstr "Format not allowed. Use JPG, PNG, WEBP or GIF."
 
@@ -1876,7 +1876,7 @@ msgstr "Format not allowed. Use JPG, PNG, WEBP or GIF."
 msgid "La imagen supera el tamaño máximo permitido (%s)."
 msgstr "The image exceeds the maximum allowed size (%s)."
 
-#: includes/class-agency-media.php:92 includes/class-ajax-public.php:492
+#: includes/class-agency-media.php:92 includes/class-ajax-public.php:501
 msgid "El archivo no es una imagen válida."
 msgstr "The file is not a valid image."
 
@@ -2053,7 +2053,7 @@ msgstr "Could not create Onvo checkout session."
 #: includes/class-ajax-dash.php:283 includes/class-ajax-dash.php:365
 #: includes/class-ajax-dash.php:386 includes/class-ajax-dash.php:407
 #: includes/class-ajax-dash.php:464 includes/class-ajax-dash.php:498
-#: includes/class-ajax-public.php:72 includes/class-ajax-public.php:101
+#: includes/class-ajax-public.php:81 includes/class-ajax-public.php:110
 msgid "No autenticado."
 msgstr "Not authenticated."
 
@@ -2112,7 +2112,7 @@ msgid "Procesadas: %d OK, %d con error."
 msgstr "Processed: %d OK, %d with errors."
 
 #: includes/class-ajax-dash.php:165 includes/class-ajax-dash.php:556
-#: includes/class-ajax-public.php:88 includes/class-ajax.php:522
+#: includes/class-ajax-public.php:97 includes/class-ajax.php:522
 #: includes/class-landing-builder.php:721 includes/class-transport.php:303
 #: includes/class-transport.php:324 includes/class-transport.php:341
 #: includes/class-transport.php:368
@@ -2306,7 +2306,7 @@ msgstr ""
 "Submitted for review. An administrator will approve it and it will become "
 "visible."
 
-#: includes/class-ajax-listing.php:541 includes/class-ajax-public.php:454
+#: includes/class-ajax-listing.php:541 includes/class-ajax-public.php:463
 #: includes/class-booking.php:709 includes/class-booking.php:844
 #: includes/class-transport.php:389
 msgid "Debes iniciar sesión."
@@ -2348,102 +2348,102 @@ msgstr "This room has future bookings and cannot be deleted."
 msgid "Room deleted"
 msgstr "Room deleted"
 
-#: includes/class-ajax-public.php:31
+#: includes/class-ajax-public.php:40
 msgid "Nonce inválido."
 msgstr "Invalid nonce."
 
-#: includes/class-ajax-public.php:37 includes/class-shortcode-search.php:662
+#: includes/class-ajax-public.php:46 includes/class-shortcode-search.php:662
 msgid "Inicia sesión para preguntar."
 msgstr "Log in to ask a question."
 
-#: includes/class-ajax-public.php:42 includes/class-ajax-public.php:66
+#: includes/class-ajax-public.php:51 includes/class-ajax-public.php:75
 msgid "Pregunta enviada. Será revisada por la agencia."
 msgstr "Question submitted. The agency will review it."
 
-#: includes/class-ajax-public.php:46
+#: includes/class-ajax-public.php:55
 msgid "Has enviado muchas preguntas. Intentá más tarde."
 msgstr "You have sent too many questions. Please try later."
 
-#: includes/class-ajax-public.php:53
+#: includes/class-ajax-public.php:62
 msgid "Pregunta inválida."
 msgstr "Invalid question."
 
-#: includes/class-ajax-public.php:57
+#: includes/class-ajax-public.php:66
 msgid "Servicio inválido."
 msgstr "Invalid service."
 
-#: includes/class-ajax-public.php:78
+#: includes/class-ajax-public.php:87
 msgid "Respuesta inválida."
 msgstr "Invalid reply."
 
-#: includes/class-ajax-public.php:82
+#: includes/class-ajax-public.php:91
 msgid "Pregunta no encontrada."
 msgstr "Question not found."
 
-#: includes/class-ajax-public.php:95
+#: includes/class-ajax-public.php:104
 msgid "Respuesta guardada."
 msgstr "Reply saved."
 
-#: includes/class-ajax-public.php:104
+#: includes/class-ajax-public.php:113
 msgid "Push no disponible."
 msgstr "Push not available."
 
-#: includes/class-ajax-public.php:110 includes/class-itinerary-collab.php:175
+#: includes/class-ajax-public.php:119 includes/class-itinerary-collab.php:175
 #: includes/class-travel-insurance.php:122
 msgid "Datos inválidos."
 msgstr "Invalid data."
 
-#: includes/class-ajax-public.php:114
+#: includes/class-ajax-public.php:123
 msgid "Endpoint no válido."
 msgstr "Invalid endpoint."
 
-#: includes/class-ajax-public.php:118
+#: includes/class-ajax-public.php:127
 msgid "El endpoint debe usar HTTPS."
 msgstr "The endpoint must use HTTPS."
 
-#: includes/class-ajax-public.php:127 includes/class-ajax.php:510
+#: includes/class-ajax-public.php:136 includes/class-ajax.php:510
 #: includes/class-front-dash.php:915 includes/class-site-hardening.php:40
 #: includes/class-transport.php:293 includes/class-transport.php:312
 #: includes/class-transport.php:332 includes/class-transport.php:349
 msgid "No autorizado."
 msgstr "Unauthorized."
 
-#: includes/class-ajax-public.php:133
+#: includes/class-ajax-public.php:142
 msgid "Preferencias guardadas."
 msgstr "Preferences saved."
 
-#: includes/class-ajax-public.php:140
+#: includes/class-ajax-public.php:149
 msgid "Moneda inválida."
 msgstr "Invalid currency."
 
-#: includes/class-ajax-public.php:150
+#: includes/class-ajax-public.php:159
 msgid "Demasiadas solicitudes. Esperá unos minutos e intentá de nuevo."
 msgstr "Too many requests. Please wait a few minutes and try again."
 
-#: includes/class-ajax-public.php:242
+#: includes/class-ajax-public.php:251
 msgid "Invalid request"
 msgstr "Invalid request"
 
-#: includes/class-ajax-public.php:383
+#: includes/class-ajax-public.php:392
 msgid "Parámetros inválidos"
 msgstr "Invalid parameters"
 
-#: includes/class-ajax-public.php:463
+#: includes/class-ajax-public.php:472
 msgid "No puedes subir imágenes para esta reseña."
 msgstr "You cannot upload images for this review."
 
-#: includes/class-ajax-public.php:485
+#: includes/class-ajax-public.php:494
 msgid "La imagen supera el tamaño máximo permitido (5 MB)."
 msgstr "The image exceeds the maximum allowed size (5 MB)."
 
-#: includes/class-ajax-public.php:537 includes/class-booking.php:62
+#: includes/class-ajax-public.php:546 includes/class-booking.php:62
 #: includes/class-emails-send.php:756 includes/class-itinerary.php:31
 #: includes/class-itinerary.php:88 includes/class-shortcode-booking.php:1420
 #: includes/class-taxonomies.php:283
 msgid "Alojamiento"
 msgstr "Accommodation"
 
-#: includes/class-ajax-public.php:592
+#: includes/class-ajax-public.php:601
 msgid "Invalid accommodation"
 msgstr "Invalid accommodation"
 
@@ -12470,28 +12470,45 @@ msgstr ""
 "WP_ENVIRONMENT_TYPE=local: production constants (DISALLOW_FILE_EDIT/MODS, "
 "FORCE_SSL_ADMIN) are inactive."
 
-#: includes/class-launch-check.php:71 includes/class-launch-check.php:72
-#: includes/class-launch-check.php:82
+#: includes/class-launch-check.php:68
+msgid "Ninguna pasarela de pago lista"
+msgstr "No payment gateway ready"
+
+#: includes/class-launch-check.php:69
+msgid "Configura Onvo o PayPal con credenciales reales (opciones o constantes TAP_*/ONVO_*) antes de publicar."
+msgstr "Configure Onvo or PayPal with real credentials (options or TAP_*/ONVO_* constants) before launch."
+
+#: includes/class-launch-check.php:78
+#, php-format
+msgid "Secreto inválido en %s"
+msgstr "Invalid secret in %s"
+
+#: includes/class-launch-check.php:79
+msgid "El campo contiene una URL en lugar de una clave/ID secreto. Corrígelo antes de publicar."
+msgstr "This field contains a URL instead of a secret key/ID. Fix it before launch."
+
+#: includes/class-launch-check.php:94 includes/class-launch-check.php:95
+#: includes/class-launch-check.php:105
 msgid "Launch Check"
 msgstr "Launch Check"
 
-#: includes/class-launch-check.php:84
+#: includes/class-launch-check.php:107
 msgid "Todo listo para producción."
 msgstr "Everything is ready for production."
 
 #. translators: %d: number of pending tasks
-#: includes/class-launch-check.php:88
+#: includes/class-launch-check.php:111
 #, php-format
 msgid "%d tarea pendiente antes del lanzamiento."
 msgid_plural "%d tareas pendientes antes del lanzamiento."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-launch-check.php:91
+#: includes/class-launch-check.php:114
 msgid "Revisión"
 msgstr "Check"
 
-#: includes/class-launch-check.php:91
+#: includes/class-launch-check.php:114
 msgid "Detalle"
 msgstr "Detail"
 

@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.6.5] — 2026-11-21
+
+### Changed (quality)
+- Replaced source-string assertions with FUNCTIONAL E2E tests: options.php
+  group save round-trip (saving Privacy no longer wipes Settings) and both
+  accepted nonces with real wp_create_nonce round-trips (including rejection
+  of another user's nonce).
+- Launch Check also reports when no payment gateway is ready.
+- SECURITY.md supported version updated to 1.6.x; SEO plan banners corrected
+  (Yoast guard already implemented; only llms.txt remains).
+
 ## [1.6.4] — 2026-11-21
 
 ### Fixed (admin settings)

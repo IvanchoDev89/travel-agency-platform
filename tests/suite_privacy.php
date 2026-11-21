@@ -176,12 +176,53 @@ $wpdb->delete($consents, ['email' => $ag_email]);
 
 // Regression: privacy settings must live in their own options group. Sharing
 // 'tap_settings' made core options.php wipe all other settings on save.
+// FUNCTIONAL regression: simulate core options.php saving each group with a
+// partial $_POST. Core nulls every option in the group that is absent from
+// $_POST — if the two pages shared a group, saving one wiped the other.
 TAP_Dashboard_Settings::register_settings();
 TAP_Privacy::register_settings();
-$registered = get_registered_settings();
-$pg = isset($registered['tap_privacy_contact']['group']) ? $registered['tap_privacy_contact']['group'] : '';
-tap_t_assert('tap_privacy_group' === $pg, 'privacy contact uses its own settings group');
-tap_t_assert(!isset($registered['tap_payment_methods']), 'orphan tap_payment_methods option is not registered');
+$wl = $GLOBALS['new_whitelist_options'];
+// Snapshot so the destructive simulation can be fully undone.
+$settings_snapshot = [];
+foreach ($wl['tap_settings'] as $opt) {
+    $settings_snapshot[$opt] = get_option($opt, null);
+}
+$privacy_snapshot = get_option('tap_privacy_contact', '');
+tap_t_assert(
+    !in_array('tap_privacy_contact', $wl['tap_settings'] ?? [], true)
+    && !in_array('tap_commission_default', $wl['tap_privacy_group'] ?? [], true),
+    'settings and privacy option groups are disjoint'
+);
+
+update_option('tap_commission_default', '15.55');
+update_option('tap_privacy_contact', 'legal@example.test');
+
+// Simulate saving the Privacy page: only its option is in $_POST.
+$saved = ['tap_privacy_contact' => 'legal2@example.test'];
+foreach ($wl['tap_privacy_group'] as $opt) {
+    update_option($opt, $saved[$opt] ?? null); // core behavior for absent options
+}
+tap_t_assert('15.55' === (string) get_option('tap_commission_default'), 'saving privacy group preserves the commission setting');
+tap_t_assert('legal2@example.test' === get_option('tap_privacy_contact'), 'saving privacy group updates its own option');
+
+// Simulate saving the Settings page: privacy contact is NOT in this group.
+$saved = ['tap_commission_default' => '16.66'];
+foreach ($wl['tap_settings'] as $opt) {
+    update_option($opt, $saved[$opt] ?? null);
+}
+tap_t_assert('legal2@example.test' === get_option('tap_privacy_contact'), 'saving settings group preserves the privacy contact');
+
+// Restore EVERY option touched by the simulations (the partial-POST emulation
+// nulls all options in the group). Snapshot taken before any simulation.
+foreach ($wl['tap_settings'] as $opt) {
+    if (array_key_exists($opt, $settings_snapshot)) {
+        update_option($opt, $settings_snapshot[$opt]);
+    } else {
+        delete_option($opt);
+    }
+}
+update_option('tap_privacy_contact', $privacy_snapshot);
+tap_t_assert(!isset($wl['tap_payment_methods']), 'orphan tap_payment_methods option is not registered');
 $privacy_page = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-privacy.php');
 tap_t_assert(false !== strpos($privacy_page, "settings_fields('tap_privacy_group')"), 'privacy form uses the dedicated group');
 $settings_src = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-dashboard-settings.php');

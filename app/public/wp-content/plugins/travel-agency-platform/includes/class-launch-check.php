@@ -58,6 +58,29 @@ class TAP_Launch_Check {
             ];
         }
 
+        // Payment gateways: enabled but not ready means checkout is dead.
+        // is_ready() accounts for credentials coming from wp-config constants.
+        $gateways = [];
+        if (class_exists('TAP_Onvo') && TAP_Onvo::is_ready()) $gateways[] = 'Onvo Pay';
+        if (class_exists('TAP_PayPal') && TAP_PayPal::is_ready()) $gateways[] = 'PayPal';
+        if (!$gateways) {
+            $issues[] = [
+                'label' => __('Ninguna pasarela de pago lista', 'travel-agency-platform'),
+                'detail' => __('Configura Onvo o PayPal con credenciales reales (opciones o constantes TAP_*/ONVO_*) antes de publicar.', 'travel-agency-platform'),
+            ];
+        }
+
+        // Secret fields must never contain URLs (seen in local fixtures).
+        foreach (['tap_onvo_webhook_secret', 'tap_paypal_webhook_id'] as $secret) {
+            $value = (string) get_option($secret, '');
+            if ($value !== '' && preg_match('#^https?://#i', $value)) {
+                $issues[] = [
+                    'label' => sprintf(__('Secreto inválido en %s', 'travel-agency-platform'), $secret),
+                    'detail' => __('El campo contiene una URL en lugar de una clave/ID secreto. Corrígelo antes de publicar.', 'travel-agency-platform'),
+                ];
+            }
+        }
+
         return $issues;
     }
 
