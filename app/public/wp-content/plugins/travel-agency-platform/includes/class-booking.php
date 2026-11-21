@@ -1613,15 +1613,21 @@ class TAP_Booking {
             }
         }
 
-        // Tiered commission by monthly paid booking volume.
+        // Tiered commission by monthly paid booking volume: growing agencies
+        // pay LESS (a loyalty incentive), but the platform keeps at least half
+        // of the negotiated base rate so the margin never disappears.
         $count = self::monthly_paid_bookings($agency_id);
-        $bonus = 0.0;
+        $discount = 0.0;
         if ($count >= 31) {
-            $bonus = 5.0;
+            $discount = 2.0;
         } elseif ($count >= 11) {
-            $bonus = 2.0;
+            $discount = 1.0;
         }
-        $rate = $base + $bonus;
+        $rate = $base - $discount;
+        $floor = $base * 0.5;
+        if ($rate < $floor) {
+            $rate = $floor;
+        }
         if ($rate > 25) {
             $rate = 25;
         }

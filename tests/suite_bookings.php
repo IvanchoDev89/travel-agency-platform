@@ -33,6 +33,38 @@ tap_t_assert(isset($plans->commission_rate) && (float) $plans->commission_rate =
 $rate = TAP_Booking::get_agency_commission($agency_id);
 tap_t_assert(is_numeric($rate) && $rate > 0, 'get_agency_commission returns numeric rate (got ' . var_export($rate, true) . ')');
 
+// 2b) Volume incentive: the more an agency sells, the LESS commission it pays.
+// Seed paid bookings directly (paid + recent counts toward the volume tier).
+$base_rate = (float) get_option('tap_commission_default', 10);
+$cleanup_rates = [];
+$rate_before = (float) TAP_Booking::get_agency_commission($agency_id);
+tap_t_assert($rate_before <= $base_rate, 'baseline commission <= default (no volume discount yet)');
+
+// 11-30 paid bookings -> -1 point
+for ($i = 0; $i < 11; $i++) {
+    $cleanup_rates[] = tap_t_seed_booking([
+        'agency_id' => $agency_id, 'payment_status' => 'paid',
+        'created_at' => current_time('mysql'), 'commission_amount' => 1,
+    ]);
+}
+$rate_mid = (float) TAP_Booking::get_agency_commission($agency_id);
+tap_t_assert($rate_before >= 1 && abs($rate_mid - ($rate_before - 1)) < 0.01, "mid volume lowers commission by 1 point ({$rate_before} -> {$rate_mid})");
+
+// 31+ paid bookings -> -2 points total (floor = 50% of base)
+for ($i = 0; $i < 20; $i++) {
+    $cleanup_rates[] = tap_t_seed_booking([
+        'agency_id' => $agency_id, 'payment_status' => 'paid',
+        'created_at' => current_time('mysql'), 'commission_amount' => 1,
+    ]);
+}
+$rate_high = (float) TAP_Booking::get_agency_commission($agency_id);
+$expected_high = max($rate_before - 2, $rate_before * 0.5);
+tap_t_assert(abs($rate_high - $expected_high) < 0.01, "high volume lowers commission by 2 with 50% floor ({$rate_before} -> {$rate_high})");
+tap_t_assert($rate_high >= $rate_before * 0.5 - 0.01, 'commission never drops below 50% of the negotiated base');
+foreach ($cleanup_rates as $cid) {
+    $wpdb->delete($wpdb->prefix . 'tap_bookings', ['id' => $cid]);
+}
+
 // 3) seed a booking for the resolved agency and verify commission math + stats rollup
 $b = tap_t_seed_booking(['agency_id' => $agency_id, 'total_amount' => 250, 'commission_amount' => 25, 'commission_percent' => 10]);
 $ids[] = $b;

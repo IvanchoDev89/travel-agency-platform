@@ -6,6 +6,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.6.2] — 2026-11-20
+
+### Changed (comisiones)
+- Volume tiers are now a sustainable incentive: agencies with 11-30 paid
+  bookings/month pay 1 point LESS commission, and 31+ pay 2 points LESS (was
+  the opposite). A floor of 50% of the negotiated base protects the platform
+  margin (e.g. base 15% -> 14% / 13%, never below 7.5%).
+- Added tier regression tests in suite_bookings.php.
+
 ## [1.6.1] — 2026-11-20
 
 ### Changed (finanzas de agencia)
