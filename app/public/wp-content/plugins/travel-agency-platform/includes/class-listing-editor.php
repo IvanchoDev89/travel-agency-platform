@@ -92,13 +92,13 @@ class TAP_Listing_Editor {
             <?php else: ?>
             <?php
             /* Unified listing grid: collect every service type into one list so
-               cards can be filtered by type/status and searched client-side. */
+                cards can be filtered by type/status and searched client-side. */
             $per_page = 24;
             $paged    = max(1, absint($_GET['lift'] ?? 1));
             $args = [
                 'post_type'      => array_keys($types),
                 /* Drafts and pending listings must stay visible: with the
-                   explicit publish action they are a normal state. */
+                    explicit publish action they are a normal state. */
                 'post_status'    => ['publish', 'pending', 'draft'],
                 'posts_per_page' => $per_page,
                 'paged'          => $paged,
@@ -188,7 +188,8 @@ class TAP_Listing_Editor {
                             <?php
                             // Draft/pending listings have no public URL: use the preview link.
                             $view_url = 'publish' === $status ? get_permalink($l->ID) : get_preview_post_link($l->ID);
-                            if ($view_url): ?>
+                            if ($view_url):
+                            ?>
                             <a href="<?php echo esc_url($view_url); ?>" class="tap-btn tap-btn-sm tap-btn-ghost" target="_blank" rel="noopener"><?php esc_html_e('Ver', 'travel-agency-platform'); ?></a>
                             <?php endif; ?>
                         </div>
@@ -208,7 +209,8 @@ class TAP_Listing_Editor {
             </div>
             <?php
             $pages = (int) ceil($total_listings / max(1, $per_page));
-            if ($pages > 1): ?>
+            if ($pages > 1):
+            ?>
                 <nav class="tap-listing-pager" aria-label="<?php esc_attr_e('Paginación de listados', 'travel-agency-platform'); ?>">
                     <?php for ($i = 1; $i <= $pages; $i++): ?>
                         <?php $url = add_query_arg('lift', $i); ?>
@@ -242,7 +244,7 @@ class TAP_Listing_Editor {
                         if (!okFilter) {
                             var parts = activeFilter.split(':');
                             okFilter = parts[0] === 'type' ? card.getAttribute('data-type') === parts[1]
-                                     : card.getAttribute('data-status') === parts[1];
+                                    : card.getAttribute('data-status') === parts[1];
                         }
                         var okSearch = !q || norm(card.getAttribute('data-title')).indexOf(q) !== -1;
                         var show = okFilter && okSearch;
