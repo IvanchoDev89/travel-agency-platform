@@ -159,6 +159,33 @@ if ((int) $rating_post > 0) {
     wp_cache_delete('tap_rating_tap_tour_' . (int) $rating_post, 'tap_ratings');
 }
 
+/* --- 7) Spanish admin + mobile layout -------------------------------------- */
+$plugin_dir = defined('TAP_PLUGIN_DIR') ? TAP_PLUGIN_DIR : (ABSPATH . 'wp-content/plugins/travel-agency-platform/');
+
+$agency_user = get_users(['role' => 'tap_agency_admin', 'number' => 1, 'fields' => 'ids']);
+if ($agency_user) {
+    wp_set_current_user((int) $agency_user[0]);
+    $_GET['seccion'] = 'bo-operations';
+    $ops_html = TAP_Front_Dash::render([]);
+    unset($_GET['seccion']);
+    tap_t_assert(false !== strpos($ops_html, 'Error de red'), 'agency operations error message is in Spanish');
+    tap_t_assert(false === strpos($ops_html, 'Network error'), 'no raw English network error remains');
+}
+
+wp_set_current_user((int) $admin_uid);
+ob_start();
+TAP_Dashboard_Insights::reports_page();
+$reports_html = ob_get_clean();
+tap_t_assert(false !== strpos($reports_html, 'Tarifas de reserva'), 'reports header uses the translated Booking fees label');
+tap_t_assert(false === strpos($reports_html, '>Booking fees<'), 'no raw English Booking fees header remains');
+
+$pricing_css = (string) file_get_contents($plugin_dir . 'assets/css/admin-pricing.css');
+tap_t_assert(false !== strpos($pricing_css, '@media (max-width: 640px)'), 'pricing dialog has a mobile breakpoint');
+tap_t_assert(false !== strpos($pricing_css, 'min-width: 0'), 'pricing dialog drops the fixed 420px minimum on mobile');
+$front_src = (string) file_get_contents($plugin_dir . 'includes/class-front-dash.php');
+tap_t_assert(false !== strpos($front_src, 'bottom: 12px'), 'onboarding tooltip docks to the bottom on mobile');
+tap_t_assert(false !== strpos($front_src, 'window.innerWidth - tipWidth'), 'onboarding tooltip is clamped to the viewport');
+
 /* --- cleanup ---------------------------------------------------------------- */
 tap_t_cleanup_bookings($cohort_ids);
 $wpdb->delete($log_table, ['id' => $old_id]);

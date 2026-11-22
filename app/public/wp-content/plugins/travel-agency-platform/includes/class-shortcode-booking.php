@@ -290,7 +290,7 @@ class TAP_Shortcode_Booking {
 							?>
                         <tr data-status="<?php echo esc_attr($booking->status); ?>" data-payment="<?php echo esc_attr($booking->payment_status); ?>">
                             <td data-label="<?php esc_attr_e('Code', 'travel-agency-platform'); ?>"><?php echo esc_html($booking->booking_code); ?></td>
-                            <td data-label="<?php esc_attr_e('Service', 'travel-agency-platform'); ?>"><?php echo $service ? esc_html($service->post_title) : 'N/A'; ?></td>
+                            <td data-label="<?php esc_attr_e('Service', 'travel-agency-platform'); ?>"><?php echo $service ? esc_html($service->post_title) : 'N/D'; ?></td>
                             <td data-label="<?php esc_attr_e('Dates', 'travel-agency-platform'); ?>"><?php echo esc_html($booking->check_in . ($booking->check_out ? ' - ' . $booking->check_out : '')); ?></td>
                             <td data-label="<?php esc_attr_e('Total', 'travel-agency-platform'); ?>">
                                 <?php echo esc_html($currency_symbol . ' ' . number_format((float) $booking->total_amount, 2)); ?>
@@ -526,7 +526,7 @@ class TAP_Shortcode_Booking {
                 <h3><?php esc_html_e('Booking Summary', 'travel-agency-platform'); ?></h3>
                 <table class="tap-table">
                     <tr><td><strong><?php esc_html_e('Code:', 'travel-agency-platform'); ?></strong></td><td><?php echo esc_html($booking->booking_code); ?></td></tr>
-                    <tr><td><strong><?php esc_html_e('Service:', 'travel-agency-platform'); ?></strong></td><td><?php echo $service ? esc_html($service->post_title) : 'N/A'; ?></td></tr>
+                    <tr><td><strong><?php esc_html_e('Service:', 'travel-agency-platform'); ?></strong></td><td><?php echo $service ? esc_html($service->post_title) : 'N/D'; ?></td></tr>
                     <?php if ($booking->check_in): ?>
                     <tr><td><strong><?php esc_html_e('Check-in:', 'travel-agency-platform'); ?></strong></td><td><?php echo esc_html($booking->check_in); ?></td></tr>
                     <?php endif; ?>
@@ -947,7 +947,7 @@ class TAP_Shortcode_Booking {
         $room    = $booking->room_id ? get_post($booking->room_id) : null;
         $agency  = $booking->agency_id ? get_post($booking->agency_id) : null;
 
-        $service_name = $room ? $room->post_title : ($service ? $service->post_title : 'N/A');
+        $service_name = $room ? $room->post_title : ($service ? $service->post_title : 'N/D');
         $nights = max(1, (int) $booking->nights);
         $lines  = [
             [

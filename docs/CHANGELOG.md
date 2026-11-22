@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.6.8] — 2026-11-22
+
+### Changed (admin language and mobile)
+- Agency back-office JS messages are now Spanish (`Error de red`, `Listo`).
+- Admin review/moderation delete confirmations are translated.
+- "Booking fees" and "Features" table headers and all UI `N/A` fallbacks are
+  now translated (the REST payload keeps `N/A` as data).
+- Pricing dialog has a 640px breakpoint: no fixed 420px minimum, adapted day
+  cells and stacked date fields.
+- Onboarding tooltip is clamped to the viewport and docks to the bottom on
+  small screens.
+
+### Added
+- Functional assertions for the Spanish strings and mobile CSS in
+  `suite_performance.php`.
+
 ## [1.6.7] — 2026-11-22
 
 ### Changed (admin performance)

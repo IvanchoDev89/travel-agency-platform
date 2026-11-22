@@ -316,7 +316,7 @@ class TAP_Dashboard_Money {
                                 <input type="checkbox" name="booking_ids[]" value="<?php echo esc_attr($c->id); ?>" <?php echo 'owed' === $c->commission_status ? '' : 'disabled'; ?>>
                             </th>
                             <td><?php echo esc_html($c->booking_code); ?></td>
-                            <td><?php echo esc_html($c->agency_name ?? 'N/A'); ?></td>
+                            <td><?php echo esc_html($c->agency_name ?? 'N/D'); ?></td>
                             <td><?php echo esc_html(TAP_Currency::fmt($c->total_amount)); ?></td>
                             <td><?php echo esc_html($c->commission_percent); ?>%</td>
                             <td><?php echo esc_html(TAP_Currency::fmt($c->commission_amount)); ?></td>
@@ -411,7 +411,7 @@ class TAP_Dashboard_Money {
                     <?php foreach ($payments as $p): ?>
                     <tr>
                         <td>#<?php echo (int) $p->id; ?></td>
-                        <td><?php echo esc_html($p->agency_name ?? 'N/A'); ?></td>
+                        <td><?php echo esc_html($p->agency_name ?? 'N/D'); ?></td>
                         <td><?php echo esc_html(TAP_Currency::fmt($p->amount)); ?></td>
                         <td><?php echo esc_html($p->method); ?></td>
                         <td><?php if ('agency' === ($p->source ?? 'admin')): ?><span class="button button-small" style="background:#fffbeb;border-color:#f59e0b;color:#92400e;"><?php esc_html_e('Sol. agencia', 'travel-agency-platform'); ?></span><?php else: ?><span class="button button-small" style="background:#eff6ff;border-color:#3b82f6;color:#1e40af;"><?php esc_html_e('Admin', 'travel-agency-platform'); ?></span><?php endif; ?></td>
@@ -606,7 +606,7 @@ class TAP_Dashboard_Money {
                             <a href="<?php echo esc_url(home_url('/booking-detail/?code=' . rawurlencode($d->booking_code))); ?>" target="_blank"><?php echo esc_html($d->booking_code); ?></a>
                             #<?php echo (int) $d->booking_id; ?>
                         </td>
-                        <td><?php echo esc_html($d->agency_name ?? 'N/A'); ?></td>
+                        <td><?php echo esc_html($d->agency_name ?? 'N/D'); ?></td>
                         <td><?php echo esc_html($d->guest_name ?: $d->bmail ?: ($d->client_id ? '#' . (int) $d->client_id : '—')); ?></td>
                         <td><?php echo esc_html(TAP_Disputes::reasons()[$d->reason] ?? $d->reason); ?>
                             <?php if ($d->details): ?><div class="description" style="margin-top:4px;"><?php echo esc_html($d->details); ?></div><?php endif; ?>

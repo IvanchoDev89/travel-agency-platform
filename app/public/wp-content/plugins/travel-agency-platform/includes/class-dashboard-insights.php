@@ -359,7 +359,7 @@ class TAP_Dashboard_Insights {
 
         echo '<h2>' . esc_html__('Top agencias', 'travel-agency-platform') . '</h2>';
         echo '<table class="wp-list-table widefat fixed striped"><thead><tr>';
-        foreach (['Agencia', 'Reservas', 'GMV', 'Comisión plataforma', 'Booking fees'] as $h) { echo '<th>' . esc_html($h) . '</th>'; }
+        foreach (['Agencia', 'Reservas', 'GMV', 'Comisión plataforma', __('Booking fees', 'travel-agency-platform')] as $h) { echo '<th>' . esc_html($h) . '</th>'; }
         echo '</tr></thead><tbody>';
         if (!$top_agencies) { echo '<tr><td colspan="5">' . esc_html__('Sin datos en el periodo.', 'travel-agency-platform') . '</td></tr>'; }
         foreach ($top_agencies as $a) {
@@ -449,7 +449,7 @@ class TAP_Dashboard_Insights {
                         COUNT(*) reservas, SUM(total_amount) gmv, SUM(" . TAP_Booking_Stats::commission_case() . ") comisiones, SUM(booking_fee) fees
                  FROM {$wpdb->prefix}tap_bookings WHERE {$bwhere} GROUP BY mes ORDER BY mes DESC"
             );
-            $header = ['Mes', 'Reservas', 'GMV', 'Comisiones', 'Booking fees', 'Suscripciones', 'Destacados', 'Vistas'];
+            $header = ['Mes', 'Reservas', 'GMV', 'Comisiones', __('Booking fees', 'travel-agency-platform'), 'Suscripciones', 'Destacados', 'Vistas'];
             $subs = $wpdb->get_results("SELECT DATE_FORMAT(s.created_at,'%Y-%m') mes, SUM(p.price_monthly) total FROM {$wpdb->prefix}tap_agency_subscriptions s JOIN {$wpdb->prefix}tap_plans p ON p.id=s.plan_id WHERE s.payment_status='paid' GROUP BY mes");
             $promos = $wpdb->get_results("SELECT DATE_FORMAT(created_at,'%Y-%m') mes, SUM(amount) total FROM {$wpdb->prefix}tap_promos WHERE payment_status='paid' GROUP BY mes");
             $subs_map = [];

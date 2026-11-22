@@ -603,10 +603,10 @@ class TAP_Front_Dash {
                         .then(function(r){return r.json();})
                         .then(function(j){
                             var msg = document.getElementById('tap-bulk-msg');
-                            if (msg) msg.textContent = (j && j.data && j.data.message) || (j && j.success ? 'OK' : 'Error');
+                            if (msg) msg.textContent = (j && j.data && j.data.message) || (j && j.success ? 'Listo' : 'Error');
                             if (j && j.success) { window.location.reload(); }
                         })
-                        .catch(function(){ alert('Network error'); });
+                        .catch(function(){ alert('Error de red'); });
                     });
                 }
             })();
@@ -1742,8 +1742,12 @@ endif;
                 if (!el) { show(i+1); return; }
                 var rect = el.getBoundingClientRect();
                 tooltip.innerHTML = '<p>' + step.text + '</p><div class="tap-onboarding-actions"><button type="button" class="tap-btn tap-btn-sm" data-prev>Anterior</button><button type="button" class="tap-btn tap-btn-primary tap-btn-sm" data-next>Siguiente</button><button type="button" class="tap-btn tap-btn-sm" data-skip>Saltar</button></div>';
+                // Clamp horizontally so the tooltip never leaves a narrow screen.
+                var tipLeft = rect.left + window.scrollX;
+                var tipWidth = Math.min(320, window.innerWidth - 24);
+                tipLeft = Math.max(12, Math.min(tipLeft, window.scrollX + window.innerWidth - tipWidth - 12));
                 tooltip.style.top = (rect.bottom + 12 + window.scrollY) + 'px';
-                tooltip.style.left = (rect.left + window.scrollX) + 'px';
+                tooltip.style.left = tipLeft + 'px';
                 // highlight
                 el.style.outline = '3px solid #0f766e';
                 el.style.outlineOffset = '4px';
@@ -1774,6 +1778,9 @@ endif;
         .tap-onboarding-tooltip { position: absolute; z-index: 9999; background: #fff; border-radius: 12px; padding: 14px 16px; max-width: 320px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); }
         .tap-onboarding-tooltip p { margin: 0 0 10px; font-size: 14px; color: #1e293b; }
         .tap-onboarding-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+        @media (max-width: 640px) {
+            .tap-onboarding-tooltip { position: fixed; left: 12px !important; right: 12px; top: auto !important; bottom: 12px; max-width: none; width: auto; }
+        }
         </style>
         <?php endif; ?>
         <?php

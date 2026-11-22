@@ -103,7 +103,7 @@ class TAP_Dashboard_Content {
                             <?php else: ?>
                                 <a class="button button-small" href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=tap-reviews&tap_action=unapprove&review_id=' . $r->id . '&status=' . $filter), 'tap_review_unapprove_' . $r->id)); ?>"><?php esc_html_e('Desaprobar', 'travel-agency-platform'); ?></a>
                             <?php endif; ?>
-                            <a class="button button-link-delete button-small" href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=tap-reviews&tap_action=delete&review_id=' . $r->id . '&status=' . $filter), 'tap_review_delete_' . $r->id)); ?>" onclick="return confirm('Delete this review?');"><?php esc_html_e('Eliminar', 'travel-agency-platform'); ?></a>
+                            <a class="button button-link-delete button-small" href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=tap-reviews&tap_action=delete&review_id=' . $r->id . '&status=' . $filter), 'tap_review_delete_' . $r->id)); ?>" onclick="return confirm('¿Eliminar esta reseña?');"><?php esc_html_e('Eliminar', 'travel-agency-platform'); ?></a>
                         </td>
                     </tr>
                     <tr>
@@ -193,7 +193,7 @@ class TAP_Dashboard_Content {
                         <td>
                             <a class="button button-primary button-small" href="<?php echo esc_url($aw); ?>"><?php esc_html_e('Aprobar', 'travel-agency-platform'); ?></a>
                             <a class="button button-small" href="<?php echo esc_url($bl); ?>"><?php esc_html_e('Bloquear', 'travel-agency-platform'); ?></a>
-                            <a class="button button-link-delete button-small" href="<?php echo esc_url($dl); ?>" onclick="return confirm('Delete?');"><?php esc_html_e('Eliminar', 'travel-agency-platform'); ?></a>
+                            <a class="button button-link-delete button-small" href="<?php echo esc_url($dl); ?>" onclick="return confirm('¿Eliminar?');"><?php esc_html_e('Eliminar', 'travel-agency-platform'); ?></a>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -556,7 +556,7 @@ endif;
         $agency_id = get_post_meta($post_id, $prefix, true);
         if ($agency_id) {
             $agency = get_post($agency_id);
-            echo $agency ? esc_html($agency->post_title) : 'N/A';
+            echo $agency ? esc_html($agency->post_title) : 'N/D';
         } else {
             echo '—';
         }

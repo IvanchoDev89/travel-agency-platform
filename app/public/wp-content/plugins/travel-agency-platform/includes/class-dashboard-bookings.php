@@ -111,8 +111,8 @@ class TAP_Dashboard_Bookings {
 							?>
                         <tr>
                             <td><a href="admin.php?page=tap-bookings"><?php echo esc_html($b->booking_code); ?></a></td>
-                            <td><?php echo $client ? esc_html($client->display_name) : 'N/A'; ?></td>
-                            <td><?php echo $service ? esc_html($service->post_title) : 'N/A'; ?></td>
+                            <td><?php echo $client ? esc_html($client->display_name) : 'N/D'; ?></td>
+                            <td><?php echo $service ? esc_html($service->post_title) : 'N/D'; ?></td>
                             <td><?php echo esc_html(TAP_Currency::fmt($b->total_amount)); ?></td>
                             <td><span class="tap-status tap-status-<?php echo esc_attr($status_key); ?>"><?php echo esc_html(ucfirst($status_labels[$status_key])); ?></span></td>
                             <td><?php echo esc_html(mysql2date('d M Y H:i', $b->created_at)); ?></td>
@@ -407,9 +407,9 @@ $cal_m = (int) $cal_m;
                     <tr>
                         <td><input type="checkbox" name="booking_ids[]" value="<?php echo (int) $b->id; ?>"></td>
                         <td><a href="<?php echo esc_url(home_url('/booking-detail/?code=' . rawurlencode($b->booking_code))); ?>" target="_blank"><?php echo esc_html($b->booking_code); ?></a></td>
-                        <td><?php echo $b->display_name ? esc_html($b->display_name) : 'N/A'; ?></td>
+                        <td><?php echo $b->display_name ? esc_html($b->display_name) : 'N/D'; ?></td>
                         <td><?php echo $service ? esc_html($service->post_title) : esc_html($b->service_type); ?></td>
-                        <td><?php echo $agency ? esc_html($agency->post_title) : 'N/A'; ?></td>
+                        <td><?php echo $agency ? esc_html($agency->post_title) : 'N/D'; ?></td>
                         <td><?php echo esc_html(TAP_Currency::fmt($b->total_amount)); ?></td>
                         <td>
                             <span class="tap-status tap-status-<?php echo esc_attr($b->status); ?> tap-status-display"><?php echo esc_html(ucfirst($b->status)); ?></span>

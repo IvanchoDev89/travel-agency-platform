@@ -150,7 +150,7 @@ class TAP_Dashboard_Settings {
         echo '<form method="post">';
         wp_nonce_field('tap_save_plans');
         echo '<table class="wp-list-table widefat fixed striped"><thead><tr>';
-        foreach (['Plan', 'Precio/mes', 'Comisión %', 'Límite listados', 'Destacados', 'Features', 'Activo'] as $h) {
+        foreach (['Plan', 'Precio/mes', 'Comisión %', 'Límite listados', 'Destacados', 'Características', 'Activo'] as $h) {
             echo '<th>' . esc_html($h) . '</th>';
         }
         echo '</tr></thead><tbody>';

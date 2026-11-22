@@ -48,3 +48,19 @@
 .tap-season-dialog .tap-season-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
 .tap-season-dates { display: flex; gap: 12px; }
 .tap-season-dates > div { flex: 1; }
+
+/* Small screens: the 420px dialog used to overflow a 375px phone. */
+@media (max-width: 640px) {
+    .tap-pricing-toolbar { gap: 12px; }
+    .tap-pricing-legend { margin-left: 0; width: 100%; }
+    .tap-pricing-month-label { min-width: 120px; }
+    .tap-pricing-day { min-height: 48px; border-radius: 4px; }
+    .tap-pricing-day .tap-day-number { font-size: 12px; }
+    .tap-pricing-day .tap-day-price { font-size: 9px; }
+    .tap-pricing-day .tap-day-label { font-size: 7px; }
+    .tap-edit-table td:first-child { width: 96px; }
+    .tap-edit-table input[type="number"], .tap-edit-table input[type="text"], .tap-edit-table select { max-width: 100%; }
+    .tap-season-dialog-overlay { align-items: flex-end; }
+    .tap-season-dialog { min-width: 0; width: calc(100vw - 24px); max-width: 420px; padding: 16px; max-height: 85vh; overflow-y: auto; }
+    .tap-season-dates { flex-direction: column; gap: 0; }
+}
