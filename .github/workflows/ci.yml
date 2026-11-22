@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [master, hardening/phase-1, main]
+    branches: [master]
   pull_request:
-    branches: [master, hardening/phase-1, main]
+    branches: [master]
 
 jobs:
   static:
