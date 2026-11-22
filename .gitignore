@@ -39,6 +39,7 @@ tools/*
 !tools/*.sh
 !tools/*.php
 !tools/*.xml
+!tools/*.yml
 
 # Dev tooling
 !Makefile
@@ -48,6 +49,7 @@ tools/*
 !phpstan.neon.dist
 !.github/
 .github/*
+!.github/dependabot.yml
 !.github/workflows/
 !.github/workflows/*
 !.github/ISSUE_TEMPLATE/

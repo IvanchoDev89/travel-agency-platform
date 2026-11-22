@@ -1,0 +1,39 @@
+# Semgrep rules for the Travel Agency Platform.
+#
+# High-signal only: these patterns map to vulnerability classes that matter in
+# this WordPress plugin (command/code execution, unsafe deserialization,
+# request-controlled file paths and SQL, unescaped request output).
+# Generic rulesets (p/php, p/ci) produce ~149 findings here, mostly false
+# positives from WordPress escaping/nonce idioms, so they are NOT used as a
+# blocking gate. Keep this file small and verify new rules with:
+#   semgrep scan --config tools/semgrep-tap.yml --metrics=off --error .
+rules:
+  - id: tap-dangerous-exec
+    languages: [php]
+    severity: ERROR
+    message: "Ejecución de comandos o código: verificar autorización y origen de los datos."
+    pattern-regex: '(?i)\b(eval|assert|shell_exec|exec|system|passthru|popen|proc_open)\s*\('
+
+  - id: tap-unserialize-from-request
+    languages: [php]
+    severity: ERROR
+    message: "unserialize() con datos del usuario: usar JSON o validar con claves permitidas."
+    pattern-regex: 'unserialize\s*\(\s*\$_(GET|POST|REQUEST|COOKIE)'
+
+  - id: tap-file-from-request
+    languages: [php]
+    severity: ERROR
+    message: "Ruta de archivo tomada directamente del request: validar contra una lista blanca."
+    pattern-regex: '\b(file_get_contents|fopen|readfile|include|require|include_once|require_once)\s*\(\s*\$_(GET|POST|REQUEST|COOKIE)'
+
+  - id: tap-sql-from-request
+    languages: [php]
+    severity: ERROR
+    message: "Superglobal interpolada en SQL: usar $wpdb->prepare() o intval()."
+    pattern-regex: '\$wpdb->(query|get_var|get_results|get_row|get_col)\s*\(\s*"[^"]*\$_(GET|POST|REQUEST)'
+
+  - id: tap-echo-request-raw
+    languages: [php]
+    severity: WARNING
+    message: "Echo directo de superglobal: verificar esc_html/esc_attr/esc_url."
+    pattern-regex: '\becho\s+\$_(GET|POST|REQUEST|COOKIE)'
