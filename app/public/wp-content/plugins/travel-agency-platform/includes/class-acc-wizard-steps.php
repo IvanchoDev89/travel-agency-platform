@@ -957,6 +957,7 @@ class TAP_Acc_Wizard_Steps {
                 'key'    => 'calendar',
                 'label'  => __('Ajustes de precios y disponibilidad', 'travel-agency-platform'),
                 'done'   => $overrides > 0,
+                'optional' => true,
                 /* translators: %d: número de días con ajuste de precio o disponibilidad */
                 'detail' => $overrides > 0 ? sprintf(_n('%d día ajustado', '%d días ajustados', $overrides, 'travel-agency-platform'), $overrides) : __('Opcional: fija temporadas o bloquea fechas', 'travel-agency-platform'),
             ],
@@ -986,7 +987,9 @@ class TAP_Acc_Wizard_Steps {
         // A step counts as complete when all of its items are done.
         $by_step = [];
         foreach ($items as $item) {
-            $by_step[$item['step']]['done'] = isset($by_step[$item['step']]['done']) ? ($by_step[$item['step']]['done'] && $item['done']) : $item['done'];
+            // Optional items must not block a step from reaching 100%.
+            $item_done = !empty($item['optional']) || $item['done'];
+            $by_step[$item['step']]['done'] = isset($by_step[$item['step']]['done']) ? ($by_step[$item['step']]['done'] && $item_done) : $item_done;
         }
         $completed = 0;
         foreach ([1, 2, 3, 4] as $n) {

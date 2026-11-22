@@ -377,13 +377,15 @@ class TAP_Ajax_Listing {
         $gallery_meta_key = ('tap_accommodation' === $listing_type)
             ? '_tap_acc_gallery'
             : '_tap_' . $prefix . '_gallery';
+        // Merge both sources: the uploader can hold Media Library ids and
+        // pasted URLs at the same time. The old if/elseif silently dropped one.
+        $ids = [];
         if (array_key_exists('gallery_attachment_ids', $input)) {
             $ids = TAP_Agency_Media::usable_attachment_ids($input['gallery_attachment_ids'], 0, $new_id);
-            update_post_meta($new_id, $gallery_meta_key, implode(',', array_keys($ids)));
-        } elseif (array_key_exists('gallery_urls', $input)) {
+        }
+        if (array_key_exists('gallery_urls', $input)) {
             $urls  = array_values(array_filter(array_map('trim', explode("\n", (string) $input['gallery_urls']))));
-            $known = TAP_Agency_Media::attachments_by_url(array_filter(array_map('absint', explode(',', (string) get_post_meta($new_id, $gallery_meta_key, true)))));
-            $ids   = [];
+            $known = TAP_Agency_Media::attachments_by_url(array_keys($ids));
             foreach ($urls as $u) {
                 if (isset($known[$u])) {
                     $ids[$known[$u]] = $known[$u];
@@ -394,6 +396,8 @@ class TAP_Ajax_Listing {
                     $ids[$att] = $att;
                 }
             }
+        }
+        if (array_key_exists('gallery_attachment_ids', $input) || array_key_exists('gallery_urls', $input)) {
             update_post_meta($new_id, $gallery_meta_key, implode(',', array_keys($ids)));
         }
 
@@ -479,12 +483,15 @@ class TAP_Ajax_Listing {
         $listing_id = absint($listing_id);
         $type       = $listing_id ? get_post_type($listing_id) : '';
         if (!$listing_id || !$type) {
-            return new WP_Error('tap_bad_listing', __('Alojamiento no encontrado.', 'travel-agency-platform'));
+            return new WP_Error('tap_bad_listing', sprintf(/* translators: %s: tipo de servicio */ __('%s no encontrado.', 'travel-agency-platform'), __('Alojamiento', 'travel-agency-platform')));
         }
 
         $prefix      = TAP_Listing_Access::listing_prefix($type);
         $active_meta = '_tap_' . $prefix . '_is_active';
         $type_obj = get_post_type_object($type);
+        $listing_label = $type_obj && !empty($type_obj->labels->singular_name)
+            ? $type_obj->labels->singular_name
+            : __('Alojamiento', 'travel-agency-platform');
         $can_publish = ($type_obj && current_user_can($type_obj->cap->publish_posts)) || current_user_can('manage_options');
 
         if (!$publish) {
@@ -493,7 +500,7 @@ class TAP_Ajax_Listing {
             return [
                 'status'    => 'draft',
                 'is_active' => '0',
-                'message'   => __('Alojamiento despublicado. Ya no aparece en el buscador.', 'travel-agency-platform'),
+                'message'   => sprintf(/* translators: %s: tipo de servicio */ __('%s despublicado. Ya no aparece en el buscador.', 'travel-agency-platform'), $listing_label),
             ];
         }
 
@@ -516,7 +523,7 @@ class TAP_Ajax_Listing {
             return [
                 'status'    => 'publish',
                 'is_active' => '1',
-                'message'   => __('¡Alojamiento publicado! Ya está visible para los viajeros.', 'travel-agency-platform'),
+                'message'   => sprintf(/* translators: %s: tipo de servicio */ __('¡%s publicado! Ya está visible para los viajeros.', 'travel-agency-platform'), $listing_label),
             ];
         }
 
@@ -544,7 +551,7 @@ class TAP_Ajax_Listing {
         $listing_type = isset($_POST['listing_type']) ? sanitize_key(wp_unslash($_POST['listing_type'])) : 'tap_accommodation';
         $listing_id   = isset($_POST['listing_id']) ? absint($_POST['listing_id']) : 0;
         if (!$listing_id || get_post_type($listing_id) !== $listing_type) {
-            wp_send_json_error(['message' => __('Alojamiento no encontrado.', 'travel-agency-platform')]);
+            wp_send_json_error(['message' => sprintf(/* translators: %s: tipo de servicio */ __('%s no encontrado.', 'travel-agency-platform'), __('Alojamiento', 'travel-agency-platform'))]);
         }
         if (!TAP_Listing_Access::agency_owns_listing($listing_id, $listing_type)) {
             wp_send_json_error(['message' => __('Solo puedes gestionar tus propios alojamientos.', 'travel-agency-platform')], 403);

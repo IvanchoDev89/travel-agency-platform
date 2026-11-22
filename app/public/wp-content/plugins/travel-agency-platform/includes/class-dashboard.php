@@ -193,19 +193,47 @@ class TAP_Dashboard {
         );
     }
 
+    /**
+     * Keep the per-type "_is_active" flag in sync with post status. The public
+     * archive filters on that flag, so publishing in wp-admin used to leave the
+     * listing invisible. Also drops the cached KPI so counts update at once.
+     */
+    public static function sync_listing_active_on_status($new_status, $old_status, $post) {
+        if (!$post || !array_key_exists($post->post_type, TAP_Post_Types::get_service_types())) {
+            return;
+        }
+        $prefix = TAP_Post_Types::meta_prefix($post->post_type);
+        if ('' === $prefix) {
+            return;
+        }
+        update_post_meta($post->ID, '_tap_' . $prefix . '_is_active', 'publish' === $new_status ? '1' : '0');
+        delete_transient('tap_listing_counts');
+    }
+
     public static function listing_counts() {
+        global $wpdb;
         $cached = get_transient('tap_listing_counts');
         if (is_array($cached)) {
             return $cached;
         }
-        $types  = ['tap_agency', 'tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
         $result = [];
         $total  = 0;
-        foreach ($types as $pt) {
-            $result[$pt] = (int) wp_count_posts($pt)->publish;
-            if ('tap_agency' !== $pt) {
-                $total += $result[$pt];
+        foreach (array_keys(TAP_Post_Types::get_service_types()) as $pt) {
+            if ('tap_agency' === $pt) {
+                continue;
             }
+            $prefix = TAP_Post_Types::meta_prefix($pt);
+            // "Active" means published AND flagged active, not merely published.
+            $active = $prefix ? (int) $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->posts} p
+                 INNER JOIN {$wpdb->postmeta} m ON m.post_id = p.ID
+                   AND m.meta_key = %s AND m.meta_value = '1'
+                 WHERE p.post_type = %s AND p.post_status = 'publish'",
+                '_tap_' . $prefix . '_is_active',
+                $pt
+            )) : 0;
+            $result[$pt] = $active;
+            $total += $active;
         }
         $result['total_services'] = $total;
         set_transient('tap_listing_counts', $result, 10 * MINUTE_IN_SECONDS);

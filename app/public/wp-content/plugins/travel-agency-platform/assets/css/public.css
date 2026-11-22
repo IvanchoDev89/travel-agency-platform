@@ -3185,6 +3185,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .tap-listing-toolbar .tap-listing-filters { margin-bottom: 0; }
 .tap-listing-toolbar .tap-listing-search { max-width: 260px; width: 100%; padding: 8px 14px; border: 1px solid var(--tap-neutral-200, #e2e8f0); border-radius: 999px; background: var(--tap-surface, #fff); color: var(--tap-neutral-800, #1e293b); font-size: 14px; box-sizing: border-box; }
 .tap-listing-toolbar .tap-listing-search:focus { outline: 2px solid var(--tap-primary, #0d9488); outline-offset: 1px; }
+.tap-listing-pager { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 24px 0 8px; }
+.tap-listing-page { display: inline-flex; align-items: center; justify-content: center; min-width: 34px; height: 34px; padding: 0 8px; border: 1px solid var(--tap-neutral-200, #e2e8f0); border-radius: 8px; background: var(--tap-surface, #fff); color: var(--tap-neutral-700, #334155); font-size: 13px; font-weight: 600; text-decoration: none; }
+.tap-listing-page:hover { border-color: var(--tap-primary, #0d9488); color: var(--tap-primary, #0d9488); }
+.tap-listing-page.is-current { background: var(--tap-primary, #0d9488); border-color: var(--tap-primary, #0d9488); color: #fff; }
 html.dark .tap-listing-toolbar .tap-listing-search { background: var(--tap-surface-2, #1a2540); border-color: var(--tap-neutral-200, #334155); color: var(--tap-neutral-100, #f1f5f9); }
 .tap-listing-noresults { grid-column: 1 / -1; text-align: center; padding: var(--tap-space-6, 32px) var(--tap-space-4, 16px); color: var(--tap-neutral-500, #4b5563); font-size: var(--tap-text-sm, 14px); }
 @media (max-width: 640px) {

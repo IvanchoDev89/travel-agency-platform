@@ -7,7 +7,7 @@
  * Plugin Name: Travel Agency Platform
  * Plugin URI: https://ivanchodev.com
  * Description: Multi-agency travel platform B2B & B2C. Manage accommodations, tours, transports, car rentals, boats and packages.
- * Version:           1.6.9
+ * Version:           1.6.10
  * Requires at least: 6.4
  * Requires PHP:      8.2.35
  * Author: IvanchoDev
@@ -20,7 +20,7 @@ defined('ABSPATH') || exit;
 // Standalone helpers (non-class files are not picked up by the classmap).
 require_once __DIR__ . '/includes/support-email.php';
 
-define('TAP_VERSION', '1.6.9');
+define('TAP_VERSION', '1.6.10');
 define('TAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -206,6 +206,7 @@ final class TravelAgencyPlatform {
         add_action('add_meta_boxes', ['TAP_Metaboxes', 'register']);
         add_filter('default_hidden_meta_boxes', ['TAP_Metaboxes', 'unhide_tour_metabox'], 10, 2);
         add_action('save_post', ['TAP_Metaboxes', 'save'], 10, 2);
+        add_action('transition_post_status', ['TAP_Dashboard', 'sync_listing_active_on_status'], 10, 3);
         // Tanda D: drop the tap_agencies registry row when an agency is hard-deleted.
         add_action('deleted_post', ['TAP_Dashboard_Content', 'on_agency_deleted'], 10, 2);
         add_action('rest_api_init', ['TAP_API', 'register_routes']);

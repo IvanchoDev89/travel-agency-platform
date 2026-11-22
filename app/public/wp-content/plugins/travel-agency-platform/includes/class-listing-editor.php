@@ -93,30 +93,39 @@ class TAP_Listing_Editor {
             <?php
             /* Unified listing grid: collect every service type into one list so
                cards can be filtered by type/status and searched client-side. */
-            $all_listings = [];
-            foreach ($types as $pt => $label) {
-                $prefix = TAP_Post_Types::meta_prefix($pt);
-                $args = [
-                    'post_type'      => $pt,
-                    /* Drafts and pending listings must stay visible: with the
-                        explicit publish action they are a normal state. */
-                    'post_status'    => ['publish', 'pending', 'draft'],
-                    'posts_per_page' => 50,
-                    'orderby'        => 'modified',
-                    'order'          => 'DESC',
-                ];
-                if ($agency_id) {
-                    $args['meta_key']   = '_tap_' . $prefix . '_agency_id';
-                    $args['meta_value'] = $agency_id;
-                }
-                foreach (get_posts($args) as $l) {
-                    $all_listings[] = [
-                        'post'   => $l,
-                        'type'   => $pt,
-                        'label'  => $label,
-                        'prefix' => $prefix,
+            $per_page = 24;
+            $paged    = max(1, absint($_GET['lift'] ?? 1));
+            $args = [
+                'post_type'      => array_keys($types),
+                /* Drafts and pending listings must stay visible: with the
+                   explicit publish action they are a normal state. */
+                'post_status'    => ['publish', 'pending', 'draft'],
+                'posts_per_page' => $per_page,
+                'paged'          => $paged,
+                'orderby'        => 'modified',
+                'order'          => 'DESC',
+            ];
+            if ($agency_id) {
+                $meta_query = ['relation' => 'OR'];
+                foreach (array_keys($types) as $pt) {
+                    $meta_query[] = [
+                        'key'   => '_tap_' . TAP_Post_Types::meta_prefix($pt) . '_agency_id',
+                        'value' => (string) $agency_id,
                     ];
                 }
+                $args['meta_query'] = $meta_query;
+            }
+            $query = new WP_Query($args);
+            $total_listings = (int) $query->found_posts;
+            $all_listings = [];
+            foreach ($query->posts as $l) {
+                $pt     = $l->post_type;
+                $all_listings[] = [
+                    'post'   => $l,
+                    'type'   => $pt,
+                    'label'  => $types[$pt] ?? $pt,
+                    'prefix' => TAP_Post_Types::meta_prefix($pt),
+                ];
             }
             $status_labels = [
                 'publish' => __('Publicado', 'travel-agency-platform'),
@@ -125,7 +134,7 @@ class TAP_Listing_Editor {
             ];
 
             /* Toolbar: type + status chips and a title search box. */
-            $used_types = array_values(array_unique(array_column($all_listings, 'type')));
+            $used_types = array_keys($types);
             ?>
             <div class="tap-listing-toolbar">
                 <div class="tap-listing-filters" role="group" aria-label="<?php esc_attr_e('Filtrar listados', 'travel-agency-platform'); ?>">
@@ -176,7 +185,12 @@ class TAP_Listing_Editor {
                         </div>
                         <div class="tap-listing-actions">
                             <a href="<?php echo esc_url($edit_url); ?>" class="tap-btn tap-btn-sm"><?php esc_html_e('Editar', 'travel-agency-platform'); ?></a>
-                            <a href="<?php echo esc_url(get_permalink($l->ID)); ?>" class="tap-btn tap-btn-sm tap-btn-ghost" target="_blank" rel="noopener"><?php esc_html_e('Ver', 'travel-agency-platform'); ?></a>
+                            <?php
+                            // Draft/pending listings have no public URL: use the preview link.
+                            $view_url = 'publish' === $status ? get_permalink($l->ID) : get_preview_post_link($l->ID);
+                            if ($view_url): ?>
+                            <a href="<?php echo esc_url($view_url); ?>" class="tap-btn tap-btn-sm tap-btn-ghost" target="_blank" rel="noopener"><?php esc_html_e('Ver', 'travel-agency-platform'); ?></a>
+                            <?php endif; ?>
                         </div>
                     </div>
                     <?php
@@ -192,6 +206,20 @@ class TAP_Listing_Editor {
                 ?>
                 <div class="tap-listing-noresults" hidden><?php esc_html_e('Ningún listado coincide con los filtros.', 'travel-agency-platform'); ?></div>
             </div>
+            <?php
+            $pages = (int) ceil($total_listings / max(1, $per_page));
+            if ($pages > 1): ?>
+                <nav class="tap-listing-pager" aria-label="<?php esc_attr_e('Paginación de listados', 'travel-agency-platform'); ?>">
+                    <?php for ($i = 1; $i <= $pages; $i++): ?>
+                        <?php $url = add_query_arg('lift', $i); ?>
+                        <?php if ($i === $paged): ?>
+                            <span class="tap-listing-page is-current" aria-current="page"><?php echo (int) $i; ?></span>
+                        <?php else: ?>
+                            <a class="tap-listing-page" href="<?php echo esc_url($url); ?>"><?php echo (int) $i; ?></a>
+                        <?php endif; ?>
+                    <?php endfor; ?>
+                </nav>
+            <?php endif; ?>
             <script>
             (function() {
                 var filters = document.querySelectorAll('.tap-listing-toolbar .tap-listing-filter');
@@ -493,6 +521,10 @@ class TAP_Listing_Editor {
                             <?php echo $is_published ? esc_html__('Despublicar', 'travel-agency-platform') : esc_html__('Publicar', 'travel-agency-platform'); ?>
                         </button>
                         <span class="tap-form-msg" style="margin-left:0;margin-top:6px;"><?php echo $is_published ? esc_html__('El servicio está visible para los viajeros.', 'travel-agency-platform') : esc_html__('El servicio está en borrador o en revisión.', 'travel-agency-platform'); ?></span>
+                    </div>
+                    <?php else: ?>
+                    <div class="tap-field tap-span-2">
+                        <p><?php esc_html_e('Crea el servicio con «Crear servicio». Cuando esté guardado podrás publicarlo desde este mismo paso.', 'travel-agency-platform'); ?></p>
                     </div>
                     <?php endif; ?>
                 </div>

@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.6.10] — 2026-11-22
+
+### Changed (listing management)
+- wp-admin publish/unpublish now syncs the per-type `_is_active` flag the
+  public archive filters on; publishing no longer hides the listing.
+- Dashboard "active services" count now uses every service type (including
+  equipment) and the active flag, with the cache cleared on status changes.
+- Publish/unpublish messages name the actual service type (Tour, Barco, etc.).
+- New generic-editor listings explain that publishing happens after saving.
+- Draft/pending listings use a preview link for "Ver" instead of a dead URL.
+- Accommodation progress no longer counts an optional calendar step as pending.
+- Admin tour wizard exposes all 58 registered fields via a catch-all panel.
+- Admin agency column resolves titles from one cached query (no N+1).
+- Agency listing index is paginated (24 per page) instead of capped at 50.
+- Agency uploader keeps Media Library ids and pasted URLs together; the server
+  merges both gallery sources instead of dropping one.
+- Publish button saves the current wizard step before toggling, and the
+  unsaved-changes guard is now a real `beforeunload` prompt.
+- Agency registry notice reflects the daily/cron sync.
+
+### Added
+- FUNCTIONAL `suite_listings.php` covering all of the above.
+
 ## Tests (Ronda B) — 2026-11-22
 
 Sin cambios de código en producción; solo cobertura funcional nueva:

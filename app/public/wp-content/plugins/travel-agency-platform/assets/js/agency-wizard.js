@@ -394,39 +394,33 @@
         function syncInputs() {
             var ids = items.filter(function (item) { return item.id; });
             var urls = items.filter(function (item) { return item.url; });
+            var firstIsId = items.length > 0 && !!items[0].id;
             var nameMain = mainInput ? mainInput.dataset.name : '';
             var nameGallery = galleryInput ? galleryInput.dataset.name : '';
             var nameMainUrl = mainUrl ? mainUrl.dataset.name : '';
             var nameGalleryUrls = galleryUrls ? galleryUrls.dataset.name : '';
 
-            if (ids.length) {
-                if (mainInput) {
-                    mainInput.value = ids[0].id;
-                    mainInput.setAttribute('name', nameMain);
-                }
-                if (galleryInput) {
-                    galleryInput.value = ids.slice(1).map(function (item) { return item.id; }).join(',');
-                    galleryInput.setAttribute('name', nameGallery);
-                }
-                if (mainUrl) { mainUrl.value = ''; mainUrl.removeAttribute('name'); }
-                if (galleryUrls) { galleryUrls.value = ''; galleryUrls.removeAttribute('name'); }
-            } else if (urls.length) {
-                if (mainUrl) {
-                    mainUrl.value = urls[0].url;
-                    mainUrl.setAttribute('name', nameMainUrl);
-                }
-                if (galleryUrls) {
-                    galleryUrls.value = urls.slice(1).map(function (item) { return item.url; }).join('\n');
-                    galleryUrls.setAttribute('name', nameGalleryUrls);
-                }
-                if (mainInput) { mainInput.value = ''; mainInput.removeAttribute('name'); }
-                if (galleryInput) { galleryInput.value = ''; galleryInput.removeAttribute('name'); }
+            function setField(el, name, value) {
+                if (!el) { return; }
+                if ('' === value) { el.value = ''; el.removeAttribute('name'); }
+                else { el.value = value; el.setAttribute('name', name); }
+            }
+
+            // The first item owns the "main" slot. The other source still goes
+            // into its gallery field, so mixed uploads + URLs are not lost.
+            if (firstIsId) {
+                setField(mainInput, nameMain, ids.length ? ids[0].id : '');
+                setField(galleryInput, nameGallery, ids.slice(1).map(function (i) { return i.id; }).join(','));
+                setField(mainUrl, nameMainUrl, '');
+                setField(galleryUrls, nameGalleryUrls, urls.map(function (i) { return i.url; }).join('\n'));
+            } else if (items.length) {
+                setField(mainUrl, nameMainUrl, urls.length ? urls[0].url : '');
+                setField(galleryUrls, nameGalleryUrls, urls.slice(1).map(function (i) { return i.url; }).join('\n'));
+                setField(mainInput, nameMain, '');
+                setField(galleryInput, nameGallery, ids.map(function (i) { return i.id; }).join(','));
             } else {
                 [mainInput, galleryInput, mainUrl, galleryUrls].forEach(function (el) {
-                    if (el) {
-                        el.value = '';
-                        el.removeAttribute('name');
-                    }
+                    if (el) { el.value = ''; el.removeAttribute('name'); }
                 });
             }
         }
@@ -862,20 +856,37 @@
             danger: !publish,
             onConfirm: function (okBtn) {
                 setBusy(okBtn, true);
+                // The publish button sits outside the step form, so it used to
+                // post only id/type/publish and silently discard unsaved edits
+                // (SEO, destination, booking mode). Save the current step first.
+                var form = button.closest ? button.closest('form') : null;
+                var saving = form && tapDirty
+                    ? (function () {
+                        qsa('.tap-itin-builder', form).forEach(serializeItinerary);
+                        return post('tap_agency_save_listing', new FormData(form), cfg.listingNonce);
+                    }())
+                    : Promise.resolve({ success: true });
                 var fd = new FormData();
                 fd.append('listing_id', cfg.listingId);
                 fd.append('listing_type', cfg.listingType || 'tap_accommodation');
                 fd.append('publish', publish ? '1' : '0');
-                return post('tap_agency_toggle_publish', fd, cfg.listingNonce).then(function (json) {
-                    setBusy(okBtn, false);
-                    if (!json || !json.success) {
-                        toast((json && json.data && json.data.message) || t('error', 'Error'), 'error');
+                return saving.then(function (saved) {
+                    if (!saved || saved.success === false) {
+                        setBusy(okBtn, false);
+                        toast((saved && saved.data && saved.data.message) || t('checkFields', 'Revisa los campos marcados.'), 'error');
                         return false;
                     }
-                    toast(json.data.message || t('saved', 'Guardado.'), 'success');
-                    clearDirty();
-                    window.setTimeout(function () { window.location.reload(); }, 900);
-                    return true;
+                    return post('tap_agency_toggle_publish', fd, cfg.listingNonce).then(function (json) {
+                        setBusy(okBtn, false);
+                        if (!json || !json.success) {
+                            toast((json && json.data && json.data.message) || t('error', 'Error'), 'error');
+                            return false;
+                        }
+                        toast(json.data.message || t('saved', 'Guardado.'), 'success');
+                        clearDirty();
+                        window.setTimeout(function () { window.location.reload(); }, 900);
+                        return true;
+                    });
                 }).catch(function () {
                     setBusy(okBtn, false);
                     toast(t('networkError', 'Error de conexión.'), 'error');
@@ -1330,16 +1341,18 @@
         initSteppers();
         initCounters();
 
-        /* Dirty tracking: only 'change' events (not every keystroke). The
-           warning itself fires on page hide via visibilitychange — never via
-           beforeunload, which could block input interaction. */
+        /* Dirty tracking: only 'change' events (not every keystroke). A real
+           beforeunload guard warns when leaving with unsaved edits; the old
+           sessionStorage flag was never read by anything. navigate() clears
+           the flag on a successful save so it never blocks that path. */
         qsa('form').forEach(function (form) {
             form.addEventListener('change', markDirty);
         });
-        document.addEventListener('visibilitychange', function () {
-            if (document.visibilityState === 'hidden' && tapDirty) {
-                try { sessionStorage.setItem('tap-dirty-warning', '1'); } catch (e) {}
-            }
+        window.addEventListener('beforeunload', function (event) {
+            if (!tapDirty) { return; }
+            event.preventDefault();
+            event.returnValue = '';
+            return '';
         });
     }
 

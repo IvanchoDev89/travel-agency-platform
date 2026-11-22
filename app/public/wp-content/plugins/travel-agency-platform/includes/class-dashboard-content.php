@@ -263,7 +263,7 @@ class TAP_Dashboard_Content {
                     printf(esc_html__('Total: %1$d · Pendientes: %2$d · Verificadas: %3$d · Activas: %4$d · Comisiones acumuladas: %5$s', 'travel-agency-platform'),
                         count($visible), $pending, $verified, $active, esc_html(TAP_Currency::fmt((float) $total_commission)));
 				?>
-                    <span style="opacity:.7"> — <?php esc_html_e('El registro se sincroniza automáticamente al abrir esta página.', 'travel-agency-platform'); ?></span>
+                    <span style="opacity:.7"> — <?php esc_html_e('El registro se sincroniza diariamente y después de cada cambio.', 'travel-agency-platform'); ?></span>
                 </p>
             </div>
             <?php
@@ -549,14 +549,30 @@ endif;
     }
 
 
+    /** All agency titles in one query, instead of get_post() per table row. */
+    private static function agency_title_map() {
+        static $map = null;
+        if (null === $map) {
+            global $wpdb;
+            $map = [];
+            $rows = $wpdb->get_results(
+                "SELECT ID, post_title FROM {$wpdb->posts} WHERE post_type = 'tap_agency'"
+            );
+            foreach ((array) $rows as $row) {
+                $map[(int) $row->ID] = (string) $row->post_title;
+            }
+        }
+        return $map;
+    }
+
     public static function render_agency_column($column, $post_id) {
         if ($column !== 'agency') return;
         $post_type = get_post_type($post_id);
         $prefix = '_tap_' . TAP_Post_Types::meta_prefix($post_type) . '_agency_id';
-        $agency_id = get_post_meta($post_id, $prefix, true);
+        $agency_id = (int) get_post_meta($post_id, $prefix, true);
         if ($agency_id) {
-            $agency = get_post($agency_id);
-            echo $agency ? esc_html($agency->post_title) : 'N/D';
+            $map = self::agency_title_map();
+            echo isset($map[$agency_id]) ? esc_html($map[$agency_id]) : 'N/D';
         } else {
             echo '—';
         }

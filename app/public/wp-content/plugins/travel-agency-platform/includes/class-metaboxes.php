@@ -737,7 +737,7 @@ class TAP_Metaboxes {
     private static function wizard_steps($post_type) {
         // Define steps per type.
         if ($post_type === 'tap_tour') {
-            return [
+            $steps = [
                 ['label' => __('1. Información básica', 'travel-agency-platform'), 'fields' => ['_tap_tour_agency_id', '_tap_tour_category', '_tap_tour_type', '_tap_tour_tags', '_tap_tour_duration', '_tap_tour_difficulty', '_tap_tour_fitness', '_tap_tour_min_age', '_tap_tour_max_age', '_tap_tour_is_active']],
                 ['label' => __('2. Logística', 'travel-agency-platform'), 'fields' => ['_tap_tour_start_time', '_tap_tour_end_time', '_tap_tour_meeting_point', '_tap_tour_lat', '_tap_tour_lng', '_tap_tour_pickup', '_tap_tour_pickup_locations']],
                 ['label' => __('3. Tarifas y capacidad', 'travel-agency-platform'), 'fields' => ['_tap_tour_price_adult', '_tap_tour_price_child', '_tap_tour_price_senior', '_tap_tour_price_student', '_tap_tour_currency', '_tap_tour_child_age', '_tap_tour_capacity', '_tap_tour_overbooking_pct', '_tap_tour_min_people', '_tap_tour_max_people', '_tap_tour_max_per_booking', '_tap_tour_private', '_tap_tour_private_price']],
@@ -745,8 +745,8 @@ class TAP_Metaboxes {
                 ['label' => __('5. Legales', 'travel-agency-platform'), 'fields' => ['_tap_tour_terms', '_tap_tour_privacy', '_tap_tour_waiver', '_tap_tour_waiver_required', '_tap_tour_waiver_min_age']],
                 ['label' => __('6. SEO', 'travel-agency-platform'), 'fields' => ['_tap_seo_title', '_tap_seo_description']],
             ];
-        }
-        return [
+        } else {
+        $steps = [
             ['label' => __('1. Información básica', 'travel-agency-platform'), 'fields' => ['_tap_exp_agency_id', '_tap_exp_category', '_tap_exp_type', '_tap_exp_tags', '_tap_exp_duration', '_tap_exp_fitness', '_tap_exp_min_age', '_tap_exp_max_age', '_tap_exp_is_active']],
             ['label' => __('2. Logística', 'travel-agency-platform'), 'fields' => ['_tap_exp_start_time', '_tap_exp_end_time', '_tap_exp_meeting_point', '_tap_exp_lat', '_tap_exp_lng', '_tap_exp_pickup', '_tap_exp_pickup_locations']],
             ['label' => __('3. Tarifas y capacidad', 'travel-agency-platform'), 'fields' => ['_tap_exp_price_adult', '_tap_exp_price_child', '_tap_exp_price_senior', '_tap_exp_price_student', '_tap_exp_currency', '_tap_exp_child_age', '_tap_exp_capacity', '_tap_exp_min_people', '_tap_exp_max_people', '_tap_exp_max_per_booking', '_tap_exp_private', '_tap_exp_private_price']],
@@ -754,6 +754,25 @@ class TAP_Metaboxes {
             ['label' => __('5. Legales', 'travel-agency-platform'), 'fields' => ['_tap_exp_terms', '_tap_exp_privacy', '_tap_exp_waiver', '_tap_exp_waiver_required', '_tap_exp_waiver_min_age']],
             ['label' => __('6. SEO', 'travel-agency-platform'), 'fields' => ['_tap_seo_title', '_tap_seo_description']],
         ];
+        }
+
+        // Any registered field not assigned above would be invisible in
+        // wp-admin and silently skipped on save. Surface it in a catch-all.
+        $assigned = [];
+        foreach ($steps as $step) {
+            foreach ($step['fields'] as $key) { $assigned[$key] = true; }
+        }
+        $missing = [];
+        foreach (array_keys(self::get_fields($post_type)) as $key) {
+            if (!isset($assigned[$key])) { $missing[] = $key; }
+        }
+        if ($missing) {
+            $steps[] = [
+                'label'  => __('7. Detalles adicionales', 'travel-agency-platform'),
+                'fields' => $missing,
+            ];
+        }
+        return $steps;
     }
 
     private static function render_field($key, $field, $value) {
