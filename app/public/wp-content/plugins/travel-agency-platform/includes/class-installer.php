@@ -787,6 +787,8 @@ class TAP_Installer {
             ["{$wpdb->prefix}tap_bookings", 'idx_booking_code', 'booking_code'],
             ["{$wpdb->prefix}tap_payment_orders", 'idx_order_id', 'paypal_order_id'],
             ["{$wpdb->prefix}tap_payment_orders", 'idx_object', 'object_type, object_id'],
+            // Email-log retention cleanup filters by sent_at.
+            ["{$wpdb->prefix}tap_email_log", 'sent_at', 'sent_at'],
         ];
         foreach ($tap_index_backfill as $idx) {
             $has_idx = $wpdb->get_var($wpdb->prepare(

@@ -691,6 +691,25 @@ class TAP_Front_Dash {
             && !user_can($user, 'manage_options');
     }
 
+    /**
+     * Enqueue the shared Chart.js handle (registered once in the footer by the
+     * plugin bootstrap) and attach this chart's initializer to it. Replaces the
+     * old raw <script src> + inline <script> pairs, which downloaded a second
+     * copy of Chart.js and ran before the library was guaranteed to exist.
+     */
+    private static function enqueue_chart($canvas_id, $labels, $data, $label) {
+        wp_enqueue_script('tap-chart');
+        $js = '(function(){var c=document.getElementById(' . wp_json_encode($canvas_id) . ');'
+            . 'if(!c||typeof Chart==="undefined"){return;}'
+            . 'new Chart(c,{type:"bar",data:{labels:' . wp_json_encode($labels) . ','
+            . 'datasets:[{label:' . wp_json_encode($label) . ',data:' . wp_json_encode($data) . ','
+            . 'backgroundColor:"rgba(13,148,136,.7)",borderColor:"rgba(13,148,136,1)",'
+            . 'borderWidth:1,borderRadius:6}]},'
+            . 'options:{responsive:true,maintainAspectRatio:false,'
+            . 'plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});})();';
+        wp_add_inline_script('tap-chart', $js, 'after');
+    }
+
     private static function agency_finances($user) {
         global $wpdb;
         if (self::is_employee_only($user)) {
@@ -795,33 +814,7 @@ class TAP_Front_Dash {
                 <div style="position:relative;height:220px;">
                     <canvas id="tap-finances-chart"></canvas>
                 </div>
-                <script src="<?php echo esc_url(TAP_PLUGIN_URL); ?>assets/js/chart.umd.min.js"></script>
-                <script>
-                (function(){
-                    var ctx = document.getElementById('tap-finances-chart');
-                    if (!ctx || typeof Chart === 'undefined') return;
-                    new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: <?php echo wp_json_encode($chart_labels); ?>,
-                            datasets: [{
-                                label: <?php echo wp_json_encode(__('Comisión de la plataforma', 'travel-agency-platform')); ?>,
-                                data: <?php echo wp_json_encode($chart_data); ?>,
-                                backgroundColor: 'rgba(13,148,136,.7)',
-                                borderColor: 'rgba(13,148,136,1)',
-                                borderWidth: 1,
-                                borderRadius: 6,
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: { legend: { display: false } },
-                            scales: { y: { beginAtZero: true } }
-                        }
-                    });
-                })();
-                </script>
+                <?php self::enqueue_chart('tap-finances-chart', $chart_labels, $chart_data, __('Comisión de la plataforma', 'travel-agency-platform')); ?>
                 <p class="tap-agency-meta" style="margin-top:8px;"><?php printf(esc_html__('Proyección próximos 3 meses: %s (basado en promedio de los últimos 3 meses).', 'travel-agency-platform'), esc_html(TAP_Currency::fmt($projection))); ?></p>
             </div>
 
@@ -1402,20 +1395,50 @@ class TAP_Front_Dash {
             'tap_package'       => __('Paquetes', 'travel-agency-platform'),
             'tap_equipment'     => __('Equipo', 'travel-agency-platform'),
         ];
+        // One grouped query replaces the 14 get_posts() calls: listing counts
+        // and the "publish" onboarding flag share the same result set.
+        $meta_keys_for_agency = [];
+        foreach (array_keys($listing_labels) as $t) {
+            $meta_keys_for_agency[] = TAP_Post_Types::agency_meta_key($t);
+        }
+        $kph  = implode(',', array_fill(0, count($meta_keys_for_agency), '%s'));
+        $tph  = implode(',', array_fill(0, count($listing_labels), '%s'));
+        $excl = get_post_stati(['exclude_from_search' => true]);
+        $eph  = $excl ? implode(',', array_fill(0, count($excl), '%s')) : "''";
+        $owned = [];
+        if ($agency_id) {
+            $owned = $wpdb->get_results($wpdb->prepare(
+                "SELECT p.ID, p.post_type, p.post_status
+                   FROM {$wpdb->posts} p
+                   INNER JOIN {$wpdb->postmeta} m
+                           ON m.post_id = p.ID AND m.meta_key IN ($kph) AND m.meta_value = %d
+                  WHERE p.post_type IN ($tph)
+                    AND p.post_status NOT IN ($eph)
+                  GROUP BY p.ID, p.post_type, p.post_status",
+                array_merge($meta_keys_for_agency, [$agency_id], array_keys($listing_labels), $excl)
+            ));
+        }
+
         $listings = [];
-        foreach ($listing_labels as $type => $label) {
-            $ids = get_posts([
-                'post_type'      => $type,
-                'post_status'    => 'any',
-                'posts_per_page' => -1,
-                'meta_key'       => TAP_Post_Types::agency_meta_key($type),
-                'meta_value'     => $agency_id,
-                'fields'         => 'ids',
-            ]);
-            if ($ids) {
-                $listings[$type] = ['label' => $label, 'count' => count($ids)];
+        $any_published = false;
+        foreach ($owned as $row) {
+            $type = (string) $row->post_type;
+            if (!isset($listings[$type])) {
+                $listings[$type] = ['label' => $listing_labels[$type], 'count' => 0];
+            }
+            $listings[$type]['count']++;
+            if ('publish' === $row->post_status) {
+                $any_published = true;
             }
         }
+        // Preserve the original type order (query rows come back by post ID).
+        $ordered_listings = [];
+        foreach ($listing_labels as $type => $label) {
+            if (isset($listings[$type])) {
+                $ordered_listings[$type] = $listings[$type];
+            }
+        }
+        $listings = $ordered_listings;
 
         $base = home_url('/mi-cuenta/');
 
@@ -1430,35 +1453,41 @@ class TAP_Front_Dash {
             'publish'        => false,
         ];
         if ($agency_id) {
-            $any_published = false;
+            // One meta query for thumbnails + every price key, instead of
+            // get_post_meta() per listing per key.
+            $onboarding_meta_keys = array_merge(['_thumbnail_id'], [
+                '_tap_acc_price_per_night', '_tap_tour_price_adult', '_tap_trans_price',
+                '_tap_car_price_per_day', '_tap_boat_price_half', '_tap_pkg_price', '_tap_eq_price_day',
+            ]);
+            $mph = implode(',', array_fill(0, count($onboarding_meta_keys), '%s'));
+            $ids = array_map('intval', wp_list_pluck($owned, 'ID'));
+            $iph = $ids ? implode(',', $ids) : '0';
+            $metas = $wpdb->get_results($wpdb->prepare(
+                "SELECT meta_key, meta_value FROM {$wpdb->postmeta}
+                  WHERE meta_key IN ($mph) AND post_id IN ($iph)",
+                $onboarding_meta_keys
+            ), ARRAY_A);
             $any_photos = false;
             $any_prices = false;
-            $any_slots = false;
-            foreach (array_keys($listing_labels) as $type) {
-                $ids = get_posts([
-                    'post_type' => $type,
-                    'post_status' => 'any',
-                    'posts_per_page' => -1,
-                    'meta_key' => TAP_Post_Types::agency_meta_key($type),
-                    'meta_value' => $agency_id,
-                    'fields' => 'ids',
-                ]);
-                foreach ($ids as $lid) {
-                    if ('publish' === get_post_status($lid)) $any_published = true;
-                    if (get_post_thumbnail_id($lid)) $any_photos = true;
-                    $price_meta_keys = ['_tap_acc_price_per_night', '_tap_tour_price_adult', '_tap_trans_price', '_tap_car_price_per_day', '_tap_boat_price_half', '_tap_pkg_price', '_tap_eq_price_day'];
-                    foreach ($price_meta_keys as $pmk) {
-                        if (get_post_meta($lid, $pmk, true)) { $any_prices = true;
-break; }
+            foreach ($metas as $meta) {
+                $truthy = '' !== (string) $meta['meta_value'] && '0' !== (string) $meta['meta_value'];
+                if ($truthy) {
+                    if ('_thumbnail_id' === $meta['meta_key']) {
+                        $any_photos = true;
+                    } else {
+                        $any_prices = true;
                     }
                 }
             }
-            global $wpdb;
-            $slot_count = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}tap_daily_pricing WHERE service_id IN (SELECT ID FROM {$wpdb->posts} WHERE post_type IN ('tap_tour','tap_experience') AND post_author = %d)", $user->ID));
-            if ($slot_count > 0) $any_slots = true;
+            $slot_count = (int) $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->prefix}tap_daily_pricing
+                  WHERE service_id IN (SELECT ID FROM {$wpdb->posts}
+                    WHERE post_type IN ('tap_tour','tap_experience') AND post_author = %d)",
+                $user->ID
+            ));
             $onboarding['add_photos'] = $any_photos;
             $onboarding['set_prices'] = $any_prices;
-            $onboarding['set_availability'] = $any_slots;
+            $onboarding['set_availability'] = $slot_count > 0;
             $onboarding['publish'] = $any_published;
         }
         $onboarding_done = count(array_filter($onboarding));
@@ -1607,33 +1636,7 @@ endif;
                 <div style="position:relative;height:220px;">
                     <canvas id="tap-revenue-chart"></canvas>
                 </div>
-                <script src="<?php echo esc_url(TAP_PLUGIN_URL); ?>assets/js/chart.umd.min.js"></script>
-                <script>
-                (function(){
-                    var ctx = document.getElementById('tap-revenue-chart');
-                    if (!ctx || typeof Chart === 'undefined') return;
-                    new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: <?php echo wp_json_encode($chart_labels); ?>,
-                            datasets: [{
-                                label: <?php echo wp_json_encode(__('Ingresos', 'travel-agency-platform')); ?>,
-                                data: <?php echo wp_json_encode($chart_data); ?>,
-                                backgroundColor: 'rgba(13,148,136,.7)',
-                                borderColor: 'rgba(13,148,136,1)',
-                                borderWidth: 1,
-                                borderRadius: 6,
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            plugins: { legend: { display: false } },
-                            scales: { y: { beginAtZero: true } }
-                        }
-                    });
-                })();
-                </script>
+                <?php self::enqueue_chart('tap-revenue-chart', $chart_labels, $chart_data, __('Ingresos', 'travel-agency-platform')); ?>
             </div>
 
             <div class="tap-panel-section" style="margin-top:24px;">

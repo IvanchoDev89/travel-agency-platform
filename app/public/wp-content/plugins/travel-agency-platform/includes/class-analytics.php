@@ -196,41 +196,50 @@ class TAP_Analytics {
         $base->modify('-' . ($months - 1) . ' months');
         $from = $base->format('Y-m-d');
 
-        // First booking month per client.
-        $first = $wpdb->get_results($wpdb->prepare(
-            "SELECT client_id, MIN(DATE_FORMAT(created_at, '%%Y-%%m')) AS cohort
-             FROM {$b}
-             WHERE client_id > 0 AND created_at >= %s
-             GROUP BY client_id",
-            $from
+        // One grouped query replaces the old 1 + (cohorts x months) queries.
+        // Each (client, cohort, month) group is one row, so counting rows per
+        // month is equivalent to the old COUNT(DISTINCT client_id).
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT c.client_id, c.cohort, DATE_FORMAT(b.created_at, '%%Y-%%m') AS booking_month
+             FROM (
+                 SELECT client_id, MIN(DATE_FORMAT(created_at, '%%Y-%%m')) AS cohort
+                 FROM {$b}
+                 WHERE client_id > 0 AND created_at >= %s
+                 GROUP BY client_id
+             ) AS c
+             JOIN {$b} AS b
+               ON b.client_id = c.client_id
+              AND b.created_at >= %s
+             GROUP BY c.client_id, c.cohort, booking_month
+             ORDER BY c.cohort, booking_month",
+            $from, $from
         ));
+
         $cohorts = [];
-        foreach ($first as $row) {
-            $cohorts[$row->cohort][] = (int) $row->client_id;
+        foreach ($rows as $row) {
+            $cohort = (string) $row->cohort;
+            if (!isset($cohorts[$cohort])) {
+                $cohorts[$cohort] = ['clients' => [], 'returns' => []];
+            }
+            $cohorts[$cohort]['clients'][(int) $row->client_id] = true;
+            $month = (string) $row->booking_month;
+            if ($month !== $cohort) {
+                $cohorts[$cohort]['returns'][$month] = ($cohorts[$cohort]['returns'][$month] ?? 0) + 1;
+            }
         }
 
-        // For each cohort, count returns per subsequent month.
+        // Keep the fixed $months-1 label map: missing months must be explicit 0.
         $result = [];
-        foreach ($cohorts as $cohort => $users) {
-            $user_ids = implode(',', array_map('intval', $users));
-            if ('' === $user_ids) {
-                continue;
-            }
+        foreach ($cohorts as $cohort => $data) {
             $returns = [];
+            $m = new DateTime($cohort . '-01');
             for ($i = 1; $i < $months; $i++) {
-                $m = new DateTime($cohort . '-01');
-                $m->modify("+{$i} months");
-                $label = $m->format('Y-m');
-                $cnt = (int) $wpdb->get_var(
-                    "SELECT COUNT(DISTINCT client_id) FROM {$b}
-                     WHERE client_id IN ({$user_ids})
-                       AND DATE_FORMAT(created_at, '%Y-%m') = '{$label}'"
-                );
-                $returns[$label] = $cnt;
+                $label = (clone $m)->modify("+{$i} months")->format('Y-m');
+                $returns[$label] = (int) ($data['returns'][$label] ?? 0);
             }
             $result[] = [
-                'cohort' => $cohort,
-                'size'   => count($users),
+                'cohort'  => $cohort,
+                'size'    => count($data['clients']),
                 'returns' => $returns,
             ];
         }

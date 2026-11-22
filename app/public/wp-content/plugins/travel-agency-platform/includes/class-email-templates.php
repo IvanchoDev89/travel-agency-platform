@@ -17,6 +17,31 @@ class TAP_Email_Templates {
         return $wpdb->prefix . 'tap_email_log';
     }
 
+    /**
+     * Delete old email-log rows in small batches so a 11k+ row table cannot
+     * block a request. Called by the daily tap_data_retention_hook.
+     * Retention is configurable via the tap_email_log_days option or filter.
+     *
+     * @param int|null $days Override retention in days.
+     * @return int Rows deleted.
+     */
+    public static function prune_log($days = null) {
+        global $wpdb;
+        $days  = null === $days ? (int) get_option('tap_email_log_days', 60) : (int) $days;
+        $days  = (int) apply_filters('tap_email_log_days', max(1, $days));
+        $table = self::log_table();
+        $total = 0;
+        do {
+            $n = (int) $wpdb->query($wpdb->prepare(
+                "DELETE FROM {$table} WHERE sent_at < DATE_SUB(NOW(), INTERVAL %d DAY) LIMIT 500",
+                $days
+            ));
+            $n     = max(0, $n);
+            $total += $n;
+        } while (500 === $n && $total < 10000); // hard cap per run
+        return $total;
+    }
+
     public static function init() {
         add_action('admin_menu', [__CLASS__, 'add_page'], 40);
         add_action('admin_init', [__CLASS__, 'handle_actions']);

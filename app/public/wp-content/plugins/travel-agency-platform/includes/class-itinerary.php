@@ -218,6 +218,17 @@ class TAP_Itinerary {
             wp_reset_postdata();
         }
 
+        // Prime all ratings in ONE query before the comparator runs: the
+        // old code issued 2 SQL queries per comparison (thousands on a cold
+        // cache) because get_rating_stats() was called inside usort().
+        $rating_pairs = [];
+        foreach ($rows as $p) {
+            $rating_pairs[] = [$p->post_type, (int) $p->ID];
+        }
+        if ($rating_pairs) {
+            TAP_API::prime_rating_stats($rating_pairs);
+        }
+
         usort($rows, function ($a, $b) {
             $fa = (int) TAP_Promotions::is_featured($a->ID);
             $fb = (int) TAP_Promotions::is_featured($b->ID);
@@ -295,6 +306,15 @@ class TAP_Itinerary {
     /** Results grid used by AJAX, no-JS GET and the review step. */
     public static function render_results_html($params, $relaxed = false) {
         $posts = self::build_query($params, $relaxed);
+        // build_query() may have returned a memoized result without priming
+        // the cache, so prime here too (one grouped query at most).
+        $rating_pairs = [];
+        foreach ((array) $posts as $p) {
+            $rating_pairs[] = [$p->post_type, (int) $p->ID];
+        }
+        if ($rating_pairs) {
+            TAP_API::prime_rating_stats($rating_pairs);
+        }
         ob_start();
         if ($posts) {
             echo '<div class="tap-itin-results-grid">';

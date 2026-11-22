@@ -6,6 +6,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.6.7] — 2026-11-22
+
+### Changed (admin performance)
+- Agencies admin page no longer performs 11 writes on a plain GET: the full
+  registry reconciliation moved to a daily cron and still runs after mutations.
+- Chart.js is registered once in the footer; the agency finances/overview
+  panels no longer inject duplicate raw `<script src>` tags or run their
+  initializers before the library exists.
+- Email log now has a configurable retention window (default 60 days) with a
+  batched daily cleanup and a `sent_at` index.
+- Map transients are purged on cache invalidation and daily, instead of being
+  stranded on every version bump. Fixed the no-op prefix delete in uninstall.
+- Cohort retention uses one grouped query instead of up to 31.
+- Rating stats are primed in one query before the itinerary sort/render, the
+  rating-sorted search, the favorites grid and the map (previous worst case
+  was thousands of queries on a cold cache).
+- Agency overview uses one grouped posts query + one meta query instead of 14
+  `get_posts(-1)` calls and a per-listing meta loop.
+
+### Added
+- FUNCTIONAL `suite_performance.php` covering the GET-write regression,
+  Chart.js footer registration, log retention, transient purge, cohort shape
+  and rating priming.
+
 ## [1.6.6] — 2026-11-22
 
 ### Added

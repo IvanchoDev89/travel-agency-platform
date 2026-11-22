@@ -7,7 +7,7 @@
  * Plugin Name: Travel Agency Platform
  * Plugin URI: https://ivanchodev.com
  * Description: Multi-agency travel platform B2B & B2C. Manage accommodations, tours, transports, car rentals, boats and packages.
- * Version:           1.6.6
+ * Version:           1.6.7
  * Requires at least: 6.4
  * Requires PHP:      8.2.35
  * Author: IvanchoDev
@@ -20,7 +20,7 @@ defined('ABSPATH') || exit;
 // Standalone helpers (non-class files are not picked up by the classmap).
 require_once __DIR__ . '/includes/support-email.php';
 
-define('TAP_VERSION', '1.6.6');
+define('TAP_VERSION', '1.6.7');
 define('TAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -184,6 +184,12 @@ final class TravelAgencyPlatform {
             if (!wp_next_scheduled('tap_affiliate_release_hook')) {
                 wp_schedule_event(time() + HOUR_IN_SECONDS, 'daily', 'tap_affiliate_release_hook');
             }
+            if (!wp_next_scheduled('tap_agency_registry_hook')) {
+                wp_schedule_event(time() + HOUR_IN_SECONDS, 'daily', 'tap_agency_registry_hook');
+            }
+            if (!wp_next_scheduled('tap_data_retention_hook')) {
+                wp_schedule_event(time() + HOUR_IN_SECONDS, 'daily', 'tap_data_retention_hook');
+            }
         });
         add_action('tap_maintenance_hook', ['TAP_Booking', 'cancel_stale_bookings']);
         add_action('tap_maintenance_hook', ['TAP_Booking', 'complete_past_bookings']);
@@ -191,6 +197,11 @@ final class TravelAgencyPlatform {
         add_action('tap_points_expiry_hook', ['TAP_Loyalty', 'expire_points']);
         add_action('tap_push_reminders_hook', ['TAP_Push', 'send_reminders']);
         add_action('tap_admin_alerts_hook', ['TAP_Dashboard_Insights', 'send_alerts']);
+        add_action('tap_agency_registry_hook', ['TAP_Dashboard_Content', 'sync_agency_registry']);
+        add_action('tap_data_retention_hook', static function () {
+            TAP_Email_Templates::prune_log();
+            TAP_Destination_Spots::purge_map_transients();
+        });
         add_action('tap_payment_completed', ['TAP_Booking', 'mark_commission_owed'], 20, 1);
         add_action('add_meta_boxes', ['TAP_Metaboxes', 'register']);
         add_filter('default_hidden_meta_boxes', ['TAP_Metaboxes', 'unhide_tour_metabox'], 10, 2);
@@ -336,6 +347,9 @@ final class TravelAgencyPlatform {
     }
 
     public function enqueue_public_assets() {
+        // Register once for the whole request; loaded in the footer and shared
+        // by every chart (agency overview, finances) so no page downloads it twice.
+        wp_register_script('tap-chart', TAP_PLUGIN_URL . 'assets/js/chart.umd.min.js', [], '4.4.1', true);
         wp_enqueue_style('tap-tokens', TAP_PLUGIN_URL . 'assets/css/tokens.css', [], TAP_VERSION);
         wp_enqueue_style('tap-public', TAP_PLUGIN_URL . 'assets/css/public.css', ['tap-tokens'], TAP_VERSION);
         wp_enqueue_script('tap-public', TAP_PLUGIN_URL . 'assets/js/public.js', ['jquery'], TAP_VERSION, true);
@@ -410,6 +424,7 @@ final class TravelAgencyPlatform {
     }
 
     public function enqueue_admin_assets($hook) {
+        wp_register_script('tap-chart', TAP_PLUGIN_URL . 'assets/js/chart.umd.min.js', [], '4.4.1', true);
         $is_tap_page = false !== strpos($hook, 'tap_') || false !== strpos($hook, 'travel-platform');
         if (!$is_tap_page) {
             $screen = function_exists('get_current_screen') ? get_current_screen() : null;

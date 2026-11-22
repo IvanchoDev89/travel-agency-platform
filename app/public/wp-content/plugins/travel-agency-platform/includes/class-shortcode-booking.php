@@ -1425,6 +1425,15 @@ class TAP_Shortcode_Booking {
             'tap_package'       => __('Paquete', 'travel-agency-platform'),
         ];
 
+        // Prime ratings once instead of 2 SQL queries per favorite card.
+        $rating_pairs = [];
+        foreach ((array) $posts as $p) {
+            $rating_pairs[] = [$p->post_type, (int) $p->ID];
+        }
+        if ($rating_pairs) {
+            TAP_API::prime_rating_stats($rating_pairs);
+        }
+
         ob_start();
         ?>
         <div class="tap-fav-grid">

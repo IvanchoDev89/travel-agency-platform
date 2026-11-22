@@ -151,6 +151,16 @@ class TAP_Shortcode_Search {
             wp_reset_postdata();
         }
 
+        // Rating sort used to call get_rating_stats() inside the comparator
+        // (up to 2 SQL per comparison). Prime every row once instead.
+        if ('rating' === $sort && $rows) {
+            $rating_pairs = [];
+            foreach ($rows as $p) {
+                $rating_pairs[] = [$p->post_type, (int) $p->ID];
+            }
+            TAP_API::prime_rating_stats($rating_pairs);
+        }
+
         // Sort: featured bucket first, then chosen order.
         usort($rows, function ($a, $b) use ($sort) {
             $fa = (int) TAP_Promotions::is_featured($a->ID);

@@ -433,6 +433,18 @@ class TAP_Destination_Spots {
 
         $centroids = self::computed_centroids($candidates);
 
+        // Prime ratings once for all candidates (one grouped query instead of
+        // 2 SQL per service inside the render pass).
+        if (class_exists('TAP_API')) {
+            $rating_pairs = [];
+            foreach ($candidates as $candidate) {
+                $rating_pairs[] = [$candidate['type'], (int) $candidate['post']->ID];
+            }
+            if ($rating_pairs) {
+                TAP_API::prime_rating_stats($rating_pairs);
+            }
+        }
+
         // Second pass: resolve the position of every service.
         $data = [];
         foreach ($candidates as $candidate) {
@@ -2901,5 +2913,33 @@ class TAP_Destination_Spots {
     public static function clear_map_cache() {
         $ver = (int) get_option('tap_map_cache_version', 1);
         update_option('tap_map_cache_version', $ver + 1);
+        // Version bumps alone strand every old key forever. Purge them now.
+        self::purge_map_transients();
+    }
+
+    /**
+     * Remove all cached map transients (data + timeout rows). The cache keys
+     * embed an argument hash and a version, so invalidation used to leave tens
+     * of orphan rows behind. Safe to call on every version bump and daily.
+     *
+     * @return int Number of option rows deleted.
+     */
+    public static function purge_map_transients() {
+        global $wpdb;
+        $like = "option_name LIKE '_transient_tap_map_data_v%'"
+            . " OR option_name LIKE '_transient_tap_services_map_data_v%'";
+        // delete_transient() clears both the option and the in-memory object
+        // cache; a raw SQL DELETE alone leaves stale values in wp_cache.
+        $names = $wpdb->get_col("SELECT option_name FROM {$wpdb->options} WHERE {$like}");
+        foreach ((array) $names as $name) {
+            delete_transient(substr($name, strlen('_transient_')));
+        }
+        // Sweep timeout-only orphans from old versions.
+        $deleted = (int) $wpdb->query(
+            "DELETE FROM {$wpdb->options}
+              WHERE option_name LIKE '_transient_timeout_tap_map_data_v%'
+                 OR option_name LIKE '_transient_timeout_tap_services_map_data_v%'"
+        );
+        return count((array) $names) + max(0, $deleted);
     }
 }

@@ -67,7 +67,14 @@ foreach ($options as $option_name) {
 
 // Drop cached transients that may point at the (now gone) tables.
 delete_transient('tap_rates');
-delete_transient('tap_map_');
+// 'tap_map_' was never a real key — purge map transients by prefix.
+$wpdb->query(
+    "DELETE FROM {$wpdb->options}
+      WHERE option_name LIKE '_transient_tap_map_data_v%'
+         OR option_name LIKE '_transient_timeout_tap_map_data_v%'
+         OR option_name LIKE '_transient_tap_services_map_data_v%'
+         OR option_name LIKE '_transient_timeout_tap_services_map_data_v%'"
+);
 
 // 4) Roles & capabilities ---------------------------------------------------
 $roles = ['tap_agency_admin', 'tap_agency_employee', 'tap_client'];

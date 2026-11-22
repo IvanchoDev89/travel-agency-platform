@@ -206,8 +206,9 @@ class TAP_Dashboard_Content {
 
     public static function agencies_page() {
         global $wpdb;
-        self::sync_agency_registry();
-
+        // The full registry reconciliation used to run on every page view
+        // (11 writes on a plain GET). It now runs on a daily cron and right
+        // after agency mutations in handle_agency_action().
         if (isset($_GET['tap_action'], $_GET['agency_id'], $_GET['_wpnonce'])) {
             $aid   = intval($_GET['agency_id']);
             $nonce = sanitize_key(wp_unslash($_GET['tap_action'])) . '_' . $aid;
@@ -460,7 +461,8 @@ endif;
     }
 
 
-    private static function sync_agency_registry() {
+    /** Full reconciliation of tap_agencies from agency posts. Cron + mutations only. */
+    public static function sync_agency_registry() {
         global $wpdb;
         $table = $wpdb->prefix . 'tap_agencies';
         if (!$wpdb->get_var("SHOW TABLES LIKE '$table'")) return;

@@ -29,7 +29,8 @@ class TAP_Dashboard_Bookings {
         $service_labels = ['tap_accommodation' => __('Accommodation', 'travel-agency-platform'), 'tap_tour' => __('Tour', 'travel-agency-platform'), 'tap_transport' => __('Transport', 'travel-agency-platform'), 'tap_car_rental' => __('Car Rental', 'travel-agency-platform'), 'tap_boat' => __('Boat', 'travel-agency-platform'), 'tap_package' => __('Package', 'travel-agency-platform')];
 
         wp_enqueue_style('tap-dash', TAP_PLUGIN_URL . 'assets/css/admin-dashboard.css', [], TAP_VERSION);
-        wp_enqueue_script('tap-chart', TAP_PLUGIN_URL . 'assets/js/chart.umd.min.js', [], '4.4.1', false);
+        // tap-chart is registered centrally in travel-agency-platform.php and
+        // pulled in as a dependency of tap-dash (footer, single copy).
         wp_enqueue_script('tap-dash', TAP_PLUGIN_URL . 'assets/js/admin-dashboard.js', ['tap-chart'], TAP_VERSION, true);
         wp_localize_script('tap-dash', 'tapDash', [
             'currency' => $currency,

@@ -37,6 +37,17 @@ tap_t_assert(is_numeric($rate) && $rate > 0, 'get_agency_commission returns nume
 // Use a dedicated throwaway agency so pre-existing paid bookings in the site
 // DB cannot push the counter past a tier threshold before the test starts.
 $base_rate = (float) get_option('tap_commission_default', 10);
+// Make the tier assertions independent of leftover option values from a
+// previously interrupted run (a crashed suite can leave tier3_discount=0).
+$volume_options = [
+    'tap_volume_tier2_min', 'tap_volume_tier3_min',
+    'tap_volume_tier2_discount', 'tap_volume_tier3_discount', 'tap_volume_floor_pct',
+];
+$volume_snapshot = [];
+foreach ($volume_options as $vol_opt) {
+    $volume_snapshot[$vol_opt] = get_option($vol_opt, null);
+    delete_option($vol_opt); // fall back to the documented defaults
+}
 $vol_agency_id = (int) wp_insert_post([
     'post_type'   => 'tap_agency',
     'post_status' => 'publish',
@@ -82,6 +93,13 @@ foreach ($cleanup_rates as $cid) {
 }
 if ($vol_agency_id) {
     wp_delete_post($vol_agency_id, true);
+}
+foreach ($volume_snapshot as $vol_opt => $vol_value) {
+    if (null === $vol_value) {
+        delete_option($vol_opt);
+    } else {
+        update_option($vol_opt, $vol_value);
+    }
 }
 
 // 3) seed a booking for the resolved agency and verify commission math + stats rollup
