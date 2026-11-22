@@ -109,6 +109,57 @@ function tap_login_render_media() {
 }
 add_action('login_header', 'tap_login_render_media');
 
+/**
+ * Friendlier login errors in Spanish, with a direct password-reset link.
+ * WP core messages are terse and mixed-language on this site.
+ */
+function tap_login_errors($errors) {
+    if (!tap_login_is_branded() || !is_string($errors) || '' === $errors) {
+        return $errors;
+    }
+    $lower = function_exists('mb_strtolower') ? mb_strtolower($errors) : strtolower($errors);
+    $is_credentials_error = false !== strpos($lower, 'incorrect')
+        || false !== strpos($lower, 'contraseña')
+        || false !== strpos($lower, 'password')
+        || false !== strpos($lower, 'usuario')
+        || false !== strpos($lower, 'username');
+    if (!$is_credentials_error) {
+        return $errors;
+    }
+    return '<strong>' . esc_html__('No pudimos iniciar sesión.', 'travel-agency-platform') . '</strong> '
+        . esc_html__('Revisa tu usuario y contraseña. Si olvidaste la contraseña, restablécela aquí:', 'travel-agency-platform')
+        . ' <a href="' . esc_url(wp_lostpassword_url()) . '">' . esc_html__('Restablecer contraseña', 'travel-agency-platform') . '</a>';
+}
+add_filter('login_errors', 'tap_login_errors');
+
+/**
+ * Extra links inside the login form: agency registration and help center.
+ * Only rendered when the corresponding pages exist.
+ */
+function tap_login_form_footer() {
+    if (!tap_login_is_branded()) {
+        return;
+    }
+    $register = get_page_by_path('register');
+    $support  = get_page_by_path('centro-de-soporte');
+    if (!$register && !$support) {
+        return;
+    }
+    echo '<div class="tap-login-extra">';
+    if ($register) {
+        echo '<p class="tap-login-extra-register">'
+            . esc_html__('¿Tienes una agencia?', 'travel-agency-platform')
+            . ' <a href="' . esc_url(get_permalink($register)) . '">' . esc_html__('Regístrate aquí', 'travel-agency-platform') . '</a>'
+            . '</p>';
+    }
+    if ($support) {
+        echo '<p class="tap-login-extra-help"><a href="' . esc_url(get_permalink($support)) . '">'
+            . esc_html__('Centro de soporte', 'travel-agency-platform') . '</a></p>';
+    }
+    echo '</div>';
+}
+add_action('login_form', 'tap_login_form_footer');
+
 /** Point the header logo to the site home instead of wordpress.org. */
 add_filter('login_headerurl', function ($url) {
     return tap_login_is_branded() ? home_url('/') : $url;

@@ -1,7 +1,7 @@
 <?php
 defined('ABSPATH') || exit;
 
-define('TAT_VERSION', '2.0.52');
+define('TAT_VERSION', '2.0.53');
 
 /**
  * Read a landing-builder section setting with a safe fallback.

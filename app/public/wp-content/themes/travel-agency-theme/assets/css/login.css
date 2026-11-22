@@ -380,6 +380,61 @@ body.login.tap-login-branded .success {
   border-left: 4px solid var(--tap-success, #10b981);
 }
 
+body.login.tap-login-branded #login_error a {
+  color: var(--tap-primary-dark, #0f766e);
+  font-weight: 600;
+}
+
+/* Extra links (agency signup / help) */
+body.login.tap-login-branded .tap-login-extra {
+  margin: 18px 0 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--tap-border, #e2e8f0);
+  text-align: center;
+  font-size: 13px;
+  color: var(--tap-neutral-600, #475569);
+}
+
+body.login.tap-login-branded .tap-login-extra p {
+  margin: 0 0 6px;
+}
+
+body.login.tap-login-branded .tap-login-extra p:last-child {
+  margin-bottom: 0;
+}
+
+body.login.tap-login-branded .tap-login-extra a {
+  color: var(--tap-primary, #0d9488);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+body.login.tap-login-branded .tap-login-extra a:hover,
+body.login.tap-login-branded .tap-login-extra a:focus {
+  text-decoration: underline;
+}
+
+body.login.tap-login-branded .tap-login-extra-help a {
+  font-weight: 400;
+  color: var(--tap-neutral-500, #64748b);
+}
+
+/* Submit loading state */
+body.login.tap-login-branded #wp-submit:disabled {
+  cursor: progress;
+  opacity: 0.75;
+  transform: none;
+}
+
+/* Keyboard visibility */
+body.login.tap-login-branded a:focus-visible,
+body.login.tap-login-branded button:focus-visible,
+body.login.tap-login-branded input:focus-visible,
+body.login.tap-login-branded select:focus-visible {
+  outline: 2px solid var(--tap-primary, #0d9488);
+  outline-offset: 2px;
+}
+
 /* Hide the WordPress footer link (branding filter already handles the logo) */
 body.login.tap-login-branded .privacy-policy-page-link,
 body.login.tap-login-branded .language-switcher {

@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [Tema 2.0.53] — 2026-11-22
+
+### Changed (login UX)
+- Credential errors now show a friendly Spanish message with a direct
+  password-reset link instead of the terse core text.
+- Added contextual links inside the login form: agency signup and help center
+  (only when those pages exist).
+- Username field is focused on load and the submit button shows an
+  "Ingresando…" loading state with double-submit protection.
+- Improved keyboard focus visibility and CTA styling on the branded login.
+
+### Added
+- FUNCTIONAL `suite_login_ui.php` covering the login filters, CTA rendering,
+  branding classes and the JS/CSS enhancements.
+
 ## [1.6.9] — 2026-11-22
 
 ### Fixed (features)
