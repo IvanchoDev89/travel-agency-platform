@@ -1,0 +1,27 @@
+name: Security
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  semgrep:
+    name: Semgrep (TAP rules)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # Pinned to the version validated locally against the whole repository.
+      - name: Install Semgrep
+        run: pip install semgrep==1.155.0
+
+      # --error makes any ERROR/WARNING finding fail the job.
+      - name: Scan first-party code
+        run: semgrep scan --config tools/semgrep-tap.yml --metrics=off --error .
