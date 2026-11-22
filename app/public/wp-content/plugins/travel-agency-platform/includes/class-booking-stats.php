@@ -10,7 +10,8 @@ class TAP_Booking_Stats {
      * Every reporting view (Dashboard, Reports, Analytics, CSV export) must use
      * this so the numbers can never drift again: a commission is counted on
      * active bookings unless it was voided. It deliberately does NOT require
-     * payment_status = 'paid' — that gate silently zeroed whole reports.
+     * payment_status — the caller decides the paid/unpaid basis. All money
+     * figures in get_booking_stats() now consistently use paid + not cancelled.
      *
      * @param string $alias Optional table alias prefix (e.g. 'b').
      */
@@ -107,10 +108,12 @@ class TAP_Booking_Stats {
             'confirmed'  => $wpdb->get_var("SELECT COUNT(*) FROM $table $where AND status = 'confirmed'"),
             'completed'  => $wpdb->get_var("SELECT COUNT(*) FROM $table $where AND status = 'completed'"),
             'cancelled'  => $wpdb->get_var("SELECT COUNT(*) FROM $table $where AND status = 'cancelled'"),
-            'revenue'    => $wpdb->get_var("SELECT COALESCE(SUM(total_amount), 0) FROM $table $where AND status NOT IN ('cancelled', 'refunded')"),
-            'commission' => $wpdb->get_var('SELECT COALESCE(SUM(' . self::commission_case() . '), 0) FROM ' . $table . ' ' . $where . " AND status NOT IN ('cancelled', 'refunded')"),
-            'net'        => $wpdb->get_var('SELECT COALESCE(SUM(' . self::net_expr() . '), 0) FROM ' . $table . ' ' . $where . " AND status NOT IN ('cancelled', 'refunded')"),
-            'fees'       => $wpdb->get_var("SELECT COALESCE(SUM(booking_fee), 0) FROM $table $where AND status NOT IN ('cancelled', 'refunded')"),
+            // All money figures share ONE basis: paid + not cancelled/refunded.
+            // Counters above intentionally keep every status.
+            'revenue'    => $wpdb->get_var("SELECT COALESCE(SUM(total_amount), 0) FROM $table $where AND payment_status = 'paid' AND status NOT IN ('cancelled', 'refunded')"),
+            'commission' => $wpdb->get_var('SELECT COALESCE(SUM(' . self::commission_case() . '), 0) FROM ' . $table . ' ' . $where . " AND payment_status = 'paid' AND status NOT IN ('cancelled', 'refunded')"),
+            'net'        => $wpdb->get_var('SELECT COALESCE(SUM(' . self::net_expr() . '), 0) FROM ' . $table . ' ' . $where . " AND payment_status = 'paid' AND status NOT IN ('cancelled', 'refunded')"),
+            'fees'       => $wpdb->get_var("SELECT COALESCE(SUM(booking_fee), 0) FROM $table $where AND payment_status = 'paid' AND status NOT IN ('cancelled', 'refunded')"),
         ];
     }
 }

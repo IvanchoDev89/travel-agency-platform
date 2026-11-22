@@ -10,6 +10,42 @@ defined('ABSPATH') || exit;
 class TAP_ICal_Import {
 
 
+    /**
+     * SSRF-safe binary download: resolves the host once and pins that IP for
+     * the connection (no redirects), so a DNS rebind cannot reach an internal
+     * host. Returns ['body'=>string, 'type'=>string] or WP_Error.
+     */
+    public static function fetch_binary($url, $timeout = 15) {
+        $url = esc_url_raw($url);
+        $parts = wp_parse_url($url);
+        if (!$url || !is_array($parts)) return new WP_Error('bad_url', __('URL inválida.', 'travel-agency-platform'));
+        $scheme = strtolower($parts['scheme'] ?? '');
+        $host   = strtolower($parts['host'] ?? '');
+        if (!in_array($scheme, ['http', 'https'], true) || '' === $host) {
+            return new WP_Error('bad_scheme', __('Solo se permiten URLs http(s).', 'travel-agency-platform'));
+        }
+        $ip = self::safe_resolved_ip($host);
+        if ('' === $ip) return new WP_Error('unsafe_host', __('Host no permitido.', 'travel-agency-platform'));
+        $port = isset($parts['port']) ? (int) $parts['port'] : ('https' === $scheme ? 443 : 80);
+        $addr = false !== strpos($ip, ':') ? '[' . $ip . ']' : $ip;
+        $resolve = $host . ':' . $port . ':' . $addr;
+        $pin = static function ($handle) use ($resolve) {
+            if (function_exists('curl_setopt') && defined('CURLOPT_RESOLVE')) {
+                curl_setopt($handle, CURLOPT_RESOLVE, [$resolve]);
+            }
+        };
+        add_action('http_api_curl', $pin, 10, 1);
+        $resp = wp_remote_get($url, ['timeout' => $timeout, 'redirection' => 0]);
+        remove_action('http_api_curl', $pin, 10);
+        if (is_wp_error($resp)) return $resp;
+        $code = (int) wp_remote_retrieve_response_code($resp);
+        if ($code < 200 || $code >= 300) return new WP_Error('http_error', __('No se pudo descargar la imagen.', 'travel-agency-platform'));
+        return [
+            'body' => wp_remote_retrieve_body($resp),
+            'type' => (string) wp_remote_retrieve_header($resp, 'content-type'),
+        ];
+    }
+
     /** Fetch and parse an iCal feed, return array of blocked date ranges. */
     public static function fetch($url) {
         $url = esc_url_raw($url);

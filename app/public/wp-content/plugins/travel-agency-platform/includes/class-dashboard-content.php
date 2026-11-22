@@ -238,7 +238,7 @@ class TAP_Dashboard_Content {
             if ('0' !== get_post_meta($a->ID, '_tap_agency_is_active', '1')) $active++;
             if (TAP_Approval::is_pending($a->ID)) $pending++;
         }
-        $rows_rev = $wpdb->get_results("SELECT agency_id, COUNT(*) AS c, SUM(total_amount) AS rev, SUM(" . TAP_Booking_Stats::commission_case() . ") AS comm FROM {$wpdb->prefix}tap_bookings WHERE status NOT IN ('cancelled','refunded') GROUP BY agency_id");
+        $rows_rev = $wpdb->get_results("SELECT agency_id, COUNT(*) AS c, SUM(total_amount) AS rev, SUM(" . TAP_Booking_Stats::commission_case() . ") AS comm FROM {$wpdb->prefix}tap_bookings WHERE payment_status = 'paid' AND status NOT IN ('cancelled','refunded') GROUP BY agency_id");
         $revenue_map = [];
         foreach ($rows_rev as $r) { $revenue_map[(int) $r->agency_id] = $r; }
         $listing_keys = array_values(TAP_Post_Types::agency_meta_keys());

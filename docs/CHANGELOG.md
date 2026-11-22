@@ -6,6 +6,42 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.6.6] — 2026-11-22
+
+### Added
+- FUNCTIONAL regression suite `suite_admin_audit.php`: real function calls, DB
+  rows and rendered HTML cover paid+active money basis, public REST privacy,
+  employee promo gate, SSRF-safe sideload, booking-detail link, dead-code
+  removal and the finance empty state.
+
+### Changed (pre-launch admin audit, blocks 1-3)
+- SECURITY: paid promotions now require the agency admin via the same
+  `plan_contractor()` gate used for plan purchases; employees can no longer
+  create or pay a promo.
+- SECURITY: removed the agency `commission` field from the public
+  `GET /tap/v1/agencies` REST response.
+- SECURITY: agency image sideload now uses an IP-pinned, no-redirect fetcher
+  (`TAP_ICal_Import::fetch_binary()`) that blocks DNS-rebind SSRF.
+- SECURITY: `ajax_agency_booking()` now checks capability plus booking ownership
+  explicitly; `update_booking_status()` uses the canonical agency-role helpers.
+- Fixed the availability-calendar booking links: they pointed to an
+  unregistered `admin.php?page=tap-booking-detail` page; they now link to the
+  real front-end `/booking-detail/?code=` destination.
+- Removed dead payout code (`TAP_Payouts::request/statuses/sources`,
+  `payout_method_label`, `payout_requested`) and the unused
+  `tap_upload_review_image` AJAX action.
+- Agency Finances now shows an "Estado de liquidaciones" section with a helpful
+  empty state instead of three zeroed cards with no explanation.
+- Unified every agency-panel money figure to ONE basis: `agency_id`,
+  `payment_status = 'paid'` and `status NOT IN ('cancelled','refunded')`.
+  This covers `TAP_Booking_Stats::get_booking_stats()`, both dashboard charts,
+  `TAP_Analytics::agency_stats()` and the agencies dashboard aggregate. Status
+  counters still include all states.
+- CI now also runs on pushes/PRs to `master` (the repository default branch),
+  so the default branch gets green checks instead of stale failing runs.
+- Made the volume-incentive E2E test deterministic by using a throwaway agency
+  instead of a shared one whose pre-existing paid bookings could skew tiers.
+
 ## [1.6.5] — 2026-11-21
 
 ### Changed (quality)

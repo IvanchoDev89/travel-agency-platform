@@ -695,7 +695,6 @@ class TAP_API {
             'address'      => get_post_meta($post->ID, '_tap_agency_address', true),
             'city'         => get_post_meta($post->ID, '_tap_agency_city', true),
             'country'      => get_post_meta($post->ID, '_tap_agency_country', true),
-            'commission'   => get_post_meta($post->ID, '_tap_agency_commission', true) ?: 10,
             'is_verified'  => get_post_meta($post->ID, '_tap_agency_verified', true) === '1',
             'permalink'    => get_permalink($post->ID),
         ];

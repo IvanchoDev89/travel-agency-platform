@@ -278,8 +278,7 @@ class TAP_Ajax {
         $current_user = is_user_logged_in() ? wp_get_current_user() : null;
         $is_admin  = current_user_can('manage_options') || current_user_can('tap_manage_bookings');
         $is_agency = $current_user &&
-            (in_array('tap_agency_admin', (array) $current_user->roles, true) ||
-            in_array('tap_agency_employee', (array) $current_user->roles, true));
+            (TAP_Roles::is_agency_admin($current_user) || TAP_Roles::is_agency_employee($current_user));
 
         if (!$is_admin && !$is_agency) {
             wp_send_json_error(['message' => __('Unauthorized', 'travel-agency-platform')]);

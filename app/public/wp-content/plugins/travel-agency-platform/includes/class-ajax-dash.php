@@ -98,10 +98,23 @@ class TAP_Ajax_Dash {
             wp_send_json_error(['message' => __('No autenticado.', 'travel-agency-platform')], 401);
         }
 
+        // Explicit agency gate: defense-in-depth in case the callee's ownership
+        // check is ever refactored. Platform admins may act on any booking.
+        $uid = get_current_user_id();
+        if (!current_user_can('manage_options') && !TAP_Roles::can_manage_agency_panel(wp_get_current_user())) {
+            wp_send_json_error(['message' => __('Sin permiso.', 'travel-agency-platform')], 403);
+        }
         $booking_id = absint($_POST['booking_id'] ?? 0);
         $op         = sanitize_key(wp_unslash($_POST['op'] ?? ''));
         if (!$booking_id || !$op) {
             wp_send_json_error(['message' => __('Parámetros inválidos.', 'travel-agency-platform')], 400);
+        }
+        if (!current_user_can('manage_options')) {
+            $booking = TAP_Booking::get_booking($booking_id);
+            $caller_agency = TAP_Booking::get_agency_for_user($uid);
+            if (!$booking || !$caller_agency || (int) $caller_agency !== (int) $booking->agency_id) {
+                wp_send_json_error(['message' => __('Sin permiso sobre esta reserva.', 'travel-agency-platform')], 403);
+            }
         }
 
         $reason = sanitize_textarea_field(wp_unslash($_POST['reason'] ?? ''));

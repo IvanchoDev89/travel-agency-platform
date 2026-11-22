@@ -10,10 +10,10 @@ class TAP_Ajax_Commerce {
         if ( ! is_user_logged_in() ) {
             wp_send_json_error( [ 'message' => __( 'Authentication required', 'travel-agency-platform' ) ] );
         }
-        $user   = wp_get_current_user();
-        $agency = self::current_agency_for( $user->ID );
-        if ( ! $agency ) {
-            wp_send_json_error( [ 'message' => __( 'Only agencies can promote listings.', 'travel-agency-platform' ) ] );
+        // Promoting a listing spends real money: only the agency admin may do it.
+        $agency = self::plan_contractor();
+        if ( is_wp_error( $agency ) ) {
+            wp_send_json_error( [ 'message' => $agency->get_error_message() ] );
         }
         $listing_id = isset( $_POST['listing_id'] ) ? intval( $_POST['listing_id'] ) : 0;
         $months     = isset( $_POST['months'] ) ? max(1, intval( $_POST['months'] )) : 1;
@@ -141,10 +141,10 @@ class TAP_Ajax_Commerce {
         if (!TAP_PayPal::is_ready()) {
             wp_send_json_error(['message' => __('Online payment is not configured.', 'travel-agency-platform')]);
         }
-        $user   = wp_get_current_user();
-        $agency = self::current_agency_for($user->ID);
-        if (!$agency) {
-            wp_send_json_error(['message' => __('Only agencies can promote listings.', 'travel-agency-platform')]);
+        // Promoting a listing spends real money: only the agency admin may do it.
+        $agency = self::plan_contractor();
+        if (is_wp_error($agency)) {
+            wp_send_json_error(['message' => $agency->get_error_message()]);
         }
         $listing_id = isset($_POST['listing_id']) ? intval($_POST['listing_id']) : 0;
         $months     = isset($_POST['months']) ? max(1, min(24, intval($_POST['months']))) : 1;

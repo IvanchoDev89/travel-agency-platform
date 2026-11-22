@@ -357,7 +357,9 @@ $cal_m = (int) $cal_m;
                         echo '<div class="' . esc_attr($cls) . '">';
                         echo '<span class="tap-avcal-num">' . (int) $d . '</span>';
                         foreach ($day_bookings as $cb) {
-                            echo '<div class="tap-avcal-slot"><a href="' . esc_url(admin_url('admin.php?page=tap-booking-detail&code=' . rawurlencode($cb->booking_code))) . '" style="font-size:10px;color:inherit;text-decoration:none;">' . esc_html($cb->booking_code) . '</a></div>';
+                            // The old admin.php?page=tap-booking-detail target was never registered;
+                            // point to the real front-end booking-detail page.
+                            echo '<div class="tap-avcal-slot"><a href="' . esc_url(home_url('/booking-detail/?code=' . rawurlencode($cb->booking_code))) . '" target="_blank" rel="noopener noreferrer" style="font-size:10px;color:inherit;text-decoration:none;">' . esc_html($cb->booking_code) . '</a></div>';
                         }
                         echo '</div>';
                     }

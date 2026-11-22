@@ -31,10 +31,10 @@ $acc_src = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content
 tap_t_assert(strpos($acc_src, "get_option('tap_commission_default'") !== false, 'signup copy reads the configured commission');
 tap_t_assert(strpos($acc_src, 'Comisión típica: 10%') === false, 'signup copy no longer hardcodes 10%');
 
-// 5) Raw payout/audit codes are mapped to labels
-tap_t_assert(method_exists('TAP_Front_Dash', 'payout_method_label'), 'payout method label helper exists');
+// 5) Remaining raw audit codes are mapped to labels. The payout method label
+//    was removed together with the retired self-service payout flow.
+tap_t_assert(!method_exists('TAP_Front_Dash', 'payout_method_label'), 'dead payout method label helper removed');
 tap_t_assert(method_exists('TAP_Front_Dash', 'audit_action_label'), 'audit action label helper exists');
-tap_t_assert(TAP_Front_Dash::payout_method_label('bank_transfer') !== 'bank_transfer', 'raw payout method is translated');
 tap_t_assert(TAP_Front_Dash::audit_action_label('booking #123') !== 'booking #123', 'raw audit code is translated');
 
 // 6) Disputes section is reachable

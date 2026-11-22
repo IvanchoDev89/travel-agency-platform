@@ -20,10 +20,6 @@ class TAP_Payouts {
     const CANCELLED = 'cancelled';
     const FAILED    = 'failed';
 
-    public static function statuses() {
-        return [self::PENDING, self::COMPLETED, self::CANCELLED, self::FAILED];
-    }
-
     public static function status_label($status) {
         $labels = [
             self::PENDING   => __('Pendiente', 'travel-agency-platform'),
@@ -32,76 +28,6 @@ class TAP_Payouts {
             self::FAILED    => __('Fallida', 'travel-agency-platform'),
         ];
         return $labels[$status] ?? (string) $status;
-    }
-
-    public static function sources() {
-        return ['admin', 'agency'];
-    }
-
-    /**
-     * Agency self-service payout request: groups all currently OWED commission
-     * bookings of the agency into a single pending payout row WITHOUT touching
-     * the bookings yet. Bookings already covered by a pending payout (from any
-     * source) are excluded so nothing can be double-liquidated.
-     */
-    public static function request($agency_id, $method = 'bank_transfer', $note = '') {
-        global $wpdb;
-        $agency_id = intval($agency_id);
-        if ($agency_id < 1) {
-            return new WP_Error('no_agency', __('Agencia inválida.', 'travel-agency-platform'));
-        }
-        $method = in_array($method, ['bank_transfer', 'paypal', 'cheque', 'cash'], true) ? $method : 'bank_transfer';
-        $table  = $wpdb->prefix . 'tap_bookings';
-        $ptable = $wpdb->prefix . 'tap_commission_payments';
-
-        // Serialize the whole select-and-insert so two simultaneous requests
-        // cannot pay out the same still-owed commissions twice. If another
-        // process holds the lock we bail instead of running unprotected.
-        $lock = 'tap_payout_request_' . $agency_id;
-        if (1 !== (int) $wpdb->query($wpdb->prepare("SELECT GET_LOCK(%s, 5)", $lock))) {
-            return new WP_Error('locked', __('Otro proceso está liquidando estas comisiones. Inténtalo de nuevo.', 'travel-agency-platform'));
-        }
-        try {
-            $rows = $wpdb->get_results($wpdb->prepare(
-                "SELECT b.id, b.commission_amount
-                   FROM {$table} b
-                  WHERE b.agency_id = %d
-                    AND b.commission_status = 'owed'
-                    AND b.payment_status = 'paid'
-                    AND b.status NOT IN ('cancelled', 'refunded')
-                    AND b.commission_amount > 0
-                    AND NOT EXISTS (
-                        SELECT 1 FROM {$ptable} p
-                         WHERE p.status = 'pending'
-                           AND FIND_IN_SET(b.id, p.booking_ids)
-                    )",
-                $agency_id
-            ));
-            if (!$rows) {
-                return new WP_Error('nothing_owed', __('No tienes comisiones por cobrar disponibles para liquidar.', 'travel-agency-platform'));
-            }
-
-            $amount       = round(array_sum(array_map(fn($r) => (float) $r->commission_amount, $rows)), 2);
-            $booking_ids  = implode(',', array_column($rows, 'id'));
-            $wpdb->insert($ptable, [
-                'agency_id'   => $agency_id,
-                'amount'      => $amount,
-                'booking_ids' => $booking_ids,
-                'method'      => $method,
-                'note'        => sanitize_textarea_field($note) ?: __('Solicitud de liquidación', 'travel-agency-platform'),
-                'source'      => 'agency',
-                'created_by'  => get_current_user_id(),
-            ]);
-            $payment_id = (int) $wpdb->insert_id;
-        } finally {
-            $wpdb->query("SELECT RELEASE_LOCK('{$lock}')");
-        }
-        if (!$payment_id) {
-            return new WP_Error('db_error', __('No se pudo registrar la solicitud.', 'travel-agency-platform'));
-        }
-
-        do_action('tap_payout_requested', $payment_id, $agency_id, $amount);
-        return $payment_id;
     }
 
     /** Mark a pending payout as transferred. */

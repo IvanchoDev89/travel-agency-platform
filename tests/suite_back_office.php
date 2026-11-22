@@ -145,43 +145,53 @@ tap_t_assert('cancelled' === $row3->status && 'admin' === $row3->cancelled_by, '
 tap_t_assert(!empty($row3->cancellation_policy), 'cancellation policy recorded on admin cancel');
 tap_t_assert('void' === $row3->commission_status, 'cancelled booking commission is voided');
 
-// ── 5) payout request lifecycle ──────────────────────────────────────
+// ── 5) admin-side payout settlement (self-service request removed) ────
+// The agency self-service request endpoint was retired: only the platform
+// admin creates payout rows now. Seed the ledger row directly and exercise
+// the settlement helpers that are still part of the product.
+tap_t_assert(!method_exists('TAP_Payouts', 'request'), 'dead self-service payout request is gone');
+
 $p1 = bo_booking($owner_aid, ['status' => 'confirmed', 'payment_status' => 'paid', 'commission_amount' => 12, 'commission_status' => 'owed']);
 $p2 = bo_booking($owner_aid, ['status' => 'confirmed', 'payment_status' => 'paid', 'commission_amount' => 8,  'commission_status' => 'owed']);
 
-$r = TAP_Payouts::request($other_aid);
-tap_t_assert(is_wp_error($r) && 'nothing_owed' === $r->get_error_code(), 'payout request with no owed commission is rejected');
-
-$pid = TAP_Payouts::request($owner_aid, 'paypal', 'suite payout');
-tap_t_assert(is_int($pid) && $pid > 0, 'agency payout request created a pending payout');
+$wpdb->insert($wpdb->prefix . 'tap_commission_payments', [
+    'agency_id'   => $owner_aid,
+    'amount'      => 20,
+    'booking_ids' => $p1 . ',' . $p2,
+    'method'      => 'paypal',
+    'note'        => 'suite payout',
+    'status'      => 'pending',
+    'source'      => 'agency',
+]);
+$pid = (int) $wpdb->insert_id;
+tap_t_assert($pid > 0, 'admin payout ledger row created');
 $prow = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_commission_payments WHERE id = %d", $pid));
 tap_t_assert($prow && 'pending' === $prow->status && 'agency' === $prow->source, 'payout row is pending + source=agency');
 $ids = array_map('intval', explode(',', $prow->booking_ids));
-$ph  = implode(',', array_fill(0, count($ids), '%d'));
-$expected_amount = (float) $wpdb->get_var($wpdb->prepare(
-    "SELECT COALESCE(SUM(commission_amount),0) FROM {$wpdb->prefix}tap_bookings WHERE id IN ({$ph}) AND payment_status='paid' AND commission_status='owed'",
-    ...$ids
-));
-tap_t_assert($prow && abs((float) $prow->amount - round($expected_amount, 2)) < 0.001, 'payout amount exactly equals the grouped owed commissions');
 tap_t_assert(in_array($p1, $ids, true) && in_array($p2, $ids, true), 'payout covers both owed bookings');
-tap_t_assert('owed' === TAP_Booking::get_booking($p1)->commission_status, 'bookings stay owed while the request is pending');
-
-$r = TAP_Payouts::request($owner_aid);
-tap_t_assert(is_wp_error($r) && 'nothing_owed' === $r->get_error_code(), 'the same owed bookings cannot be requested twice (pending payout excluded)');
+tap_t_assert('owed' === TAP_Booking::get_booking($p1)->commission_status, 'bookings stay owed while the payout is pending');
 
 $r = TAP_Payouts::complete($pid);
-tap_t_assert(true === $r, 'admin completes the agency payout');
+tap_t_assert(true === $r, 'admin completes the payout');
 tap_t_assert('paid' === TAP_Booking::get_booking($p1)->commission_status, 'bookings become paid on payout completion');
 tap_t_assert('paid' === TAP_Booking::get_booking($p2)->commission_status, 'second booking becomes paid too');
 tap_t_assert(false === TAP_Payouts::complete($pid), 'completing an already-completed payout fails');
-tap_t_assert(is_wp_error(TAP_Payouts::request($owner_aid)) || (int) $prow->id !== (int) TAP_Payouts::request($owner_aid), 'paid bookings are no longer requestable');
 
 // ── 6) payout cancellation reverts nothing it should not ─────────────
-$p3  = bo_booking($owner_aid, ['status' => 'confirmed', 'payment_status' => 'paid', 'commission_amount' => 5, 'commission_status' => 'owed']);
-$pid2 = TAP_Payouts::request($owner_aid);
-tap_t_assert(is_int($pid2) && $pid2 > 0, 'a second payout request is created for remaining owed commission');
+$p3 = bo_booking($owner_aid, ['status' => 'confirmed', 'payment_status' => 'paid', 'commission_amount' => 5, 'commission_status' => 'owed']);
+$wpdb->insert($wpdb->prefix . 'tap_commission_payments', [
+    'agency_id'   => $owner_aid,
+    'amount'      => 5,
+    'booking_ids' => (string) $p3,
+    'method'      => 'bank_transfer',
+    'note'        => 'suite payout cancel',
+    'status'      => 'pending',
+    'source'      => 'agency',
+]);
+$pid2 = (int) $wpdb->insert_id;
+tap_t_assert($pid2 > 0, 'second payout ledger row created (agency-source, bookings stay owed)');
 tap_t_assert(true === TAP_Payouts::cancel($pid2), 'pending payout can be cancelled');
-tap_t_assert('owed' === TAP_Booking::get_booking($p3)->commission_status, 'cancelled request leaves the commission owed');
+tap_t_assert('owed' === TAP_Booking::get_booking($p3)->commission_status, 'cancelled payout leaves the commission owed');
 tap_t_assert(false === TAP_Payouts::complete($pid2), 'a cancelled payout cannot be completed');
 
 // ── 7) front-office sections + wiring ────────────────────────────────

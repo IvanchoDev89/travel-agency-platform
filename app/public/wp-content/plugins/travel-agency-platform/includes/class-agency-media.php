@@ -151,8 +151,17 @@ class TAP_Agency_Media {
             return 0;
         }
 
-        $tmp = download_url($url, 15);
-        if (is_wp_error($tmp)) {
+        // SSRF-safe: resolve+pin the validated IP (no redirects) instead of
+        // download_url(), which re-resolves the host (DNS-rebind TOCTOU).
+        $fetched = class_exists('TAP_ICal_Import')
+            ? TAP_ICal_Import::fetch_binary($url, 15)
+            : new WP_Error('no_fetcher', __('Descarga no disponible.', 'travel-agency-platform'));
+        if (is_wp_error($fetched) || empty($fetched['body'])) {
+            return 0;
+        }
+        $tmp = wp_tempnam('tap-sideload-');
+        if (!$tmp || false === file_put_contents($tmp, $fetched['body'])) {
+            if ($tmp) @unlink($tmp);
             return 0;
         }
 

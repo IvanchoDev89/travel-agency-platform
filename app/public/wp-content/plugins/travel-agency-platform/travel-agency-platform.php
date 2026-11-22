@@ -7,7 +7,7 @@
  * Plugin Name: Travel Agency Platform
  * Plugin URI: https://ivanchodev.com
  * Description: Multi-agency travel platform B2B & B2C. Manage accommodations, tours, transports, car rentals, boats and packages.
- * Version:           1.6.5
+ * Version:           1.6.6
  * Requires at least: 6.4
  * Requires PHP:      8.2.35
  * Author: IvanchoDev
@@ -20,7 +20,7 @@ defined('ABSPATH') || exit;
 // Standalone helpers (non-class files are not picked up by the classmap).
 require_once __DIR__ . '/includes/support-email.php';
 
-define('TAP_VERSION', '1.6.5');
+define('TAP_VERSION', '1.6.6');
 define('TAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -236,7 +236,6 @@ final class TravelAgencyPlatform {
         add_action('wp_ajax_nopriv_tap_get_public_pricing', ['TAP_Ajax_Public', 'get_public_pricing']);
         add_action('wp_ajax_tap_search_suggestions', ['TAP_Ajax_Public', 'search_suggestions']);
         add_action('wp_ajax_nopriv_tap_search_suggestions', ['TAP_Ajax_Public', 'search_suggestions']);
-        add_action('wp_ajax_tap_upload_review_image', ['TAP_Ajax_Public', 'upload_review_image']);
         add_action('wp_ajax_tap_update_booking_status', ['TAP_Ajax', 'update_booking_status']);
         add_action('wp_ajax_tap_agency_register', ['TAP_Ajax', 'agency_register']);
         add_action('wp_ajax_nopriv_tap_agency_register', ['TAP_Ajax', 'agency_register']);

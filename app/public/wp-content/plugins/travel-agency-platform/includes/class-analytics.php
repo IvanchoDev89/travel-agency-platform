@@ -164,7 +164,7 @@ class TAP_Analytics {
         if ($to && preg_match('/^\d{4}-\d{2}$/', $to)) { $bw .= " AND DATE_FORMAT(created_at, '%%Y-%%m') <= %s";
 			$bparams[] = $to; }
         $bookings = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}tap_bookings WHERE {$bw}", $bparams));
-        $revenue  = (float) $wpdb->get_var($wpdb->prepare("SELECT COALESCE(SUM(total_amount),0) FROM {$wpdb->prefix}tap_bookings WHERE {$bw} AND payment_status = 'paid'", $bparams));
+        $revenue  = (float) $wpdb->get_var($wpdb->prepare("SELECT COALESCE(SUM(total_amount),0) FROM {$wpdb->prefix}tap_bookings WHERE {$bw} AND payment_status = 'paid' AND status NOT IN ('cancelled', 'refunded')", $bparams));
 
         // Top services by views.
         $top = [];

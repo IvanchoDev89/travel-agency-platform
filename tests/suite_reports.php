@@ -25,7 +25,7 @@ function tap_t_near($a, $b) {
 
 // A: active, paid, owed        -> counts (100)
 // B: cancelled, void           -> ignored
-// C: active, unpaid (waiting)  -> counts (30): reports use active bookings base
+// C: active, unpaid (waiting)  -> ignored: money basis is paid + active
 // D: active, paid, but void    -> ignored, and must not reduce net
 $a = tap_t_seed_booking(['agency_id' => $aid, 'total_amount' => 1000, 'commission_amount' => 100, 'commission_status' => 'owed',    'payment_status' => 'paid',    'status' => 'confirmed']);
 $b = tap_t_seed_booking(['agency_id' => $aid, 'total_amount' => 500,  'commission_amount' => 50,  'commission_status' => 'void',    'payment_status' => 'paid',    'status' => 'cancelled']);
@@ -34,9 +34,9 @@ $d = tap_t_seed_booking(['agency_id' => $aid, 'total_amount' => 200,  'commissio
 $booking_ids = array_merge($booking_ids, [$a, $b, $c, $d]);
 
 $stats = TAP_Booking_Stats::get_booking_stats($aid);
-tap_t_assert(tap_t_near($stats['revenue'], 1500), 'revenue counts active bookings only (1000+300+200)');
-tap_t_assert(tap_t_near($stats['commission'], 130), 'commission excludes cancelled/void, counts active incl. unpaid (100+30)');
-tap_t_assert(tap_t_near($stats['net'], 1370), 'net zeroes void commission, keeps active commission (1370)');
+tap_t_assert(tap_t_near($stats['revenue'], 1200), 'revenue counts paid + active bookings only (1000+200)');
+tap_t_assert(tap_t_near($stats['commission'], 100), 'commission excludes cancelled/void/unpaid (100 only)');
+tap_t_assert(tap_t_near($stats['net'], 1100), 'net zeroes void commission, keeps paid active commission (1100)');
 tap_t_assert(tap_t_near($stats['fees'], 0), 'fees come from active bookings (0)');
 tap_t_assert(tap_t_near($stats['revenue'] - $stats['fees'] - $stats['commission'], $stats['net']), 'revenue - fees - commission reconciles with net exactly');
 
@@ -76,7 +76,7 @@ tap_t_assert(false !== strpos(TAP_Booking_Stats::commission_case('b.'), 'b.commi
 // Congruence: the Agencies dashboard aggregate and the stats API must agree.
 $stats_now = TAP_Booking_Stats::get_booking_stats($aid);
 $dash_comm = (float) $wpdb->get_var($wpdb->prepare(
-    'SELECT COALESCE(SUM(' . TAP_Booking_Stats::commission_case() . "),0) FROM {$wpdb->prefix}tap_bookings WHERE status NOT IN ('cancelled','refunded') AND agency_id = %d",
+    'SELECT COALESCE(SUM(' . TAP_Booking_Stats::commission_case() . "),0) FROM {$wpdb->prefix}tap_bookings WHERE payment_status='paid' AND status NOT IN ('cancelled','refunded') AND agency_id = %d",
     $aid
 ));
 tap_t_assert(tap_t_near($dash_comm, $stats_now['commission']), 'Agencies dashboard commission == stats commission (no drift)');

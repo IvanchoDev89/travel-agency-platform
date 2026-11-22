@@ -34,44 +34,54 @@ $rate = TAP_Booking::get_agency_commission($agency_id);
 tap_t_assert(is_numeric($rate) && $rate > 0, 'get_agency_commission returns numeric rate (got ' . var_export($rate, true) . ')');
 
 // 2b) Volume incentive: the more an agency sells, the LESS commission it pays.
-// Seed paid bookings directly (paid + recent counts toward the volume tier).
+// Use a dedicated throwaway agency so pre-existing paid bookings in the site
+// DB cannot push the counter past a tier threshold before the test starts.
 $base_rate = (float) get_option('tap_commission_default', 10);
+$vol_agency_id = (int) wp_insert_post([
+    'post_type'   => 'tap_agency',
+    'post_status' => 'publish',
+    'post_title'  => 'TAP volume E2E ' . tap_t_suffix(),
+]);
+tap_t_assert($vol_agency_id > 0, 'dedicated volume-test agency created');
 $cleanup_rates = [];
-$rate_before = (float) TAP_Booking::get_agency_commission($agency_id);
+$rate_before = (float) TAP_Booking::get_agency_commission($vol_agency_id);
 tap_t_assert($rate_before <= $base_rate, 'baseline commission <= default (no volume discount yet)');
 
 // 11-30 paid bookings -> -1 point
 for ($i = 0; $i < 11; $i++) {
     $cleanup_rates[] = tap_t_seed_booking([
-        'agency_id' => $agency_id, 'payment_status' => 'paid',
+        'agency_id' => $vol_agency_id, 'payment_status' => 'paid',
         'created_at' => current_time('mysql'), 'commission_amount' => 1,
     ]);
 }
-$rate_mid = (float) TAP_Booking::get_agency_commission($agency_id);
+$rate_mid = (float) TAP_Booking::get_agency_commission($vol_agency_id);
 tap_t_assert($rate_before >= 1 && abs($rate_mid - ($rate_before - 1)) < 0.01, "mid volume lowers commission by 1 point ({$rate_before} -> {$rate_mid})");
 
 // 31+ paid bookings -> -2 points total (floor = 50% of base)
 for ($i = 0; $i < 20; $i++) {
     $cleanup_rates[] = tap_t_seed_booking([
-        'agency_id' => $agency_id, 'payment_status' => 'paid',
+        'agency_id' => $vol_agency_id, 'payment_status' => 'paid',
         'created_at' => current_time('mysql'), 'commission_amount' => 1,
     ]);
 }
-$rate_high = (float) TAP_Booking::get_agency_commission($agency_id);
+$rate_high = (float) TAP_Booking::get_agency_commission($vol_agency_id);
 $expected_high = max($rate_before - 2, $rate_before * 0.5);
 tap_t_assert(abs($rate_high - $expected_high) < 0.01, "high volume lowers commission by 2 with 50% floor ({$rate_before} -> {$rate_high})");
 tap_t_assert($rate_high >= $rate_before * 0.5 - 0.01, 'commission never drops below 50% of the negotiated base');
 
 // Options are configurable: changing them changes the computed rate.
 update_option('tap_volume_tier3_discount', 3);
-$rate_custom = (float) TAP_Booking::get_agency_commission($agency_id);
+$rate_custom = (float) TAP_Booking::get_agency_commission($vol_agency_id);
 $expected_custom = max($rate_before - 3, $rate_before * 0.5);
 tap_t_assert(abs($rate_custom - $expected_custom) < 0.01, 'configurable tier3 discount changes the rate');
 delete_option('tap_volume_tier3_discount');
-$rate_restored = (float) TAP_Booking::get_agency_commission($agency_id);
+$rate_restored = (float) TAP_Booking::get_agency_commission($vol_agency_id);
 tap_t_assert(abs($rate_restored - $rate_high) < 0.01, 'removing the option restores the default tier');
 foreach ($cleanup_rates as $cid) {
     $wpdb->delete($wpdb->prefix . 'tap_bookings', ['id' => $cid]);
+}
+if ($vol_agency_id) {
+    wp_delete_post($vol_agency_id, true);
 }
 
 // 3) seed a booking for the resolved agency and verify commission math + stats rollup

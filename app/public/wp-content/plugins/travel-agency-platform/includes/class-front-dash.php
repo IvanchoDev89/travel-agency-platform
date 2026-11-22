@@ -663,23 +663,12 @@ class TAP_Front_Dash {
         return ob_get_clean();
     }
 
-    /** Human-readable labels for raw payout/audit codes in the agency UI. */
-    public static function payout_method_label($code) {
-        $labels = [
-            'bank_transfer' => __('Transferencia bancaria', 'travel-agency-platform'),
-            'paypal'        => 'PayPal',
-            'cheque'        => __('Cheque', 'travel-agency-platform'),
-            'cash'          => __('Efectivo', 'travel-agency-platform'),
-        ];
-        return $labels[(string) $code] ?? (string) $code;
-    }
-
+    /** Human-readable labels for raw audit codes in the agency UI. */
     public static function audit_action_label($code) {
         $labels = [
             'booking_confirmed'       => __('Reserva confirmada', 'travel-agency-platform'),
             'agency_profile_updated'  => __('Perfil de agencia actualizado', 'travel-agency-platform'),
             'listing_published'       => __('Listado publicado', 'travel-agency-platform'),
-            'payout_requested'        => __('Liquidación solicitada', 'travel-agency-platform'),
             'team_member_added'       => __('Miembro del equipo añadido', 'travel-agency-platform'),
         ];
         $code = (string) $code;
@@ -750,6 +739,7 @@ class TAP_Front_Dash {
              FROM {$wpdb->prefix}tap_bookings
              WHERE agency_id = %d AND payment_status = 'paid'
                AND commission_amount > 0
+               AND status NOT IN ('cancelled', 'refunded')
                AND created_at >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
              GROUP BY ym",
             $agency
@@ -783,6 +773,19 @@ class TAP_Front_Dash {
                 <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b45309;"><?php echo esc_html(TAP_Currency::fmt($totals->owed ?? 0)); ?></span><span class="tap-stat-label"><?php esc_html_e('Comisión de la plataforma pendiente', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b91c1c;"><?php echo esc_html(TAP_Currency::fmt($totals->disputed ?? 0)); ?></span><span class="tap-stat-label"><?php esc_html_e('Comisión en disputa', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number" style="color:#047857;"><?php echo esc_html(TAP_Currency::fmt($totals->settled ?? 0)); ?></span><span class="tap-stat-label"><?php esc_html_e('Comisión de la plataforma cobrada', 'travel-agency-platform'); ?></span></div>
+            </div>
+
+            <div class="tap-panel-section" style="margin-top:24px;">
+                <div class="tap-section-head">
+                    <h3><?php esc_html_e('Estado de liquidaciones', 'travel-agency-platform'); ?></h3>
+                </div>
+                <?php if ($pending): ?>
+                    <p class="tap-agency-meta"><?php echo esc_html(sprintf(__('Liquidación #%d por %s en proceso.', 'travel-agency-platform'), (int) $pending->id, TAP_Currency::fmt($pending->amount))); ?></p>
+                <?php elseif ($failed_count > 0): ?>
+                    <p class="tap-agency-meta"><?php echo esc_html(sprintf(__('Hay %d liquidación(es) fallida(s). Contacta al administrador.', 'travel-agency-platform'), $failed_count)); ?></p>
+                <?php else: ?>
+                    <p class="tap-agency-meta"><?php esc_html_e('Aún no hay liquidaciones. El administrador coordina las transferencias cuando hay comisiones cobradas.', 'travel-agency-platform'); ?></p>
+                <?php endif; ?>
             </div>
 
             <div class="tap-panel-section" style="margin-top:24px;">
@@ -1470,6 +1473,7 @@ break; }
                 "SELECT DATE_FORMAT(created_at, '%Y-%m') ym, COALESCE(SUM(total_amount),0) amt
                  FROM {$wpdb->prefix}tap_bookings
                  WHERE agency_id = %d AND payment_status = 'paid'
+                   AND status NOT IN ('cancelled', 'refunded')
                    AND created_at >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
                  GROUP BY ym",
                 $agency_id
