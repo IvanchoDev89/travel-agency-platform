@@ -290,6 +290,66 @@ class TAP_Shortcode_Support {
     }
 
     /**
+     * Render a single help article: [tap_help_article id="123"] or
+     * [tap_help_article slug="como-reservar"]. Honours the same hidden
+     * categories as the support center and search.
+     *
+     * @param array $atts Shortcode attributes.
+     * @return string
+     */
+    public static function render_article($atts = []) {
+        $atts = shortcode_atts([
+            'id'   => 0,
+            'slug' => '',
+        ], $atts, 'tap_help_article');
+
+        $article = null;
+        $id = (int) $atts['id'];
+        if ($id > 0) {
+            $article = get_post($id);
+        } elseif ('' !== (string) $atts['slug']) {
+            $article = get_page_by_path(sanitize_title((string) $atts['slug']), OBJECT, 'tap_help');
+        }
+
+        if (!$article || 'tap_help' !== $article->post_type || 'publish' !== $article->post_status) {
+            return '<p class="tap-empty">' . esc_html__('Artículo no encontrado.', 'travel-agency-platform') . '</p>';
+        }
+
+        $hidden_cats = ['primeros-pasos', 'administradores', 'desarrolladores'];
+        if (!current_user_can('manage_options')) {
+            $cats = wp_get_post_terms($article->ID, 'tap_help_category', ['fields' => 'slugs']);
+            foreach ($cats as $c) {
+                if (in_array($c, $hidden_cats, true)) {
+                    return '<p class="tap-empty">' . esc_html__('Artículo no encontrado.', 'travel-agency-platform') . '</p>';
+                }
+            }
+        }
+
+        $terms = wp_get_post_terms($article->ID, 'tap_help_category', ['fields' => 'names']);
+        $home  = home_url('/soporte/');
+
+        ob_start();
+        ?>
+        <article class="tap-help-article">
+            <p class="tap-help-breadcrumb">
+                <a href="<?php echo esc_url($home); ?>"><?php esc_html_e('Centro de Soporte', 'travel-agency-platform'); ?></a>
+                <?php if (!empty($terms) && !is_wp_error($terms)): ?>
+                    <span aria-hidden="true"> / </span><?php echo esc_html($terms[0]); ?>
+                <?php endif; ?>
+            </p>
+            <h1><?php echo esc_html(get_the_title($article)); ?></h1>
+            <div class="tap-help-article-content"><?php echo apply_filters('the_content', $article->post_content); ?></div>
+            <p class="tap-help-article-footer">
+                <a href="<?php echo esc_url($home); ?>">&larr; <?php esc_html_e('Volver al centro de soporte', 'travel-agency-platform'); ?></a>
+                &middot;
+                <a href="mailto:<?php echo esc_attr(tap_support_email()); ?>"><?php esc_html_e('Contactar soporte', 'travel-agency-platform'); ?></a>
+            </p>
+        </article>
+        <?php
+        return ob_get_clean();
+    }
+
+    /**
      * AJAX search for help articles.
      */
     public static function ajax_search() {

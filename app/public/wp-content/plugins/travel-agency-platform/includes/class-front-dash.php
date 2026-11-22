@@ -1946,6 +1946,12 @@ endif;
 
     public static function csv_cell($value) {
         $v = (string) $value;
+        // Formula injection: Excel/Sheets execute cells starting with =, +, @
+        // or a dash followed by non-numeric text. Neutralize them with a
+        // leading apostrophe (kept inside the quoted field when needed).
+        if (preg_match('/^[=+@]|^-(?![0-9.])/', $v)) {
+            $v = "'" . $v;
+        }
         if (false !== strpos($v, ',') || false !== strpos($v, '"') || false !== strpos($v, "\n")) {
             $v = '"' . str_replace('"', '""', $v) . '"';
         }

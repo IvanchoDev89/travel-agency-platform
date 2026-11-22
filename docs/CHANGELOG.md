@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.6.9] — 2026-11-22
+
+### Fixed (features)
+- `[tap_help_article]` was registered with a callback that did not exist: the
+  shortcode now renders an article by `id` or `slug`, honours hidden support
+  categories and shows a translated empty state.
+
+### Security
+- CSV exports neutralize formula-leading cells (`=`, `+`, `@`, `-` + text) to
+  prevent spreadsheet injection.
+
+### Added (tests)
+- FUNCTIONAL `suite_money_security.php`: Onvo webhook HMAC (valid/tampered/
+  stale/wrong secret/missing parts), PayPal verification FAILURE path, active
+  gateway resolution, capture idempotency (no double spend), CSV injection,
+  and promo/subscription expiry via the cron entry points, plus cancellation
+  policy, paid-amount math and booking-ownership guards.
+
 ## [1.6.8] — 2026-11-22
 
 ### Changed (admin language and mobile)

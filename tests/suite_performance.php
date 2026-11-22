@@ -186,6 +186,24 @@ $front_src = (string) file_get_contents($plugin_dir . 'includes/class-front-dash
 tap_t_assert(false !== strpos($front_src, 'bottom: 12px'), 'onboarding tooltip docks to the bottom on mobile');
 tap_t_assert(false !== strpos($front_src, 'window.innerWidth - tipWidth'), 'onboarding tooltip is clamped to the viewport');
 
+/* --- 8) [tap_help_article] renders (was registered with no callback) -------- */
+$help_post = wp_insert_post([
+    'post_type'   => 'tap_help',
+    'post_status' => 'publish',
+    'post_title'  => 'PERF Help ' . $sfx,
+    'post_content'=> 'Contenido de prueba del artículo.',
+]);
+if ((int) $help_post > 0) {
+    $cleanup_posts[] = (int) $help_post;
+    $article_html = do_shortcode('[tap_help_article id="' . (int) $help_post . '"]');
+    tap_t_assert(false !== strpos($article_html, 'PERF Help ' . $sfx), 'tap_help_article renders the article by id');
+    tap_t_assert(false !== strpos($article_html, 'Volver al centro de soporte'), 'article includes the translated back link');
+    $missing_html = do_shortcode('[tap_help_article slug="no-existe-' . $sfx . '"]');
+    tap_t_assert(false !== strpos($missing_html, 'Artículo no encontrado.'), 'unknown article shows a translated empty state');
+    wp_delete_post($help_post, true);
+    $cleanup_posts = array_diff($cleanup_posts, [(int) $help_post]);
+}
+
 /* --- cleanup ---------------------------------------------------------------- */
 tap_t_cleanup_bookings($cohort_ids);
 $wpdb->delete($log_table, ['id' => $old_id]);
