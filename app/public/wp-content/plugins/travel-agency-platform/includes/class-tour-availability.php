@@ -379,6 +379,7 @@ $formats[] = '%d'; }
                 ? sprintf(__('Se crearon %d horarios.', 'travel-agency-platform'), $created)
                 : __('No había horarios nuevos que crear.', 'travel-agency-platform'),
             'created' => $created,
+            'total'   => count(self::slots_for('tap_tour', (int) $service_id, gmdate('Y-m-d'))),
             'slots'   => self::slots_payload($service_id),
         ]);
     }

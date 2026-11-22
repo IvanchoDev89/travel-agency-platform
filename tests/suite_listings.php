@@ -160,6 +160,57 @@ if (!is_wp_error($page_user) && (int) $page_agency > 0) {
     wp_set_current_user($orig_uid);
 }
 
+/* --- 11) data-integrity guards ----------------------------------------------- */
+$meta_src = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-metaboxes.php');
+tap_t_assert(false !== strpos($meta_src, "'_agency_id') && !current_user_can('tap_manage_agencies')"), 'admin save blocks ownership changes without the agency manager capability');
+tap_t_assert(false !== strpos($wizard_js, 'input[name="destination"]'), 'tour validation checks the hidden destination picker');
+$avail_src = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-tour-availability.php');
+tap_t_assert(false !== strpos($avail_src, "'total'   => count(self::slots_for"), 'schedule generator reports the full slot count');
+tap_t_assert(false !== strpos($wizard_js, 'schedShowing'), 'schedule UI shows how many of the total slots are displayed');
+
+/* --- 12) admin bulk publish/unpublish ---------------------------------------- */
+$admin_ids = get_users(['role' => 'administrator', 'number' => 1, 'fields' => 'ids']);
+if ($admin_ids && (int) $tour > 0) {
+    wp_set_current_user((int) $admin_ids[0]);
+    $actions = TAP_Dashboard::add_bulk_actions([]);
+    tap_t_assert(isset($actions['tap_publish_listings'], $actions['tap_unpublish_listings']), 'bulk actions are registered');
+
+    wp_update_post(['ID' => $tour, 'post_status' => 'draft']);
+    $redirect = TAP_Dashboard::handle_bulk_actions('/wp-admin/edit.php?post_type=tap_tour', 'tap_publish_listings', [$tour]);
+    tap_t_assert(false !== strpos($redirect, 'tap_bulk_done=1'), 'bulk publish reports one updated listing');
+    tap_t_assert('publish' === get_post_status($tour) && '1' === (string) get_post_meta($tour, '_tap_tour_is_active', true), 'bulk publish updates status and active flag');
+
+    $redirect2 = TAP_Dashboard::handle_bulk_actions('/wp-admin/edit.php?post_type=tap_tour', 'tap_unpublish_listings', [$tour]);
+    tap_t_assert(false !== strpos($redirect2, 'tap_bulk_done=1'), 'bulk unpublish reports one updated listing');
+    tap_t_assert('draft' === get_post_status($tour) && '0' === (string) get_post_meta($tour, '_tap_tour_is_active', true), 'bulk unpublish updates status and active flag');
+    wp_set_current_user($orig_uid);
+}
+
+/* --- 13) reviews list paginates past 50 rows --------------------------------- */
+$review_user = wp_insert_user([
+    'user_login' => 'tap_rv_' . $sfx, 'user_pass' => tap_t_unique_pass(),
+    'user_email' => 'tap_rv_' . $sfx . '@example.test', 'role' => 'subscriber',
+]);
+if (!is_wp_error($review_user) && $admin_ids) {
+    $cleanup_users[] = (int) $review_user;
+    $review_ids = [];
+    for ($i = 1; $i <= 51; $i++) {
+        $wpdb->insert($wpdb->prefix . 'tap_reviews', [
+            'service_type' => 'tap_tour', 'service_id' => 75, 'user_id' => (int) $review_user,
+            'rating' => 5, 'title' => 'RV ' . $i, 'content' => 'E2E', 'is_approved' => 0,
+        ]);
+        $review_ids[] = (int) $wpdb->insert_id;
+    }
+    wp_set_current_user((int) $admin_ids[0]);
+    $_GET = ['status' => 'pending', 'paged' => 1];
+    ob_start();
+    TAP_Dashboard_Content::reviews_page();
+    $reviews_html = ob_get_clean();
+    wp_set_current_user($orig_uid);
+    tap_t_assert(false !== strpos($reviews_html, 'tablenav-pages'), 'reviews list shows pagination beyond 50 rows');
+    foreach ($review_ids as $rid) { $wpdb->delete($wpdb->prefix . 'tap_reviews', ['id' => $rid]); }
+}
+
 /* --- cleanup ----------------------------------------------------------------- */
 $_GET = $orig_get;
 wp_set_current_user($orig_uid);

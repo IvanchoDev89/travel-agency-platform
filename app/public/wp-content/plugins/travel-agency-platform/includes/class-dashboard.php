@@ -26,6 +26,61 @@ class TAP_Dashboard {
         add_action('manage_tap_package_posts_custom_column', [TAP_Dashboard_Content::class, 'render_agency_column'], 10, 2);
         add_filter('manage_tap_equipment_posts_columns', [TAP_Dashboard_Content::class, 'add_agency_column']);
         add_action('manage_tap_equipment_posts_custom_column', [TAP_Dashboard_Content::class, 'render_agency_column'], 10, 2);
+
+        // Bulk approve/unpublish for every service type.
+        foreach (array_keys(TAP_Post_Types::get_service_types()) as $pt) {
+            add_filter("bulk_actions-edit-{$pt}", [__CLASS__, 'add_bulk_actions']);
+            add_filter("handle_bulk_actions-edit-{$pt}", [__CLASS__, 'handle_bulk_actions'], 10, 3);
+        }
+        add_action('admin_notices', [__CLASS__, 'bulk_admin_notice']);
+    }
+
+    /** Add publish/unpublish options to the CPT list-table bulk dropdown. */
+    public static function add_bulk_actions($actions) {
+        if (!current_user_can('publish_posts')) {
+            return $actions;
+        }
+        $actions['tap_publish_listings'] = __('Publicar seleccionados', 'travel-agency-platform');
+        $actions['tap_unpublish_listings'] = __('Despublicar seleccionados', 'travel-agency-platform');
+        return $actions;
+    }
+
+    /** Apply the selected bulk action using the canonical publish helper. */
+    public static function handle_bulk_actions($redirect_to, $action, $post_ids) {
+        if (!in_array($action, ['tap_publish_listings', 'tap_unpublish_listings'], true)) {
+            return $redirect_to;
+        }
+        if (!current_user_can('publish_posts')) {
+            return $redirect_to;
+        }
+        $publish = 'tap_publish_listings' === $action;
+        $done = 0;
+        foreach ((array) $post_ids as $id) {
+            $post = get_post($id);
+            if (!$post || !array_key_exists($post->post_type, TAP_Post_Types::get_service_types())) {
+                continue;
+            }
+            $result = TAP_Ajax_Listing::set_listing_published($id, $publish);
+            if (!is_wp_error($result)) {
+                $done++;
+            }
+        }
+        return add_query_arg('tap_bulk_done', $done, $redirect_to);
+    }
+
+    /** One-line confirmation after a bulk publish/unpublish. */
+    public static function bulk_admin_notice() {
+        if (!isset($_GET['tap_bulk_done'])) {
+            return;
+        }
+        $done = absint($_GET['tap_bulk_done']);
+        echo '<div class="notice notice-success is-dismissible"><p>'
+            . esc_html(sprintf(
+                /* translators: %d: número de servicios actualizados */
+                __('Se actualizaron %d servicios.', 'travel-agency-platform'),
+                $done
+            ))
+            . '</p></div>';
     }
 
     public static function add_admin_menu() {

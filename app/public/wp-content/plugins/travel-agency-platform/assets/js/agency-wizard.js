@@ -940,6 +940,18 @@
             if (errorEl) { errorEl.textContent = msg; }
         });
 
+        // Destination is a hidden picker input, so the generic above skips it.
+        // A tour without a destination is invisible in destination search.
+        var dest = form.querySelector ? form.querySelector('input[name="destination"]') : null;
+        if (dest && '' === (dest.value || '').trim()) {
+            var dField = dest.closest ? dest.closest('.tap-field') : null;
+            var dError = dField ? qs('.tap-field-error', dField) : null;
+            if (dError) { dError.textContent = t('fieldRequired', 'Completa este campo.'); }
+            dest.classList.add('is-invalid');
+            invalid = true;
+            if (!first) { first = dest; }
+        }
+
         if (first) { first.focus(); }
         return !invalid;
     }
@@ -1186,7 +1198,13 @@
                             return;
                         }
                         render(json.data.slots);
-                        setStatus(json.data.message || t('schedDone', 'Horarios actualizados.'));
+                        var shown = (json.data.slots || []).length;
+                        var total = parseInt(json.data.total || 0, 10);
+                        var notice = json.data.message || t('schedDone', 'Horarios actualizados.');
+                        if (total > shown) {
+                            notice += ' ' + t('schedShowing', 'Mostrando %1 de %2.').replace('%1', shown).replace('%2', total);
+                        }
+                        setStatus(notice);
                         toast(json.data.message || t('schedDone', 'Horarios actualizados.'), 'success');
                     })
                     .catch(function () {

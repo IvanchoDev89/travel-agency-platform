@@ -45,14 +45,20 @@ class TAP_Dashboard_Content {
         $where  = 'all' === $filter ? '1=1' : 'r.is_approved = ' . ($filter === 'pending' ? '0' : '1');
 
         $pending = (int) $wpdb->get_var("SELECT COUNT(*) FROM $table WHERE is_approved = 0");
+        $per_page = 50;
+        $paged    = max(1, absint($_GET['paged'] ?? 1));
+        $total_reviews = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM $table r JOIN {$wpdb->users} u ON r.user_id = u.ID WHERE $where"
+        );
         $reviews = $wpdb->get_results($wpdb->prepare(
             "SELECT r.*, u.display_name AS user_name
             FROM $table r
             JOIN {$wpdb->users} u ON r.user_id = u.ID
             WHERE $where
             ORDER BY r.created_at DESC
-            LIMIT 100",
-            []
+            LIMIT %d OFFSET %d",
+            $per_page,
+            ($paged - 1) * $per_page
         ));
         ?>
         <div class="wrap">
@@ -133,6 +139,7 @@ class TAP_Dashboard_Content {
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            <?php echo TAP_Dashboard::paginate($total_reviews, $per_page, $paged); ?>
         </div>
         <?php
     }

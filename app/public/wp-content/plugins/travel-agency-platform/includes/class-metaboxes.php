@@ -896,6 +896,11 @@ class TAP_Metaboxes {
 
         if (isset(self::$fields[$post_type])) {
             foreach (self::$fields[$post_type] as $key => $field) {
+                // Ownership is sensitive: only agency managers may reassign a
+                // listing. Everyone else keeps the existing agency meta.
+                if (false !== strpos($key, '_agency_id') && !current_user_can('tap_manage_agencies')) {
+                    continue;
+                }
                 if ($field['type'] === 'checkbox') {
                     $value = isset($_POST[$key]) ? '1' : '0';
                 } elseif (isset($_POST[$key])) {

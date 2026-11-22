@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.6.11] — 2026-11-22
+
+### Changed (listing management, second pass)
+- Admin list tables now have bulk "Publicar seleccionados" / "Despublicar
+  seleccionados" actions with a confirmation notice.
+- Admin save no longer allows changing listing ownership without
+  `tap_manage_agencies`; existing ownership is preserved.
+- Tour wizard validates the hidden destination picker, so a tour cannot be
+  published without a destination (and become undiscoverable).
+- Schedule generator reports the real slot total and the UI shows
+  "Mostrando X de N" when the list is truncated.
+- Admin reviews list paginates (50 per page) instead of silently stopping at 100.
+
+### Added
+- Functional assertions in `suite_listings.php` for the bulk actions, reviews
+  pagination and the data-integrity guards.
+
 ## [1.6.10] — 2026-11-22
 
 ### Changed (listing management)
