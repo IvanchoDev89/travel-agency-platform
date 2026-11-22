@@ -222,6 +222,77 @@ foreach ($wl['tap_settings'] as $opt) {
     }
 }
 update_option('tap_privacy_contact', $privacy_snapshot);
+/* 7) GDPR/ARCO exporter + eraser (FUNCTIONAL) -------------------------------- */
+$exp_email = 'tap_exp_' . tap_t_suffix() . '@example.test';
+$exp_user  = wp_insert_user([
+    'user_login' => 'tap_exp_' . tap_t_suffix(),
+    'user_pass'  => tap_t_unique_pass(),
+    'user_email' => $exp_email,
+    'role'       => 'subscriber',
+]);
+tap_t_assert(!is_wp_error($exp_user) && (int) $exp_user > 0, 'export fixture user created');
+if (!is_wp_error($exp_user) && (int) $exp_user > 0) {
+    $exp_booking = tap_t_seed_booking([
+        'booking_code' => 'EXP-' . tap_t_suffix(),
+        'client_id'    => (int) $exp_user,
+        'guest_email'  => $exp_email,
+        'guest_name'   => 'Persona Export',
+    ]);
+    $wpdb->insert($p . 'tap_leads', [
+        'agency_id' => tap_t_test_agency(), 'name' => 'Persona Export',
+        'email' => $exp_email, 'message' => 'mensaje privado de prueba',
+    ]);
+    $lead_id = (int) $wpdb->insert_id;
+    TAP_Privacy::record_consent($exp_email, 'booking', 0);
+    $wpdb->insert($p . 'tap_reviews', [
+        'service_type' => 'tap_tour', 'service_id' => 75, 'user_id' => (int) $exp_user,
+        'rating' => 5, 'title' => 'Reseña privada', 'content' => 'Contenido de prueba', 'is_approved' => 0,
+    ]);
+    $review_id = (int) $wpdb->insert_id;
+
+    // Registration callbacks.
+    $exporters = TAP_Privacy::register_exporter([]);
+    $erasers   = TAP_Privacy::register_eraser([]);
+    tap_t_assert(
+        isset($exporters[0]['callback']) && ['TAP_Privacy', 'export_personal_data'] === $exporters[0]['callback'],
+        'privacy exporter callback is registered'
+    );
+    tap_t_assert(
+        isset($erasers[0]['callback']) && ['TAP_Privacy', 'erase_personal_data'] === $erasers[0]['callback'],
+        'privacy eraser callback is registered'
+    );
+
+    // Export must include all four data groups.
+    $export = TAP_Privacy::export_personal_data($exp_email);
+    $groups = [];
+    foreach ((array) ($export['data'] ?? []) as $group) {
+        foreach ((array) ($group['data'] ?? []) as $item) {
+            $groups[] = $item['group_id'] ?? '';
+        }
+    }
+    tap_t_assert(true === ($export['done'] ?? false), 'export reports done');
+    foreach (['tap_bookings', 'tap_leads', 'tap_consents', 'tap_reviews'] as $gid) {
+        tap_t_assert(in_array($gid, $groups, true), "export includes group {$gid}");
+    }
+    $export_flat = wp_json_encode($export);
+    tap_t_assert(false !== strpos($export_flat, 'Persona Export'), 'export contains the personal data');
+    tap_t_assert(false !== strpos($export_flat, 'mensaje privado de prueba'), 'export contains the lead message');
+
+    // Erase: transient data gone, operational booking retained but anonymised.
+    $erase = TAP_Privacy::erase_personal_data($exp_email);
+    tap_t_assert(true === ($erase['items_removed'] ?? false) && true === ($erase['done'] ?? false), 'erase reports removed + done');
+    tap_t_assert(!$wpdb->get_var($wpdb->prepare("SELECT id FROM {$p}tap_leads WHERE id = %d", $lead_id)), 'lead row erased');
+    tap_t_assert(!$wpdb->get_var($wpdb->prepare("SELECT id FROM {$p}tap_reviews WHERE id = %d", $review_id)), 'review row erased');
+    tap_t_assert(!$wpdb->get_var($wpdb->prepare("SELECT id FROM {$p}tap_consents WHERE email = %s", $exp_email)), 'consents erased');
+    $kept = TAP_Booking::get_booking($exp_booking);
+    tap_t_assert($kept && '' === (string) $kept->guest_email, 'booking row retained but guest email anonymised');
+
+    tap_t_cleanup_bookings([$exp_booking]);
+    $wpdb->delete($p . 'tap_leads', ['email' => $exp_email]);
+    $wpdb->delete($p . 'tap_consents', ['email' => $exp_email]);
+    wp_delete_user((int) $exp_user);
+}
+
 tap_t_assert(!isset($wl['tap_payment_methods']), 'orphan tap_payment_methods option is not registered');
 $privacy_page = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-privacy.php');
 tap_t_assert(false !== strpos($privacy_page, "settings_fields('tap_privacy_group')"), 'privacy form uses the dedicated group');

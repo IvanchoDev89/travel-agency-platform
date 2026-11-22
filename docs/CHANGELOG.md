@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## Tests (Ronda B) — 2026-11-22
+
+Sin cambios de código en producción; solo cobertura funcional nueva:
+
+- `suite_privacy.php`: exporter/eraser callbacks, export with all four data
+  groups, erase with anonymized bookings and deleted transient PII.
+- `suite_i18n.php`: both `.mo` catalogs load, 4.200+ entries, zero empty
+  translations, high-traffic msgids and plural forms.
+- `suite_coupons.php`: coupon CRUD, percent/fixed math, max uses, expiry,
+  minimum amount, uppercase codes and discount-tier CSV round-trip.
+- `suite_rest.php`: auth gate and favorites helpers for anonymous/owned data.
+- `suite_emails.php`: table-driven verification of 10 additional notification
+  hooks (approvals, onboarding, subscriptions, promos, refunds).
+- `suite_agency_panel.php`: converted the 90% source-string guards into real
+  renders of finances/disputes/onboarding/signup; only redirect targets remain
+  as source guards.
+
 ## [Tema 2.0.53] — 2026-11-22
 
 ### Changed (login UX)

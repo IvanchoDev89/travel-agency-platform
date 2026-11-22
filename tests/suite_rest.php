@@ -109,7 +109,30 @@ $forbidden = tap_t_rest('GET', "/tap/v1/booking/{$bid}");
 wp_set_current_user(0);
 tap_t_assert(tap_t_rest_error_code($forbidden) === 'forbidden', 'another user cannot read someone else booking');
 
+// favorites helpers + auth gate (FUNCTIONAL) ---------------------------------------
+wp_set_current_user(0);
+tap_t_assert(false === TAP_API::check_auth(), 'check_auth rejects anonymous requests');
+tap_t_assert([] === TAP_API::get_favorites(), 'anonymous favorites are empty');
+tap_t_assert(false === TAP_API::is_favorite($fid), 'anonymous user has no favorites');
+
+$fav_user = tap_t_make_subscriber();
+$fav_post = wp_insert_post([
+    'post_type' => 'tap_tour', 'post_status' => 'publish',
+    'post_title' => 'TAP REST favorite ' . tap_t_suffix(),
+]);
+update_user_meta($fav_user, 'tap_favorites', [(int) $fav_post, $fid]);
+wp_set_current_user($fav_user);
+tap_t_assert(true === TAP_API::check_auth(), 'check_auth accepts a logged-in user');
+$favs = TAP_API::get_favorites();
+tap_t_assert(in_array($fid, $favs, true) && in_array((int) $fav_post, $favs, true), 'get_favorites returns stored ids');
+tap_t_assert(true === TAP_API::is_favorite($fid), 'is_favorite true for a stored post');
+tap_t_assert(false === TAP_API::is_favorite(999999), 'is_favorite false for an unknown post');
+wp_set_current_user(0);
+
 // cleanup ---------------------------------------------------------------------------
+wp_delete_post($fav_post, true);
+delete_user_meta($fav_user, 'tap_favorites');
+wp_delete_user($fav_user);
 tap_t_cleanup_bookings([$bid]);
 tap_t_cleanup_test_consents();
 wp_delete_user($uid);

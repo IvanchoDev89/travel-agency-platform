@@ -113,7 +113,41 @@ $mails = [];
 TAP_Chat::send($booking_id, 'agency', (int) $agency_id, 'Agencia E2E', 'Claro, a las 10:00.');
 tap_t_assert(count($mails) === 1 && $mails[0]['to'] === 'e2e-guest@example.test', 'agency chat message notifies the guest');
 
+/* 12) table-driven secondary email handlers ---------------------------------- */
+$owner = wp_insert_user([
+    'user_login' => 'tap_em_' . tap_t_suffix(),
+    'user_pass'  => tap_t_unique_pass(),
+    'user_email' => 'e2e-owner@example.test',
+    'role'       => 'tap_agency_admin',
+]);
+
+$email_events = [
+    'tap_agency_approved'        => [[$agency_id], 'e2e-agency@example.test'],
+    'tap_agency_rejected'        => [[$agency_id], 'e2e-agency@example.test'],
+    'tap_subscription_paid'      => [[$agency_id, 2, '2027-01-01'], 'e2e-agency@example.test'],
+    'tap_promo_active'           => [[$agency_id, 75, '2027-01-01', 10], 'e2e-agency@example.test'],
+    'tap_commission_paid'        => [[$agency_id, $payment_id], 'e2e-agency@example.test'],
+    'tap_payment_failed'         => [[$booking_id, 'paypal', 'E2E-FAIL'], 'e2e-guest@example.test'],
+    'tap_payment_refunded'       => [[$booking_id, 'paypal', 'E2E-REF'], 'e2e-guest@example.test'],
+];
+if (!is_wp_error($owner)) {
+    $email_events['tap_agency_onboarding_day1'] = [[(int) $owner, $agency_id], 'e2e-agency@example.test'];
+    $email_events['tap_agency_onboarding_day3'] = [[(int) $owner, $agency_id], 'e2e-agency@example.test'];
+    $email_events['tap_agency_onboarding_day7'] = [[(int) $owner, $agency_id], 'e2e-agency@example.test'];
+}
+
+foreach ($email_events as $hook => $spec) {
+    $mails = [];
+    do_action_ref_array($hook, $spec[0]);
+    $recipients = array_column($mails, 'to');
+    tap_t_assert(count($mails) >= 1, "{$hook} sends at least one email (got " . count($mails) . ")");
+    tap_t_assert(in_array($spec[1], $recipients, true), "{$hook} notifies {$spec[1]}");
+    $subjects = array_column($mails, 'subject');
+    tap_t_assert('' !== ($subjects[0] ?? ''), "{$hook} sends a non-empty subject");
+}
+
 /* cleanup -------------------------------------------------------------------- */
+if (!is_wp_error($owner)) { wp_delete_user((int) $owner); }
 tap_t_cleanup_bookings([$booking_id]);
 $wpdb->delete($p . 'tap_chat_messages', ['booking_id' => $booking_id]);
 $wpdb->delete($p . 'tap_commission_payments', ['id' => $payment_id]);
