@@ -6,8 +6,12 @@ class TAP_Dashboard {
         add_action('admin_menu', [__CLASS__, 'add_admin_menu'], 30);
         add_action('admin_init', [TAP_Dashboard_Settings::class, 'register_settings']);
         // options.php hardcodes manage_options; align it with the page caps.
-        add_filter('option_page_capability_tap_settings', static function () { return 'tap_manage_settings'; });
-        add_filter('option_page_capability_tap_privacy_group', static function () { return 'tap_manage_settings'; });
+        add_filter('option_page_capability_tap_settings', static function () {
+            return 'tap_manage_settings';
+        });
+        add_filter('option_page_capability_tap_privacy_group', static function () {
+            return 'tap_manage_settings';
+        });
         add_action('admin_init', [TAP_Dashboard_Bookings::class, 'maybe_export_bookings'], 5);
         add_action('admin_post_tap_destinations_save', [TAP_Dashboard_Destinations::class, 'handle_save']);
         add_action('admin_post_tap_destinations_add', [TAP_Dashboard_Destinations::class, 'handle_add']);
@@ -67,7 +71,7 @@ class TAP_Dashboard {
             }
             $result = TAP_Ajax_Listing::set_listing_published($id, $publish);
             if (!is_wp_error($result)) {
-                $done++;
+                ++$done;
             }
         }
         return add_query_arg('tap_bulk_done', $done, $redirect_to);
