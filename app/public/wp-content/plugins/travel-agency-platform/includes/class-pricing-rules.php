@@ -6,7 +6,7 @@ defined('ABSPATH') || exit;
  * Yield pricing rules engine.
  *
  * A rule applies a modifier (percent or fixed amount) to a base price when its
- * condition matches (early bird, last minute, weekend, seasonal, occupancy).
+ * condition matches (early bird, last minute, weekend, seasonal, occupancy, group).
  * Rules are evaluated by priority (higher first); the first matching rule wins.
  */
 class TAP_Pricing_Rules {
@@ -24,6 +24,7 @@ class TAP_Pricing_Rules {
             'weekend'      => __('Fin de semana', 'travel-agency-platform'),
             'seasonal'     => __('Temporada alta/baja', 'travel-agency-platform'),
             'occupancy'    => __('Ocupación (alta demanda)', 'travel-agency-platform'),
+            'group'        => __('Grupo (mínimo de viajeros)', 'travel-agency-platform'),
         ];
     }
 
@@ -129,6 +130,10 @@ class TAP_Pricing_Rules {
                 $threshold = (float) ($cond['occupancy_pct'] ?? 80);
                 $occ = (float) ($ctx['occupancy_pct'] ?? 0);
                 return $occ >= $threshold;
+            case 'group':
+                $min = (int) ($cond['min_guests'] ?? 2);
+                $guests = (int) ($ctx['guests'] ?? 0);
+                return $guests >= $min;
         }
         return false;
     }

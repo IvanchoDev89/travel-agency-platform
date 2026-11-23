@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.6.13] — 2026-11-23
+
+### Added
+- `llms.txt` endpoint (`/llms.txt`, HTTP 200) with the site identity, main
+  public pages and published services for AI crawlers.
+- Configurable daily admin alert (`tap_unpaid_alert_days`, default 3) for
+  bookings still unpaid past the threshold.
+- "Group" pricing rule type (minimum travelers) wired into the booking quote.
+
+### Changed (tests)
+- Converted the security suite's behavioral guards (msgid stability, booking
+  and CSP rate limits, referral unique index) from source-string checks to
+  real functional assertions.
+- FUNCTIONAL `suite_features.php` for the three new features.
+
 ## [1.6.12] — 2026-11-22
 
 ### Changed (listing management, third pass)

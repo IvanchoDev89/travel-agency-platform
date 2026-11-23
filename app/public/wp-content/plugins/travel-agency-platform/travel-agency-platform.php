@@ -7,7 +7,7 @@
  * Plugin Name: Travel Agency Platform
  * Plugin URI: https://ivanchodev.com
  * Description: Multi-agency travel platform B2B & B2C. Manage accommodations, tours, transports, car rentals, boats and packages.
- * Version:           1.6.12
+ * Version:           1.6.13
  * Requires at least: 6.4
  * Requires PHP:      8.2.35
  * Author: IvanchoDev
@@ -19,8 +19,10 @@ defined('ABSPATH') || exit;
 
 // Standalone helpers (non-class files are not picked up by the classmap).
 require_once __DIR__ . '/includes/support-email.php';
+// New endpoint class: load explicitly so stale local classmaps cannot miss it.
+require_once __DIR__ . '/includes/class-llms.php';
 
-define('TAP_VERSION', '1.6.12');
+define('TAP_VERSION', '1.6.13');
 define('TAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -137,6 +139,7 @@ final class TravelAgencyPlatform {
         add_action('before_delete_post', ['TAP_Installer', 'remove_service_index'], 10, 1);
         add_action('trashed_post', ['TAP_Installer', 'remove_service_index'], 10, 1);
         add_action('template_redirect', ['TAP_Post_Types', 'redirect_experience_to_tour']);
+        add_action('template_redirect', ['TAP_LLMS', 'maybe_output']);
         add_action('init', ['TAP_Translations', 'init'], 15);
         add_shortcode('tap_lang_selector', ['TAP_Translations', 'render_selector']);
         add_shortcode('tap_push_subscribe', ['TAP_Push', 'render_subscribe_button']);

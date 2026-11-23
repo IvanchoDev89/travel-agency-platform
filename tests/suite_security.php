@@ -87,15 +87,16 @@ tap_t_assert(
 // ===== F. Msgids stay stable ===============================================
 // phpcbf renumbered %d placeholders into %1$d, which rewrites the msgid and
 // desynchronises every catalog. Placeholder order is a source-level decision.
-$commerce = $src('includes/class-ajax-commerce.php');
-tap_t_assert(
-    false !== strpos($commerce, 'Destacado %d mes(es)'),
-    'promotion msgid keeps positional-free placeholders'
-);
-tap_t_assert(
-    false === strpos($commerce, 'Destacado %1$d mes(es)'),
-    'promotion msgid is not placeholder-renumbered'
-);
+// The catalog must translate the un-numbered placeholder, not a renumbered
+// msgid (phpcbf once rewrote it and desynchronised every locale).
+$L = 'TAP_Localization';
+$locale_before = get_locale();
+$L::set_lang('en');
+$translated = __('Destacado %d mes(es)', 'travel-agency-platform');
+$L::set_lang('es');
+tap_t_assert(false !== strpos($translated, '%d'), 'promotion translation keeps an unnumbered %d placeholder');
+tap_t_assert(false === strpos($translated, '%1$d'), 'promotion translation is not placeholder-renumbered');
+if ('es_ES' === $locale_before) { $L::set_lang('es'); }
 
 // ===== G. Refunds have a single route ======================================
 // TAP_Booking used to carry seven delegating wrappers; both classes must not
@@ -178,10 +179,17 @@ tap_t_assert(
 
 // ===== K. Booking rate limit ===============================================
 $ajax_src = $src('includes/class-ajax.php');
-tap_t_assert(
-    false !== strpos($ajax_src, "too_many('booking_create'"),
-    'booking creation is rate limited'
-);
+$_SERVER['REMOTE_ADDR'] = '203.0.113.77';
+$bk_key = TAP_Rate_Limit::key('booking_create');
+delete_transient($bk_key);
+$bk_hits = 0;
+for ($i = 0; $i < 3; $i++) {
+    if (!TAP_Rate_Limit::too_many('booking_create', 3, MINUTE_IN_SECONDS)) { $bk_hits++; }
+}
+tap_t_assert(3 === $bk_hits, 'booking_create allows exactly the limit');
+tap_t_assert(true === TAP_Rate_Limit::too_many('booking_create', 3, MINUTE_IN_SECONDS), 'booking_create blocks past the limit');
+delete_transient($bk_key);
+unset($_SERVER['REMOTE_ADDR']);
 
 // ===== L. Referral idempotency =============================================
 $installer_src = (string) file_get_contents($plugin . '../travel-agency-platform/includes/class-installer.php');
@@ -189,10 +197,13 @@ $installer_src = (string) file_get_contents($plugin . '../travel-agency-platform
 if (!file_exists($plugin . '../travel-agency-platform/includes/class-installer.php')) {
     $installer_src = (string) file_get_contents('/home/marcelo/Local Sites/travel-agency/app/public/wp-content/plugins/travel-agency-platform/includes/class-installer.php');
 }
-tap_t_assert(
-    false !== strpos($installer_src, 'UNIQUE KEY booking_unique'),
-    'referral table has unique constraint on booking_id'
-);
+global $wpdb;
+$ref_table = $wpdb->prefix . 'tap_customer_referrals';
+$ref_indexes = $wpdb->get_col($wpdb->prepare(
+    "SELECT index_name FROM information_schema.statistics WHERE table_schema = DATABASE() AND table_name = %s",
+    $ref_table
+));
+tap_t_assert(in_array('booking_unique', array_map('strtolower', $ref_indexes), true), 'referral table has a real booking_unique index');
 
 // ===== M. Login brute-force guard ==========================================
 $_SERVER['REMOTE_ADDR'] = '203.0.113.10';
@@ -215,10 +226,17 @@ $policy = TAP_Security_Headers::default_policy();
 foreach (['manifest-src', 'worker-src', "font-src 'self'"] as $needle) {
     tap_t_assert(false !== strpos($policy, $needle), 'CSP default policy allows ' . $needle);
 }
-tap_t_assert(
-    false !== strpos($sec_src, "too_many('csp_report'"),
-    'CSP report endpoint is rate limited'
-);
+$_SERVER['REMOTE_ADDR'] = '203.0.113.78';
+$csp_key = TAP_Rate_Limit::key('csp_report');
+delete_transient($csp_key);
+$csp_hits = 0;
+for ($i = 0; $i < 2; $i++) {
+    if (!TAP_Rate_Limit::too_many('csp_report', 2, MINUTE_IN_SECONDS)) { $csp_hits++; }
+}
+tap_t_assert(2 === $csp_hits, 'csp_report allows exactly the limit');
+tap_t_assert(true === TAP_Rate_Limit::too_many('csp_report', 2, MINUTE_IN_SECONDS), 'csp_report blocks past the limit');
+delete_transient($csp_key);
+unset($_SERVER['REMOTE_ADDR']);
 
 // ===== O. iCal SSRF guard ==================================================
 tap_t_assert(false === TAP_ICal_Import::is_safe_url('http://127.0.0.1/feed.ics'), 'iCal rejects loopback IPv4');

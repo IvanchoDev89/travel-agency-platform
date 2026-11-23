@@ -18,6 +18,11 @@ defined('ABSPATH') || exit;
 class TAP_Dashboard_Settings {
     public static function register_settings() {
         register_setting('tap_settings', 'tap_commission_default');
+        register_setting('tap_settings', 'tap_unpaid_alert_days', [
+            'type' => 'integer',
+            'sanitize_callback' => 'absint',
+            'default' => 3,
+        ]);
         // Volume incentive tiers (sanitized in save handler below).
         foreach ([
             'tap_volume_tier2_min', 'tap_volume_tier3_min',

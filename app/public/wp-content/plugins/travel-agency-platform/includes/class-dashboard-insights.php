@@ -153,6 +153,26 @@ class TAP_Dashboard_Insights {
             $body = sprintf(__('Se recibieron %d review(s) con 2 estrellas o menos en las últimas 24 horas. Revisa la moderación.', 'travel-agency-platform'), $neg);
             wp_mail($admin_email, $subject, $body);
         }
+
+        // Unpaid bookings older than the configured threshold.
+        $days  = max(1, (int) get_option('tap_unpaid_alert_days', 3));
+        $older = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tap_bookings
+              WHERE payment_status NOT IN ('paid', 'refunded')
+                AND status NOT IN ('cancelled', 'refunded')
+                AND created_at < DATE_SUB(NOW(), INTERVAL %d DAY)",
+            $days
+        ));
+        if ($older > 0) {
+            $subject = __('Alerta: pagos pendientes', 'travel-agency-platform');
+            $body = sprintf(
+                /* translators: 1: número de reservas impagas, 2: días de antigüedad */
+                __('Hay %1$d reserva(s) sin pagar con más de %2$d días. Revisa el panel de reservas.', 'travel-agency-platform'),
+                $older,
+                $days
+            );
+            wp_mail($admin_email, $subject, $body);
+        }
     }
 
     public static function analytics_page() {
