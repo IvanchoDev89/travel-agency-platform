@@ -120,6 +120,56 @@ if ((int) $ins_tour > 0) {
     }
 }
 
+/* --- 6) waiver gate + offline payment methods -------------------------------- */
+$waiver_tour = wp_insert_post([
+    'post_type' => 'tap_tour', 'post_status' => 'publish',
+    'post_title' => 'TAP waiver gate ' . $sfx,
+]);
+if ((int) $waiver_tour > 0) {
+    $cleanup_posts[] = (int) $waiver_tour;
+    update_post_meta($waiver_tour, '_tap_tour_waiver_required', '1');
+    update_post_meta($waiver_tour, '_tap_tour_waiver', 'Texto del descargo E2E.');
+    update_post_meta($waiver_tour, '_tap_tour_price_adult', 100);
+    $wb = tap_t_seed_booking([
+        'service_type' => 'tap_tour', 'service_id' => (int) $waiver_tour,
+        'total_amount' => 100, 'payment_status' => 'pending', 'status' => 'confirmed',
+    ]);
+    $cleanup_bookings[] = $wb;
+    tap_t_assert(true === TAP_Waiver::is_required('tap_tour', (int) $waiver_tour), 'waiver requirement is detected');
+    tap_t_assert(false === TAP_Waiver::has_valid($wb), 'booking without signature has no valid waiver');
+
+    $commerce_src = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-ajax-commerce.php');
+    tap_t_assert(2 === substr_count($commerce_src, 'TAP_Waiver::has_valid('), 'both payment handlers block on an unsigned waiver');
+
+    $admin_ids = get_users(['role' => 'administrator', 'number' => 1, 'fields' => 'ids']);
+    if ($admin_ids) {
+        wp_set_current_user((int) $admin_ids[0]);
+        $checkout_html = TAP_Shortcode_Booking::checkout(['code' => TAP_Booking::get_booking($wb)->booking_code]);
+        wp_set_current_user($orig_uid);
+        tap_t_assert(false !== strpos($checkout_html, 'Descargo de responsabilidad'), 'checkout renders the required waiver form');
+    }
+}
+
+$prev_sinpe = get_option('tap_sinpe_enabled', null);
+$prev_phone = get_option('tap_sinpe_phone', null);
+update_option('tap_sinpe_enabled', '1');
+update_option('tap_sinpe_phone', '88887777');
+$payable = tap_t_seed_booking([
+    'service_type' => 'tap_tour', 'service_id' => 75,
+    'total_amount' => 100, 'payment_status' => 'pending', 'status' => 'confirmed',
+]);
+$cleanup_bookings[] = $payable;
+$admin_ids = get_users(['role' => 'administrator', 'number' => 1, 'fields' => 'ids']);
+if ($admin_ids) {
+    wp_set_current_user((int) $admin_ids[0]);
+    $offline_html = TAP_Shortcode_Booking::checkout(['code' => TAP_Booking::get_booking($payable)->booking_code]);
+    wp_set_current_user($orig_uid);
+    tap_t_assert(false !== strpos($offline_html, 'Otros métodos de pago'), 'checkout shows configured offline methods');
+    tap_t_assert(false !== strpos($offline_html, '88887777'), 'SINPE instructions include the configured number');
+}
+if (null === $prev_sinpe) { delete_option('tap_sinpe_enabled'); } else { update_option('tap_sinpe_enabled', $prev_sinpe); }
+if (null === $prev_phone) { delete_option('tap_sinpe_phone'); } else { update_option('tap_sinpe_phone', $prev_phone); }
+
 /* --- cleanup ----------------------------------------------------------------- */
 wp_set_current_user($orig_uid);
 foreach ($cleanup_slots as $sid) {

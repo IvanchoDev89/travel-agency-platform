@@ -386,6 +386,14 @@ class TAP_Ajax_Commerce {
             wp_send_json_error(['message' => __('Booking already paid', 'travel-agency-platform')]);
         }
 
+        // Required waivers must be signed with the current text before any
+        // money is captured.
+        if (class_exists('TAP_Waiver')
+            && TAP_Waiver::is_required($booking->service_type, (int) $booking->service_id)
+            && !TAP_Waiver::has_valid((int) $booking->id)) {
+            wp_send_json_error(['message' => __('Firma el descargo de responsabilidad antes de pagar.', 'travel-agency-platform')]);
+        }
+
         if (!TAP_Booking::is_payable($booking)) {
             // Distinguish a cancelled/refunded booking from one still awaiting
             // the agency, so the message matches what the client sees on screen.
@@ -432,6 +440,14 @@ class TAP_Ajax_Commerce {
 
         if ($booking->payment_status === 'paid') {
             wp_send_json_error(['message' => __('Booking already paid', 'travel-agency-platform')]);
+        }
+
+        // Required waivers must be signed with the current text before any
+        // money is captured.
+        if (class_exists('TAP_Waiver')
+            && TAP_Waiver::is_required($booking->service_type, (int) $booking->service_id)
+            && !TAP_Waiver::has_valid((int) $booking->id)) {
+            wp_send_json_error(['message' => __('Firma el descargo de responsabilidad antes de pagar.', 'travel-agency-platform')]);
         }
 
         if (!TAP_Booking::is_payable($booking)) {

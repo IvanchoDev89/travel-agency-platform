@@ -585,7 +585,21 @@ class TAP_Shortcode_Booking {
                 <p class="tap-checkout-commission-note"><?php echo esc_html(sprintf(__('El precio incluye una tarifa de plataforma del %s%% pagada por la agencia. No hay cargos adicionales para ti.', 'travel-agency-platform'), $tap_checkout_commission)); ?></p>
             </div>
 
-		<?php if ($booking->total_amount > 0 && $booking->payment_status !== 'paid' && $booking->status !== 'request' && !in_array($booking->status, ['cancelled', 'refunded'], true)): ?>
+        <?php
+        // A required waiver is not optional marketing copy: collect it here
+        // and block payment until a current-version signature exists.
+        $tap_waiver_required = class_exists('TAP_Waiver')
+            && TAP_Waiver::is_required($booking->service_type, (int) $booking->service_id)
+            && !TAP_Waiver::has_valid((int) $booking->id);
+        if ($tap_waiver_required):
+        ?>
+            <div class="tap-checkout-waiver">
+                <h3><?php esc_html_e('Descargo de responsabilidad (Waiver)', 'travel-agency-platform'); ?></h3>
+                <?php echo TAP_Waiver::render_form((int) $booking->id); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the renderer ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($booking->total_amount > 0 && $booking->payment_status !== 'paid' && $booking->status !== 'request' && !in_array($booking->status, ['cancelled', 'refunded'], true)): ?>
                 <?php
                 $tap_paypal_ready = TAP_PayPal::is_ready();
                 $tap_onvo_ready   = TAP_Onvo::is_ready();
@@ -771,6 +785,30 @@ class TAP_Shortcode_Booking {
                         });
                         </script>
                     </div>
+                    <?php endif; ?>
+                    <?php
+                    // Offline gateways are configured but were never offered at
+                    // checkout. Show their real instructions so a traveler can
+                    // pay even when the online gateways are unavailable.
+                    $tap_offline = array_intersect_key(
+                        TAP_Payment::get_available_gateways(),
+                        ['sinpe' => true, 'manual' => true]
+                    );
+                    if ($tap_offline): ?>
+                        <div class="tap-checkout-offline">
+                            <h3><?php esc_html_e('Otros métodos de pago', 'travel-agency-platform'); ?></h3>
+                            <?php foreach ($tap_offline as $tap_gw): ?>
+                                <div class="tap-checkout-offline-row">
+                                    <strong><?php echo esc_html($tap_gw['name']); ?></strong>
+                                    <?php if ('sinpe' === $tap_gw['id']): ?>
+                                        <p><?php echo esc_html(sprintf(__('Transfiere por SINPE Móvil al número %s. La agencia confirmará tu reserva al verificar el pago.', 'travel-agency-platform'), get_option('tap_sinpe_phone', ''))); ?></p>
+                                    <?php else: ?>
+                                        <p><?php echo nl2br(esc_html((string) get_option('tap_manual_bank_info', ''))); ?></p>
+                                        <p class="description"><?php esc_html_e('La agencia confirmará tu reserva al verificar la transferencia.', 'travel-agency-platform'); ?></p>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
                     <?php endif; ?>
                 </div>
 					<?php endif; ?>

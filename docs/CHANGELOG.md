@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.6.18] — 2026-11-23
+
+### Added (traveler flow)
+- Required waivers are rendered on checkout and actually enforced: both
+  PayPal and Onvo payment handlers reject unsigned bookings.
+- Configured SINPE Móvil and bank-transfer methods are now offered at checkout
+  with their real instructions, instead of leaving the traveler with no option.
+
+### Added (tests)
+- Extend `suite_booking_money.php` with waiver and offline-payment assertions.
+
 ## [1.6.17] — 2026-11-23
 
 ### Changed (search and traveler UX)
