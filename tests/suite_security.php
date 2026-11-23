@@ -328,4 +328,17 @@ wp_set_current_user(1);
 tap_t_assert(!TAP_Ajax_Public::public_nonce_ok($anon_nonce), 'anonymous nonce cannot authenticate a logged-in user');
 wp_set_current_user($uid_before);
 
+// ===== U. PHP security-fixed versions (CVE-2026-109618/109619) ===============
+tap_t_assert(true === TAP_Requirements::is_php_patched('8.2.35'), 'PHP 8.2.35 is patched');
+tap_t_assert(false === TAP_Requirements::is_php_patched('8.2.34'), 'PHP 8.2.34 is rejected');
+tap_t_assert(false === TAP_Requirements::is_php_patched('8.2.27'), 'the vulnerable local PHP is rejected');
+tap_t_assert(true === TAP_Requirements::is_php_patched('8.3.36'), 'PHP 8.3.36 is patched');
+tap_t_assert(false === TAP_Requirements::is_php_patched('8.3.30'), 'PHP 8.3.30 is rejected even though it is above 8.2.35');
+tap_t_assert(true === TAP_Requirements::is_php_patched('8.4.27'), 'PHP 8.4.27 is patched');
+tap_t_assert(false === TAP_Requirements::is_php_patched('8.4.4'), 'PHP 8.4.4 is rejected');
+tap_t_assert(true === TAP_Requirements::is_php_patched('8.5.12'), 'PHP 8.5.12 is patched');
+tap_t_assert(false === TAP_Requirements::is_php_patched('8.5.3'), 'PHP 8.5.3 is rejected');
+tap_t_assert('8.2.35' === TAP_Requirements::patched_for('8.2.27'), 'patched_for reports the fix for the 8.2 branch');
+tap_t_assert(true === TAP_Requirements::is_php_patched(), 'the running PHP is patched');
+
 tap_t_finish();

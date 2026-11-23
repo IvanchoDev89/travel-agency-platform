@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## Seguridad de entorno — 2026-11-23
+
+Sin cambio de versión (solo documentación y tests):
+
+- `docs/INSTALLATION.md` y `SECURITY.md` documentan las versiones parcheadas
+  de PHP por rama (8.2.35 / 8.3.36 / 8.4.27 / 8.5.12) frente a
+  CVE-2026-109618 y CVE-2026-109619.
+- `suite_security.php` verifica funcionalmente el guard de versiones.
+- El entorno local se cambió a PHP-FPM 8.5.12 (parcheado); el aviso del admin
+  desaparece y `TAP_Requirements::is_php_patched()` devuelve `true`.
+
 ## [1.6.14] — 2026-11-23
 
 ### Added

@@ -9,7 +9,7 @@ This guide covers installing, configuring, and deploying the **Travel Agency Pla
 | Component | Minimum |
 | --- | --- |
 | WordPress | 5.8+ |
-| PHP | 7.4+ (8.0 recommended) |
+| PHP | 8.2.35+, 8.3.36+, 8.4.27+ o 8.5.12+ (versiones parcheadas de CVE-2026-109618/109619). El plugin muestra un aviso y bloquea la activación en versiones vulnerables. |
 | MySQL | 5.7+ / MariaDB 10.2+ |
 | Browsers | modern evergreen (Chrome, Firefox, Safari, Edge) |
 | PayPal | Sandbox credentials for testing, Live for production |

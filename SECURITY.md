@@ -39,6 +39,24 @@ The following are out of scope:
 - Issues in third-party plugins/themes
 - Issues requiring physical access to the server
 
+## Runtime requirements (PHP)
+
+This plugin refuses to run on PHP releases affected by CVE-2026-109618 and
+CVE-2026-109619 (unauthenticated RCE under PHP-FPM, published 2026-10-21).
+Because each maintained branch has its own patched release, the check is
+per-branch, not a single minimum:
+
+| Branch | First patched release |
+|---|---|
+| 8.2 | 8.2.35 |
+| 8.3 | 8.3.36 |
+| 8.4 | 8.4.27 |
+| 8.5 | 8.5.12 |
+
+`TAP_Requirements::is_php_patched()` enforces this at runtime and shows an
+admin notice on vulnerable versions. A production deployment must use one of
+the patched releases above.
+
 ## Security Practices
 
 - **Secrets:** Payment/webhook keys (Onvo) live in `wp-config.php` constants. Pexels (`TAP_PEXELS_API_KEY`) and Web Push (`TAP_VAPID_PUBLIC` / `TAP_VAPID_PRIVATE`) also accept constants and fall back to WP options for backwards compatibility; new deployments should define the constants and leave the options empty. Never commit real credentials to the repository.
