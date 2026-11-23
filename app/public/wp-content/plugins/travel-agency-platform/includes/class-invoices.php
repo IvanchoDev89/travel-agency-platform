@@ -237,9 +237,13 @@ class TAP_Invoices {
             <h1><?php esc_html_e('Facturas', 'travel-agency-platform'); ?></h1>
             <?php if (isset($_GET['pdf_done'])): ?>
                 <div class="notice <?php echo '1' === sanitize_key($_GET['pdf_done']) ? 'notice-success' : 'notice-error'; ?> is-dismissible">
-                    <p><?php echo '1' === sanitize_key($_GET['pdf_done'])
-                        ? esc_html__('PDF generado.', 'travel-agency-platform')
-                        : esc_html__('No se pudo generar el PDF.', 'travel-agency-platform'); ?></p>
+                    <p>
+                        <?php
+                        echo '1' === sanitize_key($_GET['pdf_done'])
+                            ? esc_html__('PDF generado.', 'travel-agency-platform')
+                            : esc_html__('No se pudo generar el PDF.', 'travel-agency-platform');
+                        ?>
+                    </p>
                 </div>
             <?php endif; ?>
             <table class="wp-list-table widefat fixed striped">
