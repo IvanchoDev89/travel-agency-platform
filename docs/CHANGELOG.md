@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.6.14] — 2026-11-23
+
+### Added
+- Invoice PDFs generated without external dependencies (`TAP_Simple_PDF`):
+  `issue()` stores `pdf_url` and the admin invoices table offers a download
+  link. No new Composer dependency.
+
+### Added (tests)
+- PDF structure and invoice `pdf_url` assertions in `suite_features.php`.
+
 ## [1.6.13] — 2026-11-23
 
 ### Added

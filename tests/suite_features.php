@@ -64,6 +64,28 @@ TAP_Dashboard_Insights::send_alerts();
 $subjects = array_column($mails, 'subject');
 tap_t_assert(in_array('Alerta: pagos pendientes', $subjects, true), 'old unpaid booking triggers the admin alert');
 
+/* --- 4) dependency-free invoice PDF ------------------------------------------ */
+tap_t_assert(class_exists('TAP_Simple_PDF'), 'PDF writer class is loaded');
+$pdf_bytes = TAP_Simple_PDF::build(['Factura de prueba', 'Total: 100.00']);
+tap_t_assert(0 === strpos($pdf_bytes, '%PDF-1.4'), 'PDF has a valid header');
+tap_t_assert(false !== strpos($pdf_bytes, '%%EOF'), 'PDF has a valid trailer');
+tap_t_assert(strlen($pdf_bytes) > 400, 'PDF body is complete');
+
+$pdf_booking = tap_t_seed_booking([
+    'booking_code'   => 'PDF-' . $sfx,
+    'payment_status' => 'paid',
+    'status'         => 'confirmed',
+    'guest_name'     => 'Cliente PDF',
+    'guest_email'    => 'pdf-' . $sfx . '@example.test',
+]);
+$cleanup_bookings[] = $pdf_booking;
+$invoice_id = TAP_Invoices::issue($pdf_booking);
+tap_t_assert(!is_wp_error($invoice_id) && (int) $invoice_id > 0, 'invoice issued for a paid booking');
+$invoice = TAP_Invoices::get($invoice_id);
+tap_t_assert($invoice && '' !== (string) $invoice->pdf_url, 'invoice stores a pdf_url');
+tap_t_assert($invoice && false !== strpos($invoice->pdf_url, 'factura-'), 'pdf_url points to the generated file');
+$wpdb->delete(TAP_Invoices::table(), ['id' => (int) $invoice_id]);
+
 /* --- cleanup ----------------------------------------------------------------- */
 remove_filter('pre_wp_mail', $mail_filter, 10);
 if (null === $prev_days) { delete_option('tap_unpaid_alert_days'); } else { update_option('tap_unpaid_alert_days', $prev_days); }

@@ -60,6 +60,12 @@ class TAP_Invoices {
             }
         }
 
+        // Generate a downloadable PDF and store its URL.
+        $pdf_url = self::generate_pdf($inv_id);
+        if ('' !== $pdf_url) {
+            $wpdb->update(self::table(), ['pdf_url' => $pdf_url], ['id' => $inv_id]);
+        }
+
         // Email the invoice.
         self::email_invoice($inv_id);
 
@@ -75,6 +81,43 @@ class TAP_Invoices {
         // This is a hook point; implement with a library like 'php-hacienda' or
         // a custom XML builder + cURL to Hacienda's API.
         return null;
+    }
+
+    /** Generate the invoice PDF and return its public URL (empty on failure). */
+    public static function generate_pdf($inv_id) {
+        $inv = self::get($inv_id);
+        if (!$inv) { return ''; }
+        global $wpdb;
+        $booking = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_bookings WHERE id = %d", (int) $inv->booking_id));
+        $service = $booking ? get_post($booking->service_id) : null;
+        $lines = [
+            get_bloginfo('name'),
+            __('Factura', 'travel-agency-platform'),
+            $inv->invoice_number . ' · ' . $inv->issued_at,
+            '',
+            __('Agencia', 'travel-agency-platform') . ': ' . self::booking_agency_name($booking),
+            __('Cliente', 'travel-agency-platform') . ': ' . ($booking ? $booking->guest_name : '—'),
+            ($booking && $booking->guest_email) ? $booking->guest_email : '',
+            '',
+            __('Servicio', 'travel-agency-platform') . ': ' . ($service ? $service->post_title : __('Listado eliminado', 'travel-agency-platform')),
+            __('Total', 'travel-agency-platform') . ': ' . TAP_Currency::fmt($inv->amount),
+            '',
+            __('Gracias por tu reserva.', 'travel-agency-platform'),
+        ];
+        $pdf = TAP_Simple_PDF::build($lines);
+        $file = sanitize_file_name('factura-' . $inv->invoice_number . '.pdf');
+        $upload = wp_upload_bits($file, null, $pdf);
+        if (!empty($upload['error']) || empty($upload['url'])) { return ''; }
+        return (string) $upload['url'];
+    }
+
+    /** Agency title for a booking (best effort). */
+    private static function booking_agency_name($booking) {
+        if (!$booking) { return '—'; }
+        $prefix = TAP_Post_Types::meta_prefix($booking->service_type);
+        $agency_id = (int) get_post_meta($booking->service_id, '_tap_' . $prefix . '_agency_id', true);
+        $agency = $agency_id ? get_post($agency_id) : null;
+        return $agency ? $agency->post_title : '—';
     }
 
     /** Get invoice by id. */
@@ -195,6 +238,9 @@ class TAP_Invoices {
                         <td><?php echo esc_html($inv->issued_at); ?></td>
                         <td>
                             <a href="<?php echo esc_url(admin_url('admin.php?page=tap-invoices&view=' . (int) $inv->id)); ?>" class="button button-small"><?php esc_html_e('Ver', 'travel-agency-platform'); ?></a>
+                            <?php if ($inv->pdf_url): ?>
+                                <a href="<?php echo esc_url($inv->pdf_url); ?>" class="button button-small" target="_blank" rel="noopener">PDF</a>
+                            <?php endif; ?>
                         </td>
                     </tr>
 						<?php
