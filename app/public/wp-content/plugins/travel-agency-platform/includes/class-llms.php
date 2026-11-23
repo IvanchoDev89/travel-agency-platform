@@ -2,7 +2,7 @@
 defined('ABSPATH') || exit;
 
 /**
- * llms.txt: a small plain-text index for AI crawlers, listing the site's
+ * LLMs.txt endpoint: a small plain-text index for AI crawlers, listing the site's
  * identity and its main public entry points. No extra rewrite rules needed:
  * template_redirect fires before WordPress renders its 404 template.
  */
