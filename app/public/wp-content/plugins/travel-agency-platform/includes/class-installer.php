@@ -511,6 +511,13 @@ class TAP_Installer {
             dbDelta($sql);
         }
 
+        // dbDelta can miss text columns on some MySQL versions: add the invoice
+        // data snapshot idempotently so invoices stay complete after deletions.
+        $inv_cols = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_invoices");
+        if (!in_array('snapshot', (array) $inv_cols, true)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_invoices ADD COLUMN snapshot longtext NULL AFTER pdf_url");
+        }
+
         // Backfill service_type/service_id for legacy room rows (idempotent).
         $wpdb->query("UPDATE {$wpdb->prefix}tap_daily_pricing SET service_type='tap_accommodation', service_id=room_id WHERE (service_type IS NULL OR service_type='' OR (service_type='tap_accommodation' AND service_id=0)) AND room_id > 0");
 
@@ -1040,6 +1047,7 @@ class TAP_Installer {
             hacienda_key varchar(80) DEFAULT NULL,
             hacienda_status varchar(20) DEFAULT NULL,
             pdf_url varchar(500) DEFAULT NULL,
+            snapshot longtext NULL,
             issued_at datetime DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
             KEY booking (booking_id),

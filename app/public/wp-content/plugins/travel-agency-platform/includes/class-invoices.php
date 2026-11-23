@@ -49,6 +49,9 @@ class TAP_Invoices {
             'amount'         => $booking->total_amount,
             'currency'       => $booking->currency ?? 'USD',
             'status'         => 'issued',
+            // Freeze the billing details: bookings/listings are regularly
+            // deleted in staging and an invoice must never lose its data.
+            'snapshot'       => wp_json_encode(self::build_snapshot($booking)),
         ]);
         $inv_id = (int) $wpdb->insert_id;
 
@@ -83,28 +86,55 @@ class TAP_Invoices {
         return null;
     }
 
-    /** Generate the invoice PDF and return its public URL (empty on failure). */
+    /** Generate the styled, self-contained invoice PDF and return its public URL. */
     public static function generate_pdf($inv_id) {
         $inv = self::get($inv_id);
         if (!$inv) { return ''; }
-        global $wpdb;
-        $booking = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_bookings WHERE id = %d", (int) $inv->booking_id));
-        $service = $booking ? get_post($booking->service_id) : null;
-        $lines = [
-            get_bloginfo('name'),
-            __('Factura', 'travel-agency-platform'),
-            $inv->invoice_number . ' · ' . $inv->issued_at,
-            '',
-            __('Agencia', 'travel-agency-platform') . ': ' . self::booking_agency_name($booking),
-            __('Cliente', 'travel-agency-platform') . ': ' . ($booking ? $booking->guest_name : '—'),
-            ($booking && $booking->guest_email) ? $booking->guest_email : '',
-            '',
-            __('Servicio', 'travel-agency-platform') . ': ' . ($service ? $service->post_title : __('Listado eliminado', 'travel-agency-platform')),
-            __('Total', 'travel-agency-platform') . ': ' . TAP_Currency::fmt($inv->amount),
-            '',
-            __('Gracias por tu reserva.', 'travel-agency-platform'),
+        $d = self::data_for($inv);
+        $name = get_bloginfo('name');
+        $missing = '' === $d['service_title'];
+
+        $elements = [
+            ['type' => 'brand', 'text' => $name],
+            ['type' => 'spacer', 'h' => 18],
+            ['type' => 'title', 'text' => __('Factura', 'travel-agency-platform')],
+            ['type' => 'subtitle', 'text' => $inv->invoice_number . '  ·  ' . $inv->issued_at],
+            ['type' => 'rule'],
+            ['type' => 'h', 'text' => __('Datos de facturación', 'travel-agency-platform')],
+            ['type' => 'row', 'label' => __('Agencia', 'travel-agency-platform'), 'value' => $d['agency_name'] ?: '—'],
+            ['type' => 'row', 'label' => __('Cliente', 'travel-agency-platform'), 'value' => $d['guest_name'] ?: '—', 'strong' => true],
+            ['type' => 'row', 'label' => __('Correo', 'travel-agency-platform'), 'value' => $d['guest_email'] ?: '—'],
+            ['type' => 'row', 'label' => __('Reserva', 'travel-agency-platform'), 'value' => $d['booking_code'] ?: '—'],
+            ['type' => 'spacer', 'h' => 10],
+            ['type' => 'h', 'text' => __('Detalle del servicio', 'travel-agency-platform')],
+            ['type' => 'band', 'text' => $d['service_title'] ?: __('Servicio no disponible', 'travel-agency-platform')],
         ];
-        $pdf = TAP_Simple_PDF::build($lines);
+        if ('' !== $d['check_in']) {
+            $when = $d['check_in'] . ('' !== $d['check_out'] ? ' → ' . $d['check_out'] : '');
+            if ($d['nights']) { $when .= '  ·  ' . $d['nights'] . ' ' . __('noches', 'travel-agency-platform'); }
+            $elements[] = ['type' => 'row', 'label' => __('Fechas', 'travel-agency-platform'), 'value' => $when];
+        }
+        if ($d['adults'] || $d['children']) {
+            $elements[] = [
+                'type' => 'row',
+                'label' => __('Viajeros', 'travel-agency-platform'),
+                'value' => $d['adults'] . ' ' . __('adultos', 'travel-agency-platform') . ' · ' . $d['children'] . ' ' . __('niños', 'travel-agency-platform'),
+            ];
+        }
+        $elements[] = ['type' => 'spacer', 'h' => 12];
+        $elements[] = ['type' => 'row', 'label' => __('Subtotal', 'travel-agency-platform'), 'value' => self::money($d['total_amount'], $d, true)];
+        if ($d['booking_fee']) {
+            $elements[] = ['type' => 'row', 'label' => __('Tarifa de plataforma', 'travel-agency-platform'), 'value' => self::money($d['booking_fee'], $d, true)];
+        }
+        $elements[] = ['type' => 'total', 'label' => __('Total pagado', 'travel-agency-platform'), 'value' => self::money($d['total_amount'], $d, true)];
+        $elements[] = ['type' => 'spacer', 'h' => 18];
+        if ($missing) {
+            $elements[] = ['type' => 'small', 'text' => __('Los datos de la reserva original ya no están disponibles.', 'travel-agency-platform')];
+        }
+        $elements[] = ['type' => 'small', 'text' => __('Gracias por tu reserva.', 'travel-agency-platform')];
+        $elements[] = ['type' => 'small', 'text' => $name . '  ·  ' . $inv->invoice_number];
+
+        $pdf = TAP_Simple_PDF::build($elements);
         $file = sanitize_file_name('factura-' . $inv->invoice_number . '.pdf');
         $upload = wp_upload_bits($file, null, $pdf);
         if (!empty($upload['error']) || empty($upload['url'])) { return ''; }
@@ -134,49 +164,150 @@ class TAP_Invoices {
         return $wpdb->get_row($wpdb->prepare("SELECT * FROM {$t} WHERE booking_id = %d", (int) $booking_id));
     }
 
+    /** Freeze every field an invoice needs at issue time. */
+    private static function build_snapshot($booking) {
+        $prefix = TAP_Post_Types::meta_prefix($booking->service_type);
+        $agency_id = (int) get_post_meta($booking->service_id, '_tap_' . $prefix . '_agency_id', true);
+        if (!$agency_id) { $agency_id = (int) ($booking->agency_id ?? 0); }
+        $agency = $agency_id ? get_post($agency_id) : null;
+        $service = get_post($booking->service_id);
+        return [
+            'booking_code'      => (string) ($booking->booking_code ?? ''),
+            'guest_name'        => (string) ($booking->guest_name ?? ''),
+            'guest_email'       => (string) ($booking->guest_email ?? ''),
+            'guest_phone'       => (string) ($booking->guest_phone ?? ''),
+            'agency_name'       => $agency ? (string) $agency->post_title : '',
+            'service_title'     => $service ? (string) $service->post_title : '',
+            'service_type'      => (string) ($booking->service_type ?? ''),
+            'check_in'          => (string) ($booking->check_in ?? ''),
+            'check_out'         => (string) ($booking->check_out ?? ''),
+            'adults'            => (int) ($booking->adults ?? 0),
+            'children'          => (int) ($booking->children ?? 0),
+            'nights'            => (int) ($booking->nights ?? 0),
+            'total_amount'      => (float) ($booking->total_amount ?? 0),
+            'booking_fee'       => (float) ($booking->booking_fee ?? 0),
+            'commission_amount' => (float) ($booking->commission_amount ?? 0),
+            'amount_paid'       => (float) ($booking->amount_paid ?? 0),
+            'currency'          => (string) ($booking->currency ?? 'USD'),
+        ];
+    }
+
+    /**
+     * Normalized view data. The snapshot wins over live data (the invoice must
+     * reflect what was billed), with the booking as a fallback for legacy rows.
+     *
+     * @return array<string,mixed>
+     */
+    private static function data_for($inv) {
+        global $wpdb;
+        $booking = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}tap_bookings WHERE id = %d",
+            (int) $inv->booking_id
+        ));
+        $snap = [];
+        if (!empty($inv->snapshot)) {
+            $decoded = json_decode((string) $inv->snapshot, true);
+            if (is_array($decoded)) { $snap = $decoded; }
+        }
+        $get = static function ($key) use ($snap, $booking) {
+            if (isset($snap[$key]) && '' !== $snap[$key] && 0 !== $snap[$key]) {
+                return $snap[$key];
+            }
+            return $booking ? ($booking->{$key} ?? '') : '';
+        };
+        return [
+            'booking_code'      => (string) $get('booking_code'),
+            'guest_name'        => (string) $get('guest_name'),
+            'guest_email'       => (string) $get('guest_email'),
+            'guest_phone'       => (string) $get('guest_phone'),
+            'agency_name'       => (string) $get('agency_name'),
+            'service_title'     => (string) $get('service_title'),
+            'check_in'          => (string) $get('check_in'),
+            'check_out'         => (string) $get('check_out'),
+            'adults'            => (int) $get('adults'),
+            'children'          => (int) $get('children'),
+            'nights'            => (int) $get('nights'),
+            'total_amount'      => (float) ($get('total_amount') ?: $inv->amount),
+            'booking_fee'       => (float) $get('booking_fee'),
+            'commission_amount' => (float) $get('commission_amount'),
+            'currency'          => (string) ($inv->currency ?: $get('currency') ?: 'USD'),
+            'has_booking'       => (bool) $booking,
+        ];
+    }
+
+    /** Currency formatter bound to this invoice's currency. */
+    private static function money($amount, $data, $plain = false) {
+        return $plain
+            ? TAP_Currency::fmt_plain($amount, $data['currency'])
+            : TAP_Currency::fmt($amount, null, $data['currency']);
+    }
+
     /** Render invoice HTML (printable). */
     public static function render_html($inv_id) {
         $inv = self::get($inv_id);
         if (!$inv) return '';
-        global $wpdb;
-        $booking = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_bookings WHERE id = %d", (int) $inv->booking_id));
-        $service = $booking ? get_post($booking->service_id) : null;
-        $agency  = $booking ? get_post((int) get_post_meta($booking->service_id, '_tap_' . TAP_Post_Types::meta_prefix($booking->service_type) . '_agency_id', true)) : null;
+        $d = self::data_for($inv);
+        $name = get_bloginfo('name');
 
         ob_start();
         ?>
-        <div class="tap-invoice" style="max-width:720px;margin:0 auto;padding:32px;font-family:sans-serif;">
-            <h1 style="margin:0 0 8px;"><?php esc_html_e('Factura', 'travel-agency-platform'); ?></h1>
-            <p style="margin:0 0 16px;color:#64748b;"><?php echo esc_html($inv->invoice_number); ?> · <?php echo esc_html($inv->issued_at); ?></p>
-            <hr style="border:0;border-top:1px solid #e2e8f0;margin:16px 0;">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div class="tap-invoice">
+            <div class="tap-invoice-head">
                 <div>
-                    <strong><?php esc_html_e('Agencia', 'travel-agency-platform'); ?>:</strong><br>
-                    <?php echo esc_html($agency ? $agency->post_title : '—'); ?>
+                    <div class="tap-invoice-brand"><?php echo esc_html($name); ?></div>
+                    <h1><?php esc_html_e('Factura', 'travel-agency-platform'); ?></h1>
+                    <p style="margin:0;color:#64748b;font-size:13px;">
+                        <?php echo esc_html($inv->invoice_number); ?> · <?php echo esc_html($inv->issued_at); ?>
+                    </p>
                 </div>
-                <div>
-                    <strong><?php esc_html_e('Cliente', 'travel-agency-platform'); ?>:</strong><br>
-                    <?php echo esc_html($booking ? $booking->guest_name : '—'); ?><br>
-                    <small><?php echo esc_html($booking ? $booking->guest_email : ''); ?></small>
+                <div class="tap-invoice-meta">
+                    <strong><?php echo esc_html(strtoupper($d['currency'])); ?></strong><br>
+                    <?php echo esc_html(ucfirst($inv->status)); ?>
+                    <?php if ($inv->hacienda_status): ?>
+                        <br><?php echo esc_html($inv->hacienda_status); ?>
+                    <?php endif; ?>
                 </div>
             </div>
-            <table style="width:100%;border-collapse:collapse;margin:16px 0;">
-                <thead><tr style="background:#f1f5f9;">
-                    <th style="padding:8px;text-align:left;"><?php esc_html_e('Servicio', 'travel-agency-platform'); ?></th>
-                    <th style="padding:8px;text-align:right;"><?php esc_html_e('Total', 'travel-agency-platform'); ?></th>
+
+            <h2><?php esc_html_e('Datos de facturación', 'travel-agency-platform'); ?></h2>
+            <dl class="tap-invoice-details">
+                <div><dt><?php esc_html_e('Agencia', 'travel-agency-platform'); ?></dt><dd><?php echo esc_html($d['agency_name'] ?: '—'); ?></dd></div>
+                <div><dt><?php esc_html_e('Cliente', 'travel-agency-platform'); ?></dt><dd><?php echo esc_html($d['guest_name'] ?: '—'); ?></dd></div>
+                <div><dt><?php esc_html_e('Correo', 'travel-agency-platform'); ?></dt><dd><?php echo esc_html($d['guest_email'] ?: '—'); ?></dd></div>
+                <div><dt><?php esc_html_e('Reserva', 'travel-agency-platform'); ?></dt><dd><?php echo esc_html($d['booking_code'] ?: '—'); ?></dd></div>
+            </dl>
+
+            <h2><?php esc_html_e('Detalle del servicio', 'travel-agency-platform'); ?></h2>
+            <table class="tap-invoice-table">
+                <thead><tr>
+                    <th><?php esc_html_e('Servicio', 'travel-agency-platform'); ?></th>
+                    <th class="num"><?php esc_html_e('Monto', 'travel-agency-platform'); ?></th>
                 </tr></thead>
                 <tbody>
                     <tr>
-                        <td style="padding:8px;"><?php echo esc_html($service ? $service->post_title : __('Listado eliminado', 'travel-agency-platform')); ?></td>
-                        <td style="padding:8px;text-align:right;"><?php echo esc_html(TAP_Currency::fmt($inv->amount)); ?></td>
+                        <td>
+                            <?php echo esc_html($d['service_title'] ?: __('Servicio no disponible', 'travel-agency-platform')); ?>
+                            <?php if ('' !== $d['check_in']): ?>
+                                <br><small><?php echo esc_html($d['check_in'] . ('' !== $d['check_out'] ? ' → ' . $d['check_out'] : '')); ?></small>
+                            <?php endif; ?>
+                        </td>
+                        <td class="num"><?php echo esc_html(self::money($d['total_amount'], $d)); ?></td>
                     </tr>
                 </tbody>
-                <tfoot><tr style="font-weight:700;">
-                    <td style="padding:8px;"><?php esc_html_e('Total', 'travel-agency-platform'); ?></td>
-                    <td style="padding:8px;text-align:right;"><?php echo esc_html(TAP_Currency::fmt($inv->amount)); ?></td>
-                </tr></tfoot>
+                <tfoot>
+                    <tr><td><?php esc_html_e('Subtotal', 'travel-agency-platform'); ?></td><td class="num"><?php echo esc_html(self::money($d['total_amount'], $d)); ?></td></tr>
+                    <?php if ($d['booking_fee']): ?>
+                        <tr><td><?php esc_html_e('Tarifa de plataforma', 'travel-agency-platform'); ?></td><td class="num"><?php echo esc_html(self::money($d['booking_fee'], $d)); ?></td></tr>
+                    <?php endif; ?>
+                    <tr class="tap-invoice-total"><td><?php esc_html_e('Total pagado', 'travel-agency-platform'); ?></td><td class="num amount"><?php echo esc_html(self::money($d['total_amount'], $d)); ?></td></tr>
+                </tfoot>
             </table>
-            <p style="font-size:12px;color:#64748b;margin-top:24px;"><?php esc_html_e('Gracias por tu reserva.', 'travel-agency-platform'); ?></p>
+
+            <?php if ('' === $d['service_title']): ?>
+                <p class="tap-invoice-note"><?php esc_html_e('Los datos de la reserva original ya no están disponibles; se muestra la información conservada en la factura.', 'travel-agency-platform'); ?></p>
+            <?php endif; ?>
+
+            <p class="tap-invoice-footer"><?php echo esc_html($name . ' · ' . $inv->invoice_number); ?></p>
         </div>
         <?php
         return ob_get_clean();
@@ -198,6 +329,27 @@ class TAP_Invoices {
     public static function init() {
         add_action('tap_payment_completed', [__CLASS__, 'on_payment_completed'], 10, 3);
         add_action('admin_init', [__CLASS__, 'maybe_generate_pdf']);
+        add_action('admin_init', [__CLASS__, 'maybe_download_pdf']);
+    }
+
+    /**
+     * The PDF link always regenerates first, so older minimal PDFs are replaced
+     * by the current styled layout instead of serving stale bytes forever.
+     */
+    public static function maybe_download_pdf() {
+        if (!isset($_GET['download_pdf'])) { return; }
+        if (!current_user_can('manage_options')) { return; }
+        $id = absint($_GET['download_pdf']);
+        check_admin_referer('tap_download_pdf_' . $id);
+        $url = self::generate_pdf($id);
+        if ('' === $url) {
+            wp_safe_redirect(admin_url('admin.php?page=tap-invoices&pdf_done=0'));
+            exit;
+        }
+        global $wpdb;
+        $wpdb->update(self::table(), ['pdf_url' => $url], ['id' => $id]);
+        wp_safe_redirect(esc_url_raw($url));
+        exit;
     }
 
     /** Generate a missing PDF from the invoices list (cap + nonce guarded). */
@@ -297,7 +449,7 @@ class TAP_Invoices {
                         <td>
                             <a href="<?php echo esc_url(admin_url('admin.php?page=tap-invoices&view=' . (int) $inv->id)); ?>" class="button button-small"><?php esc_html_e('Ver', 'travel-agency-platform'); ?></a>
                             <?php if ($inv->pdf_url): ?>
-                                <a href="<?php echo esc_url($inv->pdf_url); ?>" class="button button-small" target="_blank" rel="noopener">PDF</a>
+                                <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=tap-invoices&download_pdf=' . (int) $inv->id), 'tap_download_pdf_' . (int) $inv->id)); ?>" class="button button-small" target="_blank" rel="noopener">PDF</a>
                             <?php else: ?>
                                 <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=tap-invoices&gen_pdf=' . (int) $inv->id), 'tap_gen_pdf_' . (int) $inv->id)); ?>" class="button button-small"><?php esc_html_e('Generar PDF', 'travel-agency-platform'); ?></a>
                             <?php endif; ?>

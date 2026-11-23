@@ -72,9 +72,22 @@ class TAP_Currency {
         return html_entity_decode(self::symbol($code), ENT_QUOTES, 'UTF-8');
     }
 
-    public static function fmt($amount, $decimals = null) {
-        $decimals = $decimals === null ? self::decimals() : $decimals;
-        return self::symbol() . ' ' . number_format((float) $amount, $decimals);
+    /**
+     * Format an amount with its currency symbol.
+     *
+     * @param float      $amount   Amount to format.
+     * @param int|null   $decimals Decimal places (defaults to the currency's).
+     * @param string|null $code    ISO code; defaults to the active currency.
+     */
+    public static function fmt($amount, $decimals = null, $code = null) {
+        $code = $code ?: self::code();
+        $decimals = $decimals === null ? self::decimals($code) : $decimals;
+        return self::symbol($code) . ' ' . number_format((float) $amount, $decimals);
+    }
+
+    /** Plain-text amount (no HTML entities), for PDF and plain-text contexts. */
+    public static function fmt_plain($amount, $code = null) {
+        return self::plain_symbol($code) . ' ' . number_format((float) $amount, self::decimals($code));
     }
 
     public static function fmt0($amount) {

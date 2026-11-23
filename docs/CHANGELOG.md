@@ -6,6 +6,27 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.6.21] — 2026-11-24
+
+### Fixed (invoices + PDF)
+- Invoices are now self-contained: issue() freezes booking, agency, client,
+  service, dates, amounts and currency in a JSON snapshot. Deleting a booking
+  or listing no longer empties an invoice.
+- Invoice detail view rebuilt: billing details, service detail, line items,
+  subtotal, highlighted total, currency from the invoice (not the site), and
+  an explicit notice when the original booking data is unavailable (invoice
+  969 and the other legacy test rows).
+- Styled dependency-free PDF: brand band, bold headings, rules, two-column
+  detail rows, amount table and footer (Helvetica + WinAnsiEncoding).
+- Print button now prints only the invoice: dedicated CSS hides wp-admin chrome.
+- The list's PDF button regenerates the current layout on every click, so old
+  minimal PDFs are never served again.
+- Settings subpages with hyphenated slugs now get the plugin admin CSS.
+
+### Added
+- FUNCTIONAL `suite_invoices.php` (snapshot survival, HTML/PDF completeness,
+  styling, currency and print isolation).
+
 ## [1.6.20] — 2026-11-24
 
 ### Fixed (full admin control)

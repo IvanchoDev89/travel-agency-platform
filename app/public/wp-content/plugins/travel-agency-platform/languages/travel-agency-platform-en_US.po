@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-23T21:27:45+00:00\n"
+"POT-Creation-Date: 2026-11-23T22:09:49+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -725,6 +725,7 @@ msgid "disponible(s)"
 msgstr "available"
 
 #: includes/class-acc-wizard-steps.php:366 includes/class-discounts.php:111
+#: includes/class-invoices.php:114
 msgid "noches"
 msgstr "nights"
 
@@ -844,7 +845,7 @@ msgid "Limpiar mes"
 msgstr "Clear month"
 
 #: includes/class-acc-wizard-steps.php:393 includes/class-front-dash.php:480
-#: includes/class-invoices.php:262 includes/class-shortcode-search.php:327
+#: includes/class-invoices.php:393 includes/class-shortcode-search.php:327
 msgid "Limpiar"
 msgstr "Clear"
 
@@ -1736,7 +1737,7 @@ msgstr "Cap per booking"
 #: includes/class-front-dash-client.php:221 includes/class-front-dash.php:513
 #: includes/class-front-dash.php:649 includes/class-front-dash.php:876
 #: includes/class-front-dash.php:1280 includes/class-front-dash.php:1656
-#: includes/class-invoices.php:281 includes/class-privacy.php:384
+#: includes/class-invoices.php:412 includes/class-privacy.php:384
 #: includes/class-privacy.php:573 includes/class-transport-admin.php:145
 #: includes/class-transport-admin.php:173
 #: includes/class-transport-admin.php:241
@@ -1804,7 +1805,7 @@ msgstr "Tax form"
 #: includes/class-dashboard-money.php:423
 #: includes/class-email-campaigns.php:261
 #: includes/class-email-templates.php:170 includes/class-front-dash.php:514
-#: includes/class-front-dash.php:1187 includes/class-invoices.php:284
+#: includes/class-front-dash.php:1187 includes/class-invoices.php:415
 #: includes/class-referral-reports.php:192
 #: includes/class-transport-admin.php:174
 #: includes/class-transport-admin.php:261
@@ -2117,7 +2118,7 @@ msgstr "You do not have permission over this booking."
 #: includes/class-dashboard-content.php:288
 #: includes/class-dashboard-insights.php:106
 #: includes/class-dashboard-money.php:624 includes/class-front-dash.php:1841
-#: includes/class-invoices.php:98 includes/class-invoices.php:154
+#: includes/class-invoices.php:104 includes/class-invoices.php:274
 #: includes/class-shortcode-booking.php:1184
 #: includes/class-transport-admin.php:127
 #: includes/class-transport-admin.php:168
@@ -3340,7 +3341,7 @@ msgstr "Copied"
 #: includes/class-email-campaigns.php:199
 #: includes/class-email-campaigns.php:208
 #: includes/class-email-campaigns.php:223 includes/class-front-dash.php:1970
-#: includes/class-front-dash.php:2012 includes/class-invoices.php:224
+#: includes/class-front-dash.php:2012 includes/class-invoices.php:355
 #: includes/class-leads.php:213 includes/class-referral-reports.php:27
 msgid "Acceso denegado."
 msgstr "Access denied."
@@ -3468,8 +3469,8 @@ msgstr "There are no bookings yet."
 
 #: includes/class-dashboard-bookings.php:100
 #: includes/class-dashboard-bookings.php:186 includes/class-emails-send.php:746
-#: includes/class-emails-send.php:791 includes/class-invoices.php:99
-#: includes/class-invoices.php:158
+#: includes/class-emails-send.php:791 includes/class-invoices.php:105
+#: includes/class-invoices.php:275
 msgid "Cliente"
 msgstr "Client"
 
@@ -3481,9 +3482,8 @@ msgstr "Client"
 #: includes/class-emails.php:708 includes/class-front-dash-client.php:218
 #: includes/class-front-dash.php:508 includes/class-front-dash.php:979
 #: includes/class-front-dash.php:1653 includes/class-front-dash.php:1696
-#: includes/class-invoices.php:102 includes/class-invoices.php:165
-#: includes/class-privacy.php:386 includes/class-privacy.php:457
-#: includes/class-transport-admin.php:386
+#: includes/class-invoices.php:283 includes/class-privacy.php:386
+#: includes/class-privacy.php:457 includes/class-transport-admin.php:386
 msgid "Servicio"
 msgstr "Service"
 
@@ -3494,9 +3494,8 @@ msgstr "Service"
 #: includes/class-dashboard-insights.php:384
 #: includes/class-dashboard-money.php:315 includes/class-emails-send.php:788
 #: includes/class-front-dash-client.php:220 includes/class-front-dash.php:511
-#: includes/class-front-dash.php:1655 includes/class-invoices.php:103
-#: includes/class-invoices.php:166 includes/class-invoices.php:175
-#: includes/class-privacy.php:389 includes/class-shortcode-booking.php:296
+#: includes/class-front-dash.php:1655 includes/class-privacy.php:389
+#: includes/class-shortcode-booking.php:296
 #: includes/class-shortcode-booking.php:317
 #: includes/class-shortcode-booking.php:1138
 #: includes/class-shortcode-booking.php:1159
@@ -3512,7 +3511,7 @@ msgstr "Total"
 #: includes/class-dashboard-money.php:628
 #: includes/class-front-dash-client.php:638 includes/class-front-dash.php:650
 #: includes/class-front-dash.php:877 includes/class-front-dash.php:1021
-#: includes/class-front-dash.php:1697 includes/class-invoices.php:283
+#: includes/class-front-dash.php:1697 includes/class-invoices.php:414
 #: includes/class-privacy.php:414 includes/class-privacy.php:436
 #: includes/class-privacy.php:461 includes/class-privacy.php:568
 #: includes/class-privacy.php:615 includes/class-referral-reports.php:187
@@ -3575,7 +3574,7 @@ msgstr "Bookings"
 msgid "Código, cliente o email"
 msgstr "Code, client or email"
 
-#: includes/class-dashboard-bookings.php:286 includes/class-invoices.php:255
+#: includes/class-dashboard-bookings.php:286 includes/class-invoices.php:386
 msgid "Todos los estados"
 msgstr "All statuses"
 
@@ -4063,7 +4062,8 @@ msgstr "Conversions (confirmed bookings)"
 msgid "Tasa de conversión"
 msgstr "Conversion rate"
 
-#: includes/class-dashboard-insights.php:105 includes/class-leads.php:275
+#: includes/class-dashboard-insights.php:105 includes/class-invoices.php:106
+#: includes/class-invoices.php:276 includes/class-leads.php:275
 #: includes/class-privacy.php:411 includes/class-privacy.php:569
 #: includes/class-privacy.php:616
 msgid "Correo"
@@ -4072,7 +4072,8 @@ msgstr "Email"
 #: includes/class-dashboard-insights.php:108
 #: includes/class-dashboard-market.php:195
 #: includes/class-dashboard-money.php:623 includes/class-emails-send.php:583
-#: includes/class-front-dash.php:647 includes/class-invoices.php:279
+#: includes/class-front-dash.php:647 includes/class-invoices.php:107
+#: includes/class-invoices.php:277 includes/class-invoices.php:410
 #: includes/class-referral-reports.php:189
 msgid "Reserva"
 msgstr "Booking"
@@ -4278,7 +4279,7 @@ msgstr "Cancelled"
 
 #: includes/class-dashboard-market.php:73
 #: includes/class-front-dash-client.php:219 includes/class-front-dash.php:509
-#: includes/class-front-dash.php:1654
+#: includes/class-front-dash.php:1654 includes/class-invoices.php:115
 msgid "Fechas"
 msgstr "Dates"
 
@@ -4514,7 +4515,8 @@ msgstr ""
 msgid "ID"
 msgstr "ID"
 
-#: includes/class-dashboard-money.php:416 includes/class-invoices.php:280
+#: includes/class-dashboard-money.php:416 includes/class-invoices.php:284
+#: includes/class-invoices.php:411
 msgid "Monto"
 msgstr "Amount"
 
@@ -11241,7 +11243,7 @@ msgstr "Booking operations"
 msgid "Buscar por código, huésped o servicio…"
 msgstr "Search by code, guest or service…"
 
-#: includes/class-front-dash.php:478 includes/class-invoices.php:260
+#: includes/class-front-dash.php:478 includes/class-invoices.php:391
 #: includes/class-shortcode-search.php:1382
 #: includes/class-shortcode-support.php:104
 msgid "Buscar"
@@ -11275,7 +11277,6 @@ msgid "Seleccionar"
 msgstr "Select"
 
 #: includes/class-front-dash.php:521 includes/class-front-dash.php:1662
-#: includes/class-invoices.php:102 includes/class-invoices.php:170
 msgid "Listado eliminado"
 msgstr "Listing deleted"
 
@@ -11288,7 +11289,8 @@ msgstr "Select booking"
 msgid "Adults"
 msgstr "Adults"
 
-#: includes/class-front-dash.php:534 includes/class-shortcode-booking.php:1128
+#: includes/class-front-dash.php:534 includes/class-invoices.php:121
+#: includes/class-shortcode-booking.php:1128
 msgid "niños"
 msgstr "children"
 
@@ -11867,55 +11869,95 @@ msgstr "You do not have permission for this listing."
 msgid "Servicio no encontrado."
 msgstr "Service not found."
 
-#: includes/class-invoices.php:95 includes/class-invoices.php:149
+#: includes/class-invoices.php:100 includes/class-invoices.php:258
 msgid "Factura"
 msgstr "Invoice"
 
-#: includes/class-invoices.php:105 includes/class-invoices.php:179
+#: includes/class-invoices.php:103 includes/class-invoices.php:272
+msgid "Datos de facturación"
+msgstr "Billing details"
+
+#: includes/class-invoices.php:109 includes/class-invoices.php:280
+msgid "Detalle del servicio"
+msgstr "Service detail"
+
+#: includes/class-invoices.php:110 includes/class-invoices.php:289
+msgid "Servicio no disponible"
+msgstr "Service unavailable"
+
+#: includes/class-invoices.php:120
+msgid "Viajeros"
+msgstr "Travelers"
+
+#: includes/class-invoices.php:121 includes/class-shortcode-booking.php:1128
+msgid "adultos"
+msgstr "adults"
+
+#: includes/class-invoices.php:125 includes/class-invoices.php:298
+msgid "Subtotal"
+msgstr "Subtotal"
+
+#: includes/class-invoices.php:127 includes/class-invoices.php:300
+msgid "Tarifa de plataforma"
+msgstr "Platform fee"
+
+#: includes/class-invoices.php:129 includes/class-invoices.php:302
+msgid "Total pagado"
+msgstr "Total paid"
+
+#: includes/class-invoices.php:132
+msgid "Los datos de la reserva original ya no están disponibles."
+msgstr "The original booking details are no longer available."
+
+#: includes/class-invoices.php:134
 msgid "Gracias por tu reserva."
 msgstr "Thank you for your booking."
 
-#: includes/class-invoices.php:194
+#: includes/class-invoices.php:307
+msgid "Los datos de la reserva original ya no están disponibles; se muestra la información conservada en la factura."
+msgstr "The original booking details are no longer available; the information kept on the invoice is shown."
+
+#: includes/class-invoices.php:325
 msgid "Tu factura"
 msgstr "Your invoice"
 
-#: includes/class-invoices.php:250
+#: includes/class-invoices.php:381
 msgid "Facturas"
 msgstr "Invoices"
 
-#: includes/class-invoices.php:253
+#: includes/class-invoices.php:384
 msgid "Número o reserva"
 msgstr "Number or booking"
 
-#: includes/class-invoices.php:270
+#: includes/class-invoices.php:401
 msgid "PDF generado."
 msgstr "PDF generated."
 
-#: includes/class-invoices.php:271
+#: includes/class-invoices.php:402
 msgid "No se pudo generar el PDF."
 msgstr "Could not generate the PDF."
 
-#: includes/class-invoices.php:278
+#: includes/class-invoices.php:409
 msgid "Número"
 msgstr "Number"
 
-#: includes/class-invoices.php:282
+#: includes/class-invoices.php:413
 msgid "Hacienda"
 msgstr "Hacienda"
 
-#: includes/class-invoices.php:288
+#: includes/class-invoices.php:419
 msgid "Sin facturas."
 msgstr "No invoices."
 
-#: includes/class-invoices.php:298 includes/class-listing-editor.php:193
+#: includes/class-invoices.php:429 includes/class-listing-editor.php:193
 msgid "Ver"
 msgstr "View"
 
-#: includes/class-invoices.php:302
+#: includes/class-invoices.php:433
 msgid "Generar PDF"
 msgstr "Generate PDF"
 
-#: includes/class-invoices.php:318
+#: includes/class-invoices.php:449
 msgid "Imprimir factura"
 msgstr "Print invoice"
 
@@ -16018,10 +16060,6 @@ msgstr ""
 #: includes/class-shortcode-booking.php:1109
 msgid "Operada por"
 msgstr "Operated by"
-
-#: includes/class-shortcode-booking.php:1128
-msgid "adultos"
-msgstr "adults"
 
 #: includes/class-shortcode-booking.php:1136
 msgid "Cant."
