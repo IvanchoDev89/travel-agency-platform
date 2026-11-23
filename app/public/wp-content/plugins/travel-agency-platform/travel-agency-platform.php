@@ -7,7 +7,7 @@
  * Plugin Name: Travel Agency Platform
  * Plugin URI: https://ivanchodev.com
  * Description: Multi-agency travel platform B2B & B2C. Manage accommodations, tours, transports, car rentals, boats and packages.
- * Version:           1.6.15
+ * Version:           1.6.16
  * Requires at least: 6.4
  * Requires PHP:      8.2.35
  * Author: IvanchoDev
@@ -23,7 +23,7 @@ require_once __DIR__ . '/includes/support-email.php';
 require_once __DIR__ . '/includes/class-llms.php';
 require_once __DIR__ . '/includes/class-simple-pdf.php';
 
-define('TAP_VERSION', '1.6.15');
+define('TAP_VERSION', '1.6.16');
 define('TAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -366,6 +366,14 @@ final class TravelAgencyPlatform {
         wp_enqueue_script('tap-public', TAP_PLUGIN_URL . 'assets/js/public.js', ['jquery'], TAP_VERSION, true);
         if (is_singular('tap_accommodation')) {
             wp_enqueue_script('tap-calendar', TAP_PLUGIN_URL . 'assets/js/public-calendar.js', ['jquery'], TAP_VERSION, true);
+        }
+        // The destinations map used to enqueue its CSS inside the shortcode,
+        // i.e. after wp_head() had already printed: register it early instead.
+        global $post;
+        if (is_singular() && $post && false !== strpos((string) $post->post_content, 'tap_destinations_map')) {
+            wp_enqueue_style('tap-leaflet', TAP_PLUGIN_URL . 'assets/leaflet/leaflet.css', [], '1.9.4');
+            wp_enqueue_style('tap-leaflet-cluster', TAP_PLUGIN_URL . 'assets/leaflet/leaflet.markercluster.css', [], '1.5.3');
+            wp_enqueue_style('tap-leaflet-cluster-default', TAP_PLUGIN_URL . 'assets/leaflet/leaflet.markercluster.default.css', [], '1.5.3');
         }
         if (is_post_type_archive('tap_accommodation') || is_tax(['tap_property_type', 'tap_amenity'])) {
             wp_enqueue_style('tap-leaflet', TAP_PLUGIN_URL . 'assets/leaflet/leaflet.css', [], '1.9.4');

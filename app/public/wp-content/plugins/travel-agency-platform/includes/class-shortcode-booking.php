@@ -9,6 +9,9 @@
 defined('ABSPATH') || exit;
 
 class TAP_Shortcode_Booking {
+
+    /** Per-render counter so multiple forms on a list page never share IDs. */
+    private static $form_instance = 0;
     public static function booking_form($atts) {
         $atts = shortcode_atts([
             'service_type' => '',
@@ -40,11 +43,13 @@ class TAP_Shortcode_Booking {
         }
         $available_dates = array_keys($slots_by_date);
 
+        $n = ++self::$form_instance;
+        $form_id = 'tap-booking-form-' . $n;
         ob_start();
         ?>
         <div class="tap-booking-form">
             <h3><?php echo $is_request ? esc_html__('Solicitar reserva', 'travel-agency-platform') : esc_html__('Book Now', 'travel-agency-platform'); ?></h3>
-            <form id="tap-booking-form" class="tap-form" method="post">
+            <form id="<?php echo esc_attr($form_id); ?>" class="tap-form" method="post">
                 <input type="hidden" name="action" value="tap_booking_create">
                 <input type="hidden" name="service_type" value="<?php echo esc_attr($atts['service_type']); ?>">
                 <input type="hidden" name="service_id" value="<?php echo esc_attr($atts['service_id']); ?>">
@@ -52,12 +57,28 @@ class TAP_Shortcode_Booking {
                 <input type="hidden" name="idempotency_key" value="<?php echo esc_attr(wp_generate_uuid4()); ?>">
                 <?php wp_nonce_field('tap_booking_nonce', 'tap_booking_nonce'); ?>
 
+                <?php if (!is_user_logged_in()): ?>
+                <div class="tap-form-row">
+                    <div class="tap-form-group">
+                        <label for="tap_guest_name_<?php echo (int) $n; ?>"><?php esc_html_e('Nombre completo', 'travel-agency-platform'); ?></label>
+                        <input type="text" id="tap_guest_name_<?php echo (int) $n; ?>" name="guest_name" class="tap-input" required autocomplete="name">
+                    </div>
+                    <div class="tap-form-group">
+                        <label for="tap_guest_email_<?php echo (int) $n; ?>"><?php esc_html_e('Correo electrónico', 'travel-agency-platform'); ?></label>
+                        <input type="email" id="tap_guest_email_<?php echo (int) $n; ?>" name="guest_email" class="tap-input" required autocomplete="email">
+                    </div>
+                </div>
+                <div class="tap-form-group">
+                    <label for="tap_guest_phone_<?php echo (int) $n; ?>"><?php esc_html_e('Teléfono (opcional)', 'travel-agency-platform'); ?></label>
+                    <input type="tel" id="tap_guest_phone_<?php echo (int) $n; ?>" name="guest_phone" class="tap-input" autocomplete="tel">
+                </div>
+                <?php endif; ?>
                 <?php if ($is_tour): ?>
-                <input type="hidden" name="slot_id" id="tap_slot_id" value="">
+                <input type="hidden" name="slot_id" id="tap_slot_id_<?php echo (int) $n; ?>" value="">
                 <div class="tap-form-row">
                     <div class="tap-form-group">
                         <label for="tap_tour_date"><?php esc_html_e('Fecha del tour', 'travel-agency-platform'); ?></label>
-                        <select id="tap_tour_date" name="tour_date" class="tap-input" required>
+                        <select id="tap_tour_date_<?php echo (int) $n; ?>" name="tour_date" class="tap-input" required>
                             <option value=""><?php esc_html_e('— Selecciona fecha —', 'travel-agency-platform'); ?></option>
                             <?php foreach ($available_dates as $dt): ?>
                                 <option value="<?php echo esc_attr($dt); ?>"><?php echo esc_html($dt); ?> (<?php echo count($slots_by_date[$dt]); ?> horarios)</option>
@@ -66,13 +87,13 @@ class TAP_Shortcode_Booking {
                     </div>
                     <div class="tap-form-group">
                         <label for="tap_tour_slot"><?php esc_html_e('Horario', 'travel-agency-platform'); ?></label>
-                        <select id="tap_tour_slot" name="tour_slot" class="tap-input" required disabled>
+                        <select id="tap_tour_slot_<?php echo (int) $n; ?>" name="tour_slot" class="tap-input" required disabled>
                             <option value=""><?php esc_html_e('— Selecciona fecha primero —', 'travel-agency-platform'); ?></option>
                         </select>
                     </div>
                 </div>
-                <input type="hidden" name="check_in" id="tap_check_in" value="">
-                <input type="hidden" name="check_out" id="tap_check_out" value="">
+                <input type="hidden" name="check_in" id="tap_check_in_<?php echo (int) $n; ?>" value="">
+                <input type="hidden" name="check_out" id="tap_check_out_<?php echo (int) $n; ?>" value="">
                 <?php else: ?>
                 <div class="tap-form-row">
                     <div class="tap-form-group">
@@ -88,11 +109,11 @@ class TAP_Shortcode_Booking {
                 <div class="tap-form-row">
                     <div class="tap-form-group">
                         <label for="tap_adults"><?php esc_html_e('Adults', 'travel-agency-platform'); ?></label>
-                        <input type="number" id="tap_adults" name="adults" min="1" value="1" class="tap-input tap-input-sm" required>
+                        <input type="number" id="tap_adults_<?php echo (int) $n; ?>" name="adults" min="1" value="1" class="tap-input tap-input-sm" required>
                     </div>
                     <div class="tap-form-group">
                         <label for="tap_children"><?php esc_html_e('Children', 'travel-agency-platform'); ?></label>
-                        <input type="number" id="tap_children" name="children" min="0" value="0" class="tap-input tap-input-sm">
+                        <input type="number" id="tap_children_<?php echo (int) $n; ?>" name="children" min="0" value="0" class="tap-input tap-input-sm">
                     </div>
                 </div>
                 <div class="tap-form-group">
@@ -100,7 +121,7 @@ class TAP_Shortcode_Booking {
                     <textarea id="tap_notes" name="notes" rows="3" class="tap-input"></textarea>
                 </div>
                 <div class="tap-form-group">
-                    <span class="tap-total-display"><?php esc_html_e('Total: ', 'travel-agency-platform'); ?>$<span id="tap-total-amount">0.00</span></span>
+                    <span class="tap-total-display"><?php esc_html_e('Total: ', 'travel-agency-platform'); ?>$<span id="tap-total-amount-<?php echo (int) $n; ?>">0.00</span></span>
                 </div>
                 <?php if ($is_tour && class_exists('TAP_Service_Extras')): ?>
                 <div class="tap-form-group">
@@ -128,16 +149,17 @@ class TAP_Shortcode_Booking {
         </div>
 
         <?php if ($is_tour): ?>
-        <script type="application/json" id="tap-tour-slots-data"><?php echo wp_json_encode($slots_by_date, JSON_UNESCAPED_UNICODE); ?></script>
+        <script type="application/json" id="tap-tour-slots-data-<?php echo (int) $n; ?>"><?php echo wp_json_encode($slots_by_date, JSON_UNESCAPED_UNICODE); ?></script>
         <?php endif; ?>
         <script>
         jQuery(document).ready(function($) {
+            var $form = $('#<?php echo esc_js($form_id); ?>');
             <?php if ($is_tour): ?>
             // Tour slot selector logic.
             var slotsData = {};
-            try { slotsData = JSON.parse(document.getElementById('tap-tour-slots-data').textContent || '{}'); } catch(e) {}
+            try { slotsData = JSON.parse($form.find('#tap-tour-slots-data-<?php echo (int) $n; ?>').text() || '{}'); } catch(e) {}
             function populateSlots(date) {
-                var $slot = $('#tap_tour_slot');
+                var $slot = $form.find('#tap_tour_slot-<?php echo (int) $n; ?>');
                 $slot.empty();
                 if (!date || !slotsData[date]) {
                     $slot.append('<option value=""><?php echo esc_js(__('— Selecciona fecha primero —', 'travel-agency-platform')); ?></option>').prop('disabled', true);
@@ -151,17 +173,17 @@ class TAP_Shortcode_Booking {
                     $slot.append('<option value="' + sl.id + '" data-price="' + (sl.price || 0) + '" ' + (sl.is_blocked ? 'disabled' : '') + '>' + label + '</option>');
                 });
             }
-            $('#tap_tour_date').on('change', function() {
+            $form.find('#tap_tour_date-<?php echo (int) $n; ?>').on('change', function() {
                 var date = $(this).val();
                 populateSlots(date);
-                $('#tap_slot_id').val('');
-                $('#tap_check_in').val(date);
-                $('#tap_check_out').val(date);
+                $form.find('#tap_slot_id-<?php echo (int) $n; ?>').val('');
+                $form.find('#tap_check_in-<?php echo (int) $n; ?>').val(date);
+                $form.find('#tap_check_out-<?php echo (int) $n; ?>').val(date);
                 calculateTotal();
             });
-            $('#tap_tour_slot').on('change', function() {
+            $form.find('#tap_tour_slot-<?php echo (int) $n; ?>').on('change', function() {
                 var slotId = $(this).val();
-                $('#tap_slot_id').val(slotId);
+                $form.find('#tap_slot_id-<?php echo (int) $n; ?>').val(slotId);
                 var price = $(this).find('option:selected').data('price');
                 calculateTotal();
             });
@@ -172,31 +194,31 @@ class TAP_Shortcode_Booking {
                     action: 'tap_calculate_booking_total',
                     service_type: '<?php echo esc_js($atts['service_type']); ?>',
                     service_id: '<?php echo esc_js($atts['service_id']); ?>',
-                    check_in: $('#tap_check_in').val(),
-                    check_out: $('#tap_check_out').val(),
-                    adults: $('#tap_adults').val(),
-                    children: $('#tap_children').val(),
-                    slot_id: $('#tap_slot_id').val() || 0,
+                    check_in: $form.find('#tap_check_in-<?php echo (int) $n; ?>').val(),
+                    check_out: $form.find('#tap_check_out-<?php echo (int) $n; ?>').val(),
+                    adults: $form.find('#tap_adults-<?php echo (int) $n; ?>').val(),
+                    children: $form.find('#tap_children-<?php echo (int) $n; ?>').val(),
+                    slot_id: $form.find('#tap_slot_id-<?php echo (int) $n; ?>').val() || 0,
                     nonce: tap_ajax.nonce
                 };
 
                 $.post(tap_ajax.ajax_url, data, function(res) {
                     if (res.success) {
-                        $('#tap-total-amount').text(res.data.total.toFixed(2));
+                        $form.find('#tap-total-amount-<?php echo (int) $n; ?>').text(res.data.total.toFixed(2));
                     }
                 });
             }
 
-            $('#tap_check_in, #tap_check_out, #tap_adults, #tap_children').on('change', calculateTotal);
+            $form.find('#tap_check_in-<?php echo (int) $n; ?>, #tap_check_out-<?php echo (int) $n; ?>, #tap_adults-<?php echo (int) $n; ?>, #tap_children-<?php echo (int) $n; ?>').on('change', calculateTotal);
 
-            $('#tap-booking-form').on('submit', function(e) {
+            $form.on('submit', function(e) {
                 e.preventDefault();
                 var form = $(this);
                 var msg = form.find('.tap-booking-message');
-                var total = parseFloat($('#tap-total-amount').text()) || 0;
+                var total = parseFloat($form.find('#tap-total-amount-<?php echo (int) $n; ?>').text()) || 0;
 
                 <?php if ($is_tour): ?>
-                if (!$('#tap_tour_slot').val()) {
+                if (!$form.find('#tap_tour_slot-<?php echo (int) $n; ?>').val()) {
                     msg.removeClass('tap-success').addClass('tap-error')
                         .html('<p><?php echo esc_js(__('Selecciona una fecha y horario disponible.', 'travel-agency-platform')); ?></p>');
                     return;
@@ -378,6 +400,15 @@ class TAP_Shortcode_Booking {
         if (!$booking) {
             return '<p>' . __('Booking not found.', 'travel-agency-platform') . '</p>';
         }
+
+        // PayPal must be initialised in the booking's currency, not the
+        // visitor's display currency, or the order can fail to be captured.
+        $booking_currency = (string) ($booking->currency ?? '');
+        if ('' === $booking_currency) {
+            $prefix = class_exists('TAP_Post_Types') ? TAP_Post_Types::meta_prefix($booking->service_type) : '';
+            $booking_currency = $prefix ? (string) get_post_meta($booking->service_id, '_tap_' . $prefix . '_currency', true) : '';
+        }
+        if ('' === $booking_currency) { $booking_currency = 'USD'; }
 
         $uid = get_current_user_id();
         $can = false;
@@ -609,7 +640,7 @@ class TAP_Shortcode_Booking {
                             ?>
                         </p>
 
-                        <script src="https://www.paypal.com/sdk/js?client-id=<?php echo esc_attr(TAP_PayPal::get_client_id()); ?>&currency=<?php echo esc_attr(TAP_Currency::code()); ?>" data-namespace="tapPayPal"></script>
+                        <script src="https://www.paypal.com/sdk/js?client-id=<?php echo esc_attr(TAP_PayPal::get_client_id()); ?>&currency=<?php echo esc_attr($booking_currency); ?>" data-namespace="tapPayPal"></script>
                         <script>
                         jQuery(document).ready(function($) {
                             var bookingId = <?php echo intval($booking->id); ?>;
@@ -953,7 +984,9 @@ class TAP_Shortcode_Booking {
             [
                 'desc' => sprintf('%s · %d %s', $service_name, $nights, _n('night', 'nights', $nights, 'travel-agency-platform')),
                 'qty'  => 1,
-                'unit' => (float) $booking->total_amount,
+                // total_amount already includes the booking fee, which is
+                // listed separately below; don't count it twice.
+                'unit' => max(0, round((float) $booking->total_amount - (float) ($booking->booking_fee ?? 0), 2)),
             ],
         ];
 

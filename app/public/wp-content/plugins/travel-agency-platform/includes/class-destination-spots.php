@@ -98,6 +98,10 @@ class TAP_Destination_Spots {
         self::register_taxonomy();
         add_action('save_post', [__CLASS__, 'clear_map_cache']);
         add_action('deleted_post', [__CLASS__, 'clear_map_cache']);
+        // Approval toggles only postmeta, so save_post never fires: purge the
+        // cached pins explicitly when an agency is approved or rejected.
+        add_action('tap_agency_approved', [__CLASS__, 'clear_map_cache']);
+        add_action('tap_agency_rejected', [__CLASS__, 'clear_map_cache']);
 
         add_filter('manage_tap_spot_posts_columns', [__CLASS__, 'admin_columns']);
         add_action('manage_tap_spot_posts_custom_column', [__CLASS__, 'admin_column'], 10, 2);

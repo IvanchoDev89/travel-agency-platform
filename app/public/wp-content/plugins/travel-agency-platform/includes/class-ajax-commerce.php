@@ -482,9 +482,14 @@ class TAP_Ajax_Commerce {
             wp_send_json_error(['message' => $result->get_error_message()]);
         }
 
-        // Store the session/intent reference.
+        // Store the session/intent reference AND a ledger row at creation.
+        // The webhook later receives a different id (the payment intent), so
+        // resolving only from the intent used to be circular and the booking
+        // stayed unpaid after a successful charge.
         if (is_object($result) && !empty($result->id)) {
-            update_post_meta($booking_id, '_tap_onvo_checkout_session_id', $result->id);
+            update_post_meta($booking_id, '_tap_onvo_checkout_session_id', (string) $result->id);
+            update_post_meta($booking_id, '_tap_onvo_expected_amount', $remaining);
+            TAP_Payment::record_order((string) $result->id, 'booking', (int) $booking_id, $remaining, 'pending');
         }
 
         // Extract redirect URL from result.

@@ -100,6 +100,7 @@ class TAP_Ajax {
             'idempotency_key' => sanitize_text_field(wp_unslash($_POST['idempotency_key'] ?? '')),
             'private_upgrade' => !empty($_POST['private_upgrade']) ? 1 : 0,
             'coupon_code'     => sanitize_text_field(wp_unslash($_POST['coupon_code'] ?? '')),
+            'insurance_plan'  => sanitize_key(wp_unslash($_POST['insurance_plan'] ?? '')),
             'referral_code'   => sanitize_text_field(wp_unslash($_POST['referral_code'] ?? '')),
             'extras'          => $extras,
         ];

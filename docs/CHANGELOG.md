@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.6.16] — 2026-11-23
+
+### Fixed (money-critical, traveler flow)
+- Onvo: session/intent now recorded at checkout creation and the webhook
+  resolves bookings via intent metadata; successful card/SINPE charges can no
+  longer leave a booking unpaid.
+- Onvo reconciliation compares against the amount actually charged, so partial
+  payments and retries confirm correctly.
+- Tour slot prices are passed through to booking creation; the charged total
+  now matches the displayed price.
+- Coupon discount uses one shared capped calculator in quote and creation.
+- PayPal SDK initialises in the booking's currency, not the display currency.
+- Booking forms have unique IDs per instance and render guest contact fields;
+  every form on a listing page now submits correctly.
+- Travel insurance premium is charged and the policy issued with the booking.
+- Voucher line items no longer double-count the booking fee.
+
+### Fixed (discovery)
+- Public REST agency directory includes legacy approved agencies without the
+  ACTIVE_META row (17 of 21 were hidden).
+- Map cache purges on approval/rejection; Leaflet CSS loads before the
+  shortcode renders; featured cards honour promotion expiry.
+
+### Added
+- FUNCTIONAL `suite_booking_money.php` and `suite_discovery.php`.
+
 ## [1.6.15] — 2026-11-23
 
 ### Fixed (admin settings and UI)

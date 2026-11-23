@@ -215,7 +215,8 @@ class TAP_Booking {
             $data['check_out'] ?? '',
             $adults,
             $children,
-            !empty($data['room_id']) ? intval($data['room_id']) : 0
+            !empty($data['room_id']) ? intval($data['room_id']) : 0,
+            !empty($data['slot_id']) ? intval($data['slot_id']) : 0
         );
 
         // Private tour upgrade (upsell): flat price for the whole group.
@@ -262,11 +263,9 @@ class TAP_Booking {
         if ($coupon_code && class_exists('TAP_Coupons')) {
             $coupon = TAP_Coupons::validate($coupon_code, $total);
             if ($coupon) {
-                $raw_discount = TAP_Coupons::discount_for($coupon, $total);
-                // Cap: discount cannot exceed 25% of the platform commission,
-                // so the platform never loses money on a coupon.
-                $max_discount = round($subtotal * ($commission_percent * 0.25 / 100), 2);
-                $coupon_discount = min($raw_discount, $max_discount);
+                // Shared with the quote endpoint so the displayed total and
+                // the charged amount can never diverge.
+                $coupon_discount = TAP_Coupons::effective_discount($coupon, $total, $subtotal, $commission_percent);
                 if ($coupon_discount > 0) {
                     $total = round($total - $coupon_discount, 2);
                     if ($total < 0) $total = 0;
@@ -275,6 +274,16 @@ class TAP_Booking {
         }
         if ($coupon_code && $coupon_discount > 0 && class_exists('TAP_Coupons')) {
             TAP_Coupons::mark_used($coupon_code);
+        }
+
+        // Travel insurance is a real line item: include its premium in the
+        // authoritative total so the charge and the issued policy agree.
+        $insurance_plan = sanitize_key($data['insurance_plan'] ?? '');
+        if ('' !== $insurance_plan && class_exists('TAP_Travel_Insurance')) {
+            $premium = TAP_Travel_Insurance::quote($insurance_plan, $subtotal);
+            if ($premium > 0) {
+                $total = round($total + $premium, 2);
+            }
         }
 
         // Commission is calculated on the FINAL total (after all discounts),

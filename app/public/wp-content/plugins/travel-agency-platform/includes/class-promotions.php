@@ -103,12 +103,13 @@ class TAP_Promotions {
             $rows = $wpdb->get_col($wpdb->prepare(
                 "SELECT p.ID FROM {$wpdb->posts} p
                  INNER JOIN {$wpdb->postmeta} f ON f.post_id = p.ID AND f.meta_key = %s AND f.meta_value = '1'
-                 INNER JOIN {$wpdb->postmeta} u ON u.post_id = p.ID AND u.meta_key = %s AND u.meta_value <> '' AND u.meta_value >= %s
-                 WHERE p.post_type = %s AND p.post_status = 'publish'",
+                 LEFT JOIN {$wpdb->postmeta} u ON u.post_id = p.ID AND u.meta_key = %s
+                 WHERE p.post_type = %s AND p.post_status = 'publish'
+                   AND (u.meta_id IS NULL OR u.meta_value = '' OR u.meta_value >= %s)",
                 $keys['flag_key'],
                 $keys['until_key'],
-                $today,
-                $type
+                $type,
+                $today
             ));
             foreach ($rows as $id) {
                 $ids[] = (int) $id;

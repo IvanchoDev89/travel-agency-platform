@@ -47,6 +47,17 @@ class TAP_Coupons {
         return round($val, 2);
     }
 
+    /**
+     * Single source of truth for the coupon amount actually applied.
+     * A discount cannot exceed 25% of the platform commission, so the
+     * quote shown to the traveler matches what create() charges.
+     */
+    public static function effective_discount($coupon, $amount, $subtotal, $commission_percent) {
+        $raw = self::discount_for($coupon, $amount);
+        $max = round((float) $subtotal * ((float) $commission_percent * 0.25 / 100), 2);
+        return round(min($raw, $max), 2);
+    }
+
     /** Mark a coupon as used (increment counter). */
     public static function mark_used($code) {
         global $wpdb;

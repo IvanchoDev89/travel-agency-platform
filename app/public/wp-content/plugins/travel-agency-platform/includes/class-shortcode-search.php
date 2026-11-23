@@ -1225,9 +1225,8 @@ endif;
         $total  = count($spots);
         $total_services = count($services);
 
-        wp_enqueue_style('tap-leaflet', TAP_PLUGIN_URL . 'assets/leaflet/leaflet.css', [], '1.9.4');
-        wp_enqueue_style('tap-leaflet-cluster', TAP_PLUGIN_URL . 'assets/leaflet/leaflet.markercluster.css', [], '1.5.3');
-        wp_enqueue_style('tap-leaflet-cluster-default', TAP_PLUGIN_URL . 'assets/leaflet/leaflet.markercluster.default.css', [], '1.5.3');
+        // Leaflet CSS is enqueued early in enqueue_public_assets(); scripts
+        // can stay here since wp_footer() has not printed yet.
         wp_enqueue_script('tap-leaflet', TAP_PLUGIN_URL . 'assets/leaflet/leaflet.js', [], '1.9.4', true);
         wp_enqueue_script('tap-leaflet-cluster', TAP_PLUGIN_URL . 'assets/leaflet/leaflet.markercluster.js', ['tap-leaflet'], '1.5.3', true);
         wp_enqueue_script('tap-destinations-map', TAP_PLUGIN_URL . 'assets/js/destinations-map.js', ['jquery', 'tap-leaflet', 'tap-leaflet-cluster'], TAP_VERSION, true);
@@ -1563,19 +1562,15 @@ endif;
             return self::featured_services_empty();
         }
 
-        // One main query for every requested type. The featured flag is
-        // resolved with a single indexed scan on wp_postmeta instead of an
-        // N-way OR meta_query JOIN.
-        $flag_keys = [];
-        foreach ($types as $pt) {
-            $keys = TAP_Promotions::keys_for_type($pt);
-            $flag_keys[] = $keys['flag_key'];
-        }
+        // One main query for every requested type; featured ids come from the
+        // promotion engine so expiry is respected.
         $q_args = [
             'post_type'      => $types,
             'posts_per_page' => intval($atts['limit']) * count($types),
             'post_status'    => 'publish',
-            'post__in'       => TAP_Shortcodes::exclude_pending(TAP_Shortcodes::ids_by_meta($flag_keys, '1')) ?: [0],
+            // featured_ids() honours featured_until, so an expired promo stops
+            // being advertised instead of outranking live listings forever.
+            'post__in'       => TAP_Shortcodes::exclude_pending(TAP_Promotions::featured_ids($types)) ?: [0],
             'no_found_rows'  => true,
         ];
         $q = new WP_Query($q_args);

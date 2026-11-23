@@ -181,7 +181,13 @@ class TAP_API {
             'meta_query'     => [
                 ['key' => '_tap_agency_verified', 'value' => '1'],
                 ['key' => TAP_Approval::STATUS_META, 'value' => TAP_Approval::APPROVED],
-                ['key' => TAP_Approval::ACTIVE_META, 'compare' => '!=', 'value' => '0'],
+                // Legacy approved agencies may have no ACTIVE_META row at all;
+                // a strict != 0 silently hid them from the public directory.
+                [
+                    'relation' => 'OR',
+                    ['key' => TAP_Approval::ACTIVE_META, 'compare' => 'NOT EXISTS'],
+                    ['key' => TAP_Approval::ACTIVE_META, 'value' => '0', 'compare' => '!='],
+                ],
             ],
         ]);
 

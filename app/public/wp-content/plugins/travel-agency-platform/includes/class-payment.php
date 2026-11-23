@@ -195,7 +195,7 @@ class TAP_Payment {
      */
     private static function handle_onvo_payment_succeeded($intent) {
         $intent_id = $intent->id;
-        $booking_id = self::find_booking_by_onvo_intent($intent_id);
+        $booking_id = self::find_booking_by_onvo_intent($intent_id, $intent);
         if (!$booking_id) {
             return;
         }
@@ -205,10 +205,13 @@ class TAP_Payment {
             return;
         }
 
-        // Reconciliation: verify amount matches booking total.
+        // Reconcile against what was actually charged, not the full booking
+        // total: partial payments and retries are a supported flow.
         $intent_amount = isset($intent->amount) ? TAP_Onvo::from_minor_units($intent->amount, $intent->currency ?? 'USD') : 0;
-        $booking_total = (float) $booking->total_amount;
-        if (abs($intent_amount - $booking_total) > 0.01) {
+        $expected = (float) get_post_meta($booking_id, '_tap_onvo_expected_amount', true);
+        if ($expected <= 0) { $expected = TAP_Booking::remaining_amount($booking); }
+        if ($expected <= 0) { $expected = (float) $booking->total_amount; }
+        if ($intent_amount > 0 && abs($intent_amount - $expected) > 0.01) {
             // Log discrepancy for admin review.
             if (class_exists('TAP_Audit_Log')) {
                 TAP_Audit_Log::log('payment_amount_mismatch', 'booking', $booking_id, null, $booking_id, 0);
@@ -222,8 +225,12 @@ class TAP_Payment {
         // Store the payment intent ID for refunds.
         update_post_meta($booking_id, '_tap_onvo_payment_intent_id', $intent_id);
 
-        // Record in payment ledger.
-        self::record_order($intent_id, 'booking', (int) $booking_id, (float) $intent_amount, 'completed');
+        // Mark the checkout-session order as completed and keep the intent id
+        // as its capture reference (no duplicate ledger row).
+        $session_id = (string) get_post_meta($booking_id, '_tap_onvo_checkout_session_id', true);
+        if ('' !== $session_id) {
+            self::record_order($session_id, 'booking', (int) $booking_id, (float) $intent_amount, 'completed', $intent_id);
+        }
 
         // Store processor fee (Onvo: 3.5% + 2% retention).
         $processor_fee = round($intent_amount * 0.055, 2);
@@ -240,7 +247,7 @@ class TAP_Payment {
      */
     private static function handle_onvo_payment_failed($intent) {
         $intent_id = $intent->id;
-        $booking_id = self::find_booking_by_onvo_intent($intent_id);
+        $booking_id = self::find_booking_by_onvo_intent($intent_id, $intent);
         if (!$booking_id) {
             return;
         }
@@ -251,8 +258,34 @@ class TAP_Payment {
     /**
      * Resolve the booking that owns an Onvo payment intent id.
      */
-    public static function find_booking_by_onvo_intent($intent_id) {
+    public static function find_booking_by_onvo_intent($intent_id, $intent = null) {
         global $wpdb;
+
+        // Onvo sends the booking metadata supplied at session creation; use it
+        // first so a new payment intent always resolves to its booking.
+        if ($intent) {
+            if (!empty($intent->metadata->booking_id)) {
+                $from_meta = absint($intent->metadata->booking_id);
+                if ($from_meta) { return $from_meta; }
+            }
+            if (!empty($intent->metadata->booking_code)) {
+                $code = sanitize_text_field((string) $intent->metadata->booking_code);
+                $by_code = $wpdb->get_var($wpdb->prepare(
+                    "SELECT id FROM {$wpdb->prefix}tap_bookings WHERE booking_code = %s LIMIT 1", $code
+                ));
+                if ($by_code) { return (int) $by_code; }
+            }
+            $session = $intent->checkout_session ?? null;
+            $session_id = is_object($session) ? ($session->id ?? '') : (is_string($session) ? $session : '');
+            if ('' !== $session_id) {
+                $by_session = $wpdb->get_var($wpdb->prepare(
+                    "SELECT object_id FROM {$wpdb->prefix}tap_payment_orders
+                     WHERE paypal_order_id = %s AND object_type = 'booking' AND object_id > 0 LIMIT 1",
+                    $session_id
+                ));
+                if ($by_session) { return (int) $by_session; }
+            }
+        }
 
         $table = self::orders_table();
         $booking_id = $wpdb->get_var($wpdb->prepare(

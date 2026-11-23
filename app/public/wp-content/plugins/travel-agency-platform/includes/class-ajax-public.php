@@ -330,7 +330,12 @@ class TAP_Ajax_Public {
         if ($coupon_code && class_exists('TAP_Coupons')) {
             $coupon = TAP_Coupons::validate($coupon_code, $total + $fee);
             if ($coupon) {
-                $coupon_discount = TAP_Coupons::discount_for($coupon, $total + $fee);
+                $prefix = class_exists('TAP_Post_Types') ? TAP_Post_Types::meta_prefix($service_type) : '';
+                $agency_id = $prefix ? (int) get_post_meta($service_id, '_tap_' . $prefix . '_agency_id', true) : 0;
+                $commission_percent = TAP_Booking::get_agency_commission($agency_id);
+                $coupon_discount = TAP_Coupons::effective_discount(
+                    $coupon, $total + $fee, $base_total > 0 ? $base_total : $total, $commission_percent
+                );
             }
         }
 
