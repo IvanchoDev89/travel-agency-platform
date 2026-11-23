@@ -13,6 +13,7 @@ class TAP_Dashboard {
             return 'tap_manage_settings';
         });
         add_action('admin_init', [TAP_Dashboard_Bookings::class, 'maybe_export_bookings'], 5);
+        add_action('admin_init', [TAP_Dashboard_Insights::class, 'maybe_export_analytics'], 5);
         add_action('admin_post_tap_destinations_save', [TAP_Dashboard_Destinations::class, 'handle_save']);
         add_action('admin_post_tap_destinations_add', [TAP_Dashboard_Destinations::class, 'handle_add']);
         add_action('admin_post_tap_landing_save', [TAP_Landing_Builder::class, 'handle_save']);

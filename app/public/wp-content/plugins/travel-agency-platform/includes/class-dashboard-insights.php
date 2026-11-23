@@ -175,16 +175,23 @@ class TAP_Dashboard_Insights {
         }
     }
 
+    /** Stream the analytics CSV before any admin output is sent. */
+    public static function maybe_export_analytics() {
+        if (!isset($_GET['export_analytics'])) { return; }
+        if (!current_user_can('tap_view_reports')) { return; }
+        check_admin_referer('tap_analytics_export');
+        self::analytics_csv_export(sanitize_key(wp_unslash($_GET['export_analytics'])));
+        exit;
+    }
+
     public static function analytics_page() {
         if (!current_user_can('tap_view_reports')) {
             wp_die(__('No tienes permisos para acceder.', 'travel-agency-platform'));
         }
         global $wpdb;
 
-        if (isset($_GET['export']) && check_admin_referer('tap_analytics_export')) {
-            self::analytics_csv_export(sanitize_key(wp_unslash($_GET['export'])));
-            exit;
-        }
+        // Export is handled on admin_init (see maybe_export_analytics): calling
+        // header() here, after admin-header.php, broke the CSV download.
 
         $from = sanitize_text_field(wp_unslash($_GET['tap_from'] ?? ''));
         $to   = sanitize_text_field(wp_unslash($_GET['tap_to'] ?? ''));
@@ -266,7 +273,7 @@ class TAP_Dashboard_Insights {
         }
 
         $export_url = function ($type) use ($from, $to) {
-            $args = ['page' => 'tap-analytics', 'export' => $type, '_wpnonce' => wp_create_nonce('tap_analytics_export')];
+            $args = ['page' => 'tap-analytics', 'export_analytics' => $type, '_wpnonce' => wp_create_nonce('tap_analytics_export')];
             if ($from) $args['tap_from'] = $from;
             if ($to) $args['tap_to'] = $to;
             return add_query_arg($args);

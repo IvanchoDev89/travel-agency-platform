@@ -9,6 +9,9 @@ defined('ABSPATH') || exit;
 
 class TAP_Dashboard_Content {
     public static function reviews_page() {
+        if (!current_user_can('tap_manage_reviews') && !current_user_can('manage_options')) {
+            wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform'));
+        }
         global $wpdb;
         $table = $wpdb->prefix . 'tap_reviews';
 
@@ -48,12 +51,12 @@ class TAP_Dashboard_Content {
         $per_page = 50;
         $paged    = max(1, absint($_GET['paged'] ?? 1));
         $total_reviews = (int) $wpdb->get_var(
-            "SELECT COUNT(*) FROM $table r JOIN {$wpdb->users} u ON r.user_id = u.ID WHERE $where"
+            "SELECT COUNT(*) FROM $table r LEFT JOIN {$wpdb->users} u ON r.user_id = u.ID WHERE $where"
         );
         $reviews = $wpdb->get_results($wpdb->prepare(
             "SELECT r.*, u.display_name AS user_name
             FROM $table r
-            JOIN {$wpdb->users} u ON r.user_id = u.ID
+            LEFT JOIN {$wpdb->users} u ON r.user_id = u.ID
             WHERE $where
             ORDER BY r.created_at DESC
             LIMIT %d OFFSET %d",

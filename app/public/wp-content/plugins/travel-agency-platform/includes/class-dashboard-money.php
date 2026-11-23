@@ -319,7 +319,12 @@ class TAP_Dashboard_Money {
                             <td><?php echo esc_html($c->agency_name ?? 'N/D'); ?></td>
                             <td><?php echo esc_html(TAP_Currency::fmt($c->total_amount)); ?></td>
                             <td><?php echo esc_html($c->commission_percent); ?>%</td>
-                            <td><?php echo esc_html(TAP_Currency::fmt($c->commission_amount)); ?></td>
+                            <td>
+                                <?php echo esc_html(TAP_Currency::fmt($c->commission_amount)); ?>
+                                <?php if ('owed' === $c->commission_status): ?>
+                                    <button type="button" class="button button-small" data-settle="<?php echo (int) $c->id; ?>" data-code="<?php echo esc_attr($c->booking_code); ?>" data-amount="<?php echo esc_attr($c->commission_amount); ?>"><?php esc_html_e('Liquidar', 'travel-agency-platform'); ?></button>
+                                <?php endif; ?>
+                            </td>
                             <td>
                             <?php
                                 $estado_label = [
@@ -500,7 +505,7 @@ class TAP_Dashboard_Money {
                 d.querySelectorAll('input[name="booking_ids[]"]').forEach(function(c){ c.checked = a.checked; });
             });
             var modal = d.getElementById('tap-settle-modal');
-            var fmt = new Intl.NumberFormat('es-CR', {style:'currency', currency:'CRC', minimumFractionDigits:0});
+            var fmt = new Intl.NumberFormat('es-CR', {style:'currency', currency:'<?php echo esc_js(TAP_Currency::code()); ?>', minimumFractionDigits:0});
             d.querySelectorAll('[data-settle]').forEach(function(btn){
                 btn.addEventListener('click', function(){
                     d.getElementById('tap-settle-id').value = btn.getAttribute('data-settle');

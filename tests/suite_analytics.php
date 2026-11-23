@@ -28,8 +28,8 @@ tap_t_assert(strpos($html, 'Vistas') !== false, 'analytics shows views KPI');
 tap_t_assert(strpos($html, 'Conversión') !== false || strpos($html, 'conversion') !== false, 'analytics shows conversion stat');
 
 // exports available via page links
-tap_t_assert(strpos($html, 'export=bookings') !== false, 'bookings CSV export link present');
-tap_t_assert(strpos($html, 'export=summary') !== false, 'summary CSV export link present');
+tap_t_assert(strpos($html, 'export_analytics=bookings') !== false, 'bookings CSV export link present');
+tap_t_assert(strpos($html, 'export_analytics=summary') !== false, 'summary CSV export link present');
 
 // booking funnel: rendered section + stage labels
 tap_t_assert(strpos($html, 'Embudo de reservas') !== false, 'analytics renders booking funnel');

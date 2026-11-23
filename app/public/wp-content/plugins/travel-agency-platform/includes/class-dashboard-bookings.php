@@ -20,7 +20,9 @@ class TAP_Dashboard_Bookings {
 
         global $wpdb;
         $counts_cache = TAP_Dashboard::listing_counts();
-        $total_agencies = $counts_cache['tap_agency'];
+        // listing_counts() only covers service types; agencies are a separate
+        // CPT and were read from an undefined array key (PHP warning + blank KPI).
+        $total_agencies = (int) wp_count_posts('tap_agency')->publish;
         $total_services = $counts_cache['total_services'];
         $currency = get_option('tap_currency', 'USD');
 

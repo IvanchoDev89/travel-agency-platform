@@ -80,18 +80,16 @@ class TAP_Localization {
         return isset(self::$langs[$lang]) ? self::$langs[$lang] : 'es_ES';
     }
 
-    /** Front-end locale only; admin and AJAX keep WordPress' own locale. */
+    /**
+     * Spanish site: apply the resolved language everywhere, including wp-admin.
+     * Leaving admin out made every plugin menu and heading appear in English
+     * even though the Spanish catalog was shipped and loaded.
+     */
     public static function filter_locale($locale) {
-        if (is_admin() && !wp_doing_ajax()) {
-            return $locale;
-        }
         return self::wp_locale();
     }
 
     public static function filter_determine_locale($locale) {
-        if (is_admin() && !wp_doing_ajax()) {
-            return $locale;
-        }
         return self::wp_locale();
     }
 

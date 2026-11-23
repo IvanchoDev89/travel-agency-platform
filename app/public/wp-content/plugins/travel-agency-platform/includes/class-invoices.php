@@ -20,7 +20,7 @@ class TAP_Invoices {
         $t = self::table();
         $today = gmdate('Ymd');
         $last = $wpdb->get_var($wpdb->prepare(
-            "SELECT invoice_number FROM {$t} WHERE invoice_number LIKE %s ORDER BY id DESC LIMIT 1",
+            "SELECT invoice_number FROM {$t} WHERE invoice_number LIKE %s ORDER BY invoice_number DESC LIMIT 1",
             'TAP-' . $today . '-%'
         ));
         $seq = 1;
@@ -146,9 +146,6 @@ class TAP_Invoices {
         ob_start();
         ?>
         <div class="tap-invoice" style="max-width:720px;margin:0 auto;padding:32px;font-family:sans-serif;">
-            <div class="tap-print-bar" style="margin-bottom:16px;">
-                <button type="button" class="tap-btn tap-btn-outline" onclick="window.print()"><?php esc_html_e('Imprimir factura', 'travel-agency-platform'); ?></button>
-            </div>
             <h1 style="margin:0 0 8px;"><?php esc_html_e('Factura', 'travel-agency-platform'); ?></h1>
             <p style="margin:0 0 16px;color:#64748b;"><?php echo esc_html($inv->invoice_number); ?> · <?php echo esc_html($inv->issued_at); ?></p>
             <hr style="border:0;border-top:1px solid #e2e8f0;margin:16px 0;">
@@ -200,6 +197,22 @@ class TAP_Invoices {
     /** Init: hook into payment completion. */
     public static function init() {
         add_action('tap_payment_completed', [__CLASS__, 'on_payment_completed'], 10, 3);
+        add_action('admin_init', [__CLASS__, 'maybe_generate_pdf']);
+    }
+
+    /** Generate a missing PDF from the invoices list (cap + nonce guarded). */
+    public static function maybe_generate_pdf() {
+        if (!isset($_GET['gen_pdf'])) { return; }
+        if (!current_user_can('manage_options')) { return; }
+        $id = absint($_GET['gen_pdf']);
+        check_admin_referer('tap_gen_pdf_' . $id);
+        $url = self::generate_pdf($id);
+        if ($url) {
+            global $wpdb;
+            $wpdb->update(self::table(), ['pdf_url' => $url], ['id' => $id]);
+        }
+        wp_safe_redirect(admin_url('admin.php?page=tap-invoices&pdf_done=' . ($url ? '1' : '0')));
+        exit;
     }
 
     public static function on_payment_completed($booking_id, $method, $capture_id) {
@@ -211,10 +224,24 @@ class TAP_Invoices {
         if (!current_user_can('manage_options')) wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform'));
         global $wpdb;
         $t = self::table();
-        $invoices = $wpdb->get_results("SELECT * FROM {$t} ORDER BY issued_at DESC LIMIT 100");
+        $per_page = 50;
+        $paged    = max(1, absint($_GET['paged'] ?? 1));
+        $total    = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$t}");
+        $invoices = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$t} ORDER BY issued_at DESC LIMIT %d OFFSET %d",
+            $per_page,
+            ($paged - 1) * $per_page
+        ));
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Facturas', 'travel-agency-platform'); ?></h1>
+            <?php if (isset($_GET['pdf_done'])): ?>
+                <div class="notice <?php echo '1' === sanitize_key($_GET['pdf_done']) ? 'notice-success' : 'notice-error'; ?> is-dismissible">
+                    <p><?php echo '1' === sanitize_key($_GET['pdf_done'])
+                        ? esc_html__('PDF generado.', 'travel-agency-platform')
+                        : esc_html__('No se pudo generar el PDF.', 'travel-agency-platform'); ?></p>
+                </div>
+            <?php endif; ?>
             <table class="wp-list-table widefat fixed striped">
                 <thead><tr>
                     <th><?php esc_html_e('Número', 'travel-agency-platform'); ?></th>
@@ -240,6 +267,8 @@ class TAP_Invoices {
                             <a href="<?php echo esc_url(admin_url('admin.php?page=tap-invoices&view=' . (int) $inv->id)); ?>" class="button button-small"><?php esc_html_e('Ver', 'travel-agency-platform'); ?></a>
                             <?php if ($inv->pdf_url): ?>
                                 <a href="<?php echo esc_url($inv->pdf_url); ?>" class="button button-small" target="_blank" rel="noopener">PDF</a>
+                            <?php else: ?>
+                                <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?page=tap-invoices&gen_pdf=' . (int) $inv->id), 'tap_gen_pdf_' . (int) $inv->id)); ?>" class="button button-small"><?php esc_html_e('Generar PDF', 'travel-agency-platform'); ?></a>
                             <?php endif; ?>
                         </td>
                     </tr>
@@ -249,10 +278,16 @@ endif;
 				?>
                 </tbody>
             </table>
+            <?php echo TAP_Dashboard::paginate($total, $per_page, $paged); ?>
             <?php
             $view = isset($_GET['view']) ? (int) $_GET['view'] : 0;
             if ($view) {
+                echo '<div class="tap-print-bar" style="margin-bottom:16px;">'
+                    . '<button type="button" class="button tap-invoice-print">'
+                    . esc_html__('Imprimir factura', 'travel-agency-platform')
+                    . '</button></div>';
                 echo wp_kses_post(self::render_html($view));
+                echo '<script>jQuery(function($){$(".tap-invoice-print").on("click",function(){window.print();});});</script>';
             }
             ?>
         </div>

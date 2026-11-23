@@ -101,12 +101,14 @@ class TAP_Launch_Check {
     }
 
     public static function init() {
-        add_action('admin_menu', [__CLASS__, 'add_page']);
+        // The parent 'travel-platform' menu is registered at priority 30 in
+        // TAP_Dashboard; registering earlier leaves an orphan hook (403).
+        add_action('admin_menu', [__CLASS__, 'add_page'], 31);
     }
 
     public static function add_page() {
         add_submenu_page(
-            'travel-agency-platform',
+            'travel-platform',
             __('Launch Check', 'travel-agency-platform'),
             __('Launch Check', 'travel-agency-platform'),
             'manage_options',

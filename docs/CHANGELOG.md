@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.6.19] — 2026-11-23
+
+### Fixed (deep admin audit)
+- Invoices: paginated (50/page) instead of showing only 100 of 932; PDF-less
+  rows offer a nonce-guarded "Generar PDF" action; print button no longer
+  stripped by KSES; numbering ordered by invoice number.
+- Launch Check now appears in the admin menu (it registered before its parent).
+- Dashboard "Agencias" KPI no longer raises an undefined-key warning.
+- Entire admin is now Spanish (the locale filter was excluding wp-admin).
+- Analytics CSV export moved to admin_init so headers are sent in time.
+- Reviews from deleted users remain visible (LEFT JOIN) and the page has its
+  own capability check.
+- Per-booking commission settlement modal has a working trigger and uses the
+  configured currency.
+- Plugin CSS also loads on hyphenated settings subpages.
+
+### Added
+- FUNCTIONAL `suite_admin_screens.php` covering the admin screens.
+
 ## [1.6.18] — 2026-11-23
 
 ### Added (traveler flow)
