@@ -341,4 +341,7 @@ tap_t_assert(false === TAP_Requirements::is_php_patched('8.5.3'), 'PHP 8.5.3 is 
 tap_t_assert('8.2.35' === TAP_Requirements::patched_for('8.2.27'), 'patched_for reports the fix for the 8.2 branch');
 tap_t_assert(true === TAP_Requirements::is_php_patched(), 'the running PHP is patched');
 
+$launch_labels = array_column(TAP_Launch_Check::issues(), 'label');
+tap_t_assert(!in_array('PHP con vulnerabilidades críticas', $launch_labels, true), 'Launch Check shows no PHP blocker on a patched runtime');
+
 tap_t_finish();

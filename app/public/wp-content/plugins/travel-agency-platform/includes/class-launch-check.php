@@ -14,6 +14,22 @@ class TAP_Launch_Check {
     public static function issues() {
         $issues = [];
 
+        // PHP core advisories are the first launch blocker: no code fix exists.
+        if (class_exists('TAP_Requirements') && !TAP_Requirements::is_php_patched()) {
+            $fixed = TAP_Requirements::patched_for();
+            if ('' === $fixed) { $fixed = TAP_Requirements::patched_list(); }
+            $issues[] = [
+                'label' => __('PHP con vulnerabilidades críticas', 'travel-agency-platform'),
+                'detail' => sprintf(
+                    /* translators: 1: PHP version, 2: advisories, 3: patched version */
+                    __('PHP %1$s está afectado por %2$s (RCE sin autenticación en PHP-FPM). Actualiza a %3$s o posterior antes de publicar.', 'travel-agency-platform'),
+                    PHP_VERSION,
+                    TAP_Requirements::ADVISORIES,
+                    $fixed
+                ),
+            ];
+        }
+
         $home = (string) get_option('home');
         if (preg_match('#localhost|127\.0\.0\.1|\.local#i', $home)) {
             $issues[] = [

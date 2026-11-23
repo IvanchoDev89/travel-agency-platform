@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-23T09:47:13+00:00\n"
+"POT-Creation-Date: 2026-11-23T17:23:38+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -12531,11 +12531,21 @@ msgstr "Acción desconocida."
 msgid "Configuración inválida."
 msgstr "Configuración inválida."
 
-#: includes/class-launch-check.php:20
+#: includes/class-launch-check.php:22
+msgid "PHP con vulnerabilidades críticas"
+msgstr "PHP con vulnerabilidades críticas"
+
+#. translators: 1: PHP version, 2: advisories, 3: patched version
+#: includes/class-launch-check.php:25
+#, php-format
+msgid "PHP %1$s está afectado por %2$s (RCE sin autenticación en PHP-FPM). Actualiza a %3$s o posterior antes de publicar."
+msgstr "PHP %1$s está afectado por %2$s (RCE sin autenticación en PHP-FPM). Actualiza a %3$s o posterior antes de publicar."
+
+#: includes/class-launch-check.php:36
 msgid "URLs del sitio en localhost"
 msgstr "URLs del sitio en localhost"
 
-#: includes/class-launch-check.php:21
+#: includes/class-launch-check.php:37
 #, php-format
 msgid ""
 "siteurl/home = %s. Configura el dominio real en producción (wp option update "
@@ -12544,11 +12554,11 @@ msgstr ""
 "siteurl/home = %s. Configura el dominio real en producción (wp option update "
 "home … / siteurl …)."
 
-#: includes/class-launch-check.php:29
+#: includes/class-launch-check.php:45
 msgid "Correo de contacto legal no configurado"
 msgstr "Correo de contacto legal no configurado"
 
-#: includes/class-launch-check.php:30
+#: includes/class-launch-check.php:46
 #, php-format
 msgid ""
 "El pie legal de los correos usa admin_email (%s). Configura "
@@ -12557,28 +12567,28 @@ msgstr ""
 "El pie legal de los correos usa admin_email (%s). Configura "
 "tap_privacy_contact con una casilla real y monitorizada."
 
-#: includes/class-launch-check.php:35
+#: includes/class-launch-check.php:51
 msgid "Email de administrador de desarrollo"
 msgstr "Email de administrador de desarrollo"
 
-#: includes/class-launch-check.php:36
+#: includes/class-launch-check.php:52
 #, php-format
 msgid "admin_email = %s (no entregable). Cámbialo en producción."
 msgstr "admin_email = %s (no entregable). Cámbialo en producción."
 
-#: includes/class-launch-check.php:42
+#: includes/class-launch-check.php:58
 msgid "Sitio sin HTTPS"
 msgstr "Sitio sin HTTPS"
 
-#: includes/class-launch-check.php:43
+#: includes/class-launch-check.php:59
 msgid "Activa SSL y fuerza HTTPS antes de publicar."
 msgstr "Activa SSL y fuerza HTTPS antes de publicar."
 
-#: includes/class-launch-check.php:49
+#: includes/class-launch-check.php:65
 msgid "SMTP no configurado"
 msgstr "SMTP no configurado"
 
-#: includes/class-launch-check.php:50
+#: includes/class-launch-check.php:66
 msgid ""
 "Define TAP_SMTP_HOST/USER/PASS en wp-config.php; sin ello wp_mail() depende "
 "del mail() del host y los correos pueden caer en spam."
@@ -12586,11 +12596,11 @@ msgstr ""
 "Define TAP_SMTP_HOST/USER/PASS en wp-config.php; sin ello wp_mail() depende "
 "del mail() del host y los correos pueden caer en spam."
 
-#: includes/class-launch-check.php:56
+#: includes/class-launch-check.php:72
 msgid "Entorno local"
 msgstr "Entorno local"
 
-#: includes/class-launch-check.php:57
+#: includes/class-launch-check.php:73
 msgid ""
 "WP_ENVIRONMENT_TYPE=local: las constantes de producción (DISALLOW_FILE_EDIT/"
 "MODS, FORCE_SSL_ADMIN) no están activas."
@@ -12598,11 +12608,11 @@ msgstr ""
 "WP_ENVIRONMENT_TYPE=local: las constantes de producción (DISALLOW_FILE_EDIT/"
 "MODS, FORCE_SSL_ADMIN) no están activas."
 
-#: includes/class-launch-check.php:68
+#: includes/class-launch-check.php:84
 msgid "Ninguna pasarela de pago lista"
 msgstr "Ninguna pasarela de pago lista"
 
-#: includes/class-launch-check.php:69
+#: includes/class-launch-check.php:85
 msgid ""
 "Configura Onvo o PayPal con credenciales reales (opciones o constantes TAP_*/"
 "ONVO_*) antes de publicar."
@@ -12610,12 +12620,12 @@ msgstr ""
 "Configura Onvo o PayPal con credenciales reales (opciones o constantes TAP_*/"
 "ONVO_*) antes de publicar."
 
-#: includes/class-launch-check.php:78
+#: includes/class-launch-check.php:94
 #, php-format
 msgid "Secreto inválido en %s"
 msgstr "Secreto inválido en %s"
 
-#: includes/class-launch-check.php:79
+#: includes/class-launch-check.php:95
 msgid ""
 "El campo contiene una URL en lugar de una clave/ID secreto. Corrígelo antes "
 "de publicar."
@@ -12623,28 +12633,28 @@ msgstr ""
 "El campo contiene una URL en lugar de una clave/ID secreto. Corrígelo antes "
 "de publicar."
 
-#: includes/class-launch-check.php:94 includes/class-launch-check.php:95
-#: includes/class-launch-check.php:105
+#: includes/class-launch-check.php:110 includes/class-launch-check.php:111
+#: includes/class-launch-check.php:121
 msgid "Launch Check"
 msgstr "Launch Check"
 
-#: includes/class-launch-check.php:107
+#: includes/class-launch-check.php:123
 msgid "Todo listo para producción."
 msgstr "Todo listo para producción."
 
 #. translators: %d: number of pending tasks
-#: includes/class-launch-check.php:111
+#: includes/class-launch-check.php:127
 #, php-format
 msgid "%d tarea pendiente antes del lanzamiento."
 msgid_plural "%d tareas pendientes antes del lanzamiento."
 msgstr[0] ""
 msgstr[1] ""
 
-#: includes/class-launch-check.php:114
+#: includes/class-launch-check.php:130
 msgid "Revisión"
 msgstr "Revisión"
 
-#: includes/class-launch-check.php:114
+#: includes/class-launch-check.php:130
 msgid "Detalle"
 msgstr "Detalle"
 

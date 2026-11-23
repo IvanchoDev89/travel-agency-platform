@@ -14,6 +14,7 @@ Sin cambio de versión (solo documentación y tests):
   de PHP por rama (8.2.35 / 8.3.36 / 8.4.27 / 8.5.12) frente a
   CVE-2026-109618 y CVE-2026-109619.
 - `suite_security.php` verifica funcionalmente el guard de versiones.
+- Launch Check incluye el PHP vulnerable como bloqueador de publicación.
 - El entorno local se cambió a PHP-FPM 8.5.12 (parcheado); el aviso del admin
   desaparece y `TAP_Requirements::is_php_patched()` devuelve `true`.
 
