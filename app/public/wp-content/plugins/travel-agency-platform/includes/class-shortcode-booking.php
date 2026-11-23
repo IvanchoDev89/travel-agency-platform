@@ -794,7 +794,8 @@ class TAP_Shortcode_Booking {
                         TAP_Payment::get_available_gateways(),
                         ['sinpe' => true, 'manual' => true]
                     );
-                    if ($tap_offline): ?>
+                    if ($tap_offline):
+                    ?>
                         <div class="tap-checkout-offline">
                             <h3><?php esc_html_e('Otros métodos de pago', 'travel-agency-platform'); ?></h3>
                             <?php foreach ($tap_offline as $tap_gw): ?>
