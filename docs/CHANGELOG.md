@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.6.15] — 2026-11-23
+
+### Fixed (admin settings and UI)
+- `tap_unpaid_alert_days` now has a form field; it was being wiped to 0 on
+  every settings save.
+- Email-campaign admin-post callbacks pointed at a nonexistent class; they now
+  use `TAP_Email_Campaigns`.
+- Waiver form now targets `admin-post.php`; signups are actually recorded.
+- Newsletter forms now have a real handler with nonce and honeypot, and show a
+  confirmation message.
+- `options.php` save capability aligned with the custom page capability.
+- All five settings pages now print `settings_errors()` feedback.
+- Secrets (PayPal, Onvo, VAPID) are no longer echoed into the form; an empty
+  value keeps the stored secret.
+- Affiliate code/status and scheduled campaigns are saved correctly.
+- Failed-payout reason field wired; dispute errors render as errors.
+- Admin CSS: removed broken heredoc leftovers and global WordPress selectors;
+  scoped to TAP components with design tokens and real WP dark-mode support.
+
+### Added
+- FUNCTIONAL `suite_settings.php` (30+ assertions) covering option coverage,
+  round-trips, capability filters, secret handling and the fixed submit paths.
+
 ## Seguridad de entorno — 2026-11-23
 
 Sin cambio de versión (solo documentación y tests):

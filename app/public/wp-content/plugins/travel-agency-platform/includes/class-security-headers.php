@@ -161,6 +161,7 @@ class TAP_Security_Headers {
     }
 
     public static function render_page() {
+        settings_errors();
         if (!current_user_can('manage_options')) {
             return;
         }

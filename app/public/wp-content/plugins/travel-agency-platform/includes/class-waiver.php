@@ -127,7 +127,7 @@ class TAP_Waiver {
             <h3><?php esc_html_e('Descargo de responsabilidad (Waiver)', 'travel-agency-platform'); ?></h3>
             <div class="tap-waiver-text"><?php echo wp_kses_post(nl2br($text)); ?></div>
             <p class="tap-waiver-age"><?php printf(esc_html__('Debes tener al menos %d años para firmar.', 'travel-agency-platform'), $min_age); ?></p>
-            <form method="post" class="tap-waiver-sign-form">
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" class="tap-waiver-sign-form">
                 <input type="hidden" name="action" value="tap_sign_waiver">
                 <input type="hidden" name="booking_id" value="<?php echo (int) $booking_id; ?>">
                 <?php wp_nonce_field('tap_sign_waiver_' . (int) $booking_id, 'tap_waiver_nonce'); ?>

@@ -92,7 +92,7 @@ return $wpdb->prefix . 'tap_affiliate_conversions'; }
             'code' => $code,
             'commission_pct' => isset($data['commission_pct']) ? (float) $data['commission_pct'] : 5.00,
             'cap_per_booking' => isset($data['cap_per_booking']) ? (float) $data['cap_per_booking'] : 30.00,
-            'status' => 'pending',
+            'status' => in_array(($data['status'] ?? 'pending'), ['pending', 'active', 'blocked'], true) ? $data['status'] : 'pending',
             'tax_form' => isset($data['tax_form']) ? sanitize_text_field($data['tax_form']) : null,
         ]);
         return (int) $wpdb->insert_id;
@@ -104,6 +104,7 @@ return $wpdb->prefix . 'tap_affiliate_conversions'; }
         $id = (int) $id;
         if (!$id) return false;
         $fields = [];
+        if (isset($data['code'])) $fields['code'] = sanitize_text_field($data['code']);
         if (isset($data['name'])) $fields['name'] = sanitize_text_field($data['name']);
         if (isset($data['email'])) $fields['email'] = sanitize_email($data['email']);
         if (isset($data['commission_pct'])) $fields['commission_pct'] = (float) $data['commission_pct'];
@@ -198,6 +199,7 @@ return $wpdb->prefix . 'tap_affiliate_conversions'; }
             $data = [
                 'name' => sanitize_text_field(wp_unslash($_POST['name'] ?? '')),
                 'email' => sanitize_email(wp_unslash($_POST['email'] ?? '')),
+                'code'  => sanitize_text_field(wp_unslash($_POST['code'] ?? '')),
                 'commission_pct' => (float) ($_POST['commission_pct'] ?? 5),
                 'cap_per_booking' => (float) ($_POST['cap_per_booking'] ?? 30),
                 'status' => sanitize_key(wp_unslash($_POST['status'] ?? 'pending')),

@@ -53,11 +53,11 @@ tap_t_assert(false === TAP_PayPal::verify_webhook($headers, ['id' => 'evt-' . $s
 remove_filter('pre_http_request', $failure_filter, 99);
 
 /* --- 3) Active gateway resolution ------------------------------------------- */
-$gateway_options = ['tap_paypal_enabled', 'tap_sinpe_enabled', 'tap_manual_payment_enabled', 'tap_sinpe_phone', 'tap_manual_bank_info'];
+$gateway_options = ['tap_paypal_enabled', 'tap_sinpe_enabled', 'tap_manual_payment_enabled', 'tap_onvo_enabled', 'tap_sinpe_phone', 'tap_manual_bank_info'];
 foreach ($gateway_options as $gopt) {
     $option_snapshot[$gopt] = get_option($gopt, null);
 }
-foreach (['tap_paypal_enabled', 'tap_sinpe_enabled', 'tap_manual_payment_enabled'] as $gopt) { update_option($gopt, '0'); }
+foreach (['tap_paypal_enabled', 'tap_sinpe_enabled', 'tap_manual_payment_enabled', 'tap_onvo_enabled'] as $gopt) { update_option($gopt, '0'); }
 update_option('tap_sinpe_phone', '');
 update_option('tap_manual_bank_info', '');
 tap_t_assert(null === TAP_Payment::get_active_gateway(), 'no ready gateway resolves to null');

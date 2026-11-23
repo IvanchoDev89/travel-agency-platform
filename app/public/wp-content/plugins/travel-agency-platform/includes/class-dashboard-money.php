@@ -444,6 +444,7 @@ class TAP_Dashboard_Money {
                                 <input type="hidden" name="payout_id" value="<?php echo (int) $p->id; ?>">
                                 <input type="hidden" name="filter" value="<?php echo esc_attr($filter); ?>">
                                 <input type="hidden" name="payout_filter" value="<?php echo esc_attr($payout_filter); ?>">
+                                <input type="text" name="fail_note" class="small-text" placeholder="<?php esc_attr_e('Motivo del fallo', 'travel-agency-platform'); ?>">
                                 <button type="submit" name="tap_payout_action" value="failed" class="button button-small" style="color:#b91c1c;" onclick="return confirm('<?php echo esc_js(__('Marcar esta liquidación como fallida? Las comisiones volverán a estar por cobrar.', 'travel-agency-platform')); ?>');"><?php esc_html_e('Marcar fallida', 'travel-agency-platform'); ?></button>
                             </form>
                             <form method="post" style="display:inline-block;margin:0 0 0 4px;">
@@ -528,9 +529,9 @@ class TAP_Dashboard_Money {
                 $note = sanitize_textarea_field(wp_unslash($_POST['resolution_note'] ?? ''));
                 $res  = TAP_Disputes::resolve($dispute_id, $outcome, $note);
                 if (is_wp_error($res)) {
-                    set_transient('tap_dispute_notice', $res->get_error_message(), 60);
+                    set_transient('tap_dispute_notice', ['error' => true, 'message' => $res->get_error_message()], 60);
                 } else {
-                    set_transient('tap_dispute_notice', __('Disputa resuelta. Comisión liberada o anulada según el resultado.', 'travel-agency-platform'), 60);
+                    set_transient('tap_dispute_notice', ['error' => false, 'message' => __('Disputa resuelta. Comisión liberada o anulada según el resultado.', 'travel-agency-platform')], 60);
                 }
             }
             wp_safe_redirect(admin_url('admin.php?page=tap-disputes&dfilter=' . sanitize_key(wp_unslash($_POST['dfilter'] ?? 'all'))));
@@ -571,7 +572,8 @@ class TAP_Dashboard_Money {
             <h1><?php esc_html_e('Disputas de reservas', 'travel-agency-platform'); ?></h1>
 
             <?php $tap_dnotice = get_transient('tap_dispute_notice'); if ($tap_dnotice): ?>
-                <div class="notice notice-success is-dismissible"><p><?php echo esc_html($tap_dnotice); ?></p></div>
+                <?php $tap_dclass = !empty($tap_dnotice['error']) ? 'notice-error' : 'notice-success'; ?>
+                <div class="notice <?php echo esc_attr($tap_dclass); ?> is-dismissible"><p><?php echo esc_html($tap_dnotice['message'] ?? ''); ?></p></div>
                 <?php delete_transient('tap_dispute_notice'); ?>
             <?php endif; ?>
 

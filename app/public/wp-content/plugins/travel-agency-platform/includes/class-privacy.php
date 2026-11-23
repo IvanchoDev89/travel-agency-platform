@@ -535,6 +535,7 @@ class TAP_Privacy {
     }
 
     public static function privacy_page() {
+        settings_errors();
         if (!current_user_can('tap_manage_settings')) {
             wp_die(__('No tienes permisos para acceder.', 'travel-agency-platform'));
         }

@@ -161,13 +161,15 @@ class TAP_Email_Campaigns {
         if (!current_user_can('manage_options')) wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform'));
         check_admin_referer('tap_email_campaign_save');
         $id = isset($_POST['campaign_id']) ? (int) $_POST['campaign_id'] : 0;
+        $scheduled_at = !empty($_POST['scheduled_at']) ? sanitize_text_field(wp_unslash($_POST['scheduled_at'])) : null;
         $data = [
             'name'         => sanitize_text_field(wp_unslash($_POST['name'] ?? '')),
             'subject'      => sanitize_text_field(wp_unslash($_POST['subject'] ?? '')),
             'body'         => wp_kses_post(wp_unslash($_POST['body'] ?? '')),
             'segment'      => sanitize_key(wp_unslash($_POST['segment'] ?? 'all')),
-            'status'       => 'draft',
-            'scheduled_at' => !empty($_POST['scheduled_at']) ? sanitize_text_field(wp_unslash($_POST['scheduled_at'])) : null,
+            // A date means "send later": the hourly cron picks it up.
+            'status'       => $scheduled_at ? 'scheduled' : 'draft',
+            'scheduled_at' => $scheduled_at,
             'created_by'   => get_current_user_id(),
         ];
         if ($id > 0) $data['id'] = $id;

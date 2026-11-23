@@ -320,6 +320,7 @@ break; }
                         <p class="tap-agency-card-desc"><?php esc_html_e('Recibe ofertas y novedades de esta agencia.', 'travel-agency-platform'); ?></p>
                         <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" class="tap-agency-newsletter-form">
                             <input type="hidden" name="action" value="tap_lead_form">
+            <?php wp_nonce_field('tap_lead_nonce', 'nonce'); ?>
                             <input type="hidden" name="agency_id" value="<?php echo (int) $agency_id; ?>">
                             <input type="email" name="email" placeholder="<?php esc_attr_e('Tu email', 'travel-agency-platform'); ?>" required>
                             <button type="submit" class="tap-btn tap-btn-primary tap-btn-sm"><?php esc_html_e('Suscribirme', 'travel-agency-platform'); ?></button>

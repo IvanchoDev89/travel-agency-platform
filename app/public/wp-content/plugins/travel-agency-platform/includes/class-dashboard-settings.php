@@ -59,19 +59,27 @@ class TAP_Dashboard_Settings {
         register_setting('tap_settings', 'tap_paypal_enabled');
         register_setting('tap_settings', 'tap_paypal_sandbox');
         register_setting('tap_settings', 'tap_paypal_client_id');
-        register_setting('tap_settings', 'tap_paypal_secret');
+        // Secret fields never echo the stored value back into the form. An
+        // empty submit keeps the previous value instead of wiping it.
+        $keep_secret = static function ($key) {
+            return static function ($value) use ($key) {
+                $value = is_string($value) ? trim($value) : '';
+                return '' === $value ? get_option($key, '') : sanitize_text_field($value);
+            };
+        };
+        register_setting('tap_settings', 'tap_paypal_secret', ['sanitize_callback' => $keep_secret('tap_paypal_secret')]);
         register_setting('tap_settings', 'tap_paypal_webhook_id');
         register_setting('tap_settings', 'tap_onvo_enabled');
-        register_setting('tap_settings', 'tap_onvo_secret_key');
+        register_setting('tap_settings', 'tap_onvo_secret_key', ['sanitize_callback' => $keep_secret('tap_onvo_secret_key')]);
         register_setting('tap_settings', 'tap_onvo_publishable_key');
-        register_setting('tap_settings', 'tap_onvo_webhook_secret');
+        register_setting('tap_settings', 'tap_onvo_webhook_secret', ['sanitize_callback' => $keep_secret('tap_onvo_webhook_secret')]);
         register_setting('tap_settings', 'tap_onvo_app_fee');
         register_setting('tap_settings', 'tap_sinpe_enabled');
         register_setting('tap_settings', 'tap_sinpe_phone');
         register_setting('tap_settings', 'tap_manual_payment_enabled');
         register_setting('tap_settings', 'tap_manual_bank_info');
         register_setting('tap_settings', 'tap_vapid_public');
-        register_setting('tap_settings', 'tap_vapid_private');
+        register_setting('tap_settings', 'tap_vapid_private', ['sanitize_callback' => $keep_secret('tap_vapid_private')]);
         register_setting('tap_settings', 'tap_default_gateway');
         register_setting('tap_settings', 'tap_booking_fee_type', [
             'type' => 'string',
@@ -344,6 +352,7 @@ class TAP_Dashboard_Settings {
 
 
     public static function settings_page() {
+        settings_errors();
         if (!current_user_can('tap_manage_settings') && !current_user_can('manage_options')) {
             wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform'));
         }
@@ -364,6 +373,13 @@ class TAP_Dashboard_Settings {
                     <tr>
                         <th><label for="tap_commission_default"><?php esc_html_e('Default Commission %', 'travel-agency-platform'); ?></label></th>
                         <td><input type="number" id="tap_commission_default" name="tap_commission_default" value="<?php echo esc_attr(get_option('tap_commission_default', '10')); ?>" step="0.01" class="regular-text"></td>
+                    </tr>
+                    <tr>
+                        <th><label for="tap_unpaid_alert_days"><?php esc_html_e('Alerta de pagos pendientes (días)', 'travel-agency-platform'); ?></label></th>
+                        <td>
+                            <input type="number" id="tap_unpaid_alert_days" name="tap_unpaid_alert_days" value="<?php echo esc_attr(get_option('tap_unpaid_alert_days', 3)); ?>" min="1" step="1" class="small-text">
+                            <p class="description"><?php esc_html_e('El administrador recibe un resumen diario de las reservas impagas más antiguas que este número de días.', 'travel-agency-platform'); ?></p>
+                        </td>
                     </tr>
                     <tr>
                         <th colspan="2"><h3><?php esc_html_e('Incentivo por volumen', 'travel-agency-platform'); ?></h3>
@@ -567,7 +583,7 @@ class TAP_Dashboard_Settings {
                     </tr>
                     <tr>
                         <th><label for="tap_paypal_secret"><?php esc_html_e('Secret Key', 'travel-agency-platform'); ?></label></th>
-                        <td><input type="password" id="tap_paypal_secret" name="tap_paypal_secret" value="<?php echo esc_attr(get_option('tap_paypal_secret', '')); ?>" class="regular-text" style="width: 400px;"></td>
+                        <td><input type="password" id="tap_paypal_secret" name="tap_paypal_secret" value="" placeholder="<?php esc_attr_e('Dejar vacío para mantener el valor actual.', 'travel-agency-platform'); ?>" class="regular-text" style="width: 400px;"></td>
                     </tr>
                     <tr>
                         <th><label for="tap_paypal_webhook_id"><?php esc_html_e('Webhook ID', 'travel-agency-platform'); ?></label></th>
@@ -591,7 +607,7 @@ class TAP_Dashboard_Settings {
                     </tr>
                     <tr>
                         <th><label for="tap_onvo_secret_key"><?php esc_html_e('Secret Key', 'travel-agency-platform'); ?></label></th>
-                        <td><input type="password" id="tap_onvo_secret_key" name="tap_onvo_secret_key" value="<?php echo esc_attr(get_option('tap_onvo_secret_key', '')); ?>" class="regular-text" style="width: 400px;"></td>
+                        <td><input type="password" id="tap_onvo_secret_key" name="tap_onvo_secret_key" value="" placeholder="<?php esc_attr_e('Dejar vacío para mantener el valor actual.', 'travel-agency-platform'); ?>" class="regular-text" style="width: 400px;"></td>
                     </tr>
                     <tr>
                         <th><label for="tap_onvo_publishable_key"><?php esc_html_e('Publishable Key', 'travel-agency-platform'); ?></label></th>
@@ -599,7 +615,7 @@ class TAP_Dashboard_Settings {
                     </tr>
                     <tr>
                         <th><label for="tap_onvo_webhook_secret"><?php esc_html_e('Webhook Secret', 'travel-agency-platform'); ?></label></th>
-                        <td><input type="password" id="tap_onvo_webhook_secret" name="tap_onvo_webhook_secret" value="<?php echo esc_attr(get_option('tap_onvo_webhook_secret', '')); ?>" class="regular-text" style="width: 400px;">
+                        <td><input type="password" id="tap_onvo_webhook_secret" name="tap_onvo_webhook_secret" value="" placeholder="<?php esc_attr_e('Dejar vacío para mantener el valor actual.', 'travel-agency-platform'); ?>" class="regular-text" style="width: 400px;">
                         <p class="description"><?php esc_html_e('Webhook URL:', 'travel-agency-platform'); ?> <code><?php echo esc_url(home_url('/wp-json/tap/v1/onvo-webhook')); ?></code></p>
                         </td>
                     </tr>
@@ -641,7 +657,7 @@ class TAP_Dashboard_Settings {
                     </tr>
                     <tr>
                         <th><label for="tap_vapid_private"><?php esc_html_e('VAPID Private Key', 'travel-agency-platform'); ?></label></th>
-                        <td><input type="text" id="tap_vapid_private" name="tap_vapid_private" value="<?php echo esc_attr(get_option('tap_vapid_private', '')); ?>" class="regular-text" style="width:400px;">
+                        <td><input type="password" id="tap_vapid_private" name="tap_vapid_private" value="" placeholder="<?php esc_attr_e('Dejar vacío para mantener el valor actual.', 'travel-agency-platform'); ?>" class="regular-text" style="width:400px;">
                         <p class="description"><?php esc_html_e('Genera las claves en https://vapidkeys.com/ o con web-push. Sin ellas, las notificaciones caen a email.', 'travel-agency-platform'); ?></p></td>
                     </tr>
                 </table>

@@ -66,6 +66,7 @@ class TAP_Customer_Referrals {
     }
 
     public static function render_settings_page() {
+        settings_errors();
         if (!current_user_can('manage_options')) {
             return;
         }

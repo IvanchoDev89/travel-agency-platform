@@ -10,6 +10,7 @@ $desc = $settings['description'] ?? __('Suscríbete para recibir las mejores ofe
         <p><?php echo esc_html($desc); ?></p>
         <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" class="tap-landing-newsletter-form">
             <input type="hidden" name="action" value="tap_lead_form">
+            <?php wp_nonce_field('tap_lead_nonce', 'nonce'); ?>
             <input type="email" name="email" placeholder="<?php esc_attr_e('Tu email', 'travel-agency-platform'); ?>" required>
             <button type="submit" class="tap-btn tap-btn-primary"><?php esc_html_e('Suscribirme', 'travel-agency-platform'); ?></button>
         </form>

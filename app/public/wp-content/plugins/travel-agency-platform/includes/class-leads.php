@@ -7,6 +7,56 @@ class TAP_Leads {
 
     public static function init() {
         add_shortcode('tap_lead_form', [__CLASS__, 'lead_form']);
+        add_action('wp_footer', [__CLASS__, 'newsletter_feedback']);
+    }
+
+    /** Handle the newsletter forms that post to admin-post.php. */
+    public static function handle_newsletter() {
+        check_admin_referer('tap_lead_nonce', 'nonce');
+        $back = wp_get_referer();
+        if (!$back) { $back = home_url('/'); }
+
+        if (!empty($_POST['tap_hp'])) {
+            wp_safe_redirect($back);
+            exit;
+        }
+        $email = sanitize_email(wp_unslash($_POST['email'] ?? ''));
+        if (!is_email($email)) {
+            wp_safe_redirect(add_query_arg('tap_newsletter', 'error', $back));
+            exit;
+        }
+
+        $agency_id = absint($_POST['agency_id'] ?? 0);
+        $signups = get_option('tap_newsletter_signups', []);
+        if (!is_array($signups)) { $signups = []; }
+        if (!isset($signups[$email])) {
+            $signups[$email] = [
+                'email'      => $email,
+                'agency_id'  => $agency_id,
+                'created_at' => current_time('mysql'),
+            ];
+        }
+        if (count($signups) > 1000) {
+            $signups = array_slice($signups, -1000, 1000, true);
+        }
+        if (!get_option('tap_newsletter_signups')) {
+            add_option('tap_newsletter_signups', $signups, '', 'no');
+        } else {
+            update_option('tap_newsletter_signups', $signups, false);
+        }
+
+        wp_safe_redirect(add_query_arg('tap_newsletter', 'ok', $back));
+        exit;
+    }
+
+    /** Show a short confirmation after a newsletter submit. */
+    public static function newsletter_feedback() {
+        $flag = isset($_GET['tap_newsletter']) ? sanitize_key($_GET['tap_newsletter']) : '';
+        if (!in_array($flag, ['ok', 'error'], true)) { return; }
+        $message = 'ok' === $flag
+            ? __('¡Gracias! Te has suscrito.', 'travel-agency-platform')
+            : __('No se pudo completar la suscripción.', 'travel-agency-platform');
+        echo '<div class="tap-newsletter-feedback" role="status">' . esc_html($message) . '</div>';
     }
 
     /**
