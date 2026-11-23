@@ -820,5 +820,4 @@ class TAP_Landing_Builder {
         }
         exit;
     }
-
 }
