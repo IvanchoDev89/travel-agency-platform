@@ -39,12 +39,13 @@ class TAP_Simple_PDF {
             $pdf .= $number . " 0 obj\n" . $body . "\nendobj\n";
         }
         $xref = strlen($pdf);
-        $pdf .= 'xref' . "\n0 " . (count($objects) + 1) . "\n";
+        $object_count = count($objects);
+        $pdf .= 'xref' . "\n0 " . ($object_count + 1) . "\n";
         $pdf .= "0000000000 65535 f \n";
-        for ($i = 1; $i <= count($objects); $i++) {
+        for ($i = 1; $i <= $object_count; $i++) {
             $pdf .= sprintf("%010d 00000 n \n", $offsets[$i]);
         }
-        $pdf .= 'trailer' . "\n<< /Size " . (count($objects) + 1) . " /Root 1 0 R >>\n";
+        $pdf .= 'trailer' . "\n<< /Size " . ($object_count + 1) . " /Root 1 0 R >>\n";
         $pdf .= 'startxref' . "\n" . $xref . "\n%%EOF\n";
         return $pdf;
     }
