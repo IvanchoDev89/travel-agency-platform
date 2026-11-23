@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.6.17] — 2026-11-23
+
+### Changed (search and traveler UX)
+- Search results are no longer hard-capped at 140: the full matching set is
+  counted, sorted and paginated with real page links.
+- Archive search boxes now filter the shortcode grid; archive listings honour
+  the `is_active` flag.
+- Autocomplete suggestions respect agency approval.
+- Hold timer uses the configured `tap_payment_hold_minutes` and an explicit
+  timezone instead of a fixed 30 minutes in browser-local time.
+- Accessibility: unique autocomplete listbox ids and accessible names on
+  carousel links.
+
+### Added
+- Extend `suite_discovery.php` with archive-search and wiring assertions.
+
 ## [1.6.16] — 2026-11-23
 
 ### Fixed (money-critical, traveler flow)

@@ -591,7 +591,7 @@ class TAP_Shortcode_Booking {
                 $tap_onvo_ready   = TAP_Onvo::is_ready();
                 $tap_both_ready   = $tap_paypal_ready && $tap_onvo_ready;
                 ?>
-                <div class="tap-checkout-hold-timer" id="tap-hold-timer" data-created="<?php echo esc_attr($booking->created_at); ?>" data-hold-minutes="30">
+                <div class="tap-checkout-hold-timer" id="tap-hold-timer" data-created="<?php echo esc_attr(get_date_from_gmt(get_gmt_from_date($booking->created_at), 'c')); ?>" data-hold-minutes="<?php echo esc_attr(max(1, (int) get_option('tap_payment_hold_minutes', 30))); ?>">
                     <span class="tap-hold-timer-icon" aria-hidden="true">&#x23F1;</span>
                     <span class="tap-hold-timer-text"><?php esc_html_e('Tu reserva expira en', 'travel-agency-platform'); ?> <strong id="tap-hold-countdown">--:--</strong></span>
                 </div>
@@ -809,7 +809,7 @@ class TAP_Shortcode_Booking {
         jQuery(document).ready(function($) {
             var $timer = $('#tap-hold-timer');
             if (!$timer.length) return;
-            var created = new Date($timer.data('created').replace(' ', 'T'));
+            var created = new Date($timer.data('created'));
             var holdMinutes = parseInt($timer.data('hold-minutes'), 10) || 30;
             var expiresAt = created.getTime() + holdMinutes * 60 * 1000;
             var $countdown = $('#tap-hold-countdown');

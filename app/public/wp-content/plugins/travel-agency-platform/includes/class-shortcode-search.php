@@ -32,7 +32,7 @@ class TAP_Shortcode_Search {
                 <div class="tap-search-field">
                     <label for="<?php echo esc_attr($uid); ?>-destino"><?php esc_html_e('Destination', 'travel-agency-platform'); ?></label>
                     <div class="tap-search-destino">
-                        <input type="text" id="<?php echo esc_attr($uid); ?>-destino" name="keyword" placeholder="<?php echo esc_attr($atts['placeholder']); ?>" class="tap-input" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="tap-hs-listbox">
+                        <input type="text" id="<?php echo esc_attr($uid); ?>-destino" name="keyword" placeholder="<?php echo esc_attr($atts['placeholder']); ?>" class="tap-input" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="<?php echo esc_attr($uid); ?>-listbox">
                         <div class="tap-hs-suggestions tap-form-suggestions" role="listbox" aria-expanded="false"></div>
                     </div>
                 </div>
@@ -89,7 +89,9 @@ class TAP_Shortcode_Search {
 
         $args = [
             'post_type'      => $types,
-            'posts_per_page' => intval($atts['per_page']) * count($types),
+            // Load the full matching set: results are sorted in PHP, so the
+            // count is truthful and no result is unreachable.
+            'posts_per_page' => -1,
             'post_status'    => 'publish',
             'suppress_filters' => true,
             'no_found_rows'  => true,
@@ -188,6 +190,10 @@ class TAP_Shortcode_Search {
         });
 
         $total = count($rows);
+        $per_page = max(1, intval($atts['per_page']));
+        $paged    = max(1, absint($_GET['tap_page'] ?? 1));
+        $paged_rows = array_slice($rows, ($paged - 1) * $per_page, $per_page);
+        $pages = (int) ceil($total / $per_page);
 
         if ('' === $keyword && !$type && !$location && !$difficulty && !$tour_type && $min_price === null && $max_price === null && $sort === 'relevance') {
             return self::search_filters($current_url, $type, $location, $sort, $min_price, $max_price, $difficulty, $tour_type)
@@ -213,10 +219,22 @@ class TAP_Shortcode_Search {
             echo '<p class="tap-results-count">' . esc_html(sprintf(_n('%d resultado encontrado', '%d resultados encontrados', $total, 'travel-agency-platform'), $total)) . '</p>';
         }
         echo '<div class="tap-services-grid">';
-        foreach ($rows as $p) {
+        foreach ($paged_rows as $p) {
             self::render_result_card($p);
         }
         echo '</div>';
+        if ($pages > 1) {
+            echo '<nav class="tap-search-pagination" aria-label="' . esc_attr__('Paginación de resultados', 'travel-agency-platform') . '">';
+            echo paginate_links([
+                'base'      => esc_url_raw(add_query_arg('tap_page', '%#%')),
+                'format'    => '',
+                'current'   => $paged,
+                'total'     => $pages,
+                'prev_text' => '&laquo;',
+                'next_text' => '&raquo;',
+            ]);
+            echo '</nav>';
+        }
         if (!$total) {
             echo '<p class="tap-no-results">' . esc_html__('No encontramos resultados para tu búsqueda. Probá con otro destino, palabra clave o ajustá los filtros.', 'travel-agency-platform') . '</p>';
         }
@@ -365,6 +383,9 @@ class TAP_Shortcode_Search {
             $destination = $dest_slug ? get_term_by('slug', $dest_slug, 'tap_location') : null;
         }
 
+        // Archive search boxes submit `s`, but this shortcode (not the main
+        // query) renders the grid, so the term must be applied here.
+        $archive_search = sanitize_text_field(wp_unslash($_GET['s'] ?? ''));
         $all_posts = [];
         foreach ($types as $pt) {
             $pt_args = [
@@ -373,6 +394,16 @@ class TAP_Shortcode_Search {
                 'post_status'    => 'publish',
                 'no_found_rows'  => true,
             ];
+            if ('' !== $archive_search) {
+                $pt_args['s'] = $archive_search;
+            }
+            // A deactivated listing must vanish from archives as it already
+            // does from search.
+            $active_key = class_exists('TAP_Promotions') ? (TAP_Promotions::keys_for_type($pt)['active_key'] ?? '') : '';
+            if ('' !== $active_key) {
+                if (!isset($pt_args['meta_query'])) { $pt_args['meta_query'] = []; }
+                $pt_args['meta_query'][] = ['key' => $active_key, 'value' => '1'];
+            }
 
             if ($atts['agency']) {
                 $prefix = '_tap_' . TAP_Post_Types::meta_prefix($pt) . '_agency_id';
@@ -442,7 +473,7 @@ class TAP_Shortcode_Search {
                                     $cu = wp_get_attachment_image_url($ci, 'medium');
 									if (!$cu) continue;
 									?>
-                                    <a href="<?php the_permalink(); ?>" class="tap-card-carousel-slide">
+                                    <a href="<?php the_permalink(); ?>" class="tap-card-carousel-slide" aria-label="<?php echo esc_attr(get_the_title()); ?>">
                                         <img src="<?php echo esc_url($cu); ?>" alt="" loading="lazy" decoding="async">
                                     </a>
                                 <?php endforeach; ?>

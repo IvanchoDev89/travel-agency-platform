@@ -43,6 +43,33 @@ tap_t_assert(false === strpos($search_src, "wp_enqueue_style('tap-leaflet'"), 'm
 /* --- 4) featured shortcode honours promotion expiry ------------------------- */
 tap_t_assert(false !== strpos($search_src, 'TAP_Promotions::featured_ids($types)'), 'featured shortcode uses the expiry-aware promotion helper');
 
+/* --- 5) archive search actually filters -------------------------------------- */
+$match_title = 'TAP ARCHIVO MATCH ' . $sfx;
+$other_title = 'TAP ARCHIVO OTHER ' . $sfx;
+foreach ([$match_title, $other_title] as $title) {
+    $p = wp_insert_post(['post_type' => 'tap_tour', 'post_status' => 'publish', 'post_title' => $title]);
+    update_post_meta($p, '_tap_tour_is_active', '1');
+    $cleanup_posts[] = (int) $p;
+}
+$_GET['s'] = 'ARCHIVO MATCH';
+$archive_html = TAP_Shortcode_Search::services_list(['type' => 'tap_tour', 'limit' => 12]);
+unset($_GET['s']);
+tap_t_assert(false !== strpos($archive_html, $match_title), 'archive search includes the matching service');
+tap_t_assert(false === strpos($archive_html, $other_title), 'archive search excludes non-matching services');
+
+/* --- 6) search pagination, hold timer and a11y wiring ----------------------- */
+$search_src = (string) file_get_contents($plugin . 'includes/class-shortcode-search.php');
+$booking_src = (string) file_get_contents($plugin . 'includes/class-shortcode-booking.php');
+$ajax_pub_src = (string) file_get_contents($plugin . 'includes/class-ajax-public.php');
+$public_js = (string) file_get_contents($plugin . 'assets/js/public.js');
+tap_t_assert(false === strpos($search_src, "intval(\$atts['per_page']) * count(\$types)"), 'search no longer caps results at a hard-coded page size');
+tap_t_assert(false !== strpos($search_src, 'paginate_links('), 'search renders pagination links');
+tap_t_assert(false !== strpos($search_src, '-listbox'), 'autocomplete listbox id is unique per form');
+tap_t_assert(false !== strpos($search_src, "class=\"tap-card-carousel-slide\" aria-label="), 'carousel links have an accessible name');
+tap_t_assert(false !== strpos($booking_src, "get_option('tap_payment_hold_minutes', 30)"), 'hold timer uses the configured minutes');
+tap_t_assert(false !== strpos($booking_src, "get_gmt_from_date(\$booking->created_at)"), 'hold timer uses an explicit timezone');
+tap_t_assert(false !== strpos($ajax_pub_src, 'TAP_Approval::exclude_from_query($acc_args'), 'autocomplete respects agency approval');
+
 /* --- cleanup ----------------------------------------------------------------- */
 foreach ($cleanup_posts as $pid) { wp_delete_post($pid, true); }
 tap_t_finish();

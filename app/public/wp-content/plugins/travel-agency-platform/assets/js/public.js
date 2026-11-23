@@ -311,8 +311,9 @@ jQuery(document).ready(function($) {
                     '</div></a>';
             });
             $box.attr('role', 'listbox').html(html).show();
-            $(this.input).attr('aria-expanded', 'true').attr('aria-activedescendant', '').attr('aria-controls', 'tap-hs-listbox');
-            $box.attr('id', 'tap-hs-listbox');
+            var listboxId = $(this.input).attr('aria-controls') || 'tap-hs-listbox';
+            $(this.input).attr('aria-expanded', 'true').attr('aria-activedescendant', '').attr('aria-controls', listboxId);
+            $box.attr('id', listboxId);
             this.active = -1;
         },
         highlight: function() {

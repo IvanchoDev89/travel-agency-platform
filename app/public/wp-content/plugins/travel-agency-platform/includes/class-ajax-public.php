@@ -538,13 +538,14 @@ class TAP_Ajax_Public {
         $results = [];
 
         // Accommodations
-        $acc = get_posts([
+        $acc_args = [
             'post_type' => 'tap_accommodation',
             'post_status' => 'publish',
             'posts_per_page' => 6,
             's' => $keyword,
             'meta_query' => [['key' => '_tap_acc_is_active', 'value' => '1']],
-        ]);
+        ];
+        $acc = get_posts(TAP_Approval::exclude_from_query($acc_args, ['tap_accommodation']));
         foreach ($acc as $p) {
             $city = get_post_meta($p->ID, '_tap_acc_city', true);
             $results[] = [
