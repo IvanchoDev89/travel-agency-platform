@@ -26,6 +26,8 @@ class TAP_Dashboard {
         add_action('manage_tap_package_posts_custom_column', [TAP_Dashboard_Content::class, 'render_agency_column'], 10, 2);
         add_filter('manage_tap_equipment_posts_columns', [TAP_Dashboard_Content::class, 'add_agency_column']);
         add_action('manage_tap_equipment_posts_custom_column', [TAP_Dashboard_Content::class, 'render_agency_column'], 10, 2);
+        add_filter('manage_tap_experience_posts_columns', [TAP_Dashboard_Content::class, 'add_agency_column']);
+        add_action('manage_tap_experience_posts_custom_column', [TAP_Dashboard_Content::class, 'render_agency_column'], 10, 2);
 
         // Bulk approve/unpublish for every service type.
         foreach (array_keys(TAP_Post_Types::get_service_types()) as $pt) {

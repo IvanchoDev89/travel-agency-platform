@@ -885,6 +885,82 @@ class TAP_Metaboxes {
         return (string) (float) $raw;
     }
 
+    /** Show rejected fields after an admin save. */
+    public static function admin_validation_notice() {
+        $key = 'tap_admin_listing_errors_' . get_current_user_id();
+        $errors = get_transient($key);
+        if (!is_array($errors) || !$errors) { return; }
+        delete_transient($key);
+        echo '<div class="notice notice-error"><p><strong>'
+            . esc_html__('No se guardaron algunos campos:', 'travel-agency-platform')
+            . '</strong> ' . esc_html(implode(' ', $errors)) . '</p></div>';
+    }
+
+    /**
+     * Shared validation for listing fields. Returns error messages and the
+     * offending meta keys so both the agency AJAX save and the wp-admin save
+     * reject the same values (previously admin accepted bad prices/coords).
+     *
+     * @param string $post_type
+     * @param array  $input
+     * @return array{errors:array<int,string>,invalid:array<int,string>}
+     */
+    public static function validate_listing_data($post_type, array $input) {
+        $errors = [];
+        $invalid = [];
+        $fields = self::get_fields($post_type);
+
+        foreach ($fields as $meta_key => $cfg) {
+            if (!isset($cfg['type']) || 'number' !== $cfg['type'] || false === strpos($meta_key, 'price')) {
+                continue;
+            }
+            $raw = $input[$meta_key] ?? null;
+            if (null === $raw && 'tap_accommodation' === $post_type && '_tap_acc_price_per_night' === $meta_key) {
+                $raw = $input['price_per_night'] ?? null;
+            }
+            if (null === $raw || (is_scalar($raw) && '' === trim((string) $raw))) {
+                continue;
+            }
+            $is_decimal = isset($cfg['step']) && false !== strpos($cfg['step'], '.');
+            $value = $is_decimal ? (float) $raw : (int) $raw;
+            if ($value <= 0) {
+                $errors[] = sprintf(
+                    /* translators: %s: etiqueta del tipo de tarifa */
+                    __('El precio %s debe ser mayor que 0.', 'travel-agency-platform'),
+                    $cfg['label'] ?? $meta_key
+                );
+                $invalid[] = $meta_key;
+            }
+        }
+
+        foreach ($fields as $meta_key => $cfg) {
+            if (false === stripos($meta_key, '_lat') && false === stripos($meta_key, '_lng')) {
+                continue;
+            }
+            $raw = $input[$meta_key] ?? null;
+            if (null === $raw || (is_scalar($raw) && '' === trim((string) $raw))) {
+                continue;
+            }
+            $label = $cfg['label'] ?? $meta_key;
+            if (!is_numeric($raw)) {
+                $errors[] = sprintf(__('El campo %s debe ser numérico.', 'travel-agency-platform'), $label); // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
+                $invalid[] = $meta_key;
+                continue;
+            }
+            $val = (float) $raw;
+            if (false !== stripos($meta_key, '_lat') && ($val < -90 || $val > 90)) {
+                $errors[] = sprintf(__('La latitud debe estar entre -90 y 90 (%s).', 'travel-agency-platform'), $label); // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
+                $invalid[] = $meta_key;
+            }
+            if (false !== stripos($meta_key, '_lng') && ($val < -180 || $val > 180)) {
+                $errors[] = sprintf(__('La longitud debe estar entre -180 y 180 (%s).', 'travel-agency-platform'), $label); // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
+                $invalid[] = $meta_key;
+            }
+        }
+
+        return ['errors' => $errors, 'invalid' => $invalid];
+    }
+
     public static function save($post_id, $post) {
         if (!isset($_POST['tap_metabox_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['tap_metabox_nonce'])), 'tap_metabox_save')) {
             return;
@@ -894,8 +970,20 @@ class TAP_Metaboxes {
 
         $post_type = $post->post_type;
 
+        // Same rules as the agency editor: reject invalid prices/coordinates
+        // instead of persisting them silently.
+        $validation = ['errors' => [], 'invalid' => []];
+        if (array_key_exists($post_type, TAP_Post_Types::get_service_types())) {
+            $validation = self::validate_listing_data($post_type, wp_unslash($_POST));
+            if ($validation['errors']) {
+                set_transient('tap_admin_listing_errors_' . get_current_user_id(), $validation['errors'], 120);
+            }
+        }
+        $invalid = array_flip($validation['invalid']);
+
         if (isset(self::$fields[$post_type])) {
             foreach (self::$fields[$post_type] as $key => $field) {
+                if (isset($invalid[$key])) { continue; }
                 // Ownership is sensitive: only agency managers may reassign a
                 // listing. Everyone else keeps the existing agency meta.
                 if (false !== strpos($key, '_agency_id') && !current_user_can('tap_manage_agencies')) {

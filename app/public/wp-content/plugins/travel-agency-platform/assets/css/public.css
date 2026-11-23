@@ -1117,6 +1117,15 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .tap-uploader-item-tools button:hover { background: #fff; }
 .tap-uploader-item-tools button.is-on { background: var(--tap-primary); color: #fff; }
 .tap-uploader-item-tools button.tap-uploader-del:hover { background: var(--tap-danger); color: #fff; }
+.tap-uploader-item.is-dragging { opacity: .4; }
+.tap-uploader-alt { width: 100%; margin-top: 3px; padding: 4px 6px; border: 1px solid var(--tap-border); border-radius: var(--tap-radius-sm); font-size: 11px; box-sizing: border-box; }
+.tap-uploader-delete-file { flex: 0 1 auto !important; }
+.tap-uploader-library { border: 1px solid var(--tap-border); border-radius: var(--tap-radius-lg); background: var(--tap-surface, #fff); padding: 12px; }
+.tap-uploader-library-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; }
+.tap-uploader-library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; max-height: 320px; overflow-y: auto; }
+.tap-uploader-library-item { position: relative; border: 1px solid var(--tap-border); border-radius: 8px; overflow: hidden; aspect-ratio: 4 / 3; }
+.tap-uploader-library-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tap-uploader-library-add { position: absolute; inset: auto 0 0 0; border: 0; padding: 6px; background: rgba(13,148,136,.92); color: #fff; font-size: 12px; font-weight: 700; cursor: pointer; }
 .tap-uploader-main-flag {
     position: absolute; top: 4px; left: 4px; padding: 1px 8px; border-radius: var(--tap-radius-full);
     background: var(--tap-primary); color: #fff; font-size: 10px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase;

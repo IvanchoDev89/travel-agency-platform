@@ -372,6 +372,9 @@
         var urlInput = qs('.tap-uploader-url', root);
         var urlToggle = qs('.tap-uploader-url-toggle', root);
         var urlAdd = qs('.tap-uploader-url-add', root);
+        var libraryBtn = qs('.tap-uploader-library-toggle', root);
+        var libraryPanel = qs('.tap-uploader-library', root);
+        var libraryGrid = qs('.tap-uploader-library-grid', root);
         var postId = root.dataset.postId || '0';
         var parentId = root.dataset.parentId || postId;
         var postType = root.dataset.postType || '';
@@ -431,12 +434,17 @@
             items.forEach(function (item, index) {
                 var figure = document.createElement('figure');
                 figure.className = 'tap-uploader-item' + (index === 0 ? ' is-main' : '');
+                figure.setAttribute('draggable', 'true');
                 figure.innerHTML =
-                    '<img src="' + escapeHtml(item.thumb || item.url) + '" alt="" loading="lazy">' +
+                    '<img src="' + escapeHtml(item.thumb || item.url) + '" alt="' + escapeHtml(item.alt || '') + '" loading="lazy">' +
                     (index === 0 ? '<span class="tap-uploader-main-flag">' + escapeHtml(t('main', 'Principal')) + '</span>' : '') +
                     '<figcaption class="tap-uploader-item-tools">' +
                         '<button type="button" class="tap-uploader-main" title="' + escapeHtml(t('setMain', 'Usar como foto principal')) + '" aria-label="' + escapeHtml(t('setMain', 'Usar como foto principal')) + '">&#9733;</button>' +
                         '<button type="button" class="tap-uploader-del" title="' + escapeHtml(t('removeImage', 'Quitar imagen')) + '" aria-label="' + escapeHtml(t('removeImage', 'Quitar imagen')) + '">&times;</button>' +
+                        (item.id
+                            ? '<input type="text" class="tap-uploader-alt" value="' + escapeHtml(item.alt || '') + '" placeholder="' + escapeHtml(t('altText', 'Texto alternativo')) + '" aria-label="' + escapeHtml(t('altText', 'Texto alternativo')) + '">' +
+                              '<button type="button" class="tap-uploader-delete-file" title="' + escapeHtml(t('deleteFile', 'Borrar archivo')) + '">&#128465;</button>'
+                            : '') +
                     '</figcaption>';
                 on(qs('.tap-uploader-main', figure), 'click', function () {
                     if (index === 0) { return; }
@@ -450,6 +458,59 @@
                     syncInputs();
                     render();
                     setStatus('');
+                });
+                var altField = qs('.tap-uploader-alt', figure);
+                if (altField) {
+                    on(altField, 'change', function () {
+                        item.alt = altField.value;
+                        var fd = new FormData();
+                        fd.append('attachment_id', item.id);
+                        fd.append('alt', item.alt);
+                        post('tap_agency_media_update', fd, cfg.uploadNonce || '')
+                            .then(function (json) { toast((json && json.data && json.data.message) || t('saved', 'Guardado.'), 'success'); })
+                            .catch(function () { toast(t('networkError', 'Error de conexión.'), 'error'); });
+                    });
+                }
+                var deleteFile = qs('.tap-uploader-delete-file', figure);
+                if (deleteFile) {
+                    on(deleteFile, 'click', function () {
+                        confirmDialog({
+                            title: t('deleteFile', 'Borrar archivo'),
+                            subtitle: t('deleteFileSub', 'Se eliminará también de la biblioteca de la agencia.'),
+                            okText: t('delete', 'Eliminar'),
+                            danger: true,
+                            onConfirm: function () {
+                                var fd = new FormData();
+                                fd.append('attachment_id', item.id);
+                                return post('tap_agency_media_delete', fd, cfg.uploadNonce || '').then(function (json) {
+                                    if (!json || !json.success) {
+                                        toast((json && json.data && json.data.message) || t('error', 'Error'), 'error');
+                                        return false;
+                                    }
+                                    items.splice(index, 1);
+                                    syncInputs();
+                                    render();
+                                    toast(json.data.message || t('deleted', 'Eliminado.'), 'success');
+                                    return true;
+                                });
+                            }
+                        });
+                    });
+                }
+                on(figure, 'dragstart', function (ev) {
+                    ev.dataTransfer.setData('text/plain', String(index));
+                    figure.classList.add('is-dragging');
+                });
+                on(figure, 'dragend', function () { figure.classList.remove('is-dragging'); });
+                on(figure, 'dragover', function (ev) { ev.preventDefault(); });
+                on(figure, 'drop', function (ev) {
+                    ev.preventDefault();
+                    var from = parseInt(ev.dataTransfer.getData('text/plain'), 10);
+                    if (isNaN(from) || from === index) { return; }
+                    var moved = items.splice(from, 1)[0];
+                    items.splice(index, 0, moved);
+                    syncInputs();
+                    render();
                 });
                 grid.appendChild(figure);
             });
@@ -594,6 +655,49 @@
                 ev.preventDefault();
                 addUrl();
             }
+        });
+
+        function loadLibrary() {
+            if (!libraryGrid) { return; }
+            setStatus(t('loadingLibrary', 'Cargando biblioteca…'));
+            post('tap_agency_media_library', new FormData(), cfg.uploadNonce || '')
+                .then(function (json) {
+                    setStatus('');
+                    if (!json || !json.success) {
+                        toast((json && json.data && json.data.message) || t('error', 'Error'), 'error');
+                        return;
+                    }
+                    libraryGrid.innerHTML = '';
+                    (json.data.items || []).forEach(function (media) {
+                        var cell = document.createElement('div');
+                        cell.className = 'tap-uploader-library-item';
+                        cell.innerHTML =
+                            '<img src="' + escapeHtml(media.thumb || media.url) + '" alt="' + escapeHtml(media.alt || '') + '" loading="lazy">' +
+                            '<button type="button" class="tap-uploader-library-add">' + escapeHtml(t('add', 'Añadir')) + '</button>';
+                        on(qs('.tap-uploader-library-add', cell), 'click', function () {
+                            if (items.some(function (i) { return i.id === media.id; })) {
+                                toast(t('alreadyAdded', 'Esta imagen ya está en el listado.'), 'error');
+                                return;
+                            }
+                            items.push({ id: media.id, url: media.url, thumb: media.thumb, alt: media.alt || '' });
+                            render();
+                            if (libraryPanel) { libraryPanel.hidden = true; }
+                            toast(t('added', 'Imagen añadida.'), 'success');
+                        });
+                        libraryGrid.appendChild(cell);
+                    });
+                })
+                .catch(function () { setStatus(''); toast(t('networkError', 'Error de conexión.'), 'error'); });
+        }
+
+        on(libraryBtn, 'click', function () {
+            if (!libraryPanel) { return; }
+            var open = libraryPanel.hidden;
+            libraryPanel.hidden = !open;
+            if (open) { loadLibrary(); }
+        });
+        on(qs('.tap-uploader-library-close', root), 'click', function () {
+            if (libraryPanel) { libraryPanel.hidden = true; }
         });
 
         render();

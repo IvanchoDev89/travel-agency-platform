@@ -262,6 +262,15 @@ class TAP_Acc_Wizard_Room_Form {
                     ?>
                 </small>
                 <button type="button" class="tap-uploader-url-toggle"><?php esc_html_e('Usar una URL', 'travel-agency-platform'); ?></button>
+                <button type="button" class="tap-uploader-library-toggle"><?php esc_html_e('Biblioteca', 'travel-agency-platform'); ?></button>
+            </div>
+
+            <div class="tap-uploader-library" hidden>
+                <div class="tap-uploader-library-head">
+                    <strong><?php esc_html_e('Tus imágenes', 'travel-agency-platform'); ?></strong>
+                    <button type="button" class="tap-uploader-library-close" aria-label="<?php esc_attr_e('Cerrar', 'travel-agency-platform'); ?>">&times;</button>
+                </div>
+                <div class="tap-uploader-library-grid"></div>
             </div>
 
             <div class="tap-uploader-drop" role="button" tabindex="0"

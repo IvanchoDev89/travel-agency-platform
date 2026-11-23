@@ -128,49 +128,10 @@ class TAP_Ajax_Listing {
             return __('Name is required', 'travel-agency-platform');
         }
 
-        $fields = TAP_Metaboxes::get_fields($listing_type);
-
-        // Money integrity: any price field that is provided must be > 0.
-        foreach ($fields as $meta_key => $cfg) {
-            if (!isset($cfg['type']) || 'number' !== $cfg['type'] || false === strpos($meta_key, 'price')) {
-                continue;
-            }
-            $raw = isset($input[$meta_key]) ? $input[$meta_key] : null;
-            if ($raw === null && $listing_type === 'tap_accommodation' && $meta_key === '_tap_acc_price_per_night') {
-                $raw = isset($input['price_per_night']) ? $input['price_per_night'] : null;
-            }
-            // Blank means "not provided" (the listing-level price is optional
-            // when prices live on the units); only a present value is checked.
-            if ($raw === null || (is_scalar($raw) && '' === trim((string) $raw))) {
-                continue;
-            }
-            $is_decimal = isset($cfg['step']) && false !== strpos($cfg['step'], '.');
-            $value      = $is_decimal ? floatval($raw) : intval($raw);
-            if ($value <= 0) {
-                /* translators: %s: etiqueta del tipo de tarifa */
-                return sprintf(__('El precio %s debe ser mayor que 0.', 'travel-agency-platform'), isset($cfg['label']) ? $cfg['label'] : $meta_key);
-            }
-        }
-
-        // Coordinate integrity: lat/lng, when provided, must be valid ranges.
-        foreach ($fields as $meta_key => $cfg) {
-            if (false === stripos($meta_key, '_lat') && false === stripos($meta_key, '_lng')) {
-                continue;
-            }
-            $raw = isset($input[$meta_key]) ? $input[$meta_key] : null;
-            if ($raw === null || (is_scalar($raw) && '' === trim((string) $raw))) {
-                continue;
-            }
-            if (!is_numeric($raw)) {
-                return sprintf(__('El campo %s debe ser numérico.', 'travel-agency-platform'), isset($cfg['label']) ? $cfg['label'] : $meta_key); // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
-            }
-            $val = (float) $raw;
-            if (false !== stripos($meta_key, '_lat') && ($val < -90 || $val > 90)) {
-                return sprintf(__('La latitud debe estar entre -90 y 90 (%s).', 'travel-agency-platform'), isset($cfg['label']) ? $cfg['label'] : $meta_key); // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
-            }
-            if (false !== stripos($meta_key, '_lng') && ($val < -180 || $val > 180)) {
-                return sprintf(__('La longitud debe estar entre -180 y 180 (%s).', 'travel-agency-platform'), isset($cfg['label']) ? $cfg['label'] : $meta_key); // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
-            }
+        // One shared validator for both the agency AJAX path and wp-admin.
+        $validation = TAP_Metaboxes::validate_listing_data($listing_type, $input);
+        if ($validation['errors']) {
+            return $validation['errors'][0];
         }
 
         if (null !== $agency && class_exists('TAP_Subscriptions')) {
@@ -226,6 +187,8 @@ class TAP_Ajax_Listing {
         if (null !== $agency) {
             update_post_meta($new_id, '_tap_' . $prefix . '_agency_id', (int) $agency);
         }
+
+        $fields = TAP_Metaboxes::get_fields($listing_type);
 
         // Legacy short input-name → meta-key map for the accommodation form.
         $legacy_map = [

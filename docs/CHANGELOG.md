@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.6.12] — 2026-11-22
+
+### Changed (listing management, third pass)
+- Agency uploader can now pick images from the agency media library, edit alt
+  text, reorder by dragging and delete files — with ownership checks on every
+  write (new AJAX actions: library/update/delete).
+- Listing field validation is shared: wp-admin now rejects the same invalid
+  prices and coordinates the agency editor rejects, with an admin notice.
+- `tap_experience` is now registered in the taxonomy object types and has the
+  agency column in wp-admin.
+
+### Added
+- FUNCTIONAL `suite_media.php` covering library listing, ownership, alt text,
+  deletion, the shared validator and the uploader wiring.
+
 ## [1.6.11] — 2026-11-22
 
 ### Changed (listing management, second pass)

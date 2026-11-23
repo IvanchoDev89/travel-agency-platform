@@ -28,7 +28,7 @@ class TAP_Taxonomies {
             'menu_name'         => __('Destinations', 'travel-agency-platform'),
         ];
 
-        $types = ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
+        $types = ['tap_accommodation', 'tap_tour', 'tap_experience', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
 
         register_taxonomy('tap_location', $types, [
             'labels'       => $labels,
@@ -90,7 +90,7 @@ class TAP_Taxonomies {
             'menu_name'         => __('Categories', 'travel-agency-platform'),
         ];
 
-        $types = ['tap_accommodation', 'tap_tour', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
+        $types = ['tap_accommodation', 'tap_tour', 'tap_experience', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
 
         register_taxonomy('tap_service_cat', $types, [
             'labels'       => $labels,

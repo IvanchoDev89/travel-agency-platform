@@ -97,9 +97,10 @@ tap_t_assert("'A,B" === TAP_Front_Dash::csv_cell('=A,B') || false !== strpos(TAP
 $listing = wp_insert_post(['post_type' => 'tap_tour', 'post_status' => 'publish', 'post_title' => 'PROMO-' . $sfx]);
 if ((int) $listing > 0) {
     $cleanup_posts[] = (int) $listing;
+    $yesterday = $wpdb->get_var("SELECT DATE_SUB(CURDATE(), INTERVAL 1 DAY)");
     $wpdb->insert($wpdb->prefix . 'tap_promos', [
         'agency_id' => $csv_agency, 'listing_id' => (int) $listing, 'months' => 1,
-        'amount' => 10, 'status' => 'active', 'paid_until' => gmdate('Y-m-d', strtotime('-1 day')),
+        'amount' => 10, 'status' => 'active', 'paid_until' => $yesterday,
         'payment_status' => 'paid',
     ]);
     $promo_id = (int) $wpdb->insert_id;
@@ -116,7 +117,7 @@ if ((int) $listing > 0) {
 /* --- 7) Subscription expiry via cron entry point ----------------------------- */
 $wpdb->insert($wpdb->prefix . 'tap_agency_subscriptions', [
     'agency_id' => $csv_agency, 'plan_id' => 2, 'status' => 'active',
-    'paid_until' => gmdate('Y-m-d', strtotime('-1 day')), 'payment_status' => 'paid',
+    'paid_until' => $yesterday, 'payment_status' => 'paid',
 ]);
 $sub_id = (int) $wpdb->insert_id;
 delete_transient('tap_subscriptions_expiry_check');

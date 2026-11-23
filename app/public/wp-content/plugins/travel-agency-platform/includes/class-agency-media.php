@@ -131,6 +131,115 @@ class TAP_Agency_Media {
     }
 
 
+    /** Pure update used by the AJAX handler (and directly by E2E suites). */
+    public static function update_attachment_meta($id, array $input) {
+        if (isset($input['alt'])) {
+            update_post_meta((int) $id, '_wp_attachment_image_alt', sanitize_text_field(wp_unslash($input['alt'])));
+        }
+        if (isset($input['title'])) {
+            wp_update_post(['ID' => (int) $id, 'post_title' => sanitize_text_field(wp_unslash($input['title']))]);
+        }
+    }
+
+    /** Pure delete used by the AJAX handler (and directly by E2E suites). */
+    public static function delete_owned_attachment($id) {
+        return wp_delete_attachment((int) $id, true);
+    }
+
+    /** True when the current user may manage this attachment. */
+    public static function owns_attachment($attachment_id) {
+        $att = get_post((int) $attachment_id);
+        if (!$att || 'attachment' !== $att->post_type) {
+            return false;
+        }
+        $uid = get_current_user_id();
+        if (user_can($uid, 'manage_options')) {
+            return true;
+        }
+        if ((int) $att->post_author === $uid) {
+            return true;
+        }
+        // Teammates of the same agency can manage each other's media.
+        $author_agency = self::agency_id_for_user((int) $att->post_author);
+        $caller_agency = self::agency_id_for_user($uid);
+        return $author_agency > 0 && $author_agency === $caller_agency;
+    }
+
+    /** Resolve the attachment ids the current agency may browse. */
+    public static function agency_media_author_ids() {
+        $uid = get_current_user_id();
+        $author_ids = [$uid];
+        $agency = self::agency_id_for_user($uid);
+        if ($agency) {
+            foreach (get_users([
+                'meta_key' => '_tap_agency_id', 'meta_value' => (int) $agency,
+                'fields' => 'ids', 'number' => 200,
+            ]) as $teammate) {
+                $author_ids[] = (int) $teammate;
+            }
+            foreach (get_posts([
+                'post_type' => 'tap_agency', 'post_status' => 'any', 'posts_per_page' => 1,
+                'meta_key' => '_tap_agency_user_id', 'meta_value' => (int) $agency, 'fields' => 'ids',
+            ]) as $owner) {
+                $author_ids[] = (int) get_post_meta($owner, '_tap_agency_user_id', true);
+            }
+        }
+        return array_values(array_unique(array_filter(array_map('intval', $author_ids))));
+    }
+
+    /** Pure data layer for the library picker (no wp_send_json). */
+    public static function list_agency_media() {
+        $ids = get_posts([
+            'post_type' => 'attachment', 'post_status' => 'inherit',
+            'post_mime_type' => 'image', 'author' => implode(',', self::agency_media_author_ids()),
+            'posts_per_page' => 100, 'orderby' => 'date', 'order' => 'DESC', 'fields' => 'ids',
+        ]);
+        $items = [];
+        foreach ($ids as $id) {
+            $url = wp_get_attachment_url($id);
+            if (!$url) { continue; }
+            $items[] = [
+                'id'    => (int) $id,
+                'url'   => $url,
+                'thumb' => wp_get_attachment_image_url($id, 'medium') ?: $url,
+                'alt'   => (string) get_post_meta($id, '_wp_attachment_image_alt', true),
+                'title' => (string) get_post_field('post_title', $id),
+            ];
+        }
+        return $items;
+    }
+
+    /** List the current agency's images for the "choose from library" picker. */
+    public static function agency_media_library() {
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        if (!is_user_logged_in() || (!user_can(get_current_user_id(), 'upload_files') && !user_can(get_current_user_id(), 'manage_options'))) {
+            wp_send_json_error(['message' => __('No tienes permiso para gestionar imágenes.', 'travel-agency-platform')], 403);
+        }
+        wp_send_json_success(['items' => self::list_agency_media()]);
+    }
+
+    /** Update alt text / title of an attachment owned by the agency. */
+    public static function agency_media_update() {
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        $id = absint($_POST['attachment_id'] ?? 0);
+        if (!$id || !self::owns_attachment($id)) {
+            wp_send_json_error(['message' => __('No puedes editar esta imagen.', 'travel-agency-platform')], 403);
+        }
+        self::update_attachment_meta($id, $_POST);
+        wp_send_json_success(['message' => __('Imagen actualizada.', 'travel-agency-platform')]);
+    }
+
+    /** Delete an attachment owned by the agency. */
+    public static function agency_media_delete() {
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        $id = absint($_POST['attachment_id'] ?? 0);
+        if (!$id || !self::owns_attachment($id)) {
+            wp_send_json_error(['message' => __('No puedes borrar esta imagen.', 'travel-agency-platform')], 403);
+        }
+        self::delete_owned_attachment($id);
+        wp_send_json_success(['message' => __('Imagen eliminada.', 'travel-agency-platform')]);
+    }
+
     public static function agency_image_max_bytes() {
         return (int) apply_filters('tap_agency_image_max_bytes', 8 * MB_IN_BYTES);
     }
