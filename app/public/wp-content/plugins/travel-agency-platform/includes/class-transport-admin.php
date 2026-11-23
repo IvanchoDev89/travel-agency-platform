@@ -100,11 +100,17 @@ class TAP_Transport_Admin {
     public static function render_vehicles() {
         if (!current_user_can('manage_options')) return;
         global $wpdb;
-        $vehicles = TAP_Transport_Vehicles::for_agency(0) ?: [];
-        // Get all vehicles if agency 0 (admin view).
-        if (empty($vehicles)) {
-            $vehicles = $wpdb->get_results("SELECT * FROM " . TAP_Transport_Vehicles::table() . " ORDER BY id DESC") ?: [];
-        }
+        // Admin sees every row. Scoping by agency zero only matched legacy
+        // rows and hid real vehicles whenever any such record existed.
+        $vh_table = TAP_Transport_Vehicles::table();
+        $vh_per_page = 50;
+        $vh_paged    = max(1, absint($_GET['vh_paged'] ?? 1));
+        $vh_total    = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$vh_table}");
+        $vehicles = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$vh_table} ORDER BY id DESC LIMIT %d OFFSET %d",
+            $vh_per_page,
+            ($vh_paged - 1) * $vh_per_page
+        )) ?: [];
         $agencies = $wpdb->get_results("SELECT ID, post_title FROM {$wpdb->posts} WHERE post_type = 'tap_agency' AND post_status = 'publish' ORDER BY post_title");
         $editing = isset($_GET['edit']) ? TAP_Transport_Vehicles::get(absint($_GET['edit'])) : null;
         ?>
@@ -193,6 +199,7 @@ class TAP_Transport_Admin {
                     <?php endif; ?>
                 </tbody>
             </table>
+            <?php echo TAP_Dashboard::paginate($vh_total, $vh_per_page, $vh_paged, 'vh_paged'); ?>
         </div>
         <?php
     }
@@ -356,11 +363,16 @@ class TAP_Transport_Admin {
     public static function render_trips() {
         if (!current_user_can('manage_options')) return;
         global $wpdb;
-        $trips = TAP_Transport_Trips::for_agency(0) ?: [];
-        // Admin: get all trips
-        if (empty($trips)) {
-            $trips = $wpdb->get_results("SELECT * FROM " . TAP_Transport_Trips::table() . " ORDER BY departure_time DESC LIMIT 100") ?: [];
-        }
+        // Admin sees every trip, not just agency 0 or the newest 100.
+        $tr_table = TAP_Transport_Trips::table();
+        $tr_per_page = 50;
+        $tr_paged    = max(1, absint($_GET['tr_paged'] ?? 1));
+        $tr_total    = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$tr_table}");
+        $trips = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$tr_table} ORDER BY departure_time DESC LIMIT %d OFFSET %d",
+            $tr_per_page,
+            ($tr_paged - 1) * $tr_per_page
+        )) ?: [];
         $statuses = ['scheduled', 'boarding', 'in_transit', 'completed', 'cancelled'];
         ?>
         <div class="wrap">
@@ -404,6 +416,7 @@ class TAP_Transport_Admin {
                     <?php endif; ?>
                 </tbody>
             </table>
+            <?php echo TAP_Dashboard::paginate($tr_total, $tr_per_page, $tr_paged, 'tr_paged'); ?>
             <script>
             (function(){
                 if (typeof L === 'undefined') return;

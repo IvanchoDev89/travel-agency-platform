@@ -82,5 +82,67 @@ TAP_Dashboard_Money::commissions_page();
 $commissions_html = ob_get_clean();
 tap_t_assert(false !== strpos($commissions_html, 'data-settle='), 'commissions list renders the settle button');
 
+/* --- 8) invoice search/filter ------------------------------------------------- */
+$sample = $wpdb->get_row("SELECT invoice_number FROM {$wpdb->prefix}tap_invoices WHERE invoice_number <> '' ORDER BY id DESC LIMIT 1");
+if ($sample) {
+    $_GET['s'] = $sample->invoice_number;
+    ob_start();
+    TAP_Invoices::invoices_page();
+    $found_html = ob_get_clean();
+    unset($_GET['s']);
+    tap_t_assert(false !== strpos($found_html, $sample->invoice_number), 'invoice search finds a known invoice');
+    tap_t_assert(1 === substr_count($found_html, 'page=tap-invoices&#038;view='), 'invoice search narrows the list to one row');
+    $_GET['s'] = 'NOEXISTE-' . wp_generate_password(6, false);
+    ob_start();
+    TAP_Invoices::invoices_page();
+    $none_html = ob_get_clean();
+    unset($_GET['s']);
+    tap_t_assert(false !== strpos($none_html, 'Sin facturas'), 'invoice search shows an empty state for no matches');
+}
+
+/* --- 9) paginator supports independent query args ----------------------------- */
+$custom_pager = TAP_Dashboard::paginate(500, 50, 1, 'payout_paged');
+tap_t_assert(false !== strpos($custom_pager, 'payout_paged'), 'paginator accepts a custom query arg');
+tap_t_assert('' === TAP_Dashboard::paginate(10, 50, 1), 'paginator hides itself for a single page');
+
+/* --- 10) no hidden hard caps in admin tables ---------------------------------- */
+$base = dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/';
+foreach (['class-dashboard-money.php', 'class-dashboard-settings.php', 'class-dashboard-market.php', 'class-transport-admin.php'] as $file) {
+    $code = (string) file_get_contents($base . $file);
+    tap_t_assert(1 !== preg_match('/ORDER BY[^\n]*LIMIT (50|100|200)/i', $code), $file . ' has no hard row cap');
+}
+$transport_src = (string) file_get_contents($base . 'class-transport-admin.php');
+tap_t_assert(false === strpos($transport_src, 'for_agency(0)'), 'transport admin does not hide rows behind for_agency(0)');
+
+/* --- 11) campaign schedule handler is reachable -------------------------------- */
+$campaign_src = (string) file_get_contents($base . 'class-email-campaigns.php');
+tap_t_assert(false !== strpos($campaign_src, 'tap_email_campaign_schedule&id='), 'campaign list links the schedule handler');
+tap_t_assert(false === strpos((string) file_get_contents($base . 'class-landing-builder.php'), 'function register_admin_menu'), 'duplicate landing menu method removed');
+
+/* --- 12) admin headings fully Spanish ------------------------------------------ */
+foreach ([
+    'Listado de destacados' => 'Listado Promotions (Destacados)',
+    'Constructor de página de inicio' => 'Landing Page Builder',
+    'Verificación de lanzamiento' => 'Launch Check',
+    'Comisiones — Liquidación' => 'Commissions — Liquidación',
+] as $spanish => $msgid) {
+    tap_t_assert($spanish === __($msgid, 'travel-agency-platform'), 'Spanish admin label: ' . $msgid);
+}
+
+/* --- 13) no PHP warnings/deprecations while rendering admin pages ------------- */
+$page_warnings = [];
+set_error_handler(static function ($no, $str, $file) use (&$page_warnings) {
+    if (false !== strpos($file, 'travel-agency-platform')) {
+        $page_warnings[] = basename($file) . ': ' . $str;
+    }
+    return true;
+});
+ob_start();
+TAP_Coupons::render_page();
+TAP_Dashboard_Money::disputes_page();
+ob_end_clean();
+restore_error_handler();
+tap_t_assert([] === $page_warnings, 'coupons and disputes render without plugin warnings (' . implode(' | ', $page_warnings) . ')');
+
 wp_set_current_user($orig_uid);
 tap_t_finish();

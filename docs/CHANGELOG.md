@@ -6,6 +6,25 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.6.20] — 2026-11-24
+
+### Fixed (full admin control)
+- All admin tables are now paginated (commissions, payouts, disputes,
+  subscriptions, promotions, waitlist, shuttle, insurance, vehicles, trips,
+  campaigns) — no hidden 50/100/200-row caps.
+- Invoices: search by number/booking, status filter and clear link; pager keeps
+  filters via `add_query_arg()`.
+- Transport admin shows every vehicle/trip instead of hiding them behind an
+  agency-zero scope.
+- Campaign scheduling handler is reachable from the list; duplicate landing
+  menu method removed.
+- Remaining admin headings translated ("Listado de destacados", "Constructor
+  de página de inicio", "Verificación de lanzamiento", "Comisiones").
+
+### Added
+- Extend `suite_admin_screens.php` with search, pagination and translation
+  assertions.
+
 ## [1.6.19] — 2026-11-23
 
 ### Fixed (deep admin audit)

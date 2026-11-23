@@ -26,13 +26,18 @@ class TAP_Email_Campaigns {
     }
 
     /** Get campaigns. */
-    public static function all($status = '') {
+    public static function all($status = '', $per_page = 0, $offset = 0) {
         global $wpdb;
         $t = self::table();
-        if ($status) {
-            return $wpdb->get_results($wpdb->prepare("SELECT * FROM {$t} WHERE status = %s ORDER BY created_at DESC", $status));
+        $where = $status ? $wpdb->prepare('WHERE status = %s', $status) : '';
+        if ($per_page > 0) {
+            return $wpdb->get_results($wpdb->prepare(
+                "SELECT * FROM {$t} {$where} ORDER BY created_at DESC LIMIT %d OFFSET %d",
+                (int) $per_page,
+                max(0, (int) $offset)
+            ));
         }
-        return $wpdb->get_results("SELECT * FROM {$t} ORDER BY created_at DESC");
+        return $wpdb->get_results("SELECT * FROM {$t} {$where} ORDER BY created_at DESC");
     }
 
     public static function get($id) {
@@ -217,6 +222,7 @@ class TAP_Email_Campaigns {
         if (!current_user_can('manage_options')) {
             wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform'));
         }
+        global $wpdb;
         $action = sanitize_key(wp_unslash($_GET['action'] ?? 'list'));
         $id     = isset($_GET['id']) ? (int) $_GET['id'] : 0;
 
@@ -227,7 +233,10 @@ class TAP_Email_Campaigns {
         }
 
         // List view
-        $campaigns = self::all();
+        $camp_per_page = 50;
+        $camp_paged    = max(1, absint($_GET['camp_paged'] ?? 1));
+        $camp_total    = (int) $wpdb->get_var('SELECT COUNT(*) FROM ' . self::table());
+        $campaigns = self::all('', $camp_per_page, ($camp_paged - 1) * $camp_per_page);
         $saved = !empty($_GET['saved']);
         $deleted = !empty($_GET['deleted']);
         $sent = isset($_GET['sent']) ? (int) $_GET['sent'] : null;
@@ -265,6 +274,7 @@ class TAP_Email_Campaigns {
                             <a href="<?php echo esc_url(admin_url('admin.php?page=tap-email-campaigns&action=edit&id=' . (int) $c->id)); ?>" class="button button-small"><?php esc_html_e('Editar', 'travel-agency-platform'); ?></a>
                             <?php if ($c->status !== 'sent'): ?>
                                 <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=tap_email_campaign_send&id=' . (int) $c->id), 'tap_email_campaign_send_' . (int) $c->id)); ?>" class="button button-small" onclick="return confirm('<?php echo esc_js(__('¿Enviar ahora?', 'travel-agency-platform')); ?>');"><?php esc_html_e('Enviar', 'travel-agency-platform'); ?></a>
+                                <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=tap_email_campaign_schedule&id=' . (int) $c->id), 'tap_email_campaign_schedule_' . (int) $c->id)); ?>" class="button button-small"><?php esc_html_e('Programar', 'travel-agency-platform'); ?></a>
                             <?php endif; ?>
                             <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=tap_email_campaign_delete&id=' . (int) $c->id), 'tap_email_campaign_delete_' . (int) $c->id)); ?>" class="button button-small" onclick="return confirm('<?php echo esc_js(__('¿Eliminar?', 'travel-agency-platform')); ?>');"><?php esc_html_e('Eliminar', 'travel-agency-platform'); ?></a>
                         </td>
@@ -273,6 +283,7 @@ class TAP_Email_Campaigns {
                 <?php endif; ?>
                 </tbody>
             </table>
+            <?php echo TAP_Dashboard::paginate($camp_total, $camp_per_page, $camp_paged, 'camp_paged'); ?>
         </div>
         <?php
     }

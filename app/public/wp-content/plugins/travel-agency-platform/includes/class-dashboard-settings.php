@@ -210,18 +210,24 @@ class TAP_Dashboard_Settings {
             echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Subscription expired.', 'travel-agency-platform') . '</p></div>';
         }
 
-        $subs = $wpdb->get_results(
+        $sub_per_page = 50;
+        $sub_paged    = max(1, absint($_GET['paged'] ?? 1));
+        $sub_total    = (int) $wpdb->get_var("SELECT COUNT(*) FROM $t_sub");
+        $subs = $wpdb->get_results($wpdb->prepare(
             "SELECT s.*, a.name AS agency_name, p.name AS plan_name, p.price_monthly
              FROM $t_sub s
              LEFT JOIN $t_age a ON a.id = s.agency_id
              LEFT JOIN $t_plan p ON p.id = s.plan_id
-             ORDER BY s.created_at DESC LIMIT 200"
-        );
+             ORDER BY s.created_at DESC LIMIT %d OFFSET %d",
+            $sub_per_page,
+            ($sub_paged - 1) * $sub_per_page
+        ));
         $pending = (int) $wpdb->get_var("SELECT COUNT(*) FROM $t_sub WHERE status = 'pending'");
         $active  = (int) $wpdb->get_var("SELECT COUNT(*) FROM $t_sub WHERE status = 'active'");
 
         echo '<div class="wrap">';
         echo '<h1>' . esc_html__('Agency Subscriptions', 'travel-agency-platform') . '</h1>';
+        echo TAP_Dashboard::paginate($sub_total, $sub_per_page, $sub_paged);
         echo '<div class="tap-stat-grid" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;">';
         echo '<div class="tap-stat-card"><span class="tap-stat-number">' . esc_html($active) . '</span><span class="tap-stat-label">' . esc_html__('Activas', 'travel-agency-platform') . '</span></div>';
         echo '<div class="tap-stat-card"><span class="tap-stat-number" style="color:#b45309;">' . esc_html($pending) . '</span><span class="tap-stat-label">' . esc_html__('Pendientes de pago', 'travel-agency-platform') . '</span></div>';
@@ -289,12 +295,17 @@ class TAP_Dashboard_Settings {
             echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Promotion expired.', 'travel-agency-platform') . '</p></div>';
         }
 
-        $promos = $wpdb->get_results(
+        $promo_per_page = 50;
+        $promo_paged    = max(1, absint($_GET['paged'] ?? 1));
+        $promo_total    = (int) $wpdb->get_var("SELECT COUNT(*) FROM $t_promo");
+        $promos = $wpdb->get_results($wpdb->prepare(
             "SELECT p.*, a.name AS agency_name
              FROM $t_promo p
              LEFT JOIN $t_age a ON a.id = p.agency_id
-             ORDER BY p.created_at DESC LIMIT 200"
-        );
+             ORDER BY p.created_at DESC LIMIT %d OFFSET %d",
+            $promo_per_page,
+            ($promo_paged - 1) * $promo_per_page
+        ));
         $pending = (int) $wpdb->get_var("SELECT COUNT(*) FROM $t_promo WHERE status = 'pending'");
         $active  = (int) $wpdb->get_var("SELECT COUNT(*) FROM $t_promo WHERE status = 'active'");
         $confirmed_total = (float) $wpdb->get_var("SELECT COALESCE(SUM(amount),0) FROM $t_promo WHERE status = 'active'");
@@ -302,6 +313,7 @@ class TAP_Dashboard_Settings {
 
         echo '<div class="wrap">';
         echo '<h1>' . esc_html__('Listado Promotions (Destacados)', 'travel-agency-platform') . '</h1>';
+        echo TAP_Dashboard::paginate($promo_total, $promo_per_page, $promo_paged);
         /* translators: %s: precio mensual del destacado */
         echo '<p class="description">' . esc_html(sprintf(__('Precio por destacado: %s/mes por listado. Confirma el pago para activar la promoción hasta la fecha correspondiente.', 'travel-agency-platform'), TAP_Currency::fmt($price))) . '</p>';
         echo '<div class="tap-stat-grid" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;">';

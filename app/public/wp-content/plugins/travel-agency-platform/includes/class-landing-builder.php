@@ -821,17 +821,4 @@ class TAP_Landing_Builder {
         exit;
     }
 
-    /**
-     * Admin menu registration (called from TAP_Dashboard).
-     */
-    public static function register_admin_menu() {
-        add_submenu_page(
-            'travel-platform',
-            __('Landing Page', 'travel-agency-platform'),
-            __('Landing Page', 'travel-agency-platform'),
-            'manage_options',
-            'tap-landing',
-            [__CLASS__, 'admin_page']
-        );
-    }
 }

@@ -235,13 +235,20 @@ class TAP_Dashboard_Money {
         } elseif ('void' === $filter) {
             $where .= " AND b.commission_status = 'void'";
         }
-        $commissions = $wpdb->get_results(
+        $per_page = 50;
+        $paged    = max(1, absint($_GET['paged'] ?? 1));
+        $commission_total = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$b_table} b LEFT JOIN {$wpdb->posts} a ON b.agency_id = a.ID WHERE {$where}"
+        );
+        $commissions = $wpdb->get_results($wpdb->prepare(
             "SELECT b.*, a.post_title as agency_name
              FROM {$b_table} b
              LEFT JOIN {$wpdb->posts} a ON b.agency_id = a.ID
              WHERE {$where}
-             ORDER BY b.created_at DESC LIMIT 200"
-        );
+             ORDER BY b.created_at DESC LIMIT %d OFFSET %d",
+            $per_page,
+            ($paged - 1) * $per_page
+        ));
         $payout_filter = sanitize_key(wp_unslash($_GET['payout_status'] ?? 'all'));
         if (!in_array($payout_filter, ['all', 'pending', 'completed', 'cancelled', 'failed'], true)) {
             $payout_filter = 'all';
@@ -250,13 +257,18 @@ class TAP_Dashboard_Money {
         if ('all' !== $payout_filter) {
             $pwhere = $wpdb->prepare('p.status = %s', $payout_filter);
         }
-        $payments = $wpdb->get_results(
+        $payout_per_page = 50;
+        $payout_paged    = max(1, absint($_GET['payout_paged'] ?? 1));
+        $payout_total = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$p_table} p WHERE {$pwhere}");
+        $payments = $wpdb->get_results($wpdb->prepare(
             "SELECT p.*, a.post_title agency_name
              FROM {$p_table} p
              LEFT JOIN {$wpdb->posts} a ON p.agency_id = a.ID
              WHERE {$pwhere}
-             ORDER BY p.created_at DESC LIMIT 50"
-        );
+             ORDER BY p.created_at DESC LIMIT %d OFFSET %d",
+            $payout_per_page,
+            ($payout_paged - 1) * $payout_per_page
+        ));
         $tab_counts = [
             'pending'   => 0, 'completed' => 0, 'cancelled' => 0, 'failed' => 0,
         ];
@@ -276,6 +288,7 @@ class TAP_Dashboard_Money {
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Commissions — Liquidación', 'travel-agency-platform'); ?></h1>
+            <?php echo TAP_Dashboard::paginate($commission_total, $per_page, $paged); ?>
 
             <?php $tap_notice = get_transient('tap_commission_notice'); if ($tap_notice): ?>
                 <div class="notice notice-success is-dismissible"><p><?php echo esc_html($tap_notice); ?></p></div>
@@ -372,6 +385,7 @@ class TAP_Dashboard_Money {
             </form>
 
             <h2 style="margin-top:32px;"><?php esc_html_e('Historial de liquidaciones', 'travel-agency-platform'); ?></h2>
+            <?php echo TAP_Dashboard::paginate($payout_total, $payout_per_page, $payout_paged, 'payout_paged'); ?>
             <nav class="nav-tab-wrapper" style="margin-bottom:12px;">
                 <?php
                 $pay_tabs = [
@@ -564,17 +578,28 @@ class TAP_Dashboard_Money {
         } elseif ('closed' === $filter) {
             $where = "status != 'open'";
         }
-        $disputes = $wpdb->get_results(
+        $dispute_per_page = 50;
+        $dispute_paged    = max(1, absint($_GET['paged'] ?? 1));
+        $dispute_total = (int) $wpdb->get_var(
+            "SELECT COUNT(*) FROM {$table} d
+             LEFT JOIN {$wpdb->prefix}tap_bookings b ON d.booking_id = b.id
+             LEFT JOIN {$wpdb->posts} a ON d.agency_id = a.ID
+             WHERE {$where}"
+        );
+        $disputes = $wpdb->get_results($wpdb->prepare(
             "SELECT d.*, b.booking_code, b.guest_name, b.guest_email AS bmail, a.post_title AS agency_name
              FROM {$table} d
              LEFT JOIN {$wpdb->prefix}tap_bookings b ON d.booking_id = b.id
              LEFT JOIN {$wpdb->posts} a ON d.agency_id = a.ID
              WHERE {$where}
-             ORDER BY d.created_at DESC LIMIT 200"
-        );
+             ORDER BY d.created_at DESC LIMIT %d OFFSET %d",
+            $dispute_per_page,
+            ($dispute_paged - 1) * $dispute_per_page
+        ));
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Disputas de reservas', 'travel-agency-platform'); ?></h1>
+            <?php echo TAP_Dashboard::paginate($dispute_total, $dispute_per_page, $dispute_paged); ?>
 
             <?php $tap_dnotice = get_transient('tap_dispute_notice'); if ($tap_dnotice): ?>
                 <?php $tap_dclass = !empty($tap_dnotice['error']) ? 'notice-error' : 'notice-success'; ?>
@@ -610,7 +635,7 @@ class TAP_Dashboard_Money {
                     <?php foreach ($disputes as $d): ?>
                     <tr>
                         <td>
-                            <a href="<?php echo esc_url(home_url('/booking-detail/?code=' . rawurlencode($d->booking_code))); ?>" target="_blank"><?php echo esc_html($d->booking_code); ?></a>
+                            <a href="<?php echo esc_url(home_url('/booking-detail/?code=' . rawurlencode((string) $d->booking_code))); ?>" target="_blank"><?php echo esc_html($d->booking_code); ?></a>
                             #<?php echo (int) $d->booking_id; ?>
                         </td>
                         <td><?php echo esc_html($d->agency_name ?? 'N/D'); ?></td>

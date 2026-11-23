@@ -182,7 +182,7 @@ else self::create($data);
                     <tr><th><?php esc_html_e('Valor', 'travel-agency-platform'); ?></th><td><input type="number" name="discount_value" value="<?php echo esc_attr($editing->discount_value ?? 0); ?>" step="0.01" min="0" class="regular-text"></td></tr>
                     <tr><th><?php esc_html_e('Usos máximos (0 = ilimitado)', 'travel-agency-platform'); ?></th><td><input type="number" name="max_uses" value="<?php echo esc_attr($editing->max_uses ?? 0); ?>" min="0" step="1" class="regular-text"></td></tr>
                     <tr><th><?php esc_html_e('Monto mínimo', 'travel-agency-platform'); ?></th><td><input type="number" name="min_amount" value="<?php echo esc_attr($editing->min_amount ?? 0); ?>" step="0.01" min="0" class="regular-text"></td></tr>
-                    <tr><th><?php esc_html_e('Expira (YYYY-MM-DD)', 'travel-agency-platform'); ?></th><td><input type="date" name="expires_at" value="<?php echo esc_attr($editing->expires_at ? substr($editing->expires_at, 0, 10) : ''); ?>" class="regular-text"></td></tr>
+                    <tr><th><?php esc_html_e('Expira (YYYY-MM-DD)', 'travel-agency-platform'); ?></th><td><input type="date" name="expires_at" value="<?php echo esc_attr($editing && $editing->expires_at ? substr($editing->expires_at, 0, 10) : ''); ?>" class="regular-text"></td></tr>
                     <tr><th><?php esc_html_e('Activo', 'travel-agency-platform'); ?></th><td><input type="checkbox" name="is_active" value="1" <?php checked($editing->is_active ?? 1, 1); ?>></td></tr>
                 </table>
                 <?php submit_button($editing ? __('Actualizar', 'travel-agency-platform') : __('Crear', 'travel-agency-platform')); ?>

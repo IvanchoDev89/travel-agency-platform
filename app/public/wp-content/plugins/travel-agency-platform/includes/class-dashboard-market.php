@@ -50,11 +50,15 @@ class TAP_Dashboard_Market {
         global $wpdb;
         $t = TAP_Waitlist::table();
         $status_filter = isset($_GET['wl_status']) ? sanitize_key(wp_unslash($_GET['wl_status'])) : '';
-        if ($status_filter) {
-            $rows = $wpdb->get_results($wpdb->prepare("SELECT * FROM {$t} WHERE status = %s ORDER BY id DESC LIMIT 200", $status_filter));
-        } else {
-            $rows = $wpdb->get_results("SELECT * FROM {$t} ORDER BY id DESC LIMIT 200");
-        }
+        $wl_per_page = 50;
+        $wl_paged    = max(1, absint($_GET['wl_paged'] ?? 1));
+        $wl_where    = $status_filter ? $wpdb->prepare('WHERE status = %s', $status_filter) : '';
+        $wl_total    = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$t} {$wl_where}");
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$t} {$wl_where} ORDER BY id DESC LIMIT %d OFFSET %d",
+            $wl_per_page,
+            ($wl_paged - 1) * $wl_per_page
+        ));
         ?>
         <p>
             <a href="<?php echo esc_url(admin_url('admin.php?page=tap-market')); ?>" class="button <?php echo $status_filter === '' ? 'button-primary' : ''; ?>"><?php esc_html_e('Todos', 'travel-agency-platform'); ?></a>
@@ -96,13 +100,21 @@ class TAP_Dashboard_Market {
             <?php endforeach; ?>
             </tbody>
         </table>
+        <?php echo TAP_Dashboard::paginate($wl_total, $wl_per_page, $wl_paged, 'wl_paged'); ?>
         <?php
     }
 
     private static function render_shuttle() {
         global $wpdb;
         $t = TAP_Shuttle::table();
-        $rows = $wpdb->get_results("SELECT * FROM {$t} ORDER BY id DESC LIMIT 200");
+        $sh_per_page = 50;
+        $sh_paged    = max(1, absint($_GET['sh_paged'] ?? 1));
+        $sh_total    = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$t}");
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$t} ORDER BY id DESC LIMIT %d OFFSET %d",
+            $sh_per_page,
+            ($sh_paged - 1) * $sh_per_page
+        ));
         ?>
         <table class="wp-list-table widefat fixed striped">
             <thead><tr>
@@ -131,6 +143,7 @@ class TAP_Dashboard_Market {
             <?php endforeach; ?>
             </tbody>
         </table>
+        <?php echo TAP_Dashboard::paginate($sh_total, $sh_per_page, $sh_paged, 'sh_paged'); ?>
         <?php
     }
 
@@ -167,7 +180,14 @@ class TAP_Dashboard_Market {
     private static function render_insurance() {
         global $wpdb;
         $t = TAP_Travel_Insurance::table();
-        $rows = $wpdb->get_results("SELECT * FROM {$t} ORDER BY id DESC LIMIT 200");
+        $ins_per_page = 50;
+        $ins_paged    = max(1, absint($_GET['ins_paged'] ?? 1));
+        $ins_total    = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$t}");
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$t} ORDER BY id DESC LIMIT %d OFFSET %d",
+            $ins_per_page,
+            ($ins_paged - 1) * $ins_per_page
+        ));
         ?>
         <table class="wp-list-table widefat fixed striped">
             <thead><tr>
@@ -196,6 +216,7 @@ class TAP_Dashboard_Market {
             <?php endforeach; ?>
             </tbody>
         </table>
+        <?php echo TAP_Dashboard::paginate($ins_total, $ins_per_page, $ins_paged, 'ins_paged'); ?>
         <h3><?php esc_html_e('Planes disponibles', 'travel-agency-platform'); ?></h3>
         <table class="wp-list-table widefat fixed striped">
             <thead><tr>

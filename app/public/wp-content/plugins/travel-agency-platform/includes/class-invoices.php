@@ -226,15 +226,42 @@ class TAP_Invoices {
         $t = self::table();
         $per_page = 50;
         $paged    = max(1, absint($_GET['paged'] ?? 1));
-        $total    = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$t}");
+        $search   = isset($_GET['s']) ? sanitize_text_field(wp_unslash($_GET['s'])) : '';
+        $inv_status = isset($_GET['inv_status']) ? sanitize_key(wp_unslash($_GET['inv_status'])) : '';
+        $where  = '1=1';
+        $params = [];
+        if ('' !== $search) {
+            $like = '%' . $wpdb->esc_like($search) . '%';
+            $where .= ' AND (invoice_number LIKE %s OR CAST(booking_id AS CHAR) LIKE %s)';
+            $params[] = $like;
+            $params[] = $like;
+        }
+        if ('' !== $inv_status) {
+            $where .= ' AND status = %s';
+            $params[] = $inv_status;
+        }
+        $total = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$t} WHERE {$where}", $params));
         $invoices = $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM {$t} ORDER BY issued_at DESC LIMIT %d OFFSET %d",
-            $per_page,
-            ($paged - 1) * $per_page
+            "SELECT * FROM {$t} WHERE {$where} ORDER BY issued_at DESC LIMIT %d OFFSET %d",
+            array_merge($params, [$per_page, ($paged - 1) * $per_page])
         ));
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Facturas', 'travel-agency-platform'); ?></h1>
+            <form method="get" action="<?php echo esc_url(admin_url('admin.php')); ?>" style="margin:14px 0;">
+                <input type="hidden" name="page" value="tap-invoices">
+                <input type="search" name="s" value="<?php echo esc_attr($search); ?>" placeholder="<?php echo esc_attr__('Número o reserva', 'travel-agency-platform'); ?>" class="regular-text">
+                <select name="inv_status">
+                    <option value=""><?php esc_html_e('Todos los estados', 'travel-agency-platform'); ?></option>
+                    <?php foreach (['issued', 'void', 'refunded'] as $st): ?>
+                        <option value="<?php echo esc_attr($st); ?>" <?php selected($inv_status, $st); ?>><?php echo esc_html($st); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <button type="submit" class="button"><?php esc_html_e('Buscar', 'travel-agency-platform'); ?></button>
+                <?php if ('' !== $search || '' !== $inv_status): ?>
+                    <a href="<?php echo esc_url(admin_url('admin.php?page=tap-invoices')); ?>" class="button button-link"><?php esc_html_e('Limpiar', 'travel-agency-platform'); ?></a>
+                <?php endif; ?>
+            </form>
             <?php if (isset($_GET['pdf_done'])): ?>
                 <div class="notice <?php echo '1' === sanitize_key($_GET['pdf_done']) ? 'notice-success' : 'notice-error'; ?> is-dismissible">
                     <p>
