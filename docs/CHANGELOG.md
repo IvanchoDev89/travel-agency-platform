@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.7.1] — 2026-11-24
+
+### Legal package
+- Full contracts in Spanish and English, canonically stored in
+  `travel-agency-platform/legal/` (single source of truth):
+  traveler terms, agency agreement, cancellation/refund policy and privacy notice.
+- Clauses grounded in Costa Rican law: Ley 7472 (consumer + 8-day withdrawal),
+  Ley 8454 (electronic consent), Ley 8968/PRODHAB (ARCO), Ley 10946 (e-commerce,
+  in force 24/06/2027), Civil Code and tax invoicing.
+- `TAP_Legal::seed_defaults()` now publishes a new immutable version whenever the
+  canonical file hash changes, invalidating prior acceptances.
+- `docs/LEGAL_NOTICE.md` rewritten with lawyer checklist, legal markers to fill
+  and outstanding items; `docs/legal/README.md` points to the canonical files.
+
 ## [1.7.0] — 2026-11-24
 
 ### Money model (contractual)

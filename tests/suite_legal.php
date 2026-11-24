@@ -24,7 +24,7 @@ tap_t_assert(count($agency_docs) >= 1, 'agency context has a current agreement')
 
 // A new version must not overwrite the previous one.
 $base = TAP_Legal::current('traveler_terms', 'es');
-tap_t_assert($base && 1 === (int) $base->version, 'seeded version is v1');
+tap_t_assert($base && (int) $base->version >= 1, 'seeded version exists');
 $new_body = $base->body . '<p>Cláusula de prueba ' . esc_html($sfx) . '</p>';
 $wpdb->insert(TAP_Legal::table_docs(), [
     'doc_key' => $base->doc_key, 'context' => $base->context, 'lang' => $base->lang,
@@ -32,12 +32,23 @@ $wpdb->insert(TAP_Legal::table_docs(), [
     'sha256' => hash('sha256', $new_body), 'published' => 1,
 ]);
 $current = TAP_Legal::current('traveler_terms', 'es');
-tap_t_assert(2 === (int) $current->version, 'publishing a change selects the new version');
+tap_t_assert((int) $base->version + 1 === (int) $current->version, 'publishing a change selects the new version');
 tap_t_assert((int) $wpdb->get_var($wpdb->prepare(
-    'SELECT COUNT(*) FROM ' . TAP_Legal::table_docs() . ' WHERE doc_key=%s AND lang=%s AND version=1',
-    $base->doc_key, $base->lang
+    'SELECT COUNT(*) FROM ' . TAP_Legal::table_docs() . ' WHERE doc_key=%s AND lang=%s AND version=%d',
+    $base->doc_key, $base->lang, (int) $base->version
 )) >= 1, 'the old version remains immutable');
-$wpdb->delete(TAP_Legal::table_docs(), ['doc_key' => $base->doc_key, 'lang' => $base->lang, 'version' => 2]);
+$wpdb->delete(TAP_Legal::table_docs(), ['doc_key' => $base->doc_key, 'lang' => $base->lang, 'version' => (int) $base->version + 1]);
+
+// Canonical HTML files are the single source of truth and are seeded verbatim.
+$legal_dir = dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/legal/';
+foreach (['traveler_terms', 'agency_terms', 'cancellation_policy', 'privacy_notice'] as $key) {
+    $file = $legal_dir . $key . '.es.html';
+    tap_t_assert(is_readable($file), 'canonical legal file exists: ' . $key);
+    $live = TAP_Legal::current($key, 'es');
+    $expected = hash('sha256', (string) file_get_contents($file));
+    tap_t_assert($live && $live->sha256 === $expected, 'seeded version matches the canonical file: ' . $key);
+    tap_t_assert($live && strlen($live->body) > 2000, 'canonical text is complete, not the fallback: ' . $key);
+}
 
 /* --- 2) acceptance evidence --------------------------------------------------- */
 $booking_id = tap_t_seed_booking([

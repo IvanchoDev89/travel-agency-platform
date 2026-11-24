@@ -45,71 +45,64 @@ class TAP_Legal {
         );
     }
 
-    /** Default document catalogue (Spanish source; English mirror). */
+    /**
+     * Canonical texts live in docs/legal/*.html so lawyers review one file and
+     * the plugin seeds exactly that text. Falls back to a short notice if a
+     * file is missing, so a deployment never breaks the acceptance flow.
+     *
+     * @return array<string,array{context:string,title:string,es:string,en:string}>
+     */
     public static function default_documents() {
-        return [
-            'traveler_terms' => [
-                'context' => self::CONTEXT_TRAVELER,
-                'title'   => 'Términos y condiciones del viajero',
-                'es'      => '<h3>1. Objeto</h3><p>Estos términos regulan la reserva de alojamientos, tours, traslados y demás servicios publicados por agencias verificadas en la plataforma. La plataforma actúa únicamente como intermediario tecnológico y de pago; el contrato de prestación del servicio se celebra directamente entre el viajero y la agencia.</p>'
-                    . '<h3>2. Precio y pago</h3><p>El precio mostrado incluye el servicio y, cuando aplica, la prima de seguro contratada. La tarifa de plataforma y la comisión son cargos de la agencia y no se cobran al viajero. El importe total a pagar se muestra antes de confirmar el pago y queda registrado en la reserva.</p>'
-                    . '<h3>3. Confirmación</h3><p>La reserva queda confirmada cuando el pago es capturado y la agencia acepta la solicitud en los casos de reserva por solicitud. El voucher con el código de reserva es el comprobante de la compra.</p>'
-                    . '<h3>4. Cancelaciones y reembolsos</h3><p>La política de cancelación aplicable es la publicada en el servicio contratado y se congela en el momento de la reserva. El reembolso, cuando procede, se calcula sobre el importe efectivamente pagado y se devuelve al mismo medio de pago.</p>'
-                    . '<h3>5. Datos personales</h3><p>Los datos se tratan conforme al Aviso de Privacidad. El viajero puede ejercer sus derechos escribiendo al correo de contacto indicado en dicho aviso.</p>'
-                    . '<h3>6. Responsabilidad</h3><p>La agencia es responsable de la prestación del servicio y de cumplir lo ofrecido. La plataforma facilita la reserva y el pago, y atiende las reclamaciones conforme a sus políticas de soporte y disputas.</p>',
-                'en'      => '<h3>1. Purpose</h3><p>These terms govern bookings of accommodation, tours, transfers and other services listed by verified agencies. The platform acts only as a technology and payment intermediary; the service contract is between the traveler and the agency.</p>'
-                    . '<h3>2. Price and payment</h3><p>The displayed price includes the service and, where applicable, the insurance premium. The platform fee and commission are agency charges and are not billed to the traveler. The total is shown before payment and recorded in the booking.</p>'
-                    . '<h3>3. Confirmation</h3><p>A booking is confirmed once payment is captured and, for request-to-book services, the agency accepts. The voucher with the booking code is the proof of purchase.</p>'
-                    . '<h3>4. Cancellations and refunds</h3><p>The applicable cancellation policy is the one published for the service and is frozen at booking time. Refunds, when due, are calculated on the amount actually paid and returned to the same payment method.</p>'
-                    . '<h3>5. Personal data</h3><p>Data is processed under the Privacy Notice. Travelers may exercise their rights using the contact email in that notice.</p>'
-                    . '<h3>6. Liability</h3><p>The agency is responsible for delivering the service as described. The platform facilitates booking and payment and handles claims under its support and dispute policies.</p>',
-            ],
-            'agency_terms' => [
-                'context' => self::CONTEXT_AGENCY,
-                'title'   => 'Contrato de agencia y términos de plataforma',
-                'es'      => '<h3>1. Relación</h3><p>La agencia se registra en la plataforma para publicar servicios y recibir reservas. La plataforma presta servicios tecnológicos, de visibilidad y de cobro; no presta el servicio turístico contratado por el viajero.</p>'
-                    . '<h3>2. Verificación</h3><p>La agencia se somete a verificación de identidad y datos de contacto. Hasta ser aprobada podrá preparar listados, pero estos no serán visibles para viajeros ni podrán recibir reservas.</p>'
-                    . '<h3>3. Comisión y tarifa</h3><p>La agencia paga una comisión sobre el subtotal neto de la reserva, sin incluir la tarifa de plataforma ni la prima de seguro. El porcentaje aplicable depende de su plan y del volumen mensual de reservas pagadas, con un piso contractual. La tarifa de plataforma se deduce del neto de la agencia.</p>'
-                    . '<h3>4. Liquidaciones</h3><p>Las comisiones devengadas se liquidan previa solicitud o por gestión de la plataforma. Las reservas canceladas, reembolsadas o en disputa no generan comisión exigible.</p>'
-                    . '<h3>5. Publicidad y cumplimiento</h3><p>La agencia garantiza que la información publicada es veraz, que cuenta con los permisos y seguros aplicables, y que cumplirá lo ofrecido. Responderá por reclamaciones derivadas del servicio.</p>'
-                    . '<h3>6. Datos y vigencia</h3><p>La agencia trata los datos de viajeros conforme a la ley y al Aviso de Privacidad. Este contrato quedará registrado con su versión y fecha de aceptación; las modificaciones se notifican y requieren nueva aceptación.</p>',
-                'en'      => '<h3>1. Relationship</h3><p>The agency registers to list services and receive bookings. The platform provides technology, visibility and payment services; it does not provide the travel service purchased by the traveler.</p>'
-                    . '<h3>2. Verification</h3><p>The agency undergoes identity verification. Until approved it may prepare listings, but they will not be visible to travelers or accept bookings.</p>'
-                    . '<h3>3. Commission and fee</h3><p>The agency pays commission on the net service subtotal, excluding the platform fee and insurance premium. The rate depends on its plan and monthly paid-booking volume, subject to a contractual floor. The platform fee is deducted from the agency net.</p>'
-                    . '<h3>4. Settlements</h3><p>Earned commissions are settled on request or by the platform. Cancelled, refunded or disputed bookings do not earn payable commission.</p>'
-                    . '<h3>5. Advertising and compliance</h3><p>The agency warrants that listings are accurate, that it holds required permits and insurance, and that it will deliver what was offered. It is liable for service-related claims.</p>'
-                    . '<h3>6. Data and term</h3><p>The agency processes traveler data under applicable law and the Privacy Notice. This agreement is recorded with its version and acceptance date; amendments require a new acceptance.</p>',
-            ],
-            'cancellation_policy' => [
-                'context' => self::CONTEXT_TRAVELER,
-                'title'   => 'Política general de cancelación y reembolso',
-                'es'      => '<p>La política específica de cada servicio prevalece sobre esta política general y queda congelada en la reserva. Como regla general: flexible (reembolso total hasta 24 horas antes), moderada (100% hasta 5 días y 50% hasta 2 días), estricta (50% hasta 7 días) y no reembolsable. El reembolso se limita al importe efectivamente pagado y se procesa al mismo medio de pago. La plataforma no retorna comisiones sobre reservas canceladas.</p>',
-                'en'      => '<p>The policy published for each service prevails over this general policy and is frozen at booking time. As a rule: flexible (full refund up to 24 hours before), moderate (100% up to 5 days and 50% up to 2 days), strict (50% up to 7 days) and non-refundable. Refunds are capped at the amount actually paid and returned to the same payment method. The platform does not return commissions on cancelled bookings.</p>',
-            ],
-            'privacy_notice' => [
-                'context' => self::CONTEXT_TRAVELER,
-                'title'   => 'Aviso de privacidad',
-                'es'      => '<p>El tratamiento de datos personales se rige por el Aviso de Privacidad publicado en el sitio y por la legislación aplicable de Costa Rica, incluida la Ley 8968. Para ejercer derechos de acceso, rectificación, supresión u oposición, utiliza el formulario de privacidad o escribe al correo de contacto indicado en el aviso.</p>',
-                'en'      => '<p>Personal data processing is governed by the Privacy Notice published on the site and applicable Costa Rican law, including Law 8968. To exercise access, rectification, erasure or objection rights, use the privacy form or write to the contact email in the notice.</p>',
-            ],
+        $catalog = [
+            'traveler_terms'     => [self::CONTEXT_TRAVELER, 'Términos y condiciones del viajero'],
+            'agency_terms'       => [self::CONTEXT_AGENCY, 'Contrato de agencia y términos de plataforma'],
+            'cancellation_policy'=> [self::CONTEXT_TRAVELER, 'Política general de cancelación y reembolso'],
+            'privacy_notice'     => [self::CONTEXT_TRAVELER, 'Aviso de privacidad'],
         ];
+        // Canonical files ship inside the plugin so production works too.
+        $dir = dirname(__DIR__, 1) . '/legal/';
+        $out = [];
+        foreach ($catalog as $key => $meta) {
+            $fallback = '<p>' . esc_html__('Texto legal pendiente de publicación. Consulta la versión definitiva en el sitio.', 'travel-agency-platform') . '</p>';
+            $load = static function ($lang) use ($dir, $key, $fallback) {
+                $file = $dir . $key . '.' . $lang . '.html';
+                if (!is_readable($file)) { return $fallback; }
+                $html = (string) file_get_contents($file); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+                return '' !== trim($html) ? $html : $fallback;
+            };
+            $out[$key] = [
+                'context' => $meta[0],
+                'title'   => $meta[1],
+                'es'      => $load('es'),
+                'en'      => $load('en'),
+            ];
+        }
+        return $out;
     }
 
     /** Install the first immutable version of every document. */
     public static function seed_defaults() {
         global $wpdb;
         $t = self::table_docs();
-        if ((int) $wpdb->get_var("SELECT COUNT(*) FROM {$t}") > 0) { return; }
         foreach (self::default_documents() as $key => $doc) {
             foreach (['es' => $doc['es'], 'en' => $doc['en']] as $lang => $body) {
+                $hash = hash('sha256', $body);
+                $current = $wpdb->get_row($wpdb->prepare(
+                    'SELECT * FROM ' . $t . ' WHERE doc_key = %s AND lang = %s AND published = 1 ORDER BY version DESC LIMIT 1',
+                    $key,
+                    $lang
+                ));
+                // A changed canonical text creates a new version: old versions
+                // stay immutable and previous acceptations become outdated.
+                if ($current && $current->sha256 === $hash) { continue; }
                 $wpdb->insert($t, [
                     'doc_key'   => $key,
                     'context'   => $doc['context'],
                     'lang'      => $lang,
-                    'version'   => 1,
+                    'version'   => $current ? (int) $current->version + 1 : 1,
                     'title'     => $doc['title'],
                     'body'      => $body,
-                    'sha256'    => hash('sha256', $body),
+                    'sha256'    => $hash,
                     'published' => 1,
                 ]);
             }
