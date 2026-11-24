@@ -19,8 +19,11 @@ class TAP_Invoices {
         global $wpdb;
         $t = self::table();
         $today = gmdate('Ymd');
+        // Order by the numeric suffix, not lexicographically: past 9999 the
+        // string order would keep returning 9999 and collide forever.
         $last = $wpdb->get_var($wpdb->prepare(
-            "SELECT invoice_number FROM {$t} WHERE invoice_number LIKE %s ORDER BY invoice_number DESC LIMIT 1",
+            "SELECT invoice_number FROM {$t} WHERE invoice_number LIKE %s
+             ORDER BY CAST(SUBSTRING_INDEX(invoice_number, '-', -1) AS UNSIGNED) DESC LIMIT 1",
             'TAP-' . $today . '-%'
         ));
         $seq = 1;
@@ -42,17 +45,31 @@ class TAP_Invoices {
         $existing = $wpdb->get_var($wpdb->prepare("SELECT id FROM {$t} WHERE booking_id = %d", $booking_id)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         if ($existing) return (int) $existing;
 
+        // Concurrent payments can pick the same number: the UNIQUE key rejects
+        // the loser, so retry with a fresh number instead of silently returning
+        // invoice id 0 and skipping the PDF/email.
         $number = self::next_number();
-        $wpdb->insert(self::table(), [
-            'booking_id'     => $booking_id,
-            'invoice_number' => $number,
-            'amount'         => $booking->total_amount,
-            'currency'       => $booking->currency ?? 'USD',
-            'status'         => 'issued',
-            // Freeze the billing details: bookings/listings are regularly
-            // deleted in staging and an invoice must never lose its data.
-            'snapshot'       => wp_json_encode(self::build_snapshot($booking)),
-        ]);
+        $inserted = false;
+        for ($attempt = 0; $attempt < 5; $attempt++) {
+            $result = $wpdb->insert(self::table(), [
+                'booking_id'     => $booking_id,
+                'invoice_number' => $number,
+                'amount'         => $booking->total_amount,
+                'currency'       => $booking->currency ?? 'USD',
+                'status'         => 'issued',
+                // Freeze the billing details: bookings/listings are regularly
+                // deleted in staging and an invoice must never lose its data.
+                'snapshot'       => wp_json_encode(self::build_snapshot($booking)),
+            ]);
+            if (false !== $result) {
+                $inserted = true;
+                break;
+            }
+            $number = self::next_number();
+        }
+        if (!$inserted) {
+            return new WP_Error('invoice_insert_failed', __('No se pudo emitir la factura.', 'travel-agency-platform'));
+        }
         $inv_id = (int) $wpdb->insert_id;
 
         // Hacienda submission (if configured).
@@ -122,7 +139,10 @@ class TAP_Invoices {
             ];
         }
         $elements[] = ['type' => 'spacer', 'h' => 12];
-        $elements[] = ['type' => 'row', 'label' => __('Subtotal', 'travel-agency-platform'), 'value' => self::money($d['total_amount'], $d, true)];
+        // total_amount already includes the platform fee: show the pre-fee
+        // subtotal so subtotal + fee = total and the lines reconcile.
+        $pdf_subtotal = max(0, round($d['total_amount'] - $d['booking_fee'], 2));
+        $elements[] = ['type' => 'row', 'label' => __('Subtotal', 'travel-agency-platform'), 'value' => self::money($pdf_subtotal, $d, true)];
         if ($d['booking_fee']) {
             $elements[] = ['type' => 'row', 'label' => __('Tarifa de plataforma', 'travel-agency-platform'), 'value' => self::money($d['booking_fee'], $d, true)];
         }
@@ -135,10 +155,39 @@ class TAP_Invoices {
         $elements[] = ['type' => 'small', 'text' => $name . '  ·  ' . $inv->invoice_number];
 
         $pdf = TAP_Simple_PDF::build($elements);
+        return self::write_pdf($inv, $pdf);
+    }
+
+    /** Canonical, stable storage path for an invoice PDF (year/month of issue). */
+    private static function pdf_target($inv) {
+        $uploads = wp_upload_dir();
+        $stamp = !empty($inv->issued_at) ? strtotime((string) $inv->issued_at) : time();
+        $sub = gmdate('Y/m', $stamp ?: time());
         $file = sanitize_file_name('factura-' . $inv->invoice_number . '.pdf');
-        $upload = wp_upload_bits($file, null, $pdf);
-        if (!empty($upload['error']) || empty($upload['url'])) { return ''; }
-        return (string) $upload['url'];
+        return [
+            'dir'  => trailingslashit($uploads['basedir']) . $sub,
+            'path' => trailingslashit($uploads['basedir']) . $sub . '/' . $file,
+            'url'  => trailingslashit($uploads['baseurl']) . $sub . '/' . $file,
+            'file' => $file,
+        ];
+    }
+
+    /**
+     * Write the PDF to one stable path and remove previous copies. Using
+     * wp_upload_bits() on every regeneration produced a new -N file each time
+     * and left the old ones orphaned on disk.
+     */
+    private static function write_pdf($inv, $pdf) {
+        $target = self::pdf_target($inv);
+        if (!wp_mkdir_p($target['dir'])) { return ''; }
+        $written = file_put_contents($target['path'], $pdf); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+        if (false === $written) { return ''; }
+        // Drop legacy suffixed copies of this invoice, keeping the canonical one.
+        $pattern = $target['dir'] . '/' . sanitize_file_name('factura-' . $inv->invoice_number) . '*.pdf';
+        foreach ((array) glob($pattern) as $old) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_glob
+            if ($old !== $target['path'] && is_file($old)) { wp_delete_file($old); }
+        }
+        return $target['url'];
     }
 
     /** Agency title for a booking (best effort). */
@@ -155,6 +204,29 @@ class TAP_Invoices {
         global $wpdb;
         $t = self::table();
         return $wpdb->get_row($wpdb->prepare("SELECT * FROM {$t} WHERE id = %d", (int) $id));
+    }
+
+    /**
+     * One-shot backfill: freeze billing data for legacy invoices that still
+     * have their booking, so a later deletion cannot empty them.
+     */
+    public static function backfill_snapshots() {
+        global $wpdb;
+        if (get_option('tap_invoice_snapshot_backfill')) { return 0; }
+        $rows = $wpdb->get_results(
+            "SELECT i.id AS invoice_id, b.* FROM {$wpdb->prefix}tap_invoices i
+             JOIN {$wpdb->prefix}tap_bookings b ON i.booking_id = b.id
+             WHERE i.snapshot IS NULL OR i.snapshot = ''"
+        );
+        $done = 0;
+        foreach ((array) $rows as $row) {
+            $snapshot = self::build_snapshot($row);
+            if ($wpdb->update(self::table(), ['snapshot' => wp_json_encode($snapshot)], ['id' => (int) $row->invoice_id])) {
+                ++$done;
+            }
+        }
+        update_option('tap_invoice_snapshot_backfill', '1', false);
+        return $done;
     }
 
     /** Get invoice by booking. */
@@ -295,7 +367,8 @@ class TAP_Invoices {
                     </tr>
                 </tbody>
                 <tfoot>
-                    <tr><td><?php esc_html_e('Subtotal', 'travel-agency-platform'); ?></td><td class="num"><?php echo esc_html(self::money($d['total_amount'], $d)); ?></td></tr>
+                    <?php $tap_subtotal = max(0, round($d['total_amount'] - $d['booking_fee'], 2)); ?>
+                    <tr><td><?php esc_html_e('Subtotal', 'travel-agency-platform'); ?></td><td class="num"><?php echo esc_html(self::money($tap_subtotal, $d)); ?></td></tr>
                     <?php if ($d['booking_fee']): ?>
                         <tr><td><?php esc_html_e('Tarifa de plataforma', 'travel-agency-platform'); ?></td><td class="num"><?php echo esc_html(self::money($d['booking_fee'], $d)); ?></td></tr>
                     <?php endif; ?>

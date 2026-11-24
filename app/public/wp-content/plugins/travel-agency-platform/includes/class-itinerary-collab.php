@@ -74,11 +74,18 @@ class TAP_Itinerary_Collab {
         return (int) $wpdb->insert_id;
     }
 
-    /** Get votes for an itinerary. */
+    /**
+     * Public vote tallies for a shared itinerary. Only service_id and vote are
+     * returned: the share token is meant to be forwarded, so voter emails and
+     * names must never leave the server.
+     */
     public static function votes($itinerary_id) {
         global $wpdb;
         $t = self::table_votes();
-        return $wpdb->get_results($wpdb->prepare("SELECT * FROM {$t} WHERE itinerary_id = %d", (int) $itinerary_id));
+        return $wpdb->get_results($wpdb->prepare(
+            "SELECT service_id, vote FROM {$t} WHERE itinerary_id = %d",
+            (int) $itinerary_id
+        ));
     }
 
     /** Add a comment. */

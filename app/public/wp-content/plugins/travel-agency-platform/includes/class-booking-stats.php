@@ -29,7 +29,24 @@ class TAP_Booking_Stats {
      */
     public static function net_expr($alias = '') {
         $p = $alias ? rtrim($alias, '.') . '.' : '';
-        return "{$p}total_amount - COALESCE({$p}booking_fee,0) - " . self::commission_case($alias);
+        return "({$p}total_amount - COALESCE({$p}refund_amount,0)) - COALESCE({$p}booking_fee,0) - " . self::commission_case($alias);
+    }
+
+    /**
+     * The ONE money basis for every report: actually paid and not
+     * cancelled/refunded. Counters may keep all statuses; money may not.
+     *
+     * @param string $alias Optional table alias prefix (e.g. 'b').
+     */
+    public static function money_where($alias = '') {
+        $p = $alias ? rtrim($alias, '.') . '.' : '';
+        return "{$p}payment_status = 'paid' AND {$p}status NOT IN ('cancelled','refunded')";
+    }
+
+    /** Revenue net of refunds, so partial refunds stop overstating GMV. */
+    public static function revenue_expr($alias = '') {
+        $p = $alias ? rtrim($alias, '.') . '.' : '';
+        return "({$p}total_amount - COALESCE({$p}refund_amount,0))";
     }
 
     public static function get_status_distribution() {
@@ -46,9 +63,9 @@ class TAP_Booking_Stats {
     public static function get_service_type_breakdown() {
         global $wpdb;
         $rows = $wpdb->get_results(
-            "SELECT service_type, COUNT(*) as cnt, COALESCE(SUM(total_amount), 0) as revenue
+            "SELECT service_type, COUNT(*) as cnt, COALESCE(SUM(" . self::revenue_expr() . "), 0) as revenue
             FROM {$wpdb->prefix}tap_bookings
-            WHERE status NOT IN ('cancelled','refunded')
+            WHERE " . self::money_where() . "
             GROUP BY service_type ORDER BY cnt DESC"
         );
         return $rows;
@@ -61,8 +78,8 @@ class TAP_Booking_Stats {
         $rows = $wpdb->get_results(
             "SELECT DATE_FORMAT(created_at, '%Y-%m') as month,
                     COUNT(*) as bookings,
-                    COALESCE(SUM(CASE WHEN status NOT IN ('cancelled','refunded') THEN total_amount ELSE 0 END), 0) as revenue,
-                    COALESCE(SUM(CASE WHEN status NOT IN ('cancelled','refunded') THEN " . self::commission_case() . " ELSE 0 END), 0) as commission,
+                    COALESCE(SUM(CASE WHEN " . self::money_where() . " THEN " . self::revenue_expr() . " ELSE 0 END), 0) as revenue,
+                    COALESCE(SUM(CASE WHEN " . self::money_where() . " THEN " . self::commission_case() . " ELSE 0 END), 0) as commission,
                     COALESCE(SUM(CASE WHEN status IN ('cancelled','refunded') THEN 1 ELSE 0 END), 0) as cancelled
             FROM $table
             GROUP BY month ORDER BY month ASC"
@@ -110,7 +127,7 @@ class TAP_Booking_Stats {
             'cancelled'  => $wpdb->get_var("SELECT COUNT(*) FROM $table $where AND status = 'cancelled'"),
             // All money figures share ONE basis: paid + not cancelled/refunded.
             // Counters above intentionally keep every status.
-            'revenue'    => $wpdb->get_var("SELECT COALESCE(SUM(total_amount), 0) FROM $table $where AND payment_status = 'paid' AND status NOT IN ('cancelled', 'refunded')"),
+            'revenue'    => $wpdb->get_var('SELECT COALESCE(SUM(' . self::revenue_expr() . '), 0) FROM ' . $table . ' ' . $where . " AND payment_status = 'paid' AND status NOT IN ('cancelled', 'refunded')"),
             'commission' => $wpdb->get_var('SELECT COALESCE(SUM(' . self::commission_case() . '), 0) FROM ' . $table . ' ' . $where . " AND payment_status = 'paid' AND status NOT IN ('cancelled', 'refunded')"),
             'net'        => $wpdb->get_var('SELECT COALESCE(SUM(' . self::net_expr() . '), 0) FROM ' . $table . ' ' . $where . " AND payment_status = 'paid' AND status NOT IN ('cancelled', 'refunded')"),
             'fees'       => $wpdb->get_var("SELECT COALESCE(SUM(booking_fee), 0) FROM $table $where AND payment_status = 'paid' AND status NOT IN ('cancelled', 'refunded')"),

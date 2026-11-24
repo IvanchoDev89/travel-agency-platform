@@ -16,9 +16,16 @@ class TAP_Installer {
 
     public static function deactivate() {
         TAP_Roles::remove();
-        wp_clear_scheduled_hook('tap_maintenance_hook');
-        wp_clear_scheduled_hook('tap_auto_hook');
-        wp_clear_scheduled_hook('tap_refund_retry_hook');
+        // Clear EVERY scheduled hook, not just three: orphan events kept
+        // firing after deactivation.
+        foreach ([
+            'tap_maintenance_hook', 'tap_auto_hook', 'tap_refund_retry_hook',
+            'tap_points_expiry_hook', 'tap_push_reminders_hook', 'tap_admin_alerts_hook',
+            'tap_affiliate_release_hook', 'tap_agency_registry_hook', 'tap_data_retention_hook',
+            'tap_pay_reminder_hook', 'tap_process_email_campaigns',
+        ] as $hook) {
+            wp_clear_scheduled_hook($hook);
+        }
         flush_rewrite_rules();
     }
 
@@ -518,6 +525,38 @@ class TAP_Installer {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_invoices ADD COLUMN snapshot longtext NULL AFTER pdf_url");
         }
 
+        // Backfill the normalized payout<->booking links from the legacy CSV
+        // column so the index-backed joins have data on upgrade.
+        if ($wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}tap_payout_bookings'") === "{$wpdb->prefix}tap_payout_bookings") {
+            $legacy = $wpdb->get_results("SELECT id, booking_ids FROM {$wpdb->prefix}tap_commission_payments WHERE booking_ids IS NOT NULL AND booking_ids <> '' AND booking_ids <> '0'");
+            foreach ((array) $legacy as $row) {
+                foreach (array_filter(array_map('intval', explode(',', (string) $row->booking_ids))) as $bid) {
+                    $wpdb->query($wpdb->prepare(
+                        "INSERT IGNORE INTO {$wpdb->prefix}tap_payout_bookings (payout_id, booking_id) VALUES (%d, %d)",
+                        (int) $row->id, $bid
+                    ));
+                }
+            }
+        }
+
+        if (class_exists('TAP_Invoices')) { TAP_Invoices::backfill_snapshots(); }
+
+        // Schema drift fixes: dbDelta does not widen columns or reliably add
+        // every index, and availability/pricing queries filter on these.
+        $gn = $wpdb->get_row("SHOW COLUMNS FROM {$wpdb->prefix}tap_bookings LIKE 'guest_name'");
+        if ($gn && false === strpos((string) $gn->Type, '150')) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings MODIFY guest_name varchar(150) DEFAULT NULL");
+        }
+        if (!$wpdb->get_var("SHOW INDEX FROM {$wpdb->prefix}tap_bookings WHERE Key_name = 'room_id'")) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD INDEX room_id (room_id)");
+        }
+        if (!$wpdb->get_var("SHOW INDEX FROM {$wpdb->prefix}tap_daily_pricing WHERE Key_name = 'service_date'")) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_daily_pricing ADD INDEX service_date (service_type, service_id, date)");
+        }
+        if (!$wpdb->get_var("SHOW INDEX FROM {$wpdb->prefix}tap_daily_pricing WHERE Key_name = 'service_slot'")) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_daily_pricing ADD INDEX service_slot (service_type, service_id, date, time_slot)");
+        }
+
         // Backfill service_type/service_id for legacy room rows (idempotent).
         $wpdb->query("UPDATE {$wpdb->prefix}tap_daily_pricing SET service_type='tap_accommodation', service_id=room_id WHERE (service_type IS NULL OR service_type='' OR (service_type='tap_accommodation' AND service_id=0)) AND room_id > 0");
 
@@ -732,28 +771,34 @@ class TAP_Installer {
         // tap_payment_completed). Backfill unpaid bookings so "por cobrar"
         // totals stop counting money that was never collected.
         $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings MODIFY commission_status varchar(20) DEFAULT 'waiting'");
-        $wpdb->query("UPDATE {$wpdb->prefix}tap_bookings SET commission_status = 'waiting' WHERE commission_status = 'owed' AND payment_status <> 'paid'");
-        // A 'paid' commission means the platform already transferred that money
-        // to the agency, and TAP_Payouts only ever settles bookings that are
-        // both 'owed' AND payment_status = 'paid'. A 'paid' commission on a
-        // booking whose payment is neither 'paid' nor 'refunded' (a NULL
-        // payment_status counts as unconfirmed, not paid) is therefore
-        // impossible (legacy / seed data): no money was ever collected, so the
-        // commission was never earned. Return it to 'waiting' — the state an
-        // unpaid booking's commission belongs in. This MUST run before the
-        // cancel/refund pass below: a cancelled/refunded row normalized here to
-        // 'waiting' is then flipped on to 'void', so it never keeps a live
-        // commission. Refunded payments are left untouched: that money was
-        // collected and given back, and a settled commission there is a
-        // deliberate no-clawback decision (see TAP_Booking::void_commission).
-        $wpdb->query("UPDATE {$wpdb->prefix}tap_bookings SET commission_status = 'waiting' WHERE commission_status = 'paid' AND (payment_status IS NULL OR payment_status NOT IN ('paid', 'refunded'))");
-        // Cancelled/refunded bookings must never carry a live commission. Rows
-        // written before the cancel path called void_commission() can still be
-        // 'waiting'/'owed'/'disputed'; flip them to 'void' so the audit views
-        // stay coherent. Settled commissions ('paid') are left untouched: the
-        // platform already transferred that money and a clawback is a manual,
-        // out-of-band decision.
-        $wpdb->query("UPDATE {$wpdb->prefix}tap_bookings SET commission_status = 'void' WHERE status IN ('cancelled', 'refunded') AND commission_status IN ('waiting', 'owed', 'disputed')");
+        // These backfills rewrite settled commissions; running them on every
+        // version bump could resurrect a paid commission and pay it twice.
+        // One-shot, guarded by a marker.
+        if (!get_option('tap_commission_backfill_v2')) {
+            $wpdb->query("UPDATE {$wpdb->prefix}tap_bookings SET commission_status = 'waiting' WHERE commission_status = 'owed' AND payment_status <> 'paid'");
+            // A 'paid' commission means the platform already transferred that money
+            // to the agency, and TAP_Payouts only ever settles bookings that are
+            // both 'owed' AND payment_status = 'paid'. A 'paid' commission on a
+            // booking whose payment is neither 'paid' nor 'refunded' (a NULL
+            // payment_status counts as unconfirmed, not paid) is therefore
+            // impossible (legacy / seed data): no money was ever collected, so the
+            // commission was never earned. Return it to 'waiting' — the state an
+            // unpaid booking's commission belongs in. This MUST run before the
+            // cancel/refund pass below: a cancelled/refunded row normalized here to
+            // 'waiting' is then flipped on to 'void', so it never keeps a live
+            // commission. Refunded payments are left untouched: that money was
+            // collected and given back, and a settled commission there is a
+            // deliberate no-clawback decision (see TAP_Booking::void_commission).
+            $wpdb->query("UPDATE {$wpdb->prefix}tap_bookings SET commission_status = 'waiting' WHERE commission_status = 'paid' AND (payment_status IS NULL OR payment_status NOT IN ('paid', 'refunded'))");
+            // Cancelled/refunded bookings must never carry a live commission. Rows
+            // written before the cancel path called void_commission() can still be
+            // 'waiting'/'owed'/'disputed'; flip them to 'void' so the audit views
+            // stay coherent. Settled commissions ('paid') are left untouched: the
+            // platform already transferred that money and a clawback is a manual,
+            // out-of-band decision.
+            $wpdb->query("UPDATE {$wpdb->prefix}tap_bookings SET commission_status = 'void' WHERE status IN ('cancelled', 'refunded') AND commission_status IN ('waiting', 'owed', 'disputed')");
+            update_option('tap_commission_backfill_v2', '1', false);
+        }
 
         if ($wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}tap_commission_payments'") !== "{$wpdb->prefix}tap_commission_payments") {
             $wpdb->query("CREATE TABLE {$wpdb->prefix}tap_commission_payments (
@@ -1035,6 +1080,28 @@ class TAP_Installer {
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
             KEY itinerary (itinerary_id)
+        ) {$wpdb->get_charset_collate()}");
+
+        $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_payout_bookings (
+            payout_id bigint(20) NOT NULL,
+            booking_id bigint(20) NOT NULL,
+            PRIMARY KEY (payout_id, booking_id),
+            KEY booking_id (booking_id)
+        ) {$wpdb->get_charset_collate()}");
+
+        $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_processed_events (
+            event_id varchar(190) NOT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (event_id),
+            KEY created_at (created_at)
+        ) {$wpdb->get_charset_collate()}");
+
+        $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_email_optouts (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            email varchar(190) NOT NULL,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY email (email)
         ) {$wpdb->get_charset_collate()}");
 
         $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_invoices (

@@ -122,8 +122,10 @@ class TAP_API {
             return new WP_Error('invalid_type', __('Invalid service type', 'travel-agency-platform'), ['status' => 400]);
         }
 
-        $per_page = $request->get_param('per_page') ?: 12;
-        $paged = $request->get_param('page') ?: 1;
+        // Public, unauthenticated route: an unbounded per_page is a cheap
+        // resource-exhaustion vector.
+        $per_page = min(100, max(1, absint($request->get_param('per_page') ?: 12)));
+        $paged = max(1, absint($request->get_param('page') ?: 1));
         $location = $request->get_param('location');
 
         $args = TAP_Approval::exclude_from_query([
@@ -322,6 +324,19 @@ class TAP_API {
         // Never accept line-item prices from the client; the booking amount is
         // recomputed server-side by TAP_Booking::create().
         unset($params['items']);
+        // Currency is derived from the service, never trusted from the caller:
+        // a mismatched currency breaks PayPal capture reconciliation.
+        unset($params['currency']);
+
+        $service = get_post(absint($params['service_id'] ?? 0));
+        $valid_types = array_keys(TAP_Post_Types::get_service_types());
+        if (!$service
+            || !in_array($service->post_type, $valid_types, true)
+            || 'publish' !== $service->post_status
+            || !TAP_Approval::is_service_visible((int) $service->ID, $service->post_type)) {
+            return new WP_Error('invalid_service', __('Servicio no disponible.', 'travel-agency-platform'), ['status' => 400]);
+        }
+        $params['service_type'] = $service->post_type;
 
         // Optional client-supplied key so a retried request does not create a
         // duplicate booking (see TAP_Booking::create()). Scoped to the caller.
@@ -350,7 +365,39 @@ class TAP_API {
             TAP_Privacy::record_consent($user->user_email, 'booking', $user->ID);
         }
 
-        return rest_ensure_response($booking);
+        return rest_ensure_response(self::client_booking_payload($booking));
+    }
+
+    /**
+     * Client-safe booking payload. The raw row carries internal_notes and
+     * commission data that the voucher UI deliberately hides; returning it
+     * verbatim over REST defeated that control.
+     *
+     * @param object|array $booking Raw booking row or create() result.
+     * @return object Client-safe booking object.
+     */
+    public static function client_booking_payload($booking) {
+        // TAP_Booking::create() returns ['booking_id'=>..,'booking_code'=>..];
+        // get_booking() returns a row object. Support both shapes.
+        if (is_array($booking)) { $booking = (object) $booking; }
+        $fields = [
+            'id', 'booking_code', 'service_type', 'service_id', 'service_title',
+            'room_id', 'slot_id', 'package_id', 'check_in', 'check_out',
+            'adults', 'children', 'nights', 'total_amount', 'currency',
+            'amount_paid', 'booking_fee', 'status', 'payment_status',
+            'guest_name', 'guest_email', 'guest_phone', 'notes',
+            'refund_amount', 'refund_percent', 'cancellation_policy',
+            'agency_id', 'created_at', 'updated_at',
+        ];
+        $out = [];
+        foreach ($fields as $key) {
+            if (isset($booking->{$key})) { $out[$key] = $booking->{$key}; }
+        }
+        // Legacy clients read 'booking_id'; keep the alias alongside 'id'.
+        $legacy_id = $booking->id ?? $booking->booking_id ?? 0;
+        if ($legacy_id) { $out['booking_id'] = (int) $legacy_id; }
+        if (isset($booking->items)) { $out['items'] = $booking->items; }
+        return (object) $out;
     }
 
     public static function get_booking($request) {
@@ -366,7 +413,7 @@ class TAP_API {
 
         $booking->items = TAP_Booking::get_booking_items($booking->id);
 
-        return rest_ensure_response($booking);
+        return rest_ensure_response(self::client_booking_payload($booking));
     }
 
     public static function my_bookings() {
@@ -391,7 +438,7 @@ class TAP_API {
             $booking->items = $items_by_booking[(int) $booking->id] ?? [];
         }
 
-        return rest_ensure_response($bookings);
+        return rest_ensure_response(array_map([__CLASS__, 'client_booking_payload'], $bookings));
     }
 
     public static function get_locations() {

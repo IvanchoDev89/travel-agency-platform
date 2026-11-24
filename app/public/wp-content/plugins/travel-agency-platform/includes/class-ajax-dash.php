@@ -98,10 +98,12 @@ class TAP_Ajax_Dash {
             wp_send_json_error(['message' => __('No autenticado.', 'travel-agency-platform')], 401);
         }
 
-        // Explicit agency gate: defense-in-depth in case the callee's ownership
-        // check is ever refactored. Platform admins may act on any booking.
+        // Agency gate: admins act on any booking; mapped employees (not just
+        // agency admins) may operate their own agency's bookings, matching
+        // agency_booking_action() and the bulk handler. mark_paid stays
+        // platform-admin only inside that function.
         $uid = get_current_user_id();
-        if (!current_user_can('manage_options') && !TAP_Roles::can_manage_agency_panel(wp_get_current_user())) {
+        if (!current_user_can('manage_options') && !(int) TAP_Booking::get_agency_for_user($uid)) {
             wp_send_json_error(['message' => __('Sin permiso.', 'travel-agency-platform')], 403);
         }
         $booking_id = absint($_POST['booking_id'] ?? 0);

@@ -39,7 +39,9 @@ class TAP_Refunds {
         if (!$booking) {
             return new WP_Error('not_found', __('Reserva no encontrada.', 'travel-agency-platform'));
         }
-        if ('paid' !== $booking->payment_status) {
+        // Partial payments are real captured money too: refusing to refund them
+        // marked bookings as refunded without ever calling the gateway.
+        if (!in_array($booking->payment_status, ['paid', 'partial'], true)) {
             return true;
         }
 

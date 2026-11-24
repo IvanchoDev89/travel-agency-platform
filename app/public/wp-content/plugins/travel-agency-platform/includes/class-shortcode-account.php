@@ -32,7 +32,10 @@ class TAP_Shortcode_Account {
             <h2><?php printf(/* translators: %s: nombre del usuario */ esc_html__('Welcome, %s!', 'travel-agency-platform'), esc_html($user->display_name)); ?></h2>
             <div class="tap-dashboard-links">
                 <a href="<?php echo esc_url(home_url('/my-bookings')); ?>" class="tap-btn"><?php esc_html_e('My Bookings', 'travel-agency-platform'); ?></a>
-                <a href="<?php echo esc_url(home_url('/agency-profile')); ?>" class="tap-btn"><?php esc_html_e('Agency Profile', 'travel-agency-platform'); ?></a>
+                <?php $tap_my_agency = (int) TAP_Booking::get_agency_for_user(get_current_user_id()); ?>
+                <?php if ($tap_my_agency): ?>
+                    <a href="<?php echo esc_url(add_query_arg('id', $tap_my_agency, home_url('/agency-profile'))); ?>" class="tap-btn"><?php esc_html_e('Agency Profile', 'travel-agency-platform'); ?></a>
+                <?php endif; ?>
             </div>
             <?php echo do_shortcode('[tap_referral_dashboard]'); ?>
         </div>
@@ -230,12 +233,10 @@ $rating_count = 0;
                                                 <h3><a href="<?php echo esc_url(get_permalink($sid)); ?>"><?php echo esc_html($sp->post_title); ?></a></h3>
                                                 <p class="tap-agency-service-excerpt"><?php echo esc_html(wp_trim_words($sp->post_excerpt ?: $sp->post_content, 18)); ?></p>
                                                 <?php
-                                                $price_meta = '';
-                                                foreach (['_tap_acc_price_per_night', '_tap_tour_price', '_tap_trans_price', '_tap_car_price_per_day', '_tap_boat_price', '_tap_pkg_price', '_tap_equipment_price_per_day'] as $pmk) {
-                                                    $pv = get_post_meta($sid, $pmk, true);
-                                                    if ($pv !== '' && $pv !== null) { $price_meta = $pmk;
-break; }
-                                                }
+                                                // Canonical price keys live in TAP_API; the old
+                                                // hardcoded list used keys no metabox ever writes.
+                                                $price_meta = (string) TAP_API::get_price_key($sp->post_type);
+                                                if ($price_meta && get_post_meta($sid, $price_meta, true) === '') { $price_meta = ''; }
                                                 if ($price_meta) {
                                                     $pval = (float) get_post_meta($sid, $price_meta, true);
                                                     if ($pval > 0) {

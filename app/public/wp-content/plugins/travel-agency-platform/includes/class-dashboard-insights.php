@@ -17,20 +17,20 @@ class TAP_Dashboard_Insights {
         $monthly = $wpdb->get_results(
             "SELECT DATE_FORMAT(created_at, '%Y-%m') as month,
                     COUNT(*) as bookings,
-                    SUM(total_amount) as revenue,
+                    SUM(" . TAP_Booking_Stats::revenue_expr() . ") as revenue,
                     SUM(" . TAP_Booking_Stats::commission_case() . ") as commission,
                     SUM(booking_fee) as fees
             FROM {$wpdb->prefix}tap_bookings
-            WHERE status NOT IN ('cancelled', 'refunded')
+            WHERE " . TAP_Booking_Stats::money_where() . "
             GROUP BY month ORDER BY month DESC LIMIT 12"
         );
         $totals = $wpdb->get_row(
             "SELECT COUNT(*) as bookings,
-                    SUM(total_amount) as gmv,
+                    SUM(" . TAP_Booking_Stats::revenue_expr() . ") as gmv,
                     SUM(" . TAP_Booking_Stats::commission_case() . ") as commission,
                     SUM(booking_fee) as fees
             FROM $table
-            WHERE status NOT IN ('cancelled', 'refunded')"
+            WHERE " . TAP_Booking_Stats::money_where() . ""
         );
         $promo_revenue = (float) $wpdb->get_var(
             "SELECT COALESCE(SUM(amount),0) FROM {$wpdb->prefix}tap_promos WHERE payment_status = 'paid'"
@@ -197,13 +197,13 @@ class TAP_Dashboard_Insights {
         $to   = sanitize_text_field(wp_unslash($_GET['tap_to'] ?? ''));
         if ($from && !preg_match('/^\d{4}-\d{2}$/', $from)) $from = '';
         if ($to && !preg_match('/^\d{4}-\d{2}$/', $to)) $to = '';
-        $bwhere  = "b.status NOT IN ('cancelled','refunded')";
+        $bwhere  = TAP_Booking_Stats::money_where('b');
         $bparams = [];
         if ($from) { $bwhere .= $wpdb->prepare(" AND DATE_FORMAT(b.created_at,'%%Y-%%m') >= %s", $from); }
         if ($to)   { $bwhere .= $wpdb->prepare(" AND DATE_FORMAT(b.created_at,'%%Y-%%m') <= %s", $to); }
 
         $totals = $wpdb->get_row($wpdb->prepare(
-            "SELECT COUNT(*) AS bookings, COALESCE(SUM(b.total_amount),0) AS gmv,
+            "SELECT COUNT(*) AS bookings, COALESCE(SUM(" . TAP_Booking_Stats::revenue_expr('b') . "),0) AS gmv,
                     COALESCE(SUM(" . TAP_Booking_Stats::commission_case('b') . "),0) AS commission, COALESCE(SUM(b.booking_fee),0) AS fees
              FROM {$wpdb->prefix}tap_bookings b WHERE {$bwhere}",
             ...$bparams
@@ -229,7 +229,7 @@ class TAP_Dashboard_Insights {
             $monthly[$i]['label'] = $m->format('Y-m');
         }
 
-        $mbook = $wpdb->get_results("SELECT DATE_FORMAT(b.created_at,'%Y-%m') m, COUNT(*) c, SUM(b.total_amount) gmv, SUM(" . TAP_Booking_Stats::commission_case('b') . ") com, SUM(b.booking_fee) fee FROM {$wpdb->prefix}tap_bookings b WHERE b.status NOT IN ('cancelled','refunded') GROUP BY m");
+        $mbook = $wpdb->get_results("SELECT DATE_FORMAT(b.created_at,'%Y-%m') m, COUNT(*) c, SUM(" . TAP_Booking_Stats::revenue_expr('b') . ") gmv, SUM(" . TAP_Booking_Stats::commission_case('b') . ") com, SUM(b.booking_fee) fee FROM {$wpdb->prefix}tap_bookings b WHERE " . TAP_Booking_Stats::money_where('b') . " GROUP BY m");
         $msub  = $wpdb->get_results("SELECT DATE_FORMAT(s.created_at,'%Y-%m') m, SUM(p.price_monthly) amt FROM {$wpdb->prefix}tap_agency_subscriptions s JOIN {$wpdb->prefix}tap_plans p ON p.id=s.plan_id WHERE s.payment_status='paid' GROUP BY m");
         $mpromo = $wpdb->get_results("SELECT DATE_FORMAT(p.created_at,'%Y-%m') m, SUM(p.amount) amt FROM {$wpdb->prefix}tap_promos p WHERE p.payment_status='paid' GROUP BY m");
 

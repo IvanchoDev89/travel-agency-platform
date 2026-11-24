@@ -151,14 +151,34 @@ class TAP_Shuttle {
         }
         $params = $request->get_params();
         $group_id = absint($params['group_id'] ?? 0);
-        $adults   = max(1, absint($params['adults'] ?? 1));
         if (!$group_id) {
             return new WP_Error('invalid', __('Grupo inválido.', 'travel-agency-platform'), ['status' => 400]);
         }
-        $ok = self::add_passenger($group_id, $adults);
+        global $wpdb;
+        $group = $wpdb->get_row($wpdb->prepare(
+            'SELECT * FROM ' . self::table() . ' WHERE id = %d', $group_id
+        ));
+        if (!$group) {
+            return new WP_Error('invalid', __('Grupo inválido.', 'travel-agency-platform'), ['status' => 400]);
+        }
+        // Seats must come from a real paid booking for this service/date, not
+        // from a freely supplied number: otherwise any logged-in user could
+        // mark real shuttles full without paying.
+        $booking = $wpdb->get_row($wpdb->prepare(
+            "SELECT adults, children FROM {$wpdb->prefix}tap_bookings
+             WHERE client_id = %d AND service_id = %d AND check_in = %s
+               AND payment_status = 'paid' AND status IN ('confirmed','completed')
+             ORDER BY id DESC LIMIT 1",
+            get_current_user_id(), (int) $group->service_id, $group->travel_date
+        ));
+        if (!$booking) {
+            return new WP_Error('booking_required', __('Necesitas una reserva pagada para este shuttle.', 'travel-agency-platform'), ['status' => 403]);
+        }
+        $seats = max(1, (int) $booking->adults + (int) $booking->children);
+        $ok = self::add_passenger($group_id, $seats);
         if (!$ok) {
             return new WP_Error('full', __('El shuttle está completo.', 'travel-agency-platform'), ['status' => 400]);
         }
-        return rest_ensure_response(['ok' => true]);
+        return rest_ensure_response(['ok' => true, 'seats' => $seats]);
     }
 }

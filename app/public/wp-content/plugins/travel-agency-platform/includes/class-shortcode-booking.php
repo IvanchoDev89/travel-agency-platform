@@ -77,7 +77,7 @@ class TAP_Shortcode_Booking {
                 <input type="hidden" name="slot_id" id="tap_slot_id_<?php echo (int) $n; ?>" value="">
                 <div class="tap-form-row">
                     <div class="tap-form-group">
-                        <label for="tap_tour_date"><?php esc_html_e('Fecha del tour', 'travel-agency-platform'); ?></label>
+                        <label for="tap_tour_date_<?php echo (int) $n; ?>"><?php esc_html_e('Fecha del tour', 'travel-agency-platform'); ?></label>
                         <select id="tap_tour_date_<?php echo (int) $n; ?>" name="tour_date" class="tap-input" required>
                             <option value=""><?php esc_html_e('— Selecciona fecha —', 'travel-agency-platform'); ?></option>
                             <?php foreach ($available_dates as $dt): ?>
@@ -86,7 +86,7 @@ class TAP_Shortcode_Booking {
                         </select>
                     </div>
                     <div class="tap-form-group">
-                        <label for="tap_tour_slot"><?php esc_html_e('Horario', 'travel-agency-platform'); ?></label>
+                        <label for="tap_tour_slot_<?php echo (int) $n; ?>"><?php esc_html_e('Horario', 'travel-agency-platform'); ?></label>
                         <select id="tap_tour_slot_<?php echo (int) $n; ?>" name="tour_slot" class="tap-input" required disabled>
                             <option value=""><?php esc_html_e('— Selecciona fecha primero —', 'travel-agency-platform'); ?></option>
                         </select>
@@ -97,31 +97,31 @@ class TAP_Shortcode_Booking {
                 <?php else: ?>
                 <div class="tap-form-row">
                     <div class="tap-form-group">
-                        <label for="tap_check_in"><?php esc_html_e('Check-in Date', 'travel-agency-platform'); ?></label>
-                        <input type="date" id="tap_check_in" name="check_in" class="tap-input" required>
+                        <label for="tap_check_in_<?php echo (int) $n; ?>"><?php esc_html_e('Check-in Date', 'travel-agency-platform'); ?></label>
+                        <input type="date" id="tap_check_in_<?php echo (int) $n; ?>" name="check_in" class="tap-input" required>
                     </div>
                     <div class="tap-form-group">
-                        <label for="tap_check_out"><?php esc_html_e('Check-out Date', 'travel-agency-platform'); ?></label>
-                        <input type="date" id="tap_check_out" name="check_out" class="tap-input" required>
+                        <label for="tap_check_out_<?php echo (int) $n; ?>"><?php esc_html_e('Check-out Date', 'travel-agency-platform'); ?></label>
+                        <input type="date" id="tap_check_out_<?php echo (int) $n; ?>" name="check_out" class="tap-input" required>
                     </div>
                 </div>
                 <?php endif; ?>
                 <div class="tap-form-row">
                     <div class="tap-form-group">
-                        <label for="tap_adults"><?php esc_html_e('Adults', 'travel-agency-platform'); ?></label>
+                        <label for="tap_adults_<?php echo (int) $n; ?>"><?php esc_html_e('Adults', 'travel-agency-platform'); ?></label>
                         <input type="number" id="tap_adults_<?php echo (int) $n; ?>" name="adults" min="1" value="1" class="tap-input tap-input-sm" required>
                     </div>
                     <div class="tap-form-group">
-                        <label for="tap_children"><?php esc_html_e('Children', 'travel-agency-platform'); ?></label>
+                        <label for="tap_children_<?php echo (int) $n; ?>"><?php esc_html_e('Children', 'travel-agency-platform'); ?></label>
                         <input type="number" id="tap_children_<?php echo (int) $n; ?>" name="children" min="0" value="0" class="tap-input tap-input-sm">
                     </div>
                 </div>
                 <div class="tap-form-group">
-                    <label for="tap_notes"><?php esc_html_e('Special Requests', 'travel-agency-platform'); ?></label>
-                    <textarea id="tap_notes" name="notes" rows="3" class="tap-input"></textarea>
+                    <label for="tap_notes_<?php echo (int) $n; ?>"><?php esc_html_e('Special Requests', 'travel-agency-platform'); ?></label>
+                    <textarea id="tap_notes_<?php echo (int) $n; ?>" name="notes" rows="3" class="tap-input"></textarea>
                 </div>
                 <div class="tap-form-group">
-                    <span class="tap-total-display"><?php esc_html_e('Total: ', 'travel-agency-platform'); ?>$<span id="tap-total-amount-<?php echo (int) $n; ?>">0.00</span></span>
+                    <span class="tap-total-display"><?php esc_html_e('Total: ', 'travel-agency-platform'); ?><?php echo esc_html(TAP_Currency::plain_symbol()); ?><span id="tap-total-amount-<?php echo (int) $n; ?>">0.00</span></span>
                 </div>
                 <?php if ($is_tour && class_exists('TAP_Service_Extras')): ?>
                 <div class="tap-form-group">
@@ -159,7 +159,7 @@ class TAP_Shortcode_Booking {
             var slotsData = {};
             try { slotsData = JSON.parse($form.find('#tap-tour-slots-data-<?php echo (int) $n; ?>').text() || '{}'); } catch(e) {}
             function populateSlots(date) {
-                var $slot = $form.find('#tap_tour_slot-<?php echo (int) $n; ?>');
+                var $slot = $form.find('#tap_tour_slot_<?php echo (int) $n; ?>');
                 $slot.empty();
                 if (!date || !slotsData[date]) {
                     $slot.append('<option value=""><?php echo esc_js(__('— Selecciona fecha primero —', 'travel-agency-platform')); ?></option>').prop('disabled', true);
@@ -173,17 +173,17 @@ class TAP_Shortcode_Booking {
                     $slot.append('<option value="' + sl.id + '" data-price="' + (sl.price || 0) + '" ' + (sl.is_blocked ? 'disabled' : '') + '>' + label + '</option>');
                 });
             }
-            $form.find('#tap_tour_date-<?php echo (int) $n; ?>').on('change', function() {
+            $form.find('#tap_tour_date_<?php echo (int) $n; ?>').on('change', function() {
                 var date = $(this).val();
                 populateSlots(date);
-                $form.find('#tap_slot_id-<?php echo (int) $n; ?>').val('');
-                $form.find('#tap_check_in-<?php echo (int) $n; ?>').val(date);
-                $form.find('#tap_check_out-<?php echo (int) $n; ?>').val(date);
+                $form.find('#tap_slot_id_<?php echo (int) $n; ?>').val('');
+                $form.find('#tap_check_in_<?php echo (int) $n; ?>').val(date);
+                $form.find('#tap_check_out_<?php echo (int) $n; ?>').val(date);
                 calculateTotal();
             });
-            $form.find('#tap_tour_slot-<?php echo (int) $n; ?>').on('change', function() {
+            $form.find('#tap_tour_slot_<?php echo (int) $n; ?>').on('change', function() {
                 var slotId = $(this).val();
-                $form.find('#tap_slot_id-<?php echo (int) $n; ?>').val(slotId);
+                $form.find('#tap_slot_id_<?php echo (int) $n; ?>').val(slotId);
                 var price = $(this).find('option:selected').data('price');
                 calculateTotal();
             });
@@ -194,11 +194,12 @@ class TAP_Shortcode_Booking {
                     action: 'tap_calculate_booking_total',
                     service_type: '<?php echo esc_js($atts['service_type']); ?>',
                     service_id: '<?php echo esc_js($atts['service_id']); ?>',
-                    check_in: $form.find('#tap_check_in-<?php echo (int) $n; ?>').val(),
-                    check_out: $form.find('#tap_check_out-<?php echo (int) $n; ?>').val(),
-                    adults: $form.find('#tap_adults-<?php echo (int) $n; ?>').val(),
-                    children: $form.find('#tap_children-<?php echo (int) $n; ?>').val(),
-                    slot_id: $form.find('#tap_slot_id-<?php echo (int) $n; ?>').val() || 0,
+                    check_in: $form.find('#tap_check_in_<?php echo (int) $n; ?>').val(),
+                    check_out: $form.find('#tap_check_out_<?php echo (int) $n; ?>').val(),
+                    adults: $form.find('#tap_adults_<?php echo (int) $n; ?>').val(),
+                    children: $form.find('#tap_children_<?php echo (int) $n; ?>').val(),
+                    slot_id: $form.find('#tap_slot_id_<?php echo (int) $n; ?>').val() || 0,
+                    insurance_plan: $form.find('input[name="insurance_plan"]:checked').val() || '',
                     nonce: tap_ajax.nonce
                 };
 
@@ -209,7 +210,7 @@ class TAP_Shortcode_Booking {
                 });
             }
 
-            $form.find('#tap_check_in-<?php echo (int) $n; ?>, #tap_check_out-<?php echo (int) $n; ?>, #tap_adults-<?php echo (int) $n; ?>, #tap_children-<?php echo (int) $n; ?>').on('change', calculateTotal);
+            $form.find('#tap_check_in_<?php echo (int) $n; ?>, #tap_check_out_<?php echo (int) $n; ?>, #tap_adults_<?php echo (int) $n; ?>, #tap_children_<?php echo (int) $n; ?>, input[name="insurance_plan"]').on('change', calculateTotal);
 
             $form.on('submit', function(e) {
                 e.preventDefault();
@@ -218,7 +219,7 @@ class TAP_Shortcode_Booking {
                 var total = parseFloat($form.find('#tap-total-amount-<?php echo (int) $n; ?>').text()) || 0;
 
                 <?php if ($is_tour): ?>
-                if (!$form.find('#tap_tour_slot-<?php echo (int) $n; ?>').val()) {
+                if (!$form.find('#tap_tour_slot_<?php echo (int) $n; ?>').val()) {
                     msg.removeClass('tap-success').addClass('tap-error')
                         .html('<p><?php echo esc_js(__('Selecciona una fecha y horario disponible.', 'travel-agency-platform')); ?></p>');
                     return;
@@ -1113,11 +1114,11 @@ class TAP_Shortcode_Booking {
                     <div class="tap-voucher-grid">
                         <div class="tap-voucher-cell">
                             <span class="tap-voucher-label"><?php esc_html_e('Check-in', 'travel-agency-platform'); ?></span>
-                            <strong><?php echo esc_html(date_i18n(get_option('date_format'), strtotime($booking->check_in))); ?></strong>
+                            <strong><?php echo esc_html($booking->check_in ? date_i18n(get_option('date_format'), strtotime($booking->check_in)) : '—'); ?></strong>
                         </div>
                         <div class="tap-voucher-cell">
                             <span class="tap-voucher-label"><?php esc_html_e('Check-out', 'travel-agency-platform'); ?></span>
-                            <strong><?php echo esc_html(date_i18n(get_option('date_format'), strtotime($booking->check_out))); ?></strong>
+                            <strong><?php echo esc_html($booking->check_out ? date_i18n(get_option('date_format'), strtotime($booking->check_out)) : '—'); ?></strong>
                         </div>
                         <div class="tap-voucher-cell">
                             <span class="tap-voucher-label"><?php esc_html_e('Noches', 'travel-agency-platform'); ?></span>
@@ -1450,14 +1451,15 @@ class TAP_Shortcode_Booking {
                 fd.append('action', 'tap_save_internal_note');
                 fd.append('booking_id', btn.getAttribute('data-booking'));
                 fd.append('note', note);
-                fd.append('nonce', (window.tap_ajax && window.tap_ajax.nonce) || '');
+                fd.append('nonce', '<?php echo esc_js(wp_create_nonce('tap_booking_nonce')); ?>');
                 fetch((window.tap_ajax && window.tap_ajax.ajax_url) || '/wp-admin/admin-ajax.php', {method:'POST', body:fd, credentials:'same-origin'})
                 .then(function(r){ return r.json(); })
                 .then(function(res){
                     var st = document.getElementById('tap-note-status');
                     if (res && res.success) { st.textContent = (res.data && res.data.message) || 'Guardado.'; }
                     else { st.textContent = (res.data && res.data.message) || 'Error.'; }
-                });
+                })
+                .catch(function(){ document.getElementById('tap-note-status').textContent = '<?php echo esc_js(__('Error de conexión.', 'travel-agency-platform')); ?>'; });
             });
         })();
         </script>

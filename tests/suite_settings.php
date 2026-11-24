@@ -24,7 +24,11 @@ $waiver_service = wp_insert_post([
 ]);
 update_post_meta($waiver_service, '_tap_tour_waiver_required', '1');
 $waiver_booking = tap_t_seed_booking(['service_type' => 'tap_tour', 'service_id' => (int) $waiver_service]);
+$waiver_admin = get_users(['role' => 'administrator', 'number' => 1, 'fields' => 'ids']);
+$settings_orig_uid = get_current_user_id();
+if ($waiver_admin) { wp_set_current_user((int) $waiver_admin[0]); }
 $waiver = TAP_Waiver::render_form($waiver_booking);
+wp_set_current_user($settings_orig_uid);
 tap_t_assert(false !== strpos($waiver, 'admin-post.php'), 'waiver form targets admin-post.php');
 tap_t_assert(false !== strpos($waiver, 'tap_sign_waiver'), 'waiver form keeps its action field');
 

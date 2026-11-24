@@ -66,8 +66,9 @@ class TAP_Dashboard_Money {
                                AND status NOT IN ('cancelled', 'refunded')
                                AND NOT EXISTS (
                                    SELECT 1 FROM {$p_table} p
+                                    JOIN {$wpdb->prefix}tap_payout_bookings l ON l.payout_id = p.id
                                     WHERE p.status = 'pending'
-                                      AND FIND_IN_SET({$b_table}.id, p.booking_ids)
+                                      AND l.booking_id = {$b_table}.id
                                )",
                             array_merge([$agency_id], $candidate_ids)
                         ));
@@ -96,6 +97,9 @@ class TAP_Dashboard_Money {
                             'created_by' => get_current_user_id(),
                         ]);
                         $payment_id = (int) $wpdb->insert_id;
+                        if ($payment_id) {
+                            TAP_Payouts::set_links($payment_id, $agency_ids);
+                        }
                         if (!$payment_id) {
                             // Never mark commissions paid without the ledger row
                             // that proves the transfer.
@@ -146,8 +150,9 @@ class TAP_Dashboard_Money {
                             AND b.status NOT IN ('cancelled', 'refunded')
                             AND NOT EXISTS (
                                 SELECT 1 FROM {$p_table} p
+                                 JOIN {$wpdb->prefix}tap_payout_bookings l ON l.payout_id = p.id
                                  WHERE p.status = 'pending'
-                                   AND FIND_IN_SET(b.id, p.booking_ids)
+                                   AND l.booking_id = b.id
                             )",
                         $booking_id
                     ));
@@ -173,6 +178,7 @@ class TAP_Dashboard_Money {
                 ]);
                 $payment_id = (int) $wpdb->insert_id;
                 if ($payment_id) {
+                    TAP_Payouts::set_links($payment_id, [$booking_id]);
                     $wpdb->query($wpdb->prepare(
                         "UPDATE {$b_table} SET commission_status = 'paid' WHERE id = %d AND commission_status = 'owed'",
                         $booking_id
@@ -218,6 +224,7 @@ class TAP_Dashboard_Money {
         self::handle_commissions_post();
 
         global $wpdb;
+        TAP_Payouts::sync_all_links();
         $b_table = $wpdb->prefix . 'tap_bookings';
         $p_table = $wpdb->prefix . 'tap_commission_payments';
 

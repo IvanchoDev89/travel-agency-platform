@@ -109,10 +109,35 @@ class TAP_Waiver {
         return $id;
     }
 
+    /**
+     * Only the booking owner (or their agency / a platform admin) may see and
+     * sign a waiver. Guests prove ownership with the verified pay token or the
+     * booking email, exactly like the checkout does.
+     */
+    public static function can_sign($booking) {
+        if (!$booking) { return false; }
+        $uid = get_current_user_id();
+        if ($uid) {
+            if ((int) $booking->client_id === $uid || current_user_can('manage_options')) { return true; }
+            $agency = TAP_Booking::get_agency_for_user($uid);
+            return $agency && (int) $agency === (int) $booking->agency_id;
+        }
+        if ((int) $booking->client_id !== 0) { return false; }
+        if (class_exists('TAP_Guest_Checkout')
+            && TAP_Guest_Checkout::get_guest_pay_token($booking->booking_code)) {
+            return true;
+        }
+        $email = isset($_GET['email']) ? sanitize_email(wp_unslash($_GET['email'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+        return $email && strcasecmp($email, (string) $booking->guest_email) === 0;
+    }
+
     /** Render waiver form HTML (canvas + checkbox). */
     public static function render_form($booking_id) {
         $booking = self::booking($booking_id);
         if (!$booking) return '<p>' . esc_html__('Reserva no encontrada.', 'travel-agency-platform') . '</p>';
+        if (!self::can_sign($booking)) {
+            return '<p>' . esc_html__('No tienes permiso para firmar esta reserva.', 'travel-agency-platform') . '</p>';
+        }
         if (!self::is_required($booking->service_type, (int) $booking->service_id)) {
             return '';
         }
@@ -178,6 +203,11 @@ class TAP_Waiver {
         if (!isset($_POST['booking_id'])) wp_die('');
         $booking_id = (int) $_POST['booking_id'];
         check_admin_referer('tap_sign_waiver_' . $booking_id, 'tap_waiver_nonce');
+        // The nonce alone is not authorization: verify the caller owns the
+        // booking before accepting a signature.
+        if (!self::can_sign(self::booking($booking_id))) {
+            wp_die(esc_html__('No tienes permiso para firmar esta reserva.', 'travel-agency-platform'), '', ['response' => 403]);
+        }
         $signed_name = isset($_POST['signed_name']) ? sanitize_text_field(wp_unslash($_POST['signed_name'])) : '';
         $signature = isset($_POST['signature_data']) ? sanitize_text_field(wp_unslash($_POST['signature_data'])) : '';
         $accept = !empty($_POST['accept']);

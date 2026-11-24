@@ -1069,7 +1069,7 @@ class TAP_Booking {
 
         $rows = $wpdb->get_results(
             "SELECT id FROM {$wpdb->prefix}tap_bookings
-             WHERE payment_status = 'paid' AND status IN ('cancelled', 'refunded')
+             WHERE payment_status IN ('paid','partial') AND status IN ('cancelled', 'refunded')
              ORDER BY updated_at ASC LIMIT 50"
         );
 
@@ -1279,8 +1279,12 @@ class TAP_Booking {
         $expected = round((float) $booking->total_amount, 2);
         $captured = self::capture_amount($details);
         if ($captured) {
+            // Charges are created in the service/booking currency, which can
+            // differ from the site's display currency. Comparing against the
+            // display currency auto-refunded perfectly valid payments.
+            $booking_currency = !empty($booking->currency) ? (string) $booking->currency : 'USD';
             $currency_ok = empty($captured['currency_code'])
-                || strtoupper((string) $captured['currency_code']) === strtoupper((string) TAP_Currency::code());
+                || strtoupper((string) $captured['currency_code']) === strtoupper($booking_currency);
             if (!$currency_ok) {
                 self::auto_refund_capture(
                     (int) $booking_id,

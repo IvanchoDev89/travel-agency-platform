@@ -64,7 +64,7 @@ if ($inv) {
 
 /* --- 5) invoice numbering helper --------------------------------------------- */
 $src = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-invoices.php');
-tap_t_assert(false !== strpos($src, 'ORDER BY invoice_number DESC'), 'next_number orders by number, not insertion id');
+tap_t_assert(false !== strpos($src, 'CAST(SUBSTRING_INDEX(invoice_number'), 'next_number orders by numeric suffix, not insertion id');
 tap_t_assert(false !== strpos($src, "'tap_gen_pdf_'"), 'PDF regeneration is nonce guarded');
 
 /* --- 6) admin locale, hook order and export routing -------------------------- */

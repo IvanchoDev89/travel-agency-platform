@@ -170,6 +170,7 @@ tap_t_assert(
     false === strpos($svc_owner, 'Servicio no encontrado.'),
     'the owning agency admin can preview its draft service'
 );
+TAP_Approval::approve($aid); // published listings of unapproved agencies stay hidden
 wp_update_post(['ID' => $draft, 'post_status' => 'publish']);
 wp_set_current_user(0);
 $svc_pub = TAP_Shortcode_Search::service_detail(['id' => $draft]);
@@ -177,6 +178,7 @@ tap_t_assert(
     false === strpos($svc_pub, 'Servicio no encontrado.'),
     'published service renders for anonymous visitors'
 );
+TAP_Approval::pending($aid); // restore for the approval tests below
 
 /* --- C9: employee pricing access ------------------------------------------- */
 $acc = wp_insert_post([

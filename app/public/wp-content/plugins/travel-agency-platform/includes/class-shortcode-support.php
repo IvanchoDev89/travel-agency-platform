@@ -98,7 +98,7 @@ class TAP_Shortcode_Support {
             <section class="tap-support-hero">
                 <h1><?php esc_html_e('Centro de Soporte', 'travel-agency-platform'); ?></h1>
                 <p><?php esc_html_e('Encuentra respuestas, guías y documentación para viajeros, agencias y desarrolladores.', 'travel-agency-platform'); ?></p>
-                <form class="tap-support-search" role="search" method="get" action="<?php echo esc_url(home_url('/soporte/')); ?>">
+                <form class="tap-support-search" role="search" method="get" action="<?php echo esc_url(home_url('/centro-de-soporte/')); ?>">
                     <div class="tap-support-search-wrap">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                         <input type="search" name="s" id="tap-support-search-input" placeholder="<?php esc_attr_e('Buscar en la documentación...', 'travel-agency-platform'); ?>" aria-label="<?php esc_attr_e('Buscar', 'travel-agency-platform'); ?>" autocomplete="off">
@@ -326,7 +326,7 @@ class TAP_Shortcode_Support {
         }
 
         $terms = wp_get_post_terms($article->ID, 'tap_help_category', ['fields' => 'names']);
-        $home  = home_url('/soporte/');
+        $home  = home_url('/centro-de-soporte/');
 
         ob_start();
         ?>

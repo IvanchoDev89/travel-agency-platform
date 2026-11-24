@@ -154,14 +154,12 @@ class TAP_Payment {
             exit;
         }
 
-        // Idempotency: skip if already processed.
+        // Idempotency: skip if already processed. A bounded table replaces the
+        // per-event transient that bloated wp_options with expired rows.
         $event_id = $event->id ?? '';
-        if (!empty($event_id)) {
-            $processed = get_transient('tap_onvo_event_' . $event_id);
-            if ($processed) {
-                status_header(200);
-                exit;
-            }
+        if (!empty($event_id) && self::event_processed($event_id)) {
+            status_header(200);
+            exit;
         }
 
         $type = $event->type;
@@ -183,11 +181,35 @@ class TAP_Payment {
 
         // Mark as processed.
         if (!empty($event_id)) {
-            set_transient('tap_onvo_event_' . $event_id, 1, DAY_IN_SECONDS);
+            self::mark_event_processed($event_id);
         }
 
         status_header(200);
         exit;
+    }
+
+    /** Bounded webhook idempotency store (pruned, not per-event transients). */
+    private static function events_table() {
+        global $wpdb;
+        return $wpdb->prefix . 'tap_processed_events';
+    }
+
+    private static function event_processed($event_id) {
+        global $wpdb;
+        return (int) $wpdb->get_var($wpdb->prepare(
+            'SELECT COUNT(*) FROM ' . self::events_table() . ' WHERE event_id = %s',
+            (string) $event_id
+        )) > 0;
+    }
+
+    private static function mark_event_processed($event_id) {
+        global $wpdb;
+        $wpdb->query($wpdb->prepare(
+            'INSERT IGNORE INTO ' . self::events_table() . ' (event_id) VALUES (%s)',
+            (string) $event_id
+        ));
+        // Keep the table bounded: drop events older than a week.
+        $wpdb->query("DELETE FROM " . self::events_table() . " WHERE created_at < DATE_SUB(NOW(), INTERVAL 7 DAY)");
     }
 
     /**
@@ -220,7 +242,18 @@ class TAP_Payment {
             return;
         }
 
-        TAP_Booking::update_payment_status($booking_id, 'paid');
+        // record_paid_capture() writes amount_paid, confirms the booking and
+        // fires tap_payment_completed exactly once. update_payment_status()
+        // only flipped the flag and left amount_paid at zero, so revenue and
+        // remaining_amount() were wrong for every Onvo payment.
+        $details = ['amount' => [
+            'value'         => (float) $intent_amount,
+            'currency_code' => (string) ($intent->currency ?? 'USD'),
+        ],];
+        $result = TAP_Booking::record_paid_capture($booking_id, 'onvo', '', $details);
+        if (is_wp_error($result)) {
+            return;
+        }
 
         // Store the payment intent ID for refunds.
         update_post_meta($booking_id, '_tap_onvo_payment_intent_id', $intent_id);
@@ -238,8 +271,6 @@ class TAP_Payment {
         update_post_meta($booking_id, '_tap_processor_fee', $processor_fee);
         update_post_meta($booking_id, '_tap_net_received', $net_received);
         update_post_meta($booking_id, '_tap_payment_gateway', 'onvo');
-
-        do_action('tap_payment_completed', $booking_id, 'onvo', $intent_id);
     }
 
     /**

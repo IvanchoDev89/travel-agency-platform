@@ -27,7 +27,7 @@ class TAP_Front_Dash_Client {
 
         ob_start();
         ?>
-        <div class="tap-dash" id="main-content">
+        <div class="tap-dash" id="tap-dash-content">
             <?php TAP_Front_Dash::render_sidebar($user, $sections, $section); ?>
             <main class="tap-dash-main">
                 <?php echo $content; ?>
@@ -310,7 +310,8 @@ class TAP_Front_Dash_Client {
                         var st = document.getElementById("tap-push-prefs-status");
                         if (res && res.success) st.textContent = (res.data && res.data.message) || "Guardado.";
                         else st.textContent = (res.data && res.data.message) || "Error.";
-                    });
+                    })
+                    .catch(function(){ var st = document.getElementById("tap-push-prefs-status"); if (st) st.textContent = "Error de conexión."; });
                 });
             })();
             </script>';
@@ -465,7 +466,7 @@ class TAP_Front_Dash_Client {
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
                 <h3><?php esc_html_e('Sin viajes de transporte', 'travel-agency-platform'); ?></h3>
                 <p><?php esc_html_e('Cuando reserves un transporte, podrás seguirlo en tiempo real aquí.', 'travel-agency-platform'); ?></p>
-                <a href="<?php echo esc_url(home_url('/transport/')); ?>" class="tap-btn tap-btn-primary"><?php esc_html_e('Buscar transportes', 'travel-agency-platform'); ?></a>
+                <a href="<?php echo esc_url(get_post_type_archive_link('tap_transport') ?: home_url('/tours/')); ?>" class="tap-btn tap-btn-primary"><?php esc_html_e('Buscar transportes', 'travel-agency-platform'); ?></a>
             </div>
         <?php else: ?>
             <?php

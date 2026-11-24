@@ -6,6 +6,53 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.6.22] — 2026-11-24
+
+### Fixed (general bug scan — 4 waves)
+**Functional / money**
+- Booking forms: JS selectors now match the emitted `_N` ids (forms were
+  unusable in the browser); labels/ids suffixed; total uses the configured
+  currency symbol.
+- Insurance premium is quoted in the live total, not only charged at the end.
+- Voucher "Guardar nota" sends the correct nonce and has a `.catch()`.
+- Agency employees can operate their own agency's bookings (bulk parity).
+- Partial payments are refundable; the refund retry cron covers them.
+- Onvo success records `amount_paid` via `record_paid_capture()` (one hook fire).
+- Capture currency is validated against the booking currency, not the site's.
+- Invoice numbering is collision-safe (numeric order + insert retry); PDFs write
+  to one stable path and old copies are removed; invoice lines reconcile
+  (subtotal = total − platform fee).
+
+**Privacy / security**
+- Shared itineraries no longer expose voter emails/names.
+- REST booking endpoints return a client-safe whitelist (no internal notes or
+  commission data); `per_page` clamped; currency/service validated on create.
+- Waiver signing verifies booking ownership; guests use the verified token/email.
+- Guest pay token is bound to the visitor, not global per booking code.
+- `[tap_service_detail]` honours agency approval like search/REST.
+- Marketing campaigns require consent, honour one-click unsubscribe, and use the
+  shared sender (privacy footer + log). New `tap_email_optouts` table.
+- `shuttle/join` requires a real paid booking; seats derived from it.
+- Q&A forms send a valid nonce on service pages; HTML email content-type check
+  uses `method_exists()` correctly.
+- Legacy invoices get their billing snapshot backfilled while the booking exists.
+
+**Data / infrastructure**
+- Single money basis (`money_where`) across reports; revenue net of refunds.
+- Schema drift fixed (guest_name width, room_id/service_date/service_slot indexes).
+- Destructive commission backfills are one-shot (guarded marker).
+- Payout↔booking links normalized into an indexed table (backfilled from CSV).
+- Deactivate clears every scheduled hook; webhook idempotency uses a bounded
+  `tap_processed_events` table instead of per-event transients.
+
+**UX**
+- Support search, transport CTA and agencies fallback point to real pages.
+- Agency profile prices use canonical meta keys; voucher guards null dates.
+- Nav `map`/`flag` icons added; duplicate `main-content` id removed.
+
+### Added
+- FUNCTIONAL `suite_scan_fixes.php` (47 assertions across the four waves).
+
 ## [1.6.21] — 2026-11-24
 
 ### Fixed (invoices + PDF)

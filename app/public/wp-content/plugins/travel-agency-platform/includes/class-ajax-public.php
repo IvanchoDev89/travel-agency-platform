@@ -356,12 +356,21 @@ class TAP_Ajax_Public {
             }
         }
 
-        $final_total = round($total + $fee - $referral_discount - $coupon_discount, 2);
+        // Insurance must be quoted here too, or the live total and the
+        // authoritative charge diverge the moment a plan is selected.
+        $insurance_plan = sanitize_key(wp_unslash($_POST['insurance_plan'] ?? ''));
+        $insurance_premium = 0.0;
+        if ('' !== $insurance_plan && class_exists('TAP_Travel_Insurance')) {
+            $insurance_premium = round(TAP_Travel_Insurance::quote($insurance_plan, $total), 2);
+        }
+
+        $final_total = round($total + $fee - $referral_discount - $coupon_discount + $insurance_premium, 2);
         if ($final_total < 0) {
             $final_total = 0;
         }
         wp_send_json_success([
             'total'             => $final_total,
+            'insurance_premium' => $insurance_premium,
             'subtotal'          => round($total, 2),
             'fee'               => $fee,
             'referral_code'     => $referral_code,

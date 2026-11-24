@@ -463,7 +463,7 @@ class TAP_Emails_Send {
     public static function send($to, $subject, $body, $attachments = []) {
         $body .= TAP_Privacy::email_footer();
         $headers = [];
-        if (function_exists('TAP_Emails::set_html_content_type')) {
+        if (method_exists('TAP_Emails', 'set_html_content_type')) {
             $headers[] = 'Content-Type: text/html; charset=UTF-8';
         }
         $result = (bool) wp_mail($to, $subject, $body, $headers, $attachments);
@@ -486,7 +486,7 @@ class TAP_Emails_Send {
         $body = $rendered ? $rendered['body'] : $fallback_body;
         $body .= TAP_Privacy::email_footer();
         $headers = [];
-        if (function_exists('TAP_Emails::set_html_content_type')) {
+        if (method_exists('TAP_Emails', 'set_html_content_type')) {
             $headers[] = 'Content-Type: text/html; charset=UTF-8';
         }
         $result = (bool) wp_mail($to, $subject, $body, $headers, $attachments);

@@ -119,8 +119,18 @@ class TAP_Email_Campaigns {
         $recipients = self::recipients($camp->segment);
         $sent = 0;
         foreach ($recipients as $email) {
-            $headers = ['Content-Type: text/html; charset=UTF-8'];
-            $ok = wp_mail($email, $camp->subject, $camp->body, $headers);
+            // Marketing requires explicit consent and honours one-click
+            // unsubscribe; the privacy footer and send log come from the
+            // shared sender instead of a raw wp_mail() call.
+            if (!TAP_Privacy::marketing_ok($email)) {
+                continue;
+            }
+            $body = $camp->body
+                . '<p style="font-size:12px;color:#6b7280;margin-top:16px;">'
+                . '<a href="' . esc_url(TAP_Privacy::unsubscribe_url($email)) . '">'
+                . esc_html__('Darme de baja de estos correos', 'travel-agency-platform')
+                . '</a></p>';
+            $ok = TAP_Emails_Send::send($email, $camp->subject, $body);
             if ($ok) $sent++;
         }
 

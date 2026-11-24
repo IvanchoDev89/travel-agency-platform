@@ -154,6 +154,7 @@ $nullp  = tap_t_seed_booking(['booking_code' => 'E2E-RECON-NULL',   'commission_
 $cancel = tap_t_seed_booking(['booking_code' => 'E2E-RECON-CANCEL', 'commission_status' => 'paid', 'payment_status' => 'pending', 'status' => 'cancelled']);
 $good   = tap_t_seed_booking(['booking_code' => 'E2E-RECON-GOOD',   'commission_status' => 'paid', 'payment_status' => 'paid',    'status' => 'completed']);
 $ids[] = $bad; $ids[] = $nullp; $ids[] = $cancel; $ids[] = $good;
+delete_option('tap_commission_backfill_v2'); // re-arm the one-shot backfill for this assertion
 TAP_Installer::migrate();
 tap_t_assert('waiting' === $wpdb->get_var($wpdb->prepare("SELECT commission_status FROM {$b} WHERE id = %d", $bad)), 'migrate() returns an impossible paid commission (unpaid booking) to waiting');
 tap_t_assert('waiting' === $wpdb->get_var($wpdb->prepare("SELECT commission_status FROM {$b} WHERE id = %d", $nullp)), 'migrate() treats a NULL payment_status as unpaid');

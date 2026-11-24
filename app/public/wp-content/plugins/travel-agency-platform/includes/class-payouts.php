@@ -30,6 +30,53 @@ class TAP_Payouts {
         return $labels[$status] ?? (string) $status;
     }
 
+    /** Normalized payout<->booking link table (index-backed, replaces FIND_IN_SET). */
+    public static function link_table() {
+        global $wpdb;
+        return $wpdb->prefix . 'tap_payout_bookings';
+    }
+
+    /** Persist the booking set for a payout (CSV stays for legacy display). */
+    public static function set_links($payment_id, array $booking_ids) {
+        global $wpdb;
+        $payment_id = (int) $payment_id;
+        $wpdb->delete(self::link_table(), ['payout_id' => $payment_id]);
+        foreach (array_unique(array_filter(array_map('intval', $booking_ids))) as $bid) {
+            $wpdb->insert(self::link_table(), ['payout_id' => $payment_id, 'booking_id' => $bid]);
+        }
+    }
+
+    /** Booking ids for a payout: normalized links, falling back to legacy CSV. */
+    public static function ids_for($payment_id) {
+        global $wpdb;
+        $ids = array_map('intval', (array) $wpdb->get_col($wpdb->prepare(
+            'SELECT booking_id FROM ' . self::link_table() . ' WHERE payout_id = %d',
+            (int) $payment_id
+        )));
+        if ($ids) { return array_values(array_filter($ids)); }
+        $csv = $wpdb->get_var($wpdb->prepare(
+            "SELECT booking_ids FROM {$wpdb->prefix}tap_commission_payments WHERE id = %d",
+            (int) $payment_id
+        ));
+        return array_values(array_filter(array_map('intval', explode(',', (string) $csv))));
+    }
+
+    /**
+     * Backfill normalized links for legacy payouts that still only have the
+     * CSV column (e.g. rows created before the upgrade or by direct DB seeds).
+     */
+    public static function sync_all_links() {
+        global $wpdb;
+        $rows = $wpdb->get_results(
+            "SELECT p.id, p.booking_ids FROM {$wpdb->prefix}tap_commission_payments p
+             WHERE p.booking_ids IS NOT NULL AND p.booking_ids <> '' AND p.booking_ids <> '0'
+               AND NOT EXISTS (SELECT 1 FROM " . self::link_table() . " l WHERE l.payout_id = p.id)"
+        );
+        foreach ((array) $rows as $row) {
+            self::set_links((int) $row->id, explode(',', (string) $row->booking_ids));
+        }
+    }
+
     /** Mark a pending payout as transferred. */
     public static function complete($payment_id) {
         global $wpdb;
@@ -45,8 +92,8 @@ class TAP_Payouts {
         // transfer happens, so only they need reconciliation. Admin-source
         // payouts already flipped their bookings to 'paid' at creation: their
         // amount and booking set are authoritative and must be left untouched.
-        if ($row && $row->booking_ids && 'agency' === $row->source) {
-            $ids = array_filter(array_map('intval', explode(',', $row->booking_ids)));
+        if ($row && 'agency' === $row->source) {
+            $ids = self::ids_for($payment_id);
             if ($ids) {
                 $in = implode(',', array_map('intval', $ids));
                 // Agency-source requests keep bookings 'owed' on purpose: only now
@@ -123,17 +170,15 @@ class TAP_Payouts {
      */
     private static function release_commissions($payment_id) {
         global $wpdb;
+        self::sync_all_links();
         $payment_id = intval($payment_id);
         $ptable = $wpdb->prefix . 'tap_commission_payments';
-        $row = $wpdb->get_row($wpdb->prepare("SELECT booking_ids FROM {$ptable} WHERE id = %d", $payment_id));
-        if (!$row || !$row->booking_ids) {
-            return;
-        }
-        $ids = array_filter(array_map('intval', explode(',', $row->booking_ids)));
+        $ids = self::ids_for($payment_id);
         if (!$ids) {
             return;
         }
         $in = implode(',', array_map('intval', $ids));
+        $link = self::link_table();
         $wpdb->query($wpdb->prepare(
             "UPDATE {$wpdb->prefix}tap_bookings b
                 SET b.commission_status = 'owed'
@@ -141,9 +186,10 @@ class TAP_Payouts {
                 AND b.commission_status = 'paid'
                 AND NOT EXISTS (
                     SELECT 1 FROM {$ptable} p
+                     JOIN {$link} l ON l.payout_id = p.id
                      WHERE p.status = 'completed'
                        AND p.id != %d
-                       AND FIND_IN_SET(b.id, p.booking_ids)
+                       AND l.booking_id = b.id
                 )",
             $payment_id
         ));

@@ -15,9 +15,10 @@ class TAP_Privacy {
         ];
     }
 
-    const SCOPES = ['booking', 'agency_registration', 'lead'];
+    const SCOPES = ['booking', 'agency_registration', 'lead', 'marketing'];
 
     public static function init() {
+        add_action('init', [__CLASS__, 'handle_unsubscribe'], 1);
         add_shortcode('tap_privacy', [__CLASS__, 'privacy_shortcode']);
         add_shortcode('tap_privacy_consent', [__CLASS__, 'consent_shortcode']);
         add_action('admin_menu', [__CLASS__, 'add_admin_menu'], 60);
@@ -324,6 +325,73 @@ class TAP_Privacy {
     }
 
     /* ===== Email footer ===== */
+
+    /* ===== Marketing consent + one-click unsubscribe ===== */
+
+    public static function optout_table() {
+        global $wpdb;
+        return $wpdb->prefix . 'tap_email_optouts';
+    }
+
+    /** Signed, stable unsubscribe token (no expiry: email links live forever). */
+    public static function unsubscribe_token($email) {
+        return hash_hmac('sha256', strtolower(sanitize_email($email)), wp_salt('auth'));
+    }
+
+    public static function unsubscribe_url($email) {
+        return add_query_arg([
+            'tap_unsub' => self::unsubscribe_token($email),
+            'e'         => rawurlencode(strtolower(sanitize_email($email))),
+        ], home_url('/'));
+    }
+
+    public static function opt_out($email) {
+        global $wpdb;
+        $email = strtolower(sanitize_email($email));
+        if (!is_email($email)) { return false; }
+        $exists = (int) $wpdb->get_var($wpdb->prepare(
+            'SELECT COUNT(*) FROM ' . self::optout_table() . ' WHERE email = %s', $email
+        ));
+        if ($exists) { return true; }
+        return false !== $wpdb->insert(self::optout_table(), ['email' => $email]);
+    }
+
+    public static function is_opted_out($email) {
+        global $wpdb;
+        $email = strtolower(sanitize_email($email));
+        if (!is_email($email)) { return true; }
+        return (int) $wpdb->get_var($wpdb->prepare(
+            'SELECT COUNT(*) FROM ' . self::optout_table() . ' WHERE email = %s', $email
+        )) > 0;
+    }
+
+    /**
+     * May we send marketing email to this address? An explicit marketing
+     * consent, a lead/newsletter signup (both are themselves opt-ins) and no
+     * recorded opt-out. Plain WordPress users with no signup are excluded.
+     */
+    public static function marketing_ok($email) {
+        if (!is_email($email) || self::is_opted_out($email)) { return false; }
+        if (self::has_consent($email, 'marketing') || self::has_consent($email, 'lead')) { return true; }
+        $signups = get_option('tap_newsletter_signups', []);
+        return is_array($signups) && isset($signups[strtolower(sanitize_email($email))]);
+    }
+
+    /** Handle the unsubscribe link before any output is sent. */
+    public static function handle_unsubscribe() {
+        if (!isset($_GET['tap_unsub'], $_GET['e'])) { return; }
+        $email = sanitize_email(wp_unslash($_GET['e']));
+        $token = sanitize_text_field(wp_unslash($_GET['tap_unsub']));
+        if (!is_email($email) || !hash_equals(self::unsubscribe_token($email), $token)) {
+            wp_die(esc_html__('Enlace de baja no válido.', 'travel-agency-platform'), '', ['response' => 400]);
+        }
+        self::opt_out($email);
+        wp_die(
+            '<p>' . esc_html__('Te has dado de baja de los correos de marketing.', 'travel-agency-platform') . '</p>',
+            esc_html__('Baja confirmada', 'travel-agency-platform'),
+            ['response' => 200]
+        );
+    }
 
     public static function email_footer() {
         $contact = self::contact_email();

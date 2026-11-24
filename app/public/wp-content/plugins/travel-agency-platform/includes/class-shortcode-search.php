@@ -509,6 +509,12 @@ class TAP_Shortcode_Search {
         if ('publish' !== $post->post_status && !current_user_can('edit_post', $post->ID)) {
             return '<p>' . __('Service not found.', 'travel-agency-platform') . '</p>';
         }
+        // Search and REST hide listings of unapproved agencies; the detail
+        // shortcode must apply the same gate or pending/rejected listings leak.
+        if (!current_user_can('edit_post', $post->ID)
+            && !TAP_Approval::is_service_visible((int) $post->ID, $post->post_type)) {
+            return '<p>' . __('Service not found.', 'travel-agency-platform') . '</p>';
+        }
 
         $tap_prev_post = $GLOBALS['post'] ?? null;
         setup_postdata($post);
@@ -712,7 +718,7 @@ endif;
                         e.preventDefault();
                         var fd = new FormData(askForm);
                         fd.append('action', 'tap_submit_question');
-                        fd.append('nonce', (window.tapDash && window.tapDash.nonce) || (window.tapAgencyWizard && window.tapAgencyWizard.listingNonce) || '');
+                        fd.append('nonce', '<?php echo esc_js(wp_create_nonce('tap_nonce')); ?>');
                         fetch((window.tapDash && window.tapDash.ajax_url) || '/wp-admin/admin-ajax.php', {method:'POST', body:fd, credentials:'same-origin'})
                         .then(function(r){return r.json();})
                         .then(function(j){
@@ -728,7 +734,7 @@ endif;
                         var fd = new FormData(f);
                         fd.append('action', 'tap_answer_question');
                         fd.append('question_id', f.dataset.qid);
-                        fd.append('nonce', (window.tapDash && window.tapDash.nonce) || (window.tapAgencyWizard && window.tapAgencyWizard.listingNonce) || '');
+                        fd.append('nonce', '<?php echo esc_js(wp_create_nonce('tap_nonce')); ?>');
                         fetch((window.tapDash && window.tapDash.ajax_url) || '/wp-admin/admin-ajax.php', {method:'POST', body:fd, credentials:'same-origin'})
                         .then(function(r){return r.json();})
                         .then(function(j){
@@ -808,7 +814,7 @@ endif;
         $cities  = self::agency_cities();
         $ratings = self::agency_ratings($page_ids);
         $covers  = self::agency_cover_ids($page_ids);
-        $base    = get_post_type_archive_link('tap_agency') ?: home_url('/agency/');
+        $base    = get_post_type_archive_link('tap_agency') ?: home_url('/destinos/');
         $active  = ('' !== $q || '' !== $city);
 
         ob_start();
