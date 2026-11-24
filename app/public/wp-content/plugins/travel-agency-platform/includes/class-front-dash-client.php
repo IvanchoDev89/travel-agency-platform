@@ -46,6 +46,7 @@ class TAP_Front_Dash_Client {
             ['key' => 'favorites', 'label' => __('Favoritos', 'travel-agency-platform'), 'icon' => 'heart', 'url' => add_query_arg('seccion', 'favorites', $base)],
             ['key' => 'reviews', 'label' => __('Mis reseñas', 'travel-agency-platform'), 'icon' => 'star', 'url' => add_query_arg('seccion', 'reviews', $base)],
             ['key' => 'loyalty', 'label' => __('Puntos y referidos', 'travel-agency-platform'), 'icon' => 'star', 'url' => add_query_arg('seccion', 'loyalty', $base)],
+            ['key' => 'contracts', 'label' => __('Mis contratos', 'travel-agency-platform'), 'icon' => 'list', 'url' => add_query_arg('seccion', 'contracts', $base)],
             ['key' => 'profile', 'label' => __('Mi perfil', 'travel-agency-platform'), 'icon' => 'user', 'url' => add_query_arg('seccion', 'profile', $base)],
         ];
     }
@@ -62,6 +63,8 @@ class TAP_Front_Dash_Client {
                 return self::client_reviews($user);
             case 'loyalty':
                 return self::client_loyalty($user);
+            case 'contracts':
+                return class_exists('TAP_Legal') ? do_shortcode('[tap_my_contracts]') : '';
             case 'profile':
                 return self::client_profile($user);
             default:

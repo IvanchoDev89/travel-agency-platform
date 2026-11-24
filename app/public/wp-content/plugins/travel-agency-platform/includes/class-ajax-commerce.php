@@ -276,6 +276,10 @@ class TAP_Ajax_Commerce {
         if (!$plan_id) {
             wp_send_json_error(['message' => __('Invalid plan.', 'travel-agency-platform')]);
         }
+        // The agency agreement is a condition of contracting a plan.
+        if (class_exists('TAP_Legal') && !TAP_Legal::agency_current((int) $agency)) {
+            wp_send_json_error(['message' => __('Debes aceptar el contrato de agencia antes de contratar un plan.', 'travel-agency-platform')]);
+        }
         $result = TAP_Subscriptions::subscribe($agency, $plan_id);
         if (is_wp_error($result)) {
             wp_send_json_error(['message' => $result->get_error_message()]);
@@ -393,6 +397,11 @@ class TAP_Ajax_Commerce {
             && !TAP_Waiver::has_valid((int) $booking->id)) {
             wp_send_json_error(['message' => __('Firma el descargo de responsabilidad antes de pagar.', 'travel-agency-platform')]);
         }
+        // Digital contracts are a payment condition: no current acceptance,
+        // no charge. This mirrors the waiver gate above.
+        if (class_exists('TAP_Legal') && !TAP_Legal::booking_current((int) $booking->id)) {
+            wp_send_json_error(['message' => __('Acepta los términos y condiciones antes de pagar.', 'travel-agency-platform')]);
+        }
 
         if (!TAP_Booking::is_payable($booking)) {
             // Distinguish a cancelled/refunded booking from one still awaiting
@@ -448,6 +457,11 @@ class TAP_Ajax_Commerce {
             && TAP_Waiver::is_required($booking->service_type, (int) $booking->service_id)
             && !TAP_Waiver::has_valid((int) $booking->id)) {
             wp_send_json_error(['message' => __('Firma el descargo de responsabilidad antes de pagar.', 'travel-agency-platform')]);
+        }
+        // Digital contracts are a payment condition: no current acceptance,
+        // no charge. This mirrors the waiver gate above.
+        if (class_exists('TAP_Legal') && !TAP_Legal::booking_current((int) $booking->id)) {
+            wp_send_json_error(['message' => __('Acepta los términos y condiciones antes de pagar.', 'travel-agency-platform')]);
         }
 
         if (!TAP_Booking::is_payable($booking)) {

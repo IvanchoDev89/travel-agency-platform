@@ -139,12 +139,12 @@ class TAP_Invoices {
             ];
         }
         $elements[] = ['type' => 'spacer', 'h' => 12];
-        // total_amount already includes the platform fee: show the pre-fee
-        // subtotal so subtotal + fee = total and the lines reconcile.
-        $pdf_subtotal = max(0, round($d['total_amount'] - $d['booking_fee'], 2));
-        $elements[] = ['type' => 'row', 'label' => __('Subtotal', 'travel-agency-platform'), 'value' => self::money($pdf_subtotal, $d, true)];
-        if ($d['booking_fee']) {
-            $elements[] = ['type' => 'row', 'label' => __('Tarifa de plataforma', 'travel-agency-platform'), 'value' => self::money($d['booking_fee'], $d, true)];
+        // The traveler pays service + insurance only. The platform fee is an
+        // agency deduction and is shown as a note, never as a charge.
+        $pdf_subtotal = max(0, round($d['total_amount'] - $d['insurance_premium'], 2));
+        $elements[] = ['type' => 'row', 'label' => __('Servicio', 'travel-agency-platform'), 'value' => self::money($pdf_subtotal, $d, true)];
+        if ($d['insurance_premium']) {
+            $elements[] = ['type' => 'row', 'label' => __('Seguro de viaje', 'travel-agency-platform'), 'value' => self::money($d['insurance_premium'], $d, true)];
         }
         $elements[] = ['type' => 'total', 'label' => __('Total pagado', 'travel-agency-platform'), 'value' => self::money($d['total_amount'], $d, true)];
         $elements[] = ['type' => 'spacer', 'h' => 18];
@@ -152,6 +152,13 @@ class TAP_Invoices {
             $elements[] = ['type' => 'small', 'text' => __('Los datos de la reserva original ya no están disponibles.', 'travel-agency-platform')];
         }
         $elements[] = ['type' => 'small', 'text' => __('Gracias por tu reserva.', 'travel-agency-platform')];
+        if (!empty($d['legal'])) {
+            $versions = [];
+            foreach ($d['legal'] as $legal) {
+                $versions[] = ($legal['key'] ?? '') . ' v' . (int) ($legal['version'] ?? 0);
+            }
+            $elements[] = ['type' => 'small', 'text' => __('Términos aceptados:', 'travel-agency-platform') . ' ' . implode(', ', $versions)];
+        }
         $elements[] = ['type' => 'small', 'text' => $name . '  ·  ' . $inv->invoice_number];
 
         $pdf = TAP_Simple_PDF::build($elements);
@@ -261,6 +268,9 @@ class TAP_Invoices {
             'commission_amount' => (float) ($booking->commission_amount ?? 0),
             'amount_paid'       => (float) ($booking->amount_paid ?? 0),
             'currency'          => (string) ($booking->currency ?? 'USD'),
+            // Versioned legal terms accepted for this booking, frozen with the
+            // rest of the billing evidence.
+            'legal'             => json_decode((string) get_post_meta((int) $booking->id, '_tap_legal_snapshot', true), true),
         ];
     }
 
@@ -301,9 +311,11 @@ class TAP_Invoices {
             'nights'            => (int) $get('nights'),
             'total_amount'      => (float) ($get('total_amount') ?: $inv->amount),
             'booking_fee'       => (float) $get('booking_fee'),
-            'commission_amount' => (float) $get('commission_amount'),
+            'insurance_premium' => (float) (($inv->insurance_premium ?? 0) ?: $get('insurance_premium')),
+            'commission_base'   => (float) ($inv->commission_base ?? 0),
             'currency'          => (string) ($inv->currency ?: $get('currency') ?: 'USD'),
             'has_booking'       => (bool) $booking,
+            'legal'             => isset($snap['legal']) && is_array($snap['legal']) ? $snap['legal'] : [],
         ];
     }
 
@@ -367,10 +379,10 @@ class TAP_Invoices {
                     </tr>
                 </tbody>
                 <tfoot>
-                    <?php $tap_subtotal = max(0, round($d['total_amount'] - $d['booking_fee'], 2)); ?>
-                    <tr><td><?php esc_html_e('Subtotal', 'travel-agency-platform'); ?></td><td class="num"><?php echo esc_html(self::money($tap_subtotal, $d)); ?></td></tr>
-                    <?php if ($d['booking_fee']): ?>
-                        <tr><td><?php esc_html_e('Tarifa de plataforma', 'travel-agency-platform'); ?></td><td class="num"><?php echo esc_html(self::money($d['booking_fee'], $d)); ?></td></tr>
+                    <?php $tap_subtotal = max(0, round($d['total_amount'] - $d['insurance_premium'], 2)); ?>
+                    <tr><td><?php esc_html_e('Servicio', 'travel-agency-platform'); ?></td><td class="num"><?php echo esc_html(self::money($tap_subtotal, $d)); ?></td></tr>
+                    <?php if ($d['insurance_premium']): ?>
+                        <tr><td><?php esc_html_e('Seguro de viaje', 'travel-agency-platform'); ?></td><td class="num"><?php echo esc_html(self::money($d['insurance_premium'], $d)); ?></td></tr>
                     <?php endif; ?>
                     <tr class="tap-invoice-total"><td><?php esc_html_e('Total pagado', 'travel-agency-platform'); ?></td><td class="num amount"><?php echo esc_html(self::money($d['total_amount'], $d)); ?></td></tr>
                 </tfoot>
@@ -380,6 +392,14 @@ class TAP_Invoices {
                 <p class="tap-invoice-note"><?php esc_html_e('Los datos de la reserva original ya no están disponibles; se muestra la información conservada en la factura.', 'travel-agency-platform'); ?></p>
             <?php endif; ?>
 
+            <?php if (!empty($d['legal'])): ?>
+                <p class="tap-invoice-footer">
+                    <?php esc_html_e('Términos aceptados:', 'travel-agency-platform'); ?>
+                    <?php foreach ($d['legal'] as $legal): ?>
+                        <?php echo esc_html(($legal['key'] ?? '') . ' v' . (int) ($legal['version'] ?? 0) . ' '); ?>
+                    <?php endforeach; ?>
+                </p>
+            <?php endif; ?>
             <p class="tap-invoice-footer"><?php echo esc_html($name . ' · ' . $inv->invoice_number); ?></p>
         </div>
         <?php

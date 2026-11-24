@@ -321,20 +321,20 @@ class TAP_Ajax_Public {
         if (class_exists('TAP_Customer_Referrals')) {
             $client_id = get_current_user_id();
             $guest_email = isset($_POST['guest_email']) ? sanitize_email(wp_unslash($_POST['guest_email'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-            list($referral_code, $referrer, $referral_discount) = TAP_Customer_Referrals::resolve_for_booking($client_id, $total + $fee, isset($_POST['referral_code']) ? sanitize_text_field(wp_unslash($_POST['referral_code'])) : '', $guest_email); // phpcs:ignore WordPress.Security.NonceVerification.Missing
+            list($referral_code, $referrer, $referral_discount) = TAP_Customer_Referrals::resolve_for_booking($client_id, $total, isset($_POST['referral_code']) ? sanitize_text_field(wp_unslash($_POST['referral_code'])) : '', $guest_email); // phpcs:ignore WordPress.Security.NonceVerification.Missing
         }
 
         // Coupon discount.
         $coupon_code = isset($_POST['coupon_code']) ? sanitize_text_field(wp_unslash($_POST['coupon_code'])) : '';
         $coupon_discount = 0.0;
         if ($coupon_code && class_exists('TAP_Coupons')) {
-            $coupon = TAP_Coupons::validate($coupon_code, $total + $fee);
+            $coupon = TAP_Coupons::validate($coupon_code, $total);
             if ($coupon) {
                 $prefix = class_exists('TAP_Post_Types') ? TAP_Post_Types::meta_prefix($service_type) : '';
                 $agency_id = $prefix ? (int) get_post_meta($service_id, '_tap_' . $prefix . '_agency_id', true) : 0;
                 $commission_percent = TAP_Booking::get_agency_commission($agency_id);
                 $coupon_discount = TAP_Coupons::effective_discount(
-                    $coupon, $total + $fee, $base_total > 0 ? $base_total : $total, $commission_percent
+                    $coupon, $total, $base_total > 0 ? $base_total : $total, $commission_percent
                 );
             }
         }
@@ -356,20 +356,24 @@ class TAP_Ajax_Public {
             }
         }
 
-        // Insurance must be quoted here too, or the live total and the
-        // authoritative charge diverge the moment a plan is selected.
+        // Exactly the same order as TAP_Booking::create(): discounts reduce the
+        // commission base, the agency fee is NOT added to the traveler's total,
+        // and insurance is a separate line item.
+        $commission_base = max(0, round($total - $referral_discount - $coupon_discount, 2));
         $insurance_plan = sanitize_key(wp_unslash($_POST['insurance_plan'] ?? ''));
         $insurance_premium = 0.0;
         if ('' !== $insurance_plan && class_exists('TAP_Travel_Insurance')) {
-            $insurance_premium = round(TAP_Travel_Insurance::quote($insurance_plan, $total), 2);
+            $insurance_premium = round(TAP_Travel_Insurance::quote($insurance_plan, $commission_base), 2);
         }
 
-        $final_total = round($total + $fee - $referral_discount - $coupon_discount + $insurance_premium, 2);
+        $final_total = round($commission_base + $insurance_premium, 2);
         if ($final_total < 0) {
             $final_total = 0;
         }
         wp_send_json_success([
             'total'             => $final_total,
+            'commission_base'   => $commission_base,
+            'platform_fee'      => $fee,
             'insurance_premium' => $insurance_premium,
             'subtotal'          => round($total, 2),
             'fee'               => $fee,

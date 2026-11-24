@@ -29,7 +29,8 @@ class TAP_Booking_Stats {
      */
     public static function net_expr($alias = '') {
         $p = $alias ? rtrim($alias, '.') . '.' : '';
-        return "({$p}total_amount - COALESCE({$p}refund_amount,0)) - COALESCE({$p}booking_fee,0) - " . self::commission_case($alias);
+        return "({$p}total_amount - COALESCE({$p}refund_amount,0) - COALESCE({$p}insurance_premium,0))"
+            . " - COALESCE({$p}booking_fee,0) - " . self::commission_case($alias);
     }
 
     /**

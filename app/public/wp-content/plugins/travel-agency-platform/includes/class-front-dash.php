@@ -1146,6 +1146,12 @@ class TAP_Front_Dash {
         })();
         </script>
         <?php
+        if (class_exists('TAP_Legal') && !TAP_Legal::agency_current((int) $agency_id)) {
+            echo '<div class="tap-dash-section"><h3>' . esc_html__('Contrato de agencia', 'travel-agency-platform') . '</h3>'
+                . '<p class="tap-agency-meta">' . esc_html__('Debes aceptar el contrato antes de contratar un plan o publicar destacados.', 'travel-agency-platform') . '</p>'
+                . TAP_Legal::render_acceptance(TAP_Legal::CONTEXT_AGENCY, 0, (int) $agency_id) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the renderer
+                . '</div>';
+        }
         return ob_get_clean();
     }
 

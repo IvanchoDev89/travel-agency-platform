@@ -567,8 +567,8 @@ class TAP_Shortcode_Booking {
                     <?php endif; ?>
                     <tr><td><strong><?php esc_html_e('Adults:', 'travel-agency-platform'); ?></strong></td><td><?php echo esc_html($booking->adults); ?></td></tr>
                     <tr><td><strong><?php esc_html_e('Children:', 'travel-agency-platform'); ?></strong></td><td><?php echo esc_html($booking->children); ?></td></tr>
-                    <?php if ((float) ($booking->booking_fee ?? 0) > 0): ?>
-                    <tr><td><?php esc_html_e('Tarifa de servicio', 'travel-agency-platform'); ?>:</td><td><?php echo esc_html($currency_symbol . ' ' . number_format((float) $booking->booking_fee, 2)); ?></td></tr>
+                    <?php if ((float) ($booking->insurance_premium ?? 0) > 0): ?>
+                    <tr><td><?php esc_html_e('Seguro de viaje', 'travel-agency-platform'); ?>:</td><td><?php echo esc_html($currency_symbol . ' ' . number_format((float) $booking->insurance_premium, 2)); ?></td></tr>
                     <?php endif; ?>
                     <?php if ((float) ($booking->refund_amount ?? 0) > 0): ?>
                     <tr><td><?php esc_html_e('Reembolso aplicado:', 'travel-agency-platform'); ?></td><td><span class="tap-refund-note">-<?php echo esc_html($currency_symbol . ' ' . number_format((float) $booking->refund_amount, 2)); ?></span></td></tr>
@@ -599,6 +599,21 @@ class TAP_Shortcode_Booking {
                 <?php echo TAP_Waiver::render_form((int) $booking->id); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the renderer ?>
             </div>
         <?php endif; ?>
+
+        <?php
+        // Traveler terms are a condition of payment, just like the waiver.
+        $tap_terms_pending = class_exists('TAP_Legal') && !TAP_Legal::booking_current((int) $booking->id);
+        if ($tap_terms_pending) {
+            if (isset($_GET['tap_legal_ok'])) {
+                echo '<div class="notice notice-success is-dismissible"><p>'
+                    . esc_html__('Términos aceptados correctamente.', 'travel-agency-platform')
+                    . '</p></div>';
+            }
+            echo '<div class="tap-checkout-legal">'
+                . TAP_Legal::render_acceptance(TAP_Legal::CONTEXT_TRAVELER, (int) $booking->id) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the renderer
+                . '</div>';
+        }
+        ?>
 
         <?php if ($booking->total_amount > 0 && $booking->payment_status !== 'paid' && $booking->status !== 'request' && !in_array($booking->status, ['cancelled', 'refunded'], true)): ?>
                 <?php
@@ -1150,10 +1165,10 @@ class TAP_Shortcode_Booking {
                             <?php endforeach; ?>
                         </tbody>
                         <tfoot>
-                            <?php if ((float) ($booking->booking_fee ?? 0) > 0): ?>
+                            <?php if ((float) ($booking->insurance_premium ?? 0) > 0): ?>
                             <tr>
-                                <td colspan="3" class="tap-voucher-total-label"><?php esc_html_e('Tarifa de servicio', 'travel-agency-platform'); ?></td>
-                                <td class="tap-voucher-total"><?php echo esc_html(TAP_Currency::fmt((float) $booking->booking_fee)); ?></td>
+                                <td colspan="3" class="tap-voucher-total-label"><?php esc_html_e('Seguro de viaje', 'travel-agency-platform'); ?></td>
+                                <td class="tap-voucher-total"><?php echo esc_html(TAP_Currency::fmt((float) $booking->insurance_premium)); ?></td>
                             </tr>
                             <?php endif; ?>
                             <tr>

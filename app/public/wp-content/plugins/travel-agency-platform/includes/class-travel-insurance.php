@@ -36,7 +36,13 @@ class TAP_Travel_Insurance {
         $booking = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_bookings WHERE id = %d", $booking_id));
         if (!$booking) return new WP_Error('not_found', __('Reserva no encontrada.', 'travel-agency-platform'));
 
-        $premium = self::quote($plan, $booking->total_amount);
+        // Use the premium frozen at booking time. Recalculating it from the
+        // total (which already contains the premium) produced a policy amount
+        // different from what the traveler actually paid.
+        $premium = round((float) ($booking->insurance_premium ?? 0), 2);
+        if ($premium <= 0) {
+            $premium = round((float) self::quote($plan, (float) ($booking->commission_base ?? $booking->total_amount)), 2);
+        }
         if ($premium <= 0) return new WP_Error('invalid_plan', __('Plan inválido.', 'travel-agency-platform'));
 
         // Commission for platform (20% of premium).

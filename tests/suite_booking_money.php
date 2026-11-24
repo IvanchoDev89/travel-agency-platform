@@ -170,6 +170,48 @@ if ($admin_ids) {
 if (null === $prev_sinpe) { delete_option('tap_sinpe_enabled'); } else { update_option('tap_sinpe_enabled', $prev_sinpe); }
 if (null === $prev_phone) { delete_option('tap_sinpe_phone'); } else { update_option('tap_sinpe_phone', $prev_phone); }
 
+/* --- 7) agency-paid fee and commission base (contractual money model) -------- */
+$prev_fee_type  = get_option('tap_booking_fee_type', 'none');
+$prev_fee_value = get_option('tap_booking_fee_value', 0);
+update_option('tap_booking_fee_type', 'percent');
+update_option('tap_booking_fee_value', 5);
+
+$money_tour = wp_insert_post([
+    'post_type' => 'tap_tour', 'post_status' => 'publish',
+    'post_title' => 'TAP money model ' . $sfx,
+]);
+if ((int) $money_tour > 0) {
+    $cleanup_posts[] = (int) $money_tour;
+    update_post_meta($money_tour, '_tap_tour_price_adult', 100);
+    $money_booking = TAP_Booking::create([
+        'service_type'  => 'tap_tour',
+        'service_id'    => (int) $money_tour,
+        'adults'        => 1,
+        'children'      => 0,
+        'check_in'      => gmdate('Y-m-d', strtotime('+45 days')),
+        'guest_name'    => 'Money Model',
+        'guest_email'   => 'money-' . strtolower($sfx) . '@example.test',
+        'insurance_plan'=> 'basic',
+    ]);
+    if (!is_wp_error($money_booking)) {
+        $mid = (int) $money_booking['booking_id'];
+        $cleanup_bookings[] = $mid;
+        $row = TAP_Booking::get_booking($mid);
+        $breakdown = json_decode((string) $row->price_breakdown, true);
+        tap_t_assert(is_array($breakdown), 'booking stores a frozen price breakdown');
+        tap_t_assert((float) $row->booking_fee > 0, 'platform fee is recorded on the booking');
+        tap_t_assert((float) $row->insurance_premium > 0, 'insurance premium is recorded on the booking');
+        tap_t_assert(abs((float) $row->commission_amount - (float) $row->commission_base * (float) $row->commission_percent / 100) < 0.02, 'commission is charged on the net base only');
+        tap_t_assert(abs((float) $row->total_amount - ((float) $row->commission_base + (float) $row->insurance_premium)) < 0.02, 'traveler pays service + insurance, never the platform fee');
+        tap_t_assert(abs((float) $row->total_amount - ((float) $breakdown['subtotal'] - (float) $breakdown['referral_discount'] - (float) $breakdown['coupon_discount'] + (float) $breakdown['insurance_premium'])) < 0.02, 'breakdown reconciles with the charged total');
+        tap_t_assert(false !== strpos(TAP_Currency::fmt_plain((float) $row->total_amount), number_format((float) $row->total_amount, 2)), 'currency formatter matches the charged total');
+    } else {
+        tap_t_assert(false, 'money model booking created: ' . $money_booking->get_error_message());
+    }
+}
+if ('none' === $prev_fee_type) { delete_option('tap_booking_fee_type'); } else { update_option('tap_booking_fee_type', $prev_fee_type); }
+if (0 === (float) $prev_fee_value) { delete_option('tap_booking_fee_value'); } else { update_option('tap_booking_fee_value', $prev_fee_value); }
+
 /* --- cleanup ----------------------------------------------------------------- */
 wp_set_current_user($orig_uid);
 foreach ($cleanup_slots as $sid) {

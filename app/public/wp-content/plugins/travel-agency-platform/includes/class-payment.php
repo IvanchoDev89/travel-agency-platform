@@ -507,6 +507,19 @@ class TAP_Payment {
             if ($partial) {
                 update_post_meta($booking_id, '_tap_paypal_refund_id', $capture->id ?? '');
                 update_post_meta($booking_id, '_tap_refund_amount', $refund_value);
+                // Persist to the booking columns too: reports subtract
+                // refund_amount and amount_paid, so postmeta alone left
+                // partially refunded money counted as full revenue.
+                global $wpdb;
+                $wpdb->update(
+                    $wpdb->prefix . 'tap_bookings',
+                    [
+                        'refund_amount' => round($refund_value, 2),
+                        'refund_percent' => $paid > 0 ? round(($refund_value / $paid) * 100, 2) : 0,
+                        'amount_paid'   => round(max(0, $paid - $refund_value), 2),
+                    ],
+                    ['id' => (int) $booking_id]
+                );
                 do_action('tap_payment_partially_refunded', $booking_id, 'paypal', $capture->id ?? '');
                 return;
             }

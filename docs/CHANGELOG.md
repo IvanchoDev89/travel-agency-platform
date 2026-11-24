@@ -6,6 +6,35 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.7.0] — 2026-11-24
+
+### Money model (contractual)
+- The platform fee is now paid by the AGENCY and is never added to the
+  traveler's total. Traveler pays service + insurance only.
+- Commission is charged on the net service subtotal (discounts applied; no
+  platform fee, no insurance premium).
+- Insurance premium is frozen on the booking; policy issue reuses that exact
+  amount instead of recalculating from an already-inclusive total.
+- PayPal partial refunds persist to `refund_amount`/`amount_paid`; agency net
+  also excludes insurance; voucher/invoice show truthful lines.
+- New booking columns: `commission_base`, `insurance_premium`, `price_breakdown`.
+- Currency is always derived from the service on every creation path.
+
+### Digital contracts
+- `tap_legal_documents`: versioned, immutable HTML docs with SHA-256.
+- `tap_legal_acceptances`: signer name, document version + hash, hashed IP/UA,
+  timestamp and emailed receipt. New document version requires re-acceptance.
+- Traveler terms gate both payment handlers; agency agreement gates plans.
+- `[tap_my_contracts]`, `[tap_legal_doc]`, "Mis contratos" panel and admin
+  document manager. Accepted versions frozen into the invoice snapshot.
+- Default ES/EN texts for traveler terms, agency agreement, cancellation and
+  privacy. **They require legal review before publication** (see
+  `docs/LEGAL_NOTICE.md`).
+
+### Added
+- FUNCTIONAL `suite_legal.php` (21 assertions) and money-model assertions in
+  `suite_booking_money.php`.
+
 ## [1.6.22] — 2026-11-24
 
 ### Fixed (general bug scan — 4 waves)

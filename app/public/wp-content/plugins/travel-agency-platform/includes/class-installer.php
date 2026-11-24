@@ -53,6 +53,10 @@ class TAP_Installer {
                 total_amount decimal(15,2) NOT NULL,
                 currency varchar(5) NOT NULL DEFAULT 'USD',
                 amount_paid decimal(15,2) DEFAULT 0.00,
+                booking_fee decimal(15,2) DEFAULT 0.00,
+                commission_base decimal(15,2) DEFAULT NULL,
+                insurance_premium decimal(15,2) DEFAULT 0,
+                price_breakdown longtext NULL,
                 commission_amount decimal(15,2) DEFAULT 0.00,
                 commission_percent decimal(5,2) DEFAULT 0.00,
                 status varchar(30) DEFAULT 'pending',
@@ -1096,6 +1100,45 @@ class TAP_Installer {
             KEY created_at (created_at)
         ) {$wpdb->get_charset_collate()}");
 
+        $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_legal_documents (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            doc_key varchar(80) NOT NULL,
+            context varchar(40) NOT NULL,
+            lang varchar(10) NOT NULL DEFAULT 'es',
+            version int(11) NOT NULL DEFAULT 1,
+            title varchar(200) NOT NULL,
+            body longtext NOT NULL,
+            sha256 char(64) NOT NULL,
+            published tinyint(1) NOT NULL DEFAULT 1,
+            effective_from datetime DEFAULT CURRENT_TIMESTAMP,
+            created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            UNIQUE KEY doc_version (doc_key, lang, version),
+            KEY context_lang (context, lang, published)
+        ) {$wpdb->get_charset_collate()}");
+
+        $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_legal_acceptances (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            document_id bigint(20) NOT NULL,
+            doc_key varchar(80) NOT NULL,
+            version int(11) NOT NULL,
+            document_hash char(64) NOT NULL,
+            booking_id bigint(20) NOT NULL DEFAULT 0,
+            agency_id bigint(20) NOT NULL DEFAULT 0,
+            user_id bigint(20) NOT NULL DEFAULT 0,
+            guest_email varchar(190) DEFAULT NULL,
+            context varchar(40) NOT NULL,
+            signer_name varchar(200) NOT NULL,
+            ip_hash char(64) DEFAULT NULL,
+            ua_hash char(64) DEFAULT NULL,
+            accepted_at datetime DEFAULT CURRENT_TIMESTAMP,
+            email_sent_at datetime DEFAULT NULL,
+            PRIMARY KEY (id),
+            KEY booking_context (booking_id, context),
+            KEY agency_context (agency_id, context),
+            KEY user_id (user_id)
+        ) {$wpdb->get_charset_collate()}");
+
         $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_email_optouts (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             email varchar(190) NOT NULL,
@@ -1178,6 +1221,15 @@ class TAP_Installer {
 		$cols_bookings = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_bookings");
         if (!in_array('booking_fee', $cols_bookings, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN booking_fee decimal(15,2) DEFAULT 0.00 AFTER total_amount");
+        }
+        if (!in_array('commission_base', $cols_bookings, true)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN commission_base decimal(15,2) DEFAULT NULL AFTER booking_fee");
+        }
+        if (!in_array('insurance_premium', $cols_bookings, true)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN insurance_premium decimal(15,2) DEFAULT 0 AFTER commission_base");
+        }
+        if (!in_array('price_breakdown', $cols_bookings, true)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN price_breakdown longtext NULL AFTER insurance_premium");
         }
         if (!in_array('amount_paid', $cols_bookings, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN amount_paid decimal(15,2) DEFAULT 0.00 AFTER total_amount");
