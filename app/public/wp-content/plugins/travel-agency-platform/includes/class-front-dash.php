@@ -899,9 +899,8 @@ class TAP_Front_Dash {
         } else {
             echo '<p class="tap-empty">' . esc_html__('Módulo de fidelidad no disponible.', 'travel-agency-platform') . '</p>';
         }
-        if (class_exists('TAP_Customer_Referrals')) {
-            echo do_shortcode('[tap_referral_dashboard]');
-        }
+        // render_loyalty_panel() already renders [tap_referral_dashboard];
+        // echoing it again showed the referral box twice to agency admins.
         return ob_get_clean();
     }
 

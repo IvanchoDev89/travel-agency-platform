@@ -667,7 +667,6 @@ class TAP_Front_Dash_Client {
             <?php endif; ?>
             <?php if (class_exists('TAP_Customer_Referrals')): ?>
             <div class="tap-dash-section" style="margin-top:16px;">
-                <h2><?php esc_html_e('Invita y gana', 'travel-agency-platform'); ?></h2>
                 <?php echo do_shortcode('[tap_referral_dashboard]'); ?>
             </div>
             <?php endif; ?>

@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.8.1] — 2026-11-25
+
+### Fixed (loyalty panel)
+- Agency admins saw the referral/affiliate box twice on
+  `/mi-cuenta/?seccion=loyalty`: `agency_personal_loyalty()` rendered
+  `[tap_referral_dashboard]` in addition to the copy already inside
+  `render_loyalty_panel()`. Removed the duplicate.
+- Removed the extra "Invita y gana" heading in the client panel: the shortcode
+  already renders its own hero heading.
+
 ## [1.8.0] — 2026-11-25
 
 ### Added (Ronda D — portal de afiliados)
