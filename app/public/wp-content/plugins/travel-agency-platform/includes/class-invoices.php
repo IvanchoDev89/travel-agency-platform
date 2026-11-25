@@ -423,6 +423,8 @@ class TAP_Invoices {
         add_action('tap_payment_completed', [__CLASS__, 'on_payment_completed'], 10, 3);
         add_action('admin_init', [__CLASS__, 'maybe_generate_pdf']);
         add_action('admin_init', [__CLASS__, 'maybe_download_pdf']);
+        add_action('admin_post_tap_agency_invoice_pdf', [__CLASS__, 'agency_pdf']);
+        add_action('admin_post_nopriv_tap_agency_invoice_pdf', [__CLASS__, 'agency_pdf']);
     }
 
     /**
@@ -464,6 +466,36 @@ class TAP_Invoices {
         // Issue invoice when payment is completed.
         self::issue((int) $booking_id);
     }
+    /** Stream an invoice PDF to the agency that owns the booking. */
+    public static function agency_pdf() {
+        if (!is_user_logged_in()) { wp_die(esc_html__('No autorizado.', 'travel-agency-platform'), '', ['response' => 403]); }
+        $id = absint($_GET['invoice_id'] ?? 0);
+        check_admin_referer('tap_agency_invoice_' . $id);
+        $inv = self::get($id);
+        if (!$inv) { wp_die(esc_html__('Factura no encontrada.', 'travel-agency-platform'), '', ['response' => 404]); }
+        global $wpdb;
+        $agency = (int) $wpdb->get_var($wpdb->prepare(
+            'SELECT agency_id FROM ' . $wpdb->prefix . 'tap_bookings WHERE id = %d', (int) $inv->booking_id
+        ));
+        if ((int) TAP_Booking::get_agency_for_user(get_current_user_id()) !== $agency) {
+            wp_die(esc_html__('No autorizado.', 'travel-agency-platform'), '', ['response' => 403]);
+        }
+        $url = (string) $inv->pdf_url;
+        if ('' === $url || !file_exists(ABSPATH . ltrim(str_replace(home_url('/'), '', $url), '/'))) {
+            $url = (string) self::generate_pdf((int) $id);
+            if ('' !== $url) { $wpdb->update(self::table(), ['pdf_url' => $url], ['id' => (int) $id]); }
+        }
+        $path = ABSPATH . ltrim(str_replace(home_url('/'), '', $url), '/');
+        if ('' === $url || !is_readable($path)) {
+            wp_die(esc_html__('PDF no disponible.', 'travel-agency-platform'), '', ['response' => 404]);
+        }
+        nocache_headers();
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: inline; filename="' . sanitize_file_name(basename($path)) . '"');
+        readfile($path); // phpcs:ignore WordPress.WP.AlternativeFunctions
+        exit;
+    }
+
     /** Admin page listing invoices. */
     public static function invoices_page() {
         if (!current_user_can('manage_options')) wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform'));

@@ -31,6 +31,7 @@ class TAP_Front_Dash {
         add_action('wp_ajax_tap_dash_toggle_favorite', ['TAP_Ajax_Dash', 'ajax_toggle_favorite']);
         add_action('wp_ajax_tap_dash_client_profile_save', ['TAP_Ajax_Dash', 'ajax_client_profile_save']);
         add_action('wp_ajax_tap_dash_delete_review', ['TAP_Ajax_Dash', 'ajax_delete_review']);
+        add_action('admin_post_tap_agency_review_reply', [__CLASS__, 'handle_review_reply']);
 
         // AJAX handlers (agency back-office, Fase 16)
         add_action('wp_ajax_tap_dash_agency_booking', ['TAP_Ajax_Dash', 'ajax_agency_booking']);
@@ -299,6 +300,12 @@ class TAP_Front_Dash {
                         break;
                     case 'bo-calendar':
                         echo self::agency_calendar($user);
+                        break;
+                    case 'bo-invoices':
+                        echo self::agency_invoices($user);
+                        break;
+                    case 'bo-reviews':
+                        echo self::agency_reviews($user);
                         break;
                     case 'bo-finances':
                         echo self::agency_finances($user);
@@ -729,6 +736,112 @@ class TAP_Front_Dash {
             . 'options:{responsive:true,maintainAspectRatio:false,'
             . 'plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});})();';
         wp_add_inline_script('tap-chart', $js, 'after');
+    }
+
+    /** Invoices for the agency's bookings, with a real PDF download. */
+    public static function agency_invoices($user) {
+        global $wpdb;
+        $agency = (int) TAP_Booking::get_agency_for_user($user->ID);
+        if (!$agency) {
+            return '<p class="tap-empty">' . esc_html__('No tienes una agencia vinculada.', 'travel-agency-platform') . '</p>';
+        }
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT i.*, b.booking_code FROM {$wpdb->prefix}tap_invoices i
+             INNER JOIN {$wpdb->prefix}tap_bookings b ON b.id = i.booking_id
+             WHERE b.agency_id = %d ORDER BY i.issued_at DESC LIMIT 100",
+            $agency
+        )) ?: [];
+        ob_start();
+        echo '<div class="tap-dash-section"><h2>' . esc_html__('Facturas de tus reservas', 'travel-agency-platform') . '</h2>';
+        echo '<table class="tap-table tap-table-compact"><thead><tr><th>' . esc_html__('Factura', 'travel-agency-platform')
+            . '</th><th>' . esc_html__('Reserva', 'travel-agency-platform')
+            . '</th><th>' . esc_html__('Monto', 'travel-agency-platform')
+            . '</th><th>' . esc_html__('Fecha', 'travel-agency-platform')
+            . '</th><th>' . esc_html__('PDF', 'travel-agency-platform') . '</th></tr></thead><tbody>';
+        foreach ($rows as $inv) {
+            $url = wp_nonce_url(admin_url('admin-post.php?action=tap_agency_invoice_pdf&invoice_id=' . (int) $inv->id), 'tap_agency_invoice_' . (int) $inv->id);
+            echo '<tr><td>' . esc_html($inv->invoice_number) . '</td><td>' . esc_html($inv->booking_code) . '</td><td>'
+                . esc_html(TAP_Currency::fmt((float) $inv->amount)) . '</td><td>' . esc_html(substr((string) $inv->issued_at, 0, 10))
+                . '</td><td><a class="button button-small" href="' . esc_url($url) . '" target="_blank">PDF</a></td></tr>';
+        }
+        if (!$rows) {
+            echo '<tr><td colspan="5">' . esc_html__('Aún no hay facturas.', 'travel-agency-platform') . '</td></tr>';
+        }
+        echo '</tbody></table></div>';
+        return ob_get_clean();
+    }
+
+    /** Agency reviews inbox with a public reply flow. */
+    public static function agency_reviews($user) {
+        global $wpdb;
+        $agency = (int) TAP_Booking::get_agency_for_user($user->ID);
+        if (!$agency) {
+            return '<p class="tap-empty">' . esc_html__('No tienes una agencia vinculada.', 'travel-agency-platform') . '</p>';
+        }
+        $keys = class_exists('TAP_Post_Types') ? TAP_Post_Types::agency_meta_keys() : [];
+        $ids = [];
+        if ($keys) {
+            $ph = implode(',', array_fill(0, count($keys), '%s'));
+            $ids = $wpdb->get_col($wpdb->prepare(
+                "SELECT DISTINCT post_id FROM {$wpdb->postmeta} WHERE meta_key IN ({$ph}) AND meta_value = %d",
+                array_merge(array_values($keys), [$agency])
+            ));
+        }
+        $rows = [];
+        if ($ids) {
+            $iph = implode(',', array_map('intval', $ids));
+            $rows = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}tap_reviews WHERE service_id IN ({$iph}) ORDER BY created_at DESC LIMIT 100") ?: [];
+        }
+        ob_start();
+        echo '<div class="tap-dash-section"><h2>' . esc_html__('Reseñas de tus servicios', 'travel-agency-platform') . '</h2>';
+        foreach ($rows as $r) {
+            echo '<div class="tap-review-card" style="border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin:10px 0;">';
+            echo '<strong>' . esc_html((string) $r->rating) . ' ★</strong> · ' . esc_html($r->title ?: get_the_title((int) $r->service_id)) . '<br>';
+            echo esc_html(wp_trim_words((string) $r->content, 30)) . '<br>';
+            echo '<small>' . esc_html($r->created_at) . ' · ' . esc_html($r->mod_status) . '</small>';
+            if ($r->reply) {
+                echo '<p><strong>' . esc_html__('Tu respuesta:', 'travel-agency-platform') . '</strong> ' . esc_html($r->reply) . '</p>';
+            } else {
+                echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" style="margin-top:8px;">'
+                    . '<input type="hidden" name="action" value="tap_agency_review_reply">'
+                    . '<input type="hidden" name="review_id" value="' . (int) $r->id . '">';
+                wp_nonce_field('tap_agency_review_' . (int) $r->id);
+                echo '<textarea name="reply" rows="2" class="large-text" placeholder="' . esc_attr__('Responde públicamente…', 'travel-agency-platform') . '" required></textarea>';
+                echo '<button class="button button-small">' . esc_html__('Responder', 'travel-agency-platform') . '</button></form>';
+            }
+            echo '</div>';
+        }
+        if (!$rows) {
+            echo '<p class="tap-empty">' . esc_html__('Aún no hay reseñas.', 'travel-agency-platform') . '</p>';
+        }
+        echo '</div>';
+        return ob_get_clean();
+    }
+
+    /** Save an agency's public reply to a review. */
+    public static function handle_review_reply() {
+        if (!is_user_logged_in()) { wp_die(esc_html__('No autorizado.', 'travel-agency-platform'), '', ['response' => 403]); }
+        $review_id = absint($_POST['review_id'] ?? 0);
+        check_admin_referer('tap_agency_review_' . $review_id);
+        global $wpdb;
+        $review = $wpdb->get_row($wpdb->prepare('SELECT * FROM ' . $wpdb->prefix . 'tap_reviews WHERE id = %d', $review_id));
+        if (!$review) { wp_die(esc_html__('Reseña no encontrada.', 'travel-agency-platform'), '', ['response' => 404]); }
+        $agency = (int) TAP_Booking::get_agency_for_user(get_current_user_id());
+        $owner = (int) get_post_meta((int) $review->service_id, '_tap_' . (TAP_Post_Types::meta_prefix($review->service_type) ?: 'tour') . '_agency_id', true);
+        if (!$agency || $agency !== $owner) {
+            wp_die(esc_html__('No tienes permiso sobre esta reseña.', 'travel-agency-platform'), '', ['response' => 403]);
+        }
+        $reply = sanitize_textarea_field(wp_unslash($_POST['reply'] ?? ''));
+        if ('' === $reply) { wp_safe_redirect(wp_get_referer() ?: home_url('/mi-cuenta/'));
+exit; }
+        $user = wp_get_current_user();
+        $wpdb->update($wpdb->prefix . 'tap_reviews', [
+            'reply' => $reply,
+            'reply_author' => $user->display_name,
+            'reply_at' => current_time('mysql'),
+        ], ['id' => $review_id]);
+        wp_safe_redirect(add_query_arg('reply_ok', '1', wp_get_referer() ?: home_url('/mi-cuenta/?seccion=bo-reviews')));
+        exit;
     }
 
     /** Daily operations calendar with arrivals, departures and no-show control. */
@@ -1570,7 +1683,7 @@ class TAP_Front_Dash {
             if (!isset($listings[$type])) {
                 $listings[$type] = ['label' => $listing_labels[$type], 'count' => 0];
             }
-            $listings[$type]['count']++;
+            ++$listings[$type]['count'];
             if ('publish' === $row->post_status) {
                 $any_published = true;
             }
@@ -1965,6 +2078,8 @@ endif;
         // los empleados ven Resumen, Operaciones y Listados.
         if ($is_team_admin) {
             $nav[] = ['key' => 'bo-finances', 'label' => __('Finanzas', 'travel-agency-platform'), 'icon' => 'wallet', 'url' => add_query_arg('seccion', 'bo-finances', $base)];
+            $nav[] = ['key' => 'bo-invoices', 'label' => __('Facturas', 'travel-agency-platform'), 'icon' => 'list', 'url' => add_query_arg('seccion', 'bo-invoices', $base)];
+            $nav[] = ['key' => 'bo-reviews', 'label' => __('Reseñas', 'travel-agency-platform'), 'icon' => 'star', 'url' => add_query_arg('seccion', 'bo-reviews', $base)];
             $nav[] = ['key' => 'bo-analytics', 'label' => __('Analytics', 'travel-agency-platform'), 'icon' => 'chart', 'url' => add_query_arg('seccion', 'bo-analytics', $base)];
             $nav[] = ['key' => 'bo-audit', 'label' => __('Actividad', 'travel-agency-platform'), 'icon' => 'list', 'url' => add_query_arg('seccion', 'bo-audit', $base)];
             $nav[] = ['key' => 'bo-disputas', 'label' => __('Disputas', 'travel-agency-platform'), 'icon' => 'flag', 'url' => add_query_arg('seccion', 'bo-disputas', $base)];
