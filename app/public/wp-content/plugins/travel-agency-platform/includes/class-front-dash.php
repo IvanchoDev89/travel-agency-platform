@@ -280,7 +280,15 @@ class TAP_Front_Dash {
                         <?php
                     } elseif ('rejected' === $tap_ap_status) {
                         ?>
-                        <div class="tap-notice tap-notice-error"><span class="tap-notice-icon" aria-hidden="true">⚠</span><span><strong><?php esc_html_e('Tu agencia no fue aprobada', 'travel-agency-platform'); ?>.</strong> <?php esc_html_e('Contacta a soporte para corregir tus datos y volver a solicitar la revisión.', 'travel-agency-platform'); ?></span></div>
+                        <?php $tap_reject_reason = (string) get_post_meta($tap_ap_agency, 'tap_kyc_rejection_reason', true); ?>
+                        <div class="tap-notice tap-notice-error"><span class="tap-notice-icon" aria-hidden="true">⚠</span><span><strong><?php esc_html_e('Tu agencia no fue aprobada', 'travel-agency-platform'); ?>.</strong>
+                            <?php if ('' !== $tap_reject_reason): ?>
+                                <?php echo esc_html(sprintf(__('Motivo: %s', 'travel-agency-platform'), $tap_reject_reason)); ?>
+                                <?php esc_html_e('Corrige los documentos en tu perfil y vuelve a enviarlos para nueva revisión.', 'travel-agency-platform'); ?>
+                            <?php else: ?>
+                                <?php esc_html_e('Contacta a soporte para corregir tus datos y volver a solicitar la revisión.', 'travel-agency-platform'); ?>
+                            <?php endif; ?>
+                        </span></div>
                         <?php
                     }
                 }
@@ -1192,6 +1200,14 @@ class TAP_Front_Dash {
         })();
         </script>
         <?php
+        if (class_exists('TAP_KYC_Docs')) {
+            echo '<div class="tap-dash-section"><h3>' . esc_html__('Verificación de identidad', 'travel-agency-platform') . '</h3>'
+                . TAP_KYC_Docs::render_upload_form((int) $agency_id, TAP_Approval::status($agency_id)) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in renderer
+                . '</div>';
+            if (isset($_GET['kyc_ok'])) {
+                echo '<p class="notice notice-success inline">' . esc_html__('Documentos enviados para revisión.', 'travel-agency-platform') . '</p>';
+            }
+        }
         if (class_exists('TAP_Legal') && !TAP_Legal::agency_current((int) $agency_id)) {
             echo '<div class="tap-dash-section"><h3>' . esc_html__('Contrato de agencia', 'travel-agency-platform') . '</h3>'
                 . '<p class="tap-agency-meta">' . esc_html__('Debes aceptar el contrato antes de contratar un plan o publicar destacados.', 'travel-agency-platform') . '</p>'

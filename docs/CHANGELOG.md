@@ -6,6 +6,38 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.16.0] — 2026-11-25
+
+### Added (real KYC)
+- `tap_kyc_documents`: private identity files (JPG/PNG/PDF, 5 MB max, hashed
+  filenames, `.htaccess` deny, served only by nonce + capability).
+- Agency panel uploads four document types and resubmits after rejection.
+- Admin detail reviews each document (approve/reject with reason) with audit
+  entries. A rejected document blocks agency approval.
+- Rejection emails include the real reason and a panel link; agency banner
+  shows it and offers resubmission.
+- FUNCTIONAL `suite_kyc_documents.php` (22 assertions).
+
+## [1.15.0] — 2026-11-25
+- Admin user and role management: list/filter/search, change plugin roles,
+  link/unlink an agency (capability + nonce guarded).
+
+## [1.14.0] — 2026-11-25
+- Booking drill-down in wp-admin: guest, money, internal notes, capture/refund
+  IDs, line items and activity log. `TAP_Audit_Log::for_booking()`.
+
+## [1.13.0] — 2026-11-25
+- Accommodation wizard exposes SEO fields; onboarding availability counts
+  agency-linked listings and room inventory.
+
+## [1.12.1] — 2026-11-25
+- Informed cancellation dialog (policy + estimated refund); travel insurance
+  selectable on the real tour booking widget.
+
+## [1.12.0] — 2026-11-25
+- In-admin test-data cleanup with dry-run preview, nonce and WP_DEBUG guard.
+- Language suites restore user meta so E2E no longer leaves the admin in English.
+
 ## [1.11.0] — 2026-11-25
 
 ### Added (agency money operations)

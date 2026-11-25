@@ -1100,6 +1100,23 @@ class TAP_Installer {
             KEY created_at (created_at)
         ) {$wpdb->get_charset_collate()}");
 
+        $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_kyc_documents (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            agency_id bigint(20) NOT NULL,
+            doc_type varchar(40) NOT NULL,
+            file_path varchar(500) NOT NULL,
+            file_name varchar(255) NOT NULL,
+            mime varchar(100) NOT NULL DEFAULT '',
+            file_size bigint(20) NOT NULL DEFAULT 0,
+            status varchar(20) NOT NULL DEFAULT 'pending',
+            reviewer_note varchar(500) DEFAULT NULL,
+            reviewed_by bigint(20) NOT NULL DEFAULT 0,
+            reviewed_at datetime DEFAULT NULL,
+            uploaded_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY agency_status (agency_id, status)
+        ) {$wpdb->get_charset_collate()}");
+
         $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_agency_payouts (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             agency_id bigint(20) NOT NULL,

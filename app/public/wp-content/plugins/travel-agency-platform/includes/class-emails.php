@@ -199,6 +199,11 @@ class TAP_Emails {
         $agency = get_post($agency_id);
         $email  = TAP_Emails_Send::get_agency_email($agency_id);
         if (!$agency || !$email) return;
+        $reason = (string) get_post_meta($agency_id, 'tap_kyc_rejection_reason', true);
+        $reason_line = '' !== $reason
+            ? '<br><br><strong>' . esc_html__('Motivo:', 'travel-agency-platform') . '</strong> ' . esc_html($reason)
+            : '';
+        $profile = esc_url(home_url('/mi-cuenta/?seccion=bo-profile'));
 
         TAP_Emails_Send::send(
             $email,
@@ -207,10 +212,12 @@ class TAP_Emails {
                 /* translators: %s: nombre de la agencia */
                 sprintf(__('Agencia no aprobada — %s', 'travel-agency-platform'), $agency->post_title),
                 sprintf(
-                    /* translators: 1: nombre de la agencia, 2: enlace de contacto de soporte */
-                    __('Lamentablemente tu agencia <strong>%s</strong> no fue aprobada en esta revisión.<br><br>Contacta a soporte en <a href="%s" style="color:#0d9488;">soporte@visitnuevoarenal.com</a> para corregir los datos de identificación y volver a intentarlo.', 'travel-agency-platform'),
+                    /* translators: 1: nombre de la agencia, 2: panel de perfil */
+                    __('Lamentablemente tu agencia <strong>%s</strong> no fue aprobada en esta revisión.', 'travel-agency-platform')
+                        . $reason_line
+                        . '<br><br>' . sprintf(__('Corrige los documentos en tu <a href="%s" style="color:#0d9488;">perfil</a> y vuelve a enviarlos para nueva revisión.', 'travel-agency-platform'), $profile),
                     esc_html($agency->post_title),
-                    esc_attr('mailto:' . tap_support_email())
+                    $profile
                 )
             )
         );

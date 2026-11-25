@@ -13,6 +13,7 @@ class TAP_Dashboard_Content {
         add_action('admin_post_tap_agency_owner', [__CLASS__, 'handle_agency_owner']);
         add_action('admin_post_tap_agency_staff', [__CLASS__, 'handle_agency_staff']);
         add_action('admin_post_tap_agency_commission', [__CLASS__, 'handle_agency_commission']);
+        add_action('admin_post_tap_agency_reject', [__CLASS__, 'handle_agency_reject']);
     }
 
     public static function reviews_page() {
@@ -546,7 +547,13 @@ endif;
                     <a class="button button-primary" href="<?php echo esc_url($act('approve')); ?>"><?php esc_html_e('Aprobar', 'travel-agency-platform'); ?></a>
                 <?php endif; ?>
                 <?php if (TAP_Approval::REJECTED !== $status): ?>
-                    <a class="button" href="<?php echo esc_url($act('reject')); ?>" onclick="return confirm('<?php echo esc_js(__('Rechazar esta agencia?', 'travel-agency-platform')); ?>');"><?php esc_html_e('Rechazar', 'travel-agency-platform'); ?></a>
+                    <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="display:inline-flex;gap:4px;">
+                        <?php wp_nonce_field('tap_agency_reject_' . (int) $agency_id); ?>
+                        <input type="hidden" name="action" value="tap_agency_reject">
+                        <input type="hidden" name="agency_id" value="<?php echo (int) $agency_id; ?>">
+                        <input type="text" name="reason" class="small-text" placeholder="<?php echo esc_attr__('Motivo del rechazo', 'travel-agency-platform'); ?>" required>
+                        <button class="button" type="submit"><?php esc_html_e('Rechazar', 'travel-agency-platform'); ?></button>
+                    </form>
                 <?php endif; ?>
                 <a class="button" href="<?php echo esc_url($act($is_verified ? 'unverify' : 'verify')); ?>"><?php echo $is_verified ? esc_html__('Quitar verificación', 'travel-agency-platform') : esc_html__('Marcar verificada', 'travel-agency-platform'); ?></a>
                 <a class="button" href="<?php echo esc_url($act($is_active ? 'deactivate' : 'activate')); ?>"><?php echo $is_active ? esc_html__('Desactivar', 'travel-agency-platform') : esc_html__('Activar', 'travel-agency-platform'); ?></a>
@@ -595,6 +602,35 @@ endif;
                 </table>
                 <?php submit_button(__('Guardar cambios', 'travel-agency-platform')); ?>
             </form>
+
+            <?php if (class_exists('TAP_KYC_Docs')): ?>
+                <h2><?php esc_html_e('Documentos de verificación', 'travel-agency-platform'); ?></h2>
+                <table class="wp-list-table widefat striped" style="max-width:900px;"><thead><tr>
+                    <th><?php esc_html_e('Documento', 'travel-agency-platform'); ?></th><th><?php esc_html_e('Archivo', 'travel-agency-platform'); ?></th>
+                    <th><?php esc_html_e('Estado', 'travel-agency-platform'); ?></th><th><?php esc_html_e('Revisión', 'travel-agency-platform'); ?></th>
+                </tr></thead><tbody>
+                <?php $kyc_docs = TAP_KYC_Docs::for_agency($agency_id); ?>
+                <?php foreach ($kyc_docs as $doc): ?>
+                    <?php $doc_url = wp_nonce_url(admin_url('admin-post.php?action=tap_kyc_serve&doc_id=' . (int) $doc->id), 'tap_kyc_serve_' . (int) $doc->id); ?>
+                    <tr>
+                        <td><?php echo esc_html(TAP_KYC_Docs::types()[$doc->doc_type] ?? $doc->doc_type); ?></td>
+                        <td><a href="<?php echo esc_url($doc_url); ?>" target="_blank"><?php echo esc_html($doc->file_name); ?></a></td>
+                        <td><?php echo esc_html($doc->status); ?><?php if ($doc->reviewer_note): ?><br><small style="color:#b45309;"><?php echo esc_html($doc->reviewer_note); ?></small><?php endif; ?></td>
+                        <td>
+                            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                                <?php wp_nonce_field('tap_kyc_doc_' . (int) $doc->id); ?>
+                                <input type="hidden" name="action" value="tap_kyc_doc_status">
+                                <input type="hidden" name="doc_id" value="<?php echo (int) $doc->id; ?>">
+                                <input type="text" name="kyc_note" class="small-text" placeholder="<?php echo esc_attr__('Motivo', 'travel-agency-platform'); ?>">
+                                <button class="button button-small" name="kyc_status" value="approved"><?php esc_html_e('Aprobar', 'travel-agency-platform'); ?></button>
+                                <button class="button button-small" name="kyc_status" value="rejected"><?php esc_html_e('Rechazar', 'travel-agency-platform'); ?></button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                <?php if (!$kyc_docs): ?><tr><td colspan="4"><?php esc_html_e('Sin documentos subidos.', 'travel-agency-platform'); ?></td></tr><?php endif; ?>
+                </tbody></table>
+            <?php endif; ?>
 
             <h2><?php esc_html_e('Usuario responsable y equipo', 'travel-agency-platform'); ?></h2>
             <p><?php echo $owner ? esc_html($owner->display_name . ' (' . $owner->user_email . ')') : esc_html__('Sin usuario responsable asignado', 'travel-agency-platform'); ?></p>
@@ -779,6 +815,25 @@ endif;
         $user->add_role('tap_agency_employee');
         self::log_agency('agency_staff_added', $id, $email);
         self::agency_back($id, 'staff_added');
+    }
+
+    /** Reject with a recorded reason that reaches the agency email and panel. */
+    public static function handle_agency_reject() {
+        if (!current_user_can('tap_manage_agencies') && !current_user_can('manage_options')) {
+            wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform'));
+        }
+        $id = absint($_POST['agency_id'] ?? 0);
+        check_admin_referer('tap_agency_reject_' . $id);
+        $reason = sanitize_text_field(wp_unslash($_POST['reason'] ?? ''));
+        if ('' === $reason) {
+            wp_safe_redirect(add_query_arg(['page' => 'tap-agencies', 'view' => $id, 'reject_error' => '1'], admin_url('admin.php')));
+            exit;
+        }
+        update_post_meta($id, 'tap_kyc_rejection_reason', $reason);
+        TAP_Approval::reject($id);
+        self::log_agency('agency_rejected', $id, $reason);
+        wp_safe_redirect(add_query_arg(['page' => 'tap-agencies', 'view' => $id, 'rejected' => '1'], admin_url('admin.php')));
+        exit;
     }
 
     /** Commission change (POST, nonce guarded — no more GET mutation). */

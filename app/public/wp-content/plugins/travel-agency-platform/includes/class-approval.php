@@ -88,6 +88,14 @@ class TAP_Approval {
     }
 
     public static function approve($agency_id) {
+        // A rejected identity document is a hard blocker: the agency must
+        // correct it and resubmit before it can go live. Agencies with no
+        // documents at all are legacy records and remain approvable.
+        if (class_exists('TAP_KYC_Docs')) {
+            foreach (TAP_KYC_Docs::for_agency($agency_id) as $doc) {
+                if ('rejected' === $doc->status) { return false; }
+            }
+        }
         if (!self::set_status($agency_id, self::APPROVED)) {
             return false;
         }
