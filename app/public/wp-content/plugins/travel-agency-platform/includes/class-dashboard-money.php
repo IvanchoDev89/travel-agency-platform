@@ -565,6 +565,66 @@ class TAP_Dashboard_Money {
         }
     }
 
+    /** Full dispute case file for operators. */
+    public static function dispute_detail($id) {
+        if (!current_user_can('tap_manage_disputes') && !current_user_can('manage_options')) {
+            wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform'));
+        }
+        global $wpdb;
+        $d = $wpdb->get_row($wpdb->prepare(
+            "SELECT d.*, b.booking_code, b.guest_name, b.guest_email AS bmail,
+                    b.total_amount, b.amount_paid, b.commission_amount, b.commission_status,
+                    a.post_title agency_name
+             FROM {$wpdb->prefix}tap_disputes d
+             LEFT JOIN {$wpdb->prefix}tap_bookings b ON b.id = d.booking_id
+             LEFT JOIN {$wpdb->posts} a ON a.ID = d.agency_id
+             WHERE d.id = %d",
+            (int) $id
+        ));
+        if (!$d) {
+            return '<div class="wrap"><h1>' . esc_html__('Disputa no encontrada.', 'travel-agency-platform') . '</h1></div>';
+        }
+        ob_start();
+        echo '<div class="wrap"><p><a href="' . esc_url(admin_url('admin.php?page=tap-disputes')) . '">&larr; '
+            . esc_html__('Volver a disputas', 'travel-agency-platform') . '</a></p>';
+        echo '<h1>' . esc_html(sprintf(__('Disputa #%d — %s', 'travel-agency-platform'), (int) $d->id, (string) $d->booking_code)) . '</h1>';
+        echo '<p>' . esc_html(TAP_Disputes::status_label($d->status)) . ' · ' . esc_html($d->created_at) . '</p>';
+        echo '<table class="form-table"><tbody>';
+        foreach ([
+            __('Reserva', 'travel-agency-platform') => $d->booking_code . ' #' . (int) $d->booking_id,
+            __('Agencia', 'travel-agency-platform') => $d->agency_name ?: '#' . (int) $d->agency_id,
+            __('Huésped', 'travel-agency-platform') => $d->guest_name ?: ($d->bmail ?: '—'),
+            __('Correo', 'travel-agency-platform') => $d->bmail ?: $d->guest_email,
+            __('Motivo', 'travel-agency-platform') => TAP_Disputes::reasons()[$d->reason] ?? $d->reason,
+            __('Detalles', 'travel-agency-platform') => $d->details ?: '—',
+            __('Importe de la reserva', 'travel-agency-platform') => TAP_Currency::fmt((float) $d->total_amount),
+            __('Comisión retenida', 'travel-agency-platform') => TAP_Currency::fmt((float) $d->commission_amount) . ' (' . esc_html($d->prev_commission) . ')',
+            __('Resolución', 'travel-agency-platform') => $d->resolution_note ?: '—',
+            __('Resuelta', 'travel-agency-platform') => $d->resolved_at ?: '—',
+        ] as $label => $value) {
+            echo '<tr><th>' . esc_html($label) . '</th><td>' . esc_html((string) $value) . '</td></tr>';
+        }
+        echo '</tbody></table>';
+        if ('open' === $d->status) {
+            echo '<h2>' . esc_html__('Resolver', 'travel-agency-platform') . '</h2>'
+                . '<form method="post" action="' . esc_url(admin_url('admin.php?page=tap-disputes')) . '">'
+                . '<input type="hidden" name="tap_resolve_dispute" value="1">'
+                . '<input type="hidden" name="dispute_id" value="' . (int) $d->id . '">'
+                . '<input type="hidden" name="dfilter" value="all">';
+            wp_nonce_field('tap_resolve_dispute_' . (int) $d->id);
+            echo '<select name="outcome">';
+            foreach (TAP_Disputes::outcomes() as $key => $label) {
+                echo '<option value="' . esc_attr($key) . '">' . esc_html($label) . '</option>';
+            }
+            echo '</select><br><textarea name="resolution_note" rows="4" class="large-text" placeholder="'
+                . esc_attr__('Motivo de la resolución', 'travel-agency-platform') . '"></textarea>'
+                . '<button class="button button-primary">' . esc_html__('Guardar resolución', 'travel-agency-platform') . '</button></form>';
+        }
+        echo '<p><a class="button" href="' . esc_url(home_url('/booking-detail/?code=' . rawurlencode((string) $d->booking_code))) . '" target="_blank">'
+            . esc_html__('Ver voucher', 'travel-agency-platform') . '</a></p></div>';
+        return ob_get_clean();
+    }
+
     public static function disputes_page() {
         if (!current_user_can('tap_manage_disputes') && !current_user_can('manage_options')) {
             wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform'));
@@ -574,31 +634,51 @@ class TAP_Dashboard_Money {
         global $wpdb;
         $table = $wpdb->prefix . 'tap_disputes';
 
+        $view_id = absint($_GET['view'] ?? 0);
+        if ($view_id) {
+            echo self::dispute_detail($view_id);
+            return;
+        }
         $filter = sanitize_key(wp_unslash($_GET['dfilter'] ?? 'all'));
+        $ds = isset($_GET['ds']) ? sanitize_text_field(wp_unslash($_GET['ds'])) : '';
+        $dagency = absint($_GET['dagency'] ?? 0);
         $counts = $wpdb->get_row("SELECT
             COALESCE(SUM(status='open'),0) open_c,
             COALESCE(SUM(status!='open'),0) closed_c FROM {$table}");
 
         $where = '1=1';
+        $where_params = [];
         if ('open' === $filter) {
-            $where = "status = 'open'";
+            $where .= " AND d.status = 'open'";
         } elseif ('closed' === $filter) {
-            $where = "status != 'open'";
+            $where .= " AND d.status != 'open'";
         }
+        if ($dagency) {
+            $where .= ' AND d.agency_id = %d';
+            $where_params[] = $dagency;
+        }
+        if ('' !== $ds) {
+            $where .= ' AND (d.reason LIKE %s OR d.details LIKE %s OR b.booking_code LIKE %s OR d.guest_email LIKE %s)';
+            $like = '%' . $wpdb->esc_like($ds) . '%';
+            $where_params = array_merge($where_params, [$like, $like, $like, $like]);
+        }
+        $where_sql = $where_params
+            ? $wpdb->prepare($where, $where_params)
+            : $where;
         $dispute_per_page = 50;
         $dispute_paged    = max(1, absint($_GET['paged'] ?? 1));
         $dispute_total = (int) $wpdb->get_var(
             "SELECT COUNT(*) FROM {$table} d
              LEFT JOIN {$wpdb->prefix}tap_bookings b ON d.booking_id = b.id
              LEFT JOIN {$wpdb->posts} a ON d.agency_id = a.ID
-             WHERE {$where}"
+             WHERE {$where_sql}"
         );
         $disputes = $wpdb->get_results($wpdb->prepare(
             "SELECT d.*, b.booking_code, b.guest_name, b.guest_email AS bmail, a.post_title AS agency_name
              FROM {$table} d
              LEFT JOIN {$wpdb->prefix}tap_bookings b ON d.booking_id = b.id
              LEFT JOIN {$wpdb->posts} a ON d.agency_id = a.ID
-             WHERE {$where}
+             WHERE {$where_sql}
              ORDER BY d.created_at DESC LIMIT %d OFFSET %d",
             $dispute_per_page,
             ($dispute_paged - 1) * $dispute_per_page
@@ -624,6 +704,20 @@ class TAP_Dashboard_Money {
                 <a href="admin.php?page=tap-disputes&dfilter=closed" class="nav-tab <?php echo 'closed' === $filter ? 'nav-tab-active' : ''; ?>"><?php esc_html_e('Resueltas', 'travel-agency-platform'); ?> (<?php echo (int) ($counts->closed_c ?? 0); ?>)</a>
             </nav>
 
+            <form method="get" action="<?php echo esc_url(admin_url('admin.php')); ?>" style="margin:12px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                <input type="hidden" name="page" value="tap-disputes">
+                <input type="hidden" name="dfilter" value="<?php echo esc_attr($filter); ?>">
+                <input type="search" name="ds" value="<?php echo esc_attr($ds); ?>" placeholder="<?php echo esc_attr__('Código, huésped, motivo o detalle', 'travel-agency-platform'); ?>" class="regular-text">
+                <?php
+                $agencies = get_posts(['post_type' => 'tap_agency', 'post_status' => 'publish', 'posts_per_page' => -1, 'orderby' => 'post_title', 'order' => 'ASC']);
+                ?>
+                <select name="dagency"><option value="0"><?php esc_html_e('Todas las agencias', 'travel-agency-platform'); ?></option>
+                    <?php foreach ($agencies as $ag): ?>
+                        <option value="<?php echo (int) $ag->ID; ?>" <?php selected($dagency, $ag->ID); ?>><?php echo esc_html($ag->post_title); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <button class="button"><?php esc_html_e('Filtrar', 'travel-agency-platform'); ?></button>
+            </form>
             <table class="wp-list-table widefat fixed striped">
                 <thead>
                     <tr>
@@ -642,8 +736,8 @@ class TAP_Dashboard_Money {
                     <?php foreach ($disputes as $d): ?>
                     <tr>
                         <td>
-                            <a href="<?php echo esc_url(home_url('/booking-detail/?code=' . rawurlencode((string) $d->booking_code))); ?>" target="_blank"><?php echo esc_html($d->booking_code); ?></a>
-                            #<?php echo (int) $d->booking_id; ?>
+                            <a href="<?php echo esc_url(admin_url('admin.php?page=tap-disputes&view=' . (int) $d->id)); ?>"><strong><?php echo esc_html($d->booking_code); ?></strong></a>
+                            <br><small>#<?php echo (int) $d->booking_id; ?> · <a href="<?php echo esc_url(home_url('/booking-detail/?code=' . rawurlencode((string) $d->booking_code))); ?>" target="_blank"><?php esc_html_e('Voucher', 'travel-agency-platform'); ?></a></small>
                         </td>
                         <td><?php echo esc_html($d->agency_name ?? 'N/D'); ?></td>
                         <td><?php echo esc_html($d->guest_name ?: $d->bmail ?: ($d->client_id ? '#' . (int) $d->client_id : '—')); ?></td>

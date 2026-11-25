@@ -494,6 +494,8 @@ class TAP_Installer {
                 status varchar(20) DEFAULT 'pending',
                 ip varchar(45) DEFAULT NULL,
                 handled_by bigint(20) DEFAULT 0,
+                handled_note text DEFAULT NULL,
+                exported_at datetime DEFAULT NULL,
                 created_at datetime DEFAULT CURRENT_TIMESTAMP,
                 handled_at datetime DEFAULT NULL,
                 PRIMARY KEY (id),
@@ -1258,6 +1260,14 @@ class TAP_Installer {
             PRIMARY KEY (id),
             KEY user_id (user_id)
         ) {$wpdb->get_charset_collate()}");
+
+        $priv_cols = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_privacy_requests");
+        if (!in_array('handled_note', $priv_cols, true)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_privacy_requests ADD COLUMN handled_note text DEFAULT NULL AFTER handled_by");
+        }
+        if (!in_array('exported_at', $priv_cols, true)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_privacy_requests ADD COLUMN exported_at datetime DEFAULT NULL AFTER handled_note");
+        }
 
         $aff_cols = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_affiliates");
         if (!in_array('user_id', $aff_cols, true)) {

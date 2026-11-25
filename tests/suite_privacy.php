@@ -52,9 +52,11 @@ tap_t_assert($req && $req->status === 'pending', 'request stored as pending');
 tap_t_assert(in_array('Acceso', TAP_Privacy::rights_labels($req->rights), true), 'stored rights decode to label list');
 
 $pending = TAP_Privacy::all_requests('pending');
-tap_t_assert(is_array($pending) && (int) current($pending)->id === (int) $req_id, 'pending request listed first');
+$pending_items = $pending['items'];
+tap_t_assert(is_array($pending_items) && (int) current($pending_items)->id === (int) $req_id, 'pending request listed first');
 tap_t_assert(TAP_Privacy::mark_handled((int) $req_id), 'mark_handled returns true');
-tap_t_assert(TAP_Privacy::all_requests('done')[0]->id == $req_id, 'handled request appears under done');
+$done_items = TAP_Privacy::all_requests('done')['items'];
+tap_t_assert($done_items[0]->id == $req_id, 'handled request appears under done');
 tap_t_assert(!TAP_Privacy::mark_handled(0), 'mark_handled rejects zero id');
 
 /* 4) shortcodes + policy content ----------------------------------------------- */

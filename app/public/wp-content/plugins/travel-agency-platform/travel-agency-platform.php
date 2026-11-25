@@ -7,7 +7,7 @@
  * Plugin Name: Travel Agency Platform
  * Plugin URI: https://ivanchodev.com
  * Description: Multi-agency travel platform B2B & B2C. Manage accommodations, tours, transports, car rentals, boats and packages.
- * Version:           1.19.0
+ * Version:           1.20.0
  * Requires at least: 6.4
  * Requires PHP:      8.2.35
  * Author: IvanchoDev
@@ -23,7 +23,7 @@ require_once __DIR__ . '/includes/support-email.php';
 require_once __DIR__ . '/includes/class-llms.php';
 require_once __DIR__ . '/includes/class-simple-pdf.php';
 
-define('TAP_VERSION', '1.19.0');
+define('TAP_VERSION', '1.20.0');
 define('TAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -310,6 +310,7 @@ final class TravelAgencyPlatform {
         add_action('admin_post_tap_email_campaign_delete', ['TAP_Email_Campaigns', 'handle_delete']);
         add_action('admin_post_tap_email_campaign_send', ['TAP_Email_Campaigns', 'handle_send']);
         add_action('admin_post_tap_email_campaign_schedule', ['TAP_Email_Campaigns', 'handle_schedule']);
+        add_action('admin_post_tap_email_campaign_test', ['TAP_Email_Campaigns', 'handle_test']);
         // Kept on purpose: the handler enforces login + nonce + agency ownership
         // and this lets an expired session get the friendly /login/ redirect
         // instead of a blank admin-post response.

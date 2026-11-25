@@ -30,6 +30,15 @@ class TAP_Disputes {
         ];
     }
 
+    /** Resolution outcomes with translated labels. */
+    public static function outcomes() {
+        return [
+            self::FOR_AGENCY => __('A favor de la agencia (liberar comisión)', 'travel-agency-platform'),
+            self::AGAINST_AGENCY => __('En contra de la agencia (anular comisión)', 'travel-agency-platform'),
+            self::WITHDRAWN => __('Retirada por el viajero', 'travel-agency-platform'),
+        ];
+    }
+
     public static function status_label($status) {
         $labels = [
             self::OPEN           => __('Disputa abierta', 'travel-agency-platform'),

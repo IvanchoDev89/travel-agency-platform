@@ -111,20 +111,23 @@ class TAP_Email_Campaigns {
         return array_values(array_unique(array_filter($emails)));
     }
 
+    /** Recipients that may legally receive the campaign (consent + no opt-out). */
+    public static function eligible_recipients($segment) {
+        return array_values(array_filter(self::recipients($segment), static function ($email) {
+            return TAP_Privacy::marketing_ok($email);
+        }));
+    }
+
     /** Send a campaign now. Returns count sent. */
     public static function send($id) {
         $camp = self::get($id);
         if (!$camp || $camp->status === 'sent') return 0;
 
-        $recipients = self::recipients($camp->segment);
+        $recipients = self::eligible_recipients($camp->segment);
         $sent = 0;
         foreach ($recipients as $email) {
-            // Marketing requires explicit consent and honours one-click
-            // unsubscribe; the privacy footer and send log come from the
-            // shared sender instead of a raw wp_mail() call.
-            if (!TAP_Privacy::marketing_ok($email)) {
-                continue;
-            }
+            // The privacy footer and send log come from the shared sender
+            // instead of a raw wp_mail() call.
             $body = $camp->body
                 . '<p style="font-size:12px;color:#6b7280;margin-top:16px;">'
                 . '<a href="' . esc_url(TAP_Privacy::unsubscribe_url($email)) . '">'
@@ -226,6 +229,58 @@ class TAP_Email_Campaigns {
         exit;
     }
 
+    /** Send a single test copy to the operator running the test. */
+    public static function handle_test() {
+        if (!current_user_can('manage_options')) { wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform')); }
+        $id = absint($_POST['id'] ?? 0);
+        check_admin_referer('tap_email_campaign_test_' . $id);
+        $camp = self::get($id);
+        if (!$camp) { wp_die(esc_html__('Campaña no encontrada.', 'travel-agency-platform'), '', ['response' => 404]); }
+        $user = wp_get_current_user();
+        $body = $camp->body
+            . '<p style="font-size:12px;color:#6b7280;">'
+            . esc_html__('Envío de prueba. El destinatario real recibirá además el enlace de baja.', 'travel-agency-platform')
+            . '</p>';
+        TAP_Emails_Send::send($user->user_email, __('Prueba: ', 'travel-agency-platform') . $camp->subject, $body);
+        wp_safe_redirect(add_query_arg(['page' => 'tap-email-campaigns', 'action' => 'preview', 'id' => $id, 'test_sent' => '1'], admin_url('admin.php')));
+        exit;
+    }
+
+    /** Rendered preview with the exact recipient count that will be sent. */
+    public static function preview($id) {
+        if (!current_user_can('manage_options')) { wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform')); }
+        $camp = self::get($id);
+        if (!$camp) {
+            return '<div class="wrap"><h1>' . esc_html__('Campaña no encontrada.', 'travel-agency-platform') . '</h1></div>';
+        }
+        $emails = self::eligible_recipients($camp->segment);
+        $test_url = wp_nonce_url(admin_url('admin-post.php?action=tap_email_campaign_test&id=' . (int) $id), 'tap_email_campaign_test_' . (int) $id);
+        ob_start();
+        echo '<div class="wrap"><p><a href="' . esc_url(admin_url('admin.php?page=tap-email-campaigns')) . '">&larr; '
+            . esc_html__('Volver a campañas', 'travel-agency-platform') . '</a></p>';
+        echo '<h1>' . esc_html(sprintf(__('Vista previa: %s', 'travel-agency-platform'), $camp->name)) . '</h1>';
+        if (isset($_GET['test_sent'])) {
+            echo '<div class="notice notice-success"><p>' . esc_html__('Correo de prueba enviado.', 'travel-agency-platform') . '</p></div>';
+        }
+        echo '<p><strong>' . esc_html__('Destinatarios elegibles:', 'travel-agency-platform') . '</strong> ' . count($emails) . '</p>';
+        echo '<p class="description">' . esc_html__('El conteo excluye a quienes no dieron consentimiento o se dieron de baja. Se envía un solo correo por destinatario.', 'travel-agency-platform') . '</p>';
+        if ($emails) {
+            echo '<details><summary>' . esc_html(sprintf(__('Ver primeros 20 destinatarios de %d', 'travel-agency-platform'), count($emails))) . '</summary><ul>';
+            foreach (array_slice($emails, 0, 20) as $email) {
+                echo '<li>' . esc_html($email) . '</li>';
+            }
+            echo '</ul></details>';
+        }
+        echo '<h2>' . esc_html__('Asunto', 'travel-agency-platform') . '</h2><p>' . esc_html($camp->subject) . '</p>';
+        echo '<h2>' . esc_html__('Contenido', 'travel-agency-platform') . '</h2><div class="tap-campaign-preview" style="background:#fff;border:1px solid #e2e8f0;padding:20px;max-width:800px;">'
+            . wp_kses_post($camp->body) . '</div>';
+        echo '<p><a class="button" href="' . esc_url($test_url) . '">' . esc_html__('Enviar prueba a mi correo', 'travel-agency-platform') . '</a>'
+            . ' <a class="button button-primary" onclick="return confirm(\'' . esc_js(sprintf(__('¿Enviar a %d destinatarios?', 'travel-agency-platform'), count($emails))) . '\');" href="'
+            . esc_url(wp_nonce_url(admin_url('admin-post.php?action=tap_email_campaign_send&id=' . (int) $id), 'tap_email_campaign_send_' . (int) $id)) . '">'
+            . esc_html__('Enviar ahora', 'travel-agency-platform') . '</a></p></div>';
+        return ob_get_clean();
+    }
+
     /* ── admin page ──────────────────────────────────────────────────── */
 
     public static function campaigns_page() {
@@ -239,6 +294,10 @@ class TAP_Email_Campaigns {
         if ('edit' === $action || 'new' === $action) {
             $camp = $id ? self::get($id) : null;
             self::render_edit_form($camp);
+            return;
+        }
+        if ('preview' === $action) {
+            echo self::preview($id);
             return;
         }
 
@@ -281,6 +340,7 @@ class TAP_Email_Campaigns {
                         <td><?php echo (int) $c->sent_count; ?></td>
                         <td><?php echo $c->scheduled_at ? esc_html($c->scheduled_at) : '—'; ?></td>
                         <td>
+                            <a href="<?php echo esc_url(admin_url('admin.php?page=tap-email-campaigns&action=preview&id=' . (int) $c->id)); ?>" class="button button-small"><?php esc_html_e('Vista previa', 'travel-agency-platform'); ?></a>
                             <a href="<?php echo esc_url(admin_url('admin.php?page=tap-email-campaigns&action=edit&id=' . (int) $c->id)); ?>" class="button button-small"><?php esc_html_e('Editar', 'travel-agency-platform'); ?></a>
                             <?php if ($c->status !== 'sent'): ?>
                                 <a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=tap_email_campaign_send&id=' . (int) $c->id), 'tap_email_campaign_send_' . (int) $c->id)); ?>" class="button button-small" onclick="return confirm('<?php echo esc_js(__('¿Enviar ahora?', 'travel-agency-platform')); ?>');"><?php esc_html_e('Enviar', 'travel-agency-platform'); ?></a>

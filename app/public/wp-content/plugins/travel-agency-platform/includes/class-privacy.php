@@ -19,6 +19,7 @@ class TAP_Privacy {
 
     public static function init() {
         add_action('init', [__CLASS__, 'handle_unsubscribe'], 1);
+        add_action('admin_post_tap_privacy_export', [__CLASS__, 'handle_export']);
         add_shortcode('tap_privacy', [__CLASS__, 'privacy_shortcode']);
         add_shortcode('tap_privacy_consent', [__CLASS__, 'consent_shortcode']);
         add_action('admin_menu', [__CLASS__, 'add_admin_menu'], 60);
@@ -230,6 +231,30 @@ class TAP_Privacy {
         return $count > 0;
     }
 
+    /** Consent log with search and pagination for audits. */
+    public static function consents($search = '', $paged = 1, $per_page = 30) {
+        global $wpdb;
+        $where = '1=1';
+        $args = [];
+        if ('' !== (string) $search) {
+            $where .= ' AND (email LIKE %s OR scope LIKE %s)';
+            $like = '%' . $wpdb->esc_like((string) $search) . '%';
+            $args = [$like, $like];
+        }
+        $total = (int) $wpdb->get_var($wpdb->prepare(
+            'SELECT COUNT(*) FROM ' . $wpdb->prefix . 'tap_consents WHERE ' . $where, $args
+        ));
+        $args[] = max(1, (int) $per_page);
+        $args[] = (max(1, (int) $paged) - 1) * max(1, (int) $per_page);
+        return [
+            'items' => $wpdb->get_results($wpdb->prepare(
+                'SELECT * FROM ' . $wpdb->prefix . 'tap_consents WHERE ' . $where
+                . ' ORDER BY id DESC LIMIT %d OFFSET %d', $args
+            )),
+            'total' => $total,
+        ];
+    }
+
     public static function recent_consents($limit = 50) {
         global $wpdb;
         return $wpdb->get_results(
@@ -286,28 +311,97 @@ class TAP_Privacy {
         exit;
     }
 
-    public static function all_requests($status = '') {
+    public static function all_requests($status = '', $paged = 1, $per_page = 30) {
         global $wpdb;
-        $sql = "SELECT * FROM {$wpdb->prefix}tap_privacy_requests";
+        $where = '1=1';
         $args = [];
         if (in_array($status, ['pending', 'done'], true)) {
-            $sql .= ' WHERE status = %s';
+            $where .= ' AND status = %s';
             $args[] = $status;
         }
-        $sql .= ' ORDER BY id DESC LIMIT 500';
-        return $args ? $wpdb->get_results($wpdb->prepare($sql, $args)) : $wpdb->get_results($sql);
+        $total = (int) $wpdb->get_var($wpdb->prepare(
+            'SELECT COUNT(*) FROM ' . $wpdb->prefix . 'tap_privacy_requests WHERE ' . $where, $args
+        ));
+        $args[] = max(1, (int) $per_page);
+        $args[] = (max(1, (int) $paged) - 1) * max(1, (int) $per_page);
+        return [
+            'items' => $wpdb->get_results($wpdb->prepare(
+                'SELECT * FROM ' . $wpdb->prefix . 'tap_privacy_requests WHERE ' . $where
+                . ' ORDER BY id DESC LIMIT %d OFFSET %d', $args
+            )),
+            'total' => $total,
+        ];
     }
 
-    public static function mark_handled($request_id) {
+    public static function get_request($id) {
+        global $wpdb;
+        return $wpdb->get_row($wpdb->prepare(
+            'SELECT * FROM ' . $wpdb->prefix . 'tap_privacy_requests WHERE id = %d', (int) $id
+        ));
+    }
+
+    public static function mark_handled($request_id, $note = '') {
         $request_id = (int) $request_id;
         if ($request_id <= 0) return false;
 
         global $wpdb;
-        return (bool) $wpdb->update(
+        $ok = (bool) $wpdb->update(
             $wpdb->prefix . 'tap_privacy_requests',
-            ['status' => 'done', 'handled_at' => current_time('mysql'), 'handled_by' => get_current_user_id()],
+            [
+                'status' => 'done',
+                'handled_at' => current_time('mysql'),
+                'handled_by' => get_current_user_id(),
+                'handled_note' => '' !== trim((string) $note) ? sanitize_textarea_field($note) : null,
+            ],
             ['id' => $request_id]
         );
+        if ($ok && class_exists('TAP_Audit_Log')) {
+            TAP_Audit_Log::log('privacy_request_handled', 'privacy_request', $request_id, (string) $note);
+        }
+        return $ok;
+    }
+
+    /** Build the data package for an ARCO request (Ley 8968). */
+    public static function export_request($id) {
+        $req = self::get_request($id);
+        if (!$req) { return new WP_Error('not_found', __('Solicitud no encontrada.', 'travel-agency-platform')); }
+        $groups = self::export_personal_data((string) $req->email);
+        $data = [
+            'request' => [
+                'id' => (int) $req->id,
+                'email' => $req->email,
+                'name' => $req->name,
+                'rights' => self::rights_labels($req->rights),
+                'details' => $req->details,
+                'created_at' => $req->created_at,
+                'handled_at' => $req->handled_at,
+                'handled_note' => $req->handled_note,
+            ],
+            'groups' => $groups,
+            'generated_at' => current_time('c'),
+        ];
+        return wp_json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+    }
+
+    /** Stream the ARCO package to an authorized operator. */
+    public static function handle_export() {
+        if (!current_user_can('tap_manage_settings') && !current_user_can('manage_options')) {
+            wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform'));
+        }
+        $id = absint($_GET['request_id'] ?? 0);
+        check_admin_referer('tap_privacy_export_' . $id);
+        $json = self::export_request($id);
+        if (is_wp_error($json)) { wp_die(esc_html($json->get_error_message()), '', ['response' => 404]); }
+        global $wpdb;
+        $wpdb->update($wpdb->prefix . 'tap_privacy_requests', ['exported_at' => current_time('mysql')], ['id' => $id]);
+        if (class_exists('TAP_Audit_Log')) {
+            TAP_Audit_Log::log('privacy_request_exported', 'privacy_request', $id, 'Ley 8968');
+        }
+        nocache_headers();
+        header('Content-Type: application/json; charset=utf-8');
+        header('Content-Disposition: attachment; filename="tap-arco-' . (int) $id . '-' . gmdate('Ymd-His') . '.json"');
+        echo $json; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON export
+        exit;
     }
 
     public static function rights_label($key) {
@@ -602,6 +696,53 @@ class TAP_Privacy {
         ]);
     }
 
+    /** Full ARCO case file: evidence, resolution and data export. */
+    public static function request_detail($id) {
+        if (!current_user_can('tap_manage_settings')) {
+            wp_die(esc_html__('No tienes permisos para acceder.', 'travel-agency-platform'));
+        }
+        $req = self::get_request($id);
+        if (!$req) {
+            return '<div class="wrap"><h1>' . esc_html__('Solicitud no encontrada.', 'travel-agency-platform') . '</h1></div>';
+        }
+        $handler = $req->handled_by ? get_userdata((int) $req->handled_by) : null;
+        $export_url = wp_nonce_url(admin_url('admin-post.php?action=tap_privacy_export&request_id=' . (int) $req->id), 'tap_privacy_export_' . (int) $req->id);
+        ob_start();
+        echo '<div class="wrap"><p><a href="' . esc_url(admin_url('admin.php?page=tap-privacy')) . '">&larr; '
+            . esc_html__('Volver a solicitudes', 'travel-agency-platform') . '</a></p>';
+        echo '<h1>' . esc_html(sprintf(__('Solicitud de datos #%d', 'travel-agency-platform'), (int) $req->id)) . '</h1>';
+        echo '<table class="form-table"><tbody>';
+        foreach ([
+            __('Correo', 'travel-agency-platform') => $req->email,
+            __('Nombre', 'travel-agency-platform') => $req->name ?: '—',
+            __('Derechos solicitados', 'travel-agency-platform') => implode(', ', self::rights_labels($req->rights)),
+            __('Detalles', 'travel-agency-platform') => $req->details ?: '—',
+            __('Recibida', 'travel-agency-platform') => self::format_dt($req->created_at),
+            __('Dirección IP', 'travel-agency-platform') => $req->ip ?: '—',
+            __('Estado', 'travel-agency-platform') => 'done' === $req->status ? __('Atendida', 'travel-agency-platform') : __('Pendiente', 'travel-agency-platform'),
+            __('Atendida por', 'travel-agency-platform') => $handler ? $handler->display_name : '—',
+            __('Fecha de resolución', 'travel-agency-platform') => self::format_dt($req->handled_at),
+            __('Nota de resolución', 'travel-agency-platform') => $req->handled_note ?: '—',
+            __('Datos exportados', 'travel-agency-platform') => self::format_dt($req->exported_at),
+        ] as $label => $value) {
+            echo '<tr><th>' . esc_html($label) . '</th><td>' . esc_html((string) $value) . '</td></tr>';
+        }
+        echo '</tbody></table>';
+        echo '<p><a class="button button-primary" href="' . esc_url($export_url) . '">'
+            . esc_html__('Exportar datos personales (JSON)', 'travel-agency-platform') . '</a></p>';
+        echo '<p class="description">' . esc_html__('La exportación queda registrada en la auditoría y en la fecha de esta solicitud.', 'travel-agency-platform') . '</p>';
+        if ('done' !== $req->status) {
+            echo '<form method="post" action="' . esc_url(admin_url('admin.php?page=tap-privacy')) . '">'
+                . wp_nonce_field('tap_privacy_mark', '_tap_privacy_nonce', true, false)
+                . '<input type="hidden" name="request_id" value="' . (int) $req->id . '">'
+                . '<textarea name="handled_note" rows="3" class="large-text" placeholder="'
+                . esc_attr__('Describe cómo se resolvió la solicitud', 'travel-agency-platform') . '"></textarea>'
+                . '<button class="button button-primary">' . esc_html__('Marcar atendida', 'travel-agency-platform') . '</button></form>';
+        }
+        echo '</div>';
+        return ob_get_clean();
+    }
+
     public static function privacy_page() {
         settings_errors();
         if (!current_user_can('tap_manage_settings')) {
@@ -609,15 +750,25 @@ class TAP_Privacy {
         }
 
         if (isset($_POST['_tap_privacy_nonce'], $_POST['request_id']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_tap_privacy_nonce'])), 'tap_privacy_mark')) {
-            self::mark_handled((int) $_POST['request_id']);
+            self::mark_handled((int) $_POST['request_id'], (string) wp_unslash($_POST['handled_note'] ?? ''));
         }
 
         $status = 'pending';
         if (isset($_GET['status']) && in_array($_GET['status'], ['pending', 'done'], true)) {
             $status = sanitize_key(wp_unslash($_GET['status']));
         }
-
-        $requests = self::all_requests($status);
+        $view_id = absint($_GET['view'] ?? 0);
+        if ($view_id) {
+            echo self::request_detail($view_id);
+            return;
+        }
+        $paged = max(1, absint($_GET['paged'] ?? 1));
+        $per_page = 30;
+        $result = self::all_requests($status, $paged, $per_page);
+        $requests = $result['items'];
+        $cs = isset($_GET['cs']) ? sanitize_text_field(wp_unslash($_GET['cs'])) : '';
+        $cpaged = max(1, absint($_GET['cpaged'] ?? 1));
+        $consents_result = self::consents($cs, $cpaged, $per_page);
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Privacidad y Datos Personales (Ley 8968)', 'travel-agency-platform'); ?></h1>
@@ -656,13 +807,15 @@ class TAP_Privacy {
                                     <span class="tap-status tap-status-<?php echo in_array($label, ['Acceso', 'Rectificación'], true) ? 'pending' : 'cancelled'; ?>"><?php echo esc_html($label); ?></span>
                                 <?php endforeach; ?>
                             </td>
-                            <td><?php echo esc_html(wp_trim_words($req->details, 20)); ?></td>
+                            <td><?php echo esc_html(wp_trim_words((string) $req->details, 20)); ?></td>
                             <td><?php echo esc_html($req->status === 'done' ? __('Atendida', 'travel-agency-platform') : __('Pendiente', 'travel-agency-platform')); ?></td>
                             <td>
+                                <a class="button button-small" href="<?php echo esc_url(admin_url('admin.php?page=tap-privacy&view=' . (int) $req->id)); ?>"><?php esc_html_e('Detalle', 'travel-agency-platform'); ?></a>
                                 <?php if ($req->status !== 'done'): ?>
                                 <form method="post" style="display:inline;">
                                     <?php wp_nonce_field('tap_privacy_mark', '_tap_privacy_nonce'); ?>
                                     <input type="hidden" name="request_id" value="<?php echo (int) $req->id; ?>">
+                                    <input type="text" name="handled_note" class="small-text" placeholder="<?php echo esc_attr__('Nota de resolución', 'travel-agency-platform'); ?>">
                                     <button type="submit" class="button button-small"><?php esc_html_e('Marcar atendida', 'travel-agency-platform'); ?></button>
                                 </form>
                                 <?php endif; ?>
@@ -674,8 +827,15 @@ endif;
 					?>
                 </tbody>
             </table>
+            <?php echo TAP_Dashboard::paginate((int) $result['total'], $per_page, $paged); ?>
 
             <h2><?php esc_html_e('Registro de consentimientos', 'travel-agency-platform'); ?></h2>
+            <form method="get" action="<?php echo esc_url(admin_url('admin.php')); ?>" style="margin:10px 0;">
+                <input type="hidden" name="page" value="tap-privacy">
+                <input type="hidden" name="status" value="<?php echo esc_attr($status); ?>">
+                <input type="search" name="cs" value="<?php echo esc_attr($cs); ?>" placeholder="<?php echo esc_attr__('Correo o ámbito', 'travel-agency-platform'); ?>" class="regular-text">
+                <button class="button"><?php esc_html_e('Filtrar', 'travel-agency-platform'); ?></button>
+            </form>
             <table class="widefat striped">
                 <thead>
                     <tr>
@@ -688,7 +848,7 @@ endif;
                     </tr>
                 </thead>
                 <tbody>
-                    <?php $consents = self::recent_consents(50); ?>
+                    <?php $consents = $consents_result['items']; ?>
                     <?php if (!$consents): ?>
                         <tr><td colspan="6"><?php esc_html_e('No hay consentimientos registrados.', 'travel-agency-platform'); ?></td></tr>
                     <?php else: foreach ($consents as $consent): ?>
@@ -706,6 +866,7 @@ endif;
 					?>
                 </tbody>
             </table>
+            <?php echo TAP_Dashboard::paginate((int) $consents_result['total'], $per_page, $cpaged, 'cpaged'); ?>
 
             <h2><?php esc_html_e('Configuración de contacto', 'travel-agency-platform'); ?></h2>
             <form method="post" action="options.php">

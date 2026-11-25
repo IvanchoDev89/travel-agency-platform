@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.20.0] — 2026-11-25
+
+### Added (admin operations)
+- Disputes: text/agency filters, full case detail with commission at stake and
+  translated resolution outcomes.
+- ARCO: case detail with rights, timestamps, handler and note; real JSON data
+  export (Ley 8968) with nonce, capability and audit trail; consent log search
+  and pagination.
+- Campaigns: real eligible-recipient count (consent/opt-out filtered), rendered
+  preview and nonce-guarded test send to the operator.
+- FUNCTIONAL `suite_admin_ops.php`.
+
 ## [1.19.0] — 2026-11-25
 
 ### Fixed (agency self-service)
