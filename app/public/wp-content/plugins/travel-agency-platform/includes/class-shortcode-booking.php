@@ -567,6 +567,7 @@ class TAP_Shortcode_Booking {
                     <?php endif; ?>
                     <tr><td><strong><?php esc_html_e('Adults:', 'travel-agency-platform'); ?></strong></td><td><?php echo esc_html($booking->adults); ?></td></tr>
                     <tr><td><strong><?php esc_html_e('Children:', 'travel-agency-platform'); ?></strong></td><td><?php echo esc_html($booking->children); ?></td></tr>
+                    <tr><td><?php esc_html_e('Servicio:', 'travel-agency-platform'); ?></td><td><?php echo esc_html($currency_symbol . ' ' . number_format(max(0, (float) $booking->total_amount - (float) ($booking->insurance_premium ?? 0)), 2)); ?></td></tr>
                     <?php if ((float) ($booking->insurance_premium ?? 0) > 0): ?>
                     <tr><td><?php esc_html_e('Seguro de viaje', 'travel-agency-platform'); ?>:</td><td><?php echo esc_html($currency_symbol . ' ' . number_format((float) $booking->insurance_premium, 2)); ?></td></tr>
                     <?php endif; ?>
@@ -1042,6 +1043,14 @@ class TAP_Shortcode_Booking {
         $agency  = $booking->agency_id ? get_post($booking->agency_id) : null;
 
         $service_name = $room ? $room->post_title : ($service ? $service->post_title : 'N/D');
+        $tour_prefix = 'tap_experience' === (string) $booking->service_type ? '_tap_exp' : '_tap_tour';
+        $meeting_point = (string) get_post_meta((int) $booking->service_id, $tour_prefix . '_meeting_point', true);
+        $start_time = (string) get_post_meta((int) $booking->service_id, $tour_prefix . '_start_time', true);
+        $slot_time = '';
+        if ($booking->slot_id && class_exists('TAP_Tour_Availability')) {
+            $slot = TAP_Tour_Availability::get_slot((int) $booking->slot_id);
+            if ($slot && !empty($slot->time_slot)) { $slot_time = substr((string) $slot->time_slot, 0, 5); }
+        }
         $is_stay = 'tap_accommodation' === (string) $booking->service_type;
         $nights = max(1, (int) $booking->nights);
         if ($is_stay) {
@@ -1155,6 +1164,15 @@ class TAP_Shortcode_Booking {
                             <span class="tap-voucher-label"><?php esc_html_e('Huéspedes', 'travel-agency-platform'); ?></span>
                             <strong><?php echo (int) $booking->adults; ?> <?php esc_html_e('adultos', 'travel-agency-platform'); ?><?php echo $booking->children ? ' · ' . (int) $booking->children . ' ' . esc_html__('niños', 'travel-agency-platform') : ''; ?></strong>
                         </div>
+                        <?php if (!$is_stay && ($meeting_point || $start_time || $slot_time)): ?>
+                            <div class="tap-voucher-cell tap-voucher-cell-wide">
+                                <span class="tap-voucher-label"><?php esc_html_e('Punto de encuentro y hora', 'travel-agency-platform'); ?></span>
+                                <strong><?php echo esc_html($meeting_point ?: '—'); ?></strong>
+                                <?php if ($start_time || $slot_time): ?>
+                                    <br><small><?php echo esc_html(sprintf(__('Hora: %s', 'travel-agency-platform'), $slot_time ?: substr($start_time, 0, 5))); ?></small>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
 
                     <div class="tap-table-scroll"><table class="tap-voucher-table">
