@@ -6,6 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.18.0] — 2026-11-25
+
+- Agency invoices panel with nonce-scoped PDF streaming.
+- Agency reviews inbox with public reply flow guarded by ownership and nonce.
+- FUNCTIONAL `suite_agency_documents.php`.
+
 ## [1.17.0] — 2026-11-25
 
 ### Added (agency operations)
