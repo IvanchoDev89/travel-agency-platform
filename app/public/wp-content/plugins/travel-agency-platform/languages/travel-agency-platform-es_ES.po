@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-25T18:22:44+00:00\n"
+"POT-Creation-Date: 2026-11-25T18:30:44+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -903,7 +903,7 @@ msgstr ""
 #: includes/class-shortcode-booking.php:1343
 #: includes/class-shortcode-booking.php:1345
 #: includes/class-shortcode-booking.php:1380
-#: includes/class-shortcode-booking.php:1383 travel-agency-platform.php:436
+#: includes/class-shortcode-booking.php:1383 travel-agency-platform.php:437
 msgid "Error"
 msgstr "Error"
 
@@ -956,7 +956,7 @@ msgid "Hasta"
 msgstr "Hasta"
 
 #: includes/class-acc-wizard-steps.php:451
-#: includes/class-dashboard-bookings.php:293 includes/class-metaboxes.php:92
+#: includes/class-dashboard-bookings.php:295 includes/class-metaboxes.php:92
 #: includes/class-shortcode-booking.php:1197
 #: includes/class-shortcode-search.php:587
 msgid "Precio"
@@ -1443,7 +1443,7 @@ msgstr "Publica cuando todo esté listo"
 msgid "Ha ocurrido un error"
 msgstr "Ha ocurrido un error"
 
-#: includes/class-acc-wizard.php:30 includes/class-dashboard-bookings.php:495
+#: includes/class-acc-wizard.php:30 includes/class-dashboard-bookings.php:497
 #: includes/class-front-dash.php:491 includes/class-front-dash.php:547
 #: includes/class-listing-editor.php:627 includes/class-tour-wizard.php:39
 msgid "Confirmar"
@@ -1451,7 +1451,7 @@ msgstr "Confirmar"
 
 #: includes/class-acc-wizard.php:31 includes/class-acc-wizard.php:269
 #: includes/class-affiliates.php:604 includes/class-agency-payouts.php:153
-#: includes/class-dashboard-bookings.php:497
+#: includes/class-dashboard-bookings.php:499
 #: includes/class-dashboard-market.php:96
 #: includes/class-dashboard-money.php:481
 #: includes/class-dashboard-money.php:518
@@ -1752,7 +1752,7 @@ msgstr "Debes iniciar sesión."
 #: includes/class-agency-payouts.php:136
 #: includes/class-dashboard-bookings.php:13
 #: includes/class-dashboard-bookings.php:221
-#: includes/class-dashboard-bookings.php:331
+#: includes/class-dashboard-bookings.php:333
 #: includes/class-dashboard-content.php:20
 #: includes/class-dashboard-money.php:222
 #: includes/class-dashboard-money.php:570
@@ -1769,7 +1769,8 @@ msgstr "Debes iniciar sesión."
 #: includes/class-leads.php:213 includes/class-legal.php:399
 #: includes/class-legal.php:426 includes/class-ops-log.php:27
 #: includes/class-referral-reports.php:27 includes/class-test-data.php:44
-#: includes/class-test-data.php:65
+#: includes/class-test-data.php:65 includes/class-user-admin.php:40
+#: includes/class-user-admin.php:57 includes/class-user-admin.php:77
 msgid "Acceso denegado."
 msgstr "Acceso denegado."
 
@@ -1863,7 +1864,7 @@ msgstr "Estado"
 #: includes/class-affiliates.php:425 includes/class-affiliates.php:582
 #: includes/class-agency-payouts.php:147
 #: includes/class-dashboard-bookings.php:120
-#: includes/class-dashboard-bookings.php:302
+#: includes/class-dashboard-bookings.php:304
 #: includes/class-dashboard-content.php:95
 #: includes/class-dashboard-content.php:180
 #: includes/class-dashboard-content.php:657
@@ -2040,7 +2041,7 @@ msgstr "Tax form"
 #: includes/class-transport-admin.php:174
 #: includes/class-transport-admin.php:261
 #: includes/class-transport-admin.php:332
-#: includes/class-transport-admin.php:391
+#: includes/class-transport-admin.php:391 includes/class-user-admin.php:119
 msgid "Acciones"
 msgstr "Acciones"
 
@@ -2192,7 +2193,7 @@ msgstr "No hay saldo disponible para liquidar."
 #: includes/class-transport-admin.php:127
 #: includes/class-transport-admin.php:168
 #: includes/class-transport-admin.php:225
-#: includes/class-transport-admin.php:257
+#: includes/class-transport-admin.php:257 includes/class-user-admin.php:118
 msgid "Agencia"
 msgstr "Agencia"
 
@@ -3764,7 +3765,7 @@ msgstr "Cliente"
 #: includes/class-dashboard-bookings.php:117
 #: includes/class-dashboard-bookings.php:202
 #: includes/class-dashboard-bookings.php:260
-#: includes/class-dashboard-bookings.php:293
+#: includes/class-dashboard-bookings.php:295
 #: includes/class-dashboard-content.php:93
 #: includes/class-dashboard-market.php:72
 #: includes/class-dashboard-market.php:122 includes/class-emails-send.php:782
@@ -3779,7 +3780,7 @@ msgstr "Servicio"
 
 #: includes/class-dashboard-bookings.php:118
 #: includes/class-dashboard-bookings.php:202
-#: includes/class-dashboard-bookings.php:510
+#: includes/class-dashboard-bookings.php:512
 #: includes/class-dashboard-insights.php:110
 #: includes/class-dashboard-insights.php:384
 #: includes/class-dashboard-money.php:322 includes/class-emails-send.php:788
@@ -3886,39 +3887,39 @@ msgstr "%d adultos, %d niños"
 msgid "Dinero"
 msgstr "Dinero"
 
-#: includes/class-dashboard-bookings.php:269
+#: includes/class-dashboard-bookings.php:270
 #, php-format
 msgid "Total %s · Pagado %s · Tarifa %s · Comisión %s (%s%%)"
 msgstr "Total %s · Pagado %s · Tarifa %s · Comisión %s (%s%%)"
 
-#: includes/class-dashboard-bookings.php:277
+#: includes/class-dashboard-bookings.php:279
 msgid "Motivo de cancelación"
 msgstr "Motivo de cancelación"
 
-#: includes/class-dashboard-bookings.php:279
+#: includes/class-dashboard-bookings.php:281
 #: includes/class-shortcode-booking.php:1498
 msgid "Notas internas"
 msgstr "Notas internas"
 
-#: includes/class-dashboard-bookings.php:281
+#: includes/class-dashboard-bookings.php:283
 msgid "Trazas de pago"
 msgstr "Trazas de pago"
 
-#: includes/class-dashboard-bookings.php:291
+#: includes/class-dashboard-bookings.php:293
 msgid "Líneas de reserva"
 msgstr "Líneas de reserva"
 
-#: includes/class-dashboard-bookings.php:293
+#: includes/class-dashboard-bookings.php:295
 #: includes/class-shortcode-booking.php:1196
 msgid "Cant."
 msgstr "Cant."
 
-#: includes/class-dashboard-bookings.php:300
+#: includes/class-dashboard-bookings.php:302
 #: includes/class-dashboard-content.php:656
 msgid "Registro de actividad"
 msgstr "Registro de actividad"
 
-#: includes/class-dashboard-bookings.php:302
+#: includes/class-dashboard-bookings.php:304
 #: includes/class-dashboard-content.php:617
 #: includes/class-dashboard-content.php:657 includes/class-front-dash.php:1069
 #: includes/class-metaboxes.php:244 includes/class-ops-log.php:88
@@ -3926,104 +3927,104 @@ msgstr "Registro de actividad"
 msgid "Acción"
 msgstr "Acción"
 
-#: includes/class-dashboard-bookings.php:302
+#: includes/class-dashboard-bookings.php:304
 #: includes/class-dashboard-content.php:657 includes/class-launch-check.php:132
 #: includes/class-ops-log.php:88
 msgid "Detalle"
 msgstr "Detalle"
 
-#: includes/class-dashboard-bookings.php:307
+#: includes/class-dashboard-bookings.php:309
 msgid "Sin actividad."
 msgstr "Sin actividad."
 
-#: includes/class-dashboard-bookings.php:309
+#: includes/class-dashboard-bookings.php:311
 msgid "Ver voucher del cliente"
 msgstr "Ver voucher del cliente"
 
-#: includes/class-dashboard-bookings.php:398
+#: includes/class-dashboard-bookings.php:400
 #: includes/class-dashboard-insights.php:52
 #: includes/class-dashboard-money.php:426 includes/class-dashboard.php:109
 #: includes/class-dashboard.php:110
 msgid "Bookings"
 msgstr "Reservas"
 
-#: includes/class-dashboard-bookings.php:401
+#: includes/class-dashboard-bookings.php:403
 msgid "Código, cliente o email"
 msgstr "Código, cliente o email"
 
-#: includes/class-dashboard-bookings.php:403
+#: includes/class-dashboard-bookings.php:405
 #: includes/class-dashboard-content.php:324 includes/class-invoices.php:500
 msgid "Todos los estados"
 msgstr "Todos los estados"
 
-#: includes/class-dashboard-bookings.php:409
+#: includes/class-dashboard-bookings.php:411
 #: includes/class-destination-spots.php:173
 msgid "Todos los tipos"
 msgstr "Todos los tipos"
 
-#: includes/class-dashboard-bookings.php:415
+#: includes/class-dashboard-bookings.php:417
 msgid "Todas las agencias"
 msgstr "Todas las agencias"
 
-#: includes/class-dashboard-bookings.php:420
+#: includes/class-dashboard-bookings.php:422
 #: includes/class-dashboard-content.php:338
 #: includes/class-dashboard-insights.php:299 includes/class-ops-log.php:75
 #: includes/class-referral-reports.php:137
-#: includes/class-shortcode-search.php:855
+#: includes/class-shortcode-search.php:855 includes/class-user-admin.php:112
 msgid "Filtrar"
 msgstr "Filtrar"
 
-#: includes/class-dashboard-bookings.php:421 includes/class-front-dash.php:457
+#: includes/class-dashboard-bookings.php:423 includes/class-front-dash.php:457
 #: includes/class-front-dash.php:794 includes/class-front-dash.php:1746
 #: includes/class-referral-reports.php:138
 msgid "Exportar CSV"
 msgstr "Exportar CSV"
 
-#: includes/class-dashboard-bookings.php:425
+#: includes/class-dashboard-bookings.php:427
 msgid "Acción masiva aplicada."
 msgstr "Acción masiva aplicada."
 
-#: includes/class-dashboard-bookings.php:428
+#: includes/class-dashboard-bookings.php:430
 msgid "Calendario"
 msgstr "Calendario"
 
-#: includes/class-dashboard-bookings.php:429
+#: includes/class-dashboard-bookings.php:431
 msgid "Lista"
 msgstr "Lista"
 
-#: includes/class-dashboard-bookings.php:494
+#: includes/class-dashboard-bookings.php:496
 msgid "Acciones masivas"
 msgstr "Acciones masivas"
 
-#: includes/class-dashboard-bookings.php:496 includes/class-front-dash.php:492
+#: includes/class-dashboard-bookings.php:498 includes/class-front-dash.php:492
 #: includes/class-front-dash.php:553 includes/class-transport-admin.php:408
 msgid "Completar"
 msgstr "Completar"
 
-#: includes/class-dashboard-bookings.php:499 includes/class-front-dash.php:495
+#: includes/class-dashboard-bookings.php:501 includes/class-front-dash.php:495
 #: includes/class-front-dash.php:995 includes/class-landing-builder.php:352
 #: includes/class-shortcode-search.php:316
 msgid "Aplicar"
 msgstr "Aplicar"
 
-#: includes/class-dashboard-bookings.php:506
+#: includes/class-dashboard-bookings.php:508
 #: includes/class-shortcode-booking.php:294
 #: includes/class-shortcode-booking.php:315
 msgid "Code"
 msgstr "Código"
 
-#: includes/class-dashboard-bookings.php:507 includes/class-metaboxes.php:1457
+#: includes/class-dashboard-bookings.php:509 includes/class-metaboxes.php:1457
 #: includes/class-roles.php:100
 msgid "Client"
 msgstr "Cliente"
 
-#: includes/class-dashboard-bookings.php:508 includes/class-metaboxes.php:1460
+#: includes/class-dashboard-bookings.php:510 includes/class-metaboxes.php:1460
 #: includes/class-shortcode-booking.php:295
 #: includes/class-shortcode-booking.php:316
 msgid "Service"
 msgstr "Servicio"
 
-#: includes/class-dashboard-bookings.php:509
+#: includes/class-dashboard-bookings.php:511
 #: includes/class-dashboard-content.php:971
 #: includes/class-dashboard-money.php:321
 #: includes/class-dashboard-money.php:422 includes/class-metaboxes.php:350
@@ -4035,47 +4036,47 @@ msgstr "Servicio"
 msgid "Agency"
 msgstr "Agencia"
 
-#: includes/class-dashboard-bookings.php:511 includes/class-metaboxes.php:1456
+#: includes/class-dashboard-bookings.php:513 includes/class-metaboxes.php:1456
 #: includes/class-shortcode-booking.php:298
 #: includes/class-shortcode-booking.php:326
 msgid "Status"
 msgstr "Estado"
 
-#: includes/class-dashboard-bookings.php:512
+#: includes/class-dashboard-bookings.php:514
 #: includes/class-shortcode-booking.php:299
 #: includes/class-shortcode-booking.php:327
 msgid "Payment"
 msgstr "Pago"
 
-#: includes/class-dashboard-bookings.php:513
+#: includes/class-dashboard-bookings.php:515
 #: includes/class-dashboard-insights.php:54
 #: includes/class-dashboard-money.php:324 includes/class-metaboxes.php:1471
 msgid "Commission"
 msgstr "Comisión"
 
-#: includes/class-dashboard-bookings.php:514
+#: includes/class-dashboard-bookings.php:516
 msgid "Fee"
 msgstr "Tarifa"
 
-#: includes/class-dashboard-bookings.php:515
+#: includes/class-dashboard-bookings.php:517
 #: includes/class-dashboard-money.php:326
 msgid "Date"
 msgstr "Fecha"
 
-#: includes/class-dashboard-bookings.php:520
+#: includes/class-dashboard-bookings.php:522
 #: includes/class-shortcode-booking.php:289
 msgid "No bookings found."
 msgstr "No se encontraron reservas."
 
-#: includes/class-dashboard-bookings.php:538
+#: includes/class-dashboard-bookings.php:540
 msgid "Cambiar estado"
 msgstr "Cambiar estado"
 
-#: includes/class-dashboard-bookings.php:551
+#: includes/class-dashboard-bookings.php:553
 msgid "pendiente"
 msgstr "pendiente"
 
-#: includes/class-dashboard-bookings.php:555
+#: includes/class-dashboard-bookings.php:557
 msgid "Reembolso fallido"
 msgstr "Reembolso fallido"
 
@@ -4129,7 +4130,7 @@ msgstr "Reseña"
 #: includes/class-dashboard-content.php:94 includes/class-front-dash.php:1068
 #: includes/class-front-dash.php:1925 includes/class-ops-log.php:88
 #: includes/class-referral-reports.php:154
-#: includes/class-transport-admin.php:256
+#: includes/class-transport-admin.php:256 includes/class-user-admin.php:116
 msgid "Usuario"
 msgstr "Usuario"
 
@@ -10305,7 +10306,7 @@ msgstr "¿Enviar ahora?"
 #: includes/class-email-campaigns.php:286
 #: includes/class-front-dash-client.php:432 includes/class-front-dash.php:572
 #: includes/class-shortcode-account.php:948
-#: includes/class-shortcode-booking.php:1322 travel-agency-platform.php:445
+#: includes/class-shortcode-booking.php:1322 travel-agency-platform.php:446
 msgid "Enviar"
 msgstr "Enviar"
 
@@ -11430,7 +11431,7 @@ msgstr "Aún no hay publicaciones. ¡Sé el primero en compartir un tip!"
 #: includes/class-front-dash.php:1908
 #: includes/class-referral-leaderboard.php:45
 #: includes/class-shortcode-account.php:267
-#: includes/class-shortcode-search.php:635
+#: includes/class-shortcode-search.php:635 includes/class-user-admin.php:34
 msgid "Viajero"
 msgstr "Viajero"
 
@@ -16338,11 +16339,11 @@ msgid "Network error. Please try again."
 msgstr "Error de red. Inténtalo de nuevo."
 
 #: includes/class-shortcode-account.php:932
-#: includes/class-shortcode-account.php:934 travel-agency-platform.php:441
+#: includes/class-shortcode-account.php:934 travel-agency-platform.php:442
 msgid "Asistente de viajes"
 msgstr "Asistente de viajes"
 
-#: includes/class-shortcode-account.php:938 travel-agency-platform.php:446
+#: includes/class-shortcode-account.php:938 travel-agency-platform.php:447
 msgid ""
 "¡Hola! Soy el asistente de viajes. Pregunta por alojamientos, tours, bonos o "
 "agencias, o toca una sugerencia."
@@ -16351,7 +16352,7 @@ msgstr ""
 "agencias, o toca una sugerencia."
 
 #: includes/class-shortcode-account.php:946
-#: includes/class-shortcode-account.php:947 travel-agency-platform.php:444
+#: includes/class-shortcode-account.php:947 travel-agency-platform.php:445
 msgid "Escribe tu pregunta…"
 msgstr "Escribe tu pregunta…"
 
@@ -16371,7 +16372,7 @@ msgid "Solicitar reserva"
 msgstr "Solicitar reserva"
 
 #: includes/class-shortcode-booking.php:51
-#: includes/class-shortcode-booking.php:145 travel-agency-platform.php:435
+#: includes/class-shortcode-booking.php:145 travel-agency-platform.php:436
 msgid "Book Now"
 msgstr "Reservar ahora"
 
@@ -19073,6 +19074,68 @@ msgstr "Sin seguro"
 msgid "No tienes permiso para esta reserva."
 msgstr "No tienes permiso para esta reserva."
 
+#: includes/class-user-admin.php:20 includes/class-user-admin.php:21
+#: includes/class-user-admin.php:101
+msgid "Usuarios y roles"
+msgstr "Usuarios y roles"
+
+#: includes/class-user-admin.php:31
+msgid "Administrador"
+msgstr "Administrador"
+
+#: includes/class-user-admin.php:32
+msgid "Administrador de agencia"
+msgstr "Administrador de agencia"
+
+#: includes/class-user-admin.php:33
+msgid "Empleado de agencia"
+msgstr "Empleado de agencia"
+
+#: includes/class-user-admin.php:35
+msgid "Suscriptor"
+msgstr "Suscriptor"
+
+#: includes/class-user-admin.php:49
+msgid "Usuario no encontrado."
+msgstr "Usuario no encontrado."
+
+#: includes/class-user-admin.php:103
+msgid "Usuario actualizado."
+msgstr "Usuario actualizado."
+
+#: includes/class-user-admin.php:107
+msgid "Nombre o email"
+msgstr "Nombre o email"
+
+#: includes/class-user-admin.php:108
+msgid "Todos los roles"
+msgstr "Todos los roles"
+
+#: includes/class-user-admin.php:113
+#, php-format
+msgid "%d usuarios"
+msgstr "%d usuarios"
+
+#: includes/class-user-admin.php:117
+msgid "Roles"
+msgstr "Roles"
+
+#: includes/class-user-admin.php:132
+msgid "Cambiar"
+msgstr "Cambiar"
+
+#: includes/class-user-admin.php:136
+msgid "Sin agencia"
+msgstr "Sin agencia"
+
+#: includes/class-user-admin.php:140
+msgid "Asignar"
+msgstr "Asignar"
+
+#: includes/class-user-admin.php:143
+msgid "Sin usuarios."
+msgstr "Sin usuarios."
+
 #: includes/class-waiver.php:78
 msgid "Esta actividad no requiere waiver."
 msgstr "Esta actividad no requiere waiver."
@@ -19819,117 +19882,117 @@ msgstr ""
 "no se encontró el autoloader de Composer. Ejecuta \"composer dump-autoload -"
 "o\"."
 
-#: travel-agency-platform.php:413
+#: travel-agency-platform.php:414
 msgid "results found"
 msgstr "resultados encontrados"
 
-#: travel-agency-platform.php:414
+#: travel-agency-platform.php:415
 msgid "No results found"
 msgstr "No se encontraron resultados"
 
-#: travel-agency-platform.php:415
+#: travel-agency-platform.php:416
 msgid "Guardado en favoritos"
 msgstr "Guardado en favoritos"
 
-#: travel-agency-platform.php:416
+#: travel-agency-platform.php:417
 msgid "Quitado de favoritos"
 msgstr "Quitado de favoritos"
 
-#: travel-agency-platform.php:417
+#: travel-agency-platform.php:418
 msgid "Aún no hay reseñas."
 msgstr "Aún no hay reseñas."
 
-#: travel-agency-platform.php:418
+#: travel-agency-platform.php:419
 msgid "Aún no hay reseñas. Sé el primero en compartir tu experiencia."
 msgstr "Aún no hay reseñas. Sé el primero en compartir tu experiencia."
 
-#: travel-agency-platform.php:419
+#: travel-agency-platform.php:420
 msgid "reseña"
 msgstr "reseña"
 
-#: travel-agency-platform.php:420
+#: travel-agency-platform.php:421
 msgid "reseñas"
 msgstr "reseñas"
 
-#: travel-agency-platform.php:421
+#: travel-agency-platform.php:422
 msgid "Anónimo"
 msgstr "Anónimo"
 
-#: travel-agency-platform.php:422
+#: travel-agency-platform.php:423
 msgid "Enviando..."
 msgstr "Enviando..."
 
-#: travel-agency-platform.php:423
+#: travel-agency-platform.php:424
 msgid "¡Reseña enviada! Pendiente de aprobación."
 msgstr "¡Reseña enviada! Pendiente de aprobación."
 
-#: travel-agency-platform.php:424
+#: travel-agency-platform.php:425
 msgid "Error al enviar"
 msgstr "Error al enviar"
 
-#: travel-agency-platform.php:425
+#: travel-agency-platform.php:426
 msgid "Review submitted"
 msgstr "Reseña enviada"
 
-#: travel-agency-platform.php:426
+#: travel-agency-platform.php:427
 msgid "Error al enviar la reseña"
 msgstr "Error al enviar la reseña"
 
 #. translators: %s: nombre del servicio
-#: travel-agency-platform.php:428
+#: travel-agency-platform.php:429
 #, php-format
 msgid "Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!"
 msgstr "Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!"
 
-#: travel-agency-platform.php:429
+#: travel-agency-platform.php:430
 msgid "Reseña verificada"
 msgstr "Reseña verificada"
 
 #. translators: 1: cupos disponibles, 2: cupos totales
-#: travel-agency-platform.php:431
+#: travel-agency-platform.php:432
 #, php-format
 msgid "Cupos disponibles: %s de %s"
 msgstr "Cupos disponibles: %s de %s"
 
 #. translators: 1: cupos ocupados, 2: cupos totales
-#: travel-agency-platform.php:433
+#: travel-agency-platform.php:434
 #, php-format
 msgid "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
 msgstr "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
 
-#: travel-agency-platform.php:434
+#: travel-agency-platform.php:435
 msgid "El tour está completo para esta fecha."
 msgstr "El tour está completo para esta fecha."
 
-#: travel-agency-platform.php:437
+#: travel-agency-platform.php:438
 msgid "Image gallery"
 msgstr "Galería de imágenes"
 
-#: travel-agency-platform.php:438
+#: travel-agency-platform.php:439
 msgid "Close image gallery"
 msgstr "Cerrar galería de imágenes"
 
-#: travel-agency-platform.php:439
+#: travel-agency-platform.php:440
 msgid "Previous image"
 msgstr "Imagen anterior"
 
-#: travel-agency-platform.php:440
+#: travel-agency-platform.php:441
 msgid "Next image"
 msgstr "Imagen siguiente"
 
-#: travel-agency-platform.php:442
+#: travel-agency-platform.php:443
 msgid "Abrir asistente"
 msgstr "Abrir asistente"
 
-#: travel-agency-platform.php:443
+#: travel-agency-platform.php:444
 msgid "Cerrar asistente"
 msgstr "Cerrar asistente"
 
-#: travel-agency-platform.php:447
+#: travel-agency-platform.php:448
 msgid "Pensando…"
 msgstr "Pensando…"
 
-#: travel-agency-platform.php:448
+#: travel-agency-platform.php:449
 msgid "Hubo un problema. Inténtalo de nuevo."
 msgstr "Hubo un problema. Inténtalo de nuevo."
 
