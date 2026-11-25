@@ -424,7 +424,7 @@ class TAP_SEO {
                 $agency_name = $agency->post_title;
             }
         }
-        $price = TAP_API::get_price_key($type) ? floatval(get_post_meta($post->ID, TAP_API::get_price_key($type), true)) : 0;
+        $price = method_exists('TAP_API', 'display_price') ? TAP_API::display_price($post->ID, $type) : 0;
         $price = $price > 0 ? TAP_Currency::fmt($price) : '';
 
         $qa = [
@@ -438,7 +438,7 @@ class TAP_SEO {
         }
         if ($agency_name) {
             /* translators: %s: nombre de la agencia */
-            $qa[] = ['q' => __('¿Quién opera este servicio?', 'travel-agency-platform'), 'a' => sprintf(__('%s es la agencia de viajes verificada que opera este listado.', 'travel-agency-platform'), $agency_name)];
+            $qa[] = ['q' => __('¿Quién opera este servicio?', 'travel-agency-platform'), 'a' => sprintf(__('%s es la agencia de viajes que opera este listado.', 'travel-agency-platform'), $agency_name)];
         }
         $qa[] = ['q' => __('¿Cómo pago?', 'travel-agency-platform'), 'a' => __('Aceptamos pago online seguro con tarjeta o PayPal al confirmar la reserva.', 'travel-agency-platform')];
         return $qa;

@@ -49,6 +49,22 @@ class TAP_Dashboard_Bookings {
         <div class="wrap tap-dash">
             <h1><?php esc_html_e('Travel Platform Dashboard', 'travel-agency-platform'); ?></h1>
             <p class="tap-dash-sub"><?php esc_html_e('Resumen general de tu plataforma.', 'travel-agency-platform'); ?></p>
+            <?php
+            if (class_exists('TAP_Launch_Check')) {
+                $launch_issues = TAP_Launch_Check::issues();
+                if ($launch_issues) {
+                    echo '<div class="notice notice-warning" style="margin:12px 0;">'
+                        . '<p><strong>' . esc_html(sprintf(
+                            /* translators: %d: número de tareas pendientes */
+                            __('Antes de publicar: %d tareas pendientes', 'travel-agency-platform'),
+                            count($launch_issues)
+                        )) . '</strong> — '
+                        . '<a href="' . esc_url(admin_url('admin.php?page=tap-launch-check')) . '">'
+                        . esc_html__('Revisar Launch Check', 'travel-agency-platform')
+                        . '</a></p></div>';
+                }
+            }
+            ?>
 
             <div class="tap-dash-cards">
                 <div class="tap-dash-card tap-accent-teal">
@@ -392,6 +408,7 @@ $cal_m = (int) $cal_m;
                         <th><?php esc_html_e('Agency', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Total', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Status', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Payment', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Commission', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Fee', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Date', 'travel-agency-platform'); ?></th>
@@ -399,7 +416,7 @@ $cal_m = (int) $cal_m;
                 </thead>
                 <tbody>
                     <?php if (!$bookings): ?>
-                        <tr><td colspan="9"><?php esc_html_e('No bookings found.', 'travel-agency-platform'); ?></td></tr>
+                        <tr><td colspan="10"><?php esc_html_e('No bookings found.', 'travel-agency-platform'); ?></td></tr>
                     <?php endif; ?>
                     <?php
                     foreach ($bookings as $b):
@@ -422,6 +439,19 @@ $cal_m = (int) $cal_m;
                                 <option value="<?php echo esc_attr($ns); ?>"><?php echo esc_html(ucfirst($ns)); ?></option>
                                 <?php endforeach; ?>
                             </select>
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <strong><?php echo esc_html(ucfirst((string) $b->payment_status)); ?></strong>
+                            <?php if ((float) ($b->amount_paid ?? 0) > 0): ?>
+                                <br><small><?php echo esc_html(TAP_Currency::fmt((float) $b->amount_paid)); ?></small>
+                            <?php endif; ?>
+                            <?php if (class_exists('TAP_Booking') && TAP_Booking::remaining_amount((int) $b->id) > 0 && 'paid' !== $b->payment_status): ?>
+                                <br><small style="color:#b45309;"><?php echo esc_html(TAP_Currency::fmt(TAP_Booking::remaining_amount((int) $b->id))); ?> <?php esc_html_e('pendiente', 'travel-agency-platform'); ?></small>
+                            <?php endif; ?>
+                            <?php $refund_error = (string) get_post_meta((int) $b->id, '_tap_refund_error', true); ?>
+                            <?php if ('' !== $refund_error): ?>
+                                <br><small style="color:#dc2626;" title="<?php echo esc_attr($refund_error); ?>"><?php esc_html_e('Reembolso fallido', 'travel-agency-platform'); ?></small>
                             <?php endif; ?>
                         </td>
                         <td><?php echo esc_html(TAP_Currency::fmt($b->commission_amount)) . ' <span style="color:#64748b;">(' . esc_html($b->commission_status) . ')</span>'; ?></td>

@@ -929,6 +929,30 @@ class TAP_Booking {
                     TAP_Audit_Log::log('booking_marked_paid', 'booking', $booking->id, null, (int) $booking->agency_id, $user_id);
                 }
                 return true;
+            case 'reject':
+                // Rejecting a request-to-book is not a cancellation of a paid
+                // service: no gateway refund is involved, so agency staff may
+                // do it and the reason is recorded for the traveler.
+                if ('request' !== $booking->status) {
+                    return new WP_Error('bad_status', __('Solo se pueden rechazar solicitudes pendientes.', 'travel-agency-platform'));
+                }
+                global $wpdb;
+                $wpdb->update(
+                    $wpdb->prefix . 'tap_bookings',
+                    [
+                        'status' => 'cancelled',
+                        'cancel_reason' => $reason !== '' ? $reason : __('Solicitud rechazada por la agencia.', 'travel-agency-platform'),
+                    ],
+                    ['id' => $booking->id, 'status' => 'request']
+                );
+                do_action('tap_booking_status_updated', $booking->id, 'cancelled', 'request');
+                if (class_exists('TAP_Emails_Send')) {
+                    TAP_Emails_Send::send_user_status_update($booking->id, 'cancelled', 'request');
+                }
+                if (class_exists('TAP_Audit_Log')) {
+                    TAP_Audit_Log::log('booking_request_rejected', 'booking', $booking->id, $reason, (int) $booking->agency_id, $user_id);
+                }
+                return true;
             case 'cancel':
                 if (!in_array($booking->status, ['pending', 'confirmed', 'request'], true)) {
                     return new WP_Error('bad_status', __('Esta reserva ya no puede cancelarse.', 'travel-agency-platform'));

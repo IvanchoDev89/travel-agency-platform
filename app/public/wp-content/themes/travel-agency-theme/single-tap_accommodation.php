@@ -68,12 +68,11 @@ while (have_posts()): the_post();
         'eco' => 'Eco-Lodge', 'guesthouse' => 'Guest House', 'bedbreakfast' => 'Bed & Breakfast',
     ];
     $type_name = $type_labels[$type] ?? $type;
-    $cancellation_labels = [
-        'flexible' => 'Flexible — Free cancellation up to 24h before check-in',
-        'moderate' => 'Moderate — Free cancellation up to 5 days before check-in',
-        'strict' => 'Strict — 50% refund up to 7 days before check-in',
-        'non_refundable' => 'Non-Refundable',
-    ];
+    // Single source of truth (translated) from TAP_Refunds, so the public
+    // copy can never contradict what the refund engine actually applies.
+    $cancellation_labels = class_exists('TAP_Refunds')
+        ? TAP_Refunds::cancellation_policies()
+        : [];
 ?>
 <div class="tap-acc-single">
 

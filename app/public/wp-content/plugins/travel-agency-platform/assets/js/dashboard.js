@@ -151,8 +151,8 @@
         var reason = '';
         var originalLabel = $btn.text();
 
-        if (op === 'cancel') {
-            var reasonInput = window.prompt(cfg.i18n && cfg.i18n.cancel_reason ? cfg.i18n.cancel_reason : 'Motivo de cancelación (opcional):', '');
+        if (op === 'cancel' || op === 'reject') {
+            var reasonInput = window.prompt(op === 'reject' ? 'Motivo del rechazo (se envía al viajero):' : (cfg.i18n && cfg.i18n.cancel_reason ? cfg.i18n.cancel_reason : 'Motivo de cancelación (opcional):'), '');
             if (reasonInput === null) {
                 return;
             }

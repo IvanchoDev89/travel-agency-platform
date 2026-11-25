@@ -31,6 +31,7 @@ class TAP_Legal {
         add_action('admin_post_nopriv_tap_legal_accept', [__CLASS__, 'handle_accept']);
         add_shortcode('tap_my_contracts', [__CLASS__, 'my_contracts']);
         add_shortcode('tap_legal_doc', [__CLASS__, 'document_shortcode']);
+        add_action('admin_post_tap_legal_publish', [__CLASS__, 'handle_publish']);
         add_action('init', [__CLASS__, 'seed_defaults'], 2);
     }
 
@@ -52,6 +53,19 @@ class TAP_Legal {
      *
      * @return array<string,array{context:string,title:string,es:string,en:string}>
      */
+    /** True while a document still has unfilled legal placeholders. */
+    public static function has_placeholders($body) {
+        return (bool) preg_match('/\[(?:COMPLETAR|COMPLETE|NOMBRE LEGAL|LEGAL NAME|DIRECCI|ADDRESS|CORREO|EMAIL|tap_privacy_contact)/i', (string) $body);
+    }
+
+    /** Blocks signing while any current document is still a template. */
+    public static function catalogue_ready($context) {
+        foreach (self::for_context($context) as $doc) {
+            if (self::has_placeholders($doc->body)) { return false; }
+        }
+        return true;
+    }
+
     public static function default_documents() {
         $catalog = [
             'traveler_terms'     => [self::CONTEXT_TRAVELER, 'Términos y condiciones del viajero'],
@@ -192,6 +206,9 @@ class TAP_Legal {
         <div class="tap-legal-accept" data-context="<?php echo esc_attr($context); ?>">
             <h3><?php esc_html_e('Términos y condiciones', 'travel-agency-platform'); ?></h3>
             <p class="tap-legal-intro"><?php esc_html_e('Revisa los documentos vigentes y acéptalos para continuar. Se guardará la versión exacta, la fecha y tu nombre como constancia.', 'travel-agency-platform'); ?></p>
+            <?php if (!self::catalogue_ready($context)): ?>
+                <p class="tap-legal-note"><?php esc_html_e('Los términos legales están en revisión. No puedes continuar hasta que se publique la versión definitiva.', 'travel-agency-platform'); ?></p>
+            <?php endif; ?>
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" class="tap-legal-form">
                 <input type="hidden" name="action" value="tap_legal_accept">
                 <input type="hidden" name="context" value="<?php echo esc_attr($context); ?>">
@@ -236,6 +253,9 @@ class TAP_Legal {
         $booking_id = absint($_POST['booking_id'] ?? 0);
         $agency_id = absint($_POST['agency_id'] ?? 0);
         check_admin_referer('tap_legal_' . $context . '_' . ($booking_id ?: $agency_id), 'tap_legal_nonce');
+        if (!self::catalogue_ready($context)) {
+            wp_die(esc_html__('Los términos legales aún no están publicados. Contacta a soporte.', 'travel-agency-platform'), '', ['response' => 400]);
+        }
         $documents = self::for_context($context);
         $checked = array_map('absint', (array) ($_POST['tap_legal_consent'] ?? []));
         $required = array_map(static function ($d) {
@@ -374,47 +394,86 @@ class TAP_Legal {
         return ob_get_clean();
     }
 
-    /** Admin: document versions and recent acceptances. */
+    /** Publish a new immutable version edited by an administrator. */
+    public static function handle_publish() {
+        if (!current_user_can('manage_options')) { wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform')); }
+        $id = absint($_POST['doc_id'] ?? 0);
+        check_admin_referer('tap_legal_publish_' . $id);
+        global $wpdb;
+        $doc = self::by_id($id);
+        if (!$doc) { wp_die(esc_html__('Documento no encontrado.', 'travel-agency-platform')); }
+        $body = wp_unslash($_POST['body'] ?? '');
+        if ('' === trim($body)) {
+            wp_safe_redirect(add_query_arg('legal_error', 'empty', admin_url('admin.php?page=tap-legal')));
+            exit;
+        }
+        $wpdb->insert(self::table_docs(), [
+            'doc_key'   => $doc->doc_key,
+            'context'   => $doc->context,
+            'lang'      => $doc->lang,
+            'version'   => (int) $doc->version + 1,
+            'title'     => $doc->title,
+            'body'      => $body,
+            'sha256'    => hash('sha256', $body),
+            'published' => 1,
+        ]);
+        wp_safe_redirect(add_query_arg('legal_published', '1', admin_url('admin.php?page=tap-legal')));
+        exit;
+    }
+
+    /** Admin: document versions, editor and recent acceptances. */
     public static function admin_page() {
         if (!current_user_can('manage_options')) { wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform')); }
         global $wpdb;
         self::seed_defaults();
-        if (!empty($_POST['tap_legal_publish'])) {
-            check_admin_referer('tap_legal_publish');
-            $id = absint($_POST['doc_id'] ?? 0);
-            $doc = self::by_id($id);
-            if ($doc) {
-                $body = wp_unslash($_POST['body'] ?? '');
-                $wpdb->insert(self::table_docs(), [
-                    'doc_key'   => $doc->doc_key,
-                    'context'   => $doc->context,
-                    'lang'      => $doc->lang,
-                    'version'   => (int) $doc->version + 1,
-                    'title'     => $doc->title,
-                    'body'      => $body,
-                    'sha256'    => hash('sha256', $body),
-                    'published' => 1,
-                ]);
-                echo '<div class="notice notice-success"><p>' . esc_html__('Nueva versión publicada.', 'travel-agency-platform') . '</p></div>';
-            }
-        }
         $docs = $wpdb->get_results('SELECT * FROM ' . self::table_docs() . ' ORDER BY doc_key, lang, version DESC');
+        $current_docs = [];
+        foreach ($docs as $d) {
+            $key = $d->doc_key . '_' . $d->lang;
+            if (!isset($current_docs[$key])) { $current_docs[$key] = $d; }
+        }
         $accepts = $wpdb->get_results('SELECT * FROM ' . self::table_accept() . ' ORDER BY accepted_at DESC LIMIT 30');
+
         echo '<div class="wrap"><h1>' . esc_html__('Contratos digitales', 'travel-agency-platform') . '</h1>';
-        echo '<h2>' . esc_html__('Documentos', 'travel-agency-platform') . '</h2><table class="wp-list-table widefat fixed striped"><thead><tr>'
+        if (isset($_GET['legal_published'])) {
+            echo '<div class="notice notice-success"><p>' . esc_html__('Nueva versión publicada. Las aceptaciones anteriores quedan desactualizadas.', 'travel-agency-platform') . '</p></div>';
+        }
+        if (isset($_GET['legal_error'])) {
+            echo '<div class="notice notice-error"><p>' . esc_html__('El documento no puede estar vacío.', 'travel-agency-platform') . '</p></div>';
+        }
+        echo '<p class="description">' . esc_html__('Edita el texto y publica una versión nueva. Cada versión es inmutable y lleva un hash SHA-256; los firmantes deberán aceptar de nuevo.', 'travel-agency-platform') . '</p>';
+
+        foreach ($current_docs as $doc) {
+            $ready = !self::has_placeholders($doc->body);
+            echo '<div class="tap-legal-admin-doc" style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:14px 0;max-width:900px;">';
+            echo '<h2>' . esc_html($doc->title . ' · ' . strtoupper($doc->lang) . ' · v' . (int) $doc->version) . '</h2>';
+            if (!$ready) {
+                echo '<div class="notice notice-warning inline"><p>' . esc_html__('ATENCIÓN: este texto contiene marcadores sin completar. No se permite firmar hasta publicar la versión definitiva.', 'travel-agency-platform') . '</p></div>';
+            }
+            echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
+            echo '<input type="hidden" name="action" value="tap_legal_publish">';
+            echo '<input type="hidden" name="doc_id" value="' . (int) $doc->id . '">';
+            wp_nonce_field('tap_legal_publish_' . (int) $doc->id);
+            echo '<textarea name="body" rows="12" style="width:100%;font-family:monospace;">' . esc_textarea($doc->body) . '</textarea>';
+            echo '<p><button class="button button-primary" type="submit">' . esc_html__('Publicar nueva versión', 'travel-agency-platform') . '</button>'
+                . ' <code>' . esc_html(substr($doc->sha256, 0, 16)) . '</code></p>';
+            echo '</form></div>';
+        }
+
+        echo '<h2>' . esc_html__('Historial de versiones', 'travel-agency-platform') . '</h2><table class="wp-list-table widefat fixed striped"><thead><tr>'
             . '<th>' . esc_html__('Documento', 'travel-agency-platform') . '</th><th>' . esc_html__('Idioma', 'travel-agency-platform') . '</th><th>' . esc_html__('Versión', 'travel-agency-platform') . '</th><th>' . esc_html__('Hash', 'travel-agency-platform') . '</th></tr></thead><tbody>';
         foreach ($docs as $d) {
-            echo '<tr><td>' . esc_html($d->title) . '</td><td>' . esc_html($d->lang) . '</td><td>v' . (int) $d->version . '</td><td><code>' . esc_html(substr($d->sha256, 0, 12)) . '</code>'
-                . '<form method="post" style="display:inline;">' . wp_nonce_field('tap_legal_publish', '_wpnonce', true, false)
-                . '<input type="hidden" name="doc_id" value="' . (int) $d->id . '">'
-                . '<textarea name="body" style="display:none;">' . esc_textarea($d->body) . '</textarea>'
-                . '<button class="button button-small" name="tap_legal_publish" value="1">' . esc_html__('Nueva versión', 'travel-agency-platform') . '</button></form></td></tr>';
+            echo '<tr><td>' . esc_html($d->title) . '</td><td>' . esc_html($d->lang) . '</td><td>v' . (int) $d->version . '</td><td><code>' . esc_html(substr($d->sha256, 0, 12)) . '</code></td></tr>';
         }
         echo '</tbody></table>';
+
         echo '<h2>' . esc_html__('Aceptaciones recientes', 'travel-agency-platform') . '</h2><table class="wp-list-table widefat fixed striped"><thead><tr>'
             . '<th>' . esc_html__('Documento', 'travel-agency-platform') . '</th><th>' . esc_html__('Firmante', 'travel-agency-platform') . '</th><th>' . esc_html__('Reserva', 'travel-agency-platform') . '</th><th>' . esc_html__('Fecha', 'travel-agency-platform') . '</th></tr></thead><tbody>';
         foreach ($accepts as $a) {
             echo '<tr><td>' . esc_html($a->doc_key . ' v' . (int) $a->version) . '</td><td>' . esc_html($a->signer_name) . '</td><td>#' . (int) $a->booking_id . '</td><td>' . esc_html($a->accepted_at) . '</td></tr>';
+        }
+        if (!$accepts) {
+            echo '<tr><td colspan="4">' . esc_html__('Sin aceptaciones.', 'travel-agency-platform') . '</td></tr>';
         }
         echo '</tbody></table></div>';
     }

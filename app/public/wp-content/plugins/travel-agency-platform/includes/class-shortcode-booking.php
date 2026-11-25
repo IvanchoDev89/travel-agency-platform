@@ -609,6 +609,14 @@ class TAP_Shortcode_Booking {
                     . esc_html__('Términos aceptados correctamente.', 'travel-agency-platform')
                     . '</p></div>';
             }
+            if (isset($_GET['tap_legal_error'])) {
+                $legal_error = 'name' === sanitize_key($_GET['tap_legal_error'])
+                    ? __('Escribe el nombre del firmante.', 'travel-agency-platform')
+                    : __('Debes aceptar todos los documentos para continuar.', 'travel-agency-platform');
+                echo '<div class="notice notice-error is-dismissible"><p>'
+                    . esc_html($legal_error)
+                    . '</p></div>';
+            }
             echo '<div class="tap-checkout-legal">'
                 . TAP_Legal::render_acceptance(TAP_Legal::CONTEXT_TRAVELER, (int) $booking->id) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in the renderer
                 . '</div>';
@@ -1034,15 +1042,19 @@ class TAP_Shortcode_Booking {
         $agency  = $booking->agency_id ? get_post($booking->agency_id) : null;
 
         $service_name = $room ? $room->post_title : ($service ? $service->post_title : 'N/D');
+        $is_stay = 'tap_accommodation' === (string) $booking->service_type;
         $nights = max(1, (int) $booking->nights);
-        $lines  = [
-            [
-                'desc' => sprintf('%s · %d %s', $service_name, $nights, _n('night', 'nights', $nights, 'travel-agency-platform')),
-                'qty'  => 1,
-                // total_amount already includes the booking fee, which is
-                // listed separately below; don't count it twice.
-                'unit' => max(0, round((float) $booking->total_amount - (float) ($booking->booking_fee ?? 0), 2)),
-            ],
+        if ($is_stay) {
+            $desc = sprintf('%s · %d %s', $service_name, $nights, _n('night', 'nights', $nights, 'travel-agency-platform'));
+        } else {
+            $guests = max(1, (int) $booking->adults + (int) $booking->children);
+            $desc = sprintf('%s · %d %s', $service_name, $guests, _n('traveler', 'travelers', $guests, 'travel-agency-platform'));
+        }
+        // The traveler pays service + insurance. The platform fee is an agency
+        // deduction and must never appear as a traveler charge.
+        $service_unit = max(0, round((float) $booking->total_amount - (float) ($booking->insurance_premium ?? 0), 2));
+        $lines = [
+            ['desc' => $desc, 'qty' => 1, 'unit' => $service_unit],
         ];
 
         $status_labels = TAP_Emails_Send::status_labels();

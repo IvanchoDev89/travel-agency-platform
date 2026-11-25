@@ -46,6 +46,9 @@ $unit_label = [
 $price_key = $price_meta[$pt] ?? '';
 $price     = $price_key ? floatval(get_post_meta($id, $price_key, true)) : 0;
 $child_price = 'tap_tour' === $pt ? floatval(get_post_meta($id, '_tap_tour_price_child', true)) : 0;
+// Must match TAP_Booking_Pricing::calculate_price() or the estimate is lower
+// than the amount actually charged at checkout.
+$child_factor = 'tap_experience' === $pt ? 0.5 : 0.7;
 
 $agency = null;
 if (isset($agency_meta[$pt])) {
@@ -614,39 +617,10 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
                 if (checkIn) checkIn.value = d;
                 if (checkOut) checkOut.value = d;
             });
-            function updatePriceSummary() {
-                var opt = slotSel.options[slotSel.selectedIndex];
-                var price = opt ? parseFloat(opt.dataset.price || 0) : 0;
-                var basePrice = price > 0 ? price : <?php echo (float) $price; ?>;
-                var adults = parseInt($('#bw-adults').val() || 1, 10);
-                var children = parseInt($('#bw-children').val() || 0, 10);
-                var summary = document.getElementById('bw-price-summary');
-                if (!summary) return;
-                if (!slotSel.value) { summary.style.display = 'none'; return; }
-                summary.style.display = 'block';
-                var adultTotal = adults * basePrice;
-                var childPrice = <?php echo (float) $child_price; ?>;
-                var childTotal = children * (childPrice > 0 ? childPrice : basePrice * 0.5);
-                var privateUpgrade = document.getElementById('bw-private-upgrade') && document.getElementById('bw-private-upgrade').checked;
-                var privatePrice = privateUpgrade ? parseFloat(document.getElementById('bw-private-upgrade').getAttribute('data-price') || '0') : 0;
-                // Extras selected in the widget.
-                var extrasTotal = 0;
-                document.querySelectorAll('#tap-booking-form input[name="extras[]"]:checked').forEach(function(cb){
-                    var p = parseFloat(cb.getAttribute('data-price') || '0');
-                    var perPerson = cb.getAttribute('data-per-person') === '1';
-                    extrasTotal += perPerson ? p * (adults + children) : p;
-                });
-                if (extrasTotal > 0) {
-                    document.getElementById('bw-sum-extras').textContent = extrasTotal.toFixed(2);
-                    document.getElementById('bw-sum-extras-row').style.display = '';
-                } else {
-                    document.getElementById('bw-sum-extras-row').style.display = 'none';
-                }
-                document.getElementById('bw-sum-adults').textContent = adults + ' × ' + basePrice.toFixed(2);
-                document.getElementById('bw-sum-children').textContent = children > 0 ? (children + ' × ' + (childPrice > 0 ? childPrice : basePrice * 0.5).toFixed(2)) : '—';
-                var estimatedTotal = privateUpgrade ? (privatePrice + extrasTotal) : (adultTotal + childTotal + extrasTotal);
-                document.getElementById('bw-sum-total').textContent = estimatedTotal.toFixed(2) + ' <?php echo esc_js(TAP_Currency::code()); ?>';
-            }
+            // The authoritative total comes from tap_calculate_booking_total
+            // (fee, coupons, referral, extras and private upgrade included).
+            // Keep this no-op so older listeners stay harmless.
+            function updatePriceSummary() { return; }
             slotSel.addEventListener('change', function(){
                 try {
                     if (slotId) slotId.value = slotSel.value;
@@ -866,12 +840,6 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
                 <p style="font-size:12px;color:#6b7280;"><?php esc_html_e('Esta actividad requiere firmar un waiver. Se pedirá después de la reserva.', 'travel-agency-platform'); ?></p>
             </div>
             <?php endif; ?>
-            <div id="bw-price-summary" class="tap-bw-price-summary" style="display:none;">
-                <div class="tap-bw-price-row"><span><?php esc_html_e('Adultos', 'travel-agency-platform'); ?></span><span id="bw-sum-adults">0</span></div>
-                <div class="tap-bw-price-row"><span><?php esc_html_e('Niños', 'travel-agency-platform'); ?></span><span id="bw-sum-children">0</span></div>
-                <div class="tap-bw-price-row" id="bw-sum-extras-row" style="display:none;"><span><?php esc_html_e('Extras', 'travel-agency-platform'); ?></span><span id="bw-sum-extras">0</span></div>
-                <div class="tap-bw-price-row tap-bw-price-total"><span><?php esc_html_e('Total estimado', 'travel-agency-platform'); ?></span><span id="bw-sum-total">—</span></div>
-            </div>
               <button type="submit" class="tap-btn tap-btn-primary tap-btn-block" id="bw-submit" disabled>
                 <?php echo TAP_Booking::booking_mode($pt, $id) === 'request' ? esc_html__('Solicitar reserva', 'travel-agency-platform') : esc_html__('Book Now', 'travel-agency-platform'); ?>
               </button>

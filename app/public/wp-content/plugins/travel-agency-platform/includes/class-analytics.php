@@ -57,12 +57,32 @@ class TAP_Analytics {
         add_action('shutdown', $write);
     }
 
-    public static function total_views($from = '', $to = '') {
+    /** Listing post ids owned by an agency (all service types). */
+    public static function agency_listing_ids($agency_id) {
+        global $wpdb;
+        $keys = class_exists('TAP_Post_Types') ? TAP_Post_Types::agency_meta_keys() : [];
+        if (!$keys || !$agency_id) { return []; }
+        $ph = implode(',', array_fill(0, count($keys), '%s'));
+        $ids = $wpdb->get_col($wpdb->prepare(
+            "SELECT DISTINCT post_id FROM {$wpdb->postmeta}
+             WHERE meta_key IN ({$ph}) AND meta_value = %d",
+            array_merge(array_values($keys), [(int) $agency_id])
+        ));
+        return array_map('intval', (array) $ids);
+    }
+
+    public static function total_views($from = '', $to = '', $post_ids = []) {
         global $wpdb;
         $where = self::date_where($from, $to);
-        return (float) $wpdb->get_var(
-            'SELECT COALESCE(SUM(views),0) FROM ' . self::views_table() . " WHERE {$where}" // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-        );
+        $params = [];
+        if ($post_ids) {
+            $ph = implode(',', array_fill(0, count($post_ids), '%d'));
+            $where .= " AND post_id IN ({$ph})";
+            $params = array_map('intval', $post_ids);
+        }
+        return (float) ($params
+            ? $wpdb->get_var($wpdb->prepare('SELECT COALESCE(SUM(views),0) FROM ' . self::views_table() . " WHERE {$where}", $params))
+            : $wpdb->get_var('SELECT COALESCE(SUM(views),0) FROM ' . self::views_table() . " WHERE {$where}")); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
     }
 
     public static function listing_views($from = '', $to = '') {
@@ -87,17 +107,23 @@ class TAP_Analytics {
      *
      * @return array<int,array{key:string,label:string,value:int,rate:float}>
      */
-    public static function booking_funnel($from = '', $to = '') {
+    public static function booking_funnel($from = '', $to = '', $agency_id = 0) {
         global $wpdb;
         $f = $from && preg_match('/^\d{4}-\d{2}$/', $from) ? $from : '';
         $t = $to && preg_match('/^\d{4}-\d{2}$/', $to) ? $to : '';
         $where = ['1=1'];
         if ($f) $where[] = $wpdb->prepare("DATE_FORMAT(created_at, '%%Y-%%m') >= %s", $f);
         if ($t) $where[] = $wpdb->prepare("DATE_FORMAT(created_at, '%%Y-%%m') <= %s", $t);
+        $listing_ids = $agency_id ? self::agency_listing_ids($agency_id) : [];
+        if ($agency_id) {
+            $where[] = $listing_ids
+                ? 'service_id IN (' . implode(',', array_map('intval', $listing_ids)) . ')'
+                : '1=0';
+        }
         $w = implode(' AND ', $where);
         $b = $wpdb->prefix . 'tap_bookings';
 
-        $views     = (int) self::total_views($from, $to);
+        $views     = (int) self::total_views($from, $to, $listing_ids);
         $created   = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$b} WHERE {$w}");
         $confirmed = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$b} WHERE {$w} AND status IN ('confirmed','completed')");
         $paid      = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$b} WHERE {$w} AND payment_status = 'paid'");

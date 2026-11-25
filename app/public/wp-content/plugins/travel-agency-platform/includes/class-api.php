@@ -691,7 +691,7 @@ class TAP_API {
             'thumbnail'     => get_the_post_thumbnail_url($post->ID, 'medium'),
             'thumbnail_large' => get_the_post_thumbnail_url($post->ID, 'large'),
             'permalink'     => get_permalink($post->ID),
-            'price'         => $price_key ? self::get_meta_float($post->ID, $price_key) : 0,
+            'price'         => self::display_price($post->ID, $type),
             'currency'      => get_post_meta($post->ID, $prefix . '_currency', true) ?: 'USD',
             'is_active'     => get_post_meta($post->ID, $prefix . '_is_active', true) === '1',
             'agency_id'     => intval(get_post_meta($post->ID, $prefix . '_agency_id', true)),
@@ -761,6 +761,30 @@ class TAP_API {
 
     public static function platform_support_phone() {
         return (string) get_option('tap_support_phone', '');
+    }
+
+    /**
+     * Authoritative "from" price displayed to travelers. Accommodations are
+     * priced by their room units; the legacy property-level field is only a
+     * fallback when no rooms exist. Every surface uses this single source.
+     */
+    public static function display_price($post_id, $type) {
+        $post_id = (int) $post_id;
+        if ('tap_accommodation' === $type) {
+            $rooms = get_posts([
+                'post_type' => 'tap_room', 'post_status' => 'publish',
+                'posts_per_page' => -1, 'fields' => 'ids', 'no_found_rows' => true,
+                'meta_query' => [['key' => '_tap_room_accommodation_id', 'value' => (string) $post_id]],
+            ]);
+            $min = 0;
+            foreach ($rooms as $rid) {
+                $price = (float) get_post_meta((int) $rid, '_tap_room_price_per_night', true);
+                if ($price > 0 && ($min <= 0 || $price < $min)) { $min = $price; }
+            }
+            if ($min > 0) { return $min; }
+        }
+        $key = self::get_price_key($type);
+        return $key ? (float) get_post_meta($post_id, $key, true) : 0;
     }
 
     public static function get_price_key($type) {

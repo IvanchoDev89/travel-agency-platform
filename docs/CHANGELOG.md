@@ -6,6 +6,32 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.10.0] — 2026-11-25
+
+### Fixed (traveler trust and price truth)
+- "Verificada" badge only renders for agencies with `_tap_agency_verified=1`;
+  hero claim softened to "Agencias revisadas".
+- One price source: `TAP_API::display_price()` (cheapest room for
+  accommodations) used by search cards, detail FAQ, REST and SEO JSON-LD.
+- Child estimate factor synced with the server (70% tours / 50% experiences).
+- Client-side duplicate "Total estimado" removed: only the server quote
+  (fee, coupons, referral, extras, private upgrade) is shown.
+- Voucher lines use travelers for non-stays and no longer double-count fee or
+  insurance; cancellation copy now comes from `TAP_Refunds` (translated).
+- Search no longer asks for dates/guests it ignores; cards show rating,
+  verified badge and price unit. Legal error flags are visible at checkout.
+
+### Added (ops and agency operations)
+- Admin booking list shows payment status, amount paid, outstanding balance
+  and failed-refund indicator.
+- Launch Check callout on the admin dashboard.
+- Platform-wide log viewer (`Registros`) for audit and email delivery history.
+- Agency booking inbox shows guest name/email/phone and voucher link.
+- Request-to-book can be rejected with a reason and a traveler notification.
+- Agency analytics funnel scoped to the agency's own listings and views.
+- Legal admin editor: visible HTML textarea, new-version publishing and a hard
+  block on signing while placeholders remain.
+
 ## [1.9.0] — 2026-11-25
 
 ### Added (agency management)

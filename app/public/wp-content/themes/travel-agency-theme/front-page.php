@@ -143,6 +143,7 @@ foreach ($agenciesRaw as $ag) {
         'link'  => get_permalink($ag->ID),
         'logo'  => (string) get_the_post_thumbnail_url($ag->ID, 'thumbnail'),
         'city'  => (string) get_post_meta($ag->ID, '_tap_agency_city', true),
+        'verified' => '1' === (string) get_post_meta($ag->ID, '_tap_agency_verified', true),
     ];
 }
 
@@ -359,7 +360,7 @@ foreach ($pillarDefs as $pDef) {
       <?php endif; ?>
 
       <ul class="tap-landing-trust">
-        <li><?php esc_html_e('Solo agencias verificadas', 'travel-agency-platform'); ?></li>
+        <li><?php esc_html_e('Agencias revisadas', 'travel-agency-platform'); ?></li>
         <li><?php esc_html_e('Pago seguro', 'travel-agency-platform'); ?></li>
         <li><?php esc_html_e('Soporte local', 'travel-agency-platform'); ?></li>
       </ul>
@@ -654,7 +655,9 @@ if ($featured_tour_ids) {
           <div class="tap-landing-agency-info">
             <h3><?php echo esc_html($ag['name']); ?></h3>
             <?php if ($ag['city']): ?><p><?php echo esc_html($ag['city']); ?></p><?php endif; ?>
-            <span class="tap-landing-verified"><?php esc_html_e('Verificada', 'travel-agency-platform'); ?></span>
+            <?php if (!empty($ag['verified'])): ?>
+                <span class="tap-landing-verified"><?php esc_html_e('Verificada', 'travel-agency-platform'); ?></span>
+            <?php endif; ?>
           </div>
         </a>
       <?php endforeach; ?>

@@ -506,6 +506,7 @@ class TAP_Front_Dash {
                         <th><input type="checkbox" class="tap-bulk-cb-all" aria-label="<?php esc_attr_e('Seleccionar', 'travel-agency-platform'); ?>"></th>
                         <th><?php esc_html_e('Código', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Servicio', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Huésped', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Fechas', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Huéspedes', 'travel-agency-platform'); ?></th>
                         <th><?php esc_html_e('Total', 'travel-agency-platform'); ?></th>
@@ -522,7 +523,8 @@ class TAP_Front_Dash {
                     ?>
                     <tr>
                         <td><input type="checkbox" class="tap-bulk-cb" value="<?php echo (int) $b->id; ?>" aria-label="<?php esc_attr_e('Seleccionar reserva', 'travel-agency-platform'); ?>"></td>
-                        <td><a class="tap-booking-code" href="<?php echo esc_url(home_url('/booking-detail/?code=' . rawurlencode($b->booking_code))); ?>"><?php echo esc_html($b->booking_code); ?></a></td>
+                        <td><a class="tap-booking-code" href="<?php echo esc_url(home_url('/booking-detail/?code=' . rawurlencode($b->booking_code))); ?>"><?php echo esc_html($b->booking_code); ?></a>
+                            <br><a class="tap-booking-voucher" href="<?php echo esc_url(home_url('/booking-detail/?code=' . rawurlencode($b->booking_code))); ?>"><?php esc_html_e('Ver voucher', 'travel-agency-platform'); ?></a></td>
                         <td>
                         <?php
                         echo esc_html($b_title);
@@ -530,6 +532,11 @@ class TAP_Front_Dash {
 						if ($room):
                             ?>
                             <span class="tap-booking-room"><?php echo esc_html($room->post_title); ?></span><?php endif; ?></td>
+                        <td>
+                            <?php echo esc_html($b->guest_name ?: __('Invitado', 'travel-agency-platform')); ?>
+                            <?php if ($b->guest_email): ?><br><small><?php echo esc_html($b->guest_email); ?></small><?php endif; ?>
+                            <?php if ($b->guest_phone): ?><br><small><?php echo esc_html($b->guest_phone); ?></small><?php endif; ?>
+                        </td>
                         <td><?php echo esc_html($b->check_in . ($b->check_out ? ' &rarr; ' . $b->check_out : '')); ?></td>
                         <td><?php echo esc_html($b->adults . ' ' . __('Adults', 'travel-agency-platform') . ($b->children ? ', ' . $b->children . ' ' . __('niños', 'travel-agency-platform') : '')); ?></td>
                         <td><?php echo esc_html(TAP_Currency::fmt($b->total_amount)); ?></td>
@@ -538,6 +545,9 @@ class TAP_Front_Dash {
                         <td>
 								<?php if (in_array($b->status, ['request', 'pending'], true)): ?>
                                 <button class="tap-btn tap-btn-sm tap-bo-api" data-op="confirm" data-name="<?php echo esc_attr($b->booking_code); ?>" data-id="<?php echo (int) $b->id; ?>"><?php esc_html_e('Confirmar', 'travel-agency-platform'); ?></button>
+                                <?php if ('request' === $b->status): ?>
+                                    <button class="tap-btn tap-btn-sm tap-btn-danger tap-bo-api" data-op="reject" data-name="<?php echo esc_attr($b->booking_code); ?>" data-id="<?php echo (int) $b->id; ?>"><?php esc_html_e('Rechazar solicitud', 'travel-agency-platform'); ?></button>
+                                <?php endif; ?>
                             <?php endif; ?>
 								<?php if ('confirmed' === $b->status): ?>
                                 <button class="tap-btn tap-btn-sm tap-bo-api" data-op="complete" data-name="<?php echo esc_attr($b->booking_code); ?>" data-id="<?php echo (int) $b->id; ?>"><?php esc_html_e('Completar', 'travel-agency-platform'); ?></button>
@@ -553,7 +563,7 @@ class TAP_Front_Dash {
                         </td>
                     </tr>
                     <tr class="tap-chat-row" data-id="<?php echo (int) $b->id; ?>" style="display:none;">
-                        <td colspan="8">
+                        <td colspan="9">
                             <div class="tap-chat-wrap">
                                 <div class="tap-chat-thread"><p class="tap-empty"><?php esc_html_e('Cargando conversación...', 'travel-agency-platform'); ?></p></div>
                                 <form class="tap-dash-chat-form" data-booking-id="<?php echo (int) $b->id; ?>">
@@ -928,7 +938,7 @@ class TAP_Front_Dash {
         $from = sanitize_text_field(wp_unslash($_GET['an_from'] ?? gmdate('Y-m', strtotime('-5 months'))));
         $to   = sanitize_text_field(wp_unslash($_GET['an_to'] ?? gmdate('Y-m')));
         $stats = TAP_Analytics::agency_stats($agency, $from, $to);
-        $funnel = TAP_Analytics::booking_funnel($from, $to);
+        $funnel = TAP_Analytics::booking_funnel($from, $to, (int) $agency);
 
         ob_start();
         ?>

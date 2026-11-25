@@ -4388,3 +4388,10 @@ html.dark .tap-destmap-popup--service .tap-destmap-popup-type {
 .tap-voucher-code span { font-size: 11px; opacity: .8; text-transform: uppercase; letter-spacing: .05em; }
 .tap-voucher-code strong { font-size: 1.05rem; letter-spacing: .04em; word-break: break-all; text-align: center; }
 .tap-voucher-code .tap-btn { margin-top: 4px; }
+
+/* Search result trust signals (single source of truth for price). */
+.tap-service-rating { margin:4px 0; color:#b45309; font-size:var(--tap-text-sm,13px); font-weight:600; }
+.tap-service-verified { display:inline-block; margin:2px 0 6px; padding:2px 7px; border-radius:99px; background:#ecfdf5; color:#047857; font-size:11px; font-weight:600; }
+.tap-service-price small { color:var(--tap-neutral-500,#64748b); font-weight:400; font-size:11px; }
+.tap-search-note { align-self:center; }
+.tap-search-note small { color:var(--tap-neutral-500,#64748b); font-size:12px; }

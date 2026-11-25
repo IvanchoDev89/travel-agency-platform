@@ -36,17 +36,8 @@ class TAP_Shortcode_Search {
                         <div class="tap-hs-suggestions tap-form-suggestions" role="listbox" aria-expanded="false"></div>
                     </div>
                 </div>
-                    <div class="tap-search-field">
-                        <label for="<?php echo esc_attr($uid); ?>-check-in"><?php esc_html_e('Check-in', 'travel-agency-platform'); ?></label>
-                        <input type="date" id="<?php echo esc_attr($uid); ?>-check-in" name="check_in" class="tap-input">
-                    </div>
-                    <div class="tap-search-field">
-                        <label for="<?php echo esc_attr($uid); ?>-check-out"><?php esc_html_e('Check-out', 'travel-agency-platform'); ?></label>
-                        <input type="date" id="<?php echo esc_attr($uid); ?>-check-out" name="check_out" class="tap-input">
-                    </div>
-                    <div class="tap-search-field">
-                        <label for="<?php echo esc_attr($uid); ?>-guests"><?php esc_html_e('Guests', 'travel-agency-platform'); ?></label>
-                        <input type="number" id="<?php echo esc_attr($uid); ?>-guests" name="guests" min="1" value="1" class="tap-input tap-input-sm">
+                    <div class="tap-search-field tap-search-note">
+                        <small><?php esc_html_e('Las fechas y el número de huéspedes se confirman con cada agencia al reservar.', 'travel-agency-platform'); ?></small>
                     </div>
                     <div class="tap-search-field">
                         <label>&nbsp;</label>
@@ -335,8 +326,13 @@ class TAP_Shortcode_Search {
         $type      = $post->post_type;
         $type_name = TAP_Post_Types::get_service_types()[$type] ?? ucfirst($type);
         $price_key = TAP_API::get_price_key($type);
-        $price     = $price_key ? floatval(get_post_meta($post->ID, $price_key, true)) : 0;
+        $price     = method_exists('TAP_API', 'display_price') ? TAP_API::display_price($post->ID, $type) : ($price_key ? floatval(get_post_meta($post->ID, $price_key, true)) : 0);
         $featured  = TAP_Promotions::is_featured($post->ID);
+        $rating = method_exists('TAP_API', 'get_rating_stats') ? TAP_API::get_rating_stats($type, $post->ID) : ['avg' => 0, 'count' => 0];
+        $agency_id = method_exists('TAP_Post_Types', 'meta_prefix')
+            ? (int) get_post_meta($post->ID, '_tap_' . TAP_Post_Types::meta_prefix($type) . '_agency_id', true)
+            : 0;
+        $agency_verified = $agency_id && '1' === (string) get_post_meta($agency_id, '_tap_agency_verified', true);
         $city      = get_post_meta($post->ID, '_tap_' . (TAP_Promotions::prefix_for_type($type) ?: '') . '_city', true);
         $excerpt   = has_excerpt($post->ID) ? get_the_excerpt($post) : wp_trim_words(wp_strip_all_tags($post->post_content), 18);
         ?>
@@ -351,9 +347,18 @@ class TAP_Shortcode_Search {
                 <?php endif; ?>
                 <h3><a href="<?php echo esc_url(get_permalink($post->ID)); ?>"><?php echo esc_html($post->post_title); ?></a></h3>
                 <?php if ($city): ?><p class="tap-service-city"><?php echo esc_html($city); ?></p><?php endif; ?>
+                <?php if (!empty($rating['count'])): ?>
+                    <p class="tap-service-rating">&#9733; <?php echo esc_html(number_format_i18n((float) $rating['avg'], 1)); ?> (<?php echo (int) $rating['count']; ?>)</p>
+                <?php endif; ?>
+                <?php if ($agency_verified): ?>
+                    <span class="tap-service-verified">&#10003; <?php esc_html_e('Agencia verificada', 'travel-agency-platform'); ?></span>
+                <?php endif; ?>
                 <p class="tap-service-excerpt"><?php echo esc_html($excerpt); ?></p>
                 <?php if ($price > 0): ?>
-                    <p class="tap-service-price"><?php echo esc_html(TAP_Currency::fmt($price)); ?></p>
+                    <p class="tap-service-price">
+                        <?php echo esc_html(TAP_Currency::fmt($price)); ?>
+                        <small><?php echo esc_html(class_exists('TAP_Itinerary') ? (TAP_Itinerary::type_meta($type)['suffix'] ?? '') : ''); ?></small>
+                    </p>
                 <?php endif; ?>
                 <a href="<?php echo esc_url(get_permalink($post->ID)); ?>" class="tap-btn tap-btn-outline"><?php esc_html_e('Ver detalles', 'travel-agency-platform'); ?></a>
             </div>
@@ -587,7 +592,9 @@ class TAP_Shortcode_Search {
 
                 if (isset($price_fields[$type])) {
                     list($price_key, $price_label) = $price_fields[$type];
-                    $price = get_post_meta($post->ID, $price_key, true);
+                    $price = method_exists('TAP_API', 'display_price')
+                        ? TAP_API::display_price($post->ID, $type)
+                        : get_post_meta($post->ID, $price_key, true);
                     if ($price) {
                         echo '<div class="tap-meta-item"><strong>' . esc_html($price_label) . ':</strong> <span class="tap-detail-price">' . esc_html(TAP_Currency::fmt(floatval($price))) . '</span></div>';
                     }
