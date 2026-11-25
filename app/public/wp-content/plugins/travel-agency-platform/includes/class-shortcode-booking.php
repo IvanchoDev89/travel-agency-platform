@@ -351,7 +351,12 @@ class TAP_Shortcode_Booking {
             $('.tap-cancel-booking-btn').on('click', function() {
                 var $btn = $(this), id = $btn.data('booking-id');
                 var code = $btn.data('confirm') || '';
-                if (!confirm('<?php echo esc_js(__('¿Cancelar la reserva ', 'travel-agency-platform')); ?>' + code + '?')) return;
+                var policy = $btn.data('policy') || '';
+                var refund = $btn.data('refund') || '';
+                var message = '<?php echo esc_js(__('¿Cancelar la reserva ', 'travel-agency-platform')); ?>' + code + '?\n\n'
+                    + '<?php echo esc_js(__('Política aplicable:', 'travel-agency-platform')); ?> ' + policy + '\n'
+                    + '<?php echo esc_js(__('Reembolso estimado:', 'travel-agency-platform')); ?> ' + refund;
+                if (!confirm(message)) return;
                 $btn.prop('disabled', true).text('...');
                 $.post(tap_ajax.ajax_url, { action: 'tap_cancel_booking', nonce: nonce, booking_id: id, booking_code: code })
                     .done(function(res) {
@@ -1098,7 +1103,16 @@ class TAP_Shortcode_Booking {
                 <a class="tap-btn tap-btn-sm" href="<?php echo esc_url($wa_url); ?>" target="_blank" rel="noopener">WhatsApp</a>
                 <a class="tap-btn tap-btn-sm" href="<?php echo esc_url($email_url); ?>">Email</a>
                 <?php if ((int) $booking->client_id === $uid && in_array($booking->status, ['pending', 'confirmed', 'request'], true) && (!$booking->check_in || $booking->check_in >= current_time('Y-m-d'))): ?>
-                    <button type="button" class="tap-btn tap-btn-sm tap-btn-danger tap-cancel-booking-btn" data-booking-id="<?php echo (int) $booking->id; ?>" data-confirm="<?php echo esc_attr($booking->booking_code); ?>" data-guest-email="<?php echo !$uid ? esc_attr($booking->guest_email) : ''; ?>"><?php esc_html_e('Cancelar reserva', 'travel-agency-platform'); ?></button>
+                    <?php
+                    $cancel_info = class_exists('TAP_Refunds') ? TAP_Refunds::cancellation_refund($booking) : null;
+                    $cancel_policy = $cancel_info && isset($cancel_info['policy'])
+                        ? (TAP_Refunds::cancellation_policies()[$cancel_info['policy']] ?? $cancel_info['policy'])
+                        : '';
+                    $cancel_refund = $cancel_info && (float) ($cancel_info['refund_amount'] ?? 0) > 0
+                        ? TAP_Currency::fmt((float) $cancel_info['refund_amount'])
+                        : __('sin reembolso', 'travel-agency-platform');
+                    ?>
+                    <button type="button" class="tap-btn tap-btn-sm tap-btn-danger tap-cancel-booking-btn" data-booking-id="<?php echo (int) $booking->id; ?>" data-confirm="<?php echo esc_attr($booking->booking_code); ?>" data-guest-email="<?php echo !$uid ? esc_attr($booking->guest_email) : ''; ?>" data-policy="<?php echo esc_attr($cancel_policy); ?>" data-refund="<?php echo esc_attr($cancel_refund); ?>"><?php esc_html_e('Cancelar reserva', 'travel-agency-platform'); ?></button>
                 <?php endif; ?>
                 <?php if ($uid && (int) $booking->client_id === $uid && TAP_Booking::is_payable($booking) && $booking->total_amount > 0): ?>
                     <a class="tap-btn tap-btn-sm tap-btn-primary" href="<?php echo esc_url(home_url('/checkout?code=' . $booking->booking_code)); ?>"><?php esc_html_e('Pagar ahora', 'travel-agency-platform'); ?></a>

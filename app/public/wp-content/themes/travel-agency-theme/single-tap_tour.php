@@ -809,6 +809,9 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
               <div class="tap-capacity-note" id="bw-capacity" style="display:none;"></div>
             </div>
 
+            <?php if (class_exists('TAP_Travel_Insurance')): ?>
+                <div class="tap-bw-field tap-bw-field-full"><?php echo TAP_Travel_Insurance::render_options(0); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in renderer ?></div>
+            <?php endif; ?>
             <div class="tap-bw-actions tap-bw-consent">
               <label class="tap-check-label tap-privacy-consent">
                 <input type="checkbox" name="tap_privacy_consent" value="1" required>
@@ -892,7 +895,8 @@ jQuery(document).ready(function($) {
       slot_id: slotId,
       private_upgrade: $('#bw-private-upgrade').is(':checked') ? 1 : 0,
       referral_code: $('input[name="referral_code"]').val() || '',
-      coupon_code: $('#bw-coupon-code').val() || ''
+      coupon_code: $('#bw-coupon-code').val() || '',
+      insurance_plan: $('input[name="insurance_plan"]:checked').val() || ''
     }).done(function(res) {
       if (res && res.success) {
         $('#bw-total').show();
@@ -944,6 +948,7 @@ jQuery(document).ready(function($) {
     debounce = setTimeout(calculateTotal, 300);
   });
 
+  $('input[name="insurance_plan"]').on('change', function(){ if (typeof calculateTotal === 'function') calculateTotal(); });
   $('#tap-booking-form').on('submit', function(e) {
     e.preventDefault();
     var $btn = $('#bw-submit');
@@ -980,7 +985,8 @@ jQuery(document).ready(function($) {
       coupon_code: $('#bw-coupon-code').val() || '',
       referral_code: $('input[name="referral_code"]').val() || '',
       extras: $form.find('input[name="extras[]"]:checked').map(function(){ return this.value; }).get(),
-      tap_privacy_consent: $form.find('input[name="tap_privacy_consent"]').is(':checked') ? '1' : ''
+      tap_privacy_consent: $form.find('input[name="tap_privacy_consent"]').is(':checked') ? '1' : '',
+      insurance_plan: $form.find('input[name="insurance_plan"]:checked').val() || ''
     }).done(function(res) {
       if (res && res.success && res.data.booking_code) {
         window.location.href = (res.data.redirect || '<?php echo esc_url(home_url('/checkout')); ?>?code=' + res.data.booking_code);
