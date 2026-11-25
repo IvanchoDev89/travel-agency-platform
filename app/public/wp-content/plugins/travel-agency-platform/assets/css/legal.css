@@ -1,0 +1,152 @@
+/* Compact, professional acceptance UI for checkout and agency panel. */
+
+.tap-checkout-legal {
+    margin: var(--tap-space-6, 24px) 0;
+}
+
+.tap-legal-accept {
+    background: var(--tap-surface, #fff);
+    border: 1px solid var(--tap-neutral-200, #e2e8f0);
+    border-radius: var(--tap-radius-xl, 12px);
+    padding: var(--tap-space-6, 24px);
+}
+
+.tap-legal-accept > h3 {
+    margin: 0 0 4px;
+    font-size: var(--tap-text-lg, 18px);
+    font-weight: 700;
+}
+
+.tap-legal-intro {
+    margin: 0 0 var(--tap-space-4, 16px);
+    color: var(--tap-neutral-500, #64748b);
+    font-size: var(--tap-text-sm, 13px);
+    line-height: 1.5;
+}
+
+.tap-legal-docs {
+    display: grid;
+    gap: 8px;
+    margin-bottom: var(--tap-space-4, 16px);
+}
+
+.tap-legal-doc {
+    border: 1px solid var(--tap-neutral-200, #e2e8f0);
+    border-radius: var(--tap-radius-lg, 10px);
+    background: var(--tap-surface-muted, #f8fafc);
+    padding: 10px 14px;
+}
+
+.tap-legal-doc summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: var(--tap-text-sm, 13px);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.tap-legal-doc summary::-webkit-details-marker { display: none; }
+
+.tap-legal-doc summary::after {
+    content: '+';
+    font-weight: 700;
+    color: var(--tap-primary, #0f5c75);
+}
+
+.tap-legal-doc[open] summary::after { content: '\2212'; }
+
+.tap-legal-version {
+    color: var(--tap-neutral-500, #64748b);
+    font-size: 11px;
+    font-weight: 400;
+    white-space: nowrap;
+}
+
+.tap-legal-body {
+    max-height: 220px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    margin-top: 10px;
+    padding: 12px 16px;
+    background: #fff;
+    border: 1px solid var(--tap-neutral-200, #e2e8f0);
+    border-radius: 8px;
+    color: var(--tap-neutral-700, #334155);
+    font-size: var(--tap-text-sm, 13px);
+    line-height: 1.6;
+}
+
+.tap-legal-body h2 {
+    margin: 16px 0 6px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.tap-legal-body h2:first-child { margin-top: 0; }
+.tap-legal-body p, .tap-legal-body ul, .tap-legal-body ol { margin: 0 0 10px; }
+.tap-legal-body ul, .tap-legal-body ol { padding-left: 20px; }
+
+.tap-legal-consent-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 6px 0;
+    font-size: var(--tap-text-sm, 13px);
+}
+
+.tap-legal-consent-row input[type="checkbox"] {
+    margin: 3px 0 0;
+    width: 16px;
+    height: 16px;
+    flex: 0 0 auto;
+}
+
+.tap-legal-name {
+    margin: var(--tap-space-4, 16px) 0;
+}
+
+.tap-legal-name label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: var(--tap-text-sm, 13px);
+    font-weight: 600;
+}
+
+.tap-legal-name input {
+    width: 100%;
+    max-width: 420px;
+}
+
+.tap-legal-submit {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tap-legal-note {
+    margin-top: 10px;
+    color: var(--tap-neutral-500, #64748b);
+    font-size: 12px;
+}
+
+.tap-my-contracts table { width: 100%; border-collapse: collapse; }
+.tap-my-contracts th, .tap-my-contracts td { padding: 8px 10px; border-bottom: 1px solid var(--tap-neutral-200, #e2e8f0); text-align: left; }
+
+.tap-legal-doc-public {
+    max-width: 820px;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+.tap-legal-doc-public h1 { margin-bottom: 4px; }
+.tap-legal-version { color: var(--tap-neutral-500, #64748b); font-size: 12px; }
+.tap-legal-hash { word-break: break-all; }
+
+@media (max-width: 600px) {
+    .tap-legal-accept { padding: 16px; }
+    .tap-legal-body { max-height: 180px; }
+    .tap-legal-version { display: none; }
+}

@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.7.2] — 2026-11-24
+
+### Fixed (checkout UX)
+- The legal acceptance block no longer dumps four full contracts as an
+  unstyled wall of text. It renders as a compact card with collapsible,
+  scrollable documents, version/date labels, one consent checkbox per document
+  and a clear signer field.
+- Dedicated `legal.css`, enqueued on public pages.
+- Acceptance handler now requires every current document to be checked, not a
+  single global checkbox.
+
 ## [1.7.1] — 2026-11-24
 
 ### Legal package

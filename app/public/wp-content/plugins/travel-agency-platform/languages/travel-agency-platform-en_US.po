@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-24T19:10:12+00:00\n"
+"POT-Creation-Date: 2026-11-25T01:28:12+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -892,7 +892,7 @@ msgstr "Click any day to edit its price, label or block it."
 #: includes/class-shortcode-booking.php:1299
 #: includes/class-shortcode-booking.php:1301
 #: includes/class-shortcode-booking.php:1336
-#: includes/class-shortcode-booking.php:1339 travel-agency-platform.php:430
+#: includes/class-shortcode-booking.php:1339 travel-agency-platform.php:431
 msgid "Error"
 msgstr "Error"
 
@@ -2350,7 +2350,7 @@ msgstr ""
 
 #: includes/class-ajax-listing.php:511 includes/class-ajax-public.php:481
 #: includes/class-booking.php:737 includes/class-booking.php:872
-#: includes/class-legal.php:247 includes/class-transport.php:389
+#: includes/class-legal.php:269 includes/class-transport.php:389
 msgid "Debes iniciar sesión."
 msgstr "You must log in."
 
@@ -3355,7 +3355,7 @@ msgstr "Copied"
 #: includes/class-email-campaigns.php:218
 #: includes/class-email-campaigns.php:233 includes/class-front-dash.php:1978
 #: includes/class-front-dash.php:2020 includes/class-invoices.php:469
-#: includes/class-leads.php:213 includes/class-legal.php:356
+#: includes/class-leads.php:213 includes/class-legal.php:377
 #: includes/class-referral-reports.php:27
 msgid "Acceso denegado."
 msgstr "Access denied."
@@ -3527,7 +3527,7 @@ msgstr "Total"
 #: includes/class-front-dash-client.php:642 includes/class-front-dash.php:650
 #: includes/class-front-dash.php:877 includes/class-front-dash.php:1021
 #: includes/class-front-dash.php:1703 includes/class-invoices.php:528
-#: includes/class-legal.php:344 includes/class-legal.php:392
+#: includes/class-legal.php:365 includes/class-legal.php:413
 #: includes/class-privacy.php:482 includes/class-privacy.php:504
 #: includes/class-privacy.php:529 includes/class-privacy.php:636
 #: includes/class-privacy.php:683 includes/class-referral-reports.php:187
@@ -4090,7 +4090,7 @@ msgstr "Email"
 #: includes/class-dashboard-money.php:630 includes/class-emails-send.php:583
 #: includes/class-front-dash.php:647 includes/class-invoices.php:124
 #: includes/class-invoices.php:361 includes/class-invoices.php:524
-#: includes/class-legal.php:392 includes/class-referral-reports.php:189
+#: includes/class-legal.php:413 includes/class-referral-reports.php:189
 msgid "Reserva"
 msgstr "Booking"
 
@@ -9715,7 +9715,7 @@ msgstr "Send now?"
 #: includes/class-email-campaigns.php:286
 #: includes/class-front-dash-client.php:421 includes/class-front-dash.php:562
 #: includes/class-shortcode-account.php:948
-#: includes/class-shortcode-booking.php:1278 travel-agency-platform.php:439
+#: includes/class-shortcode-booking.php:1278 travel-agency-platform.php:440
 msgid "Enviar"
 msgstr "Send"
 
@@ -9772,7 +9772,7 @@ msgid "Clave"
 msgstr "Key"
 
 #: includes/class-email-templates.php:151
-#: includes/class-email-templates.php:168 includes/class-legal.php:382
+#: includes/class-email-templates.php:168 includes/class-legal.php:403
 msgid "Idioma"
 msgstr "Language"
 
@@ -10893,7 +10893,7 @@ msgstr "My Reviews"
 msgid "Puntos y referidos"
 msgstr "Points and referrals"
 
-#: includes/class-front-dash-client.php:49 includes/class-legal.php:340
+#: includes/class-front-dash-client.php:49 includes/class-legal.php:361
 msgid "Mis contratos"
 msgstr "My contracts"
 
@@ -12832,97 +12832,110 @@ msgid "Error de conexión. Inténtalo de nuevo."
 msgstr "Connection error. Try again."
 
 #: includes/class-legal.php:40 includes/class-legal.php:41
-#: includes/class-legal.php:380
+#: includes/class-legal.php:401
 msgid "Contratos digitales"
 msgstr "Digital contracts"
 
-#: includes/class-legal.php:65
-msgid "Texto legal pendiente de publicación. Consulta la versión definitiva en el sitio."
-msgstr "Legal text pending publication. See the definitive version on the site."
+#: includes/class-legal.php:66
+msgid ""
+"Texto legal pendiente de publicación. Consulta la versión definitiva en el "
+"sitio."
+msgstr ""
+"Legal text pending publication. See the definitive version on the site."
 
-#: includes/class-legal.php:184 includes/class-metaboxes.php:431
+#: includes/class-legal.php:193 includes/class-metaboxes.php:431
 #: includes/class-metaboxes.php:507
 msgid "Términos y condiciones"
 msgstr "Terms and conditions"
 
-#: includes/class-legal.php:200
-msgid "He leído y acepto los términos anteriores."
-msgstr "I have read and accept the above terms."
+#: includes/class-legal.php:194
+msgid "Revisa los documentos vigentes y acéptalos para continuar. Se guardará la versión exacta, la fecha y tu nombre como constancia."
+msgstr "Review the current documents and accept them to continue. The exact version, date and your name will be recorded as evidence."
 
-#: includes/class-legal.php:204
+#. translators: %s: document title
+#: includes/class-legal.php:215
+#, php-format
+msgid "He leído y acepto: %s"
+msgstr "I have read and accept: %s"
+
+#: includes/class-legal.php:222
 msgid "Nombre completo del firmante"
 msgstr "Full name of the signer"
 
-#: includes/class-legal.php:207
+#: includes/class-legal.php:225
 msgid "Aceptar y firmar"
 msgstr "Accept and sign"
 
-#: includes/class-legal.php:239 includes/class-legal.php:244
+#: includes/class-legal.php:226
+msgid "Al firmar se registra la versión del documento, la fecha y una constancia enviada a tu correo."
+msgstr "Signing records the document version, the date and a confirmation sent to your email."
+
+#: includes/class-legal.php:261 includes/class-legal.php:266
 msgid "No tienes permiso para firmar estos términos."
 msgstr "You do not have permission to sign these terms."
 
 #. translators: 1: document title, 2: version, 3: date, 4: signer
-#: includes/class-legal.php:296
+#: includes/class-legal.php:317
 #, php-format
 msgid "Has aceptado %1$s (versión %2$d) el %3$s. Firmante: %4$s."
 msgstr "You accepted %1$s (version %2$d) on %3$s. Signer: %4$s."
 
-#: includes/class-legal.php:301 includes/class-legal.php:323
+#: includes/class-legal.php:322 includes/class-legal.php:344
 msgid "Hash del documento:"
 msgstr "Document hash:"
 
-#: includes/class-legal.php:303 includes/class-legal.php:305
+#: includes/class-legal.php:324 includes/class-legal.php:326
 msgid "Confirmación de términos aceptados"
 msgstr "Accepted terms confirmation"
 
-#: includes/class-legal.php:318
+#: includes/class-legal.php:339
 msgid "Documento no disponible."
 msgstr "Document not available."
 
-#: includes/class-legal.php:321
+#: includes/class-legal.php:342
 #, php-format
 msgid "Versión %d · vigente desde %s"
 msgstr "Version %d · effective since %s"
 
-#: includes/class-legal.php:330
+#: includes/class-legal.php:351
 msgid "Inicia sesión para ver tus contratos."
 msgstr "Log in to see your contracts."
 
-#: includes/class-legal.php:342
+#: includes/class-legal.php:363
 msgid "Aún no has firmado contratos."
 msgstr "You have not signed any contracts yet."
 
-#: includes/class-legal.php:344 includes/class-legal.php:382
-#: includes/class-legal.php:392
+#: includes/class-legal.php:365 includes/class-legal.php:403
+#: includes/class-legal.php:413
 msgid "Documento"
 msgstr "Document"
 
-#: includes/class-legal.php:344 includes/class-legal.php:382
+#: includes/class-legal.php:365 includes/class-legal.php:403
 #: includes/class-privacy.php:686
 msgid "Versión"
 msgstr "Version"
 
-#: includes/class-legal.php:375
+#: includes/class-legal.php:396
 msgid "Nueva versión publicada."
 msgstr "New version published."
 
-#: includes/class-legal.php:381
+#: includes/class-legal.php:402
 msgid "Documentos"
 msgstr "Documents"
 
-#: includes/class-legal.php:382
+#: includes/class-legal.php:403
 msgid "Hash"
 msgstr "Hash"
 
-#: includes/class-legal.php:388
+#: includes/class-legal.php:409
 msgid "Nueva versión"
 msgstr "New version"
 
-#: includes/class-legal.php:391
+#: includes/class-legal.php:412
 msgid "Aceptaciones recientes"
 msgstr "Recent acceptances"
 
-#: includes/class-legal.php:392
+#: includes/class-legal.php:413
 msgid "Firmante"
 msgstr "Signer"
 
@@ -15681,11 +15694,11 @@ msgid "Network error. Please try again."
 msgstr "Network error. Please try again."
 
 #: includes/class-shortcode-account.php:932
-#: includes/class-shortcode-account.php:934 travel-agency-platform.php:435
+#: includes/class-shortcode-account.php:934 travel-agency-platform.php:436
 msgid "Asistente de viajes"
 msgstr "Travel assistant"
 
-#: includes/class-shortcode-account.php:938 travel-agency-platform.php:440
+#: includes/class-shortcode-account.php:938 travel-agency-platform.php:441
 msgid ""
 "¡Hola! Soy el asistente de viajes. Pregunta por alojamientos, tours, bonos o "
 "agencias, o toca una sugerencia."
@@ -15694,7 +15707,7 @@ msgstr ""
 "or tap a suggestion."
 
 #: includes/class-shortcode-account.php:946
-#: includes/class-shortcode-account.php:947 travel-agency-platform.php:438
+#: includes/class-shortcode-account.php:947 travel-agency-platform.php:439
 msgid "Escribe tu pregunta…"
 msgstr "Type your question…"
 
@@ -15714,7 +15727,7 @@ msgid "Solicitar reserva"
 msgstr "Request to Book"
 
 #: includes/class-shortcode-booking.php:51
-#: includes/class-shortcode-booking.php:145 travel-agency-platform.php:429
+#: includes/class-shortcode-booking.php:145 travel-agency-platform.php:430
 msgid "Book Now"
 msgstr "Book Now"
 
@@ -19082,119 +19095,122 @@ msgid ""
 msgstr ""
 "The Composer autoloader was not found. Run \"composer dump-autoload -o\"."
 
-#: travel-agency-platform.php:407
+#: travel-agency-platform.php:408
 msgid "results found"
 msgstr "results found"
 
-#: travel-agency-platform.php:408
+#: travel-agency-platform.php:409
 msgid "No results found"
 msgstr "No results found"
 
-#: travel-agency-platform.php:409
+#: travel-agency-platform.php:410
 msgid "Guardado en favoritos"
 msgstr "Saved to favorites"
 
-#: travel-agency-platform.php:410
+#: travel-agency-platform.php:411
 msgid "Quitado de favoritos"
 msgstr "Removed from favorites"
 
-#: travel-agency-platform.php:411
+#: travel-agency-platform.php:412
 msgid "Aún no hay reseñas."
 msgstr "No reviews yet."
 
-#: travel-agency-platform.php:412
+#: travel-agency-platform.php:413
 msgid "Aún no hay reseñas. Sé el primero en compartir tu experiencia."
 msgstr "No reviews yet. Be the first to share your experience."
 
-#: travel-agency-platform.php:413
+#: travel-agency-platform.php:414
 msgid "reseña"
 msgstr "review"
 
-#: travel-agency-platform.php:414
+#: travel-agency-platform.php:415
 msgid "reseñas"
 msgstr "reviews"
 
-#: travel-agency-platform.php:415
+#: travel-agency-platform.php:416
 msgid "Anónimo"
 msgstr "Anonymous"
 
-#: travel-agency-platform.php:416
+#: travel-agency-platform.php:417
 msgid "Enviando..."
 msgstr "Sending..."
 
-#: travel-agency-platform.php:417
+#: travel-agency-platform.php:418
 msgid "¡Reseña enviada! Pendiente de aprobación."
 msgstr "Review submitted! Pending approval."
 
-#: travel-agency-platform.php:418
+#: travel-agency-platform.php:419
 msgid "Error al enviar"
 msgstr "Error sending"
 
-#: travel-agency-platform.php:419
+#: travel-agency-platform.php:420
 msgid "Review submitted"
 msgstr "Review submitted"
 
-#: travel-agency-platform.php:420
+#: travel-agency-platform.php:421
 msgid "Error al enviar la reseña"
 msgstr "Error submitting the review"
 
 #. translators: %s: nombre del servicio
-#: travel-agency-platform.php:422
+#: travel-agency-platform.php:423
 #, php-format
 msgid "Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!"
 msgstr "Thank you for your stay (%s). Tell us how it went!"
 
-#: travel-agency-platform.php:423
+#: travel-agency-platform.php:424
 msgid "Reseña verificada"
 msgstr "Verified review"
 
 #. translators: 1: cupos disponibles, 2: cupos totales
-#: travel-agency-platform.php:425
+#: travel-agency-platform.php:426
 #, php-format
 msgid "Cupos disponibles: %s de %s"
 msgstr "Available spots: %s of %s"
 
 #. translators: 1: cupos ocupados, 2: cupos totales
-#: travel-agency-platform.php:427
+#: travel-agency-platform.php:428
 #, php-format
 msgid "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
 msgstr "Full for this date (%s/%s). Please choose another date."
 
-#: travel-agency-platform.php:428
+#: travel-agency-platform.php:429
 msgid "El tour está completo para esta fecha."
 msgstr "This tour is full for this date."
 
-#: travel-agency-platform.php:431
+#: travel-agency-platform.php:432
 msgid "Image gallery"
 msgstr "Image gallery"
 
-#: travel-agency-platform.php:432
+#: travel-agency-platform.php:433
 msgid "Close image gallery"
 msgstr "Close image gallery"
 
-#: travel-agency-platform.php:433
+#: travel-agency-platform.php:434
 msgid "Previous image"
 msgstr "Previous image"
 
-#: travel-agency-platform.php:434
+#: travel-agency-platform.php:435
 msgid "Next image"
 msgstr "Next image"
 
-#: travel-agency-platform.php:436
+#: travel-agency-platform.php:437
 msgid "Abrir asistente"
 msgstr "Open assistant"
 
-#: travel-agency-platform.php:437
+#: travel-agency-platform.php:438
 msgid "Cerrar asistente"
 msgstr "Close assistant"
 
-#: travel-agency-platform.php:441
+#: travel-agency-platform.php:442
 msgid "Pensando…"
 msgstr "Thinking…"
 
-#: travel-agency-platform.php:442
+#: travel-agency-platform.php:443
 msgid "Hubo un problema. Inténtalo de nuevo."
 msgstr "Something went wrong. Please try again."
+
+msgid "He leído y acepto los términos anteriores."
+msgstr "I have read and accept the above terms."
 
 msgid "Subtotal"
 msgstr "Subtotal"

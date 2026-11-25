@@ -191,29 +191,39 @@ class TAP_Legal {
         ?>
         <div class="tap-legal-accept" data-context="<?php echo esc_attr($context); ?>">
             <h3><?php esc_html_e('Términos y condiciones', 'travel-agency-platform'); ?></h3>
+            <p class="tap-legal-intro"><?php esc_html_e('Revisa los documentos vigentes y acéptalos para continuar. Se guardará la versión exacta, la fecha y tu nombre como constancia.', 'travel-agency-platform'); ?></p>
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" class="tap-legal-form">
                 <input type="hidden" name="action" value="tap_legal_accept">
                 <input type="hidden" name="context" value="<?php echo esc_attr($context); ?>">
                 <input type="hidden" name="booking_id" value="<?php echo (int) $booking_id; ?>">
                 <input type="hidden" name="agency_id" value="<?php echo (int) $agency_id; ?>">
                 <?php wp_nonce_field($nonce_action, 'tap_legal_nonce'); ?>
-                <?php foreach ($docs as $doc): ?>
-                    <details class="tap-legal-doc">
-                        <summary><?php echo esc_html($doc->title . ' · v' . (int) $doc->version); ?></summary>
-                        <div class="tap-legal-body"><?php echo wp_kses_post($doc->body); ?></div>
-                    </details>
-                <?php endforeach; ?>
-                <p>
-                    <label>
-                        <input type="checkbox" name="tap_legal_consent" value="1" required>
-                        <?php esc_html_e('He leído y acepto los términos anteriores.', 'travel-agency-platform'); ?>
-                    </label>
-                </p>
-                <p>
+                <div class="tap-legal-docs">
+                    <?php foreach ($docs as $doc): ?>
+                        <details class="tap-legal-doc">
+                            <summary>
+                                <span><?php echo esc_html($doc->title); ?></span>
+                                <span class="tap-legal-version">v<?php echo (int) $doc->version; ?> · <?php echo esc_html(substr((string) $doc->effective_from, 0, 10)); ?></span>
+                            </summary>
+                            <div class="tap-legal-body"><?php echo wp_kses_post($doc->body); ?></div>
+                        </details>
+                        <label class="tap-legal-consent-row">
+                            <input type="checkbox" name="tap_legal_consent[]" value="<?php echo (int) $doc->id; ?>" required>
+                            <span>
+                                <?php
+                                /* translators: %s: document title */
+                                echo esc_html(sprintf(__('He leído y acepto: %s', 'travel-agency-platform'), $doc->title));
+                                ?>
+                            </span>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
+                <p class="tap-legal-name">
                     <label for="tap-legal-name"><?php esc_html_e('Nombre completo del firmante', 'travel-agency-platform'); ?></label>
                     <input type="text" id="tap-legal-name" name="signer_name" class="regular-text" required autocomplete="name">
                 </p>
-                <button type="submit" class="button button-primary"><?php esc_html_e('Aceptar y firmar', 'travel-agency-platform'); ?></button>
+                <button type="submit" class="button button-primary tap-legal-submit"><?php esc_html_e('Aceptar y firmar', 'travel-agency-platform'); ?></button>
+                <p class="tap-legal-note"><?php esc_html_e('Al firmar se registra la versión del documento, la fecha y una constancia enviada a tu correo.', 'travel-agency-platform'); ?></p>
             </form>
         </div>
         <?php
@@ -226,8 +236,13 @@ class TAP_Legal {
         $booking_id = absint($_POST['booking_id'] ?? 0);
         $agency_id = absint($_POST['agency_id'] ?? 0);
         check_admin_referer('tap_legal_' . $context . '_' . ($booking_id ?: $agency_id), 'tap_legal_nonce');
-        if (empty($_POST['tap_legal_consent'])) {
-            wp_safe_redirect(wp_get_referer() ?: home_url());
+        $documents = self::for_context($context);
+        $checked = array_map('absint', (array) ($_POST['tap_legal_consent'] ?? []));
+        $required = array_map(static function ($d) {
+            return (int) $d->id;
+        }, $documents);
+        if (!$documents || array_diff($required, $checked)) {
+            wp_safe_redirect(add_query_arg('tap_legal_error', 'consent', wp_get_referer() ?: home_url()));
             exit;
         }
         $signer = sanitize_text_field(wp_unslash($_POST['signer_name'] ?? ''));
@@ -257,7 +272,6 @@ class TAP_Legal {
         }
 
         global $wpdb;
-        $documents = self::for_context($context);
         foreach ($documents as $doc) {
             $ip = isset($_SERVER['REMOTE_ADDR']) ? (string) $_SERVER['REMOTE_ADDR'] : '';
             $ua = isset($_SERVER['HTTP_USER_AGENT']) ? (string) $_SERVER['HTTP_USER_AGENT'] : '';
