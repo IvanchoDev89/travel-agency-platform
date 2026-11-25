@@ -297,6 +297,9 @@ class TAP_Front_Dash {
                     case 'bo-operations':
                         echo self::agency_operations($user);
                         break;
+                    case 'bo-calendar':
+                        echo self::agency_calendar($user);
+                        break;
                     case 'bo-finances':
                         echo self::agency_finances($user);
                         break;
@@ -726,6 +729,79 @@ class TAP_Front_Dash {
             . 'options:{responsive:true,maintainAspectRatio:false,'
             . 'plugins:{legend:{display:false}},scales:{y:{beginAtZero:true}}}});})();';
         wp_add_inline_script('tap-chart', $js, 'after');
+    }
+
+    /** Daily operations calendar with arrivals, departures and no-show control. */
+    public static function agency_calendar($user) {
+        global $wpdb;
+        $agency = (int) TAP_Booking::get_agency_for_user($user->ID);
+        if (!$agency) {
+            return '<p class="tap-empty">' . esc_html__('No tienes una agencia vinculada.', 'travel-agency-platform') . '</p>';
+        }
+        $month = sanitize_text_field(wp_unslash($_GET['month'] ?? ''));
+        if (!preg_match('/^\d{4}-\d{2}$/', $month)) { $month = current_time('Y-m'); }
+        $start = $month . '-01';
+        $end = gmdate('Y-m-t', strtotime($start));
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT id, booking_code, guest_name, check_in, check_out, status, adults, children
+             FROM {$wpdb->prefix}tap_bookings
+             WHERE agency_id = %d AND status NOT IN ('cancelled','refunded')
+               AND ((check_in BETWEEN %s AND %s) OR (check_out BETWEEN %s AND %s))
+             ORDER BY check_in ASC, id ASC LIMIT 300",
+            $agency, $start, $end, $start, $end
+        )) ?: [];
+        $by_day = [];
+        foreach ($rows as $b) {
+            if ($b->check_in) { $by_day[$b->check_in]['in'][] = $b; }
+            if ($b->check_out) { $by_day[$b->check_out]['out'][] = $b; }
+        }
+        $prev = gmdate('Y-m', strtotime($start . ' -1 month'));
+        $next = gmdate('Y-m', strtotime($start . ' +1 month'));
+        $base = home_url('/mi-cuenta/');
+        $today = current_time('Y-m-d');
+
+        ob_start();
+        echo '<div class="tap-dash-section"><div class="tap-dash-section-header"><h2>'
+            . esc_html(sprintf(__('Calendario de operaciones — %s', 'travel-agency-platform'), $month)) . '</h2><div style="display:flex;gap:6px;">';
+        foreach ([[$prev, __('« Mes anterior', 'travel-agency-platform')], [$next, __('Mes siguiente »', 'travel-agency-platform')]] as $link) {
+            echo '<a class="button button-small" href="' . esc_url(add_query_arg(['seccion' => 'bo-calendar', 'month' => $link[0]], $base)) . '">' . esc_html($link[1]) . '</a>';
+        }
+        echo '</div></div>';
+        echo '<table class="tap-table tap-table-compact"><thead><tr><th>' . esc_html__('Día', 'travel-agency-platform')
+            . '</th><th>' . esc_html__('Entradas', 'travel-agency-platform')
+            . '</th><th>' . esc_html__('Salidas', 'travel-agency-platform') . '</th></tr></thead><tbody>';
+        $days = (int) gmdate('t', strtotime($start));
+        $found = false;
+        for ($d = 1; $d <= $days; $d++) {
+            $day = $month . '-' . str_pad((string) $d, 2, '0', STR_PAD_LEFT);
+            $in = $by_day[$day]['in'] ?? [];
+            $out = $by_day[$day]['out'] ?? [];
+            if (!$in && !$out) { continue; }
+            $found = true;
+            echo '<tr' . ($day === $today ? ' style="background:#ecfdf5;"' : '') . '><td><strong>' . esc_html($day) . '</strong></td><td>';
+            foreach ($in as $b) {
+                $voucher = home_url('/booking-detail/?code=' . rawurlencode($b->booking_code));
+                echo '<div><a href="' . esc_url($voucher) . '">' . esc_html($b->booking_code) . '</a> · '
+                    . esc_html($b->guest_name ?: __('Invitado', 'travel-agency-platform'))
+                    . ' <span class="tap-status tap-status-' . esc_attr($b->status) . '">' . esc_html(TAP_Emails_Send::status_label($b->status)) . '</span>';
+                if ('confirmed' === $b->status && $day <= $today) {
+                    echo ' <button class="tap-btn tap-btn-sm tap-bo-api" data-op="no_show" data-id="' . (int) $b->id . '" data-name="' . esc_attr($b->booking_code) . '">'
+                        . esc_html__('No show', 'travel-agency-platform') . '</button>';
+                }
+                echo '</div>';
+            }
+            echo '</td><td>';
+            foreach ($out as $b) {
+                echo '<div>' . esc_html($b->booking_code) . ' · '
+                    . esc_html($b->guest_name ?: __('Invitado', 'travel-agency-platform')) . '</div>';
+            }
+            echo '</td></tr>';
+        }
+        if (!$found) {
+            echo '<tr><td colspan="3">' . esc_html__('No hay reservas para este mes.', 'travel-agency-platform') . '</td></tr>';
+        }
+        echo '</tbody></table></div>';
+        return ob_get_clean();
     }
 
     private static function agency_finances($user) {
@@ -1883,6 +1959,7 @@ endif;
         $nav = [
             ['key' => 'overview', 'label' => __('Resumen', 'travel-agency-platform'), 'icon' => 'home', 'url' => $base],
             ['key' => 'bo-operations', 'label' => __('Operaciones', 'travel-agency-platform'), 'icon' => 'calendar', 'url' => add_query_arg('seccion', 'bo-operations', $base), 'badge' => ($unread + $new_bookings)],
+            ['key' => 'bo-calendar', 'label' => __('Calendario', 'travel-agency-platform'), 'icon' => 'calendar', 'url' => add_query_arg('seccion', 'bo-calendar', $base)],
         ];
         // Finanzas y Equipo son solo del administrador de la agencia;
         // los empleados ven Resumen, Operaciones y Listados.

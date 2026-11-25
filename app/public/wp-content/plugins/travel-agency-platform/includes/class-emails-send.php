@@ -23,6 +23,7 @@ class TAP_Emails_Send {
             'cancelled' => __('Cancelada', 'travel-agency-platform'),
             'completed' => __('Completada', 'travel-agency-platform'),
             'refunded'  => __('Reembolsada', 'travel-agency-platform'),
+            'no_show'   => __('No show', 'travel-agency-platform'),
         ];
     }
 

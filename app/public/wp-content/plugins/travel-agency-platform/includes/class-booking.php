@@ -19,10 +19,11 @@ class TAP_Booking {
     public static $transitions = [
         'request'   => ['pending', 'confirmed', 'cancelled'],
         'pending'   => ['confirmed', 'completed', 'cancelled', 'refunded'],
-        'confirmed' => ['completed', 'cancelled', 'refunded'],
-        'completed' => ['refunded', 'cancelled'],
+        'confirmed' => ['completed', 'no_show', 'cancelled', 'refunded'],
+        'completed' => ['refunded', 'cancelled', 'no_show'],
         'cancelled' => [],
         'refunded'  => [],
+        'no_show'   => [],
     ];
 
     /*
@@ -866,6 +867,7 @@ class TAP_Booking {
      *   cancel    request|pending|confirmed -> cancelled with policy penalty
      */
     public static function agency_booking_action($booking_id, $action, $user_id = 0, $reason = '') {
+        global $wpdb;
         $user_id = $user_id ?: get_current_user_id();
         $user    = get_userdata($user_id);
         if (!$user) {
@@ -927,6 +929,25 @@ class TAP_Booking {
                 do_action('tap_payment_completed', $booking->id, 'office', '');
                 if (class_exists('TAP_Audit_Log')) {
                     TAP_Audit_Log::log('booking_marked_paid', 'booking', $booking->id, null, (int) $booking->agency_id, $user_id);
+                }
+                return true;
+            case 'no_show':
+                // The traveler did not arrive. No gateway refund is involved:
+                // the agency records it for its own operations and reporting.
+                if (!in_array($booking->status, ['confirmed', 'completed'], true)) {
+                    return new WP_Error('bad_status', __('Solo se pueden marcar como no show reservas confirmadas.', 'travel-agency-platform'));
+                }
+                if (!$booking->check_in || $booking->check_in > current_time('Y-m-d')) {
+                    return new WP_Error('not_due', __('La reserva aún no ha llegado a la fecha de check-in.', 'travel-agency-platform'));
+                }
+                $wpdb->update(
+                    $wpdb->prefix . 'tap_bookings',
+                    ['status' => 'no_show'],
+                    ['id' => $booking->id, 'status' => $booking->status]
+                );
+                do_action('tap_booking_status_updated', $booking->id, 'no_show', $booking->status);
+                if (class_exists('TAP_Audit_Log')) {
+                    TAP_Audit_Log::log('booking_no_show', 'booking', $booking->id, $reason, (int) $booking->agency_id, $user_id);
                 }
                 return true;
             case 'reject':

@@ -403,7 +403,7 @@ class TAP_Dashboard_Bookings {
                 <input type="text" name="s" value="<?php echo esc_attr($s); ?>" placeholder="<?php esc_attr_e('Código, cliente o email', 'travel-agency-platform'); ?>">
                 <select name="f_status">
                     <option value=""><?php esc_html_e('Todos los estados', 'travel-agency-platform'); ?></option>
-                    <?php foreach (['pending', 'request', 'confirmed', 'completed', 'cancelled', 'refunded'] as $st): ?>
+                    <?php foreach (['pending', 'request', 'confirmed', 'completed', 'cancelled', 'refunded', 'no_show'] as $st): ?>
                     <option value="<?php echo esc_attr($st); ?>" <?php selected($f_status, $st); ?>><?php echo esc_html(ucfirst($st)); ?></option>
                     <?php endforeach; ?>
                 </select>

@@ -12,7 +12,7 @@ $p = $wpdb->prefix;
 
 /* 1) localized label maps ---------------------------------------------------- */
 $status = TAP_Emails_Send::status_labels();
-tap_t_assert(is_array($status) && count($status) === 6, 'status_labels() returns 6 statuses');
+tap_t_assert(is_array($status) && count($status) === 7, 'status_labels() returns 7 statuses');
 tap_t_assert($status['pending'] === 'Pendiente' && $status['confirmed'] === 'Confirmada', 'status_labels() source strings are Spanish');
 tap_t_assert(TAP_Emails_Send::status_label('confirmed') === 'Confirmada', 'status_label() resolves known status');
 tap_t_assert(TAP_Emails_Send::status_label('bogus_status') === 'bogus_status', 'status_label() falls back to raw value');

@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.17.0] — 2026-11-25
+
+### Added (agency operations)
+- Operations calendar in the agency panel with month navigation, arrivals and
+  departures, voucher links and today's highlight.
+- `no_show` booking status and agency action for confirmed bookings from their
+  check-in date onward, with audit entry and translated label.
+- `no_show` included in stats and admin booking filters.
+- FUNCTIONAL `suite_agency_calendar.php` (10 assertions).
+
 ## [1.16.0] — 2026-11-25
 
 ### Added (real KYC)

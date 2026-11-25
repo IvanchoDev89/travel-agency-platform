@@ -54,7 +54,7 @@ class TAP_Booking_Stats {
         global $wpdb;
         $table = $wpdb->prefix . 'tap_bookings';
         $rows = $wpdb->get_results("SELECT status, COUNT(*) as cnt FROM $table GROUP BY status");
-        $out = ['pending' => 0, 'request' => 0, 'confirmed' => 0, 'completed' => 0, 'cancelled' => 0, 'refunded' => 0];
+        $out = ['pending' => 0, 'request' => 0, 'confirmed' => 0, 'completed' => 0, 'cancelled' => 0, 'refunded' => 0, 'no_show' => 0];
         foreach ($rows as $r) {
             if (isset($out[$r->status])) $out[$r->status] = (int) $r->cnt;
         }
