@@ -1,0 +1,101 @@
+/* Self-service affiliate portal. */
+
+.tap-aff-portal {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.tap-aff-meta {
+    color: var(--tap-neutral-500, #64748b);
+    font-size: var(--tap-text-sm, 13px);
+}
+
+.tap-aff-note {
+    padding: 10px 14px;
+    background: #fffbeb;
+    border-left: 3px solid #f59e0b;
+    color: #92400e;
+    font-size: var(--tap-text-sm, 13px);
+}
+
+.tap-aff-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin: 20px 0;
+}
+
+.tap-aff-metrics > div {
+    background: var(--tap-surface, #fff);
+    border: 1px solid var(--tap-neutral-200, #e2e8f0);
+    border-radius: var(--tap-radius-lg, 10px);
+    padding: 16px;
+    text-align: center;
+}
+
+.tap-aff-metrics span {
+    display: block;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--tap-primary-dark, #0f5c75);
+}
+
+.tap-aff-metrics small {
+    display: block;
+    margin-top: 4px;
+    color: var(--tap-neutral-500, #64748b);
+}
+
+.tap-aff-portal h3 {
+    margin: 24px 0 10px;
+    font-size: 16px;
+}
+
+.tap-aff-links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.tap-aff-links li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--tap-neutral-100, #f1f5f9);
+    font-size: var(--tap-text-sm, 13px);
+    word-break: break-all;
+}
+
+.tap-aff-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--tap-text-sm, 13px);
+}
+
+.tap-aff-table th,
+.tap-aff-table td {
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--tap-neutral-200, #e2e8f0);
+    text-align: left;
+}
+
+.tap-aff-table th {
+    background: var(--tap-surface-muted, #f8fafc);
+    font-weight: 600;
+}
+
+.tap-aff-request {
+    margin-top: 16px;
+    padding: 16px;
+    background: var(--tap-surface-muted, #f8fafc);
+    border: 1px solid var(--tap-neutral-200, #e2e8f0);
+    border-radius: var(--tap-radius-lg, 10px);
+}
+
+.tap-aff-request p {
+    margin: 0 0 10px;
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+    .tap-aff-table { font-size: 12px; }
+    .tap-aff-metrics span { font-size: 18px; }
+}

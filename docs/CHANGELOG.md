@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.8.0] — 2026-11-25
+
+### Added (Ronda D — portal de afiliados)
+- Self-service affiliate portal at `[tap_affiliate_portal]` and the "Afiliado"
+  tab in `/mi-cuenta/`, shown only to users linked to an affiliate.
+- Metrics (clicks, conversions, available, paid), tracking links, conversion
+  table, payout history and a payout request form.
+- Server-computed payouts from released commissions only: normalized
+  `tap_affiliate_payouts` / `tap_affiliate_payout_items` tables, no double
+  requests, ownership and nonce checks, admin notify on request.
+- Admin settlement section in `Travel Platform → Afiliados` to mark requests
+  paid/cancelled with a reference note.
+- Affiliate↔user mapping by `user_id` or email; fixed status vocabulary
+  (`suspended` instead of `blocked`).
+- Dedicated `affiliate.css`.
+
+### Added (tests)
+- FUNCTIONAL `suite_affiliate_portal.php` (19 assertions: mapping, stats,
+  payout lifecycle, double-pay guard, ownership, rendering and navigation).
+
 ## [1.7.2] — 2026-11-24
 
 ### Fixed (checkout UX)

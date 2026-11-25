@@ -39,7 +39,7 @@ class TAP_Front_Dash_Client {
 
     private static function client_nav($active) {
         $base = home_url('/mi-cuenta/');
-        return [
+        $nav = [
             ['key' => 'overview', 'label' => __('Resumen', 'travel-agency-platform'), 'icon' => 'home', 'url' => $base],
             ['key' => 'bookings', 'label' => __('Mis reservas', 'travel-agency-platform'), 'icon' => 'calendar', 'url' => add_query_arg('seccion', 'bookings', $base)],
             ['key' => 'trips', 'label' => __('Mis viajes', 'travel-agency-platform'), 'icon' => 'map', 'url' => add_query_arg('seccion', 'trips', $base)],
@@ -49,6 +49,15 @@ class TAP_Front_Dash_Client {
             ['key' => 'contracts', 'label' => __('Mis contratos', 'travel-agency-platform'), 'icon' => 'list', 'url' => add_query_arg('seccion', 'contracts', $base)],
             ['key' => 'profile', 'label' => __('Mi perfil', 'travel-agency-platform'), 'icon' => 'user', 'url' => add_query_arg('seccion', 'profile', $base)],
         ];
+        if (class_exists('TAP_Affiliates') && TAP_Affiliates::for_user(get_current_user_id())) {
+            $nav[] = [
+                'key'   => 'affiliates',
+                'label' => __('Afiliado', 'travel-agency-platform'),
+                'icon'  => 'users',
+                'url'   => add_query_arg('seccion', 'affiliates', $base),
+            ];
+        }
+        return $nav;
     }
 
     private static function client_section($user, $section) {
@@ -65,6 +74,8 @@ class TAP_Front_Dash_Client {
                 return self::client_loyalty($user);
             case 'contracts':
                 return class_exists('TAP_Legal') ? do_shortcode('[tap_my_contracts]') : '';
+            case 'affiliates':
+                return class_exists('TAP_Affiliates') ? do_shortcode('[tap_affiliate_portal]') : '';
             case 'profile':
                 return self::client_profile($user);
             default:

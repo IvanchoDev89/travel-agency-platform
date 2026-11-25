@@ -1100,6 +1100,26 @@ class TAP_Installer {
             KEY created_at (created_at)
         ) {$wpdb->get_charset_collate()}");
 
+        $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_affiliate_payouts (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            affiliate_id bigint(20) NOT NULL,
+            amount decimal(15,2) NOT NULL DEFAULT 0,
+            status varchar(20) NOT NULL DEFAULT 'pending',
+            note varchar(255) DEFAULT NULL,
+            requested_at datetime DEFAULT CURRENT_TIMESTAMP,
+            paid_at datetime DEFAULT NULL,
+            PRIMARY KEY (id),
+            KEY affiliate_status (affiliate_id, status)
+        ) {$wpdb->get_charset_collate()}");
+
+        $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_affiliate_payout_items (
+            payout_id bigint(20) NOT NULL,
+            conversion_id bigint(20) NOT NULL,
+            amount decimal(15,2) NOT NULL DEFAULT 0,
+            PRIMARY KEY (payout_id, conversion_id),
+            KEY conversion_id (conversion_id)
+        ) {$wpdb->get_charset_collate()}");
+
         $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_legal_documents (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             doc_key varchar(80) NOT NULL,
@@ -1209,6 +1229,11 @@ class TAP_Installer {
             PRIMARY KEY (id),
             KEY user_id (user_id)
         ) {$wpdb->get_charset_collate()}");
+
+        $aff_cols = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_affiliates");
+        if (!in_array('user_id', $aff_cols, true)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_affiliates ADD COLUMN user_id bigint(20) DEFAULT 0 AFTER email");
+        }
 
         $cols_leads = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_leads");
         if (!in_array('mod_status', $cols_leads, true)) {
