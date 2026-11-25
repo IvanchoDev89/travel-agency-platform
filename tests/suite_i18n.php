@@ -4,6 +4,7 @@
  * Run via: wp --path="<site>/app/public" eval-file tests/suite_i18n.php
  */
 require __DIR__ . '/bootstrap.php';
+$tap_orig_lang = get_user_meta(get_current_user_id(), 'tap_lang', true);
 
 $mo_en  = TAP_PLUGIN_DIR . 'languages/travel-agency-platform-en_US.mo';
 $mo_es  = TAP_PLUGIN_DIR . 'languages/travel-agency-platform-es_ES.mo';
@@ -74,4 +75,5 @@ $plural = $mo->entries['%d unidad'] ?? null;
 tap_t_assert($plural && is_object($plural) && count($plural->translations) >= 2, 'plural forms stored for the singular msgid');
 tap_t_assert($plural && false !== strpos($entry_text($plural), 'unidades'), 'plural translation contains the plural form');
 
+if ('' !== (string) $tap_orig_lang) { update_user_meta(get_current_user_id(), 'tap_lang', $tap_orig_lang); } else { delete_user_meta(get_current_user_id(), 'tap_lang'); }
 tap_t_finish();

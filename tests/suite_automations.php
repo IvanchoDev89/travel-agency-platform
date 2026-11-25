@@ -5,6 +5,7 @@
  * expiry warnings for plans/promotions, all with the sent-log guard.
  */
 require __DIR__ . '/bootstrap.php';
+$tap_orig_lang = get_user_meta(get_current_user_id(), 'tap_lang', true);
 
 global $wpdb;
 $pref = 'auto_' . substr(md5(microtime(true)), 0, 6) . '_';
@@ -186,4 +187,5 @@ foreach (['tap_auto_sent_pay', 'tap_auto_sent_pre', 'tap_auto_sent_rev', 'tap_au
     delete_option($opt);
 }
 
+if ('' !== (string) $tap_orig_lang) { update_user_meta(get_current_user_id(), 'tap_lang', $tap_orig_lang); } else { delete_user_meta(get_current_user_id(), 'tap_lang'); }
 tap_t_finish();

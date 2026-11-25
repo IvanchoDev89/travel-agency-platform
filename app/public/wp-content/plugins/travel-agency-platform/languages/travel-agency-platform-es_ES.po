@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-25T17:48:36+00:00\n"
+"POT-Creation-Date: 2026-11-25T17:54:00+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -903,7 +903,7 @@ msgstr ""
 #: includes/class-shortcode-booking.php:1329
 #: includes/class-shortcode-booking.php:1331
 #: includes/class-shortcode-booking.php:1366
-#: includes/class-shortcode-booking.php:1369 travel-agency-platform.php:435
+#: includes/class-shortcode-booking.php:1369 travel-agency-platform.php:436
 msgid "Error"
 msgstr "Error"
 
@@ -1739,7 +1739,8 @@ msgstr "Debes iniciar sesión."
 #: includes/class-front-dash.php:2066 includes/class-invoices.php:469
 #: includes/class-leads.php:213 includes/class-legal.php:399
 #: includes/class-legal.php:426 includes/class-ops-log.php:27
-#: includes/class-referral-reports.php:27
+#: includes/class-referral-reports.php:27 includes/class-test-data.php:44
+#: includes/class-test-data.php:65
 msgid "Acceso denegado."
 msgstr "Acceso denegado."
 
@@ -10190,7 +10191,7 @@ msgstr "¿Enviar ahora?"
 #: includes/class-email-campaigns.php:286
 #: includes/class-front-dash-client.php:432 includes/class-front-dash.php:572
 #: includes/class-shortcode-account.php:948
-#: includes/class-shortcode-booking.php:1308 travel-agency-platform.php:444
+#: includes/class-shortcode-booking.php:1308 travel-agency-platform.php:445
 msgid "Enviar"
 msgstr "Enviar"
 
@@ -16227,11 +16228,11 @@ msgid "Network error. Please try again."
 msgstr "Error de red. Inténtalo de nuevo."
 
 #: includes/class-shortcode-account.php:932
-#: includes/class-shortcode-account.php:934 travel-agency-platform.php:440
+#: includes/class-shortcode-account.php:934 travel-agency-platform.php:441
 msgid "Asistente de viajes"
 msgstr "Asistente de viajes"
 
-#: includes/class-shortcode-account.php:938 travel-agency-platform.php:445
+#: includes/class-shortcode-account.php:938 travel-agency-platform.php:446
 msgid ""
 "¡Hola! Soy el asistente de viajes. Pregunta por alojamientos, tours, bonos o "
 "agencias, o toca una sugerencia."
@@ -16240,7 +16241,7 @@ msgstr ""
 "agencias, o toca una sugerencia."
 
 #: includes/class-shortcode-account.php:946
-#: includes/class-shortcode-account.php:947 travel-agency-platform.php:443
+#: includes/class-shortcode-account.php:947 travel-agency-platform.php:444
 msgid "Escribe tu pregunta…"
 msgstr "Escribe tu pregunta…"
 
@@ -16260,7 +16261,7 @@ msgid "Solicitar reserva"
 msgstr "Solicitar reserva"
 
 #: includes/class-shortcode-booking.php:51
-#: includes/class-shortcode-booking.php:145 travel-agency-platform.php:434
+#: includes/class-shortcode-booking.php:145 travel-agency-platform.php:435
 msgid "Book Now"
 msgstr "Reservar ahora"
 
@@ -17851,6 +17852,51 @@ msgstr "Gastronomía"
 #: includes/class-taxonomies.php:292
 msgid "Traslados aeropuerto"
 msgstr "Traslados aeropuerto"
+
+#: includes/class-test-data.php:20 includes/class-test-data.php:21
+#: includes/class-test-data.php:67
+msgid "Datos de prueba"
+msgstr "Datos de prueba"
+
+#: includes/class-test-data.php:68
+msgid "Esta herramienta es solo para entornos de desarrollo/pruebas. Nunca ejecutarla en producción."
+msgstr "Esta herramienta es solo para entornos de desarrollo/pruebas. Nunca ejecutarla en producción."
+
+#: includes/class-test-data.php:71
+msgid "WP_DEBUG debe estar activo para ejecutar la limpieza."
+msgstr "WP_DEBUG debe estar activo para ejecutar la limpieza."
+
+#: includes/class-test-data.php:73
+msgid "Datos de prueba eliminados."
+msgstr "Datos de prueba eliminados."
+
+#: includes/class-test-data.php:76
+msgid "Vista previa de los datos que se eliminarían:"
+msgstr "Vista previa de los datos que se eliminarían:"
+
+#: includes/class-test-data.php:79
+msgid "Reservas de prueba"
+msgstr "Reservas de prueba"
+
+#: includes/class-test-data.php:80
+msgid "Facturas huérfanas"
+msgstr "Facturas huérfanas"
+
+#: includes/class-test-data.php:81
+msgid "Consentimientos de prueba"
+msgstr "Consentimientos de prueba"
+
+#: includes/class-test-data.php:82
+msgid "Reseñas de prueba"
+msgstr "Reseñas de prueba"
+
+#: includes/class-test-data.php:90
+msgid "¿Eliminar todos los datos de prueba listados? Esta acción no se puede deshacer."
+msgstr "¿Eliminar todos los datos de prueba listados? Esta acción no se puede deshacer."
+
+#: includes/class-test-data.php:91
+msgid "Eliminar datos de prueba"
+msgstr "Eliminar datos de prueba"
 
 #: includes/class-tour-availability.php:322
 msgid "No tienes permiso para gestionar este tour."
@@ -19659,117 +19705,117 @@ msgstr ""
 "no se encontró el autoloader de Composer. Ejecuta \"composer dump-autoload -"
 "o\"."
 
-#: travel-agency-platform.php:412
+#: travel-agency-platform.php:413
 msgid "results found"
 msgstr "resultados encontrados"
 
-#: travel-agency-platform.php:413
+#: travel-agency-platform.php:414
 msgid "No results found"
 msgstr "No se encontraron resultados"
 
-#: travel-agency-platform.php:414
+#: travel-agency-platform.php:415
 msgid "Guardado en favoritos"
 msgstr "Guardado en favoritos"
 
-#: travel-agency-platform.php:415
+#: travel-agency-platform.php:416
 msgid "Quitado de favoritos"
 msgstr "Quitado de favoritos"
 
-#: travel-agency-platform.php:416
+#: travel-agency-platform.php:417
 msgid "Aún no hay reseñas."
 msgstr "Aún no hay reseñas."
 
-#: travel-agency-platform.php:417
+#: travel-agency-platform.php:418
 msgid "Aún no hay reseñas. Sé el primero en compartir tu experiencia."
 msgstr "Aún no hay reseñas. Sé el primero en compartir tu experiencia."
 
-#: travel-agency-platform.php:418
+#: travel-agency-platform.php:419
 msgid "reseña"
 msgstr "reseña"
 
-#: travel-agency-platform.php:419
+#: travel-agency-platform.php:420
 msgid "reseñas"
 msgstr "reseñas"
 
-#: travel-agency-platform.php:420
+#: travel-agency-platform.php:421
 msgid "Anónimo"
 msgstr "Anónimo"
 
-#: travel-agency-platform.php:421
+#: travel-agency-platform.php:422
 msgid "Enviando..."
 msgstr "Enviando..."
 
-#: travel-agency-platform.php:422
+#: travel-agency-platform.php:423
 msgid "¡Reseña enviada! Pendiente de aprobación."
 msgstr "¡Reseña enviada! Pendiente de aprobación."
 
-#: travel-agency-platform.php:423
+#: travel-agency-platform.php:424
 msgid "Error al enviar"
 msgstr "Error al enviar"
 
-#: travel-agency-platform.php:424
+#: travel-agency-platform.php:425
 msgid "Review submitted"
 msgstr "Reseña enviada"
 
-#: travel-agency-platform.php:425
+#: travel-agency-platform.php:426
 msgid "Error al enviar la reseña"
 msgstr "Error al enviar la reseña"
 
 #. translators: %s: nombre del servicio
-#: travel-agency-platform.php:427
+#: travel-agency-platform.php:428
 #, php-format
 msgid "Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!"
 msgstr "Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!"
 
-#: travel-agency-platform.php:428
+#: travel-agency-platform.php:429
 msgid "Reseña verificada"
 msgstr "Reseña verificada"
 
 #. translators: 1: cupos disponibles, 2: cupos totales
-#: travel-agency-platform.php:430
+#: travel-agency-platform.php:431
 #, php-format
 msgid "Cupos disponibles: %s de %s"
 msgstr "Cupos disponibles: %s de %s"
 
 #. translators: 1: cupos ocupados, 2: cupos totales
-#: travel-agency-platform.php:432
+#: travel-agency-platform.php:433
 #, php-format
 msgid "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
 msgstr "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
 
-#: travel-agency-platform.php:433
+#: travel-agency-platform.php:434
 msgid "El tour está completo para esta fecha."
 msgstr "El tour está completo para esta fecha."
 
-#: travel-agency-platform.php:436
+#: travel-agency-platform.php:437
 msgid "Image gallery"
 msgstr "Galería de imágenes"
 
-#: travel-agency-platform.php:437
+#: travel-agency-platform.php:438
 msgid "Close image gallery"
 msgstr "Cerrar galería de imágenes"
 
-#: travel-agency-platform.php:438
+#: travel-agency-platform.php:439
 msgid "Previous image"
 msgstr "Imagen anterior"
 
-#: travel-agency-platform.php:439
+#: travel-agency-platform.php:440
 msgid "Next image"
 msgstr "Imagen siguiente"
 
-#: travel-agency-platform.php:441
+#: travel-agency-platform.php:442
 msgid "Abrir asistente"
 msgstr "Abrir asistente"
 
-#: travel-agency-platform.php:442
+#: travel-agency-platform.php:443
 msgid "Cerrar asistente"
 msgstr "Cerrar asistente"
 
-#: travel-agency-platform.php:446
+#: travel-agency-platform.php:447
 msgid "Pensando…"
 msgstr "Pensando…"
 
-#: travel-agency-platform.php:447
+#: travel-agency-platform.php:448
 msgid "Hubo un problema. Inténtalo de nuevo."
 msgstr "Hubo un problema. Inténtalo de nuevo."
 

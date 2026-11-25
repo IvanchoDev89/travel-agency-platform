@@ -4,6 +4,7 @@
  * Run via: wp --path="<site>/app/public" eval-file tests/suite_chatbot.php
  */
 require __DIR__ . '/bootstrap.php';
+$tap_orig_lang = get_user_meta(get_current_user_id(), 'tap_lang', true);
 
 $C = 'TAP_Chatbot';
 tap_t_assert(class_exists($C), 'TAP_Chatbot class present');
@@ -121,4 +122,5 @@ wp_delete_post($p1, true);
 wp_delete_post($p2, true);
 tap_t_assert(null === $wpdb->get_var("SELECT ID FROM {$table} WHERE 1=0"), 'table queryable');
 
+if ('' !== (string) $tap_orig_lang) { update_user_meta(get_current_user_id(), 'tap_lang', $tap_orig_lang); } else { delete_user_meta(get_current_user_id(), 'tap_lang'); }
 tap_t_finish();
