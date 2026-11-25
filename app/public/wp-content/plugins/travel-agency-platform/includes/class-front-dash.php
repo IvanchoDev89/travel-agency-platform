@@ -798,6 +798,43 @@ class TAP_Front_Dash {
                 <span class="tap-notice-icon" aria-hidden="true">ℹ</span>
                 <span><?php esc_html_e('Tu ingreso neto es el total de las reservas menos la comisión de la plataforma. Las transferencias a tu agencia se coordinan directamente con el administrador; esta sección es informativa.', 'travel-agency-platform'); ?></span>
             </div>
+            <?php if (class_exists('TAP_Agency_Payouts')): ?>
+                <?php
+                $earn = TAP_Agency_Payouts::earnings((int) $agency);
+                $payouts = TAP_Agency_Payouts::requests((int) $agency, 10);
+                ?>
+                <div class="tap-panel-section" style="margin-top:16px;">
+                    <h3><?php esc_html_e('Tus ingresos', 'travel-agency-platform'); ?></h3>
+                    <div class="tap-stats-grid">
+                        <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(TAP_Currency::fmt($earn['gross'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Ingreso bruto', 'travel-agency-platform'); ?></span></div>
+                        <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b45309;">-<?php echo esc_html(TAP_Currency::fmt($earn['fees'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Tarifa de plataforma', 'travel-agency-platform'); ?></span></div>
+                        <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b45309;">-<?php echo esc_html(TAP_Currency::fmt($earn['commission'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Comisión de plataforma', 'travel-agency-platform'); ?></span></div>
+                        <div class="tap-stat-card"><span class="tap-stat-number" style="color:#047857;"><?php echo esc_html(TAP_Currency::fmt($earn['net'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Neto para tu agencia', 'travel-agency-platform'); ?></span></div>
+                        <div class="tap-stat-card"><span class="tap-stat-number" style="color:#047857;"><?php echo esc_html(TAP_Currency::fmt($earn['available'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Disponible para cobrar', 'travel-agency-platform'); ?></span></div>
+                    </div>
+                    <?php if ($earn['available'] > 0): ?>
+                        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="margin-top:12px;">
+                            <input type="hidden" name="action" value="tap_agency_payout_request">
+                            <input type="hidden" name="agency_id" value="<?php echo (int) $agency; ?>">
+                            <?php wp_nonce_field('tap_agency_payout_' . (int) $agency, 'tap_agency_nonce'); ?>
+                            <button class="button button-primary"><?php echo esc_html(sprintf(__('Solicitar liquidación de %s', 'travel-agency-platform'), TAP_Currency::fmt($earn['available']))); ?></button>
+                        </form>
+                    <?php endif; ?>
+                    <?php if (isset($_GET['payout_ok'])): ?>
+                        <p class="tap-agency-meta" style="color:#047857;"><?php esc_html_e('Solicitud enviada. El administrador procesará el pago.', 'travel-agency-platform'); ?></p>
+                    <?php endif; ?>
+                    <?php if ($payouts): ?>
+                        <table class="tap-table tap-table-compact" style="margin-top:12px;"><thead><tr>
+                            <th><?php esc_html_e('Solicitud', 'travel-agency-platform'); ?></th><th><?php esc_html_e('Monto', 'travel-agency-platform'); ?></th><th><?php esc_html_e('Estado', 'travel-agency-platform'); ?></th><th><?php esc_html_e('Fecha', 'travel-agency-platform'); ?></th>
+                        </tr></thead><tbody>
+                            <?php foreach ($payouts as $po): ?>
+                                <tr><td>#<?php echo (int) $po->id; ?></td><td><?php echo esc_html(TAP_Currency::fmt((float) $po->amount)); ?></td><td><?php echo esc_html($po->status); ?></td><td><?php echo esc_html(substr((string) $po->requested_at, 0, 10)); ?></td></tr>
+                            <?php endforeach; ?>
+                        </tbody></table>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+
             <div class="tap-stats-grid">
                 <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b45309;"><?php echo esc_html(TAP_Currency::fmt($totals->owed ?? 0)); ?></span><span class="tap-stat-label"><?php esc_html_e('Comisión de la plataforma pendiente', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b91c1c;"><?php echo esc_html(TAP_Currency::fmt($totals->disputed ?? 0)); ?></span><span class="tap-stat-label"><?php esc_html_e('Comisión en disputa', 'travel-agency-platform'); ?></span></div>

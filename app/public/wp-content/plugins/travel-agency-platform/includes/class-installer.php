@@ -1100,6 +1100,18 @@ class TAP_Installer {
             KEY created_at (created_at)
         ) {$wpdb->get_charset_collate()}");
 
+        $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_agency_payouts (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            agency_id bigint(20) NOT NULL,
+            amount decimal(15,2) NOT NULL DEFAULT 0,
+            status varchar(20) NOT NULL DEFAULT 'pending',
+            note varchar(255) DEFAULT NULL,
+            requested_at datetime DEFAULT CURRENT_TIMESTAMP,
+            paid_at datetime DEFAULT NULL,
+            PRIMARY KEY (id),
+            KEY agency_status (agency_id, status)
+        ) {$wpdb->get_charset_collate()}");
+
         $wpdb->query("CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_affiliate_payouts (
             id bigint(20) NOT NULL AUTO_INCREMENT,
             affiliate_id bigint(20) NOT NULL,

@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.11.0] — 2026-11-25
+
+### Added (agency money operations)
+- Agency payout requests for net earnings: gross − platform fee − commission,
+  with server-computed amounts, double-pay guard, ownership/nonce checks and
+  an admin approval screen (`Travel Platform → Liquidaciones de agencias`).
+- Agency finances panel now shows gross, fee, commission, net and available
+  balance, request history and real time status.
+- FUNCTIONAL `suite_agency_payouts.php` (10 assertions).
+
 ## [1.10.0] — 2026-11-25
 
 ### Fixed (traveler trust and price truth)
