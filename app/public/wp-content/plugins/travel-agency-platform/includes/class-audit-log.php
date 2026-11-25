@@ -43,6 +43,16 @@ class TAP_Audit_Log {
         ));
     }
 
+    /** Get log entries for a booking (object_type = 'booking'). */
+    public static function for_booking($booking_id, $limit = 50) {
+        global $wpdb;
+        return $wpdb->get_results($wpdb->prepare(
+            'SELECT * FROM ' . self::table() . ' WHERE object_type = "booking" AND object_id = %d ORDER BY created_at DESC LIMIT %d',
+            (int) $booking_id,
+            (int) $limit
+        )) ?: [];
+    }
+
     /** Get log entries for a user. */
     public static function for_user($user_id, $limit = 50) {
         global $wpdb;

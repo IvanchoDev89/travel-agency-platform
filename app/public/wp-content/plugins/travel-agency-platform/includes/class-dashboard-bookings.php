@@ -128,7 +128,7 @@ class TAP_Dashboard_Bookings {
                             $status_key = isset($status_labels[$b->status]) ? $b->status : 'pending';
 							?>
                         <tr>
-                            <td><a href="admin.php?page=tap-bookings"><?php echo esc_html($b->booking_code); ?></a></td>
+                            <td><a href="<?php echo esc_url(admin_url('admin.php?page=tap-bookings&view=detail&id=' . (int) $b->id)); ?>"><?php echo esc_html($b->booking_code); ?></a></td>
                             <td><?php echo $client ? esc_html($client->display_name) : 'N/D'; ?></td>
                             <td><?php echo $service ? esc_html($service->post_title) : 'N/D'; ?></td>
                             <td><?php echo esc_html(TAP_Currency::fmt($b->total_amount)); ?></td>
@@ -215,12 +215,115 @@ class TAP_Dashboard_Bookings {
     }
 
 
+    /** Full booking drill-down for operators (voucher is the customer view). */
+    public static function booking_detail($booking_id) {
+        if (!current_user_can('tap_manage_bookings') && !current_user_can('manage_options')) {
+            wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform'));
+        }
+        global $wpdb;
+        $b = TAP_Booking::get_booking($booking_id);
+        if (!$b) {
+            return '<div class="wrap"><h1>' . esc_html__('Reserva no encontrada.', 'travel-agency-platform') . '</h1></div>';
+        }
+        $client = $b->client_id ? get_userdata((int) $b->client_id) : null;
+        $service = get_post($b->service_id);
+        $agency = get_post($b->agency_id);
+        $items = TAP_Booking::get_booking_items($booking_id);
+        $audit = class_exists('TAP_Audit_Log') ? TAP_Audit_Log::for_booking($booking_id, 30) : [];
+        $meta_keys = [
+            '_tap_paypal_capture_id' => __('Captura PayPal', 'travel-agency-platform'),
+            '_tap_onvo_payment_intent_id' => __('Intent de Onvo', 'travel-agency-platform'),
+            '_tap_paypal_refund_id' => __('Reembolso PayPal', 'travel-agency-platform'),
+            '_tap_onvo_refund_id' => __('Reembolso Onvo', 'travel-agency-platform'),
+            '_tap_refund_error' => __('Error de reembolso', 'travel-agency-platform'),
+            '_tap_payment_details' => __('Detalles del pago', 'travel-agency-platform'),
+        ];
+        ob_start();
+        ?>
+        <div class="wrap">
+            <p><a href="<?php echo esc_url(admin_url('admin.php?page=tap-bookings')); ?>">&larr; <?php esc_html_e('Volver a reservas', 'travel-agency-platform'); ?></a></p>
+            <h1><?php echo esc_html($b->booking_code); ?> <span class="description">#<?php echo (int) $b->id; ?></span></h1>
+            <p>
+                <?php echo esc_html(TAP_Emails_Send::status_label($b->status)); ?> ·
+                <?php echo esc_html(TAP_Emails_Send::payment_label($b->payment_status)); ?> ·
+                <?php echo esc_html(TAP_Currency::fmt((float) $b->total_amount)); ?>
+                <?php if ((float) ($b->refund_amount ?? 0) > 0): ?>
+                    · <?php echo esc_html(sprintf(__('Reembolsado: %s', 'travel-agency-platform'), TAP_Currency::fmt((float) $b->refund_amount))); ?>
+                <?php endif; ?>
+            </p>
+            <table class="form-table">
+                <tr><th><?php esc_html_e('Cliente', 'travel-agency-platform'); ?></th><td>
+                    <?php echo esc_html($client ? $client->display_name : ($b->guest_name ?: '—')); ?><br>
+                    <?php echo esc_html($b->guest_email ?: ($client ? $client->user_email : '—')); ?>
+                    <?php if ($b->guest_phone): ?><br><?php echo esc_html($b->guest_phone); ?><?php endif; ?>
+                </td></tr>
+                <tr><th><?php esc_html_e('Servicio', 'travel-agency-platform'); ?></th><td>
+                    <?php echo esc_html($service ? $service->post_title : $b->service_type); ?>
+                    <?php echo $agency ? ' · ' . esc_html($agency->post_title) : ''; ?>
+                </td></tr>
+                <tr><th><?php esc_html_e('Fechas', 'travel-agency-platform'); ?></th><td>
+                    <?php echo esc_html($b->check_in ?: '—'); ?> &rarr; <?php echo esc_html($b->check_out ?: '—'); ?>
+                    · <?php echo esc_html(sprintf(__('%d adultos, %d niños', 'travel-agency-platform'), (int) $b->adults, (int) $b->children)); ?>
+                </td></tr>
+                <tr><th><?php esc_html_e('Dinero', 'travel-agency-platform'); ?></th><td>
+                    <?php
+                    echo esc_html(sprintf(__('Total %s · Pagado %s · Tarifa %s · Comisión %s (%s%%)', 'travel-agency-platform'),
+                        TAP_Currency::fmt((float) $b->total_amount),
+                        TAP_Currency::fmt((float) $b->amount_paid),
+                        TAP_Currency::fmt((float) ($b->booking_fee ?? 0)),
+                        TAP_Currency::fmt((float) $b->commission_amount),
+                        (float) $b->commission_percent));
+                        ?>
+                </td></tr>
+                <?php if ($b->cancel_reason): ?>
+                    <tr><th><?php esc_html_e('Motivo de cancelación', 'travel-agency-platform'); ?></th><td><?php echo esc_html($b->cancel_reason); ?></td></tr>
+                <?php endif; ?>
+                <tr><th><?php esc_html_e('Notas internas', 'travel-agency-platform'); ?></th><td><textarea rows="4" readonly style="width:100%;"><?php echo esc_textarea((string) ($b->internal_notes ?? '')); ?></textarea></td></tr>
+            </table>
+            <h2><?php esc_html_e('Trazas de pago', 'travel-agency-platform'); ?></h2>
+            <table class="wp-list-table widefat striped" style="max-width:800px;"><tbody>
+                <?php foreach ($meta_keys as $key => $label): ?>
+                    <?php $val = (string) get_post_meta($booking_id, $key, true); ?>
+                    <?php if ('' !== $val): ?>
+                        <tr><th><?php echo esc_html($label); ?></th><td style="word-break:break-all;"><?php echo esc_html($val); ?></td></tr>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </tbody></table>
+            <?php if ($items): ?>
+                <h2><?php esc_html_e('Líneas de reserva', 'travel-agency-platform'); ?></h2>
+                <table class="wp-list-table widefat striped" style="max-width:800px;"><thead><tr>
+                    <th><?php esc_html_e('Servicio', 'travel-agency-platform'); ?></th><th><?php esc_html_e('Cant.', 'travel-agency-platform'); ?></th><th><?php esc_html_e('Precio', 'travel-agency-platform'); ?></th>
+                </tr></thead><tbody>
+                    <?php foreach ($items as $it): ?>
+                        <tr><td><?php echo esc_html($it->service_title ?? ('#' . (int) $it->service_id)); ?></td><td><?php echo (int) ($it->quantity ?? 1); ?></td><td><?php echo esc_html(TAP_Currency::fmt((float) ($it->price ?? 0))); ?></td></tr>
+                    <?php endforeach; ?>
+                </tbody></table>
+            <?php endif; ?>
+            <h2><?php esc_html_e('Registro de actividad', 'travel-agency-platform'); ?></h2>
+            <table class="wp-list-table widefat striped" style="max-width:800px;"><thead><tr>
+                <th><?php esc_html_e('Fecha', 'travel-agency-platform'); ?></th><th><?php esc_html_e('Acción', 'travel-agency-platform'); ?></th><th><?php esc_html_e('Detalle', 'travel-agency-platform'); ?></th>
+            </tr></thead><tbody>
+                <?php foreach ((array) $audit as $log): ?>
+                    <tr><td><?php echo esc_html($log->created_at); ?></td><td><?php echo esc_html($log->action); ?></td><td><?php echo esc_html($log->details ?: '—'); ?></td></tr>
+                <?php endforeach; ?>
+                <?php if (!$audit): ?><tr><td colspan="3"><?php esc_html_e('Sin actividad.', 'travel-agency-platform'); ?></td></tr><?php endif; ?>
+            </tbody></table>
+            <p><a class="button" href="<?php echo esc_url(home_url('/booking-detail/?code=' . rawurlencode($b->booking_code))); ?>" target="_blank"><?php esc_html_e('Ver voucher del cliente', 'travel-agency-platform'); ?></a></p>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
     public static function bookings_page() {
         global $wpdb;
 
         $view = sanitize_key(wp_unslash($_GET['view'] ?? 'list'));
-        if (!in_array($view, ['list', 'calendar'], true)) {
+        if (!in_array($view, ['list', 'calendar', 'detail'], true)) {
             $view = 'list';
+        }
+        if ('detail' === $view) {
+            echo self::booking_detail(absint($_GET['id'] ?? 0));
+            return;
         }
 
         // Bulk actions.
