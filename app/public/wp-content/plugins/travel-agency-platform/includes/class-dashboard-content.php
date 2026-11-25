@@ -521,17 +521,20 @@ endif;
                         ? __('Rechazada', 'travel-agency-platform')
                         : __('Pendiente', 'travel-agency-platform'));
                 echo esc_html($status_label);
-                ?> ·
+                ?>
+                ·
                 <?php
                 echo $is_verified
                     ? esc_html__('Verificada', 'travel-agency-platform')
                     : esc_html__('Sin verificar', 'travel-agency-platform');
-                ?> ·
+                ?>
+                ·
                 <?php
                 echo $is_active
                     ? esc_html__('Activa', 'travel-agency-platform')
                     : esc_html__('Inactiva', 'travel-agency-platform');
-                ?> ·
+                ?>
+                ·
                 <?php
                 echo $legal_ok
                     ? esc_html__('Contrato aceptado', 'travel-agency-platform')
