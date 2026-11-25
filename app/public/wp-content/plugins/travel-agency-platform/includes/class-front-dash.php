@@ -1502,11 +1502,11 @@ exit; }
             self::prime_titles($ids);
             foreach ($ids as $pid) {
                 $rows[] = ['id' => (int) $pid, 'type' => $type, 'label' => $label, 'title' => get_the_title($pid)];
-                if (count($rows) >= 15) {
-                    break 2;
-                }
             }
         }
+        $feat_paged = max(1, absint($_GET['fpaged'] ?? 1));
+        $feat_per = 20;
+        $feat_rows = array_slice($rows, ($feat_paged - 1) * $feat_per, $feat_per);
 
         ob_start();
         ?>
@@ -1539,7 +1539,7 @@ exit; }
                     </tr></thead>
                     <tbody>
                     <?php
-                    foreach ($rows as $row) :
+                    foreach ($feat_rows as $row) :
                         $is_feat  = TAP_Promotions::is_featured($row['id']);
                         $until    = TAP_Promotions::featured_until($row['id']);
                         $is_pend  = in_array($row['id'], $pending_ids, true);
@@ -1587,6 +1587,7 @@ exit; }
                     <?php endforeach; ?>
                     </tbody>
                 </table></div>
+                <?php echo TAP_Dashboard::paginate(count($rows), $feat_per, $feat_paged, 'fpaged'); ?>
             <?php endif; ?>
         </div>
         <?php if ($paypal_ready && $rows && $slots > 0) : ?>

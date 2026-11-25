@@ -577,12 +577,29 @@ class TAP_Tour_Wizard_Steps {
                                         <strong><?php echo esc_html($extra->name); ?></strong>
                                         <span><?php echo esc_html(TAP_Currency::fmt((float) $extra->price)); ?><?php echo $extra->is_per_person ? ' / ' . esc_html__('persona', 'travel-agency-platform') : ''; ?></span>
                                         <?php if ($extra->is_required): ?><span class="tap-chip tap-chip-muted"><?php esc_html_e('Obligatorio', 'travel-agency-platform'); ?></span><?php endif; ?>
+                                        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="display:inline;">
+                                            <?php wp_nonce_field('tap_extra_' . (int) $extra->id); ?>
+                                            <input type="hidden" name="action" value="tap_extra_delete">
+                                            <input type="hidden" name="extra_id" value="<?php echo (int) $extra->id; ?>">
+                                            <button class="button button-small" type="submit"><?php esc_html_e('Eliminar', 'travel-agency-platform'); ?></button>
+                                        </form>
                                     </li>
                                 <?php endforeach; ?>
                             </ul>
                         <?php else: ?>
-                            <p class="tap-field-hint"><?php esc_html_e('No hay extras configurados. El equipo de la plataforma puede añadirlos desde administración.', 'travel-agency-platform'); ?></p>
+                            <p class="tap-field-hint"><?php esc_html_e('Aún no hay extras. Añade el primero abajo.', 'travel-agency-platform'); ?></p>
                         <?php endif; ?>
+                        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" class="tap-extra-form" style="display:grid;gap:6px;margin-top:10px;">
+                            <?php wp_nonce_field('tap_extra_0'); ?>
+                            <input type="hidden" name="action" value="tap_extra_save">
+                            <input type="hidden" name="service_type" value="tap_tour">
+                            <input type="hidden" name="service_id" value="<?php echo (int) $listing_id; ?>">
+                            <input type="text" name="name" class="regular-text" placeholder="<?php echo esc_attr__('Nombre del extra', 'travel-agency-platform'); ?>" required>
+                            <input type="number" name="price" step="0.01" min="0" class="small-text" placeholder="<?php echo esc_attr__('Precio', 'travel-agency-platform'); ?>" required>
+                            <label><input type="checkbox" name="is_per_person" value="1"> <?php esc_html_e('Por persona', 'travel-agency-platform'); ?></label>
+                            <label><input type="checkbox" name="is_required" value="1"> <?php esc_html_e('Obligatorio', 'travel-agency-platform'); ?></label>
+                            <button class="button button-small" type="submit"><?php esc_html_e('Añadir extra', 'travel-agency-platform'); ?></button>
+                        </form>
                     </section>
                 <?php endif; ?>
             </div>

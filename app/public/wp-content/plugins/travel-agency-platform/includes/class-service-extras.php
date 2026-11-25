@@ -6,6 +6,60 @@ defined('ABSPATH') || exit;
  */
 class TAP_Service_Extras {
 
+    public static function init() {
+        add_action('admin_post_tap_extra_save', [__CLASS__, 'handle_save']);
+        add_action('admin_post_tap_extra_delete', [__CLASS__, 'handle_delete']);
+    }
+
+    /** Agency may only manage extras of its own listings. */
+    public static function owns($service_type, $service_id) {
+        $user = wp_get_current_user();
+        if (!$user->ID || current_user_can('manage_options')) { return (bool) get_post($service_id); }
+        $agency = (int) TAP_Booking::get_agency_for_user($user->ID);
+        if (!$agency || !in_array($service_type, ['tap_tour', 'tap_experience'], true)) { return false; }
+        $key = 'tap_experience' === $service_type ? '_tap_exp_agency_id' : '_tap_tour_agency_id';
+        return (int) get_post_meta((int) $service_id, $key, true) === $agency;
+    }
+
+    public static function handle_save() {
+        if (!is_user_logged_in()) { wp_die(esc_html__('No autorizado.', 'travel-agency-platform'), '', ['response' => 403]); }
+        $id = absint($_POST['extra_id'] ?? 0);
+        check_admin_referer('tap_extra_' . $id);
+        $existing = $id ? self::get($id) : null;
+        $type = $existing ? (string) $existing->service_type : sanitize_key(wp_unslash($_POST['service_type'] ?? ''));
+        $sid = $existing ? (int) $existing->service_id : absint($_POST['service_id'] ?? 0);
+        if (!self::owns($type, $sid)) { wp_die(esc_html__('No autorizado.', 'travel-agency-platform'), '', ['response' => 403]); }
+        $data = [
+            'service_type' => $type, 'service_id' => $sid,
+            'name' => sanitize_text_field(wp_unslash($_POST['name'] ?? '')),
+            'description' => sanitize_textarea_field(wp_unslash($_POST['description'] ?? '')),
+            'price' => (float) ($_POST['price'] ?? 0),
+            'is_per_person' => !empty($_POST['is_per_person']) ? 1 : 0,
+            'is_required' => !empty($_POST['is_required']) ? 1 : 0,
+            'sort_order' => (int) ($_POST['sort_order'] ?? 0),
+        ];
+        if ($existing) {
+            self::update($id, $data);
+        } else {
+            self::create($data);
+        }
+        wp_safe_redirect(add_query_arg('extra_saved', '1', wp_get_referer() ?: home_url('/mi-cuenta/')));
+        exit;
+    }
+
+    public static function handle_delete() {
+        if (!is_user_logged_in()) { wp_die(esc_html__('No autorizado.', 'travel-agency-platform'), '', ['response' => 403]); }
+        $id = absint($_POST['extra_id'] ?? 0);
+        check_admin_referer('tap_extra_' . $id);
+        $extra = self::get($id);
+        if (!$extra || !self::owns((string) $extra->service_type, (int) $extra->service_id)) {
+            wp_die(esc_html__('No autorizado.', 'travel-agency-platform'), '', ['response' => 403]);
+        }
+        self::delete($id);
+        wp_safe_redirect(add_query_arg('extra_deleted', '1', wp_get_referer() ?: home_url('/mi-cuenta/')));
+        exit;
+    }
+
     public static function table() {
         global $wpdb;
         return $wpdb->prefix . 'tap_service_extras';

@@ -6,6 +6,15 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.19.0] — 2026-11-25
+
+### Fixed (agency self-service)
+- Tour extras are now full CRUD for the agency (add/edit/delete with price,
+  per-person and required flags), guarded by listing ownership and nonce.
+- Featured listing picker is paginated instead of stopping at 15.
+- Mobile dashboard keeps compact labels under every nav icon.
+- FUNCTIONAL `suite_extras_ui.php`.
+
 ## [1.18.0] — 2026-11-25
 
 - Agency invoices panel with nonce-scoped PDF streaming.

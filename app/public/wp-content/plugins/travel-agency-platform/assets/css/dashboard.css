@@ -604,16 +604,29 @@
         white-space: nowrap;
         justify-content: center;
     }
+    /* Keep labels visible on mobile: an unlabeled icon strip with duplicate
+       icons (star = points and featured, users = referrals and team) is not
+       usable. Show a compact label under each icon instead. */
+    .tap-dash-nav-item {
+        flex-direction: column;
+        gap: 2px;
+        min-width: 72px;
+        padding: 0.5rem 0.6rem;
+    }
     .tap-dash-nav-item > span:not(.tap-chat-global-badge) {
-        position: absolute;
-        width: 1px;
-        height: 1px;
+        display: block;
+        position: static;
+        width: auto;
+        height: auto;
+        margin: 0;
         padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
+        overflow: visible;
+        clip: auto;
         white-space: nowrap;
         border: 0;
+        font-size: 10px;
+        line-height: 1.2;
+        text-align: center;
     }
     .tap-dash-nav-active { background: rgba(13,148,136,0.18) !important; }
     .tap-dash-nav-active svg { stroke: #0d9488; }
