@@ -1531,12 +1531,24 @@ class TAP_Front_Dash {
                     }
                 }
             }
-            $slot_count = (int) $wpdb->get_var($wpdb->prepare(
-                "SELECT COUNT(*) FROM {$wpdb->prefix}tap_daily_pricing
-                  WHERE service_id IN (SELECT ID FROM {$wpdb->posts}
-                    WHERE post_type IN ('tap_tour','tap_experience') AND post_author = %d)",
-                $user->ID
-            ));
+            // Availability belongs to the agency's linked listings, not to
+            // whatever the owner authored personally; include room inventory.
+            $owned_ids = array_values(array_unique(array_merge(
+                $ids,
+                class_exists('TAP_Analytics') ? TAP_Analytics::agency_listing_ids($agency_id) : []
+            )));
+            $slot_count = 0;
+            if ($owned_ids) {
+                $iph2 = implode(',', array_map('intval', $owned_ids));
+                $slot_count += (int) $wpdb->get_var(
+                    "SELECT COUNT(*) FROM {$wpdb->prefix}tap_daily_pricing WHERE service_id IN ({$iph2})"
+                );
+                $slot_count += (int) $wpdb->get_var(
+                    "SELECT COUNT(*) FROM {$wpdb->posts} p
+                     INNER JOIN {$wpdb->postmeta} m ON m.post_id = p.ID AND m.meta_key = '_tap_room_accommodation_id'
+                     WHERE p.post_type = 'tap_room' AND m.meta_value IN ({$iph2})"
+                );
+            }
             $onboarding['add_photos'] = $any_photos;
             $onboarding['set_prices'] = $any_prices;
             $onboarding['set_availability'] = $slot_count > 0;

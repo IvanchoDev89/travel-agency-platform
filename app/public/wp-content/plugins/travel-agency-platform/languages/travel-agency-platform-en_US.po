@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-25T18:02:17+00:00\n"
+"POT-Creation-Date: 2026-11-25T18:13:48+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -88,8 +88,8 @@ msgstr "e.g. Standard Double Room"
 #: includes/class-acc-wizard-room-form.php:71
 #: includes/class-acc-wizard-steps.php:85
 #: includes/class-acc-wizard-steps.php:371
-#: includes/class-acc-wizard-steps.php:841
-#: includes/class-acc-wizard-steps.php:951
+#: includes/class-acc-wizard-steps.php:842
+#: includes/class-acc-wizard-steps.php:954
 #: includes/class-shortcode-search.php:585
 msgid "Precio por noche"
 msgstr "Price per night"
@@ -97,14 +97,14 @@ msgstr "Price per night"
 #: includes/class-acc-wizard-room-form.php:73
 #: includes/class-acc-wizard-room-form.php:99
 #: includes/class-acc-wizard-room-form.php:108
-#: includes/class-acc-wizard-steps.php:784
+#: includes/class-acc-wizard-steps.php:785
 msgid "Restar"
 msgstr "Subtract"
 
 #: includes/class-acc-wizard-room-form.php:78
 #: includes/class-acc-wizard-room-form.php:101
 #: includes/class-acc-wizard-room-form.php:110
-#: includes/class-acc-wizard-steps.php:789
+#: includes/class-acc-wizard-steps.php:790
 msgid "Sumar"
 msgstr "Add"
 
@@ -385,7 +385,7 @@ msgid "Días con precio especial"
 msgstr "Days with special price"
 
 #: includes/class-acc-wizard-steps.php:99
-#: includes/class-acc-wizard-steps.php:741
+#: includes/class-acc-wizard-steps.php:742
 #: includes/class-listing-editor.php:511
 #: includes/class-tour-wizard-steps.php:693
 #: includes/class-tour-wizard-steps.php:765
@@ -413,7 +413,7 @@ msgstr "Cancellation"
 #: includes/class-acc-wizard-steps.php:270
 #: includes/class-acc-wizard-steps.php:276
 #: includes/class-acc-wizard-steps.php:296
-#: includes/class-acc-wizard-steps.php:974
+#: includes/class-acc-wizard-steps.php:977
 msgid "Reglas de la casa"
 msgstr "House rules"
 
@@ -551,7 +551,7 @@ msgstr ""
 
 #: includes/class-acc-wizard-steps.php:248
 #: includes/class-acc-wizard-steps.php:252
-#: includes/class-acc-wizard-steps.php:967 includes/class-metaboxes.php:428
+#: includes/class-acc-wizard-steps.php:970 includes/class-metaboxes.php:428
 #: includes/class-tour-wizard-steps.php:385
 msgid "Política de cancelación"
 msgstr "Cancellation policy"
@@ -1120,15 +1120,24 @@ msgstr "Booking and visibility"
 msgid "Cómo reservan los viajeros y si aparece en el buscador."
 msgstr "How travelers book and whether it appears in search."
 
-#: includes/class-acc-wizard-steps.php:621
+#: includes/class-acc-wizard-steps.php:600
+#: includes/class-listing-editor.php:483
+msgid "SEO"
+msgstr "SEO"
+
+#: includes/class-acc-wizard-steps.php:600
+msgid "Cómo aparece el alojamiento en buscadores y redes."
+msgstr "How the accommodation appears in search engines and social networks."
+
+#: includes/class-acc-wizard-steps.php:622
 msgid "Otros detalles"
 msgstr "Other details"
 
-#: includes/class-acc-wizard-steps.php:622
+#: includes/class-acc-wizard-steps.php:623
 msgid "Datos adicionales de tu alojamiento."
 msgstr "Additional details about your accommodation."
 
-#: includes/class-acc-wizard-steps.php:638
+#: includes/class-acc-wizard-steps.php:639
 msgid ""
 "Crea el alojamiento con lo esencial. Podrás subir más fotos y detalle en los "
 "siguientes pasos."
@@ -1136,17 +1145,17 @@ msgstr ""
 "Create the accommodation with the essentials. You can upload more photos and "
 "details in the following steps."
 
-#: includes/class-acc-wizard-steps.php:645
-#: includes/class-acc-wizard-steps.php:915
+#: includes/class-acc-wizard-steps.php:646
+#: includes/class-acc-wizard-steps.php:918
 msgid "Nombre del alojamiento"
 msgstr "Accommodation name"
 
-#: includes/class-acc-wizard-steps.php:647
+#: includes/class-acc-wizard-steps.php:648
 msgid "p.ej. Hotel Aurora – Habitación Vista Mar"
 msgstr "e.g. Hotel Aurora – Sea View Room"
 
-#: includes/class-acc-wizard-steps.php:651
-#: includes/class-acc-wizard-steps.php:922
+#: includes/class-acc-wizard-steps.php:652
+#: includes/class-acc-wizard-steps.php:925
 #: includes/class-dashboard-content.php:567 includes/class-front-dash.php:1133
 #: includes/class-landing-builder.php:696 includes/class-listing-editor.php:344
 #: includes/class-metaboxes.php:91 includes/class-shortcode-booking.php:1195
@@ -1155,18 +1164,18 @@ msgstr "e.g. Hotel Aurora – Sea View Room"
 msgid "Descripción"
 msgstr "Description"
 
-#: includes/class-acc-wizard-steps.php:653
+#: includes/class-acc-wizard-steps.php:654
 msgid "Qué incluye, para quién es ideal, qué hace especial a tu alojamiento…"
 msgstr ""
 "What it includes, who it is ideal for, what makes your accommodation special…"
 
-#: includes/class-acc-wizard-steps.php:662
+#: includes/class-acc-wizard-steps.php:663
 #: includes/class-listing-editor.php:348
 #: includes/class-tour-wizard-steps.php:153
 msgid "Fotos"
 msgstr "Photos"
 
-#: includes/class-acc-wizard-steps.php:663
+#: includes/class-acc-wizard-steps.php:664
 msgid ""
 "Las imágenes son lo primero que atrae reservas. Sube al menos 3 fotos si "
 "puedes."
@@ -1174,8 +1183,8 @@ msgstr ""
 "Images are the first thing that attracts bookings. Upload at least 3 photos "
 "if you can."
 
-#: includes/class-acc-wizard-steps.php:730
-#: includes/class-acc-wizard-steps.php:929 includes/class-ajax-public.php:582
+#: includes/class-acc-wizard-steps.php:731
+#: includes/class-acc-wizard-steps.php:932 includes/class-ajax-public.php:582
 #: includes/class-listing-editor.php:490
 #: includes/class-tour-wizard-steps.php:741
 #: includes/class-transport-admin.php:309
@@ -1183,180 +1192,198 @@ msgstr ""
 msgid "Destino"
 msgstr "Destination"
 
-#: includes/class-acc-wizard-steps.php:732
+#: includes/class-acc-wizard-steps.php:733
 msgid "Elige el lugar más específico (ciudad o distrito)."
 msgstr "Choose the most specific place (city or district)."
 
-#: includes/class-acc-wizard-steps.php:743
+#: includes/class-acc-wizard-steps.php:744
 #: includes/class-listing-editor.php:513
 #: includes/class-tour-wizard-steps.php:767
 msgid "Reserva directa (pago inmediato)"
 msgstr "Direct booking (immediate payment)"
 
-#: includes/class-acc-wizard-steps.php:744
+#: includes/class-acc-wizard-steps.php:745
 #: includes/class-listing-editor.php:514
 #: includes/class-tour-wizard-steps.php:768
 msgid "Solicitud de reserva (la agencia confirma antes del pago)"
 msgstr "Request to book (the agency confirms before payment)"
 
-#: includes/class-acc-wizard-steps.php:746
+#: includes/class-acc-wizard-steps.php:747
 msgid "La solicitud te da más control y menos cancelaciones por sorpresa."
 msgstr ""
 "Request-to-book gives you more control and fewer surprise cancellations."
 
-#: includes/class-acc-wizard-steps.php:777
+#: includes/class-acc-wizard-steps.php:778
 #: includes/class-dashboard-market.php:161
 msgid "— Selecciona —"
 msgstr "— Select —"
 
-#: includes/class-acc-wizard-steps.php:818
+#: includes/class-acc-wizard-steps.php:819
 msgid "Tipo de alojamiento"
 msgstr "Accommodation type"
 
-#: includes/class-acc-wizard-steps.php:820
+#: includes/class-acc-wizard-steps.php:821
 msgid "Hotel"
 msgstr "Hotel"
 
-#: includes/class-acc-wizard-steps.php:821
+#: includes/class-acc-wizard-steps.php:822
 msgid "Hostal"
 msgstr "Hostel"
 
-#: includes/class-acc-wizard-steps.php:822
+#: includes/class-acc-wizard-steps.php:823
 msgid "Resort"
 msgstr "Resort"
 
-#: includes/class-acc-wizard-steps.php:823
+#: includes/class-acc-wizard-steps.php:824
 msgid "Villa"
 msgstr "Villa"
 
-#: includes/class-acc-wizard-steps.php:824
+#: includes/class-acc-wizard-steps.php:825
 msgid "Cabaña"
 msgstr "Cabin"
 
-#: includes/class-acc-wizard-steps.php:825
+#: includes/class-acc-wizard-steps.php:826
 msgid "Apartamento"
 msgstr "Apartment"
 
-#: includes/class-acc-wizard-steps.php:826
+#: includes/class-acc-wizard-steps.php:827
 msgid "Hotel boutique"
 msgstr "Boutique hotel"
 
-#: includes/class-acc-wizard-steps.php:827
+#: includes/class-acc-wizard-steps.php:828
 msgid "Eco-alojamiento"
 msgstr "Eco-lodge"
 
-#: includes/class-acc-wizard-steps.php:831 includes/class-metaboxes.php:399
+#: includes/class-acc-wizard-steps.php:832 includes/class-metaboxes.php:399
 #: includes/class-metaboxes.php:482 includes/class-tour-wizard-steps.php:179
 msgid "Categoría"
 msgstr "Category"
 
-#: includes/class-acc-wizard-steps.php:833
+#: includes/class-acc-wizard-steps.php:834
 msgid "1 estrella"
 msgstr "1 star"
 
-#: includes/class-acc-wizard-steps.php:834
+#: includes/class-acc-wizard-steps.php:835
 msgid "2 estrellas"
 msgstr "2 stars"
 
-#: includes/class-acc-wizard-steps.php:835
+#: includes/class-acc-wizard-steps.php:836
 msgid "3 estrellas"
 msgstr "3 stars"
 
-#: includes/class-acc-wizard-steps.php:836
+#: includes/class-acc-wizard-steps.php:837
 msgid "4 estrellas"
 msgstr "4 stars"
 
-#: includes/class-acc-wizard-steps.php:837
+#: includes/class-acc-wizard-steps.php:838
 msgid "5 estrellas"
 msgstr "5 stars"
 
-#: includes/class-acc-wizard-steps.php:842
+#: includes/class-acc-wizard-steps.php:843
 msgid "Solo se usa si después no defines precio por unidad."
 msgstr "Only used if you do not set a per-unit price later."
 
-#: includes/class-acc-wizard-steps.php:844 includes/class-metaboxes.php:93
+#: includes/class-acc-wizard-steps.php:845 includes/class-metaboxes.php:93
 #: includes/class-tour-wizard-steps.php:347
 msgid "Moneda"
 msgstr "Currency"
 
-#: includes/class-acc-wizard-steps.php:844
+#: includes/class-acc-wizard-steps.php:845
 msgid "Código ISO, por ejemplo USD, EUR o CRC."
 msgstr "ISO code, for example USD, EUR or CRC."
 
-#: includes/class-acc-wizard-steps.php:845
+#: includes/class-acc-wizard-steps.php:846
 msgid "Huéspedes máximos"
 msgstr "Max guests"
 
-#: includes/class-acc-wizard-steps.php:846
+#: includes/class-acc-wizard-steps.php:847
 msgid "Número de habitaciones"
 msgstr "Number of rooms"
 
-#: includes/class-acc-wizard-steps.php:847
+#: includes/class-acc-wizard-steps.php:848
 msgid "Baños"
 msgstr "Bathrooms"
 
-#: includes/class-acc-wizard-steps.php:848
+#: includes/class-acc-wizard-steps.php:849
 msgid "Dormitorios"
 msgstr "Bedrooms"
 
-#: includes/class-acc-wizard-steps.php:849
+#: includes/class-acc-wizard-steps.php:850
 msgid "Hora de check-in"
 msgstr "Check-in time"
 
-#: includes/class-acc-wizard-steps.php:850
+#: includes/class-acc-wizard-steps.php:851
 msgid "Hora de check-out"
 msgstr "Check-out time"
 
-#: includes/class-acc-wizard-steps.php:851
+#: includes/class-acc-wizard-steps.php:852
 #: includes/class-destination-spots.php:60
 #: includes/class-tour-wizard-steps.php:251
 msgid "Latitud"
 msgstr "Latitude"
 
-#: includes/class-acc-wizard-steps.php:851
+#: includes/class-acc-wizard-steps.php:852
 msgid "Se rellena al elegir el destino."
 msgstr "Filled in when you choose the destination."
 
-#: includes/class-acc-wizard-steps.php:852
+#: includes/class-acc-wizard-steps.php:853
 #: includes/class-destination-spots.php:61
 #: includes/class-tour-wizard-steps.php:255
 msgid "Longitud"
 msgstr "Longitude"
 
-#: includes/class-acc-wizard-steps.php:853
+#: includes/class-acc-wizard-steps.php:854
 msgid "Visible en el buscador"
 msgstr "Visible in search"
 
-#: includes/class-acc-wizard-steps.php:853
+#: includes/class-acc-wizard-steps.php:854
 msgid "Desactívalo para ocultarlo sin despublicarlo."
 msgstr "Disable it to hide it without unpublishing."
 
-#: includes/class-acc-wizard-steps.php:917
+#: includes/class-acc-wizard-steps.php:855
+#: includes/class-tour-wizard-steps.php:761
+msgid "Título SEO"
+msgstr "SEO title"
+
+#: includes/class-acc-wizard-steps.php:855
+msgid "Máximo 60 caracteres."
+msgstr "Maximum 60 characters."
+
+#: includes/class-acc-wizard-steps.php:856
+#: includes/class-tour-wizard-steps.php:762
+msgid "Meta descripción"
+msgstr "Meta description"
+
+#: includes/class-acc-wizard-steps.php:856
+msgid "Máximo 155 caracteres."
+msgstr "Maximum 155 characters."
+
+#: includes/class-acc-wizard-steps.php:920
 msgid "Ponle un nombre reconocible"
 msgstr "Give it a recognizable name"
 
-#: includes/class-acc-wizard-steps.php:924
+#: includes/class-acc-wizard-steps.php:927
 msgid "Cuenta qué ofrece y sus características"
 msgstr "Describe what it offers and its features"
 
-#: includes/class-acc-wizard-steps.php:931
+#: includes/class-acc-wizard-steps.php:934
 msgid "Selecciona dónde está"
 msgstr "Select where it is"
 
-#: includes/class-acc-wizard-steps.php:936
+#: includes/class-acc-wizard-steps.php:939
 msgid "Foto principal"
 msgstr "Main photo"
 
-#: includes/class-acc-wizard-steps.php:938
+#: includes/class-acc-wizard-steps.php:941
 msgid "Sube al menos una imagen"
 msgstr "Upload at least one image"
 
-#: includes/class-acc-wizard-steps.php:943
+#: includes/class-acc-wizard-steps.php:946
 msgid "Unidades creadas"
 msgstr "Units created"
 
 #. translators: %d: número de unidades creadas
-#: includes/class-acc-wizard-steps.php:946
+#: includes/class-acc-wizard-steps.php:949
 #, php-format
 msgid "%d unidad"
 msgid_plural "%d unidades"
@@ -1364,20 +1391,20 @@ msgstr[0] "%d unit"
 msgstr[1] "%d units"
 
 #. translators: %d: número de unidades creadas
-#: includes/class-acc-wizard-steps.php:946
+#: includes/class-acc-wizard-steps.php:949
 msgid "Añade tu primera unidad"
 msgstr "Add your first unit"
 
-#: includes/class-acc-wizard-steps.php:953
+#: includes/class-acc-wizard-steps.php:956
 msgid "Define el precio de cada unidad"
 msgstr "Set the price of each unit"
 
-#: includes/class-acc-wizard-steps.php:958
+#: includes/class-acc-wizard-steps.php:961
 msgid "Ajustes de precios y disponibilidad"
 msgstr "Price and availability settings"
 
 #. translators: %d: número de días con ajuste de precio o disponibilidad
-#: includes/class-acc-wizard-steps.php:962
+#: includes/class-acc-wizard-steps.php:965
 #, php-format
 msgid "%d día ajustado"
 msgid_plural "%d días ajustados"
@@ -1385,23 +1412,23 @@ msgstr[0] "%d adjusted day"
 msgstr[1] "%d adjusted days"
 
 #. translators: %d: número de días con ajuste de precio o disponibilidad
-#: includes/class-acc-wizard-steps.php:962
+#: includes/class-acc-wizard-steps.php:965
 msgid "Opcional: fija temporadas o bloquea fechas"
 msgstr "Optional: set seasons or block dates"
 
-#: includes/class-acc-wizard-steps.php:969
+#: includes/class-acc-wizard-steps.php:972
 msgid "Obligatorio para reservar"
 msgstr "Required to book"
 
-#: includes/class-acc-wizard-steps.php:976
+#: includes/class-acc-wizard-steps.php:979
 msgid "Informa de mascotas, check-in y fumar"
 msgstr "Specify pets, check-in and smoking"
 
-#: includes/class-acc-wizard-steps.php:981
+#: includes/class-acc-wizard-steps.php:984
 msgid "Alojamiento publicado"
 msgstr "Accommodation published"
 
-#: includes/class-acc-wizard-steps.php:983
+#: includes/class-acc-wizard-steps.php:986
 msgid "Publica cuando todo esté listo"
 msgstr "Publish when everything is ready"
 
@@ -13487,10 +13514,6 @@ msgstr "Name *"
 msgid "Ubicar en el mapa (arrastra el marcador)"
 msgstr "Locate on map (drag the marker)"
 
-#: includes/class-listing-editor.php:483
-msgid "SEO"
-msgstr "SEO"
-
 #: includes/class-listing-editor.php:525
 msgid "El servicio está visible para los viajeros."
 msgstr "The service is visible to travelers."
@@ -18442,16 +18465,8 @@ msgstr ""
 "The destination connects the tour with the search and the destination page."
 
 #: includes/class-tour-wizard-steps.php:761
-msgid "Título SEO"
-msgstr "SEO title"
-
-#: includes/class-tour-wizard-steps.php:761
 msgid "Máximo 60 caracteres. Si lo dejas vacío se usa el nombre del tour."
 msgstr "Maximum 60 characters. If left empty, the tour name is used."
-
-#: includes/class-tour-wizard-steps.php:762
-msgid "Meta descripción"
-msgstr "Meta description"
 
 #: includes/class-tour-wizard-steps.php:762
 msgid "Máximo 155 caracteres. Resume el tour y el lugar."

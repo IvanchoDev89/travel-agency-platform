@@ -597,6 +597,7 @@ class TAP_Acc_Wizard_Steps {
             'stay'      => ['label' => __('Llegada y salida', 'travel-agency-platform'), 'sub' => __('Horarios por defecto de check-in y check-out.', 'travel-agency-platform'), 'open' => false, 'keys' => ['_tap_' . $prefix . '_checkin_time', '_tap_' . $prefix . '_checkout_time']],
             'pricing'   => ['label' => __('Precio base', 'travel-agency-platform'), 'sub' => __('Suficiente con esto si todas tus unidades cuestan lo mismo.', 'travel-agency-platform'), 'open' => false, 'keys' => ['_tap_' . $prefix . '_price_per_night', '_tap_' . $prefix . '_currency']],
             'booking'   => ['label' => __('Reserva y visibilidad', 'travel-agency-platform'), 'sub' => __('Cómo reservan los viajeros y si aparece en el buscador.', 'travel-agency-platform'), 'open' => false, 'keys' => ['_tap_' . $prefix . '_is_active']],
+            'seo'       => ['label' => __('SEO', 'travel-agency-platform'), 'sub' => __('Cómo aparece el alojamiento en buscadores y redes.', 'travel-agency-platform'), 'open' => false, 'keys' => ['_tap_seo_title', '_tap_seo_description']],
         ];
 
         $used = [];
@@ -611,7 +612,7 @@ class TAP_Acc_Wizard_Steps {
             if (isset($used[$key])) {
                 continue;
             }
-            if (false !== strpos($key, '_agency_id') || '_tap_seo_title' === $key || '_tap_seo_description' === $key) {
+            if (false !== strpos($key, '_agency_id')) {
                 continue;
             }
             $extra[] = $key;
@@ -851,6 +852,8 @@ class TAP_Acc_Wizard_Steps {
             '_tap_acc_lat'         => ['label' => __('Latitud', 'travel-agency-platform'), 'hint' => __('Se rellena al elegir el destino.', 'travel-agency-platform')],
             '_tap_acc_lng'         => ['label' => __('Longitud', 'travel-agency-platform')],
             '_tap_acc_is_active'   => ['label' => __('Visible en el buscador', 'travel-agency-platform'), 'hint' => __('Desactívalo para ocultarlo sin despublicarlo.', 'travel-agency-platform')],
+            '_tap_seo_title' => ['label' => __('Título SEO', 'travel-agency-platform'), 'hint' => __('Máximo 60 caracteres.', 'travel-agency-platform')],
+            '_tap_seo_description' => ['label' => __('Meta descripción', 'travel-agency-platform'), 'type' => 'textarea', 'hint' => __('Máximo 155 caracteres.', 'travel-agency-platform')],
         ];
     }
 
