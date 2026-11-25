@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.9.0] — 2026-11-25
+
+### Added (agency management)
+- Full agency detail screen (`wp-admin → Travel Platform → Agencies → Gestionar`):
+  KYC, contact, owner and team, commission, listings, paid bookings, payouts,
+  legal acceptance status and per-agency audit trail.
+- Search and filters by status, verification and active state with result count.
+- Edit agency data and KYC, assign/create the owner by email, add/remove staff
+  by email, restore trashed agencies.
+- All agency actions are nonce-guarded, capability-checked and written to the
+  audit log; commission mutation moved from GET to admin-post POST.
+- Fixed registry/payout queries that used non-existent columns.
+- FUNCTIONAL `suite_agency_management.php` (25 assertions).
+
 ## [1.8.1] — 2026-11-25
 
 ### Fixed (loyalty panel)

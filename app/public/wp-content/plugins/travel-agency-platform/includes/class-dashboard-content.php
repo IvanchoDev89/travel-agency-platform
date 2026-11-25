@@ -8,6 +8,13 @@
 defined('ABSPATH') || exit;
 
 class TAP_Dashboard_Content {
+    public static function init() {
+        add_action('admin_post_tap_agency_save', [__CLASS__, 'handle_agency_save']);
+        add_action('admin_post_tap_agency_owner', [__CLASS__, 'handle_agency_owner']);
+        add_action('admin_post_tap_agency_staff', [__CLASS__, 'handle_agency_staff']);
+        add_action('admin_post_tap_agency_commission', [__CLASS__, 'handle_agency_commission']);
+    }
+
     public static function reviews_page() {
         if (!current_user_can('tap_manage_reviews') && !current_user_can('manage_options')) {
             wp_die(esc_html__('Acceso denegado.', 'travel-agency-platform'));
@@ -241,6 +248,40 @@ class TAP_Dashboard_Content {
 			return 'trash' !== $a->post_status;
 		}));
 
+        // Search + filters so an operator can actually find an agency among
+        // hundreds instead of paging through an unsorted list.
+        $search = isset($_GET['s']) ? sanitize_text_field(wp_unslash($_GET['s'])) : '';
+        $status_filter = isset($_GET['status_filter']) ? sanitize_key(wp_unslash($_GET['status_filter'])) : 'all';
+        $verify_filter = isset($_GET['verify_filter']) ? sanitize_key(wp_unslash($_GET['verify_filter'])) : 'all';
+        $active_filter = isset($_GET['active_filter']) ? sanitize_key(wp_unslash($_GET['active_filter'])) : 'all';
+        if ('' !== $search || 'all' !== $status_filter || 'all' !== $verify_filter || 'all' !== $active_filter) {
+            $visible = array_values(array_filter($visible, function ($a) use ($search, $status_filter, $verify_filter, $active_filter) {
+                if ('all' !== $status_filter && TAP_Approval::status($a->ID) !== $status_filter) { return false; }
+                $is_verified = '1' === get_post_meta($a->ID, '_tap_agency_verified', true);
+                if ('verified' === $verify_filter && !$is_verified) { return false; }
+                if ('unverified' === $verify_filter && $is_verified) { return false; }
+                $is_active = '0' !== get_post_meta($a->ID, '_tap_agency_is_active', '1');
+                if ('active' === $active_filter && !$is_active) { return false; }
+                if ('inactive' === $active_filter && $is_active) { return false; }
+                if ('' !== $search) {
+                    $uid = (int) get_post_meta($a->ID, '_tap_agency_user_id', true);
+                    $owner = $uid ? get_userdata($uid) : null;
+                    $haystack = strtolower($a->post_title . ' ' . $a->post_excerpt
+                        . ' ' . (string) get_post_meta($a->ID, '_tap_agency_email', true)
+                        . ' ' . ($owner ? $owner->user_email . ' ' . $owner->user_login : ''));
+                    if (false === strpos($haystack, strtolower($search))) { return false; }
+                }
+                return true;
+            }));
+        }
+
+        // Detail view: everything an operator needs for one agency.
+        $view_id = absint($_GET['view'] ?? 0);
+        if ($view_id) {
+            echo self::agency_detail($view_id);
+            return;
+        }
+
         $verified = 0;
         $active   = 0;
         $pending  = 0;
@@ -276,6 +317,28 @@ class TAP_Dashboard_Content {
                     <span style="opacity:.7"> — <?php esc_html_e('El registro se sincroniza diariamente y después de cada cambio.', 'travel-agency-platform'); ?></span>
                 </p>
             </div>
+            <form method="get" action="<?php echo esc_url(admin_url('admin.php')); ?>" style="margin:12px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                <input type="hidden" name="page" value="tap-agencies">
+                <input type="search" name="s" value="<?php echo esc_attr($search); ?>" placeholder="<?php echo esc_attr__('Buscar agencia, email o usuario', 'travel-agency-platform'); ?>" class="regular-text">
+                <select name="status_filter">
+                    <?php foreach (['all' => __('Todos los estados', 'travel-agency-platform'), TAP_Approval::APPROVED => __('Aprobadas', 'travel-agency-platform'), TAP_Approval::PENDING => __('Pendientes', 'travel-agency-platform'), TAP_Approval::REJECTED => __('Rechazadas', 'travel-agency-platform')] as $k => $label): ?>
+                        <option value="<?php echo esc_attr($k); ?>" <?php selected($status_filter, $k); ?>><?php echo esc_html($label); ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <select name="verify_filter">
+                    <option value="all" <?php selected($verify_filter, 'all'); ?>><?php esc_html_e('Verificación: todas', 'travel-agency-platform'); ?></option>
+                    <option value="verified" <?php selected($verify_filter, 'verified'); ?>><?php esc_html_e('Verificadas', 'travel-agency-platform'); ?></option>
+                    <option value="unverified" <?php selected($verify_filter, 'unverified'); ?>><?php esc_html_e('Sin verificar', 'travel-agency-platform'); ?></option>
+                </select>
+                <select name="active_filter">
+                    <option value="all" <?php selected($active_filter, 'all'); ?>><?php esc_html_e('Actividad: todas', 'travel-agency-platform'); ?></option>
+                    <option value="active" <?php selected($active_filter, 'active'); ?>><?php esc_html_e('Activas', 'travel-agency-platform'); ?></option>
+                    <option value="inactive" <?php selected($active_filter, 'inactive'); ?>><?php esc_html_e('Inactivas', 'travel-agency-platform'); ?></option>
+                </select>
+                <button class="button"><?php esc_html_e('Filtrar', 'travel-agency-platform'); ?></button>
+                <a href="<?php echo esc_url(admin_url('admin.php?page=tap-agencies')); ?>" class="button button-link"><?php esc_html_e('Limpiar', 'travel-agency-platform'); ?></a>
+                <span class="description"><?php echo esc_html(sprintf(__('%d resultados', 'travel-agency-platform'), count($visible))); ?></span>
+            </form>
             <?php
             $paged    = max(1, intval($_GET['paged'] ?? 1));
             $per_page = 20;
@@ -349,9 +412,8 @@ endif;
 							?>
                         </td>
                         <td>
-                            <form method="get" action="<?php echo esc_url(admin_url('admin.php')); ?>" style="display:inline-flex;gap:4px;align-items:center;">
-                                <input type="hidden" name="page" value="tap-agencies">
-                                <input type="hidden" name="tap_action" value="commission">
+                            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="display:inline-flex;gap:4px;align-items:center;">
+                                <input type="hidden" name="action" value="tap_agency_commission">
                                 <input type="hidden" name="agency_id" value="<?php echo (int) $a->ID; ?>">
                                 <?php wp_nonce_field('commission_' . $a->ID); ?>
                                 <input type="number" name="commission" value="<?php echo esc_attr($commission); ?>" min="0" max="100" step="0.01" style="width:70px;">
@@ -374,8 +436,9 @@ endif;
                             <?php if ($is_active): ?><span style="color:#16a34a;"><?php esc_html_e('Activa', 'travel-agency-platform'); ?></span><?php else: ?><span style="color:#64748b;"><?php esc_html_e('Desactivada', 'travel-agency-platform'); ?></span><?php endif; ?>
                         </td>
                         <td>
+                            <a class="button button-small button-primary" href="<?php echo esc_url(admin_url('admin.php?page=tap-agencies&view=' . (int) $a->ID)); ?>"><?php esc_html_e('Gestionar', 'travel-agency-platform'); ?></a>
                             <?php if (TAP_Approval::APPROVED !== $status): ?>
-                                <a class="button button-primary button-small" href="<?php echo esc_url($approve_url); ?>"><?php esc_html_e('Aprobar', 'travel-agency-platform'); ?></a>
+                                <a class="button button-small" href="<?php echo esc_url($approve_url); ?>"><?php esc_html_e('Aprobar', 'travel-agency-platform'); ?></a>
                             <?php endif; ?>
                             <?php if (TAP_Approval::REJECTED !== $status): ?>
                                 <a class="button button-small" href="<?php echo esc_url($reject_url); ?>" onclick="return confirm('<?php echo esc_js(__('Rechazar esta agencia y ocultarla del sitio?', 'travel-agency-platform')); ?>');"><?php esc_html_e('Rechazar', 'travel-agency-platform'); ?></a>
@@ -396,6 +459,343 @@ endif;
     }
 
 
+    /** Full management view for one agency. */
+    public static function agency_detail($agency_id) {
+        if (!current_user_can('tap_manage_agencies')) {
+            wp_die(esc_html__('No tienes permiso para gestionar agencias.', 'travel-agency-platform'));
+        }
+        global $wpdb;
+        $post = get_post($agency_id);
+        if (!$post || 'tap_agency' !== $post->post_type) {
+            return '<div class="wrap"><h1>' . esc_html__('Gestión de agencias', 'travel-agency-platform') . '</h1><p>' . esc_html__('Agencia no encontrada.', 'travel-agency-platform') . '</p></div>';
+        }
+        $status = TAP_Approval::status($agency_id);
+        $kyc = TAP_Approval::kyc($agency_id);
+        $uid = (int) get_post_meta($agency_id, '_tap_agency_user_id', true);
+        $owner = $uid ? get_userdata($uid) : null;
+        $staff = TAP_Booking::get_staff_for_agency($agency_id);
+        $email = (string) get_post_meta($agency_id, '_tap_agency_email', true);
+        $commission = (string) get_post_meta($agency_id, '_tap_agency_commission', true);
+        if ('' === $commission) { $commission = '10'; }
+        $is_verified = '1' === get_post_meta($agency_id, '_tap_agency_verified', true);
+        $is_active = '0' !== get_post_meta($agency_id, '_tap_agency_is_active', '1');
+        $base = admin_url('admin.php?page=tap-agencies&view=' . (int) $agency_id);
+        $act = static function ($action) use ($base, $agency_id) {
+            return wp_nonce_url(add_query_arg(['tap_action' => $action, 'agency_id' => (int) $agency_id], $base), $action . '_' . $agency_id);
+        };
+
+        $listing_types = TAP_Post_Types::agency_meta_keys();
+        $listing_clauses = [];
+        foreach ($listing_types as $mk) {
+            $listing_clauses[] = ['key' => $mk, 'value' => (string) $agency_id];
+        }
+        $listings = get_posts([
+            'post_type' => array_keys($listing_types),
+            'post_status' => 'any',
+            'posts_per_page' => 50,
+            'meta_query' => array_merge([['relation' => 'OR']], $listing_clauses),
+        ]);
+        $stats = $wpdb->get_row($wpdb->prepare(
+            "SELECT COUNT(*) c, COALESCE(SUM(total_amount),0) rev, COALESCE(SUM(" . TAP_Booking_Stats::commission_case() . "),0) comm
+             FROM {$wpdb->prefix}tap_bookings WHERE agency_id = %d AND payment_status = 'paid' AND status NOT IN ('cancelled','refunded')",
+            $agency_id
+        ));
+        $payouts = $wpdb->get_results($wpdb->prepare(
+            'SELECT id, amount, status, created_at, paid_at FROM ' . $wpdb->prefix . 'tap_commission_payments WHERE agency_id = %d ORDER BY created_at DESC LIMIT 20',
+            $agency_id
+        ));
+        $audit = class_exists('TAP_Audit_Log') ? TAP_Audit_Log::for_agency($agency_id, 30) : [];
+        $legal_ok = class_exists('TAP_Legal') ? TAP_Legal::agency_current($agency_id) : true;
+
+        ob_start();
+        ?>
+        <div class="wrap tap-agency-manage">
+            <p><a href="<?php echo esc_url(admin_url('admin.php?page=tap-agencies')); ?>">&larr; <?php esc_html_e('Volver al listado', 'travel-agency-platform'); ?></a></p>
+            <h1><?php echo esc_html($post->post_title); ?> <span class="description">#<?php echo (int) $agency_id; ?></span></h1>
+            <p>
+                <strong><?php esc_html_e('Estado:', 'travel-agency-platform'); ?></strong>
+                <?php
+                $status_label = TAP_Approval::APPROVED === $status
+                    ? __('Aprobada', 'travel-agency-platform')
+                    : (TAP_Approval::REJECTED === $status
+                        ? __('Rechazada', 'travel-agency-platform')
+                        : __('Pendiente', 'travel-agency-platform'));
+                echo esc_html($status_label);
+                ?> ·
+                <?php
+                echo $is_verified
+                    ? esc_html__('Verificada', 'travel-agency-platform')
+                    : esc_html__('Sin verificar', 'travel-agency-platform');
+                ?> ·
+                <?php
+                echo $is_active
+                    ? esc_html__('Activa', 'travel-agency-platform')
+                    : esc_html__('Inactiva', 'travel-agency-platform');
+                ?> ·
+                <?php
+                echo $legal_ok
+                    ? esc_html__('Contrato aceptado', 'travel-agency-platform')
+                    : esc_html__('Contrato pendiente', 'travel-agency-platform');
+                ?>
+            </p>
+            <p style="display:flex;gap:6px;flex-wrap:wrap;">
+                <?php if (TAP_Approval::APPROVED !== $status): ?>
+                    <a class="button button-primary" href="<?php echo esc_url($act('approve')); ?>"><?php esc_html_e('Aprobar', 'travel-agency-platform'); ?></a>
+                <?php endif; ?>
+                <?php if (TAP_Approval::REJECTED !== $status): ?>
+                    <a class="button" href="<?php echo esc_url($act('reject')); ?>" onclick="return confirm('<?php echo esc_js(__('Rechazar esta agencia?', 'travel-agency-platform')); ?>');"><?php esc_html_e('Rechazar', 'travel-agency-platform'); ?></a>
+                <?php endif; ?>
+                <a class="button" href="<?php echo esc_url($act($is_verified ? 'unverify' : 'verify')); ?>"><?php echo $is_verified ? esc_html__('Quitar verificación', 'travel-agency-platform') : esc_html__('Marcar verificada', 'travel-agency-platform'); ?></a>
+                <a class="button" href="<?php echo esc_url($act($is_active ? 'deactivate' : 'activate')); ?>"><?php echo $is_active ? esc_html__('Desactivar', 'travel-agency-platform') : esc_html__('Activar', 'travel-agency-platform'); ?></a>
+                <?php if ('trash' === $post->post_status): ?>
+                    <a class="button" href="<?php echo esc_url($act('restore')); ?>"><?php esc_html_e('Restaurar', 'travel-agency-platform'); ?></a>
+                <?php else: ?>
+                    <a class="button button-link-delete" href="<?php echo esc_url($act('delete')); ?>" onclick="return confirm('<?php echo esc_js(__('Borrar esta agencia y desvincular sus listados?', 'travel-agency-platform')); ?>');"><?php esc_html_e('Eliminar', 'travel-agency-platform'); ?></a>
+                <?php endif; ?>
+            </p>
+
+            <h2><?php esc_html_e('Datos de la agencia', 'travel-agency-platform'); ?></h2>
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" class="tap-agency-edit">
+                <input type="hidden" name="action" value="tap_agency_save">
+                <input type="hidden" name="agency_id" value="<?php echo (int) $agency_id; ?>">
+                <?php wp_nonce_field('tap_agency_save_' . $agency_id); ?>
+                <table class="form-table">
+                    <tr><th><?php esc_html_e('Nombre', 'travel-agency-platform'); ?></th><td><input type="text" name="agency_name" value="<?php echo esc_attr($post->post_title); ?>" class="regular-text" required></td></tr>
+                    <tr><th><?php esc_html_e('Descripción', 'travel-agency-platform'); ?></th><td><textarea name="agency_excerpt" rows="2" class="large-text"><?php echo esc_textarea($post->post_excerpt); ?></textarea></td></tr>
+                    <tr><th><?php esc_html_e('Email', 'travel-agency-platform'); ?></th><td><input type="email" name="agency_email" value="<?php echo esc_attr($email); ?>" class="regular-text"></td></tr>
+                    <tr><th><?php esc_html_e('Teléfono', 'travel-agency-platform'); ?></th><td><input type="text" name="agency_phone" value="<?php echo esc_attr((string) get_post_meta($agency_id, '_tap_agency_phone', true)); ?>" class="regular-text"></td></tr>
+                    <tr><th><?php esc_html_e('WhatsApp', 'travel-agency-platform'); ?></th><td><input type="text" name="agency_whatsapp" value="<?php echo esc_attr((string) get_post_meta($agency_id, '_tap_agency_whatsapp', true)); ?>" class="regular-text"></td></tr>
+                    <tr><th><?php esc_html_e('Sitio web', 'travel-agency-platform'); ?></th><td><input type="url" name="agency_website" value="<?php echo esc_attr((string) get_post_meta($agency_id, '_tap_agency_website', true)); ?>" class="regular-text"></td></tr>
+                    <tr><th><?php esc_html_e('Dirección', 'travel-agency-platform'); ?></th><td><input type="text" name="agency_address" value="<?php echo esc_attr((string) get_post_meta($agency_id, '_tap_agency_address', true)); ?>" class="regular-text"></td></tr>
+                    <tr><th><?php esc_html_e('Ciudad / País', 'travel-agency-platform'); ?></th><td>
+                        <input type="text" name="agency_city" value="<?php echo esc_attr((string) get_post_meta($agency_id, '_tap_agency_city', true)); ?>" class="regular-text" placeholder="<?php echo esc_attr__('Ciudad', 'travel-agency-platform'); ?>">
+                        <input type="text" name="agency_country" value="<?php echo esc_attr((string) get_post_meta($agency_id, '_tap_agency_country', true)); ?>" class="regular-text" placeholder="<?php echo esc_attr__('País', 'travel-agency-platform'); ?>">
+                    </td></tr>
+                    <tr><th><?php esc_html_e('Comisión (%)', 'travel-agency-platform'); ?></th><td><input type="number" name="agency_commission" value="<?php echo esc_attr($commission); ?>" min="0" max="100" step="0.01" class="small-text"></td></tr>
+                </table>
+                <h3><?php esc_html_e('Datos de verificación (KYC)', 'travel-agency-platform'); ?></h3>
+                <table class="form-table">
+                    <?php foreach (TAP_Approval::kyc_fields() as $key => $label): ?>
+                        <?php $value = (string) ($kyc[$key] ?? ''); ?>
+                        <tr><th><?php echo esc_html($label); ?></th><td>
+                            <?php if ('doc_type' === $key): ?>
+                                <select name="kyc_doc_type">
+                                    <option value="" <?php selected($value, ''); ?>><?php esc_html_e('—', 'travel-agency-platform'); ?></option>
+                                    <option value="fisica" <?php selected($value, 'fisica'); ?>><?php esc_html_e('Física', 'travel-agency-platform'); ?></option>
+                                    <option value="juridica" <?php selected($value, 'juridica'); ?>><?php esc_html_e('Jurídica', 'travel-agency-platform'); ?></option>
+                                </select>
+                            <?php else: ?>
+                                <input type="text" name="kyc_<?php echo esc_attr($key); ?>" value="<?php echo esc_attr($value); ?>" class="regular-text">
+                            <?php endif; ?>
+                        </td></tr>
+                    <?php endforeach; ?>
+                </table>
+                <?php submit_button(__('Guardar cambios', 'travel-agency-platform')); ?>
+            </form>
+
+            <h2><?php esc_html_e('Usuario responsable y equipo', 'travel-agency-platform'); ?></h2>
+            <p><?php echo $owner ? esc_html($owner->display_name . ' (' . $owner->user_email . ')') : esc_html__('Sin usuario responsable asignado', 'travel-agency-platform'); ?></p>
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="margin-bottom:12px;">
+                <input type="hidden" name="action" value="tap_agency_owner">
+                <input type="hidden" name="agency_id" value="<?php echo (int) $agency_id; ?>">
+                <?php wp_nonce_field('tap_agency_owner_' . $agency_id); ?>
+                <input type="email" name="owner_email" class="regular-text" placeholder="<?php echo esc_attr__('Email del responsable', 'travel-agency-platform'); ?>" required>
+                <button class="button"><?php esc_html_e('Asignar responsable', 'travel-agency-platform'); ?></button>
+            </form>
+            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="margin-bottom:12px;">
+                <input type="hidden" name="action" value="tap_agency_staff">
+                <input type="hidden" name="agency_id" value="<?php echo (int) $agency_id; ?>">
+                <?php wp_nonce_field('tap_agency_staff_' . $agency_id); ?>
+                <input type="hidden" name="staff_action" value="add">
+                <input type="email" name="staff_email" class="regular-text" placeholder="<?php echo esc_attr__('Email del empleado', 'travel-agency-platform'); ?>" required>
+                <button class="button"><?php esc_html_e('Añadir al equipo', 'travel-agency-platform'); ?></button>
+            </form>
+            <?php if ($staff): ?>
+                <table class="widefat striped" style="max-width:600px;"><thead><tr><th><?php esc_html_e('Empleado', 'travel-agency-platform'); ?></th><th><?php esc_html_e('Acción', 'travel-agency-platform'); ?></th></tr></thead><tbody>
+                    <?php foreach ($staff as $member): ?>
+                        <tr><td><?php echo esc_html($member->display_name . ' (' . $member->user_email . ')'); ?></td><td>
+                            <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                                <input type="hidden" name="action" value="tap_agency_staff">
+                                <input type="hidden" name="agency_id" value="<?php echo (int) $agency_id; ?>">
+                                <?php wp_nonce_field('tap_agency_staff_' . $agency_id); ?>
+                                <input type="hidden" name="staff_action" value="remove">
+                                <input type="hidden" name="staff_user" value="<?php echo (int) $member->ID; ?>">
+                                <button class="button button-small"><?php esc_html_e('Quitar', 'travel-agency-platform'); ?></button>
+                            </form>
+                        </td></tr>
+                    <?php endforeach; ?>
+                </tbody></table>
+            <?php else: ?>
+                <p class="description"><?php esc_html_e('Sin empleados asignados.', 'travel-agency-platform'); ?></p>
+            <?php endif; ?>
+
+            <h2><?php esc_html_e('Actividad y finanzas', 'travel-agency-platform'); ?></h2>
+            <p>
+                <?php echo esc_html(sprintf(__('Listados: %d', 'travel-agency-platform'), count($listings))); ?> ·
+                <?php echo esc_html(sprintf(__('Reservas pagadas: %d', 'travel-agency-platform'), (int) ($stats->c ?? 0))); ?> ·
+                <?php echo esc_html(sprintf(__('Ingresos: %s', 'travel-agency-platform'), TAP_Currency::fmt((float) ($stats->rev ?? 0)))); ?> ·
+                <?php echo esc_html(sprintf(__('Comisiones: %s', 'travel-agency-platform'), TAP_Currency::fmt((float) ($stats->comm ?? 0)))); ?>
+            </p>
+            <?php if ($listings): ?>
+                <ul>
+                    <?php foreach ($listings as $l): ?>
+                        <li><a href="<?php echo esc_url(get_edit_post_link($l->ID)); ?>"><?php echo esc_html($l->post_title); ?></a> <span class="description"><?php echo esc_html($l->post_status); ?></span></li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php endif; ?>
+            <?php if ($payouts): ?>
+                <table class="widefat striped" style="max-width:600px;"><thead><tr><th><?php esc_html_e('Liquidación', 'travel-agency-platform'); ?></th><th><?php esc_html_e('Monto', 'travel-agency-platform'); ?></th><th><?php esc_html_e('Estado', 'travel-agency-platform'); ?></th></tr></thead><tbody>
+                    <?php foreach ($payouts as $p): ?>
+                        <tr><td>#<?php echo (int) $p->id; ?></td><td><?php echo esc_html(TAP_Currency::fmt((float) $p->amount)); ?></td><td><?php echo esc_html($p->status); ?></td></tr>
+                    <?php endforeach; ?>
+                </tbody></table>
+            <?php endif; ?>
+            <h3><?php esc_html_e('Registro de actividad', 'travel-agency-platform'); ?></h3>
+            <table class="widefat striped" style="max-width:800px;"><thead><tr><th><?php esc_html_e('Fecha', 'travel-agency-platform'); ?></th><th><?php esc_html_e('Acción', 'travel-agency-platform'); ?></th><th><?php esc_html_e('Detalle', 'travel-agency-platform'); ?></th></tr></thead><tbody>
+                <?php foreach ((array) $audit as $log): ?>
+                    <tr><td><?php echo esc_html($log->created_at); ?></td><td><?php echo esc_html($log->action); ?></td><td><?php echo esc_html($log->details ?: '—'); ?></td></tr>
+                <?php endforeach; ?>
+                <?php if (!$audit): ?><tr><td colspan="3"><?php esc_html_e('Sin actividad registrada.', 'travel-agency-platform'); ?></td></tr><?php endif; ?>
+            </tbody></table>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
+    /** Shared guard + redirect target for agency admin_post handlers. */
+    private static function agency_guard($nonce_action) {
+        if (!current_user_can('tap_manage_agencies')) {
+            wp_die(esc_html__('No tienes permiso para gestionar agencias.', 'travel-agency-platform'));
+        }
+        check_admin_referer($nonce_action);
+    }
+
+    private static function agency_back($agency_id, $flag) {
+        wp_safe_redirect(add_query_arg($flag, '1', admin_url('admin.php?page=tap-agencies&view=' . (int) $agency_id)));
+        exit;
+    }
+
+    /** Persist agency data and KYC from the management screen. */
+    public static function handle_agency_save() {
+        $id = absint($_POST['agency_id'] ?? 0);
+        self::agency_guard('tap_agency_save_' . $id);
+        $post = get_post($id);
+        if (!$post || 'tap_agency' !== $post->post_type) { wp_die(esc_html__('Agencia no encontrada.', 'travel-agency-platform')); }
+        $name = sanitize_text_field(wp_unslash($_POST['agency_name'] ?? ''));
+        if ('' !== $name) {
+            wp_update_post(['ID' => $id, 'post_title' => $name, 'post_excerpt' => sanitize_textarea_field(wp_unslash($_POST['agency_excerpt'] ?? ''))]);
+        }
+        foreach ([
+            '_tap_agency_email' => 'agency_email', '_tap_agency_phone' => 'agency_phone',
+            '_tap_agency_whatsapp' => 'agency_whatsapp', '_tap_agency_website' => 'agency_website',
+            '_tap_agency_address' => 'agency_address', '_tap_agency_city' => 'agency_city',
+            '_tap_agency_country' => 'agency_country',
+        ] as $meta => $field) {
+            update_post_meta($id, $meta, sanitize_text_field(wp_unslash($_POST[$field] ?? '')));
+        }
+        $commission = isset($_POST['agency_commission']) ? max(0, min(100, (float) $_POST['agency_commission'])) : 10;
+        update_post_meta($id, '_tap_agency_commission', $commission);
+        if (class_exists('TAP_Approval')) {
+            $kyc = [];
+            foreach (array_keys(TAP_Approval::kyc_fields()) as $key) {
+                $kyc[$key] = sanitize_text_field(wp_unslash($_POST['kyc_' . $key] ?? ''));
+            }
+            TAP_Approval::save_kyc($id, $kyc);
+        }
+        self::sync_agency_registry();
+        self::log_agency('agency_saved', $id, __('Datos y KYC actualizados', 'travel-agency-platform'));
+        self::agency_back($id, 'saved');
+    }
+
+    /** Assign (or create) the agency owner by email. */
+    public static function handle_agency_owner() {
+        $id = absint($_POST['agency_id'] ?? 0);
+        self::agency_guard('tap_agency_owner_' . $id);
+        $email = sanitize_email(wp_unslash($_POST['owner_email'] ?? ''));
+        if (!is_email($email)) { self::agency_back($id, 'bad_email'); }
+        $user = get_user_by('email', $email);
+        if (!$user) {
+            $user_id = wp_insert_user([
+                'user_login' => sanitize_user(strstr($email, '@', true) . '-' . wp_generate_password(4, false), true),
+                'user_email' => $email,
+                'user_pass'  => wp_generate_password(20, true, true),
+                'role'       => 'tap_client',
+                'display_name' => strstr($email, '@', true),
+            ]);
+            if (is_wp_error($user_id)) { self::agency_back($id, 'create_failed'); }
+            $user = get_userdata($user_id);
+            wp_send_new_user_notifications($user_id, 'user');
+        }
+        $previous = (int) get_post_meta($id, '_tap_agency_user_id', true);
+        if ($previous && $previous !== (int) $user->ID) {
+            $old = get_userdata($previous);
+            if ($old) { $old->remove_role('tap_agency_admin'); }
+        }
+        update_post_meta($id, '_tap_agency_user_id', (int) $user->ID);
+        // The registry is keyed by user_id and rebuilt by sync_agency_registry();
+        // updating a non-existent agency_id column silently did nothing.
+        $user->add_role('tap_agency_admin');
+        delete_user_meta($user->ID, '_tap_agency_id');
+        self::sync_agency_registry();
+        self::log_agency('agency_owner_assigned', $id, $email);
+        self::agency_back($id, 'owner_saved');
+    }
+
+    /** Add/remove an agency employee by email. */
+    public static function handle_agency_staff() {
+        $id = absint($_POST['agency_id'] ?? 0);
+        self::agency_guard('tap_agency_staff_' . $id);
+        $op = sanitize_key(wp_unslash($_POST['staff_action'] ?? 'add'));
+        if ('remove' === $op) {
+            $uid = absint($_POST['staff_user'] ?? 0);
+            $user = $uid ? get_userdata($uid) : null;
+            if ($user && (int) get_user_meta($uid, '_tap_agency_id', true) === $id) {
+                delete_user_meta($uid, '_tap_agency_id');
+                $user->remove_role('tap_agency_employee');
+                if (!$user->roles) { $user->add_role(get_role('tap_client') ? 'tap_client' : 'subscriber'); }
+                self::log_agency('agency_staff_removed', $id, $user->user_email);
+            }
+            self::agency_back($id, 'staff_removed');
+        }
+        $email = sanitize_email(wp_unslash($_POST['staff_email'] ?? ''));
+        if (!is_email($email)) { self::agency_back($id, 'bad_email'); }
+        $user = get_user_by('email', $email);
+        if (!$user) {
+            $uid = wp_insert_user([
+                'user_login' => sanitize_user(strstr($email, '@', true) . '-' . wp_generate_password(4, false), true),
+                'user_email' => $email,
+                'user_pass'  => wp_generate_password(20, true, true),
+                'role'       => 'tap_client',
+                'display_name' => strstr($email, '@', true),
+            ]);
+            if (is_wp_error($uid)) { self::agency_back($id, 'create_failed'); }
+            $user = get_userdata($uid);
+            wp_send_new_user_notifications($uid, 'user');
+        }
+        update_user_meta($user->ID, '_tap_agency_id', (int) $id);
+        $user->add_role('tap_agency_employee');
+        self::log_agency('agency_staff_added', $id, $email);
+        self::agency_back($id, 'staff_added');
+    }
+
+    /** Commission change (POST, nonce guarded — no more GET mutation). */
+    public static function handle_agency_commission() {
+        $id = absint($_POST['agency_id'] ?? 0);
+        self::agency_guard('commission_' . $id);
+        $value = max(0, min(100, (float) ($_POST['commission'] ?? 0)));
+        update_post_meta($id, '_tap_agency_commission', $value);
+        self::sync_agency_registry();
+        self::log_agency('agency_commission_changed', $id, (string) $value);
+        wp_safe_redirect(add_query_arg(['page' => 'tap-agencies', 'updated' => '1'], admin_url('admin.php')));
+        exit;
+    }
+
+    private static function log_agency($action, $agency_id, $details = '') {
+        if (class_exists('TAP_Audit_Log')) {
+            TAP_Audit_Log::log($action, 'agency', (int) $agency_id, $details, (int) $agency_id);
+        }
+    }
+
     private static function handle_agency_action($action, $agency_id, $params) {
         // Tanda C (C15): defense in depth — only platform managers may act on
         // agencies, even if this method is ever reached outside the admin page.
@@ -407,22 +807,32 @@ endif;
             case 'verify':
                 if (TAP_Approval::is_approved($agency_id)) {
                     update_post_meta($agency_id, '_tap_agency_verified', '1');
+                    self::log_agency('agency_verified', $agency_id);
                 }
                 break;
             case 'unverify':
                 update_post_meta($agency_id, '_tap_agency_verified', '');
+                self::log_agency('agency_unverified', $agency_id);
                 break;
             case 'approve':
                 TAP_Approval::approve($agency_id);
+                self::log_agency('agency_approved', $agency_id);
                 break;
             case 'reject':
                 TAP_Approval::reject($agency_id);
+                self::log_agency('agency_rejected', $agency_id);
                 break;
             case 'activate':
                 update_post_meta($agency_id, '_tap_agency_is_active', '1');
+                self::log_agency('agency_activated', $agency_id);
                 break;
             case 'deactivate':
                 update_post_meta($agency_id, '_tap_agency_is_active', '0');
+                self::log_agency('agency_deactivated', $agency_id);
+                break;
+            case 'restore':
+                wp_untrash_post($agency_id);
+                self::log_agency('agency_restored', $agency_id);
                 break;
             case 'commission':
                 $c = isset($params['commission']) ? floatval($params['commission']) : 0;
@@ -465,6 +875,7 @@ endif;
                     }
                 }
                 wp_trash_post($agency_id);
+                self::log_agency('agency_deleted', $agency_id);
                 break;
         }
         self::sync_agency_registry();
