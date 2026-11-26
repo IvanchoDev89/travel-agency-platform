@@ -6,6 +6,29 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.23.1] — 2026-11-26
+
+### Fixed
+- Malformed legal placeholder `PLATAFORMAPARA COMPLETAR` in the Spanish
+  traveler and agency terms; canonical texts now seed cleanly as new versions.
+
+## [1.22.0] — 2026-11-26
+
+### Fixed (data integrity)
+- Unique legal evidence with one-shot dedup; daily orphan reconciliation
+  (explicit opt-in); cascading test-data cleanup; legacy `amount_paid` fallback.
+- Uninstall enumerates every plugin table and clears all scheduled hooks.
+- Removed the contradictory `room_date` key and the `ext-calendar` dependency.
+
+## [1.21.0] — 2026-11-26
+
+### Fixed (stability and money)
+- `GET_LOCK` read with `get_var()`; PayPal capture failures propagated.
+- Persistent booking idempotency with a UNIQUE key and race-safe replay.
+- Webhook event idempotency, resolved-only acknowledgement and refund dedupe.
+- Strict date validation; version advances only after successful migrations.
+- Legacy money backfills; GDPR erasure cascades to child PII.
+
 ## [1.23.0] — 2026-11-26
 
 ### Changed (structure and presentability)
