@@ -63,6 +63,23 @@ $e = TAP_Agency_Payouts::earnings($agency_id);
 tap_t_assert(abs(180.0 - (float) $e['gross']) < 0.01, 'insurance premium excluded from agency gross');
 $tap_cleanup[] = (int) $bid2;
 
+/* --- data integrity ----------------------------------------------------------- */
+$legacy = (object) ['payment_status' => 'paid', 'amount_paid' => 0, 'total_amount' => 150];
+tap_t_assert(abs(150.0 - TAP_Booking::amount_already_paid($legacy)) < 0.01, 'legacy paid booking falls back to total');
+tap_t_assert((bool) $wpdb->get_var("SHOW INDEX FROM {$wpdb->prefix}tap_legal_acceptances WHERE Key_name = 'evidence_unique'"), 'legal acceptance evidence is unique');
+$installer_src = (string) file_get_contents($base . 'class-installer.php');
+tap_t_assert(false !== strpos($installer_src, 'prune_orphans'), 'orphan reconciliation is scheduled');
+tap_t_assert(false === strpos($installer_src, 'UNIQUE KEY room_date'), 'contradictory room_date key removed');
+$tap_uninstall = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/uninstall.php');
+tap_t_assert(false !== strpos($tap_uninstall, "table_name LIKE %s"), 'uninstall enumerates all plugin tables');
+foreach (['tap_points_expiry_hook', 'tap_push_reminders_hook', 'tap_data_retention_hook', 'tap_process_email_campaigns'] as $hook) {
+    tap_t_assert(false !== strpos($tap_uninstall, $hook), 'uninstall clears ' . $hook);
+}
+$pricing_src = (string) file_get_contents($base . 'class-pricing.php');
+tap_t_assert(false === strpos($pricing_src, 'cal_days_in_month'), 'no ext-calendar dependency');
+$cleanup_src = (string) file_get_contents($base . 'class-test-data.php');
+tap_t_assert(false !== strpos($cleanup_src, 'tap_payout_bookings'), 'test-data cleanup cascades payout links');
+
 /* --- cleanup ----------------------------------------------------------------- */
 foreach ($tap_cleanup as $bid) { $wpdb->delete($wpdb->prefix . 'tap_bookings', ['id' => $bid]); }
 $wpdb->delete($wpdb->prefix . 'tap_agencies', ['name' => 'Stability E2E ' . $sfx]);

@@ -162,7 +162,6 @@ class TAP_Installer {
                 created_at datetime DEFAULT CURRENT_TIMESTAMP,
                 updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 PRIMARY KEY (id),
-                UNIQUE KEY room_date (room_id, date),
                 KEY service_date (service_type, service_id, date),
                 KEY service_slot (service_type, service_id, date, time_slot),
                 KEY date (date)
@@ -710,6 +709,26 @@ class TAP_Installer {
         return count($posts);
     }
 
+    /** Daily reconciliation: remove rows whose parent booking/payout is gone. */
+    public static function prune_orphans() {
+        global $wpdb;
+        $b = $wpdb->prefix . 'tap_bookings';
+        foreach ([
+            'tap_invoices', 'tap_chat_messages', 'tap_travel_insurance',
+            'tap_waivers', 'tap_legal_acceptances', 'tap_disputes',
+            'tap_booking_items', 'tap_payout_bookings',
+        ] as $table) {
+            $t = $wpdb->prefix . $table;
+            if (!$wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $t))) { continue; }
+            $wpdb->query("DELETE FROM {$t} WHERE booking_id NOT IN (SELECT id FROM {$b})");
+        }
+        $p = $wpdb->prefix . 'tap_commission_payments';
+        $pl = $wpdb->prefix . 'tap_payout_bookings';
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $pl))) {
+            $wpdb->query("DELETE FROM {$pl} WHERE payout_id NOT IN (SELECT id FROM {$p})");
+        }
+    }
+
     public static function migrate() {
         global $wpdb;
 
@@ -1187,6 +1206,7 @@ class TAP_Installer {
             accepted_at datetime DEFAULT CURRENT_TIMESTAMP,
             email_sent_at datetime DEFAULT NULL,
             PRIMARY KEY (id),
+            UNIQUE KEY evidence_unique (document_id, booking_id, agency_id, version),
             KEY booking_context (booking_id, context),
             KEY agency_context (agency_id, context),
             KEY user_id (user_id)
@@ -1288,6 +1308,24 @@ class TAP_Installer {
         if (!in_array('booking_fee', $cols_bookings, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN booking_fee decimal(15,2) DEFAULT 0.00 AFTER total_amount");
         }
+        // Legal evidence must be unique: deduplicate before adding the key.
+        if (!get_option('tap_legal_evidence_dedup')) {
+            $wpdb->query(
+                "DELETE a FROM {$wpdb->prefix}tap_legal_acceptances a
+                 JOIN (
+                   SELECT MIN(id) keep_id, document_id, booking_id, agency_id, version
+                   FROM {$wpdb->prefix}tap_legal_acceptances
+                   GROUP BY document_id, booking_id, agency_id, version HAVING COUNT(*) > 1
+                 ) d ON a.document_id = d.document_id AND a.booking_id = d.booking_id
+                   AND a.agency_id = d.agency_id AND a.version = d.version
+                 WHERE a.id > d.keep_id"
+            );
+            update_option('tap_legal_evidence_dedup', '1', false);
+        }
+        if (!$wpdb->get_var("SHOW INDEX FROM {$wpdb->prefix}tap_legal_acceptances WHERE Key_name = 'evidence_unique'")) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_legal_acceptances ADD UNIQUE KEY evidence_unique (document_id, booking_id, agency_id, version)");
+        }
+
         if (!in_array('idempotency_key', $cols_bookings, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN idempotency_key varchar(64) DEFAULT NULL AFTER booking_code");
         }

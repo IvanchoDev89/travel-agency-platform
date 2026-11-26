@@ -51,9 +51,20 @@ class TAP_Test_Data {
         $b = $wpdb->prefix . 'tap_bookings';
         $ids = $wpdb->get_col("SELECT id FROM {$b} WHERE booking_code LIKE 'TAP-E2E-%' OR guest_email LIKE '%@example.test' OR guest_email LIKE '%@example.invalid'");
         foreach ($ids as $bid) {
-            $wpdb->delete($wpdb->prefix . 'tap_commission_payments', ['booking_ids' => (string) $bid]);
+            // Cascade every booking-linked child before removing the parent,
+            // otherwise the cleanup itself creates the orphans it claims to fix.
+            foreach ([
+                'tap_invoices', 'tap_chat_messages', 'tap_travel_insurance',
+                'tap_waivers', 'tap_legal_acceptances', 'tap_disputes',
+                'tap_booking_items',
+            ] as $child) {
+                $wpdb->delete($wpdb->prefix . $child, ['booking_id' => (int) $bid]);
+            }
+            $wpdb->delete($wpdb->prefix . 'tap_payout_bookings', ['booking_id' => (int) $bid]);
             $wpdb->delete($wpdb->prefix . 'tap_bookings', ['id' => (int) $bid]);
         }
+        $wpdb->query("DELETE FROM {$wpdb->prefix}tap_payout_bookings WHERE booking_id NOT IN (SELECT id FROM {$b})");
+        $wpdb->query("DELETE FROM {$wpdb->prefix}tap_payout_bookings WHERE payout_id NOT IN (SELECT id FROM {$wpdb->prefix}tap_commission_payments)");
         $wpdb->query("DELETE FROM {$wpdb->prefix}tap_invoices WHERE booking_id NOT IN (SELECT id FROM {$b})");
         $wpdb->query("DELETE FROM {$wpdb->prefix}tap_consents WHERE email LIKE '%@example.test' OR email LIKE '%@example.invalid'");
         $wpdb->query("DELETE FROM {$wpdb->prefix}tap_reviews WHERE content LIKE '%TAP Suite%' OR content LIKE '%E2E%'");

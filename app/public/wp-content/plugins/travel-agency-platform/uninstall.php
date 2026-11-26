@@ -14,25 +14,15 @@ defined('WP_UNINSTALL_PLUGIN') || exit;
 global $wpdb;
 
 // 1) Custom tables ---------------------------------------------------------
-$tables = [
-    'tap_agencies',
-    'tap_agency_subscriptions',
-    'tap_availability',
-    'tap_booking_items',
-    'tap_bookings',
-    'tap_chat_events',
-    'tap_commission_payments',
-    'tap_consents',
-    'tap_daily_pricing',
-    'tap_disputes',
-    'tap_leads',
-    'tap_listing_views',
-    'tap_payment_orders',
-    'tap_plans',
-    'tap_privacy_requests',
-    'tap_promos',
-    'tap_reviews',
-];
+// Enumerate all plugin tables dynamically so new tables are never forgotten.
+$tables = [];
+$all_tables = $wpdb->get_col($wpdb->prepare(
+    'SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name LIKE %s',
+    $wpdb->prefix . 'tap_%'
+));
+foreach ((array) $all_tables as $name) {
+    $tables[] = substr((string) $name, strlen($wpdb->prefix));
+}
 
 foreach ($tables as $table) {
     $name = $wpdb->prefix . $table;
@@ -48,7 +38,12 @@ foreach ($tables as $table) {
 }
 
 // 2) Scheduled events ------------------------------------------------------
-foreach (['tap_maintenance_hook', 'tap_auto_hook', 'tap_refund_retry_hook'] as $hook) {
+foreach ([
+    'tap_maintenance_hook', 'tap_auto_hook', 'tap_refund_retry_hook',
+    'tap_points_expiry_hook', 'tap_push_reminders_hook', 'tap_admin_alerts_hook',
+    'tap_affiliate_release_hook', 'tap_agency_registry_hook', 'tap_data_retention_hook',
+    'tap_pay_reminder_hook', 'tap_process_email_campaigns',
+] as $hook) {
     wp_clear_scheduled_hook($hook);
 }
 

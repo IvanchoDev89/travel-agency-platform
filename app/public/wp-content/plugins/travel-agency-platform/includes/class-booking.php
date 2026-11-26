@@ -1599,7 +1599,12 @@ class TAP_Booking {
 
     /** Amount already paid toward this booking (partial captures included). */
     public static function amount_already_paid($booking) {
-        return round((float) ($booking->amount_paid ?? 0), 2);
+        $paid = (float) ($booking->amount_paid ?? 0);
+        if ($paid <= 0 && 'paid' === (string) ($booking->payment_status ?? '')) {
+            // Legacy rows were paid before amount_paid was persisted.
+            return round((float) ($booking->total_amount ?? 0), 2);
+        }
+        return round($paid, 2);
     }
 
     /** Outstanding balance the client still owes for this booking. */

@@ -164,7 +164,8 @@ class TAP_Pricing {
         $base_min   = (int) get_post_meta($room_id, '_tap_room_min_stay', true) ?: 1;
         $inventory  = max(1, (int) get_post_meta($room_id, '_tap_room_inventory', true) ?: 1);
 
-        $days_in_month = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+        // Pure PHP: ext-calendar is not guaranteed on managed WordPress hosts.
+        $days_in_month = (int) gmdate('t', gmmktime(0, 0, 0, (int) $month, 1, (int) $year));
         $start = sprintf('%04d-%02d-01', $year, $month);
         $end   = sprintf('%04d-%02d-%02d', $year, $month, $days_in_month);
 
