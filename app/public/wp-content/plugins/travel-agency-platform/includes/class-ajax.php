@@ -65,6 +65,14 @@ class TAP_Ajax {
         $svc_type = sanitize_text_field(wp_unslash($_POST['service_type']));
         $svc_id   = intval($_POST['service_id']);
 
+        // Pricing calls DateTime on these values BEFORE TAP_Booking::create()
+        // validates them. A malformed date must be a clean 4xx, not a fatal.
+        foreach ([$check_in, $check_out] as $date_value) {
+            if ('' !== $date_value && !TAP_Booking::parse_date($date_value)) {
+                wp_send_json_error(['message' => __('Las fechas no son válidas.', 'travel-agency-platform')], 400);
+            }
+        }
+
         $total = TAP_Booking_Pricing::calculate_price(
             $svc_type,
             $svc_id,

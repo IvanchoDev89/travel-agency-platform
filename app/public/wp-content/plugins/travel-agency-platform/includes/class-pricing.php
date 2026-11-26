@@ -488,6 +488,10 @@ class TAP_Pricing {
     }
 
     public static function get_prices_for_range($room_id, $check_in, $check_out) {
+        if (class_exists('TAP_Booking')
+            && (!TAP_Booking::parse_date($check_in) || !TAP_Booking::parse_date($check_out))) {
+            return ['available' => false, 'date' => 'invalid', 'prices' => [], 'total' => 0];
+        }
         $memo_key = $room_id . '|' . $check_in . '|' . $check_out;
         if (isset(self::$range_memo[$memo_key])) {
             return self::$range_memo[$memo_key];
@@ -579,6 +583,10 @@ class TAP_Pricing {
     }
 
     public static function get_max_min_stay_for_range($room_id, $check_in, $check_out) {
+        if (class_exists('TAP_Booking')
+            && (!TAP_Booking::parse_date($check_in) || !TAP_Booking::parse_date($check_out))) {
+            return 0;
+        }
         $memo_key = 'ms|' . $room_id . '|' . $check_in . '|' . $check_out;
         if (isset(self::$range_memo[$memo_key])) {
             return self::$range_memo[$memo_key];

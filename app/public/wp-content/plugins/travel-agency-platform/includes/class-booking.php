@@ -254,56 +254,34 @@ class TAP_Booking {
         }
         $subtotal = round($total + $extras_total, 2);
 
-        // The platform fee is paid by the AGENCY, not added to the traveler's
-        // charge. It is a deduction from the agency net, so it neither inflates
-        // the displayed price nor earns commission for the platform.
-        $booking_fee = self::get_booking_fee($subtotal);
-        $booking_fee = round(max(0, $booking_fee), 2);
-
-        // Referral discount (B2C growth loop).
-        $referral_code = '';
-        $referral_referrer = 0;
-        $referral_discount = 0.0;
+        // One shared money calculation drives both this write and the public
+        // quote endpoint, so the displayed price is exactly what gets charged.
         $client_id_for_referral = (int) get_current_user_id();
-        if (class_exists('TAP_Customer_Referrals')) {
-            $preferred_referral_code = isset($data['referral_code']) ? sanitize_text_field((string) $data['referral_code']) : '';
-            $guest_email_for_referral = !empty($data['guest_email']) ? sanitize_email($data['guest_email']) : '';
-            list($referral_code, $referral_referrer, $referral_discount) = TAP_Customer_Referrals::resolve_for_booking($client_id_for_referral, $subtotal, $preferred_referral_code, $guest_email_for_referral);
-            $referral_discount = max(0, round((float) $referral_discount, 2));
-        }
-
-        // Coupon discount, shared with the quote endpoint so the displayed
-        // total and the charged amount can never diverge.
-        $coupon_code = isset($data['coupon_code']) ? sanitize_text_field(wp_unslash((string) $data['coupon_code'])) : '';
-        $coupon_discount = 0.0;
-        if ($coupon_code && class_exists('TAP_Coupons')) {
-            $coupon = TAP_Coupons::validate($coupon_code, $subtotal);
-            if ($coupon) {
-                $coupon_discount = TAP_Coupons::effective_discount($coupon, $subtotal, $subtotal, $commission_percent);
-                if ($coupon_discount > 0) {
-                    TAP_Coupons::mark_used($coupon_code);
-                }
-            }
-        }
-
-        // Discounts reduce the agency's revenue, so they also reduce the base
-        // on which commission is charged.
-        $commission_base = max(0, round($subtotal - $referral_discount - $coupon_discount, 2));
-
-        // Insurance is a separate line item the traveler buys: charged in full,
-        // but excluded from the fee and the commission base.
-        $insurance_premium = 0.0;
-        $insurance_plan = sanitize_key($data['insurance_plan'] ?? '');
-        if ('' !== $insurance_plan && class_exists('TAP_Travel_Insurance')) {
-            $insurance_premium = round((float) TAP_Travel_Insurance::quote($insurance_plan, $commission_base), 2);
-        }
-
-        // Commission is earned on the NET service subtotal only: never on the
-        // platform's own fee or on a third-party insurance premium.
-        $commission_amount = round($commission_base * ($commission_percent / 100), 2);
-
-        // The traveler pays the service and the insurance, nothing else.
-        $total = round($commission_base + $insurance_premium, 2);
+        $money = TAP_Booking_Pricing::money_breakdown(
+            $subtotal,
+            $subtotal,
+            sanitize_text_field($data['service_type']),
+            intval($data['service_id']),
+            [
+                'client_id'      => $client_id_for_referral,
+                'referral_code'  => $data['referral_code'] ?? '',
+                'guest_email'    => $data['guest_email'] ?? '',
+                'coupon_code'    => $data['coupon_code'] ?? '',
+                'insurance_plan' => $data['insurance_plan'] ?? '',
+            ],
+            true
+        );
+        $booking_fee        = $money['booking_fee'];
+        $referral_code      = $money['referral_code'];
+        $referral_referrer  = $money['referral_referrer'];
+        $referral_discount  = $money['referral_discount'];
+        $coupon_code        = $money['coupon_code'];
+        $coupon_discount    = $money['coupon_discount'];
+        $commission_base    = $money['commission_base'];
+        $insurance_premium  = $money['insurance_premium'];
+        $commission_percent = $money['commission_percent'];
+        $commission_amount  = $money['commission_amount'];
+        $total              = $money['total'];
 
         $nights = 0;
         $d1 = self::parse_date($data['check_in'] ?? '');

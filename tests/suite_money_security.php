@@ -40,10 +40,17 @@ tap_t_guard_paypal_credentials();
 update_option('tap_paypal_client_id', 'test-client');
 update_option('tap_paypal_secret', 'test-secret');
 tap_t_remove_paypal_mock();
-$failure_filter = static function () {
-    return ['response' => ['code' => 200, 'message' => 'OK'], 'body' => wp_json_encode(['verification_status' => 'FAILURE'])];
+$failure_filter = static function ($pre, $args, $url) {
+    $ok = ['headers' => [], 'response' => ['code' => 200, 'message' => 'OK'], 'cookies' => [], 'filename' => null];
+    if (strpos((string) $url, '/v1/oauth2/token') !== false) {
+        return $ok + ['body' => wp_json_encode(['access_token' => 'tok-fail'])];
+    }
+    if (strpos((string) $url, '/verify-webhook-signature') !== false) {
+        return $ok + ['body' => wp_json_encode(['verification_status' => 'FAILURE'])];
+    }
+    return $pre;
 };
-add_filter('pre_http_request', $failure_filter, 99, 1);
+add_filter('pre_http_request', $failure_filter, 99, 3);
 $headers = [
     'PAYPAL-AUTH-ALGO' => 'SHA256withRSA', 'PAYPAL-CERT-URL' => 'https://pp.test/cert.pem',
     'PAYPAL-TRANSMISSION-ID' => 'tx-' . $sfx, 'PAYPAL-TRANSMISSION-SIG' => 'sig',

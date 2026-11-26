@@ -427,16 +427,31 @@ class TAP_Payment {
 
         $booking_id = self::find_booking_by_order($paypal_order_id);
         if ($booking_id) {
-            self::$webhook_resolved = true;
             $booking_id  = (int) $booking_id;
             $capture_id  = $capture->id ?? '';
             $prev_capture = get_post_meta($booking_id, '_tap_paypal_capture_id', true);
             if ($prev_capture && $capture_id && (string) $prev_capture === (string) $capture_id) {
+                self::$webhook_resolved = true;
                 return;
             }
             $booking = TAP_Booking::get_booking($booking_id);
             self::record_order($paypal_order_id, 'booking', $booking_id, $booking ? (float) $booking->total_amount : 0, 'completed', $capture_id);
-            TAP_Booking::record_paid_capture($booking_id, 'paypal', $capture_id, $capture);
+
+            // Mirror the AJAX path: a capture that could not be recorded must
+            // never be silently acknowledged as a completed payment.
+            $recorded = TAP_Booking::record_paid_capture($booking_id, 'paypal', $capture_id, $capture);
+            if (is_wp_error($recorded)) {
+                $code = $recorded->get_error_code();
+                update_post_meta($booking_id, '_tap_capture_issue', $code . ': ' . $recorded->get_error_message());
+                do_action('tap_payment_capture_failed', $booking_id, 'paypal', $capture_id, $code);
+                // A lost race is resolved by the winning request; let PayPal
+                // retry so that the replay sees 'already_paid'.
+                if ('lost_race' !== $code) {
+                    self::$webhook_resolved = true;
+                }
+                return;
+            }
+            self::$webhook_resolved = true;
             return;
         }
 

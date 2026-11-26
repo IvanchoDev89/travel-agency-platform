@@ -16,6 +16,80 @@ defined('ABSPATH') || exit;
 
 class TAP_Booking_Pricing {
 
+    /**
+     * The single money calculation shared by the quote endpoint and booking
+     * creation. Ordering matters: discounts reduce the commission base, the
+     * agency fee is a deduction from agency revenue (never a traveler charge)
+     * and insurance is a separate line item.
+     *
+     * @param bool $commit_coupon Only booking creation may mark a coupon used.
+     */
+    public static function money_breakdown($subtotal, $base_total, $service_type, $service_id, $data = [], $commit_coupon = false) {
+        $subtotal   = round(max(0.0, (float) $subtotal), 2);
+        $base_total = $base_total > 0 ? round((float) $base_total, 2) : $subtotal;
+
+        $booking_fee = class_exists('TAP_Booking') ? (float) TAP_Booking::get_booking_fee($subtotal) : 0.0;
+        $booking_fee = round(max(0.0, $booking_fee), 2);
+
+        $referral_code = '';
+        $referral_referrer = 0;
+        $referral_discount = 0.0;
+        if (class_exists('TAP_Customer_Referrals')) {
+            list($referral_code, $referral_referrer, $referral_discount) = TAP_Customer_Referrals::resolve_for_booking(
+                (int) ($data['client_id'] ?? get_current_user_id()),
+                $subtotal,
+                sanitize_text_field((string) ($data['referral_code'] ?? '')),
+                !empty($data['guest_email']) ? sanitize_email($data['guest_email']) : ''
+            );
+            $referral_discount = max(0.0, round((float) $referral_discount, 2));
+        }
+
+        $coupon_code   = sanitize_text_field(wp_unslash((string) ($data['coupon_code'] ?? '')));
+        $coupon_discount = 0.0;
+        $agency_key    = class_exists('TAP_Post_Types') ? TAP_Post_Types::agency_meta_key($service_type) : '';
+        $agency_id     = $agency_key ? (int) get_post_meta($service_id, $agency_key, true) : 0;
+        $commission_percent = class_exists('TAP_Booking') ? (float) TAP_Booking::get_agency_commission($agency_id) : 0.0;
+        if ('' !== $coupon_code && class_exists('TAP_Coupons')) {
+            $coupon = TAP_Coupons::validate($coupon_code, $subtotal);
+            if ($coupon) {
+                $coupon_discount = TAP_Coupons::effective_discount($coupon, $subtotal, $base_total, $commission_percent);
+                $coupon_discount = max(0.0, round((float) $coupon_discount, 2));
+                if ($coupon_discount > 0 && $commit_coupon) {
+                    TAP_Coupons::mark_used($coupon_code);
+                }
+            }
+        }
+
+        $commission_base = max(0.0, round($subtotal - $referral_discount - $coupon_discount, 2));
+
+        $insurance_premium = 0.0;
+        $insurance_plan = sanitize_key((string) ($data['insurance_plan'] ?? ''));
+        if ('' !== $insurance_plan && class_exists('TAP_Travel_Insurance')) {
+            $insurance_premium = round((float) TAP_Travel_Insurance::quote($insurance_plan, $commission_base), 2);
+        }
+
+        return [
+            'booking_fee'        => $booking_fee,
+            'referral_code'      => $referral_code,
+            'referral_referrer'  => (int) $referral_referrer,
+            'referral_discount'  => $referral_discount,
+            'coupon_code'        => $coupon_code,
+            'coupon_discount'    => $coupon_discount,
+            'commission_base'    => $commission_base,
+            'insurance_premium'  => $insurance_premium,
+            'commission_percent' => $commission_percent,
+            'commission_amount'  => round($commission_base * ($commission_percent / 100), 2),
+            'total'              => round($commission_base + $insurance_premium, 2),
+        ];
+    }
+
+    /** Number of nights between two client dates; never throws on bad input. */
+    public static function nights_between($check_in, $check_out) {
+        $d1 = class_exists('TAP_Booking') ? TAP_Booking::parse_date($check_in) : null;
+        $d2 = class_exists('TAP_Booking') ? TAP_Booking::parse_date($check_out) : null;
+        return ($d1 && $d2) ? max(1, $d1->diff($d2)->days) : 1;
+    }
+
     public static function calculate_price($service_type, $service_id, $check_in = '', $check_out = '', $adults = 1, $children = 0, $room_id = 0, $slot_id = 0) {
         $price_keys = [
             'tap_accommodation' => '_tap_acc_price_per_night',
@@ -54,12 +128,7 @@ class TAP_Booking_Pricing {
         if ($service_type === 'tap_equipment') {
             // Equipment may be priced per day and/or per hour; a valid hourly
             // price must not be short-circuited by a missing day price.
-            $days = 1;
-            if ($check_in && $check_out) {
-                $d1 = new DateTime($check_in);
-                $d2 = new DateTime($check_out);
-                $days = max(1, $d1->diff($d2)->days);
-            }
+            $days = self::nights_between($check_in, $check_out);
             $day_price = floatval(get_post_meta($service_id, '_tap_eq_price_day', true));
             if ($day_price > 0) {
                 $res = $day_price * $days;
@@ -87,12 +156,7 @@ class TAP_Booking_Pricing {
 
         switch ($service_type) {
             case 'tap_accommodation':
-                $nights = 1;
-                if ($check_in && $check_out) {
-                    $d1 = new DateTime($check_in);
-                    $d2 = new DateTime($check_out);
-                    $nights = max(1, $d1->diff($d2)->days);
-                }
+                $nights = self::nights_between($check_in, $check_out);
                 return $unit_price * $nights;
 
             case 'tap_tour':
@@ -111,12 +175,7 @@ class TAP_Booking_Pricing {
                 break;
 
             case 'tap_car_rental':
-                $days = 1;
-                if ($check_in && $check_out) {
-                    $d1 = new DateTime($check_in);
-                    $d2 = new DateTime($check_out);
-                    $days = max(1, $d1->diff($d2)->days);
-                }
+                $days = self::nights_between($check_in, $check_out);
                 $result = $unit_price * $days;
                 break;
 
@@ -209,9 +268,7 @@ class TAP_Booking_Pricing {
             if ($check_in && $check_out) {
                 $avail = self::get_room_availability($room->ID, $check_in, $check_out);
                 $available = $avail['available'];
-                $d1 = new DateTime($check_in);
-                $d2 = new DateTime($check_out);
-                $nights = max(1, $d1->diff($d2)->days);
+                $nights = self::nights_between($check_in, $check_out);
 
                 if (class_exists('TAP_Pricing')) {
                     $prices = TAP_Pricing::get_prices_for_range($room->ID, $check_in, $check_out);

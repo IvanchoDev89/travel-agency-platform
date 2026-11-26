@@ -268,19 +268,28 @@ class TAP_Ajax_Public {
             $nights = max(1, $d1->diff($d2)->days);
         }
 
+        $extras_total = 0;
+        if (!empty($_POST['extras']) && is_array($_POST['extras']) && class_exists('TAP_Service_Extras')) {
+            $extras_total = TAP_Service_Extras::total_for(
+                array_map('intval', (array) $_POST['extras']), $adults, $children, $service_type, $service_id
+            );
+        }
+
+        // Same base-price authority as TAP_Booking::create(): both paths go
+        // through TAP_Pricing/TAP_Booking_Pricing, so the displayed quote can
+        // never disagree with the amount that is later captured.
+        $unit_total = 0;
+        $base_total = 0;
         if ($service_type === 'tap_accommodation' && $room_id && class_exists('TAP_Pricing')) {
-            // A single get_quote() drives both the price and the breakdown:
-            // it was being fetched twice with the same arguments, the second
-            // call simply overwriting the first.
             $quote = TAP_Pricing::get_quote($room_id, $check_in, $check_out);
             if ($quote['available']) {
+                $unit_total = $quote['total'];
                 $base_total = $quote['base_total'];
-                $total      = $quote['total'];
                 $savings    = $quote['savings'];
                 $discounts  = $quote['discounts'];
             } else {
-                $total      = TAP_Booking_Pricing::calculate_price($service_type, $service_id, $check_in, $check_out, $adults, $children, $room_id);
-                $base_total = $total;
+                $unit_total = TAP_Booking_Pricing::calculate_price($service_type, $service_id, $check_in, $check_out, $adults, $children, $room_id);
+                $base_total = $unit_total;
             }
             $range_result = TAP_Pricing::get_prices_for_range($room_id, $check_in, $check_out);
             if ($range_result['available']) {
@@ -288,59 +297,34 @@ class TAP_Ajax_Public {
             }
             $min_stay = TAP_Pricing::get_max_min_stay_for_range($room_id, $check_in, $check_out);
         } elseif (in_array($service_type, ['tap_tour', 'tap_experience'], true) && $slot_id && class_exists('TAP_Tour_Availability')) {
-                $slot = TAP_Tour_Availability::get_slot($slot_id);
-                if ($slot) {
-                    $unit = TAP_Tour_Availability::slot_price($slot);
-                    $prefix = $service_type === 'tap_experience' ? '_tap_exp' : '_tap_tour';
-                    $child_price = floatval(get_post_meta($service_id, $prefix . '_price_child', true));
-                    if ($child_price <= 0) $child_price = $unit * 0.7;
-                    // Add extras if provided.
-                    $extras_total = 0;
-                    if (!empty($_POST['extras']) && is_array($_POST['extras']) && class_exists('TAP_Service_Extras')) {
-                        $extras_total = TAP_Service_Extras::total_for(array_map('intval', (array) $_POST['extras']), $adults, $children, $service_type, $service_id);
-                    }
-                    $private_upgrade = !empty($_POST['private_upgrade']);
-                    $private_price = (float) get_post_meta($service_id, '_tap_tour_private_price', true);
-                    if ($private_upgrade && $private_price > 0) {
-                        $total = $private_price + $extras_total;
-                    } else {
-                        $total = ($unit * $adults) + ($child_price * $children) + $extras_total;
-                    }
-                    $base_total = $total;
-                } else {
-                    $total      = TAP_Booking_Pricing::calculate_price($service_type, $service_id, $check_in, $check_out, $adults, $children, $room_id);
-                    $base_total = $total;
-                }
-            } else {
-                $total      = TAP_Booking_Pricing::calculate_price($service_type, $service_id, $check_in, $check_out, $adults, $children, $room_id);
-                $base_total = $total;
-            }
-
-        $fee = TAP_Booking::get_booking_fee($total);
-
-        // Referral discount (B2C growth loop).
-        $referral_code = '';
-        $referral_discount = 0.0;
-        if (class_exists('TAP_Customer_Referrals')) {
-            $client_id = get_current_user_id();
-            $guest_email = isset($_POST['guest_email']) ? sanitize_email(wp_unslash($_POST['guest_email'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing
-            list($referral_code, $referrer, $referral_discount) = TAP_Customer_Referrals::resolve_for_booking($client_id, $total, isset($_POST['referral_code']) ? sanitize_text_field(wp_unslash($_POST['referral_code'])) : '', $guest_email); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-        }
-
-        // Coupon discount.
-        $coupon_code = isset($_POST['coupon_code']) ? sanitize_text_field(wp_unslash($_POST['coupon_code'])) : '';
-        $coupon_discount = 0.0;
-        if ($coupon_code && class_exists('TAP_Coupons')) {
-            $coupon = TAP_Coupons::validate($coupon_code, $total);
-            if ($coupon) {
-                $prefix = class_exists('TAP_Post_Types') ? TAP_Post_Types::meta_prefix($service_type) : '';
-                $agency_id = $prefix ? (int) get_post_meta($service_id, '_tap_' . $prefix . '_agency_id', true) : 0;
-                $commission_percent = TAP_Booking::get_agency_commission($agency_id);
-                $coupon_discount = TAP_Coupons::effective_discount(
-                    $coupon, $total, $base_total > 0 ? $base_total : $total, $commission_percent
-                );
+            $slot = TAP_Tour_Availability::get_slot($slot_id);
+            if ($slot) {
+                $unit = TAP_Tour_Availability::slot_price($slot);
+                $prefix = $service_type === 'tap_experience' ? '_tap_exp' : '_tap_tour';
+                $child_price = floatval(get_post_meta($service_id, $prefix . '_price_child', true));
+                if ($child_price <= 0) { $child_price = $unit * 0.7; }
+                $unit_total = ($unit * $adults) + ($child_price * $children);
+                $base_total = $unit_total;
             }
         }
+        if ($unit_total <= 0) {
+            $unit_total = TAP_Booking_Pricing::calculate_price(
+                $service_type, $service_id, $check_in, $check_out, $adults, $children, $room_id, $slot_id
+            );
+            $base_total = $unit_total;
+        }
+
+        // Private upgrade replaces the base price for ANY tour, exactly as in
+        // TAP_Booking::create() (the old quote only did it when a slot was sent).
+        if (!empty($_POST['private_upgrade']) && 'tap_tour' === $service_type) {
+            $private_price = (float) get_post_meta($service_id, '_tap_tour_private_price', true);
+            if ($private_price > 0) {
+                $unit_total = $private_price;
+                $base_total = $private_price;
+            }
+        }
+
+        $subtotal = round($unit_total + $extras_total, 2);
 
         // Capacity response for tours.
         $capacity_response = null;
@@ -359,26 +343,38 @@ class TAP_Ajax_Public {
             }
         }
 
-        // Exactly the same order as TAP_Booking::create(): discounts reduce the
-        // commission base, the agency fee is NOT added to the traveler's total,
-        // and insurance is a separate line item.
-        $commission_base = max(0, round($total - $referral_discount - $coupon_discount, 2));
-        $insurance_plan = sanitize_key(wp_unslash($_POST['insurance_plan'] ?? ''));
-        $insurance_premium = 0.0;
-        if ('' !== $insurance_plan && class_exists('TAP_Travel_Insurance')) {
-            $insurance_premium = round(TAP_Travel_Insurance::quote($insurance_plan, $commission_base), 2);
-        }
+        // Identical calculation to TAP_Booking::create(); quoting must not
+        // mark a coupon as used.
+        $money = TAP_Booking_Pricing::money_breakdown(
+            $subtotal,
+            $base_total,
+            $service_type,
+            $service_id,
+            [
+                'client_id'      => get_current_user_id(),
+                'referral_code'  => isset($_POST['referral_code']) ? sanitize_text_field(wp_unslash($_POST['referral_code'])) : '',
+                'guest_email'    => isset($_POST['guest_email']) ? sanitize_email(wp_unslash($_POST['guest_email'])) : '',
+                'coupon_code'    => isset($_POST['coupon_code']) ? sanitize_text_field(wp_unslash($_POST['coupon_code'])) : '',
+                'insurance_plan' => sanitize_key(wp_unslash($_POST['insurance_plan'] ?? '')),
+            ],
+            false
+        );
+        $booking_fee       = $money['booking_fee'];
+        $referral_code     = $money['referral_code'];
+        $referral_discount = $money['referral_discount'];
+        $coupon_code       = $money['coupon_code'];
+        $coupon_discount   = $money['coupon_discount'];
+        $commission_base   = $money['commission_base'];
+        $insurance_premium = $money['insurance_premium'];
+        $final_total       = $money['total'];
+        $fee               = $booking_fee;
 
-        $final_total = round($commission_base + $insurance_premium, 2);
-        if ($final_total < 0) {
-            $final_total = 0;
-        }
         wp_send_json_success([
             'total'             => $final_total,
             'commission_base'   => $commission_base,
             'platform_fee'      => $fee,
             'insurance_premium' => $insurance_premium,
-            'subtotal'          => round($total, 2),
+            'subtotal'          => round($subtotal, 2),
             'fee'               => $fee,
             'referral_code'     => $referral_code,
             'referral_discount' => $referral_discount,

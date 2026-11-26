@@ -298,28 +298,48 @@ class TAP_PayPal {
         ];
     }
 
+    /**
+     * Verify a PayPal webhook through the postback endpoint.
+     *
+     * Two details are non-negotiable: the endpoint requires a Bearer OAuth
+     * token (Basic auth is only for the token request itself), and PayPal signs
+     * the EXACT bytes of the raw event. Re-encoding the event would invalidate
+     * the signature, so the raw JSON object is injected verbatim into the
+     * outer payload instead of being passed as a JSON string.
+     */
     public static function verify_webhook($headers, $body) {
         self::init();
-        $url = self::get_base_url() . '/v1/notifications/verify-webhook-signature';
+        $token = self::get_access_token();
+        if (is_wp_error($token) || empty($token)) { return false; }
 
+        $raw = is_string($body) ? trim($body) : wp_json_encode($body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        if ('' === $raw || !is_object(json_decode($raw))) { return false; }
+
+        $fields = [
+            'auth_algo'         => $headers['PAYPAL-AUTH-ALGO'] ?? '',
+            'cert_url'          => $headers['PAYPAL-CERT-URL'] ?? '',
+            'transmission_id'   => $headers['PAYPAL-TRANSMISSION-ID'] ?? '',
+            'transmission_sig'  => $headers['PAYPAL-TRANSMISSION-SIG'] ?? '',
+            'transmission_time' => $headers['PAYPAL-TRANSMISSION-TIME'] ?? '',
+            'webhook_id'        => get_option('tap_paypal_webhook_id', ''),
+        ];
+        $parts = [];
+        foreach ($fields as $key => $value) {
+            $parts[] = wp_json_encode((string) $key) . ':' . wp_json_encode((string) $value);
+        }
+        $payload = '{' . implode(',', $parts) . ',"webhook_event":' . $raw . '}';
+
+        $url = self::get_base_url() . '/v1/notifications/verify-webhook-signature';
         $response = wp_remote_post($url, [
             'headers' => [
-                'Authorization' => 'Basic ' . base64_encode(self::$client_id . ':' . self::$client_secret),
-                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer ' . $token,
+                'Content-Type'  => 'application/json',
             ],
-            'body' => wp_json_encode([
-                'auth_algo'         => $headers['PAYPAL-AUTH-ALGO'] ?? '',
-                'cert_url'          => $headers['PAYPAL-CERT-URL'] ?? '',
-                'transmission_id'   => $headers['PAYPAL-TRANSMISSION-ID'] ?? '',
-                'transmission_sig'  => $headers['PAYPAL-TRANSMISSION-SIG'] ?? '',
-                'transmission_time' => $headers['PAYPAL-TRANSMISSION-TIME'] ?? '',
-                'webhook_id'        => get_option('tap_paypal_webhook_id', ''),
-                'webhook_event'     => $body,
-            ]),
+            'body' => $payload,
             'timeout' => 30,
         ]);
 
-        if (is_wp_error($response)) return false;
+        if (is_wp_error($response)) { return false; }
 
         $result = json_decode(wp_remote_retrieve_body($response));
         return ($result->verification_status ?? '') === 'SUCCESS';
@@ -339,10 +359,15 @@ class TAP_PayPal {
             ];
         }
 
+        // A retry that sends the same id gets the original refund back instead
+        // of returning the money to the client twice.
+        $idempotency = hash('sha256', $capture_id . '|'
+            . number_format((float) ($amount ?? 0), 2, '.', '') . '|' . self::currency_code());
         $response = wp_remote_post($url, [
             'headers' => [
-                'Authorization' => 'Bearer ' . $token,
-                'Content-Type'  => 'application/json',
+                'Authorization'    => 'Bearer ' . $token,
+                'Content-Type'     => 'application/json',
+                'PayPal-Request-Id' => substr($idempotency, 0, 36),
             ],
             'body'    => wp_json_encode($body),
             'timeout' => 30,

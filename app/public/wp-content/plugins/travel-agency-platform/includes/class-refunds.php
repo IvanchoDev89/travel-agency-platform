@@ -59,6 +59,17 @@ class TAP_Refunds {
         $capture_id = get_post_meta($booking_id, '_tap_paypal_capture_id', true);
         $onvo_intent_id = get_post_meta($booking_id, '_tap_onvo_payment_intent_id', true);
 
+        // Never send the same refund twice: the nightly retry can run after a
+        // gateway call whose success marker was lost to a fatal. A different
+        // partial amount produces a different hash and is still allowed.
+        $currency = !empty($booking->currency) ? (string) $booking->currency : 'USD';
+        $refund_hash = hash('sha256', ($capture_id ?: $onvo_intent_id) . '|'
+            . number_format($refund_amount, 2, '.', '') . '|' . $currency);
+        if (get_post_meta($booking_id, '_tap_refund_executed_hash', true) === $refund_hash) {
+            delete_post_meta($booking_id, '_tap_refund_pending');
+            return true;
+        }
+
         if (!$capture_id && !$onvo_intent_id) {
             // Payment was not captured online (office/cash/manual): nothing to
             // reverse at the gateway. Treat it as an offline refund.
@@ -78,6 +89,8 @@ class TAP_Refunds {
             return $refunded;
         }
 
+        // Persist the claim only after the gateway confirmed the refund.
+        update_post_meta($booking_id, '_tap_refund_executed_hash', $refund_hash);
         $refund_id = is_array($refunded) ? ($refunded['refund_id'] ?? $refunded['id'] ?? '') : '';
         if ($capture_id) {
             update_post_meta($booking_id, '_tap_paypal_refund_id', $refund_id);

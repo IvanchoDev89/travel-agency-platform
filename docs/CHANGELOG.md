@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.24.0] — 2026-11-26
+
+### Fixed (high impact)
+- PayPal webhook verification now sends the raw event as an object with a Bearer
+  OAuth token; all webhooks were previously rejected (403) because the event was
+  double-encoded and authenticated with Basic credentials.
+- Malformed client dates no longer fatal in booking creation/pricing: strict
+  parsing happens before `DateTime` and a shared nights helper is used.
+- Quote and checkout share one money calculator (`TAP_Booking_Pricing::money_breakdown`);
+  accommodation extras and private upgrades are charged exactly as displayed.
+- Refund execution is idempotent (local claim + PayPal `PayPal-Request-Id`).
+- Webhook captures record and surface `WP_Error` results instead of silently
+  acknowledging a failed or partial capture.
+
+### Added
+- FUNCTIONAL `suite_price_parity.php` (quote == charge, dates, refund idempotency).
+- PayPal suite asserts the exact verification payload and Bearer auth.
+
 ## [1.23.1] — 2026-11-26
 
 ### Fixed

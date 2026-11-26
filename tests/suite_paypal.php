@@ -82,8 +82,26 @@ tap_t_assert(is_array($ref) && $ref['refund_id'] === 'REF-PP-1' && $ref['status'
 tap_t_assert($ref['amount'] === '10.00', 'refund amount returned');
 
 // 5) verify_webhook -----------------------------------------------------------------
-$headers = ['PAYPAL-AUTH-ALGO' => 'sha256', 'PAYPAL-TRANSMISSION-ID' => 'T1', 'PAYPAL-TRANSMISSION-SIG' => 's', 'PAYPAL-TRANSMISSION-TIME' => 't'];
-tap_t_assert(true === TAP_PayPal::verify_webhook($headers, ['event_type' => 'x']), 'webhook signature verified');
+$headers = [
+    'PAYPAL-AUTH-ALGO' => 'SHA256withRSA', 'PAYPAL-CERT-URL' => 'https://pp.test/cert',
+    'PAYPAL-TRANSMISSION-ID' => 'T1', 'PAYPAL-TRANSMISSION-SIG' => 'sig',
+    'PAYPAL-TRANSMISSION-TIME' => '2026-11-26T00:00:00Z',
+];
+update_option('tap_paypal_webhook_id', 'WEBHOOK-E2E');
+$raw_event = '{"id":"WH-E2E","event_type":"PAYMENT.CAPTURE.COMPLETED","resource":{"id":"CAP-E2E"}}';
+tap_t_assert(true === TAP_PayPal::verify_webhook($headers, $raw_event), 'raw webhook event verified');
+$verify = null;
+foreach ($GLOBALS['tap_pp_log'] as $entry) {
+    if (strpos($entry['url'], '/verify-webhook-signature') !== false) { $verify = $entry; }
+}
+tap_t_assert(null !== $verify, 'verify endpoint called');
+tap_t_assert('Bearer tok-test' === ($verify['args']['headers']['Authorization'] ?? ''), 'verification uses the OAuth Bearer token');
+$sent = json_decode($verify['args']['body'], true);
+tap_t_assert(is_array($sent['webhook_event'] ?? null), 'webhook_event is sent as an object, not a JSON string');
+tap_t_assert('WH-E2E' === ($sent['webhook_event']['id'] ?? ''), 'webhook_event keeps the original event');
+tap_t_assert('WEBHOOK-E2E' === ($sent['webhook_id'] ?? ''), 'configured webhook id is forwarded');
+tap_t_assert(false === TAP_PayPal::verify_webhook($headers, 'not json'), 'malformed event rejected without an HTTP call');
+delete_option('tap_paypal_webhook_id');
 
 tap_t_remove_paypal_mock();
 

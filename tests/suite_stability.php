@@ -47,6 +47,10 @@ tap_t_assert(false !== strpos($commerce, "is_wp_error(\$recorded)"), 'PayPal cap
 $payment = (string) file_get_contents($base . 'class-payment.php');
 tap_t_assert(false !== strpos($payment, 'previous_refund_id'), 'partial refund is deduplicated');
 tap_t_assert(false !== strpos($payment, 'webhook_resolved'), 'webhooks are acknowledged only when resolved');
+tap_t_assert(false !== strpos($payment, 'is_wp_error($recorded)'), 'webhook capture failures are not silently acknowledged');
+tap_t_assert(false !== strpos($payment, 'tap_payment_capture_failed'), 'webhook capture failures are observable');
+$refunds = (string) file_get_contents($base . 'class-refunds.php');
+tap_t_assert(false !== strpos($refunds, '_tap_refund_executed_hash'), 'refund execution is idempotent');
 $bootstrap = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/travel-agency-platform.php');
 tap_t_assert(false !== strpos($bootstrap, "'' === \$migration_error"), 'version advances only when migrations succeed');
 $cleanup = (string) file_get_contents($base . 'class-test-data.php');

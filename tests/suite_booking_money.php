@@ -37,7 +37,9 @@ $discount = TAP_Coupons::effective_discount($coupon, 100, 100, 10);
 tap_t_assert(abs(2.5 - $discount) < 0.01, 'coupon capped at 25% of commission (100 * 10% * 25% = 2.5)');
 $src_booking = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-booking.php');
 $src_quote = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-ajax-public.php');
-tap_t_assert(false !== strpos($src_booking, 'TAP_Coupons::effective_discount') && false !== strpos($src_quote, 'TAP_Coupons::effective_discount'), 'both quote and creation use the shared coupon calculator');
+$src_pricing = (string) file_get_contents(dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/includes/class-booking-pricing.php');
+tap_t_assert(false !== strpos($src_booking, 'TAP_Booking_Pricing::money_breakdown') && false !== strpos($src_quote, 'TAP_Booking_Pricing::money_breakdown'), 'both quote and creation use the shared money calculator');
+tap_t_assert(false !== strpos($src_pricing, 'TAP_Coupons::effective_discount'), 'shared calculator applies the coupon cap');
 
 /* --- 3) slot price is charged, not just displayed ---------------------------- */
 $tour = wp_insert_post([
