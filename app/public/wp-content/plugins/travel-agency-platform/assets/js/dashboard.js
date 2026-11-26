@@ -151,8 +151,12 @@
         var reason = '';
         var originalLabel = $btn.text();
 
-        if (op === 'cancel' || op === 'reject') {
-            var reasonInput = window.prompt(op === 'reject' ? 'Motivo del rechazo (se envía al viajero):' : (cfg.i18n && cfg.i18n.cancel_reason ? cfg.i18n.cancel_reason : 'Motivo de cancelación (opcional):'), '');
+        if (op === 'cancel' || op === 'reject' || op === 'settle_offline') {
+            var reasonInput = window.prompt(
+                op === 'reject' ? 'Motivo del rechazo (se envía al viajero):'
+                : (op === 'settle_offline' ? 'Comprobante de la liquidación offline ( obligatorio ):' : (cfg.i18n && cfg.i18n.cancel_reason ? cfg.i18n.cancel_reason : 'Motivo de cancelación (opcional):')),
+                ''
+            );
             if (reasonInput === null) {
                 return;
             }
@@ -171,7 +175,7 @@
             booking_id: id,
             op:         op
         };
-        if (op === 'cancel' && reason !== '') {
+        if ((op === 'cancel' || op === 'settle_offline') && reason !== '') {
             data.reason = reason;
         }
 

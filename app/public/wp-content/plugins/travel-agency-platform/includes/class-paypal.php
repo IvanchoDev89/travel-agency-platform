@@ -41,7 +41,7 @@ class TAP_PayPal {
     }
 
     public static function currency_code() {
-        return class_exists('TAP_Currency') ? TAP_Currency::code() : 'USD';
+        return class_exists('TAP_Currency') ? TAP_Currency::checkout_code() : 'USD';
     }
 
     public static function get_base_url() {
@@ -347,16 +347,19 @@ class TAP_PayPal {
         return ($result->verification_status ?? '') === 'SUCCESS';
     }
 
-    public static function refund_capture($capture_id, $amount = null) {
+    public static function refund_capture($capture_id, $amount = null, $currency = null) {
         $token = self::get_access_token();
         if (is_wp_error($token)) return $token;
 
         $url = self::get_base_url() . '/v2/payments/captures/' . $capture_id . '/refund';
+        // Refunds MUST use the booking currency, never the display currency
+        // that changes with ?lang=. Callers for bookings always pass it.
+        $currency = strtoupper((string) ($currency ?: self::currency_code()));
 
         $body = [];
         if ($amount) {
             $body['amount'] = [
-                'currency_code' => self::currency_code(),
+                'currency_code' => $currency,
                 'value'         => number_format(floatval($amount), 2, '.', ''),
             ];
         }
@@ -364,7 +367,7 @@ class TAP_PayPal {
         // A retry that sends the same id gets the original refund back instead
         // of returning the money to the client twice.
         $idempotency = hash('sha256', $capture_id . '|'
-            . number_format((float) ($amount ?? 0), 2, '.', '') . '|' . self::currency_code());
+            . number_format((float) ($amount ?? 0), 2, '.', '') . '|' . $currency);
         $response = wp_remote_post($url, [
             'headers' => [
                 'Authorization'    => 'Bearer ' . $token,

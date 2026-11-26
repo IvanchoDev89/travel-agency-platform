@@ -257,12 +257,20 @@ class TAP_Payment {
         if ($expected <= 0) { $expected = TAP_Booking::remaining_amount($booking); }
         if ($expected <= 0) { $expected = (float) $booking->total_amount; }
         if ($intent_amount > 0 && abs($intent_amount - $expected) > 0.01) {
-            // Log discrepancy for admin review.
+            // Record a reviewable exception. Retrying the webhook cannot change
+            // the amount, so acknowledge it instead of looping forever.
+            update_post_meta($booking_id, '_tap_payment_mismatch', wp_json_encode([
+                'expected'   => round($expected, 2),
+                'received'   => round($intent_amount, 2),
+                'intent_id'  => (string) $intent_id,
+                'gateway'    => 'onvo',
+                'recorded_at'=> current_time('mysql'),
+            ], JSON_UNESCAPED_UNICODE));
             if (class_exists('TAP_Audit_Log')) {
-                TAP_Audit_Log::log('payment_amount_mismatch', 'booking', $booking_id, null, $booking_id, 0);
+                TAP_Audit_Log::log('payment_amount_mismatch', 'booking', $booking_id, null, $booking->agency_id, 0);
             }
-            // Don't mark as paid if amount doesn't match.
-            return false;
+            do_action('tap_payment_amount_mismatch', $booking_id, 'onvo', (string) $intent_id, $expected, $intent_amount);
+            return true;
         }
 
         // record_paid_capture() writes amount_paid, confirms the booking and
@@ -463,6 +471,20 @@ class TAP_Payment {
         $order = self::resolve_order($paypal_order_id);
         if (!$order) return;
 
+        // A webhook from PayPal is authentic, but the captured amount can still
+        // differ from the order (price change, stale approval). Never activate
+        // a paid period on a mismatched charge.
+        $captured_value = isset($capture->amount->value) ? (float) $capture->amount->value : 0.0;
+        $order_amount = (float) $order->amount;
+        if ($captured_value > 0 && $order_amount > 0 && abs($captured_value - $order_amount) > 0.01) {
+            self::record_order($paypal_order_id, $order->object_type, (int) $order->object_id, $order_amount, 'mismatch', $capture->id ?? '');
+            if (class_exists('TAP_Audit_Log')) {
+                TAP_Audit_Log::log('payment_amount_mismatch', $order->object_type, (int) $order->object_id, null, 0, 0);
+            }
+            do_action('tap_payment_amount_mismatch', 0, 'paypal', (string) ($capture->id ?? ''), $order_amount, $captured_value);
+            return;
+        }
+
         self::record_order($paypal_order_id, $order->object_type, $order->object_id, $order->amount, 'completed', $capture->id ?? '');
 
         if ('subscription' === $order->object_type) {
@@ -575,7 +597,7 @@ class TAP_Payment {
                     ],
                     ['id' => (int) $booking_id]
                 );
-                do_action('tap_payment_partially_refunded', $booking_id, 'paypal', $refund_id);
+                do_action('tap_payment_partially_refunded', $booking_id, 'paypal', $refund_id, $refund_value);
                 return;
             }
 

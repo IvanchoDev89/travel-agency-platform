@@ -6,6 +6,34 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.26.0] — 2026-11-26
+
+### Fixed (financial safety audit, Fase A/C)
+- PayPal refunds now use the booking currency, never the language-dependent
+  display currency; idempotency keys include that currency.
+- `mark_paid` refuses bookings with a partial online capture. New admin-only
+  `settle_offline` operation records the receipt and the exact outstanding
+  amount before certifying the rest as received.
+- Agency and affiliate payout requests take a named MySQL lock and re-read the
+  balance inside it. Completing a payout caps it to the balance that still
+  exists; cancelling an affiliate payout releases its conversions again.
+- Onvo amount mismatches are stored as reviewable exceptions instead of
+  retrying the webhook forever. Subscription/promo captures verify the amount
+  against the recorded order before activating a paid period.
+- PayPal processor fee and net received are captured from the gateway
+  breakdown. Checkout/SDK currency no longer follows `?lang=`.
+- Refunds issue immutable credit notes on the original invoice, rendered in
+  the invoice HTML.
+- New read-only admin page "Excepciones financieras" surfaces overpayments,
+  mismatches, failed refunds, old partial payments and stale payouts.
+
+### Added
+- FUNCTIONAL `suite_finance_safety.php` covering all of the above.
+
+### Deferred decisions
+- Dispute clawback of an already-paid commission and proration of commission
+  after partial refunds keep their existing behaviour until explicitly decided.
+
 ## [1.25.0] — 2026-11-26
 
 ### Fixed (money ledger)

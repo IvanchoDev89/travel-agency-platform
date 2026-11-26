@@ -919,6 +919,17 @@ class TAP_Booking {
                 if ('paid' === $booking->payment_status) {
                     return true;
                 }
+                // A real gateway capture for less than the total cannot be
+                // turned into "fully paid" by clicking a button: that would
+                // earn agency commission on money the platform never received.
+                $online_capture = (string) get_post_meta($booking->id, '_tap_paypal_capture_id', true)
+                    || (string) get_post_meta($booking->id, '_tap_onvo_payment_intent_id', true);
+                if ($online_capture && (float) ($booking->amount_paid ?? 0) < (float) $booking->total_amount - 0.005) {
+                    return new WP_Error(
+                        'partial_online_payment',
+                        __('Esta reserva tiene un cobro online parcial; usa «Liquidar resto offline» con el comprobante.', 'travel-agency-platform')
+                    );
+                }
                 global $wpdb;
                 $updated = $wpdb->update(
                     $wpdb->prefix . 'tap_bookings',
@@ -933,6 +944,51 @@ class TAP_Booking {
                     TAP_Audit_Log::log('booking_marked_paid', 'booking', $booking->id, null, (int) $booking->agency_id, $user_id);
                 }
                 return true;
+            case 'settle_offline':
+                // Explicit evidence-backed settlement of an outstanding balance
+                // (cash / bank transfer). Only platform admins may certify that
+                // the remaining money actually reached the platform.
+                if (!$is_admin) {
+                    return new WP_Error('forbidden', __('No tienes permiso sobre esta reserva.', 'travel-agency-platform'));
+                }
+                if (!in_array($booking->status, ['confirmed', 'completed'], true)) {
+                    return new WP_Error('bad_status', __('Invalid status', 'travel-agency-platform'));
+                }
+                if (!in_array($booking->payment_status, ['pending', 'partial', 'failed'], true)) {
+                    return new WP_Error('invalid_status', __('Invalid payment status', 'travel-agency-platform'));
+                }
+                if ('' === trim((string) $reason)) {
+                    return new WP_Error('reason_required', __('Indica el comprobante de la liquidación offline.', 'travel-agency-platform'));
+                }
+                $paid_before = round((float) ($booking->amount_paid ?? 0), 2);
+                $total       = round((float) $booking->total_amount, 2);
+                if ($paid_before >= $total - 0.005) {
+                    return new WP_Error('nothing_to_settle', __('La reserva ya está pagada por completo.', 'travel-agency-platform'));
+                }
+                global $wpdb;
+                $updated = $wpdb->update(
+                    $wpdb->prefix . 'tap_bookings',
+                    ['payment_status' => 'paid', 'amount_paid' => $total],
+                    ['id' => $booking->id, 'status' => $booking->status, 'payment_status' => $booking->payment_status]
+                );
+                if (1 !== $updated) {
+                    return new WP_Error('payment_update_failed', __('Invalid payment status', 'travel-agency-platform'));
+                }
+                update_post_meta($booking->id, '_tap_offline_settlement', wp_json_encode([
+                    'paid_before' => $paid_before,
+                    'added'       => round($total - $paid_before, 2),
+                    'total'       => $total,
+                    'currency'    => (string) ($booking->currency ?? 'USD'),
+                    'actor'       => (int) $user_id,
+                    'reason'      => sanitize_text_field($reason),
+                    'recorded_at' => current_time('mysql'),
+                ], JSON_UNESCAPED_UNICODE));
+                do_action('tap_payment_completed', $booking->id, 'offline', '');
+                if (class_exists('TAP_Audit_Log')) {
+                    TAP_Audit_Log::log('booking_offline_settlement', 'booking', $booking->id, $reason, (int) $booking->agency_id, $user_id);
+                }
+                return true;
+
             case 'no_show':
                 // The traveler did not arrive. No gateway refund is involved:
                 // the agency records it for its own operations and reporting.
@@ -1382,6 +1438,12 @@ class TAP_Booking {
                     if (null !== $details) {
                         $payload = is_string($details) ? $details : wp_json_encode($details, JSON_UNESCAPED_UNICODE);
                         update_post_meta((int) $booking_id, '_tap_payment_details', $payload);
+                        $breakdown = self::capture_breakdown($details);
+                        if ($breakdown) {
+                            if (null !== $breakdown['fee']) { update_post_meta((int) $booking_id, '_tap_processor_fee', round($breakdown['fee'], 2)); }
+                            if (null !== $breakdown['net']) { update_post_meta((int) $booking_id, '_tap_net_received', round($breakdown['net'], 2)); }
+                            update_post_meta((int) $booking_id, '_tap_payment_gateway', (string) $method);
+                        }
                     }
                     self::update_status((int) $booking_id, 'confirmed');
                     do_action('tap_payment_completed', (int) $booking_id, $method, $capture_id);
@@ -1435,9 +1497,34 @@ class TAP_Booking {
         if (null !== $details) {
             $payload = is_string($details) ? $details : wp_json_encode($details, JSON_UNESCAPED_UNICODE);
             update_post_meta((int) $booking_id, '_tap_payment_details', $payload);
+            $breakdown = self::capture_breakdown($details);
+            if ($breakdown) {
+                if (null !== $breakdown['fee']) { update_post_meta((int) $booking_id, '_tap_processor_fee', round($breakdown['fee'], 2)); }
+                if (null !== $breakdown['net']) { update_post_meta((int) $booking_id, '_tap_net_received', round($breakdown['net'], 2)); }
+                update_post_meta((int) $booking_id, '_tap_payment_gateway', (string) $method);
+            }
         }
         do_action('tap_payment_completed', (int) $booking_id, $method, $capture_id);
         return true;
+    }
+
+    /** Extract PayPal's real fee/net from a capture breakdown, when present. */
+    public static function capture_breakdown($details) {
+        if (!is_string($details) && !is_object($details) && !is_array($details)) { return null; }
+        // Normalize nested arrays and objects in one step.
+        $details = json_decode(wp_json_encode($details));
+        if (!is_object($details)) { return null; }
+        $capture = $details;
+        if (isset($details->purchase_units) && is_array($details->purchase_units) && isset($details->purchase_units[0]->payments->captures[0])) {
+            $capture = $details->purchase_units[0]->payments->captures[0];
+        }
+        $b = $capture->seller_receivable_breakdown ?? null;
+        if (!is_object($b) && !is_array($b)) { return null; }
+        $b = (object) $b;
+        $fee = isset($b->paypal_fee->value) ? (float) $b->paypal_fee->value : null;
+        $net = isset($b->net_amount->value) ? (float) $b->net_amount->value : null;
+        if (null === $fee && null === $net) { return null; }
+        return ['fee' => $fee, 'net' => $net];
     }
 
     /**
@@ -1481,7 +1568,9 @@ class TAP_Booking {
             return;
         }
         update_post_meta((int) $booking_id, '_tap_paypal_capture_id', $capture_id);
-        $result = TAP_PayPal::refund_capture($capture_id);
+        $booking = self::get_booking((int) $booking_id);
+        $currency = $booking && !empty($booking->currency) ? (string) $booking->currency : 'USD';
+        $result = TAP_PayPal::refund_capture($capture_id, null, $currency);
         if (is_wp_error($result)) {
             update_post_meta((int) $booking_id, '_tap_refund_error', '[' . $reason . '] ' . $result->get_error_message());
             update_post_meta((int) $booking_id, '_tap_refund_pending', current_time('mysql'));

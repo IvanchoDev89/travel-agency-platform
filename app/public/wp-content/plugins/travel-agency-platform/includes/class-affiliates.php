@@ -304,14 +304,22 @@ return $wpdb->prefix . 'tap_affiliate_conversions'; }
                 return new WP_Error('forbidden', __('No tienes permiso sobre este afiliado.', 'travel-agency-platform'));
             }
         }
+        $lock = TAP_Payouts::acquire_lock('affiliate_payout', $affiliate->id);
+        if ('' === $lock) {
+            return new WP_Error('busy', __('Otra liquidación está en curso. Inténtalo de nuevo.', 'travel-agency-platform'));
+        }
+        // Re-read available conversions under the lock: a second request must
+        // not claim the same conversions as the first one.
         $available = self::available_conversions((int) $affiliate->id);
         if (!$available) {
+            TAP_Payouts::release_lock($lock);
             return new WP_Error('nothing_to_pay', __('No hay comisiones disponibles para liquidar.', 'travel-agency-platform'));
         }
         $amount = round(array_sum(array_map(static function ($c) {
             return (float) $c->commission_amount;
         }, $available)), 2);
         if ($amount <= 0) {
+            TAP_Payouts::release_lock($lock);
             return new WP_Error('nothing_to_pay', __('No hay comisiones disponibles para liquidar.', 'travel-agency-platform'));
         }
         $wpdb->insert(self::payouts_table(), [
@@ -329,6 +337,7 @@ return $wpdb->prefix . 'tap_affiliate_conversions'; }
             $wpdb->update(self::conv_table(), ['status' => 'payout_requested'], ['id' => (int) $c->id]);
         }
         self::notify_payout_request($payout_id);
+        TAP_Payouts::release_lock($lock);
         return $payout_id;
     }
 
@@ -368,15 +377,65 @@ return $wpdb->prefix . 'tap_affiliate_conversions'; }
         $id = absint($_POST['payout_id'] ?? 0);
         check_admin_referer('tap_affiliate_payout_status_' . $id);
         $status = sanitize_key(wp_unslash($_POST['payout_status'] ?? ''));
-        if (!in_array($status, ['completed', 'cancelled', 'failed'], true)) { $status = 'completed'; }
-        global $wpdb;
-        $wpdb->update(self::payouts_table(), [
-            'status'  => $status,
-            'paid_at' => 'completed' === $status ? current_time('mysql') : null,
-            'note'    => sanitize_text_field(wp_unslash($_POST['note'] ?? '')),
-        ], ['id' => $id, 'status' => 'pending']);
-        wp_safe_redirect(add_query_arg(['page' => 'tap-affiliates', 'payout' => '1'], admin_url('admin.php')));
+        if ('completed' === $status) { $res = self::complete_payout($id); }
+        elseif (in_array($status, ['cancelled', 'failed'], true)) { $res = self::release_payout($id, $status); }
+        else { $res = new WP_Error('invalid_status', __('Estado no válido.', 'travel-agency-platform')); }
+        $args = ['page' => 'tap-affiliates'];
+        $args[is_wp_error($res) ? 'payout_error' : 'payout'] = is_wp_error($res) ? $res->get_error_code() : '1';
+        wp_safe_redirect(add_query_arg($args, admin_url('admin.php')));
         exit;
+    }
+
+    /** Complete a pending affiliate payout, capped to the balance still due. */
+    public static function complete_payout($payout_id) {
+        global $wpdb;
+        $payout_id = (int) $payout_id;
+        $row = $wpdb->get_row($wpdb->prepare(
+            'SELECT * FROM ' . self::payouts_table() . ' WHERE id = %d AND status = "pending"', $payout_id
+        ));
+        if (!$row) {
+            return new WP_Error('invalid_payout', __('La liquidación no está pendiente.', 'travel-agency-platform'));
+        }
+        $stats = self::stats((int) $row->affiliate_id);
+        $entitlement = round((float) $stats['released'] - (float) $stats['paid'], 2);
+        $capped = min(round((float) $row->amount, 2), $entitlement);
+        if ($capped <= 0) {
+            return new WP_Error('no_balance', __('Ya no hay saldo para esta liquidación.', 'travel-agency-platform'));
+        }
+        if (!TAP_Payouts::transition($payout_id, ['pending'], 'completed', self::payouts_table())) {
+            return new WP_Error('conflict', __('La liquidación cambió mientras se procesaba.', 'travel-agency-platform'));
+        }
+        $wpdb->update(self::payouts_table(), [
+            'amount'  => $capped,
+            'paid_at' => current_time('mysql'),
+        ], ['id' => $payout_id]);
+        return true;
+    }
+
+    /** Cancel/fail a payout and release its conversions for a future request. */
+    public static function release_payout($payout_id, $status) {
+        global $wpdb;
+        $payout_id = (int) $payout_id;
+        if (!in_array($status, ['cancelled', 'failed'], true)) {
+            return new WP_Error('invalid_status', __('Estado no válido.', 'travel-agency-platform'));
+        }
+        if (!TAP_Payouts::transition($payout_id, ['pending'], $status, self::payouts_table())) {
+            return new WP_Error('invalid_payout', __('La liquidación no está pendiente.', 'travel-agency-platform'));
+        }
+        $conversion_ids = $wpdb->get_col($wpdb->prepare(
+            'SELECT conversion_id FROM ' . self::payout_items_table() . ' WHERE payout_id = %d', $payout_id
+        ));
+        $wpdb->delete(self::payout_items_table(), ['payout_id' => $payout_id]);
+        foreach ((array) $conversion_ids as $cid) {
+            $cid = (int) $cid;
+            $still_linked = (int) $wpdb->get_var($wpdb->prepare(
+                'SELECT COUNT(*) FROM ' . self::payout_items_table() . ' WHERE conversion_id = %d', $cid
+            ));
+            if (!$still_linked) {
+                $wpdb->update(self::conv_table(), ['status' => 'released'], ['id' => $cid, 'status' => 'payout_requested']);
+            }
+        }
+        return true;
     }
 
     /** [tap_affiliate_portal] — self-service affiliate dashboard. */

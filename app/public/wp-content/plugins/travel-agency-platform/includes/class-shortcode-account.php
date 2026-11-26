@@ -643,7 +643,7 @@ $rating_count = 0;
         </script>';
 
         if ($paypal_ready) {
-            $html .= '<script src="https://www.paypal.com/sdk/js?client-id=' . esc_attr(TAP_PayPal::get_client_id()) . '&currency=' . esc_attr(TAP_Currency::code()) . '" data-namespace="tapPayPal"></script>';
+            $html .= '<script src="https://www.paypal.com/sdk/js?client-id=' . esc_attr(TAP_PayPal::get_client_id()) . '&currency=' . esc_attr(TAP_Currency::checkout_code()) . '" data-namespace="tapPayPal"></script>';
         }
 
         return $html;

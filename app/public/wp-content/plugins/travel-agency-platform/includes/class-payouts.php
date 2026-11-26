@@ -30,6 +30,20 @@ class TAP_Payouts {
         return $labels[$status] ?? (string) $status;
     }
 
+    /** Named MySQL lock for any financial operation that must be serialized. */
+    public static function acquire_lock($scope, $id) {
+        global $wpdb;
+        $name = substr('tap_fin_' . sanitize_key((string) $scope) . '_' . md5((string) $id), 0, 64);
+        $ok = 1 === (int) $wpdb->get_var($wpdb->prepare('SELECT GET_LOCK(%s, 5)', $name));
+        return $ok ? $name : '';
+    }
+
+    public static function release_lock($name) {
+        if ('' === (string) $name) { return; }
+        global $wpdb;
+        $wpdb->get_var($wpdb->prepare('SELECT RELEASE_LOCK(%s)', $name));
+    }
+
     /** Normalized payout<->booking link table (index-backed, replaces FIND_IN_SET). */
     public static function link_table() {
         global $wpdb;
@@ -196,12 +210,14 @@ class TAP_Payouts {
     }
 
     /** Atomic status claim: the UPDATE only lands when the row is still in $from. */
-    private static function transition($id, array $from, $to) {
+    public static function transition($id, array $from, $to, $table = null) {
         global $wpdb;
         $id  = intval($id);
+        $table = $table ?: $wpdb->prefix . 'tap_commission_payments';
         $set = "'" . implode("','", array_map('esc_sql', $from)) . "'";
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- table name is internal
         $ok  = $wpdb->query($wpdb->prepare(
-            "UPDATE {$wpdb->prefix}tap_commission_payments SET status = %s WHERE id = %d AND status IN ({$set})",
+            "UPDATE {$table} SET status = %s WHERE id = %d AND status IN ({$set})",
             $to,
             $id
         ));

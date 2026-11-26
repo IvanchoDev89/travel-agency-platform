@@ -92,8 +92,16 @@ class TAP_Agency_Payouts {
                 return new WP_Error('forbidden', __('No tienes permiso sobre esta agencia.', 'travel-agency-platform'));
             }
         }
+        // Two simultaneous requests must never grant the same balance twice.
+        $lock = TAP_Payouts::acquire_lock('agency_payout', $agency_id);
+        if ('' === $lock) {
+            return new WP_Error('busy', __('Otra liquidación está en curso. Inténtalo de nuevo.', 'travel-agency-platform'));
+        }
+        // Re-read the balance INSIDE the lock; it may have changed between the
+        // request arriving and acquiring the lock.
         $earnings = self::earnings($agency_id);
         if ($earnings['available'] <= 0) {
+            TAP_Payouts::release_lock($lock);
             return new WP_Error('nothing_to_pay', __('No hay saldo disponible para liquidar.', 'travel-agency-platform'));
         }
         $wpdb->insert(self::table(), [
@@ -101,7 +109,9 @@ class TAP_Agency_Payouts {
             'amount' => $earnings['available'],
             'status' => 'pending',
         ]);
-        return (int) $wpdb->insert_id;
+        $payout_id = (int) $wpdb->insert_id;
+        TAP_Payouts::release_lock($lock);
+        return $payout_id;
     }
 
     public static function handle_request() {
@@ -121,15 +131,77 @@ class TAP_Agency_Payouts {
         $id = absint($_POST['payout_id'] ?? 0);
         check_admin_referer('tap_agency_payout_status_' . $id);
         $status = sanitize_key(wp_unslash($_POST['payout_status'] ?? ''));
-        if (!in_array($status, ['completed', 'cancelled', 'failed'], true)) { $status = 'completed'; }
-        global $wpdb;
-        $wpdb->update(self::table(), [
-            'status' => $status,
-            'paid_at' => 'completed' === $status ? current_time('mysql') : null,
-            'note' => sanitize_text_field(wp_unslash($_POST['note'] ?? '')),
-        ], ['id' => $id, 'status' => 'pending']);
-        wp_safe_redirect(add_query_arg(['page' => 'tap-agency-payouts', 'updated' => '1'], admin_url('admin.php')));
+        $note = sanitize_text_field(wp_unslash($_POST['note'] ?? ''));
+        if ('completed' === $status) { $res = self::complete($id); }
+        elseif ('cancelled' === $status) { $res = self::cancel($id); }
+        elseif ('failed' === $status) { $res = self::fail($id, $note); }
+        else { $res = new WP_Error('invalid_status', __('Estado no válido.', 'travel-agency-platform')); }
+        $args = ['page' => 'tap-agency-payouts'];
+        $args[is_wp_error($res) ? 'payout_error' : 'updated'] = is_wp_error($res) ? $res->get_error_code() : '1';
+        wp_safe_redirect(add_query_arg($args, admin_url('admin.php')));
         exit;
+    }
+
+    /** Atomically complete a pending request, capping it to the balance that
+     * really exists at transfer time (bookings may have been refunded since). */
+    public static function complete($payout_id) {
+        global $wpdb;
+        $payout_id = (int) $payout_id;
+        $row = $wpdb->get_row($wpdb->prepare(
+            'SELECT * FROM ' . self::table() . ' WHERE id = %d AND status = "pending"', $payout_id
+        ));
+        if (!$row) {
+            return new WP_Error('invalid_payout', __('La liquidación no está pendiente.', 'travel-agency-platform'));
+        }
+        $earnings = self::earnings((int) $row->agency_id);
+        $entitlement = round((float) $earnings['net'] - (float) $earnings['paid'], 2);
+        $capped = min(round((float) $row->amount, 2), $entitlement);
+        if ($capped <= 0) {
+            return new WP_Error('no_balance', __('Ya no hay saldo para esta liquidación; cancélala y vuelve a solicitarla.', 'travel-agency-platform'));
+        }
+        if (!TAP_Payouts::transition($payout_id, ['pending'], 'completed', self::table())) {
+            return new WP_Error('conflict', __('La liquidación cambió mientras se procesaba.', 'travel-agency-platform'));
+        }
+        $note = (string) ($row->note ?? '');
+        if ($capped < (float) $row->amount - 0.005) {
+            $note .= ($note ? ' | ' : '') . sprintf(
+                /* translators: %s: importe ajustado */
+                __('Importe ajustado a %s por reembolsos posteriores.', 'travel-agency-platform'),
+                TAP_Currency::fmt($capped, null, (string) ($row->currency ?? null))
+            );
+        }
+        $wpdb->update(self::table(), [
+            'amount'  => $capped,
+            'note'    => $note,
+            'paid_at' => current_time('mysql'),
+        ], ['id' => $payout_id]);
+        do_action('tap_agency_payout_completed', $payout_id, $capped);
+        return true;
+    }
+
+    public static function cancel($payout_id) {
+        if (!TAP_Payouts::transition((int) $payout_id, ['pending'], 'cancelled', self::table())) {
+            return new WP_Error('invalid_payout', __('La liquidación no está pendiente.', 'travel-agency-platform'));
+        }
+        // The available balance is computed net of pending rows, so simply
+        // leaving the pending state makes the amount available again.
+        do_action('tap_agency_payout_cancelled', (int) $payout_id);
+        return true;
+    }
+
+    public static function fail($payout_id, $note = '') {
+        global $wpdb;
+        $payout_id = (int) $payout_id;
+        if (!TAP_Payouts::transition($payout_id, ['pending'], 'failed', self::table())) {
+            return new WP_Error('invalid_payout', __('La liquidación no está pendiente.', 'travel-agency-platform'));
+        }
+        $row = $wpdb->get_row($wpdb->prepare('SELECT note FROM ' . self::table() . ' WHERE id = %d', $payout_id));
+        $note = trim((string) $note) !== '' ? sanitize_text_field($note) : __('Transferencia no completada.', 'travel-agency-platform');
+        $wpdb->update(self::table(), [
+            'note' => ($row && $row->note) ? $row->note . ' | ' . $note : $note,
+        ], ['id' => $payout_id]);
+        do_action('tap_agency_payout_failed', $payout_id);
+        return true;
     }
 
     public static function admin_page() {

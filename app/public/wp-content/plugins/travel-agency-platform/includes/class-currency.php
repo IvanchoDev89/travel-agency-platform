@@ -47,6 +47,11 @@ class TAP_Currency {
         return strtoupper(get_option('tap_currency', 'USD'));
     }
 
+    /** Currency for payment/checkout contexts: ignores ?lang= switching. */
+    public static function checkout_code() {
+        return strtoupper((string) get_option('tap_currency', 'USD'));
+    }
+
     public static function codes() {
         return array_keys(self::$map);
     }

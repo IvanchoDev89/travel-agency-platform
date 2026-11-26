@@ -274,6 +274,68 @@ class TAP_Invoices {
         ];
     }
 
+    public static function credit_notes_table() {
+        global $wpdb;
+        return $wpdb->prefix . 'tap_invoice_credit_notes';
+    }
+
+    public static function credit_notes($invoice_id) {
+        global $wpdb;
+        return $wpdb->get_results($wpdb->prepare(
+            'SELECT * FROM ' . self::credit_notes_table() . ' WHERE invoice_id = %d ORDER BY created_at ASC',
+            (int) $invoice_id
+        )) ?: [];
+    }
+
+    /** Issue a credit note for money returned to the client. Never twice. */
+    public static function issue_credit_note($booking_id, $amount, $reason = '', $ref = '') {
+        global $wpdb;
+        $amount = round((float) $amount, 2);
+        if ($amount <= 0) { return 0; }
+        $invoice = self::by_booking((int) $booking_id);
+        if (!$invoice) { return 0; }
+        $already = (float) $wpdb->get_var($wpdb->prepare(
+            'SELECT COALESCE(SUM(amount),0) FROM ' . self::credit_notes_table() . ' WHERE booking_id = %d',
+            (int) $booking_id
+        ));
+        $refunded = (float) $wpdb->get_var($wpdb->prepare(
+            'SELECT COALESCE(refund_amount,0) FROM ' . $wpdb->prefix . 'tap_bookings WHERE id = %d',
+            (int) $booking_id
+        ));
+        $remaining = round($refunded - $already, 2);
+        $amount = round(min($amount, $remaining), 2);
+        if ($amount <= 0) { return 0; }
+        if ($ref && (int) $wpdb->get_var($wpdb->prepare(
+            'SELECT COUNT(*) FROM ' . self::credit_notes_table() . ' WHERE booking_id = %d AND refund_reference = %s',
+            (int) $booking_id, (string) $ref
+        ))) { return 0; }
+        $wpdb->insert(self::credit_notes_table(), [
+            'invoice_id'       => (int) $invoice->id,
+            'booking_id'       => (int) $booking_id,
+            'amount'           => $amount,
+            'currency'         => (string) ($invoice->currency ?: 'USD'),
+            'reason'           => sanitize_text_field((string) $reason),
+            'refund_reference' => sanitize_text_field((string) $ref),
+        ]);
+        return (int) $wpdb->insert_id;
+    }
+
+    /** Hook for gateway refund events. Amount may be omitted for a full refund. */
+    public static function on_refund($booking_id, $gateway = '', $ref = '', $amount = null) {
+        global $wpdb;
+        $booking = $wpdb->get_row($wpdb->prepare(
+            'SELECT refund_amount FROM ' . $wpdb->prefix . 'tap_bookings WHERE id = %d',
+            (int) $booking_id
+        ));
+        $value = $amount !== null ? (float) $amount : ($booking ? (float) $booking->refund_amount : 0);
+        return self::issue_credit_note(
+            (int) $booking_id,
+            $value,
+            sprintf(/* translators: %s: pasarela de pago */ __('Reembolso (%s)', 'travel-agency-platform'), (string) $gateway),
+            (string) $ref
+        );
+    }
+
     /**
      * Normalized view data. The snapshot wins over live data (the invoice must
      * reflect what was billed), with the booking as a fallback for legacy rows.
@@ -392,6 +454,30 @@ class TAP_Invoices {
                 <p class="tap-invoice-note"><?php esc_html_e('Los datos de la reserva original ya no están disponibles; se muestra la información conservada en la factura.', 'travel-agency-platform'); ?></p>
             <?php endif; ?>
 
+            <?php $notes = self::credit_notes((int) $inv->id); if ($notes): ?>
+                <h2><?php esc_html_e('Notas de crédito', 'travel-agency-platform'); ?></h2>
+                <table class="tap-invoice-table">
+                    <thead><tr>
+                        <th><?php esc_html_e('Fecha', 'travel-agency-platform'); ?></th>
+                        <th><?php esc_html_e('Motivo', 'travel-agency-platform'); ?></th>
+                        <th class="num"><?php esc_html_e('Monto', 'travel-agency-platform'); ?></th>
+                    </tr></thead>
+                    <tbody>
+                    <?php foreach ($notes as $note): ?>
+                        <tr>
+                            <td><?php echo esc_html(substr((string) $note->created_at, 0, 10)); ?></td>
+                            <td><?php echo esc_html($note->reason ?: __('Reembolso', 'travel-agency-platform')); ?></td>
+                            <td class="num">-<?php echo esc_html(self::money((float) $note->amount, $d)); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                    <tfoot><tr class="tap-invoice-total">
+                        <td colspan="2"><?php esc_html_e('Total acreditado', 'travel-agency-platform'); ?></td>
+                        <td class="num amount">-<?php echo esc_html(self::money((float) array_sum(array_map(static fn($n) => (float) $n->amount, $notes)), $d)); ?></td>
+                    </tr></tfoot>
+                </table>
+            <?php endif; ?>
+
             <?php if (!empty($d['legal'])): ?>
                 <p class="tap-invoice-footer">
                     <?php esc_html_e('Términos aceptados:', 'travel-agency-platform'); ?>
@@ -421,6 +507,8 @@ class TAP_Invoices {
     /** Init: hook into payment completion. */
     public static function init() {
         add_action('tap_payment_completed', [__CLASS__, 'on_payment_completed'], 10, 3);
+        add_action('tap_payment_partially_refunded', [__CLASS__, 'on_refund'], 20, 4);
+        add_action('tap_payment_refunded', [__CLASS__, 'on_refund'], 20, 3);
         add_action('admin_init', [__CLASS__, 'maybe_generate_pdf']);
         add_action('admin_init', [__CLASS__, 'maybe_download_pdf']);
         add_action('admin_post_tap_agency_invoice_pdf', [__CLASS__, 'agency_pdf']);

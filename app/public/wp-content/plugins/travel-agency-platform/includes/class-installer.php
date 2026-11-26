@@ -518,6 +518,19 @@ class TAP_Installer {
                 KEY is_read (is_read),
                 KEY created_at (created_at)
             ) $charset;",
+            "CREATE TABLE {$wpdb->prefix}tap_invoice_credit_notes (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                invoice_id bigint(20) NOT NULL,
+                booking_id bigint(20) NOT NULL,
+                amount decimal(15,2) NOT NULL DEFAULT 0,
+                currency varchar(5) NOT NULL DEFAULT 'USD',
+                reason varchar(120) DEFAULT NULL,
+                refund_reference varchar(120) DEFAULT NULL,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY invoice (invoice_id),
+                KEY booking (booking_id)
+            ) $charset;",
         ];
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';

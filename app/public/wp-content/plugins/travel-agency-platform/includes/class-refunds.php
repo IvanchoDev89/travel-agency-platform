@@ -78,7 +78,7 @@ class TAP_Refunds {
         }
 
         if ($capture_id) {
-            $refunded = TAP_PayPal::refund_capture($capture_id, $refund_amount);
+            $refunded = TAP_PayPal::refund_capture($capture_id, $refund_amount, $currency);
         } else {
             $currency = !empty($booking->currency) ? $booking->currency : 'USD';
             $refunded = TAP_Onvo::refund($onvo_intent_id, $refund_amount, $currency);
