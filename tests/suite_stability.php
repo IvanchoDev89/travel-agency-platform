@@ -45,7 +45,7 @@ tap_t_assert(false !== strpos($money, 'GET_LOCK(%s, 5)", $lock)'), 'payout lock 
 $commerce = (string) file_get_contents($base . 'class-ajax-commerce.php');
 tap_t_assert(false !== strpos($commerce, "is_wp_error(\$recorded)"), 'PayPal capture failure is propagated');
 $payment = (string) file_get_contents($base . 'class-payment.php');
-tap_t_assert(false !== strpos($payment, 'previous_refund_id'), 'partial refund is deduplicated');
+tap_t_assert(false !== strpos($payment, '_tap_paypal_refund_seen'), 'refunds are deduplicated by id across repeated partials');
 tap_t_assert(false !== strpos($payment, 'webhook_resolved'), 'webhooks are acknowledged only when resolved');
 tap_t_assert(false !== strpos($payment, 'is_wp_error($recorded)'), 'webhook capture failures are not silently acknowledged');
 tap_t_assert(false !== strpos($payment, 'tap_payment_capture_failed'), 'webhook capture failures are observable');

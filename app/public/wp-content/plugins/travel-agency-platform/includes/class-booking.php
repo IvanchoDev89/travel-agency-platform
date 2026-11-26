@@ -1403,6 +1403,22 @@ class TAP_Booking {
             }
         }
 
+        // A capture above the agreed amount is real money the traveler is owed.
+        // Do not silently absorb the surplus into the booking ledger: record
+        // it so an operator can return it.
+        if ($captured && null !== $captured['value'] && $captured['value'] > $expected + 0.005) {
+            $surplus = round($captured['value'] - $expected, 2);
+            update_post_meta((int) $booking_id, '_tap_overpayment', wp_json_encode([
+                'captured'   => round($captured['value'], 2),
+                'expected'   => $expected,
+                'surplus'    => $surplus,
+                'capture_id' => (string) $capture_id,
+                'gateway'    => (string) $method,
+                'recorded_at'=> current_time('mysql'),
+            ], JSON_UNESCAPED_UNICODE));
+            do_action('tap_payment_overpaid', (int) $booking_id, (string) $method, (string) $capture_id, $surplus);
+        }
+
         $updated = $wpdb->update(
             $table,
             ['payment_status' => 'paid', 'amount_paid' => $expected],

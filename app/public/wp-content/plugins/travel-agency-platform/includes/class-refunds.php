@@ -92,6 +92,11 @@ class TAP_Refunds {
         // Persist the claim only after the gateway confirmed the refund.
         update_post_meta($booking_id, '_tap_refund_executed_hash', $refund_hash);
         $refund_id = is_array($refunded) ? ($refunded['refund_id'] ?? $refunded['id'] ?? '') : '';
+        // Register the gateway refund id so its later webhook replay is not
+        // applied a second time by TAP_Payment::handle_capture_refunded().
+        if ($capture_id && '' !== (string) $refund_id) {
+            add_post_meta($booking_id, '_tap_paypal_refund_seen', (string) $refund_id);
+        }
         if ($capture_id) {
             update_post_meta($booking_id, '_tap_paypal_refund_id', $refund_id);
         } else {

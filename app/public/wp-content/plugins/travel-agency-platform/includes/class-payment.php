@@ -534,7 +534,7 @@ class TAP_Payment {
         if ($booking_id) {
             self::$webhook_resolved = true;
             $row = $wpdb->get_row($wpdb->prepare(
-                "SELECT status, payment_status, amount_paid, total_amount, refunded_at
+                "SELECT status, payment_status, amount_paid, total_amount, refund_amount, refunded_at
                    FROM {$wpdb->prefix}tap_bookings WHERE id = %d",
                 $booking_id
             ));
@@ -542,45 +542,56 @@ class TAP_Payment {
                 return;
             }
 
-            // A refund for less than the booking total is a PARTIAL refund:
-            // money only partly came back, so the booking is not fully refunded
-            // and the earned commission must not be voided.
-            $refund_value = isset($capture->amount->value) ? (float) $capture->amount->value : null;
-            $paid = (float) $row->amount_paid;
-            if ($paid <= 0) {
-                $paid = (float) $row->total_amount;
-            }
-            $partial = null !== $refund_value && $paid > 0 && $refund_value + 0.005 < $paid;
-            if ($partial) {
-                // Redelivered webhooks must not subtract the refund twice.
-                $previous_refund_id = (string) get_post_meta($booking_id, '_tap_paypal_refund_id', true);
-                if ('' !== $previous_refund_id && $previous_refund_id === (string) ($capture->id ?? '')) {
+            $refund_id = (string) ($capture->id ?? '');
+
+            // Ledger of every refund id already applied. Checking only the last
+            // one let a redelivered earlier refund be subtracted twice, and
+            // made two different partial refunds overwrite each other.
+            if ('' !== $refund_id) {
+                $seen = (array) get_post_meta($booking_id, '_tap_paypal_refund_seen');
+                if (in_array($refund_id, $seen, true)) {
                     return;
                 }
-                update_post_meta($booking_id, '_tap_paypal_refund_id', $capture->id ?? '');
-                update_post_meta($booking_id, '_tap_refund_amount', $refund_value);
-                // Persist to the booking columns too: reports subtract
-                // refund_amount and amount_paid, so postmeta alone left
-                // partially refunded money counted as full revenue.
-                global $wpdb;
+                add_post_meta($booking_id, '_tap_paypal_refund_seen', $refund_id);
+                update_post_meta($booking_id, '_tap_paypal_refund_id', $refund_id);
+            }
+
+            $refund_value = isset($capture->amount->value) ? (float) $capture->amount->value : null;
+            $original = max((float) $row->total_amount, (float) $row->amount_paid + (float) ($row->refund_amount ?? 0));
+            $cumulative = round((float) ($row->refund_amount ?? 0) + (float) $refund_value, 2);
+
+            // A refund below the original captured amount is PARTIAL: the
+            // traveler still received part of the service, so the booking is
+            // not fully refunded and earned commission is not voided yet.
+            $partial = null !== $refund_value && $original > 0 && $cumulative + 0.005 < $original;
+            if ($partial) {
+                update_post_meta($booking_id, '_tap_refund_amount', $cumulative);
                 $wpdb->update(
                     $wpdb->prefix . 'tap_bookings',
                     [
-                        'refund_amount' => round($refund_value, 2),
-                        'refund_percent' => $paid > 0 ? round(($refund_value / $paid) * 100, 2) : 0,
-                        'amount_paid'   => round(max(0, $paid - $refund_value), 2),
+                        'refund_amount'  => $cumulative,
+                        'refund_percent' => $original > 0 ? round(($cumulative / $original) * 100, 2) : 0,
+                        'amount_paid'    => round(max(0.0, $original - $cumulative), 2),
                     ],
                     ['id' => (int) $booking_id]
                 );
-                do_action('tap_payment_partially_refunded', $booking_id, 'paypal', $capture->id ?? '');
+                do_action('tap_payment_partially_refunded', $booking_id, 'paypal', $refund_id);
                 return;
             }
 
-            // Idempotent: never double-fire when cancellation already refunded.
+            // Cumulative refunds now cover the capture: close the booking.
+            $wpdb->update(
+                $wpdb->prefix . 'tap_bookings',
+                [
+                    'refund_amount'  => $cumulative,
+                    'refund_percent' => 100,
+                    'amount_paid'    => 0,
+                ],
+                ['id' => (int) $booking_id]
+            );
             if ('refunded' !== $row->payment_status) {
                 TAP_Booking::update_payment_status($booking_id, 'refunded');
-                update_post_meta($booking_id, '_tap_paypal_refund_id', $capture->id ?? '');
-                do_action('tap_payment_refunded', $booking_id, 'paypal', $capture->id ?? '');
+                do_action('tap_payment_refunded', $booking_id, 'paypal', $refund_id);
             }
 
             // Money is back with the client: keep the ledger consistent by

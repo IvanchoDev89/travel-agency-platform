@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.25.0] — 2026-11-26
+
+### Fixed (money ledger)
+- PayPal refund webhooks now accumulate every partial refund instead of
+  overwriting the previous one. A ledger of refund ids prevents both duplicate
+  redeliveries and cancellation-side refunds from being applied twice.
+- Booking-side refunds register their gateway id in the same ledger.
+- Overpayments are recorded (`_tap_overpayment` + `tap_payment_overpaid`) instead
+  of being silently absorbed, so the surplus can be returned manually.
+
+### Added
+- FUNCTIONAL `suite_refund_ledger.php` (two partial refunds, redelivery,
+  cumulative close-out and overpayment detection).
+
 ## [1.24.1] — 2026-11-26
 
 ### Fixed (double-check pass)
