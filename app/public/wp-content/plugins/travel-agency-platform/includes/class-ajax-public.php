@@ -302,7 +302,9 @@ class TAP_Ajax_Public {
                 $unit = TAP_Tour_Availability::slot_price($slot);
                 $prefix = $service_type === 'tap_experience' ? '_tap_exp' : '_tap_tour';
                 $child_price = floatval(get_post_meta($service_id, $prefix . '_price_child', true));
-                if ($child_price <= 0) { $child_price = $unit * 0.7; }
+                // Must mirror TAP_Booking_Pricing::calculate_price(): tours use
+                // 70% and experiences 50% when no child tariff is configured.
+                if ($child_price <= 0) { $child_price = $unit * ('tap_experience' === $service_type ? 0.5 : 0.7); }
                 $unit_total = ($unit * $adults) + ($child_price * $children);
                 $base_total = $unit_total;
             }

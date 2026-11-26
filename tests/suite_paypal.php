@@ -100,6 +100,14 @@ $sent = json_decode($verify['args']['body'], true);
 tap_t_assert(is_array($sent['webhook_event'] ?? null), 'webhook_event is sent as an object, not a JSON string');
 tap_t_assert('WH-E2E' === ($sent['webhook_event']['id'] ?? ''), 'webhook_event keeps the original event');
 tap_t_assert('WEBHOOK-E2E' === ($sent['webhook_id'] ?? ''), 'configured webhook id is forwarded');
+// PayPal signs the exact bytes: a trailing newline must survive verbatim.
+$raw_bytes = $raw_event . "\n";
+tap_t_assert(true === TAP_PayPal::verify_webhook($headers, $raw_bytes), 'event with trailing whitespace is accepted');
+$last_body = null;
+foreach ($GLOBALS['tap_pp_log'] as $entry) {
+    if (strpos($entry['url'], '/verify-webhook-signature') !== false) { $last_body = $entry['args']['body']; }
+}
+tap_t_assert(false !== strpos((string) $last_body, $raw_bytes), 'raw event bytes are forwarded without trimming');
 tap_t_assert(false === TAP_PayPal::verify_webhook($headers, 'not json'), 'malformed event rejected without an HTTP call');
 delete_option('tap_paypal_webhook_id');
 

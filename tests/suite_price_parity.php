@@ -92,6 +92,49 @@ if ($booking && isset($quote['total'])) {
         'commission base agrees between quote and booking');
 }
 
+/* --- 3b) experience child fallback must match the calculator ------------------ */
+$exp_id = wp_insert_post(['post_type' => 'tap_experience', 'post_status' => 'publish', 'post_title' => 'Experience Parity ' . $sfx]);
+update_post_meta($exp_id, '_tap_exp_agency_id', $agency_id);
+update_post_meta($exp_id, '_tap_exp_price_adult', 100);
+$exp_date = gmdate('Y-m-d', strtotime('+45 days'));
+$exp_slot = TAP_Tour_Availability::create_slot([
+    'service_type' => 'tap_experience', 'service_id' => (int) $exp_id,
+    'date' => $exp_date, 'price' => 150, 'capacity' => 10,
+]);
+tap_t_assert($exp_slot > 0, 'experience slot created');
+foreach ($pq_filters as $filter) { add_filter($filter, $pq_factory); }
+add_filter('wp_doing_ajax', '__return_true');
+$_POST = [
+    'nonce'        => wp_create_nonce('tap_nonce'),
+    'service_type' => 'tap_experience',
+    'service_id'   => (int) $exp_id,
+    'slot_id'      => (int) $exp_slot,
+    'adults'       => 1,
+    'children'     => 1,
+    'check_in'     => $exp_date,
+    'check_out'    => $exp_date,
+];
+$_REQUEST = $_POST;
+ob_start();
+try { TAP_Ajax_Public::calculate_booking_total(); } catch (RuntimeException $e) { /* expected */ }
+$exp_quote_out = trim(ob_get_clean());
+foreach ($pq_filters as $filter) { remove_filter($filter, $pq_factory); }
+remove_filter('wp_doing_ajax', '__return_true');
+$exp_quote = json_decode($exp_quote_out, true);
+$exp_quote = is_array($exp_quote['data'] ?? null) ? $exp_quote['data'] : $exp_quote;
+$exp_created = TAP_Booking::create([
+    'service_type' => 'tap_experience', 'service_id' => (int) $exp_id,
+    'slot_id' => (int) $exp_slot, 'adults' => 1, 'children' => 1,
+    'check_in' => $exp_date, 'check_out' => $exp_date,
+]);
+tap_t_assert(!is_wp_error($exp_created), 'experience booking created');
+$exp_booking = is_wp_error($exp_created) ? null : TAP_Booking::get_booking((int) $exp_created['booking_id']);
+if ($exp_booking && isset($exp_quote['total'])) {
+    tap_t_assert(abs(225.0 - (float) $exp_quote['total']) < 0.01, 'experience quote uses the 50% child fallback');
+    tap_t_assert(abs((float) $exp_quote['total'] - (float) $exp_booking->total_amount) < 0.01,
+        'experience quote equals the charged total');
+}
+
 /* --- 4) refunds are idempotent ------------------------------------------------- */
 tap_t_install_paypal_mock();
 $refund_booking = tap_t_seed_booking([
@@ -120,6 +163,9 @@ tap_t_remove_paypal_mock();
 $_POST = [];
 $_REQUEST = [];
 $wpdb->delete($wpdb->prefix . 'tap_service_extras', ['service_id' => $service_id]);
+$wpdb->delete(TAP_Tour_Availability::table(), ['service_id' => (int) $exp_id]);
+$wpdb->delete($wpdb->prefix . 'tap_bookings', ['id' => is_wp_error($exp_created) ? 0 : (int) $exp_created['booking_id']]);
+wp_delete_post($exp_id, true);
 if (!is_wp_error($created)) { $wpdb->delete($wpdb->prefix . 'tap_bookings', ['id' => (int) ($created['booking_id'] ?? 0)]); }
 $wpdb->delete($wpdb->prefix . 'tap_bookings', ['id' => $refund_booking]);
 $wpdb->delete($wpdb->prefix . 'tap_agencies', ['name' => 'Parity E2E ' . $sfx]);

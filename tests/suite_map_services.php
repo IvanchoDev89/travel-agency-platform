@@ -19,6 +19,17 @@ global $wpdb;
 
 tap_t_assert(method_exists('TAP_Destination_Spots', 'services_map_data'), 'services_map_data provider exists');
 
+// Self-contained fixture: on a long-lived dev DB the 300 newest listings can
+// all be test fixtures without coordinates, which would hide the real ones.
+TAP_Destination_Spots::clear_map_cache();
+$map_fixture = wp_insert_post([
+    'post_type'   => 'tap_tour',
+    'post_status' => 'publish',
+    'post_title'  => 'TAP Map Fixture ' . tap_t_suffix(),
+]);
+update_post_meta($map_fixture, '_tap_tour_lat', 9.9281);
+update_post_meta($map_fixture, '_tap_tour_lng', -84.0907);
+
 $services = TAP_Destination_Spots::services_map_data();
 tap_t_assert(is_array($services), 'services_map_data returns an array');
 
@@ -260,4 +271,5 @@ foreach ($points as $coords) {
 }
 tap_t_assert($point_ok, 'every term centroid is a lat/lng pair');
 
+wp_delete_post($map_fixture, true);
 tap_t_finish();

@@ -442,8 +442,12 @@ class TAP_Payment {
             $recorded = TAP_Booking::record_paid_capture($booking_id, 'paypal', $capture_id, $capture);
             if (is_wp_error($recorded)) {
                 $code = $recorded->get_error_code();
-                update_post_meta($booking_id, '_tap_capture_issue', $code . ': ' . $recorded->get_error_message());
-                do_action('tap_payment_capture_failed', $booking_id, 'paypal', $capture_id, $code);
+                // AJAX capture normally wins the race against the webhook.
+                // 'already_paid' is that benign replay, not a failed capture.
+                if ('already_paid' !== $code) {
+                    update_post_meta($booking_id, '_tap_capture_issue', $code . ': ' . $recorded->get_error_message());
+                    do_action('tap_payment_capture_failed', $booking_id, 'paypal', $capture_id, $code);
+                }
                 // A lost race is resolved by the winning request; let PayPal
                 // retry so that the replay sees 'already_paid'.
                 if ('lost_race' !== $code) {

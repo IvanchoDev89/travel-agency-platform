@@ -312,8 +312,10 @@ class TAP_PayPal {
         $token = self::get_access_token();
         if (is_wp_error($token) || empty($token)) { return false; }
 
-        $raw = is_string($body) ? trim($body) : wp_json_encode($body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-        if ('' === $raw || !is_object(json_decode($raw))) { return false; }
+        // Do not trim: PayPal signs the exact bytes, including any trailing
+        // whitespace. Trim is used only to detect an empty payload.
+        $raw = is_string($body) ? $body : wp_json_encode($body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        if ('' === trim((string) $raw) || !is_object(json_decode($raw))) { return false; }
 
         $fields = [
             'auth_algo'         => $headers['PAYPAL-AUTH-ALGO'] ?? '',

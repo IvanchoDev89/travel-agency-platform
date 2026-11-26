@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.24.1] — 2026-11-26
+
+### Fixed (double-check pass)
+- PayPal webhook verification forwards the exact raw bytes (no trimming), as
+  the signature is computed over the original payload.
+- Experience quotes use the same 50% child-price fallback as booking creation.
+- A benign `already_paid` webhook replay (normal AJAX-first flow) no longer
+  leaves a misleading capture-error note on a valid booking.
+- `suite_map_services` seeds its own geolocated listing and is now independent
+  of accumulated test data in long-lived development databases.
+
 ## [1.24.0] — 2026-11-26
 
 ### Fixed (high impact)
