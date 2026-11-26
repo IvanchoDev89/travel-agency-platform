@@ -439,15 +439,7 @@ class TAP_Leads {
     }
 
     private static function csv_cell($value) {
-        if (is_int($value) || is_float($value)) {
-            return (string) $value;
-        }
-        $value = (string) $value;
-        // Neutralise CSV formula injection (=, +, -, @, tab, CR) that
-        // spreadsheets would otherwise execute when opening the export.
-        if (preg_match('/^[\x00-\x20]*[=+\-@\t\r]/', $value)) {
-            $value = "'" . $value;
-        }
+        $value = class_exists('TAP_Csv') ? TAP_Csv::cell($value) : (string) $value;
         if (strpbrk($value, ",\"\n\r") !== false) {
             $value = '"' . str_replace('"', '""', $value) . '"';
         }

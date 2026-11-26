@@ -4395,3 +4395,17 @@ html.dark .tap-destmap-popup--service .tap-destmap-popup-type {
 .tap-service-price small { color:var(--tap-neutral-500,#64748b); font-weight:400; font-size:11px; }
 .tap-search-note { align-self:center; }
 .tap-search-note small { color:var(--tap-neutral-500,#64748b); font-size:12px; }
+
+/* Landing builder sections rendered on the public site. */
+.tap-landing-testimonials { padding: 48px 20px; background: var(--tap-surface-muted, #f8fafc); }
+.tap-testimonial-cards, .tap-landing-testimonials .tap-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; max-width: 1100px; margin: 0 auto; }
+.tap-testimonial-card { background: #fff; border: 1px solid var(--tap-neutral-200, #e2e8f0); border-radius: 12px; padding: 20px; display: flex; gap: 12px; align-items: flex-start; }
+.tap-testimonial-avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; flex: 0 0 auto; }
+.tap-testimonial-name { font-weight: 700; margin-top: 8px; }
+.tap-testimonial-stars { color: #f59e0b; letter-spacing: 2px; }
+.tap-landing-gallery { padding: 48px 20px; }
+.tap-gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; max-width: 1100px; margin: 0 auto; }
+.tap-gallery-item { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 10px; display: block; }
+@media (max-width: 600px) {
+    .tap-landing-testimonials, .tap-landing-gallery { padding: 28px 14px; }
+}

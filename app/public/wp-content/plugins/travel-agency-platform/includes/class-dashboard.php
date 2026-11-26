@@ -322,14 +322,7 @@ class TAP_Dashboard {
     }
 
     public static function csv_cell($value) {
-        if (is_int($value) || is_float($value)) {
-            return (string) $value;
-        }
-        $line = (string) $value;
-        if (preg_match('/^[\x00-\x20]*[=+\-@\t\r]/', $line)) {
-            $line = "'" . $line;
-        }
-        return $line;
+        return class_exists('TAP_Csv') ? TAP_Csv::cell($value) : (string) $value;
     }
 
     /**

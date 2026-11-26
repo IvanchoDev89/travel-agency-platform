@@ -132,7 +132,7 @@ class TAP_Dashboard_Bookings {
                             <td><?php echo $client ? esc_html($client->display_name) : 'N/D'; ?></td>
                             <td><?php echo $service ? esc_html($service->post_title) : 'N/D'; ?></td>
                             <td><?php echo esc_html(TAP_Currency::fmt($b->total_amount)); ?></td>
-                            <td><span class="tap-status tap-status-<?php echo esc_attr($status_key); ?>"><?php echo esc_html(ucfirst($status_labels[$status_key])); ?></span></td>
+                            <td><span class="tap-status tap-status-<?php echo esc_attr($status_key); ?>"><?php echo esc_html(TAP_Labels::booking_status($status_key)); ?></span></td>
                             <td><?php echo esc_html(mysql2date('d M Y H:i', $b->created_at)); ?></td>
                         </tr>
                         <?php endforeach; ?>
@@ -404,7 +404,7 @@ class TAP_Dashboard_Bookings {
                 <select name="f_status">
                     <option value=""><?php esc_html_e('Todos los estados', 'travel-agency-platform'); ?></option>
                     <?php foreach (['pending', 'request', 'confirmed', 'completed', 'cancelled', 'refunded', 'no_show'] as $st): ?>
-                    <option value="<?php echo esc_attr($st); ?>" <?php selected($f_status, $st); ?>><?php echo esc_html(ucfirst($st)); ?></option>
+                    <option value="<?php echo esc_attr($st); ?>" <?php selected($f_status, $st); ?>><?php echo esc_html(TAP_Labels::booking_status($st)); ?></option>
                     <?php endforeach; ?>
                 </select>
                 <select name="f_type">
@@ -534,7 +534,7 @@ $cal_m = (int) $cal_m;
                         <td><?php echo $agency ? esc_html($agency->post_title) : 'N/D'; ?></td>
                         <td><?php echo esc_html(TAP_Currency::fmt($b->total_amount)); ?></td>
                         <td>
-                            <span class="tap-status tap-status-<?php echo esc_attr($b->status); ?> tap-status-display"><?php echo esc_html(ucfirst($b->status)); ?></span>
+                            <span class="tap-status tap-status-<?php echo esc_attr($b->status); ?> tap-status-display"><?php echo esc_html(TAP_Labels::booking_status($b->status)); ?></span>
                             <?php $next_statuses = TAP_Booking::$transitions[$b->status] ?? []; if ($next_statuses): ?>
                             <select class="tap-booking-status-select" data-booking-id="<?php echo (int) $b->id; ?>">
                                 <option value="">&mdash; <?php esc_html_e('Cambiar estado', 'travel-agency-platform'); ?> &mdash;</option>
@@ -545,7 +545,7 @@ $cal_m = (int) $cal_m;
                             <?php endif; ?>
                         </td>
                         <td>
-                            <strong><?php echo esc_html(ucfirst((string) $b->payment_status)); ?></strong>
+                            <strong><?php echo esc_html(TAP_Labels::payment_status($b->payment_status)); ?></strong>
                             <?php if ((float) ($b->amount_paid ?? 0) > 0): ?>
                                 <br><small><?php echo esc_html(TAP_Currency::fmt((float) $b->amount_paid)); ?></small>
                             <?php endif; ?>

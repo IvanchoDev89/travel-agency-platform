@@ -324,7 +324,7 @@ class TAP_Shortcode_Booking {
                                 <?php endif; ?>
                             </td>
 <td data-label="<?php esc_attr_e('Status', 'travel-agency-platform'); ?>"><span class="tap-status tap-status-<?php echo esc_attr($booking->status); ?>"><?php echo esc_html(TAP_Emails_Send::status_label($booking->status)); ?></span></td>
-                            <td data-label="<?php esc_attr_e('Payment', 'travel-agency-platform'); ?>"><span class="tap-status tap-status-<?php echo esc_attr($booking->payment_status); ?>"><?php echo esc_html(ucfirst($booking->payment_status)); ?></span></td>
+                            <td data-label="<?php esc_attr_e('Payment', 'travel-agency-platform'); ?>"><span class="tap-status tap-status-<?php echo esc_attr($booking->payment_status); ?>"><?php echo esc_html(TAP_Labels::payment_status($booking->payment_status)); ?></span></td>
                             <td data-label="<?php esc_attr_e('Actions', 'travel-agency-platform'); ?>">
                                 <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(home_url('/booking-detail/?code=' . $booking->booking_code)); ?>"><?php esc_html_e('Ver voucher', 'travel-agency-platform'); ?></a>
                                 <?php if (TAP_Booking::is_payable($booking)): ?>
@@ -580,7 +580,7 @@ class TAP_Shortcode_Booking {
                     <tr><td><?php esc_html_e('Reembolso aplicado:', 'travel-agency-platform'); ?></td><td><span class="tap-refund-note">-<?php echo esc_html($currency_symbol . ' ' . number_format((float) $booking->refund_amount, 2)); ?></span></td></tr>
                     <?php endif; ?>
                     <tr><td><strong><?php esc_html_e('Total:', 'travel-agency-platform'); ?></strong></td><td><strong><?php echo esc_html($currency_symbol . ' ' . number_format((float) $booking->total_amount, 2)); ?></strong></td></tr>
-                    <tr><td><strong><?php esc_html_e('Status:', 'travel-agency-platform'); ?></strong></td><td><span class="tap-status tap-status-<?php echo esc_attr($booking->status); ?>"><?php echo esc_html(ucfirst($booking->status)); ?></span></td></tr>
+                    <tr><td><strong><?php esc_html_e('Status:', 'travel-agency-platform'); ?></strong></td><td><span class="tap-status tap-status-<?php echo esc_attr($booking->status); ?>"><?php echo esc_html(TAP_Labels::booking_status($booking->status)); ?></span></td></tr>
                 </table>
                 <?php
                 // Commission transparency note.
@@ -1125,8 +1125,8 @@ class TAP_Shortcode_Booking {
                         <span class="tap-voucher-ref"><?php esc_html_e('Ref', 'travel-agency-platform'); ?>: <strong><?php echo esc_html($booking->booking_code); ?></strong></span>
                     </div>
                     <div class="tap-voucher-badges">
-                        <span class="tap-badge tap-badge-ok"><?php echo esc_html($status_labels[$booking->status] ?? ucfirst($booking->status)); ?></span>
-                        <span class="tap-badge"><?php echo esc_html($pstatus[$booking->payment_status] ?? ucfirst($booking->payment_status)); ?></span>
+                        <span class="tap-badge tap-badge-ok"><?php echo esc_html($status_labels[$booking->status] ?? TAP_Labels::booking_status($booking->status)); ?></span>
+                        <span class="tap-badge"><?php echo esc_html($pstatus[$booking->payment_status] ?? TAP_Labels::payment_status($booking->payment_status)); ?></span>
                     </div>
                     <?php
                     $qr_data = rawurlencode($booking->booking_code . ' | ' . $service_name . ' | ' . $booking->check_in);

@@ -1840,11 +1840,20 @@ endif;
                 <h3><?php esc_html_e('Primeros pasos', 'travel-agency-platform'); ?></h3>
                 <p><?php esc_html_e('Completa estos pasos para empezar a recibir reservas.', 'travel-agency-platform'); ?></p>
                 <ul>
-                    <li class="<?php echo $onboarding['create_listing'] ? 'is-done' : ''; ?>"><?php esc_html_e('Crear tu primer servicio', 'travel-agency-platform'); ?></li>
-                    <li class="<?php echo $onboarding['add_photos'] ? 'is-done' : ''; ?>"><?php esc_html_e('Añadir fotos', 'travel-agency-platform'); ?></li>
-                    <li class="<?php echo $onboarding['set_prices'] ? 'is-done' : ''; ?>"><?php esc_html_e('Configurar precios', 'travel-agency-platform'); ?></li>
-                    <li class="<?php echo $onboarding['set_availability'] ? 'is-done' : ''; ?>"><?php esc_html_e('Configurar disponibilidad', 'travel-agency-platform'); ?></li>
-                    <li class="<?php echo $onboarding['publish'] ? 'is-done' : ''; ?>"><?php esc_html_e('Publicar tu primer servicio', 'travel-agency-platform'); ?></li>
+                    <?php
+                    $onboarding_links = [
+                        'create_listing' => [__('Crear tu primer servicio', 'travel-agency-platform'), home_url('/manage-listing/?new=tap_tour')],
+                        'add_photos'     => [__('Añadir fotos', 'travel-agency-platform'), home_url('/manage-listing/')],
+                        'set_prices'     => [__('Configurar precios', 'travel-agency-platform'), home_url('/manage-listing/')],
+                        'set_availability'=> [__('Configurar disponibilidad', 'travel-agency-platform'), home_url('/manage-listing/')],
+                        'publish'        => [__('Publicar tu primer servicio', 'travel-agency-platform'), home_url('/manage-listing/')],
+                    ];
+                    foreach ($onboarding_links as $step => $link):
+                    ?>
+                        <li class="<?php echo $onboarding[$step] ? 'is-done' : ''; ?>">
+                            <a href="<?php echo esc_url($link[1]); ?>"><?php echo esc_html($link[0]); ?></a>
+                        </li>
+                    <?php endforeach; ?>
                 </ul>
                 <p class="tap-onboarding-note"><?php esc_html_e('Tu agencia será revisada en 24-48h. Podrás preparar tus listados mientras tanto.', 'travel-agency-platform'); ?></p>
             </div>
@@ -2220,13 +2229,7 @@ endif;
     }
 
     public static function csv_cell($value) {
-        $v = (string) $value;
-        // Formula injection: Excel/Sheets execute cells starting with =, +, @
-        // or a dash followed by non-numeric text. Neutralize them with a
-        // leading apostrophe (kept inside the quoted field when needed).
-        if (preg_match('/^[=+@]|^-(?![0-9.])/', $v)) {
-            $v = "'" . $v;
-        }
+        $v = class_exists('TAP_Csv') ? TAP_Csv::cell($value) : (string) $value;
         if (false !== strpos($v, ',') || false !== strpos($v, '"') || false !== strpos($v, "\n")) {
             $v = '"' . str_replace('"', '""', $v) . '"';
         }

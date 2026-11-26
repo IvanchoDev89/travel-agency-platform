@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.23.0] — 2026-11-26
+
+### Changed (structure and presentability)
+- Shared `TAP_Labels`, `TAP_Csv`, `TAP_Service_Types` and `TAP_Service_Types::label()`
+  replace duplicated status maps, CSV escaping and service-type lists.
+- Orphan pruning is now explicit (opt-in) so historical data is never deleted
+  silently; the sandbox cleanup tool performs cascaded pruning.
+- Verified badge requires reviewed KYC documents, not just a checkbox.
+- Fixed four English leaks in the Spanish UI and localized the search aria label.
+- Landing testimonial/gallery sections are styled; agency onboarding checklist
+  items are clickable; test-data menu hidden in production.
+- FUNCTIONAL `suite_structure.php`.
+
 ## [1.20.0] — 2026-11-25
 
 ### Added (admin operations)

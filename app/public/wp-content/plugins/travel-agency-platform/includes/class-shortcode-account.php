@@ -55,6 +55,14 @@ class TAP_Shortcode_Account {
         }
 
         $verified    = (bool) get_post_meta($agency_id, '_tap_agency_verified', true);
+        // A badge is a trust signal: require real identity documents reviewed
+        // by an operator, not just the legacy checkbox.
+        if ($verified && class_exists('TAP_KYC_Docs')) {
+            $kyc_docs = TAP_KYC_Docs::for_agency($agency_id);
+            $approved = 0;
+            foreach ($kyc_docs as $doc) { if ('approved' === $doc->status) { $approved++; } }
+            $verified = $approved >= 2;
+        }
         $commission  = TAP_Booking::get_agency_commission($agency_id);
         $email       = (string) get_post_meta($agency_id, '_tap_agency_email', true);
         $phone       = (string) get_post_meta($agency_id, '_tap_agency_phone', true);

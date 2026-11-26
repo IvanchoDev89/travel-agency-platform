@@ -44,15 +44,7 @@ class TAP_Booking {
      * Supported service type slugs (used by settings and policy resolution).
      */
     public static function service_type_slugs() {
-        return [
-            'tap_accommodation',
-            'tap_tour',
-            'tap_transport',
-            'tap_car_rental',
-            'tap_boat',
-            'tap_package',
-            'tap_equipment',
-        ];
+        return class_exists('TAP_Service_Types') ? TAP_Service_Types::bookable() : [];
     }
 
     /**

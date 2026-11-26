@@ -1453,7 +1453,7 @@ endforeach;
         </style>
         <div class="tap-booking-details">
             <div class="field"><span class="label"><?php esc_html_e('Booking Code', 'travel-agency-platform'); ?></span><span class="value"><?php echo esc_html($booking->booking_code); ?></span></div>
-            <div class="field"><span class="label"><?php esc_html_e('Status', 'travel-agency-platform'); ?></span><span class="value"><span class="tap-status tap-status-<?php echo esc_attr($booking->status); ?>"><?php echo esc_html(ucfirst($booking->status)); ?></span></span></div>
+            <div class="field"><span class="label"><?php esc_html_e('Status', 'travel-agency-platform'); ?></span><span class="value"><span class="tap-status tap-status-<?php echo esc_attr($booking->status); ?>"><?php echo esc_html(TAP_Labels::booking_status($booking->status)); ?></span></span></div>
             <div class="field"><span class="label"><?php esc_html_e('Client', 'travel-agency-platform'); ?></span><span class="value"><?php echo $client ? esc_html($client->display_name) . ' (' . esc_html($client->user_email) . ')' : 'N/D'; ?></span></div>
             <div class="field"><span class="label"><?php esc_html_e('Agency', 'travel-agency-platform'); ?></span><span class="value"><?php echo $agency ? esc_html($agency->post_title) : 'N/D'; ?></span></div>
             <?php if ($service): ?>
@@ -1469,7 +1469,7 @@ endforeach;
             <div class="field"><span class="label"><?php esc_html_e('Children', 'travel-agency-platform'); ?></span><span class="value"><?php echo esc_html($booking->children); ?></span></div>
             <div class="field"><span class="label"><?php esc_html_e('Total Amount', 'travel-agency-platform'); ?></span><span class="value"><?php echo esc_html(TAP_Currency::fmt($booking->total_amount)); ?></span></div>
             <div class="field"><span class="label"><?php esc_html_e('Commission', 'travel-agency-platform'); ?></span><span class="value"><?php echo esc_html(TAP_Currency::fmt($booking->commission_amount)); ?> (<?php echo esc_html($booking->commission_percent); ?>%)</span></div>
-            <div class="field"><span class="label"><?php esc_html_e('Payment Status', 'travel-agency-platform'); ?></span><span class="value"><?php echo esc_html(ucfirst($booking->payment_status)); ?></span></div>
+            <div class="field"><span class="label"><?php esc_html_e('Payment Status', 'travel-agency-platform'); ?></span><span class="value"><?php echo esc_html(TAP_Labels::payment_status($booking->payment_status)); ?></span></div>
             <div class="field"><span class="label"><?php esc_html_e('Payment Method', 'travel-agency-platform'); ?></span><span class="value"><?php echo esc_html($booking->payment_method ?: 'N/D'); ?></span></div>
             <?php if ($booking->notes): ?>
             <div class="field" style="grid-column: 1 / -1;"><span class="label"><?php esc_html_e('Notes', 'travel-agency-platform'); ?></span><span class="value"><?php echo esc_html($booking->notes); ?></span></div>

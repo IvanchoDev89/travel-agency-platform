@@ -75,7 +75,7 @@ class TAP_Reviews {
 
     /** Post types that can receive reviews. */
     public static function service_types() {
-        return ['tap_accommodation', 'tap_tour', 'tap_experience', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package'];
+        return class_exists('TAP_Service_Types') ? TAP_Service_Types::reviewable() : [];
     }
 
     /** Compute badges for a user (verified traveler, top reviewer, photographer). */

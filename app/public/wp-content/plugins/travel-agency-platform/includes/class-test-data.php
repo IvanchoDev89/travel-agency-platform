@@ -15,6 +15,7 @@ class TAP_Test_Data {
     }
 
     public static function add_page() {
+        if (function_exists('wp_get_environment_type') && 'production' === wp_get_environment_type()) { return; }
         add_submenu_page(
             'travel-platform',
             __('Datos de prueba', 'travel-agency-platform'),

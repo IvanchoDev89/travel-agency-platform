@@ -163,7 +163,7 @@ $difficulty_labels = ['easy' => __('Fácil', 'travel-agency-platform'), 'moderat
     <div class="tap-acc-layout">
     <div class="tap-acc-main">
       <div class="tap-acc-content">
-        <h2><?php esc_html_e('About this experience', 'travel-agency-platform'); ?></h2>
+        <h2><?php esc_html_e('Sobre esta experiencia', 'travel-agency-platform'); ?></h2>
         <div class="tap-acc-description">
           <?php the_content(); ?>
         </div>

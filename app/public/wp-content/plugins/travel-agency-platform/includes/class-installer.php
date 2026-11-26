@@ -711,6 +711,9 @@ class TAP_Installer {
 
     /** Daily reconciliation: remove rows whose parent booking/payout is gone. */
     public static function prune_orphans() {
+        // Destructive reconciliation must be explicit: historical/orphan rows
+        // are evidence and may still be needed for audits.
+        if ('1' !== (string) get_option('tap_orphan_pruning', '0')) { return; }
         global $wpdb;
         $b = $wpdb->prefix . 'tap_bookings';
         foreach ([

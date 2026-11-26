@@ -210,7 +210,7 @@
 
     searchToggle.on('click', function() {
         if ($(window).width() < BREAKPOINT) return;
-        searchOverlay.addClass('open').attr({'role': 'dialog', 'aria-modal': 'true', 'aria-label': 'Search'});
+        searchOverlay.addClass('open').attr({'role': 'dialog', 'aria-modal': 'true', 'aria-label': (window.tapI18n && window.tapI18n.searchAria) || 'Buscar'});
         setTimeout(function() { searchInput.trigger('focus'); }, 120);
     });
 

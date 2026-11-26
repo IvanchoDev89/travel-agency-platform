@@ -346,7 +346,7 @@ class TAP_Invoices {
                 </div>
                 <div class="tap-invoice-meta">
                     <strong><?php echo esc_html(strtoupper($d['currency'])); ?></strong><br>
-                    <?php echo esc_html(ucfirst($inv->status)); ?>
+                    <?php echo esc_html(TAP_Labels::booking_status($inv->status)); ?>
                     <?php if ($inv->hacienda_status): ?>
                         <br><?php echo esc_html($inv->hacienda_status); ?>
                     <?php endif; ?>

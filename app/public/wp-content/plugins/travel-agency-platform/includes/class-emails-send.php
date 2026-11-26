@@ -16,28 +16,12 @@ class TAP_Emails_Send {
 
     /** Localized booking status → label map. Source strings are Spanish. */
     public static function status_labels() {
-        return [
-            'pending'   => __('Pendiente', 'travel-agency-platform'),
-            'request'   => __('Solicitud', 'travel-agency-platform'),
-            'confirmed' => __('Confirmada', 'travel-agency-platform'),
-            'cancelled' => __('Cancelada', 'travel-agency-platform'),
-            'completed' => __('Completada', 'travel-agency-platform'),
-            'refunded'  => __('Reembolsada', 'travel-agency-platform'),
-            'no_show'   => __('No show', 'travel-agency-platform'),
-        ];
+        return class_exists('TAP_Labels') ? TAP_Labels::booking_statuses() : [];
     }
-
 
     public static function payment_labels() {
-        return [
-            'pending' => __('Pendiente', 'travel-agency-platform'),
-            'paid'    => __('Pagada', 'travel-agency-platform'),
-            'partial' => __('Parcial', 'travel-agency-platform'),
-            'refunded'=> __('Reembolsada', 'travel-agency-platform'),
-            'failed'  => __('Fallida', 'travel-agency-platform'),
-        ];
+        return class_exists('TAP_Labels') ? TAP_Labels::payment_statuses() : [];
     }
-
 
     public static function status_label($status) {
         $labels = self::status_labels();

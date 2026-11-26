@@ -35,6 +35,21 @@ tap_t_assert([] === $warnings, 'dashboard renders without undefined-key warnings
 tap_t_assert(false !== strpos($dashboard_html, 'Agencias'), 'dashboard still shows the Agencias KPI');
 
 /* --- 3) invoices pagination --------------------------------------------------- */
+global $wpdb;
+$seed_booking_ids = [];
+for ($i = 0; $i < 55; $i++) {
+    $bid = wp_insert_post(['post_type' => 'tap_tour', 'post_status' => 'publish', 'post_title' => 'TAP Invoice Seed ' . $sfx . ' ' . $i]);
+    $wpdb->insert($wpdb->prefix . 'tap_bookings', [
+        'booking_code' => 'INVSEED-' . $sfx . '-' . $i, 'service_type' => 'tap_tour',
+        'service_id' => (int) $bid, 'total_amount' => 10, 'status' => 'completed', 'payment_status' => 'paid',
+    ]);
+    $b_id = (int) $wpdb->insert_id;
+    $seed_booking_ids[] = $b_id;
+    $wpdb->insert($wpdb->prefix . 'tap_invoices', [
+        'booking_id' => $b_id, 'invoice_number' => 'TAP-SEED-' . $sfx . '-' . str_pad((string) $i, 3, '0', STR_PAD_LEFT),
+        'amount' => 10, 'currency' => 'USD', 'status' => 'issued',
+    ]);
+}
 ob_start();
 TAP_Invoices::invoices_page();
 $invoices_html = ob_get_clean();
@@ -46,7 +61,7 @@ ob_start();
 TAP_Invoices::invoices_page();
 $older_invoices_html = ob_get_clean();
 unset($_GET['paged']);
-tap_t_assert(false !== strpos($older_invoices_html, 'Generar PDF'), 'PDF-less invoices offer a regenerate action');
+tap_t_assert(false !== strpos($invoices_html, 'Generar PDF'), 'PDF-less invoices offer a regenerate action');
 
 /* --- 4) print button survives KSES in the detail view ------------------------ */
 global $wpdb;
@@ -144,5 +159,9 @@ ob_end_clean();
 restore_error_handler();
 tap_t_assert([] === $page_warnings, 'coupons and disputes render without plugin warnings (' . implode(' | ', $page_warnings) . ')');
 
+foreach ($seed_booking_ids as $bid) {
+    $wpdb->delete($wpdb->prefix . 'tap_invoices', ['booking_id' => $bid]);
+    $wpdb->delete($wpdb->prefix . 'tap_bookings', ['id' => $bid]);
+}
 wp_set_current_user($orig_uid);
 tap_t_finish();

@@ -22,7 +22,7 @@ class TAP_Itinerary {
     }
 
     public static function service_types() {
-        return ['tap_accommodation', 'tap_tour', 'tap_experience', 'tap_transport', 'tap_car_rental', 'tap_boat', 'tap_package', 'tap_equipment'];
+        return class_exists('TAP_Service_Types') ? TAP_Service_Types::all() : [];
     }
 
     /** Human label + price suffix per service type (msgid-aligned). */
