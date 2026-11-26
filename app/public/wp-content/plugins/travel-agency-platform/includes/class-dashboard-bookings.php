@@ -549,8 +549,8 @@ $cal_m = (int) $cal_m;
                             <?php if ((float) ($b->amount_paid ?? 0) > 0): ?>
                                 <br><small><?php echo esc_html(TAP_Currency::fmt((float) $b->amount_paid)); ?></small>
                             <?php endif; ?>
-                            <?php if (class_exists('TAP_Booking') && TAP_Booking::remaining_amount((int) $b->id) > 0 && 'paid' !== $b->payment_status): ?>
-                                <br><small style="color:#b45309;"><?php echo esc_html(TAP_Currency::fmt(TAP_Booking::remaining_amount((int) $b->id))); ?> <?php esc_html_e('pendiente', 'travel-agency-platform'); ?></small>
+                            <?php if (class_exists('TAP_Booking') && TAP_Booking::remaining_amount($b) > 0 && 'paid' !== $b->payment_status): ?>
+                                <br><small style="color:#b45309;"><?php echo esc_html(TAP_Currency::fmt(TAP_Booking::remaining_amount($b))); ?> <?php esc_html_e('pendiente', 'travel-agency-platform'); ?></small>
                             <?php endif; ?>
                             <?php $refund_error = (string) get_post_meta((int) $b->id, '_tap_refund_error', true); ?>
                             <?php if ('' !== $refund_error): ?>

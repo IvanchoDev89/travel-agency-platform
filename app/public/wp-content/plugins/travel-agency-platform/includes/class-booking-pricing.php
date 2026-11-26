@@ -40,9 +40,9 @@ class TAP_Booking_Pricing {
             $unit_price = floatval(get_post_meta($room_id, '_tap_room_price_per_night', true));
             if ($unit_price <= 0) return 0;
             $nights = 1;
-            if ($check_in && $check_out) {
-                $d1 = new DateTime($check_in);
-                $d2 = new DateTime($check_out);
+            $d1 = class_exists('TAP_Booking') ? TAP_Booking::parse_date($check_in) : null;
+            $d2 = class_exists('TAP_Booking') ? TAP_Booking::parse_date($check_out) : null;
+            if ($d1 && $d2) {
                 $nights = max(1, $d1->diff($d2)->days);
             }
             return $unit_price * $nights;

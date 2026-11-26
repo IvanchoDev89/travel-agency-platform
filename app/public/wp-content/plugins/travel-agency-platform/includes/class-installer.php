@@ -37,6 +37,7 @@ class TAP_Installer {
             "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_bookings (
                 id bigint(20) NOT NULL AUTO_INCREMENT,
                 booking_code varchar(32) NOT NULL,
+                idempotency_key varchar(64) DEFAULT NULL,
                 agency_id bigint(20) NOT NULL,
                 client_id bigint(20) NOT NULL,
                 guest_name varchar(150) DEFAULT NULL,
@@ -72,6 +73,7 @@ class TAP_Installer {
                 updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 PRIMARY KEY (id),
                 UNIQUE KEY booking_code (booking_code),
+                UNIQUE KEY idempotency_key (idempotency_key),
                 KEY agency_id (agency_id),
                 KEY agency_created (agency_id, created_at),
                 KEY client_id (client_id),
@@ -1286,6 +1288,27 @@ class TAP_Installer {
         if (!in_array('booking_fee', $cols_bookings, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN booking_fee decimal(15,2) DEFAULT 0.00 AFTER total_amount");
         }
+        if (!in_array('idempotency_key', $cols_bookings, true)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN idempotency_key varchar(64) DEFAULT NULL AFTER booking_code");
+        }
+        if (!$wpdb->get_var("SHOW INDEX FROM {$wpdb->prefix}tap_bookings WHERE Key_name = 'idempotency_key'")) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD UNIQUE KEY idempotency_key (idempotency_key)");
+        }
+        // One-shot repairs for legacy rows created before the v1.7.0 money model.
+        if (!get_option('tap_legacy_money_backfill')) {
+            $wpdb->query(
+                "UPDATE {$wpdb->prefix}tap_bookings
+                 SET commission_base = ROUND(commission_amount / NULLIF(commission_percent, 0) * 100, 2)
+                 WHERE commission_base IS NULL AND commission_percent > 0 AND commission_amount > 0"
+            );
+            $wpdb->query(
+                "UPDATE {$wpdb->prefix}tap_bookings
+                 SET amount_paid = total_amount
+                 WHERE payment_status = 'paid' AND (amount_paid IS NULL OR amount_paid = 0)"
+            );
+            update_option('tap_legacy_money_backfill', '1', false);
+        }
+
         if (!in_array('commission_base', $cols_bookings, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN commission_base decimal(15,2) DEFAULT NULL AFTER booking_fee");
         }

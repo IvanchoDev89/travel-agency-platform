@@ -259,9 +259,12 @@ class TAP_Ajax_Public {
         $savings = 0;
         $discounts = [];
 
-        if ($check_in && $check_out) {
-            $d1 = new DateTime($check_in);
-            $d2 = new DateTime($check_out);
+        if (($check_in && !TAP_Booking::parse_date($check_in)) || ($check_out && !TAP_Booking::parse_date($check_out))) {
+            wp_send_json_error(['message' => __('Las fechas no son válidas.', 'travel-agency-platform')]);
+        }
+        $d1 = TAP_Booking::parse_date($check_in);
+        $d2 = TAP_Booking::parse_date($check_out);
+        if ($d1 && $d2) {
             $nights = max(1, $d1->diff($d2)->days);
         }
 

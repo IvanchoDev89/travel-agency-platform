@@ -354,7 +354,16 @@ class TAP_Ajax_Commerce {
         if ($booking_id && $result['capture_status'] === 'COMPLETED') {
             // Receipts, agency notification and the owed commission all hang off
             // this single event (mark_commission_owed subscribes at priority 20).
-            TAP_Booking::record_paid_capture($booking_id, 'paypal', $result['capture_id'], $result['full_response'] ?? null);
+            // Never report success if the booking could not be recorded as paid.
+            $recorded = TAP_Booking::record_paid_capture(
+                $booking_id,
+                'paypal',
+                $result['capture_id'],
+                $result['full_response'] ?? null
+            );
+            if (is_wp_error($recorded)) {
+                wp_send_json_error(['message' => $recorded->get_error_message()]);
+            }
         }
 
         wp_send_json_success([

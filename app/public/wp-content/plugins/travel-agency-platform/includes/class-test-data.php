@@ -34,7 +34,7 @@ class TAP_Test_Data {
             'bookings' => (int) $wpdb->get_var("SELECT COUNT(*) FROM {$b} WHERE booking_code LIKE 'TAP-E2E-%' OR guest_email LIKE '%@example.test' OR guest_email LIKE '%@example.invalid'"),
             'invoices_orphan' => (int) $wpdb->get_var("SELECT COUNT(*) FROM {$i} i LEFT JOIN {$b} b ON b.id = i.booking_id WHERE b.id IS NULL"),
             'consents' => (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}tap_consents WHERE email LIKE '%@example.test' OR email LIKE '%@example.invalid'"),
-            'reviews' => (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}tap_reviews WHERE comment LIKE '%TAP Suite%' OR comment LIKE '%E2E%'"),
+            'reviews' => (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}tap_reviews WHERE content LIKE '%TAP Suite%' OR content LIKE '%E2E%'"),
         ];
         $out['posts'] = (int) (array_sum($out));
         return $out;
@@ -56,7 +56,7 @@ class TAP_Test_Data {
         }
         $wpdb->query("DELETE FROM {$wpdb->prefix}tap_invoices WHERE booking_id NOT IN (SELECT id FROM {$b})");
         $wpdb->query("DELETE FROM {$wpdb->prefix}tap_consents WHERE email LIKE '%@example.test' OR email LIKE '%@example.invalid'");
-        $wpdb->query("DELETE FROM {$wpdb->prefix}tap_reviews WHERE comment LIKE '%TAP Suite%' OR comment LIKE '%E2E%'");
+        $wpdb->query("DELETE FROM {$wpdb->prefix}tap_reviews WHERE content LIKE '%TAP Suite%' OR content LIKE '%E2E%'");
         wp_safe_redirect(add_query_arg('tap_clean', '1', admin_url('admin.php?page=tap-test-data')));
         exit;
     }

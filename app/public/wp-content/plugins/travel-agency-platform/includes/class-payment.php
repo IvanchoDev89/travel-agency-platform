@@ -5,6 +5,9 @@
 defined('ABSPATH') || exit;
 
 class TAP_Payment {
+
+    /** Set by webhook handlers when a booking was actually resolved. */
+    private static $webhook_resolved = false;
     public static function orders_table() {
         global $wpdb;
         return $wpdb->prefix . 'tap_payment_orders';
@@ -105,6 +108,13 @@ class TAP_Payment {
             exit;
         }
 
+        $event_id = (string) ($event->id ?? '');
+        if ('' !== $event_id && self::event_processed($event_id)) {
+            status_header(200);
+            exit;
+        }
+        self::$webhook_resolved = false;
+
         switch ($event->event_type) {
             case 'CHECKOUT.ORDER.APPROVED':
                 self::handle_order_approved($event);
@@ -123,6 +133,14 @@ class TAP_Payment {
                 break;
         }
 
+        if (self::$webhook_resolved && '' !== $event_id) {
+            self::mark_event_processed($event_id);
+        } elseif (!self::$webhook_resolved) {
+            // Let PayPal retry: the event arrived before its booking/order was
+            // visible. Do NOT mark it processed in that case.
+            status_header(500);
+            exit;
+        }
         status_header(200);
         exit;
     }
@@ -168,20 +186,25 @@ class TAP_Payment {
         switch ($type) {
             case 'payment_intent.succeeded':
                 if ($intent && !empty($intent->id)) {
-                    self::handle_onvo_payment_succeeded($intent);
+                    self::$webhook_resolved = (bool) self::handle_onvo_payment_succeeded($intent);
                 }
                 break;
 
             case 'payment_intent.payment_failed':
                 if ($intent && !empty($intent->id)) {
                     self::handle_onvo_payment_failed($intent);
+                    self::$webhook_resolved = true;
                 }
                 break;
         }
 
-        // Mark as processed.
-        if (!empty($event_id)) {
+        // Only acknowledge events that actually resolved a booking; otherwise
+        // leave them unprocessed so the provider retries after reconciliation.
+        if (self::$webhook_resolved && !empty($event_id)) {
             self::mark_event_processed($event_id);
+        } elseif (!self::$webhook_resolved) {
+            status_header(500);
+            exit;
         }
 
         status_header(200);
@@ -219,12 +242,12 @@ class TAP_Payment {
         $intent_id = $intent->id;
         $booking_id = self::find_booking_by_onvo_intent($intent_id, $intent);
         if (!$booking_id) {
-            return;
+            return false;
         }
 
         $booking = TAP_Booking::get_booking($booking_id);
         if (!$booking) {
-            return;
+            return false;
         }
 
         // Reconcile against what was actually charged, not the full booking
@@ -239,7 +262,7 @@ class TAP_Payment {
                 TAP_Audit_Log::log('payment_amount_mismatch', 'booking', $booking_id, null, $booking_id, 0);
             }
             // Don't mark as paid if amount doesn't match.
-            return;
+            return false;
         }
 
         // record_paid_capture() writes amount_paid, confirms the booking and
@@ -252,7 +275,7 @@ class TAP_Payment {
         ],];
         $result = TAP_Booking::record_paid_capture($booking_id, 'onvo', '', $details);
         if (is_wp_error($result)) {
-            return;
+            return false;
         }
 
         // Store the payment intent ID for refunds.
@@ -271,6 +294,7 @@ class TAP_Payment {
         update_post_meta($booking_id, '_tap_processor_fee', $processor_fee);
         update_post_meta($booking_id, '_tap_net_received', $net_received);
         update_post_meta($booking_id, '_tap_payment_gateway', 'onvo');
+        return true;
     }
 
     /**
@@ -390,6 +414,7 @@ class TAP_Payment {
 
         $booking_id = self::find_booking_by_order($paypal_order_id);
         if ($booking_id) {
+            self::$webhook_resolved = true;
             do_action('tap_payment_approved', $booking_id, 'paypal', $paypal_order_id);
         }
     }
@@ -402,6 +427,7 @@ class TAP_Payment {
 
         $booking_id = self::find_booking_by_order($paypal_order_id);
         if ($booking_id) {
+            self::$webhook_resolved = true;
             $booking_id  = (int) $booking_id;
             $capture_id  = $capture->id ?? '';
             $prev_capture = get_post_meta($booking_id, '_tap_paypal_capture_id', true);
@@ -470,6 +496,7 @@ class TAP_Payment {
         $booking_id = self::find_booking_by_order($paypal_order_id);
 
         if ($booking_id) {
+            self::$webhook_resolved = true;
             TAP_Booking::update_payment_status($booking_id, 'failed');
             do_action('tap_payment_failed', $booking_id, 'paypal', '');
         }
@@ -486,6 +513,7 @@ class TAP_Payment {
         $booking_id = self::find_booking_by_order($paypal_order_id);
 
         if ($booking_id) {
+            self::$webhook_resolved = true;
             $row = $wpdb->get_row($wpdb->prepare(
                 "SELECT status, payment_status, amount_paid, total_amount, refunded_at
                    FROM {$wpdb->prefix}tap_bookings WHERE id = %d",
@@ -505,6 +533,11 @@ class TAP_Payment {
             }
             $partial = null !== $refund_value && $paid > 0 && $refund_value + 0.005 < $paid;
             if ($partial) {
+                // Redelivered webhooks must not subtract the refund twice.
+                $previous_refund_id = (string) get_post_meta($booking_id, '_tap_paypal_refund_id', true);
+                if ('' !== $previous_refund_id && $previous_refund_id === (string) ($capture->id ?? '')) {
+                    return;
+                }
                 update_post_meta($booking_id, '_tap_paypal_refund_id', $capture->id ?? '');
                 update_post_meta($booking_id, '_tap_refund_amount', $refund_value);
                 // Persist to the booking columns too: reports subtract

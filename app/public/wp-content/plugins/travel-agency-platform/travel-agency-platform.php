@@ -7,7 +7,7 @@
  * Plugin Name: Travel Agency Platform
  * Plugin URI: https://ivanchodev.com
  * Description: Multi-agency travel platform B2B & B2C. Manage accommodations, tours, transports, car rentals, boats and packages.
- * Version:           1.20.0
+ * Version:           1.21.0
  * Requires at least: 6.4
  * Requires PHP:      8.2.35
  * Author: IvanchoDev
@@ -23,7 +23,7 @@ require_once __DIR__ . '/includes/support-email.php';
 require_once __DIR__ . '/includes/class-llms.php';
 require_once __DIR__ . '/includes/class-simple-pdf.php';
 
-define('TAP_VERSION', '1.20.0');
+define('TAP_VERSION', '1.21.0');
 define('TAP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('TAP_PLUGIN_URL', plugin_dir_url(__FILE__));
 
@@ -95,6 +95,13 @@ final class TravelAgencyPlatform {
         register_deactivation_hook(__FILE__, ['TAP_Installer', 'deactivate']);
 
         add_action('admin_notices', ['TAP_Requirements', 'admin_notice']);
+        add_action('admin_notices', function () {
+            $error = get_transient('tap_migration_error');
+            if (!$error) { return; }
+            echo '<div class="notice notice-error"><p><strong>Travel Agency Platform:</strong> '
+                . esc_html__('la última actualización de base de datos falló y se reintentará.', 'travel-agency-platform')
+                . ' ' . esc_html($error) . '</p></div>';
+        });
 
         add_action('plugins_loaded', [$this, 'load_textdomain']);
         add_action('init', ['TAP_Localization', 'init'], 1);
@@ -332,8 +339,19 @@ final class TravelAgencyPlatform {
 
     public function maybe_update_tables() {
         if (get_option('tap_version') !== TAP_VERSION) {
+            global $wpdb;
+            $previous_error = (string) $wpdb->last_error;
+            $wpdb->last_error = '';
             TAP_Installer::create_tables();
-            update_option('tap_version', TAP_VERSION);
+            $migration_error = (string) $wpdb->last_error;
+            if ('' === $migration_error) {
+                update_option('tap_version', TAP_VERSION);
+            } else {
+                // Keep the old version so the next request retries the repair;
+                // never advance past a failed ALTER/index build.
+                set_transient('tap_migration_error', $migration_error, DAY_IN_SECONDS);
+                if ('' !== $previous_error) { $wpdb->last_error = $previous_error; }
+            }
         }
         // Flush rewrite rules when the rewrite version changes (new CPTs, slugs).
         if (get_option('tap_rewrite_version') !== TAP_VERSION) {

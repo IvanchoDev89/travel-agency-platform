@@ -51,7 +51,7 @@ class TAP_Dashboard_Money {
                         // agency payout request over the same bookings. If the
                         // lock cannot be taken we must not settle unprotected.
                         $lock   = 'tap_payout_request_' . $agency_id;
-                        $locked = 1 === (int) $wpdb->query($wpdb->prepare("SELECT GET_LOCK(%s, 5)", $lock));
+                        $locked = 1 === (int) $wpdb->get_var($wpdb->prepare("SELECT GET_LOCK(%s, 5)", $lock));
                         if (!$locked) {
                             continue;
                         }
@@ -139,7 +139,7 @@ class TAP_Dashboard_Money {
                 : 0;
             if ($agency_for_booking > 0) {
                 $lock   = 'tap_payout_request_' . $agency_for_booking;
-                $locked = 1 === (int) $wpdb->query($wpdb->prepare("SELECT GET_LOCK(%s, 5)", $lock));
+                $locked = 1 === (int) $wpdb->get_var($wpdb->prepare("SELECT GET_LOCK(%s, 5)", $lock));
                 if ($locked) {
                     $booking = $wpdb->get_row($wpdb->prepare(
                         "SELECT * FROM {$b_table} b

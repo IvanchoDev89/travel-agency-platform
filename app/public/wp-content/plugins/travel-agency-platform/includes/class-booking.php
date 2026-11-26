@@ -149,11 +149,22 @@ class TAP_Booking {
         $idem_scope = get_current_user_id()
             ? 'u:' . get_current_user_id()
             : 'g:' . strtolower(sanitize_email((string) ($data['guest_email'] ?? '')));
-        $idem_transient = $idem !== '' ? 'tap_idem_' . md5($idem . '|' . $idem_scope) : '';
-        if ($idem_transient !== '') {
-            $replayed = get_transient($idem_transient);
-            if ($replayed) {
-                $existing = self::get_booking((int) $replayed);
+        $idem_hash = $idem !== '' ? hash('sha256', $idem . '|' . $idem_scope) : '';
+        $idem_transient = $idem_hash !== '' ? 'tap_idem_' . $idem_hash : '';
+        if ($idem_hash !== '') {
+            // Persistent check first: a transient can be evicted or expire, and
+            // a duplicate booking would mean the traveler is charged twice.
+            global $wpdb;
+            $existing_id = (int) $wpdb->get_var($wpdb->prepare(
+                'SELECT id FROM ' . $wpdb->prefix . 'tap_bookings WHERE idempotency_key = %s LIMIT 1',
+                $idem_hash
+            ));
+            if (!$existing_id) {
+                $replayed = get_transient($idem_transient);
+                $existing_id = (int) $replayed;
+            }
+            if ($existing_id) {
+                $existing = self::get_booking($existing_id);
                 if ($existing) {
                     return [
                         'booking_id'   => (int) $existing->id,
@@ -184,6 +195,11 @@ class TAP_Booking {
         $children = intval($data['children'] ?? 0);
         if ($adults < 1 || $children < 0) {
             return new WP_Error('invalid_guests', __('El número de huéspedes no es válido.', 'travel-agency-platform'));
+        }
+        foreach (['check_in', 'check_out'] as $date_field) {
+            if (!empty($data[$date_field]) && !self::parse_date($data[$date_field])) {
+                return new WP_Error('invalid_date', __('Las fechas no son válidas.', 'travel-agency-platform'));
+            }
         }
 
         // Rooms only exist inside accommodations. Ignore a stray room_id on
@@ -298,9 +314,9 @@ class TAP_Booking {
         $total = round($commission_base + $insurance_premium, 2);
 
         $nights = 0;
-        if (!empty($data['check_in']) && !empty($data['check_out'])) {
-            $d1 = new DateTime($data['check_in']);
-            $d2 = new DateTime($data['check_out']);
+        $d1 = self::parse_date($data['check_in'] ?? '');
+        $d2 = self::parse_date($data['check_out'] ?? '');
+        if ($d1 && $d2) {
             $nights = max(1, $d1->diff($d2)->days);
         }
 
@@ -487,6 +503,7 @@ class TAP_Booking {
                 $wpdb->prefix . 'tap_bookings',
                 [
                     'booking_code'      => $booking_code,
+                    'idempotency_key'   => $idem_hash ?: null,
                     'agency_id'         => $agency_id,
                     'client_id'         => $client_id,
                     'service_type'      => sanitize_text_field($data['service_type']),
@@ -531,6 +548,21 @@ class TAP_Booking {
 				);
 
 				if ($result === false) {
+                    // A concurrent request may have won the idempotency UNIQUE
+                    // key: return its booking instead of reporting a failure.
+                    $winner = $idem_hash ? (int) $wpdb->get_var($wpdb->prepare(
+                        'SELECT id FROM ' . $wpdb->prefix . 'tap_bookings WHERE idempotency_key = %s LIMIT 1',
+                        $idem_hash
+                    )) : 0;
+                    if ($winner) {
+                        $existing = self::get_booking($winner);
+                        return [
+                            'booking_id'   => (int) $existing->id,
+                            'booking_code' => (string) $existing->booking_code,
+                            'status'       => (string) $existing->status,
+                            'message'      => __('Booking created successfully', 'travel-agency-platform'),
+                        ];
+                    }
                     $create_error = new WP_Error('booking_error', __('Could not create booking', 'travel-agency-platform'));
                 } else {
                     $booking_id = $wpdb->insert_id;
@@ -1551,6 +1583,18 @@ class TAP_Booking {
             $can = $agency && (int) $agency === (int) $booking->agency_id;
         }
         return $can;
+    }
+
+    /** Strict date parser: malformed client input must never throw a fatal. */
+    public static function parse_date($value) {
+        $value = trim((string) $value);
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) { return null; }
+        $date = DateTime::createFromFormat('Y-m-d', $value);
+        $errors = DateTime::getLastErrors();
+        if (!$date || ($errors && ($errors['warning_count'] > 0 || $errors['error_count'] > 0))) {
+            return null;
+        }
+        return $date;
     }
 
     /** Amount already paid toward this booking (partial captures included). */

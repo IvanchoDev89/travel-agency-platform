@@ -38,7 +38,7 @@ class TAP_Agency_Payouts {
         global $wpdb;
         $row = $wpdb->get_row($wpdb->prepare(
             "SELECT
-                COALESCE(SUM(total_amount - COALESCE(refund_amount,0)),0) gross,
+                COALESCE(SUM(total_amount - COALESCE(refund_amount,0) - COALESCE(insurance_premium,0)),0) gross,
                 COALESCE(SUM(COALESCE(booking_fee,0)),0) fees,
                 COALESCE(SUM(" . TAP_Booking_Stats::commission_case() . "),0) commission
              FROM {$wpdb->prefix}tap_bookings

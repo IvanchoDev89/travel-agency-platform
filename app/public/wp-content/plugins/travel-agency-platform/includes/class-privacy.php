@@ -632,6 +632,32 @@ class TAP_Privacy {
         return ['data' => $groups, 'done' => true];
     }
 
+    /** Remove PII from child rows of a booking during an ARCO erasure. */
+    private static function erase_booking_children($booking_id, $keep_records) {
+        global $wpdb;
+        $booking_id = (int) $booking_id;
+        $prefix = $wpdb->prefix;
+        if ($keep_records) {
+            // Invoice snapshots freeze guest name/email: drop the snapshot only.
+            $wpdb->query($wpdb->prepare(
+                "UPDATE {$prefix}tap_invoices SET snapshot = NULL WHERE booking_id = %d", $booking_id
+            ));
+            $wpdb->query($wpdb->prepare(
+                "UPDATE {$prefix}tap_disputes SET guest_email = '' WHERE booking_id = %d", $booking_id
+            ));
+            $wpdb->query($wpdb->prepare(
+                "DELETE FROM {$prefix}tap_legal_acceptances WHERE booking_id = %d", $booking_id
+            ));
+            return;
+        }
+        foreach ([
+            'tap_invoices', 'tap_chat_messages', 'tap_travel_insurance',
+            'tap_waivers', 'tap_legal_acceptances', 'tap_disputes',
+        ] as $table) {
+            $wpdb->delete($prefix . $table, ['booking_id' => $booking_id]);
+        }
+    }
+
     public static function erase_personal_data($email, $page = 1) {
         global $wpdb;
         $email   = sanitize_email($email);
@@ -658,9 +684,16 @@ class TAP_Privacy {
             $email
         ));
         foreach ((array) $guest_rows as $bid) {
+            self::erase_booking_children((int) $bid, false);
             $removed += (int) $wpdb->delete($wpdb->prefix . 'tap_bookings', ['id' => (int) $bid]);
         }
         if ($user_id) {
+            $user_booking_ids = $wpdb->get_col($wpdb->prepare(
+                'SELECT id FROM ' . $wpdb->prefix . 'tap_bookings WHERE client_id = %d', $user_id
+            ));
+            foreach ((array) $user_booking_ids as $bid) {
+                self::erase_booking_children((int) $bid, true);
+            }
             $removed += (int) $wpdb->update(
                 $wpdb->prefix . 'tap_bookings',
                 ['guest_name' => '', 'guest_email' => ''],
