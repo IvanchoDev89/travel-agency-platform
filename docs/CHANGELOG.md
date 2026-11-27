@@ -6,6 +6,23 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.28.0] — 2026-11-27
+
+### Changed (agency dashboard UI/UX)
+- Every navigation entry has a distinct icon; the mobile strip keeps the
+  active section in view and uses a snap/scroll layout.
+- Keyboard focus is visible across the dashboard; bulk results are announced
+  with `aria-live`.
+- Native `alert`/`confirm`/`prompt` dialogs replaced by an accessible in-page
+  modal with keyboard support (Escape/Enter) and a global toast helper.
+- Operations and overview no longer use inline styles: shared utility classes,
+  windowed pagination with ellipsis and a consistent illustrated empty state.
+- Fixed a real markup bug: the chat row used `colspan=9` in a 10-column table.
+
+### Added
+- `TAP_Dashboard_UI` shared pagination/empty-state helpers.
+- FUNCTIONAL `suite_dashboard_ui.php`; 89/89 suites green.
+
 ## [1.27.0] — 2026-11-26
 
 ### Changed (pending business decisions applied)

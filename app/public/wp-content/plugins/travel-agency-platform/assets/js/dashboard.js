@@ -15,12 +15,75 @@
             document.body.appendChild(el);
         }
         el.className = 'tap-dash-toast' + (type ? ' tap-dash-toast-' + type : '');
+        el.setAttribute('role', 'status');
+        el.setAttribute('aria-live', 'polite');
         el.textContent = msg || '';
         void el.offsetWidth;
         el.classList.add('show');
         clearTimeout(el._t);
         el._t = setTimeout(function(){ el.classList.remove('show'); }, type === 'error' ? 5000 : 3000);
     }
+    window.tapToast = tapToast;
+
+    /* ── Accessible in-page dialogs (replace native confirm/prompt) ── */
+    function tapDialog(title, message, value, isPrompt, onAccept) {
+        var i18n = cfg.i18n || {};
+        var overlay = document.createElement('div');
+        overlay.className = 'tap-modal-overlay';
+        overlay.setAttribute('role', 'presentation');
+        var field = isPrompt
+            ? '<input class="tap-modal-input" type="text" maxlength="200" value="' + String(value || '').replace(/"/g, '&quot;') + '">'
+            : '';
+        overlay.innerHTML = '<div class="tap-modal" role="dialog" aria-modal="true" aria-labelledby="tap-modal-title">'
+            + '<h3 id="tap-modal-title"></h3><p class="tap-modal-message"></p>' + field
+            + '<div class="tap-modal-actions">'
+            + '<button type="button" class="tap-btn tap-btn-sm" data-act="cancel"></button>'
+            + '<button type="button" class="tap-btn tap-btn-sm tap-btn-primary" data-act="ok"></button>'
+            + '</div></div>';
+        overlay.querySelector('#tap-modal-title').textContent = title || i18n.confirm_title || 'Confirmar';
+        overlay.querySelector('.tap-modal-message').textContent = message || '';
+        overlay.querySelector('[data-act="cancel"]').textContent = i18n.confirm_no || 'Cancelar';
+        overlay.querySelector('[data-act="ok"]').textContent = i18n.confirm_yes || 'Confirmar';
+
+        var input = overlay.querySelector('.tap-modal-input');
+        var ok = overlay.querySelector('[data-act="ok"]');
+        function close() {
+            document.removeEventListener('keydown', onKey);
+            if (overlay.parentNode) { overlay.parentNode.removeChild(overlay); }
+        }
+        function accept() {
+            var answer = input ? input.value.trim() : true;
+            close();
+            onAccept(answer);
+        }
+        function onKey(e) {
+            if (e.key === 'Escape') { close(); }
+            if (e.key === 'Enter' && input) { e.preventDefault(); accept(); }
+        }
+        overlay.addEventListener('click', function (e) {
+            if (e.target === overlay) { close(); return; }
+            var act = e.target.getAttribute('data-act');
+            if (act === 'ok') { accept(); }
+            if (act === 'cancel') { close(); }
+        });
+        document.addEventListener('keydown', onKey);
+        document.body.appendChild(overlay);
+        (input || ok).focus();
+    }
+    window.tapConfirm = function (title, message, onAccept) {
+        tapDialog(title, message, '', false, function () { onAccept(); });
+    };
+    window.tapPrompt = function (title, message, value, onAccept) {
+        tapDialog(title, message, value, true, function (answer) { onAccept(answer); });
+    };
+
+    /* ── Keep the active nav item visible on the mobile strip ─────── */
+    $(function () {
+        var active = document.querySelector('.tap-dash-nav-active');
+        if (active && active.scrollIntoView) {
+            active.scrollIntoView({ block: 'nearest', inline: 'center' });
+        }
+    });
 
     /* ── Save client profile ──────────────────────────────────────── */
     $(document).on('submit', '.tap-dash-profile-form', function (e) {
@@ -60,29 +123,23 @@
         var id   = $btn.data('id');
         var code = $btn.data('code') || '';
         var originalLabel = $btn.text();
-
-        if (!confirm((cfg.i18n && cfg.i18n.confirm_cancel) + ' ' + code + '?')) {
-            return;
-        }
-
-        $btn.prop('disabled', true).text('…');
-
-        $.post(cfg.ajax_url, {
-            action:     'tap_dash_cancel_booking',
-            nonce:      cfg.nonce,
-            booking_id: id
-        }).done(function (res) {
-            if (res && res.success) {
-                $btn.closest('.tap-dash-booking-card').fadeOut(300, function () {
-                    $(this).remove();
-                });
-            } else {
-                tapToast(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error), 'error');
+        window.tapConfirm(cfg.i18n && cfg.i18n.confirm_title, (cfg.i18n && cfg.i18n.confirm_cancel) + ' ' + code + '?', function () {
+            $btn.prop('disabled', true).text('…');
+            $.post(cfg.ajax_url, {
+                action:     'tap_dash_cancel_booking',
+                nonce:      cfg.nonce,
+                booking_id: id
+            }).done(function (res) {
+                if (res && res.success) {
+                    $btn.closest('.tap-dash-booking-card').fadeOut(300, function () { $(this).remove(); });
+                } else {
+                    tapToast(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error), 'error');
+                    $btn.prop('disabled', false).text(originalLabel);
+                }
+            }).fail(function () {
+                tapToast(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error', 'error');
                 $btn.prop('disabled', false).text(originalLabel);
-            }
-        }).fail(function () {
-            tapToast(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error', 'error');
-            $btn.prop('disabled', false).text(originalLabel);
+            });
         });
     });
 
@@ -116,29 +173,23 @@
     $(document).on('click', '.tap-dash-review-delete', function () {
         var $btn    = $(this);
         var reviewId = $btn.data('id');
-
-        if (!confirm(cfg.i18n && cfg.i18n.confirm_delete ? cfg.i18n.confirm_delete : '¿Eliminar?')) {
-            return;
-        }
-
-        $btn.prop('disabled', true);
-
-        $.post(cfg.ajax_url, {
-            action:    'tap_dash_delete_review',
-            nonce:     cfg.nonce,
-            review_id: reviewId
-        }).done(function (res) {
-            if (res && res.success) {
-                $btn.closest('.tap-dash-review-card').fadeOut(300, function () {
-                    $(this).remove();
-                });
-            } else {
-                tapToast(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error), 'error');
+        window.tapConfirm(cfg.i18n && cfg.i18n.confirm_title, cfg.i18n && cfg.i18n.confirm_delete ? cfg.i18n.confirm_delete : '¿Eliminar?', function () {
+            $btn.prop('disabled', true);
+            $.post(cfg.ajax_url, {
+                action:    'tap_dash_delete_review',
+                nonce:     cfg.nonce,
+                review_id: reviewId
+            }).done(function (res) {
+                if (res && res.success) {
+                    $btn.closest('.tap-dash-review-card').fadeOut(300, function () { $(this).remove(); });
+                } else {
+                    tapToast(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error), 'error');
+                    $btn.prop('disabled', false);
+                }
+            }).fail(function () {
+                tapToast(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error', 'error');
                 $btn.prop('disabled', false);
-            }
-        }).fail(function () {
-            tapToast(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error', 'error');
-            $btn.prop('disabled', false);
+            });
         });
     });
 
@@ -150,46 +201,49 @@
         var name  = $btn.data('name') || '';
         var reason = '';
         var originalLabel = $btn.text();
+        var i18n = cfg.i18n || {};
+
+        function run() {
+            window.tapConfirm(i18n.confirm_title, (i18n.confirm_op || '¿Realizar esta operación?') + ' ' + name + '?', function () {
+                $btn.prop('disabled', true).text('…');
+                var data = {
+                    action:     'tap_dash_agency_booking',
+                    nonce:      cfg.nonce,
+                    booking_id: id,
+                    op:         op
+                };
+                if ((op === 'cancel' || op === 'settle_offline') && reason !== '') {
+                    data.reason = reason;
+                }
+                $.post(cfg.ajax_url, data).done(function (res) {
+                    if (res && res.success) {
+                        location.reload();
+                    } else {
+                        tapToast(res && res.data && res.data.message ? res.data.message : i18n.error, 'error');
+                        $btn.prop('disabled', false).text(originalLabel);
+                    }
+                }).fail(function () {
+                    tapToast(i18n.error || 'Error', 'error');
+                    $btn.prop('disabled', false).text(originalLabel);
+                });
+            });
+        }
 
         if (op === 'cancel' || op === 'reject' || op === 'settle_offline') {
-            var reasonInput = window.prompt(
-                op === 'reject' ? 'Motivo del rechazo (se envía al viajero):'
-                : (op === 'settle_offline' ? 'Comprobante de la liquidación offline ( obligatorio ):' : (cfg.i18n && cfg.i18n.cancel_reason ? cfg.i18n.cancel_reason : 'Motivo de cancelación (opcional):')),
-                ''
-            );
-            if (reasonInput === null) {
-                return;
-            }
-            reason = reasonInput || '';
+            var message = op === 'reject' ? (i18n.reject_reason || 'Motivo del rechazo:')
+                : (op === 'settle_offline' ? (i18n.offline_receipt || 'Comprobante de la liquidación offline:')
+                : (i18n.cancel_reason || 'Motivo de cancelación:'));
+            window.tapPrompt(i18n.prompt_title, message, '', function (answer) {
+                if (op === 'settle_offline' && !answer) {
+                    tapToast(i18n.offline_receipt || 'Comprobante obligatorio', 'error');
+                    return;
+                }
+                reason = answer || '';
+                run();
+            });
+        } else {
+            run();
         }
-
-        if (!confirm((cfg.i18n && cfg.i18n.confirm_op ? cfg.i18n.confirm_op : '¿Realizar esta operación?') + ' ' + name + '?')) {
-            return;
-        }
-
-        $btn.prop('disabled', true).text('…');
-
-        var data = {
-            action:     'tap_dash_agency_booking',
-            nonce:      cfg.nonce,
-            booking_id: id,
-            op:         op
-        };
-        if ((op === 'cancel' || op === 'settle_offline') && reason !== '') {
-            data.reason = reason;
-        }
-
-        $.post(cfg.ajax_url, data).done(function (res) {
-            if (res && res.success) {
-                location.reload();
-            } else {
-                tapToast(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error), 'error');
-                $btn.prop('disabled', false).text(originalLabel);
-            }
-        }).fail(function () {
-            tapToast(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error', 'error');
-            $btn.prop('disabled', false).text(originalLabel);
-        });
     });
 
     /* ── Agency back-office: guest chat ────────────────────────────── */
@@ -478,26 +532,23 @@
         var id   = $btn.data('id');
         var name = $btn.data('name') || '';
 
-        if (!confirm((cfg.i18n && cfg.i18n.confirm_team_remove ? cfg.i18n.confirm_team_remove : '¿Quitar a este usuario del equipo?') + ' ' + name + '?')) {
-            return;
-        }
-
-        $btn.prop('disabled', true);
-
-        $.post(cfg.ajax_url, {
-            action:  'tap_dash_team_remove',
-            nonce:   cfg.nonce,
-            user_id: id
-        }).done(function (res) {
-            if (res && res.success) {
-                location.reload();
-            } else {
-                tapToast(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error), 'error');
+        window.tapConfirm(cfg.i18n && cfg.i18n.confirm_title, (cfg.i18n && cfg.i18n.confirm_team_remove ? cfg.i18n.confirm_team_remove : '¿Quitar a este usuario del equipo?') + ' ' + name + '?', function () {
+            $btn.prop('disabled', true);
+            $.post(cfg.ajax_url, {
+                action:  'tap_dash_team_remove',
+                nonce:   cfg.nonce,
+                user_id: id
+            }).done(function (res) {
+                if (res && res.success) {
+                    location.reload();
+                } else {
+                    tapToast(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error), 'error');
+                    $btn.prop('disabled', false);
+                }
+            }).fail(function () {
+                tapToast(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error', 'error');
                 $btn.prop('disabled', false);
-            }
-        }).fail(function () {
-            tapToast(cfg.i18n && cfg.i18n.error ? cfg.i18n.error : 'Error', 'error');
-            $btn.prop('disabled', false);
+            });
         });
     });
 

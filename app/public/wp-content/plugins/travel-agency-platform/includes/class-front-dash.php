@@ -142,6 +142,13 @@ class TAP_Front_Dash {
                 'error'          => __('Ocurrió un error. Intenta de nuevo.', 'travel-agency-platform'),
                 'saved'          => __('Guardado', 'travel-agency-platform'),
                 'confirm_team_remove' => __('¿Quitar a este usuario del equipo?', 'travel-agency-platform'),
+                'confirm_title'  => __('Confirma la acción', 'travel-agency-platform'),
+                'prompt_title'   => __('Indica los datos', 'travel-agency-platform'),
+                'confirm_yes'    => __('Confirmar', 'travel-agency-platform'),
+                'confirm_no'     => __('Cancelar', 'travel-agency-platform'),
+                'reject_reason'  => __('Motivo del rechazo (se envía al viajero):', 'travel-agency-platform'),
+                'offline_receipt'=> __('Comprobante de la liquidación offline (obligatorio):', 'travel-agency-platform'),
+                'bulk_title'     => __('Aplicar acción masiva', 'travel-agency-platform'),
             ],
         ]);
     }
@@ -251,7 +258,7 @@ class TAP_Front_Dash {
             ob_start();
             ?>
             <div class="tap-dash tap-dash-agency">
-                <div class="tap-dash-login-card" style="margin:2rem auto;max-width:28rem;">
+                <div class="tap-dash-login-card tap-login-card-centered">
                     <h2><?php esc_html_e('Cuenta sin agencia vinculada', 'travel-agency-platform'); ?></h2>
                     <p><?php echo esc_html($message); ?></p>
                 </div>
@@ -487,35 +494,42 @@ class TAP_Front_Dash {
                 <?php endforeach; ?>
             </div>
 
-            <form method="get" class="tap-bo-search" style="margin:var(--tap-space-3) 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <form method="get" class="tap-bo-search">
                 <input type="hidden" name="seccion" value="bo-operations">
                 <input type="hidden" name="bo_status" value="<?php echo esc_attr($status); ?>">
-                <input type="date" name="bo_from" value="<?php echo esc_attr($date_from); ?>" style="padding:8px 12px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);background:#fff;" title="<?php esc_attr_e('Desde', 'travel-agency-platform'); ?>">
-                <input type="date" name="bo_to" value="<?php echo esc_attr($date_to); ?>" style="padding:8px 12px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);background:#fff;" title="<?php esc_attr_e('Hasta', 'travel-agency-platform'); ?>">
-                <input type="search" name="bo_q" value="<?php echo esc_attr($search); ?>" placeholder="<?php esc_attr_e('Buscar por código, huésped o servicio…', 'travel-agency-platform'); ?>" style="flex:1;min-width:220px;padding:8px 12px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);background:#fff;">
+                <input type="date" name="bo_from" value="<?php echo esc_attr($date_from); ?>" title="<?php esc_attr_e('Desde', 'travel-agency-platform'); ?>">
+                <input type="date" name="bo_to" value="<?php echo esc_attr($date_to); ?>" title="<?php esc_attr_e('Hasta', 'travel-agency-platform'); ?>">
+                <input type="search" name="bo_q" value="<?php echo esc_attr($search); ?>" placeholder="<?php esc_attr_e('Buscar por código, huésped o servicio…', 'travel-agency-platform'); ?>">
                 <button type="submit" class="tap-btn tap-btn-sm"><?php esc_html_e('Buscar', 'travel-agency-platform'); ?></button>
                 <?php if ('' !== $search): ?>
                     <a class="tap-btn tap-btn-sm tap-btn-outline" href="<?php echo esc_url(add_query_arg(['seccion'=>'bo-operations','bo_status'=>$status], home_url('/mi-cuenta/'))); ?>"><?php esc_html_e('Limpiar', 'travel-agency-platform'); ?></a>
                 <?php endif; ?>
-                <span class="tap-agency-meta" style="margin-left:auto;"><?php /* translators: %d: number of results */ echo esc_html(sprintf(__(' %d resultados', 'travel-agency-platform'), $total)); ?></span>
+                <span class="tap-bo-count"><?php /* translators: %d: number of results */ echo esc_html(sprintf(__(' %d resultados', 'travel-agency-platform'), $total)); ?></span>
             </form>
 
-            <div class="tap-bulk-bar" style="margin:var(--tap-space-3) 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-                <label style="display:flex;align-items:center;gap:6px;font-size:var(--tap-text-sm);">
+            <div class="tap-bulk-bar">
+                <label class="tap-bulk-label">
                     <input type="checkbox" id="tap-bulk-select-all"> <?php esc_html_e('Seleccionar todo', 'travel-agency-platform'); ?>
                 </label>
-                <select id="tap-bulk-op" class="tap-input" style="padding:6px 10px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);">
+                <select id="tap-bulk-op" class="tap-input">
                     <option value=""><?php esc_html_e('Acción masiva…', 'travel-agency-platform'); ?></option>
                     <option value="confirm"><?php esc_html_e('Confirmar', 'travel-agency-platform'); ?></option>
                     <option value="complete"><?php esc_html_e('Completar', 'travel-agency-platform'); ?></option>
                     <option value="cancel"><?php esc_html_e('Cancelar', 'travel-agency-platform'); ?></option>
                 </select>
                 <button type="button" id="tap-bulk-apply" class="tap-btn tap-btn-sm tap-btn-primary"><?php esc_html_e('Aplicar', 'travel-agency-platform'); ?></button>
-                <span id="tap-bulk-msg" class="tap-agency-meta"></span>
+                <span id="tap-bulk-msg" class="tap-bulk-msg" role="status" aria-live="polite"></span>
             </div>
 
             <?php if (!$bookings): ?>
-                <p class="tap-empty"><?php echo esc_html('all' === $status ? __('No hay reservas todavía.', 'travel-agency-platform') : __('No hay reservas en este estado.', 'travel-agency-platform')); ?></p>
+                <?php
+                echo TAP_Dashboard_UI::empty_state(
+                    'all' === $status ? __('No hay reservas todavía.', 'travel-agency-platform') : __('No hay reservas en este estado.', 'travel-agency-platform'),
+                    __('Cuando publiques tus servicios y recibas solicitudes, aparecerán aquí.', 'travel-agency-platform'),
+                    add_query_arg('seccion', 'bo-listings', $base),
+                    __('Gestionar listados', 'travel-agency-platform')
+                );
+                ?>
             <?php else: ?>
             <div class="tap-table-scroll">
             <table class="tap-table tap-table-compact">
@@ -582,7 +596,7 @@ class TAP_Front_Dash {
                         </td>
                     </tr>
                     <tr class="tap-chat-row" data-id="<?php echo (int) $b->id; ?>" style="display:none;">
-                        <td colspan="9">
+                        <td colspan="10">
                             <div class="tap-chat-wrap">
                                 <div class="tap-chat-thread"><p class="tap-empty"><?php esc_html_e('Cargando conversación...', 'travel-agency-platform'); ?></p></div>
                                 <form class="tap-dash-chat-form" data-booking-id="<?php echo (int) $b->id; ?>">
@@ -619,38 +633,40 @@ class TAP_Front_Dash {
                 if (apply) {
                     apply.addEventListener('click', function(){
                         var op = document.getElementById('tap-bulk-op').value;
-                        if (!op) { alert(<?php echo wp_json_encode(__('Selecciona una acción.', 'travel-agency-platform')); ?>); return; }
+                        if (!op) { tapToast(<?php echo wp_json_encode(__('Selecciona una acción.', 'travel-agency-platform')); ?>, 'error'); return; }
                         var ids = cbs().filter(function(cb){ return cb.checked; }).map(function(cb){ return cb.value; });
-                        if (!ids.length) { alert(<?php echo wp_json_encode(__('Selecciona al menos una reserva.', 'travel-agency-platform')); ?>); return; }
-                        if (!confirm(<?php echo wp_json_encode(__('¿Aplicar la acción a las reservas seleccionadas?', 'travel-agency-platform')); ?>)) return;
-                        var fd = new FormData();
-                        fd.append('action', 'tap_dash_agency_bulk_booking');
-                        fd.append('nonce', (window.tapDash && window.tapDash.nonce) || '');
-                        fd.append('op', op);
-                        ids.forEach(function(id){ fd.append('ids[]', id); });
-                        fetch((window.tapDash && window.tapDash.ajax_url) || (window.ajaxurl || '/wp-admin/admin-ajax.php'), {method:'POST', body:fd, credentials:'same-origin'})
-                        .then(function(r){return r.json();})
-                        .then(function(j){
-                            var msg = document.getElementById('tap-bulk-msg');
-                            if (msg) msg.textContent = (j && j.data && j.data.message) || (j && j.success ? 'Listo' : 'Error');
-                            if (j && j.success) { window.location.reload(); }
-                        })
-                        .catch(function(){ alert('Error de red'); });
+                        if (!ids.length) { tapToast(<?php echo wp_json_encode(__('Selecciona al menos una reserva.', 'travel-agency-platform')); ?>, 'error'); return; }
+                        window.tapConfirm(<?php echo wp_json_encode(__('Aplicar acción masiva', 'travel-agency-platform')); ?>, <?php echo wp_json_encode(__('¿Aplicar la acción a las reservas seleccionadas?', 'travel-agency-platform')); ?>, function(){
+                            var fd = new FormData();
+                            fd.append('action', 'tap_dash_agency_bulk_booking');
+                            fd.append('nonce', (window.tapDash && window.tapDash.nonce) || '');
+                            fd.append('op', op);
+                            ids.forEach(function(id){ fd.append('ids[]', id); });
+                            fetch((window.tapDash && window.tapDash.ajax_url) || (window.ajaxurl || '/wp-admin/admin-ajax.php'), {method:'POST', body:fd, credentials:'same-origin'})
+                            .then(function(r){return r.json();})
+                            .then(function(j){
+                                var msg = document.getElementById('tap-bulk-msg');
+                                var text = (j && j.data && j.data.message) || (j && j.success ? 'Listo' : 'Error');
+                                if (msg) msg.textContent = text;
+                                window.tapToast(text, j && j.success ? 'success' : 'error');
+                                if (j && j.success) { window.location.reload(); }
+                            })
+                            .catch(function(){ window.tapToast(<?php echo wp_json_encode(__('Error de red', 'travel-agency-platform')); ?>, 'error'); });
+                        });
                     });
                 }
             })();
             </script>
             </div>
-				<?php if ($total_pages > 1): ?>
-            <nav class="tap-pagination" style="display:flex;gap:6px;justify-content:center;margin-top:var(--tap-space-4);flex-wrap:wrap;">
-					<?php
-					for ($p = 1; $p <= $total_pages; $p++):
-						$purl = add_query_arg(['seccion'=>'bo-operations','bo_status'=>$status,'bo_q'=>$search,'bo_from'=>$date_from,'bo_to'=>$date_to,'bo_page'=>$p], home_url('/mi-cuenta/'));
-						?>
-                    <a class="tap-btn tap-btn-sm <?php echo $p === $page ? 'tap-btn-primary' : 'tap-btn-outline'; ?>" href="<?php echo esc_url($purl); ?>"><?php echo (int) $p; ?></a>
-					<?php endfor; ?>
-            </nav>
-            <?php endif; ?>
+	            <?php
+            echo TAP_Dashboard_UI::pagination($base, [
+                'seccion'  => 'bo-operations',
+                'bo_status'=> $status,
+                'bo_q'     => $search,
+                'bo_from'  => $date_from,
+                'bo_to'    => $date_to,
+            ], $page, $total_pages);
+            ?>
             <?php endif; ?>
         </div>
         <?php
@@ -796,14 +812,14 @@ class TAP_Front_Dash {
         ob_start();
         echo '<div class="tap-dash-section"><h2>' . esc_html__('Reseñas de tus servicios', 'travel-agency-platform') . '</h2>';
         foreach ($rows as $r) {
-            echo '<div class="tap-review-card" style="border:1px solid #e2e8f0;border-radius:8px;padding:12px;margin:10px 0;">';
+            echo '<div class="tap-review-card tap-review-card-list">';
             echo '<strong>' . esc_html((string) $r->rating) . ' ★</strong> · ' . esc_html($r->title ?: get_the_title((int) $r->service_id)) . '<br>';
             echo esc_html(wp_trim_words((string) $r->content, 30)) . '<br>';
             echo '<small>' . esc_html($r->created_at) . ' · ' . esc_html($r->mod_status) . '</small>';
             if ($r->reply) {
                 echo '<p><strong>' . esc_html__('Tu respuesta:', 'travel-agency-platform') . '</strong> ' . esc_html($r->reply) . '</p>';
             } else {
-                echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" style="margin-top:8px;">'
+                echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="tap-form-spaced">'
                     . '<input type="hidden" name="action" value="tap_agency_review_reply">'
                     . '<input type="hidden" name="review_id" value="' . (int) $r->id . '">';
                 wp_nonce_field('tap_agency_review_' . (int) $r->id);
@@ -876,7 +892,7 @@ exit; }
 
         ob_start();
         echo '<div class="tap-dash-section"><div class="tap-dash-section-header"><h2>'
-            . esc_html(sprintf(__('Calendario de operaciones — %s', 'travel-agency-platform'), $month)) . '</h2><div style="display:flex;gap:6px;">';
+            . esc_html(sprintf(__('Calendario de operaciones — %s', 'travel-agency-platform'), $month)) . '</h2><div class="tap-inline-row">';
         foreach ([[$prev, __('« Mes anterior', 'travel-agency-platform')], [$next, __('Mes siguiente »', 'travel-agency-platform')]] as $link) {
             echo '<a class="button button-small" href="' . esc_url(add_query_arg(['seccion' => 'bo-calendar', 'month' => $link[0]], $base)) . '">' . esc_html($link[1]) . '</a>';
         }
@@ -892,7 +908,7 @@ exit; }
             $out = $by_day[$day]['out'] ?? [];
             if (!$in && !$out) { continue; }
             $found = true;
-            echo '<tr' . ($day === $today ? ' style="background:#ecfdf5;"' : '') . '><td><strong>' . esc_html($day) . '</strong></td><td>';
+            echo '<tr' . ($day === $today ? ' class="is-today"' : '') . '><td><strong>' . esc_html($day) . '</strong></td><td>';
             foreach ($in as $b) {
                 $voucher = home_url('/booking-detail/?code=' . rawurlencode($b->booking_code));
                 echo '<div><a href="' . esc_url($voucher) . '">' . esc_html($b->booking_code) . '</a> · '
@@ -1001,17 +1017,17 @@ exit; }
                 $earn = TAP_Agency_Payouts::earnings((int) $agency);
                 $payouts = TAP_Agency_Payouts::requests((int) $agency, 10);
                 ?>
-                <div class="tap-panel-section" style="margin-top:16px;">
+                <div class="tap-panel-section tap-section-spaced">
                     <h3><?php esc_html_e('Tus ingresos', 'travel-agency-platform'); ?></h3>
                     <div class="tap-stats-grid">
                         <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(TAP_Currency::fmt($earn['gross'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Ingreso bruto', 'travel-agency-platform'); ?></span></div>
-                        <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b45309;">-<?php echo esc_html(TAP_Currency::fmt($earn['fees'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Tarifa de plataforma', 'travel-agency-platform'); ?></span></div>
-                        <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b45309;">-<?php echo esc_html(TAP_Currency::fmt($earn['commission'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Comisión de plataforma', 'travel-agency-platform'); ?></span></div>
-                        <div class="tap-stat-card"><span class="tap-stat-number" style="color:#047857;"><?php echo esc_html(TAP_Currency::fmt($earn['net'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Neto para tu agencia', 'travel-agency-platform'); ?></span></div>
-                        <div class="tap-stat-card"><span class="tap-stat-number" style="color:#047857;"><?php echo esc_html(TAP_Currency::fmt($earn['available'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Disponible para cobrar', 'travel-agency-platform'); ?></span></div>
+                        <div class="tap-stat-card"><span class="tap-stat-number tap-stat-warn">-<?php echo esc_html(TAP_Currency::fmt($earn['fees'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Tarifa de plataforma', 'travel-agency-platform'); ?></span></div>
+                        <div class="tap-stat-card"><span class="tap-stat-number tap-stat-warn">-<?php echo esc_html(TAP_Currency::fmt($earn['commission'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Comisión de plataforma', 'travel-agency-platform'); ?></span></div>
+                        <div class="tap-stat-card"><span class="tap-stat-number tap-stat-success"><?php echo esc_html(TAP_Currency::fmt($earn['net'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Neto para tu agencia', 'travel-agency-platform'); ?></span></div>
+                        <div class="tap-stat-card"><span class="tap-stat-number tap-stat-success"><?php echo esc_html(TAP_Currency::fmt($earn['available'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Disponible para cobrar', 'travel-agency-platform'); ?></span></div>
                     </div>
                     <?php if ($earn['available'] > 0): ?>
-                        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="margin-top:12px;">
+                        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" class="tap-form-spaced">
                             <input type="hidden" name="action" value="tap_agency_payout_request">
                             <input type="hidden" name="agency_id" value="<?php echo (int) $agency; ?>">
                             <?php wp_nonce_field('tap_agency_payout_' . (int) $agency, 'tap_agency_nonce'); ?>
@@ -1019,10 +1035,10 @@ exit; }
                         </form>
                     <?php endif; ?>
                     <?php if (isset($_GET['payout_ok'])): ?>
-                        <p class="tap-agency-meta" style="color:#047857;"><?php esc_html_e('Solicitud enviada. El administrador procesará el pago.', 'travel-agency-platform'); ?></p>
+                        <p class="tap-agency-meta" class="tap-stat-success"><?php esc_html_e('Solicitud enviada. El administrador procesará el pago.', 'travel-agency-platform'); ?></p>
                     <?php endif; ?>
                     <?php if ($payouts): ?>
-                        <table class="tap-table tap-table-compact" style="margin-top:12px;"><thead><tr>
+                        <table class="tap-table tap-table-compact tap-table-spaced"><thead><tr>
                             <th><?php esc_html_e('Solicitud', 'travel-agency-platform'); ?></th><th><?php esc_html_e('Monto', 'travel-agency-platform'); ?></th><th><?php esc_html_e('Estado', 'travel-agency-platform'); ?></th><th><?php esc_html_e('Fecha', 'travel-agency-platform'); ?></th>
                         </tr></thead><tbody>
                             <?php foreach ($payouts as $po): ?>
@@ -1034,12 +1050,12 @@ exit; }
             <?php endif; ?>
 
             <div class="tap-stats-grid">
-                <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b45309;"><?php echo esc_html(TAP_Currency::fmt($totals->owed ?? 0)); ?></span><span class="tap-stat-label"><?php esc_html_e('Comisión de la plataforma pendiente', 'travel-agency-platform'); ?></span></div>
-                <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b91c1c;"><?php echo esc_html(TAP_Currency::fmt($totals->disputed ?? 0)); ?></span><span class="tap-stat-label"><?php esc_html_e('Comisión en disputa', 'travel-agency-platform'); ?></span></div>
-                <div class="tap-stat-card"><span class="tap-stat-number" style="color:#047857;"><?php echo esc_html(TAP_Currency::fmt($totals->settled ?? 0)); ?></span><span class="tap-stat-label"><?php esc_html_e('Comisión de la plataforma cobrada', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number tap-stat-warn"><?php echo esc_html(TAP_Currency::fmt($totals->owed ?? 0)); ?></span><span class="tap-stat-label"><?php esc_html_e('Comisión de la plataforma pendiente', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number tap-stat-danger"><?php echo esc_html(TAP_Currency::fmt($totals->disputed ?? 0)); ?></span><span class="tap-stat-label"><?php esc_html_e('Comisión en disputa', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number tap-stat-success"><?php echo esc_html(TAP_Currency::fmt($totals->settled ?? 0)); ?></span><span class="tap-stat-label"><?php esc_html_e('Comisión de la plataforma cobrada', 'travel-agency-platform'); ?></span></div>
             </div>
 
-            <div class="tap-panel-section" style="margin-top:24px;">
+            <div class="tap-panel-section">
                 <div class="tap-section-head">
                     <h3><?php esc_html_e('Estado de liquidaciones', 'travel-agency-platform'); ?></h3>
                 </div>
@@ -1052,15 +1068,15 @@ exit; }
                 <?php endif; ?>
             </div>
 
-            <div class="tap-panel-section" style="margin-top:24px;">
+            <div class="tap-panel-section">
                 <div class="tap-section-head">
                     <h3><?php esc_html_e('Comisión de la plataforma por mes', 'travel-agency-platform'); ?></h3>
                 </div>
-                <div style="position:relative;height:220px;">
+                <div class="tap-chart-wrap">
                     <canvas id="tap-finances-chart"></canvas>
                 </div>
                 <?php self::enqueue_chart('tap-finances-chart', $chart_labels, $chart_data, __('Comisión de la plataforma', 'travel-agency-platform')); ?>
-                <p class="tap-agency-meta" style="margin-top:8px;"><?php printf(esc_html__('Proyección próximos 3 meses: %s (basado en promedio de los últimos 3 meses).', 'travel-agency-platform'), esc_html(TAP_Currency::fmt($projection))); ?></p>
+                <p class="tap-agency-meta tap-meta-spaced"><?php printf(esc_html__('Proyección próximos 3 meses: %s (basado en promedio de los últimos 3 meses).', 'travel-agency-platform'), esc_html(TAP_Currency::fmt($projection))); ?></p>
             </div>
 
         </div>
@@ -1093,23 +1109,23 @@ exit; }
             <div class="tap-dash-section-header">
                 <h2><?php esc_html_e('Programa de referidos', 'travel-agency-platform'); ?></h2>
             </div>
-            <div class="tap-dash-card" style="margin-top:16px;">
+            <div class="tap-dash-card tap-card-spaced">
                 <h3><?php esc_html_e('Tu enlace de referido', 'travel-agency-platform'); ?></h3>
                 <p class="tap-agency-meta"><?php esc_html_e('Comparte este enlace. Cuando una nueva agencia se registre usando tu código, ganarás una comisión del 10% sobre sus comisiones durante 12 meses.', 'travel-agency-platform'); ?></p>
-                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px;">
-                    <input type="text" readonly value="<?php echo esc_url($url); ?>" style="flex:1;min-width:260px;padding:8px 12px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);background:var(--tap-surface-muted);">
+                <div class="tap-inline-row">
+                    <input type="text" class="tap-input tap-input-block" readonly value="<?php echo esc_url($url); ?>">
                     <button type="button" class="tap-btn tap-btn-sm" onclick="navigator.clipboard && navigator.clipboard.writeText('<?php echo esc_js($url); ?>');"><?php esc_html_e('Copiar', 'travel-agency-platform'); ?></button>
                 </div>
-                <p class="tap-agency-meta" style="margin-top:8px;"><?php /* translators: %s: referral code */ echo esc_html(sprintf(__('Código: %s', 'travel-agency-platform'), $code)); ?></p>
+                <p class="tap-agency-meta tap-meta-spaced"><?php /* translators: %s: referral code */ echo esc_html(sprintf(__('Código: %s', 'travel-agency-platform'), $code)); ?></p>
             </div>
 
-            <div class="tap-stats-grid" style="margin-top:16px;">
+            <div class="tap-stats-grid tap-section-spaced">
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo (int) $stats['clicks']; ?></span><span class="tap-stat-label"><?php esc_html_e('Clicks', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo (int) $stats['registrations']; ?></span><span class="tap-stat-label"><?php esc_html_e('Registros', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo (int) $stats['conversions']; ?></span><span class="tap-stat-label"><?php esc_html_e('Conversiones', 'travel-agency-platform'); ?></span></div>
             </div>
 
-            <div class="tap-dash-section-header" style="margin-top:24px;">
+            <div class="tap-dash-section-header tap-section-spaced">
                 <h3><?php esc_html_e('Referidos', 'travel-agency-platform'); ?></h3>
             </div>
             <?php if (!$rows): ?>
@@ -1182,24 +1198,24 @@ exit; }
                 <h2><?php esc_html_e('Analytics de la agencia', 'travel-agency-platform'); ?></h2>
             </div>
 
-            <form method="get" style="margin:var(--tap-space-3) 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <form method="get" class="tap-filter-bar">
                 <input type="hidden" name="seccion" value="bo-analytics">
-                <label style="font-size:var(--tap-text-sm);"><?php esc_html_e('Desde', 'travel-agency-platform'); ?>
-                    <input type="month" name="an_from" value="<?php echo esc_attr($from); ?>" style="padding:6px 10px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);">
+                <label class="tap-filter-label"><?php esc_html_e('Desde', 'travel-agency-platform'); ?>
+                    <input type="month" class="tap-input" name="an_from" value="<?php echo esc_attr($from); ?>">
                 </label>
-                <label style="font-size:var(--tap-text-sm);"><?php esc_html_e('Hasta', 'travel-agency-platform'); ?>
-                    <input type="month" name="an_to" value="<?php echo esc_attr($to); ?>" style="padding:6px 10px;border:1px solid var(--tap-border);border-radius:var(--tap-radius-md);">
+                <label class="tap-filter-label"><?php esc_html_e('Hasta', 'travel-agency-platform'); ?>
+                    <input type="month" class="tap-input" name="an_to" value="<?php echo esc_attr($to); ?>">
                 </label>
                 <button type="submit" class="tap-btn tap-btn-sm"><?php esc_html_e('Aplicar', 'travel-agency-platform'); ?></button>
             </form>
 
-            <div class="tap-stats-grid" style="margin-top:16px;">
+            <div class="tap-stats-grid tap-section-spaced">
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo (int) $stats['views']; ?></span><span class="tap-stat-label"><?php esc_html_e('Vistas de listados', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo (int) $stats['bookings']; ?></span><span class="tap-stat-label"><?php esc_html_e('Reservas', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(TAP_Currency::fmt($stats['revenue'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Ingresos (pagados)', 'travel-agency-platform'); ?></span></div>
             </div>
 
-            <div class="tap-panel-section" style="margin-top:24px;">
+            <div class="tap-panel-section">
                 <div class="tap-section-head">
                     <h3><?php esc_html_e('Embudo de conversión', 'travel-agency-platform'); ?></h3>
                 </div>
@@ -1214,7 +1230,7 @@ exit; }
             </div>
 
             <?php if (!empty($stats['top_services'])): ?>
-            <div class="tap-panel-section" style="margin-top:24px;">
+            <div class="tap-panel-section">
                 <div class="tap-section-head">
                     <h3><?php esc_html_e('Top servicios por vistas', 'travel-agency-platform'); ?></h3>
                 </div>
@@ -1319,7 +1335,7 @@ exit; }
             <div class="tap-dash-section-header">
                 <h2><?php esc_html_e('Perfil de la agencia', 'travel-agency-platform'); ?></h2>
             </div>
-            <div class="tap-dash-card" style="margin-top:16px;">
+            <div class="tap-dash-card tap-card-spaced">
                 <form id="tap-agency-profile-form" class="tap-profile-form">
                     <input type="hidden" name="agency_id" value="<?php echo (int) $agency_id; ?>">
                     <div class="tap-profile-grid">
@@ -1362,7 +1378,7 @@ exit; }
                     </div>
                     <div class="tap-profile-actions">
                         <button type="submit" class="tap-btn tap-btn-primary"><?php esc_html_e('Guardar perfil', 'travel-agency-platform'); ?></button>
-                        <span class="tap-form-msg" style="margin-left:8px;"></span>
+                        <span class="tap-form-msg tap-msg-spaced"></span>
                     </div>
                 </form>
             </div>
@@ -1422,7 +1438,7 @@ exit; }
             <div class="tap-dash-section-header">
                 <h2><?php esc_html_e('Equipo', 'travel-agency-platform'); ?></h2>
             </div>
-            <div class="tap-dash-card" style="margin-top:16px;">
+            <div class="tap-dash-card tap-card-spaced">
                 <h3><?php esc_html_e('Agregar empleado', 'travel-agency-platform'); ?></h3>
                 <p class="tap-agency-meta"><?php esc_html_e('El usuario debe existir ya en la plataforma (que se haya registrado primero). Se le asignará el rol de empleado y acceso a esta agencia.', 'travel-agency-platform'); ?></p>
                 <form id="tap-team-add" class="tap-bo-form">
@@ -1432,7 +1448,7 @@ exit; }
                     <button type="submit" class="tap-btn tap-btn-primary"><?php esc_html_e('Agregar', 'travel-agency-platform'); ?></button>
                 </form>
             </div>
-            <div class="tap-dash-section-header" style="margin-top:24px;">
+            <div class="tap-dash-section-header tap-section-spaced">
                 <h3><?php esc_html_e('Miembros del equipo', 'travel-agency-platform'); ?></h3>
             </div>
             <?php if (!$staff): ?>
@@ -1519,15 +1535,15 @@ exit; }
                 <?php endif; ?>
             </div>
             <?php if ($slots <= 0) : ?>
-                <div class="tap-capacity-note" style="background:#fffbeb;color:#92400e;font-size:13px;font-weight:600;padding:10px 14px;border-radius:10px;">
+                <div class="tap-capacity-note">
                     <?php esc_html_e('Tu plan actual no incluye listados destacados. Mejora tu plan para destacar tus servicios en la plataforma.', 'travel-agency-platform'); ?>
-                    <a href="<?php echo esc_url(home_url('/planes/')); ?>" class="tap-btn tap-btn-sm" style="margin-left:8px;"><?php esc_html_e('Ver planes', 'travel-agency-platform'); ?></a>
+                    <a href="<?php echo esc_url(home_url('/planes/')); ?>" class="tap-btn tap-btn-sm tap-btn-spaced"><?php esc_html_e('Ver planes', 'travel-agency-platform'); ?></a>
                 </div>
             <?php elseif (!$rows) : ?>
                 <p class="tap-empty"><?php esc_html_e('Aún no tienes listados publicados para destacar.', 'travel-agency-platform'); ?></p>
             <?php else : ?>
                 <?php if ($pending) : ?>
-                    <div class="tap-capacity-note" style="background:#fffbeb;color:#92400e;font-size:13px;font-weight:600;padding:10px 14px;border-radius:10px;margin-bottom:12px;">
+                    <div class="tap-capacity-note tap-capacity-spaced">
                         <?php esc_html_e('Tienes solicitudes de destacado pendientes de confirmación de pago.', 'travel-agency-platform'); ?>
                     </div>
                 <?php endif; ?>
@@ -1561,7 +1577,7 @@ exit; }
                                 <?php if ($is_feat) : ?>
                                     <span class="tap-promo-badge">★</span>
                                 <?php elseif ($is_pend) : ?>
-                                    <span class="tap-promo-badge" style="background:#ffedd5;color:#c2410c;">&#8987;</span>
+                                    <span class="tap-promo-badge tap-promo-waiting">&#8987;</span>
                                 <?php elseif ($paypal_ready) : ?>
                                     <form class="tap-promo-paypal-form">
                                         <input type="hidden" name="listing_id" value="<?php echo (int) $row['id']; ?>">
@@ -1824,11 +1840,11 @@ exit; }
                 <a href="<?php echo esc_url(home_url('/planes/')); ?>" class="tap-btn tap-btn-sm"><?php esc_html_e('Ver planes', 'travel-agency-platform'); ?></a>
             </div>
 				<?php if ($tap_current && 'pending' === $tap_current->status): ?>
-                <div class="tap-capacity-note" style="background:#fffbeb;color:#92400e;font-size:13px;font-weight:600;padding:10px 14px;border-radius:10px;margin-bottom:16px;">
+                <div class="tap-capacity-note tap-capacity-spaced">
                     <?php esc_html_e('Tienes una suscripción pendiente de confirmación de pago.', 'travel-agency-platform'); ?>
                 </div>
             <?php elseif ((int) $tap_limit >= 0 && $tap_used >= (int) $tap_limit): ?>
-                <div class="tap-capacity-note tap-full" style="margin-bottom:16px;">
+                <div class="tap-capacity-note tap-full tap-capacity-spaced">
                     <?php echo esc_html(sprintf(/* translators: %d: número máximo de listados permitidos por el plan */ __('Alcanzaste el límite de %d listados de tu plan. Mejora de plan para publicar más.', 'travel-agency-platform'), (int) $tap_limit)); ?>
                 </div>
 				<?php
@@ -1864,31 +1880,30 @@ endif;
             <div class="tap-onboarding-help">
                 <h4><?php esc_html_e('Recursos para empezar', 'travel-agency-platform'); ?></h4>
                 <ul>
-                    <li><a href="<?php echo esc_url(home_url('/manage-listing/?new=tap_tour')); ?>"><?php esc_html_e('Crear tu primer tour', 'travel-agency-platform'); ?></a></li>
-                    <li><a href="<?php echo esc_url(home_url('/manage-listing/')); ?>"><?php esc_html_e('Gestionar listados', 'travel-agency-platform'); ?></a></li>
                     <li><a href="<?php echo esc_url(home_url('/planes/')); ?>"><?php esc_html_e('Ver planes y límites', 'travel-agency-platform'); ?></a></li>
+                    <li><a href="<?php echo esc_url(home_url('/centro-de-soporte/')); ?>"><?php esc_html_e('Centro de soporte', 'travel-agency-platform'); ?></a></li>
                 </ul>
             </div>
             <?php endif; ?>
 
             <div class="tap-stats-grid">
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html($stats['total']); ?></span><span class="tap-stat-label"><?php esc_html_e('Reservas totales', 'travel-agency-platform'); ?></span></div>
-                <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b45309;"><?php echo esc_html($stats['request'] ?? 0); ?></span><span class="tap-stat-label"><?php esc_html_e('Solicitudes', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number tap-stat-warn"><?php echo esc_html($stats['request'] ?? 0); ?></span><span class="tap-stat-label"><?php esc_html_e('Solicitudes', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html($stats['pending']); ?></span><span class="tap-stat-label"><?php esc_html_e('Pendientes', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html($stats['confirmed']); ?></span><span class="tap-stat-label"><?php esc_html_e('Confirmadas', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(number_format((float) $stats['completed'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Completadas', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(TAP_Currency::fmt($stats['revenue'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Ingresos', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(TAP_Currency::fmt($stats['commission'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Comisión de la plataforma', 'travel-agency-platform'); ?></span></div>
                 <?php if ($is_admin): ?>
-                <div class="tap-stat-card"><span class="tap-stat-number" style="color:#047857;"><?php echo esc_html(TAP_Currency::fmt($stats['net'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Neto para ti', 'travel-agency-platform'); ?></span></div>
-                <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b45309;"><?php echo esc_html(TAP_Currency::fmt($comm_rows->owed)); ?></span><span class="tap-stat-label"><?php esc_html_e('Comisión de la plataforma pendiente', 'travel-agency-platform'); ?></span></div>
-                <div class="tap-stat-card"><span class="tap-stat-number" style="color:#b91c1c;"><?php echo esc_html(TAP_Currency::fmt($comm_rows->disputed)); ?></span><span class="tap-stat-label"><?php esc_html_e('En disputa', 'travel-agency-platform'); ?></span></div>
-                <div class="tap-stat-card"><span class="tap-stat-number" style="color:#047857;"><?php echo esc_html(TAP_Currency::fmt($comm_rows->settled)); ?></span><span class="tap-stat-label"><?php esc_html_e('Cobrado', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number tap-stat-success"><?php echo esc_html(TAP_Currency::fmt($stats['net'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Neto para ti', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number tap-stat-warn"><?php echo esc_html(TAP_Currency::fmt($comm_rows->owed)); ?></span><span class="tap-stat-label"><?php esc_html_e('Comisión de la plataforma pendiente', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number tap-stat-danger"><?php echo esc_html(TAP_Currency::fmt($comm_rows->disputed)); ?></span><span class="tap-stat-label"><?php esc_html_e('En disputa', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number tap-stat-success"><?php echo esc_html(TAP_Currency::fmt($comm_rows->settled)); ?></span><span class="tap-stat-label"><?php esc_html_e('Cobrado', 'travel-agency-platform'); ?></span></div>
                 <?php endif; ?>
             </div>
 
             <?php if ($agency_id && !empty($listings)): ?>
-            <div class="tap-panel-section" style="margin-top:24px;">
+            <div class="tap-panel-section">
                 <div class="tap-section-head">
                     <h3><?php esc_html_e('Tus listados', 'travel-agency-platform'); ?></h3>
                     <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(add_query_arg('seccion', 'bo-listings', $base)); ?>"><?php esc_html_e('Ver todos', 'travel-agency-platform'); ?></a>
@@ -1900,7 +1915,7 @@ endif;
                 </div>
             </div>
             <?php elseif ($agency_id): ?>
-            <div class="tap-panel-section" style="margin-top:24px;">
+            <div class="tap-panel-section">
                 <div class="tap-section-head">
                     <h3><?php esc_html_e('Tus listados', 'travel-agency-platform'); ?></h3>
                     <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(home_url('/manage-listing/')); ?>"><?php esc_html_e('Nuevo alojamiento', 'travel-agency-platform'); ?></a>
@@ -1909,17 +1924,17 @@ endif;
             </div>
             <?php endif; ?>
 
-            <div class="tap-panel-section" style="margin-top:24px;">
+            <div class="tap-panel-section">
                 <div class="tap-section-head">
                     <h3><?php esc_html_e('Ingresos por mes', 'travel-agency-platform'); ?></h3>
                 </div>
-                <div style="position:relative;height:220px;">
+                <div class="tap-chart-wrap">
                     <canvas id="tap-revenue-chart"></canvas>
                 </div>
                 <?php self::enqueue_chart('tap-revenue-chart', $chart_labels, $chart_data, __('Ingresos', 'travel-agency-platform')); ?>
             </div>
 
-            <div class="tap-panel-section" style="margin-top:24px;">
+            <div class="tap-panel-section">
                 <div class="tap-section-head">
                     <h3><?php esc_html_e('Reservas recientes', 'travel-agency-platform'); ?></h3>
                     <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(add_query_arg('seccion', 'bo-operations', $base)); ?>"><?php esc_html_e('Ver operaciones', 'travel-agency-platform'); ?></a>
@@ -1955,7 +1970,7 @@ endif;
             </div>
 
             <?php if ($is_admin && $agency_id && class_exists('TAP_Leads')): ?>
-            <div class="tap-panel-section" style="margin-top:24px;">
+            <div class="tap-panel-section">
                 <div class="tap-section-head">
                     <h3><?php esc_html_e('Leads de contacto', 'travel-agency-platform'); ?> <span class="tap-tab-count"><?php echo (int) TAP_Leads::count_for_agency($agency_id); ?></span></h3>
                     <?php if (TAP_Leads::count_for_agency($agency_id) > 0): ?>
@@ -2082,28 +2097,28 @@ endif;
         $is_team_admin = ('tap_agency_employee' !== $role);
         $nav = [
             ['key' => 'overview', 'label' => __('Resumen', 'travel-agency-platform'), 'icon' => 'home', 'url' => $base],
-            ['key' => 'bo-operations', 'label' => __('Operaciones', 'travel-agency-platform'), 'icon' => 'calendar', 'url' => add_query_arg('seccion', 'bo-operations', $base), 'badge' => ($unread + $new_bookings)],
+            ['key' => 'bo-operations', 'label' => __('Operaciones', 'travel-agency-platform'), 'icon' => 'clipboard', 'url' => add_query_arg('seccion', 'bo-operations', $base), 'badge' => ($unread + $new_bookings)],
             ['key' => 'bo-calendar', 'label' => __('Calendario', 'travel-agency-platform'), 'icon' => 'calendar', 'url' => add_query_arg('seccion', 'bo-calendar', $base)],
         ];
         // Finanzas y Equipo son solo del administrador de la agencia;
         // los empleados ven Resumen, Operaciones y Listados.
         if ($is_team_admin) {
             $nav[] = ['key' => 'bo-finances', 'label' => __('Finanzas', 'travel-agency-platform'), 'icon' => 'wallet', 'url' => add_query_arg('seccion', 'bo-finances', $base)];
-            $nav[] = ['key' => 'bo-invoices', 'label' => __('Facturas', 'travel-agency-platform'), 'icon' => 'list', 'url' => add_query_arg('seccion', 'bo-invoices', $base)];
-            $nav[] = ['key' => 'bo-reviews', 'label' => __('Reseñas', 'travel-agency-platform'), 'icon' => 'star', 'url' => add_query_arg('seccion', 'bo-reviews', $base)];
+            $nav[] = ['key' => 'bo-invoices', 'label' => __('Facturas', 'travel-agency-platform'), 'icon' => 'receipt', 'url' => add_query_arg('seccion', 'bo-invoices', $base)];
+            $nav[] = ['key' => 'bo-reviews', 'label' => __('Reseñas', 'travel-agency-platform'), 'icon' => 'chat', 'url' => add_query_arg('seccion', 'bo-reviews', $base)];
             $nav[] = ['key' => 'bo-analytics', 'label' => __('Analytics', 'travel-agency-platform'), 'icon' => 'chart', 'url' => add_query_arg('seccion', 'bo-analytics', $base)];
-            $nav[] = ['key' => 'bo-audit', 'label' => __('Actividad', 'travel-agency-platform'), 'icon' => 'list', 'url' => add_query_arg('seccion', 'bo-audit', $base)];
+            $nav[] = ['key' => 'bo-audit', 'label' => __('Actividad', 'travel-agency-platform'), 'icon' => 'clock', 'url' => add_query_arg('seccion', 'bo-audit', $base)];
             $nav[] = ['key' => 'bo-disputas', 'label' => __('Disputas', 'travel-agency-platform'), 'icon' => 'flag', 'url' => add_query_arg('seccion', 'bo-disputas', $base)];
         }
         $nav[] = ['key' => 'bo-listings', 'label' => __('Listados', 'travel-agency-platform'), 'icon' => 'grid', 'url' => add_query_arg('seccion', 'bo-listings', $base)];
-        $nav[] = ['key' => 'loyalty', 'label' => __('Mis puntos', 'travel-agency-platform'), 'icon' => 'star', 'url' => add_query_arg('seccion', 'loyalty', $base)];
+        $nav[] = ['key' => 'loyalty', 'label' => __('Mis puntos', 'travel-agency-platform'), 'icon' => 'award', 'url' => add_query_arg('seccion', 'loyalty', $base)];
         $nav[] = ['key' => 'help', 'label' => __('Ayuda', 'travel-agency-platform'), 'icon' => 'help', 'url' => home_url('/centro-de-soporte/')];
         if ($is_team_admin) {
             $nav[] = ['key' => 'bo-profile', 'label' => __('Perfil', 'travel-agency-platform'), 'icon' => 'user', 'url' => add_query_arg('seccion', 'bo-profile', $base)];
         }
         if ($is_team_admin) {
-            $nav[] = ['key' => 'bo-promos', 'label' => __('Destacados', 'travel-agency-platform'), 'icon' => 'star', 'url' => add_query_arg('seccion', 'bo-promos', $base)];
-            $nav[] = ['key' => 'bo-referrals', 'label' => __('Referidos', 'travel-agency-platform'), 'icon' => 'users', 'url' => add_query_arg('seccion', 'bo-referrals', $base)];
+            $nav[] = ['key' => 'bo-promos', 'label' => __('Destacados', 'travel-agency-platform'), 'icon' => 'megaphone', 'url' => add_query_arg('seccion', 'bo-promos', $base)];
+            $nav[] = ['key' => 'bo-referrals', 'label' => __('Referidos', 'travel-agency-platform'), 'icon' => 'link', 'url' => add_query_arg('seccion', 'bo-referrals', $base)];
             $nav[] = ['key' => 'bo-team', 'label' => __('Equipo', 'travel-agency-platform'), 'icon' => 'users', 'url' => add_query_arg('seccion', 'bo-team', $base)];
         }
         return $nav;
@@ -2186,6 +2201,13 @@ endif;
             'help'     => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
             'map'      => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>',
             'flag'     => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>',
+            'clipboard'=> '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/></svg>',
+            'chat'     => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+            'clock'    => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>',
+            'award'    => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><polyline points="8.5 13 7 22 12 19 17 22 15.5 13"/></svg>',
+            'megaphone'=> '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h2l2 5h3l-1-5 9 4V5L10 9H4a1 1 0 0 0-1 1z"/></svg>',
+            'link'     => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l2-2a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7.5-.5l-2 2a5 5 0 0 0 7 7l1-1"/></svg>',
+            'receipt'  => '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12v20l-3-2-3 2-3-2-3 2z"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="9" y1="12" x2="15" y2="12"/></svg>',
         ];
         echo $icons[$icon] ?? '';
     }

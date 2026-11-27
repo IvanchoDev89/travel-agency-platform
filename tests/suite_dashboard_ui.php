@@ -1,0 +1,75 @@
+<?php
+/**
+ * suite_dashboard_ui.php — agency dashboard UI/UX regressions.
+ * FUNCTIONAL: rendered sections + shared UI helpers + JS/CSS contracts.
+ */
+require_once __DIR__ . '/bootstrap.php';
+
+global $wpdb;
+$sfx = tap_t_suffix();
+$orig_uid = get_current_user_id();
+$base = dirname(__DIR__) . '/app/public/wp-content/plugins/travel-agency-platform/';
+
+/* --- 1) shared UI helpers ------------------------------------------------------ */
+$page_html = TAP_Dashboard_UI::pagination(home_url('/mi-cuenta/'), ['seccion' => 'bo-operations'], 6, 40);
+tap_t_assert(false !== strpos($page_html, 'aria-current="page"'), 'pagination marks the current page');
+tap_t_assert(false !== strpos($page_html, 'tap-page-gap'), 'pagination collapses long ranges with an ellipsis');
+tap_t_assert(substr_count($page_html, 'class="tap-page-link') <= 7, 'pagination renders a bounded window');
+tap_t_assert(false !== strpos($page_html, 'bo_page=6'), 'pagination links keep query args');
+
+$empty = TAP_Dashboard_UI::empty_state('Sin datos', 'Mensaje', home_url('/'), 'Ir al inicio');
+tap_t_assert(false !== strpos($empty, 'tap-empty-state-icon') && false !== strpos($empty, 'tap-btn-primary'), 'empty states include an icon and a CTA');
+
+/* --- 2) source contracts ------------------------------------------------------- */
+$dash_src = (string) file_get_contents($base . 'includes/class-front-dash.php');
+tap_t_assert(1 === substr_count($dash_src, '<td colspan="10">'), 'chat row spans all 10 columns');
+tap_t_assert(false === strpos($dash_src, '<td colspan="9">'), 'no stale 9-column chat row');
+$style_lines = array_filter(explode("\n", $dash_src), static function ($line) {
+    return false !== strpos($line, 'style="') && false === strpos($line, 'display:none');
+});
+tap_t_assert([] === $style_lines, 'dashboard markup no longer relies on inline styles');
+foreach (['clipboard', 'chat', 'clock', 'award', 'megaphone', 'link', 'receipt'] as $icon) {
+    tap_t_assert(false !== strpos($dash_src, "'" . $icon . "'"), 'distinct nav icon present: ' . $icon);
+}
+tap_t_assert(false === strpos($dash_src, 'window.prompt('), 'no native prompt in dashboard');
+
+$css = (string) file_get_contents($base . 'assets/css/dashboard.css');
+foreach (['focus-visible', 'tap-modal-overlay', 'tap-empty-state', 'tap-page-link.is-current', 'scroll-snap-align'] as $rule) {
+    tap_t_assert(false !== strpos($css, $rule), 'dashboard CSS contains: ' . $rule);
+}
+$js = (string) file_get_contents($base . 'assets/js/dashboard.js');
+foreach (['window.tapConfirm', 'window.tapPrompt', 'window.tapToast', 'scrollIntoView', "role', 'status'"] as $needle) {
+    tap_t_assert(false !== strpos($js, $needle), 'dashboard JS contains: ' . $needle);
+}
+tap_t_assert(false === strpos($js, 'window.prompt(') && false === strpos($js, '!confirm('), 'native dialogs replaced by accessible modal');
+
+/* --- 3) rendered agency sections ----------------------------------------------- */
+$agency_id = wp_insert_post(['post_type' => 'tap_agency', 'post_status' => 'publish', 'post_title' => 'UI E2E ' . $sfx]);
+$user_id = wp_insert_user([
+    'user_login' => 'ui_' . strtolower($sfx), 'user_pass' => tap_t_unique_pass(),
+    'user_email' => 'ui_' . strtolower($sfx) . '@example.test',
+    'role' => 'tap_agency_admin', 'display_name' => 'UI Admin',
+]);
+update_post_meta($agency_id, '_tap_agency_user_id', $user_id);
+wp_set_current_user($user_id);
+
+$_GET['seccion'] = 'bo-operations';
+$operations = TAP_Front_Dash::render([]);
+tap_t_assert(false !== strpos($operations, 'tap-bo-search'), 'operations renders the shared search bar');
+tap_t_assert(false !== strpos($operations, 'aria-live="polite"'), 'bulk result is announced to screen readers');
+tap_t_assert(false === strpos($operations, 'alert(') && false === strpos($operations, 'confirm('), 'no native dialogs in rendered operations');
+tap_t_assert(false !== strpos($operations, 'tap-empty-state'), 'empty operations use the shared empty state');
+
+$_GET['seccion'] = 'overview';
+$overview = TAP_Front_Dash::render([]);
+tap_t_assert(false !== strpos($overview, 'tap-stat-warn') || false !== strpos($overview, 'tap-stats-grid'), 'overview renders its stat grid');
+tap_t_assert(false === strpos($overview, 'style="margin-top:24px'), 'overview no longer uses inline spacing');
+tap_t_assert(substr_count($overview, 'Gestionar listados') <= 2, 'overview does not repeat the same CTA three times');
+
+/* --- cleanup ------------------------------------------------------------------ */
+$_GET = [];
+wp_set_current_user($orig_uid);
+wp_delete_user($user_id);
+wp_delete_post($agency_id, true);
+tap_t_cleanup_test_consents();
+tap_t_finish();

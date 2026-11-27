@@ -1142,3 +1142,124 @@
         border-color: var(--tap-border, #334155);
     }
 }
+
+/* ================================================================
+   Dashboard UI/UX pass (2026-11)
+   ================================================================ */
+
+/* ── Consistent spacing utilities (replace inline styles) ───────── */
+.tap-section-spaced { margin-top: 1.25rem; }
+.tap-card-spaced { margin-top: 1rem; }
+.tap-table-spaced { margin-top: 0.75rem; }
+.tap-meta-spaced { margin-top: 0.5rem; }
+.tap-form-spaced { margin-top: 0.5rem; }
+.tap-msg-spaced { margin-left: 0.5rem; }
+.tap-btn-spaced { margin-left: 0.5rem; }
+.tap-login-card-centered { margin: 2rem auto; max-width: 28rem; }
+.tap-inline-row { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+.tap-filter-bar {
+    display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;
+    margin: var(--tap-space-3, 1rem) 0;
+}
+.tap-filter-label { font-size: var(--tap-text-sm, 0.85rem); }
+.tap-input-block { flex: 1; min-width: 260px; }
+.tap-bulk-label { display: flex; align-items: center; gap: 0.375rem; font-size: var(--tap-text-sm, 0.85rem); }
+.tap-bo-count { margin-left: auto; }
+.tap-chart-wrap { position: relative; height: 220px; }
+.tap-review-card-list { border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin: 10px 0; }
+.is-today { background: #ecfdf5; }
+.tap-capacity-note {
+    background: #fffbeb; color: #92400e; font-size: 13px; font-weight: 600;
+    padding: 10px 14px; border-radius: 10px;
+}
+.tap-capacity-spaced { margin-bottom: 12px; }
+.tap-promo-waiting { background: #ffedd5; color: #c2410c; }
+.tap-stat-warn { color: #b45309; }
+.tap-stat-success { color: #047857; }
+.tap-stat-danger { color: #b91c1c; }
+
+/* Form controls shared by search/filter/bulk bars */
+.tap-bo-search, .tap-bulk-bar {
+    display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;
+    margin: var(--tap-space-3, 1rem) 0;
+}
+.tap-bo-search input,
+.tap-bulk-bar select,
+.tap-filter-bar input,
+.tap-input-block {
+    padding: 8px 12px; border: 1px solid var(--tap-border, #e2e8f0);
+    border-radius: var(--tap-radius-md, 10px); background: #fff; font: inherit;
+}
+.tap-bo-search input[type="search"] { flex: 1; min-width: 220px; }
+.tap-bulk-msg { min-height: 1.2em; color: #0d9488; font-size: 0.85rem; }
+
+/* ── Windowed pagination ────────────────────────────────────────── */
+.tap-pagination {
+    display: flex; gap: 0.375rem; justify-content: center;
+    flex-wrap: wrap; margin-top: var(--tap-space-4, 1.5rem);
+}
+.tap-page-link {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 36px; height: 36px; padding: 0 0.6rem;
+    border: 1px solid #e2e8f0; border-radius: 9px; background: #fff;
+    color: #475569; font-size: 0.85rem; font-weight: 600; text-decoration: none;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.tap-page-link:hover { background: #f0fdfa; border-color: #5eead4; color: #0f766e; }
+.tap-page-link.is-current { background: #0d9488; border-color: #0d9488; color: #fff; }
+.tap-page-gap { display: inline-flex; align-items: center; padding: 0 0.25rem; color: #94a3b8; }
+
+/* ── Empty states ───────────────────────────────────────────────── */
+.tap-empty-state {
+    text-align: center; padding: 2.5rem 1rem; border: 1px dashed #cbd5e1;
+    border-radius: 14px; background: #f8fafc;
+}
+.tap-empty-state-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 52px; height: 52px; margin-bottom: 0.75rem;
+    border-radius: 14px; background: #ccfbf1; color: #0d9488;
+}
+.tap-empty-state h3 { margin: 0 0 0.35rem; font-size: 1.05rem; color: #0f172a; }
+.tap-empty-state p { margin: 0 0 1rem; color: #64748b; font-size: 0.9rem; }
+
+/* ── Keyboard accessibility ────────────────────────────────────── */
+.tap-dash :is(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 3px solid rgba(13, 148, 136, 0.45);
+    outline-offset: 2px;
+    border-radius: 8px;
+}
+
+/* ── Mobile navigation: keep the active section reachable ──────── */
+@media (max-width: 1024px) {
+    .tap-dash-sidebar {
+        position: sticky; top: 0; z-index: 30;
+        scroll-behavior: smooth; scrollbar-width: thin;
+    }
+    .tap-dash-sidebar-nav { scroll-snap-type: x proximity; }
+    .tap-dash-nav-item { scroll-snap-align: center; }
+    .tap-dash-nav-active { box-shadow: inset 0 -3px 0 #14b8a6; }
+    .tap-bo-search input[type="search"] { min-width: 100%; }
+}
+
+/* ── Accessible in-page confirm / prompt dialog ─────────────────── */
+.tap-modal-overlay {
+    position: fixed; inset: 0; z-index: 100000;
+    display: flex; align-items: center; justify-content: center;
+    padding: 1rem; background: rgba(15, 23, 42, 0.55);
+}
+.tap-modal {
+    width: min(100%, 420px); padding: 1.5rem;
+    background: #fff; border-radius: 16px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+}
+.tap-modal h3 { margin: 0 0 0.5rem; font-size: 1.1rem; color: #0f172a; }
+.tap-modal-message { margin: 0 0 1rem; color: #475569; font-size: 0.92rem; line-height: 1.5; }
+.tap-modal-input {
+    width: 100%; padding: 0.7rem 0.85rem; margin-bottom: 1rem;
+    border: 1px solid #e2e8f0; border-radius: 10px; font: inherit;
+}
+.tap-modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; }
+html.dark .tap-modal { background: #1e293b; }
+html.dark .tap-modal h3 { color: #f8fafc; }
+html.dark .tap-modal-message { color: #cbd5e1; }
+html.dark .tap-modal-input { background: #0f172a; color: #f8fafc; border-color: #475569; }
