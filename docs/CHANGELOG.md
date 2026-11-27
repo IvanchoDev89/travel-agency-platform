@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.27.0] — 2026-11-26
+
+### Changed (pending business decisions applied)
+- Losing a dispute on a booking whose commission was already paid now returns
+  that commission to the agency as a negative payout credit, recorded once per
+  dispute with an audit entry.
+- Partial refunds prorate the agency commission proportionally to the retained
+  total. The original commission is preserved as evidence and redelivered
+  webhook events cannot prorate it twice.
+
+### Added
+- Regression tests for clawback and commission proration in
+  `suite_finance_safety.php`.
+
 ## [1.26.0] — 2026-11-26
 
 ### Fixed (financial safety audit, Fase A/C)

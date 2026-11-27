@@ -132,6 +132,45 @@ class TAP_Disputes {
     }
 
     /**
+     * When a dispute is lost by the agency but its commission had ALREADY been
+     * paid to the platform, voiding the status alone is not enough: the money
+     * left the agency. Register a negative completed payout so the amount
+     * becomes a credit the agency can use in its next settlement.
+     */
+    public static function apply_clawback($dispute_id, $booking) {
+        global $wpdb;
+        if (!$booking || 'paid' !== (string) ($booking->commission_status ?? '')) {
+            return false;
+        }
+        $dispute_id = (int) $dispute_id;
+        $booking_id = (int) $booking->id;
+        $amount = round((float) ($booking->commission_amount ?? 0), 2);
+        if ($amount <= 0) { return false; }
+
+        $seen = (array) get_post_meta($booking_id, '_tap_dispute_clawbacks', true);
+        if (in_array($dispute_id, $seen, true)) { return false; }
+
+        $wpdb->insert(TAP_Agency_Payouts::table(), [
+            'agency_id'    => (int) $booking->agency_id,
+            'amount'       => -$amount,
+            'status'       => 'completed',
+            'note'         => sprintf(/* translators: %d: identificador de la disputa */ __('Reintegro por disputa #%d', 'travel-agency-platform'), $dispute_id),
+            'requested_at' => current_time('mysql'),
+            'paid_at'      => current_time('mysql'),
+        ]);
+        if ($wpdb->insert_id) {
+            $seen[] = $dispute_id;
+            update_post_meta($booking_id, '_tap_dispute_clawbacks', $seen);
+            if (class_exists('TAP_Audit_Log')) {
+                TAP_Audit_Log::log('dispute_commission_clawback', 'booking', $booking_id, (string) $amount, (int) $booking->agency_id, get_current_user_id());
+            }
+            do_action('tap_dispute_commission_clawback', $dispute_id, $booking_id, $amount);
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Resolve an open dispute and apply the commission outcome.
      *
      * @param int    $dispute_id tap_disputes row id.
@@ -160,13 +199,18 @@ class TAP_Disputes {
             ['id' => $dispute_id]
         );
         if ($booking && 'disputed' === $booking->commission_status) {
+            $prev = (string) $dispute->prev_commission;
             if (in_array($outcome, [self::FOR_AGENCY, self::WITHDRAWN], true)) {
                 // Give the commission back the state it had before the dispute
                 // froze it ('owed', 'waiting' or the 'paid' it already was).
-                $prev       = (string) $dispute->prev_commission;
-                $next       = in_array($prev, ['owed', 'waiting', 'paid'], true) ? $prev : 'owed';
+                $next = in_array($prev, ['owed', 'waiting', 'paid'], true) ? $prev : 'owed';
             } else {
-                $next       = 'void';
+                // AGAINST_AGENCY: no commission is due. If one was already paid
+                // to the platform, return it to the agency as a payout credit.
+                $frozen = clone $booking;
+                $frozen->commission_status = $prev;
+                self::apply_clawback((int) $dispute_id, $frozen);
+                $next = 'void';
             }
             $wpdb->update($wpdb->prefix . 'tap_bookings', ['commission_status' => $next], ['id' => $booking_id]);
         }

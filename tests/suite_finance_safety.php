@@ -175,6 +175,47 @@ unset($_GET['lang']);
 update_option('tap_currency', $orig_currency);
 update_option('tap_currency_en', $orig_currency_en);
 
+/* --- 7) dispute clawback of an already-paid commission ----------------------- */
+$cb_agency = wp_insert_post(['post_type' => 'tap_agency', 'post_status' => 'publish', 'post_title' => 'Clawback ' . $sfx]);
+$cleanup_posts[] = (int) $cb_agency;
+$cb_booking = tap_t_seed_booking([
+    'booking_code'      => 'CLAW-' . $sfx,
+    'service_type'      => 'tap_tour', 'service_id' => 75,
+    'agency_id'         => $cb_agency, 'total_amount' => 100,
+    'commission_amount' => 10, 'commission_status' => 'paid',
+    'payment_status'    => 'paid', 'status' => 'confirmed',
+]);
+$cleanup_bookings[] = $cb_booking;
+$dispute_id = TAP_Disputes::open($cb_booking, 0, '', 'service_quality', 'Prueba ' . $sfx);
+tap_t_assert((int) $dispute_id > 0, 'dispute opened on the paid booking');
+$resolved = TAP_Disputes::resolve($dispute_id, TAP_Disputes::AGAINST_AGENCY, 'Resuelta ' . $sfx);
+tap_t_assert(true === $resolved, 'dispute resolved against the agency');
+$credit = $wpdb->get_var($wpdb->prepare(
+    'SELECT SUM(amount) FROM ' . TAP_Agency_Payouts::table() . ' WHERE agency_id = %d AND note LIKE %s',
+    $cb_agency, '%' . $wpdb->esc_like('disputa #' . (int) $dispute_id) . '%'
+));
+tap_t_assert(abs(-10.0 - (float) $credit) < 0.01, 'paid commission is returned as a negative payout credit');
+tap_t_assert(in_array((int) $dispute_id, (array) get_post_meta($cb_booking, '_tap_dispute_clawbacks', true), true), 'clawback is idempotent by dispute id');
+tap_t_assert('void' === TAP_Booking::get_booking($cb_booking)->commission_status, 'commission voided after the clawback');
+$wpdb->delete($wpdb->prefix . 'tap_disputes', ['booking_id' => $cb_booking]);
+$wpdb->delete(TAP_Agency_Payouts::table(), ['agency_id' => $cb_agency]);
+
+/* --- 8) commission is prorated on partial refunds ---------------------------- */
+$pr_booking = tap_t_seed_booking([
+    'booking_code'      => 'PRORATE-' . $sfx,
+    'service_type'      => 'tap_tour', 'service_id' => 75,
+    'total_amount'      => 100, 'commission_amount' => 10,
+    'commission_status' => 'owed', 'payment_status' => 'paid', 'status' => 'confirmed',
+]);
+$cleanup_bookings[] = $pr_booking;
+TAP_Booking::prorate_commission_after_refund($pr_booking, 30);
+tap_t_assert(abs(7.0 - (float) TAP_Booking::get_booking($pr_booking)->commission_amount) < 0.01, '30% refund prorates commission to 7');
+TAP_Booking::prorate_commission_after_refund($pr_booking, 50);
+tap_t_assert(abs(5.0 - (float) TAP_Booking::get_booking($pr_booking)->commission_amount) < 0.01, 'cumulative 50% refund prorates commission to 5');
+TAP_Booking::prorate_commission_after_refund($pr_booking, 50);
+tap_t_assert(abs(5.0 - (float) TAP_Booking::get_booking($pr_booking)->commission_amount) < 0.01, 'redelivered refund does not prorate twice');
+tap_t_assert(abs(10.0 - (float) get_post_meta($pr_booking, '_tap_commission_original', true)) < 0.01, 'original commission preserved as evidence');
+
 /* --- cleanup ----------------------------------------------------------------- */
 foreach ($cleanup_bookings as $bid) {
     delete_post_meta($bid, '_tap_paypal_capture_id');
@@ -182,6 +223,9 @@ foreach ($cleanup_bookings as $bid) {
     delete_post_meta($bid, '_tap_refund_seen_dummy');
     delete_post_meta($bid, '_tap_payment_mismatch');
     delete_post_meta($bid, '_tap_offline_settlement');
+    delete_post_meta($bid, '_tap_dispute_clawbacks');
+    delete_post_meta($bid, '_tap_commission_original');
+    delete_post_meta($bid, '_tap_commission_prorated');
     $wpdb->delete(TAP_Invoices::credit_notes_table(), ['booking_id' => $bid]);
     foreach ((array) $wpdb->get_col($wpdb->prepare('SELECT id FROM ' . $wpdb->prefix . 'tap_invoices WHERE booking_id = %d', $bid)) as $iid) {
         $wpdb->delete($wpdb->prefix . 'tap_invoices', ['id' => $iid]);

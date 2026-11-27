@@ -597,6 +597,7 @@ class TAP_Payment {
                     ],
                     ['id' => (int) $booking_id]
                 );
+                TAP_Booking::prorate_commission_after_refund($booking_id, $cumulative);
                 do_action('tap_payment_partially_refunded', $booking_id, 'paypal', $refund_id, $refund_value);
                 return;
             }

@@ -1559,6 +1559,46 @@ class TAP_Booking {
     }
 
     /**
+     * Commission is earned on the service actually delivered. When part of the
+     * charge is refunded, reduce it proportionally to the retained total.
+     * The original figure is kept in postmeta (and in the frozen invoice) as
+     * evidence, so repeated webhook deliveries cannot shrink it twice.
+     */
+    public static function prorate_commission_after_refund($booking_id, $refund_amount) {
+        global $wpdb;
+        $booking = self::get_booking((int) $booking_id);
+        $refund_amount = round((float) $refund_amount, 2);
+        if (!$booking || $refund_amount <= 0) { return false; }
+        $total = (float) $booking->total_amount;
+        if ($total <= 0) { return false; }
+
+        $original = (float) get_post_meta($booking->id, '_tap_commission_original', true);
+        if ($original <= 0) {
+            $original = round((float) ($booking->commission_amount ?? 0), 2);
+            if ($original <= 0) { return false; }
+            update_post_meta($booking->id, '_tap_commission_original', $original);
+        }
+
+        $ratio = max(0.0, 1.0 - ($refund_amount / $total));
+        $new   = round($original * $ratio, 2);
+        $current = round((float) ($booking->commission_amount ?? 0), 2);
+        if (abs($new - $current) < 0.005) { return false; }
+
+        $wpdb->update($wpdb->prefix . 'tap_bookings', ['commission_amount' => $new], ['id' => (int) $booking->id]);
+        update_post_meta($booking->id, '_tap_commission_prorated', wp_json_encode([
+            'original'     => $original,
+            'refunded'     => $refund_amount,
+            'new'          => $new,
+            'recorded_at'  => current_time('mysql'),
+        ], JSON_UNESCAPED_UNICODE));
+        if (class_exists('TAP_Audit_Log')) {
+            TAP_Audit_Log::log('commission_prorated', 'booking', (int) $booking->id, $new . '/' . $original, (int) ($booking->agency_id ?? 0), get_current_user_id());
+        }
+        do_action('tap_commission_prorated', (int) $booking->id, $original, $new, $refund_amount);
+        return true;
+    }
+
+    /**
      * Immediately return a capture that should never have been charged. Keeps
      * a record and flags the booking for nightly reconciliation when the
      * gateway refund itself fails.

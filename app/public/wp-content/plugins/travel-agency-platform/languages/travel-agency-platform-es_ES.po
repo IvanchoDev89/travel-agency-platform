@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-26T23:46:54+00:00\n"
+"POT-Creation-Date: 2026-11-27T03:04:59+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -1779,7 +1779,7 @@ msgstr "Debes iniciar sesión."
 #: includes/class-email-campaigns.php:234
 #: includes/class-email-campaigns.php:251
 #: includes/class-email-campaigns.php:288
-#: includes/class-finance-exceptions.php:113 includes/class-front-dash.php:2249
+#: includes/class-finance-exceptions.php:115 includes/class-front-dash.php:2249
 #: includes/class-front-dash.php:2291 includes/class-invoices.php:589
 #: includes/class-kyc-docs.php:133 includes/class-leads.php:213
 #: includes/class-legal.php:399 includes/class-legal.php:426
@@ -3480,7 +3480,7 @@ msgstr "Nuevo cupón"
 
 #: includes/class-coupons.php:176 includes/class-coupons.php:195
 #: includes/class-dashboard-content.php:178 includes/class-emails-send.php:768
-#: includes/class-finance-exceptions.php:119 includes/class-front-dash.php:1537
+#: includes/class-finance-exceptions.php:121 includes/class-front-dash.php:1537
 #: includes/class-metaboxes.php:240 includes/class-metaboxes.php:277
 #: includes/class-shortcode-search.php:266
 #: includes/class-transport-admin.php:135
@@ -4034,7 +4034,7 @@ msgstr "Acción"
 
 #: includes/class-dashboard-bookings.php:304
 #: includes/class-dashboard-content.php:693
-#: includes/class-finance-exceptions.php:121
+#: includes/class-finance-exceptions.php:123
 #: includes/class-launch-check.php:132 includes/class-ops-log.php:88
 #: includes/class-privacy.php:846
 msgid "Detalle"
@@ -10430,11 +10430,17 @@ msgstr "Ya existe una disputa abierta para esta reserva."
 msgid "Motivo de disputa no válido."
 msgstr "Motivo de disputa no válido."
 
-#: includes/class-disputes.php:146
+#. translators: %d: identificador de la disputa
+#: includes/class-disputes.php:157
+#, php-format
+msgid "Reintegro por disputa #%d"
+msgstr "Reintegro por disputa #%d"
+
+#: includes/class-disputes.php:185
 msgid "La disputa no está abierta."
 msgstr "La disputa no está abierta."
 
-#: includes/class-disputes.php:149
+#: includes/class-disputes.php:188
 msgid "Resultado de la disputa no válido."
 msgstr "Resultado de la disputa no válido."
 
@@ -11646,7 +11652,7 @@ msgstr ""
 
 #: includes/class-finance-exceptions.php:18
 #: includes/class-finance-exceptions.php:19
-#: includes/class-finance-exceptions.php:116
+#: includes/class-finance-exceptions.php:118
 msgid "Excepciones financieras"
 msgstr "Excepciones financieras"
 
@@ -11674,15 +11680,19 @@ msgstr "Liquidación de agencia pendiente"
 msgid "Liquidación de afiliado pendiente"
 msgstr "Liquidación de afiliado pendiente"
 
-#: includes/class-finance-exceptions.php:117
-msgid "Situaciones que requieren revisión humana. Esta vista no modifica ningún dato."
-msgstr "Situaciones que requieren revisión humana. Esta vista no modifica ningún dato."
+#: includes/class-finance-exceptions.php:119
+msgid ""
+"Situaciones que requieren revisión humana. Esta vista no modifica ningún "
+"dato."
+msgstr ""
+"Situaciones que requieren revisión humana. Esta vista no modifica ningún "
+"dato."
 
-#: includes/class-finance-exceptions.php:120
+#: includes/class-finance-exceptions.php:122
 msgid "Reserva / liquidación"
 msgstr "Reserva / liquidación"
 
-#: includes/class-finance-exceptions.php:124
+#: includes/class-finance-exceptions.php:126
 msgid "No hay excepciones pendientes."
 msgstr "No hay excepciones pendientes."
 
@@ -12905,7 +12915,7 @@ msgid "Términos aceptados:"
 msgstr "Términos aceptados:"
 
 #. translators: %s: pasarela de pago
-#: includes/class-invoices.php:340
+#: includes/class-invoices.php:334
 #, php-format
 msgid "Reembolso (%s)"
 msgstr "Reembolso (%s)"
