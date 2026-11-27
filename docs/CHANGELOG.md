@@ -6,6 +6,24 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.29.0] — 2026-11-27
+
+### Added (Agency Command Center)
+- Grouped, collapsible agency navigation (Operación / Negocio / Cuenta) with a
+  mobile "Más" sheet and remembered group state. Keys and URLs unchanged.
+- Agency context bar with plan, approval status and a real notification centre
+  (requests, unread chats, disputes, failed refunds, pending subscription).
+- Overview redesigned as a command centre: "Requiere tu atención" panel with
+  actionable items, quick actions and 7 compact KPIs instead of 11 flat cards.
+- Global command palette on Ctrl/Cmd+K for sections, bookings and listings.
+
+### Changed
+- Dashboard colours migrated to design tokens (28 non-fallback hex remain) with
+  dashboard-scoped dark-mode semantic tokens and full dark-mode component rules.
+
+### Added tests
+- Extended `suite_dashboard_ui.php`; 89/89 suites green.
+
 ## [1.28.1] — 2026-11-27
 
 ### Fixed

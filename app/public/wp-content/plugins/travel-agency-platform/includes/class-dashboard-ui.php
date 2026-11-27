@@ -51,6 +51,71 @@ class TAP_Dashboard_UI {
         return ob_get_clean();
     }
 
+    /** "Needs your attention" panel: every item is actionable. */
+    public static function attention_panel(array $items) {
+        if (!$items) { return ''; }
+        ob_start();
+        ?>
+        <section class="tap-attention" aria-labelledby="tap-attention-title">
+            <div class="tap-attention-head">
+                <h3 id="tap-attention-title"><?php esc_html_e('Requiere tu atención', 'travel-agency-platform'); ?></h3>
+                <span class="tap-attention-count"><?php echo (int) count($items); ?></span>
+            </div>
+            <ul class="tap-attention-list">
+                <?php foreach ($items as $item): ?>
+                    <li class="tap-attention-item tap-attention-<?php echo esc_attr($item['severity'] ?? 'info'); ?>">
+                        <span class="tap-attention-dot" aria-hidden="true"></span>
+                        <div class="tap-attention-text">
+                            <strong><?php echo esc_html($item['title'] ?? ''); ?></strong>
+                            <?php if (!empty($item['detail'])): ?>
+                                <span><?php echo esc_html($item['detail']); ?></span>
+                            <?php endif; ?>
+                        </div>
+                        <?php if (!empty($item['url'])): ?>
+                            <a class="tap-attention-action" href="<?php echo esc_url($item['url']); ?>">
+                                <?php echo esc_html($item['action'] ?? __('Ver', 'travel-agency-platform')); ?>
+                            </a>
+                        <?php endif; ?>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </section>
+        <?php
+        return ob_get_clean();
+    }
+
+    /** Notification bell + dropdown shared by agency and client dashboards. */
+    public static function notification_center(array $items) {
+        $count = 0;
+        foreach ($items as $item) { $count += (int) ($item['count'] ?? 1); }
+        ob_start();
+        ?>
+        <div class="tap-notif-wrap">
+            <button type="button" class="tap-notif-bell" aria-label="<?php esc_attr_e('Notificaciones', 'travel-agency-platform'); ?>" aria-expanded="false" aria-haspopup="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <?php if ($count > 0): ?><span class="tap-notif-badge"><?php echo (int) $count; ?></span><?php endif; ?>
+            </button>
+            <div class="tap-notif-dropdown" hidden>
+                <?php if ($items): ?>
+                    <ul class="tap-notif-list">
+                        <?php foreach ($items as $item): ?>
+                            <li>
+                                <a href="<?php echo esc_url($item['url'] ?? '#'); ?>">
+                                    <span class="tap-notif-dot" aria-hidden="true"></span>
+                                    <span><?php echo esc_html($item['text'] ?? ''); ?></span>
+                                </a>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php else: ?>
+                    <p class="tap-notif-empty"><?php esc_html_e('Sin notificaciones nuevas.', 'travel-agency-platform'); ?></p>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php
+        return ob_get_clean();
+    }
+
     /** Consistent illustrated empty state with an optional call to action. */
     public static function empty_state($title, $message = '', $url = '', $label = '') {
         ob_start();

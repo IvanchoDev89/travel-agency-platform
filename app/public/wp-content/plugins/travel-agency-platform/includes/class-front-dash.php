@@ -149,6 +149,13 @@ class TAP_Front_Dash {
                 'reject_reason'  => __('Motivo del rechazo (se envía al viajero):', 'travel-agency-platform'),
                 'offline_receipt'=> __('Comprobante de la liquidación offline (obligatorio):', 'travel-agency-platform'),
                 'bulk_title'     => __('Aplicar acción masiva', 'travel-agency-platform'),
+                'search_placeholder' => __('Buscar secciones, reservas o listados…', 'travel-agency-platform'),
+                'search_hint'        => __('Esc para cerrar · ↑ ↓ para navegar · Enter para abrir', 'travel-agency-platform'),
+                'search_empty'       => __('Sin resultados', 'travel-agency-platform'),
+                'kind_section'       => __('Sección', 'travel-agency-platform'),
+                'kind_booking'       => __('Reserva', 'travel-agency-platform'),
+                'kind_row'           => __('Fila', 'travel-agency-platform'),
+                'search_aria'        => __('Buscar en el panel', 'travel-agency-platform'),
             ],
         ]);
     }
@@ -189,6 +196,70 @@ class TAP_Front_Dash {
         }
 
         return TAP_Front_Dash_Client::render_client_dash($user, $section);
+    }
+
+    /** Real notification items for an agency, derived from existing data. */
+    private static function agency_notifications($user) {
+        global $wpdb;
+        $agency = (int) TAP_Booking::get_agency_for_user($user->ID);
+        if (!$agency) { return []; }
+        $base = home_url('/mi-cuenta/');
+        $items = [];
+
+        $pending = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tap_bookings WHERE agency_id = %d AND status IN ('request','pending')", $agency
+        ));
+        if ($pending) {
+            $items[] = [
+                'count' => $pending,
+                'text'  => sprintf(/* translators: %d: número de solicitudes */ __('Tienes %d solicitudes por revisar.', 'travel-agency-platform'), $pending),
+                'url'   => add_query_arg(['seccion' => 'bo-operations', 'bo_status' => 'request'], $base),
+            ];
+        }
+        $unread = (int) TAP_Chat::unread_total_for_agency($agency);
+        if ($unread) {
+            $items[] = [
+                'count' => $unread,
+                'text'  => sprintf(/* translators: %d: número de mensajes */ __('Tienes %d mensajes sin leer.', 'travel-agency-platform'), $unread),
+                'url'   => add_query_arg('seccion', 'bo-operations', $base),
+            ];
+        }
+        if (class_exists('TAP_Disputes')) {
+            $open = (int) $wpdb->get_var($wpdb->prepare(
+                'SELECT COUNT(*) FROM ' . $wpdb->prefix . 'tap_disputes WHERE agency_id = %d AND status = %s',
+                $agency, TAP_Disputes::OPEN
+            ));
+            if ($open) {
+                $items[] = [
+                    'count' => $open,
+                    'text'  => sprintf(/* translators: %d: número de disputas */ __('Tienes %d disputas abiertas.', 'travel-agency-platform'), $open),
+                    'url'   => add_query_arg('seccion', 'bo-disputas', $base),
+                ];
+            }
+        }
+        $failed = (int) $wpdb->get_var($wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tap_bookings b
+              JOIN {$wpdb->postmeta} m ON m.post_id = b.id AND m.meta_key = '_tap_refund_error'
+             WHERE b.agency_id = %d AND m.meta_value <> '' AND m.meta_value IS NOT NULL", $agency
+        ));
+        if ($failed) {
+            $items[] = [
+                'count' => $failed,
+                'text'  => sprintf(/* translators: %d: número de reembolsos */ __('Hay %d reembolsos que requieren atención.', 'travel-agency-platform'), $failed),
+                'url'   => add_query_arg('seccion', 'bo-finances', $base),
+            ];
+        }
+        if (class_exists('TAP_Subscriptions')) {
+            $current = TAP_Subscriptions::current_subscription($agency);
+            if ($current && 'pending' === $current->status) {
+                $items[] = [
+                    'count' => 1,
+                    'text'  => __('Tu suscripción está pendiente de pago.', 'travel-agency-platform'),
+                    'url'   => home_url('/planes/'),
+                ];
+            }
+        }
+        return $items;
     }
 
     /* ── login prompt ──────────────────────────────────────────────── */
@@ -268,13 +339,40 @@ class TAP_Front_Dash {
         }
 
         // Agency admin/employee get the existing panel wrapped in a sidebar
-        $sections = self::agency_nav($role, $section);
+        $sections = class_exists('TAP_Dashboard_Nav') ? TAP_Dashboard_Nav::agency($section, $user->ID, $role) : self::agency_nav($role, $section);
 
         ob_start();
         ?>
         <div class="tap-dash tap-dash-agency" id="tap-dash-content">
             <?php self::render_sidebar($user, $sections, $section); ?>
             <main class="tap-dash-main">
+                <?php
+                $ctx_agency = (int) TAP_Booking::get_agency_for_user($user->ID);
+                $ctx_post   = $ctx_agency ? get_post($ctx_agency) : null;
+                $ctx_plan   = ($ctx_agency && class_exists('TAP_Subscriptions')) ? TAP_Subscriptions::active_plan($ctx_agency) : null;
+                $ctx_status = $ctx_agency ? TAP_Approval::status($ctx_agency) : '';
+                ?>
+                <div class="tap-agency-context-bar">
+                    <div class="tap-agency-context-id">
+                        <strong><?php echo esc_html($ctx_post ? $ctx_post->post_title : __('Tu agencia', 'travel-agency-platform')); ?></strong>
+                        <?php if ($ctx_plan && !empty($ctx_plan->name)): ?>
+                            <span class="tap-context-chip"><?php echo esc_html($ctx_plan->name); ?></span>
+                        <?php endif; ?>
+                        <?php if ('' !== $ctx_status): ?>
+                            <span class="tap-context-chip tap-context-chip-<?php echo esc_attr(sanitize_key($ctx_status)); ?>">
+                                <?php
+                                $ctx_labels = [
+                                    'approved' => __('Aprobada', 'travel-agency-platform'),
+                                    'pending'  => __('En revisión', 'travel-agency-platform'),
+                                    'rejected' => __('No aprobada', 'travel-agency-platform'),
+                                ];
+                                echo esc_html($ctx_labels[$ctx_status] ?? $ctx_status);
+                                ?>
+                            </span>
+                        <?php endif; ?>
+                    </div>
+                    <?php echo TAP_Dashboard_UI::notification_center(self::agency_notifications($user)); ?>
+                </div>
                 <?php
                 // Approval status banner (C20): same notice the legacy panel
                 // shows, on every section. Without it a freshly registered
@@ -1616,6 +1714,99 @@ exit; }
 
     /* ── agency back-office: overview (resumen) ─────────────────────── */
 
+    /** Items that need a decision today, shown at the top of the overview. */
+    private static function agency_attention($user, $agency_id, $counts, $onboarding, $listings) {
+        global $wpdb;
+        $base = home_url('/mi-cuenta/');
+        $items = [];
+        $pending = (int) ($counts['request'] ?? 0) + (int) ($counts['pending'] ?? 0);
+        if ($pending) {
+            $items[] = [
+                'severity' => 'urgent',
+                'title'    => __('Solicitudes por revisar', 'travel-agency-platform'),
+                'detail'   => sprintf(/* translators: %d: número de solicitudes */ __('%d reservas esperan tu respuesta.', 'travel-agency-platform'), $pending),
+                'url'      => add_query_arg(['seccion' => 'bo-operations', 'bo_status' => 'request'], $base),
+                'action'   => __('Revisar', 'travel-agency-platform'),
+            ];
+        }
+        $unread = $agency_id ? (int) TAP_Chat::unread_total_for_agency($agency_id) : 0;
+        if ($unread) {
+            $items[] = [
+                'severity' => 'urgent',
+                'title'    => __('Mensajes sin leer', 'travel-agency-platform'),
+                'detail'   => sprintf(/* translators: %d: número de mensajes */ __('%d conversaciones te esperan.', 'travel-agency-platform'), $unread),
+                'url'      => add_query_arg('seccion', 'bo-operations', $base),
+                'action'   => __('Responder', 'travel-agency-platform'),
+            ];
+        }
+        if ($agency_id && class_exists('TAP_Disputes')) {
+            $open = (int) $wpdb->get_var($wpdb->prepare(
+                'SELECT COUNT(*) FROM ' . $wpdb->prefix . 'tap_disputes WHERE agency_id = %d AND status = %s',
+                $agency_id, TAP_Disputes::OPEN
+            ));
+            if ($open) {
+                $items[] = [
+                    'severity' => 'urgent',
+                    'title'    => __('Disputas abiertas', 'travel-agency-platform'),
+                    'detail'   => sprintf(/* translators: %d: número de disputas */ __('%d casos requieren tu postura.', 'travel-agency-platform'), $open),
+                    'url'      => add_query_arg('seccion', 'bo-disputas', $base),
+                    'action'   => __('Ver casos', 'travel-agency-platform'),
+                ];
+            }
+        }
+        if ($agency_id) {
+            $failed = (int) $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->prefix}tap_bookings b
+                  JOIN {$wpdb->postmeta} m ON m.post_id = b.id AND m.meta_key = '_tap_refund_error'
+                 WHERE b.agency_id = %d AND m.meta_value <> '' AND m.meta_value IS NOT NULL", $agency_id
+            ));
+            if ($failed) {
+                $items[] = [
+                    'severity' => 'urgent',
+                    'title'    => __('Reembolsos pendientes', 'travel-agency-platform'),
+                    'detail'   => sprintf(/* translators: %d: número de reembolsos */ __('%d reembolsos no se completaron.', 'travel-agency-platform'), $failed),
+                    'url'      => add_query_arg('seccion', 'bo-finances', $base),
+                    'action'   => __('Ver finanzas', 'travel-agency-platform'),
+                ];
+            }
+        }
+        if ($agency_id && class_exists('TAP_Subscriptions')) {
+            $current = TAP_Subscriptions::current_subscription($agency_id);
+            $limit = (int) TAP_Subscriptions::listing_limit($agency_id);
+            $used  = (int) TAP_Subscriptions::listing_count($agency_id);
+            if ($current && 'pending' === $current->status) {
+                $items[] = [
+                    'severity' => 'warn',
+                    'title'    => __('Suscripción pendiente de pago', 'travel-agency-platform'),
+                    'detail'   => __('Confirma el pago para mantener tus límites activos.', 'travel-agency-platform'),
+                    'url'      => home_url('/planes/'),
+                    'action'   => __('Ver planes', 'travel-agency-platform'),
+                ];
+            }
+            if ($limit >= 0 && $used >= $limit) {
+                $items[] = [
+                    'severity' => 'warn',
+                    'title'    => __('Límite de listados alcanzado', 'travel-agency-platform'),
+                    'detail'   => sprintf(/* translators: 1: usados, 2: límite */ __('%1$d de %2$d listados publicados.', 'travel-agency-platform'), $used, $limit),
+                    'url'      => home_url('/planes/'),
+                    'action'   => __('Ampliar', 'travel-agency-platform'),
+                ];
+            }
+        }
+        $missing = [];
+        foreach ($onboarding as $key => $done) { if (!$done) { $missing[] = $key; } }
+        if ($agency_id && $missing) {
+            $items[] = [
+                'severity' => 'info',
+                'title'    => __('Termina de configurar tu agencia', 'travel-agency-platform'),
+                'detail'   => sprintf(/* translators: %d: pasos pendientes */ __('Te faltan %d pasos para empezar a recibir reservas.', 'travel-agency-platform'), count($missing)),
+                'url'      => home_url('/manage-listing/'),
+                'action'   => __('Continuar', 'travel-agency-platform'),
+            ];
+        }
+        return $items;
+    }
+
     private static function agency_overview($user) {
         global $wpdb;
         $is_admin = TAP_Roles::can_manage_agency_panel($user);
@@ -1886,19 +2077,27 @@ endif;
             </div>
             <?php endif; ?>
 
+            <?php
+            echo TAP_Dashboard_UI::attention_panel(self::agency_attention($user, $agency_id, $counts, $onboarding, $listings));
+            ?>
+            <div class="tap-quick-actions">
+                <a class="tap-btn tap-btn-sm tap-btn-primary" href="<?php echo esc_url(home_url('/manage-listing/?new=tap_tour')); ?>"><?php esc_html_e('Nuevo servicio', 'travel-agency-platform'); ?></a>
+                <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(add_query_arg('seccion', 'bo-operations', $base)); ?>"><?php esc_html_e('Operaciones', 'travel-agency-platform'); ?></a>
+                <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(add_query_arg('seccion', 'bo-calendar', $base)); ?>"><?php esc_html_e('Calendario', 'travel-agency-platform'); ?></a>
+                <?php if ($is_admin): ?>
+                    <a class="tap-btn tap-btn-sm" href="<?php echo esc_url(add_query_arg('seccion', 'bo-finances', $base)); ?>"><?php esc_html_e('Finanzas', 'travel-agency-platform'); ?></a>
+                <?php endif; ?>
+            </div>
+
             <div class="tap-stats-grid">
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html($stats['total']); ?></span><span class="tap-stat-label"><?php esc_html_e('Reservas totales', 'travel-agency-platform'); ?></span></div>
-                <div class="tap-stat-card"><span class="tap-stat-number tap-stat-warn"><?php echo esc_html($stats['request'] ?? 0); ?></span><span class="tap-stat-label"><?php esc_html_e('Solicitudes', 'travel-agency-platform'); ?></span></div>
-                <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html($stats['pending']); ?></span><span class="tap-stat-label"><?php esc_html_e('Pendientes', 'travel-agency-platform'); ?></span></div>
-                <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html($stats['confirmed']); ?></span><span class="tap-stat-label"><?php esc_html_e('Confirmadas', 'travel-agency-platform'); ?></span></div>
-                <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(number_format((float) $stats['completed'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Completadas', 'travel-agency-platform'); ?></span></div>
+                <div class="tap-stat-card"><span class="tap-stat-number tap-stat-warn"><?php echo (int) ($stats['request'] ?? 0) + (int) ($stats['pending'] ?? 0); ?></span><span class="tap-stat-label"><?php esc_html_e('Por atender', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(TAP_Currency::fmt($stats['revenue'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Ingresos', 'travel-agency-platform'); ?></span></div>
                 <div class="tap-stat-card"><span class="tap-stat-number"><?php echo esc_html(TAP_Currency::fmt($stats['commission'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Comisión de la plataforma', 'travel-agency-platform'); ?></span></div>
                 <?php if ($is_admin): ?>
-                <div class="tap-stat-card"><span class="tap-stat-number tap-stat-success"><?php echo esc_html(TAP_Currency::fmt($stats['net'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Neto para ti', 'travel-agency-platform'); ?></span></div>
-                <div class="tap-stat-card"><span class="tap-stat-number tap-stat-warn"><?php echo esc_html(TAP_Currency::fmt($comm_rows->owed)); ?></span><span class="tap-stat-label"><?php esc_html_e('Comisión de la plataforma pendiente', 'travel-agency-platform'); ?></span></div>
-                <div class="tap-stat-card"><span class="tap-stat-number tap-stat-danger"><?php echo esc_html(TAP_Currency::fmt($comm_rows->disputed)); ?></span><span class="tap-stat-label"><?php esc_html_e('En disputa', 'travel-agency-platform'); ?></span></div>
-                <div class="tap-stat-card"><span class="tap-stat-number tap-stat-success"><?php echo esc_html(TAP_Currency::fmt($comm_rows->settled)); ?></span><span class="tap-stat-label"><?php esc_html_e('Cobrado', 'travel-agency-platform'); ?></span></div>
+                    <div class="tap-stat-card"><span class="tap-stat-number tap-stat-success"><?php echo esc_html(TAP_Currency::fmt($stats['net'])); ?></span><span class="tap-stat-label"><?php esc_html_e('Neto para ti', 'travel-agency-platform'); ?></span></div>
+                    <div class="tap-stat-card"><span class="tap-stat-number tap-stat-warn"><?php echo esc_html(TAP_Currency::fmt($comm_rows->owed)); ?></span><span class="tap-stat-label"><?php esc_html_e('Comisión de la plataforma pendiente', 'travel-agency-platform'); ?></span></div>
+                    <div class="tap-stat-card"><span class="tap-stat-number tap-stat-danger"><?php echo esc_html(TAP_Currency::fmt($comm_rows->disputed)); ?></span><span class="tap-stat-label"><?php esc_html_e('En disputa', 'travel-agency-platform'); ?></span></div>
                 <?php endif; ?>
             </div>
 
@@ -2141,8 +2340,6 @@ endif;
             'tap_client'         => __('Viajero', 'travel-agency-platform'),
             'subscriber'         => __('Viajero', 'travel-agency-platform'),
         ];
-        // Multi-role users (e.g. tap_client + tap_agency_employee) show the
-        // agency label, not the first role in the array.
         $role = 'subscriber';
         foreach (['tap_agency_admin', 'tap_agency_employee', 'tap_client'] as $candidate) {
             if (in_array($candidate, (array) $user->roles, true)) {
@@ -2150,6 +2347,25 @@ endif;
                 break;
             }
         }
+        $grouped = !empty($sections) && isset($sections[0]['items']);
+        $flat = $grouped ? TAP_Dashboard_Nav::flatten($sections) : $sections;
+        $primary_keys = array_flip(TAP_Dashboard_Nav::primary_keys());
+
+        $render_link = static function ($s) use ($active_section, $primary_keys) {
+            $is_active = ($s['key'] === $active_section);
+            $is_primary = isset($primary_keys[$s['key']]);
+            ?>
+            <a href="<?php echo esc_url($s['url']); ?>"
+               class="tap-dash-nav-item <?php echo $is_active ? 'tap-dash-nav-active' : ''; ?> <?php echo $is_primary ? 'tap-dash-nav-primary' : ''; ?>"
+               <?php echo $is_active ? 'aria-current="page"' : ''; ?>>
+                <?php self::render_nav_icon($s['icon']); ?>
+                <span><?php echo esc_html($s['label']); ?></span>
+                <?php if (isset($s['badge'])): ?>
+                    <span class="tap-chat-global-badge" data-tap-chat-nav<?php echo ((int) $s['badge'] > 0) ? '' : ' hidden'; ?>><?php echo (int) $s['badge']; ?></span>
+                <?php endif; ?>
+            </a>
+            <?php
+        };
         ?>
         <aside class="tap-dash-sidebar">
             <div class="tap-dash-sidebar-header">
@@ -2159,20 +2375,32 @@ endif;
                     <span class="tap-dash-sidebar-role"><?php echo esc_html($role_labels[$role] ?? __('Usuario', 'travel-agency-platform')); ?></span>
                 </div>
             </div>
-            <nav class="tap-dash-sidebar-nav">
-                <?php
-                foreach ($sections as $s) :
-                    $is_active = ($s['key'] === $active_section);
-                    ?>
-                    <a href="<?php echo esc_url($s['url']); ?>" class="tap-dash-nav-item <?php echo $is_active ? 'tap-dash-nav-active' : ''; ?>"<?php echo $is_active ? ' aria-current="page"' : ''; ?>>
-                        <?php self::render_nav_icon($s['icon']); ?>
-                        <span><?php echo esc_html($s['label']); ?></span>
-                        <?php if (isset($s['badge'])): ?>
-                            <span class="tap-chat-global-badge" data-tap-chat-nav<?php echo ((int) $s['badge'] > 0) ? '' : ' hidden'; ?>><?php echo (int) $s['badge']; ?></span>
-                        <?php endif; ?>
-                    </a>
-                <?php endforeach; ?>
-            </nav>
+            <?php if ($grouped): ?>
+                <nav class="tap-dash-sidebar-nav tap-dash-nav-grouped" aria-label="<?php esc_attr_e('Navegación del panel', 'travel-agency-platform'); ?>">
+                    <?php foreach ($sections as $group): ?>
+                        <div class="tap-dash-nav-group" data-group="<?php echo esc_attr($group['key']); ?>">
+                            <button type="button" class="tap-dash-nav-group-toggle" aria-expanded="true">
+                                <span><?php echo esc_html($group['label']); ?></span>
+                                <svg class="tap-dash-nav-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                            </button>
+                            <div class="tap-dash-nav-group-items">
+                                <?php foreach ((array) $group['items'] as $item) { $render_link($item); } ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                    <button type="button" class="tap-dash-nav-more" aria-expanded="false" aria-controls="tap-dash-more-panel">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>
+                        <span><?php esc_html_e('Más', 'travel-agency-platform'); ?></span>
+                    </button>
+                </nav>
+                <div class="tap-dash-more-panel" id="tap-dash-more-panel" hidden>
+                    <?php foreach ($flat as $item) { if (!isset($primary_keys[$item['key']])) { $render_link($item); } } ?>
+                </div>
+            <?php else: ?>
+                <nav class="tap-dash-sidebar-nav" aria-label="<?php esc_attr_e('Navegación del panel', 'travel-agency-platform'); ?>">
+                    <?php foreach ($flat as $item) { $render_link($item); } ?>
+                </nav>
+            <?php endif; ?>
             <div class="tap-dash-sidebar-footer">
                 <a href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>" class="tap-dash-nav-item tap-dash-nav-logout">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>

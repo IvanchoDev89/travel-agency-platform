@@ -14,12 +14,12 @@
     padding: 0 1rem;
 }
 .tap-dash-sidebar {
-    background: linear-gradient(195deg, #0f172a 0%, #1e293b 100%);
+    background: linear-gradient(195deg, var(--tap-neutral-900, #0f172a) 0%, var(--tap-neutral-800, #1e293b) 100%);
     border-radius: 16px;
     padding: 1.5rem 0;
     display: flex;
     flex-direction: column;
-    color: #e2e8f0;
+    color: var(--tap-border, #e2e8f0);
     position: sticky;
     top: 2rem;
     height: fit-content;
@@ -47,11 +47,11 @@
 .tap-dash-sidebar-user strong {
     display: block;
     font-size: 0.9rem;
-    color: #f8fafc;
+    color: var(--tap-surface-muted, #f8fafc);
 }
 .tap-dash-sidebar-role {
     font-size: 0.75rem;
-    color: #94a3b8;
+    color: var(--tap-neutral-400, #94a3b8);
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
@@ -70,7 +70,7 @@
     gap: 0.75rem;
     padding: 0.65rem 1rem;
     border-radius: 10px;
-    color: #94a3b8;
+    color: var(--tap-neutral-400, #94a3b8);
     text-decoration: none;
     font-size: 0.875rem;
     font-weight: 500;
@@ -83,14 +83,14 @@
 }
 .tap-dash-nav-item:hover {
     background: rgba(255,255,255,0.06);
-    color: #f1f5f9;
+    color: var(--tap-neutral-100, #f1f5f9);
 }
 .tap-dash-nav-active {
     background: rgba(13,148,136,0.18) !important;
-    color: #2dd4bf !important;
+    color: var(--tap-primary-light, #2dd4bf) !important;
     font-weight: 600;
 }
-.tap-dash-nav-active svg { stroke: #2dd4bf; }
+.tap-dash-nav-active svg { stroke: var(--tap-primary-light, #2dd4bf); }
 .tap-dash-nav-logout {
     margin-top: 0.5rem;
     border-top: 1px solid rgba(255,255,255,0.06);
@@ -113,23 +113,23 @@
     gap: 1rem;
     margin-bottom: 2rem;
     padding-bottom: 1.5rem;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--tap-border, #e2e8f0);
 }
 .tap-dash-header h1 {
     font-size: 1.75rem;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--tap-neutral-900, #0f172a);
     margin: 0;
     line-height: 1.2;
 }
 .tap-dash-header p {
-    color: #64748b;
+    color: var(--tap-neutral-500, #64748b);
     margin: 0.5rem 0 0;
     font-size: 0.95rem;
 }
 .tap-dash-header-avatar img {
     border-radius: 50%;
-    border: 3px solid #e2e8f0;
+    border: 3px solid var(--tap-border, #e2e8f0);
 }
 
 /* ── Stats grid ─────────────────────────────────────────────────── */
@@ -140,8 +140,8 @@
     margin-bottom: 2rem;
 }
 .tap-dash-stat-card {
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: var(--tap-surface, #fff);
+    border: 1px solid var(--tap-border, #e2e8f0);
     border-radius: 14px;
     padding: 1.25rem;
     display: flex;
@@ -162,22 +162,22 @@
     justify-content: center;
     flex-shrink: 0;
 }
-.tap-dash-stat-teal   { background: #ccfbf1; color: #0d9488; }
-.tap-dash-stat-amber  { background: #fef3c7; color: #d97706; }
-.tap-dash-stat-violet { background: #ede9fe; color: #7c3aed; }
-.tap-dash-stat-rose   { background: #ffe4e6; color: #e11d48; }
+.tap-dash-stat-teal   { background: var(--tap-day-selected-bg, #ccfbf1); color: var(--tap-primary, #0d9488); }
+.tap-dash-stat-amber  { background: var(--tap-warning-bg, #fffbeb); color: var(--tap-warning, #d97706); }
+.tap-dash-stat-violet { background: var(--tap-neutral-100, #f1f5f9); color: var(--tap-info, #3b82f6); }
+.tap-dash-stat-rose   { background: var(--tap-error-bg, #fef2f2); color: var(--tap-danger, #dc2626); }
 .tap-dash-stat-body   { min-width: 0; }
 .tap-dash-stat-value  {
     display: block;
     font-size: 1.5rem;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--tap-neutral-900, #0f172a);
     line-height: 1.1;
 }
 .tap-dash-stat-label {
     display: block;
     font-size: 0.78rem;
-    color: #64748b;
+    color: var(--tap-neutral-500, #64748b);
     margin-top: 2px;
 }
 
@@ -194,7 +194,7 @@
 .tap-dash-section-header h2 {
     font-size: 1.15rem;
     font-weight: 600;
-    color: #0f172a;
+    color: var(--tap-neutral-900, #0f172a);
     margin: 0;
 }
 
@@ -206,8 +206,8 @@
 }
 .tap-dash-explore-card {
     display: block;
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: var(--tap-surface, #fff);
+    border: 1px solid var(--tap-border, #e2e8f0);
     border-radius: 14px;
     overflow: hidden;
     text-decoration: none;
@@ -230,12 +230,12 @@
     font-size: 0.95rem;
     font-weight: 600;
     margin: 0 0 0.5rem;
-    color: #0f172a;
+    color: var(--tap-neutral-900, #0f172a);
 }
 .tap-dash-explore-price {
     font-size: 0.85rem;
     font-weight: 700;
-    color: #0d9488;
+    color: var(--tap-primary, #0d9488);
 }
 
 /* ── Booking cards ──────────────────────────────────────────────── */
@@ -247,8 +247,8 @@
 .tap-dash-booking-card {
     display: flex;
     gap: 1.25rem;
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: var(--tap-surface, #fff);
+    border: 1px solid var(--tap-border, #e2e8f0);
     border-radius: 14px;
     padding: 1.25rem;
     transition: all 0.2s ease;
@@ -284,7 +284,7 @@
 .tap-dash-booking-code {
     font-size: 0.75rem;
     font-weight: 600;
-    color: #0d9488;
+    color: var(--tap-primary, #0d9488);
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
@@ -292,14 +292,14 @@
     font-size: 1rem;
     font-weight: 600;
     margin: 0.25rem 0 0;
-    color: #0f172a;
+    color: var(--tap-neutral-900, #0f172a);
 }
 .tap-dash-booking-meta {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
     font-size: 0.82rem;
-    color: #64748b;
+    color: var(--tap-neutral-500, #64748b);
 }
 .tap-dash-booking-meta span {
     display: inline-flex;
@@ -316,8 +316,8 @@
 /* ── Favorites grid ─────────────────────────────────────────────── */
 .tap-dash-fav-card {
     position: relative;
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: var(--tap-surface, #fff);
+    border: 1px solid var(--tap-border, #e2e8f0);
     border-radius: 14px;
     overflow: hidden;
     transition: all 0.25s ease;
@@ -339,12 +339,12 @@
     font-size: 0.95rem;
     font-weight: 600;
     margin: 0 0 0.5rem;
-    color: #0f172a;
+    color: var(--tap-neutral-900, #0f172a);
 }
 .tap-dash-fav-price {
     font-size: 0.85rem;
     font-weight: 700;
-    color: #0d9488;
+    color: var(--tap-primary, #0d9488);
 }
 .tap-dash-fav-remove {
     position: absolute;
@@ -355,12 +355,12 @@
     background: rgba(255,255,255,0.9);
     border: none;
     cursor: pointer;
-    color: #94a3b8;
+    color: var(--tap-neutral-400, #94a3b8);
     transition: all 0.2s;
 }
 .tap-dash-fav-remove:hover {
     background: #fee2e2;
-    color: #e11d48;
+    color: var(--tap-danger, #dc2626);
 }
 
 /* ── Reviews list ───────────────────────────────────────────────── */
@@ -370,8 +370,8 @@
     gap: 1rem;
 }
 .tap-dash-review-card {
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: var(--tap-surface, #fff);
+    border: 1px solid var(--tap-border, #e2e8f0);
     border-radius: 14px;
     padding: 1.25rem;
     transition: all 0.2s ease;
@@ -387,35 +387,35 @@
 }
 .tap-dash-review-stars { font-size: 1rem; }
 .tap-star { color: #d1d5db; }
-.tap-star-filled { color: #f59e0b; }
+.tap-star-filled { color: var(--tap-warning, #d97706); }
 .tap-dash-review-date {
     font-size: 0.8rem;
-    color: #94a3b8;
+    color: var(--tap-neutral-400, #94a3b8);
 }
 .tap-dash-review-card h3 {
     font-size: 1rem;
     font-weight: 600;
     margin: 0 0 0.5rem;
-    color: #0f172a;
+    color: var(--tap-neutral-900, #0f172a);
 }
 .tap-dash-review-title {
     font-weight: 600;
-    color: #334155;
+    color: var(--tap-neutral-700, #334155);
     margin: 0 0 0.25rem;
 }
 .tap-dash-review-content {
-    color: #475569;
+    color: var(--tap-neutral-600, #475569);
     font-size: 0.9rem;
     line-height: 1.6;
     margin: 0 0 0.75rem;
 }
 .tap-dash-review-reply {
-    background: #f0fdfa;
-    border-left: 3px solid #0d9488;
+    background: var(--tap-primary-bg, #f0fdfa);
+    border-left: 3px solid var(--tap-primary, #0d9488);
     padding: 0.75rem 1rem;
     border-radius: 0 8px 8px 0;
     font-size: 0.85rem;
-    color: #334155;
+    color: var(--tap-neutral-700, #334155);
     margin-bottom: 0.75rem;
 }
 
@@ -423,16 +423,16 @@
 .tap-dash-empty {
     text-align: center;
     padding: 3rem 2rem;
-    color: #64748b;
+    color: var(--tap-neutral-500, #64748b);
 }
 .tap-dash-empty svg {
-    color: #cbd5e1;
+    color: var(--tap-border-strong, #cbd5e1);
     margin-bottom: 1rem;
 }
 .tap-dash-empty h3 {
     font-size: 1.15rem;
     font-weight: 600;
-    color: #334155;
+    color: var(--tap-neutral-700, #334155);
     margin: 0 0 0.5rem;
 }
 .tap-dash-empty p {
@@ -452,8 +452,8 @@
 .tap-dash-login-card {
     text-align: center;
     max-width: 420px;
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: var(--tap-surface, #fff);
+    border: 1px solid var(--tap-border, #e2e8f0);
     border-radius: 20px;
     padding: 3rem 2.5rem;
     box-shadow: 0 4px 24px rgba(15,23,42,0.06);
@@ -462,31 +462,31 @@
     width: 80px;
     height: 80px;
     margin: 0 auto 1.5rem;
-    background: linear-gradient(135deg, #ccfbf1, #a7f3d0);
+    background: linear-gradient(135deg, var(--tap-day-selected-bg, #ccfbf1), #a7f3d0);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #0d9488;
+    color: var(--tap-primary, #0d9488);
 }
 .tap-dash-login-card h2 {
     font-size: 1.35rem;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--tap-neutral-900, #0f172a);
     margin: 0 0 0.75rem;
 }
 .tap-dash-login-card > p {
-    color: #64748b;
+    color: var(--tap-neutral-500, #64748b);
     margin: 0 0 1.5rem;
     line-height: 1.6;
 }
 .tap-dash-login-register {
     margin-top: 1rem;
     font-size: 0.9rem;
-    color: #94a3b8;
+    color: var(--tap-neutral-400, #94a3b8);
 }
 .tap-dash-login-register a {
-    color: #0d9488;
+    color: var(--tap-primary, #0d9488);
     font-weight: 600;
 }
 
@@ -501,23 +501,23 @@
     text-transform: capitalize;
     white-space: nowrap;
 }
-.tap-status-pending    { background: #fef3c7; color: #92400e; }
-.tap-status-confirmed  { background: #dbeafe; color: #1e40af; }
+.tap-status-pending    { background: var(--tap-warning-bg, #fffbeb); color: var(--tap-warning-text, #92400e); }
+.tap-status-confirmed  { background: var(--tap-info-bg, #eff6ff); color: var(--tap-info, #3b82f6); }
 .tap-status-request    { background: #e0e7ff; color: #3730a3; }
-.tap-status-completed  { background: #d1fae5; color: #065f46; }
+.tap-status-completed  { background: #d1fae5; color: var(--tap-success-dark, #047857); }
 .tap-status-cancelled  { background: #fee2e2; color: #991b1b; }
-.tap-status-paid       { background: #d1fae5; color: #065f46; }
+.tap-status-paid       { background: #d1fae5; color: var(--tap-success-dark, #047857); }
 
 /* ── Guest chat (agency back-office) ────────────────────────────── */
 .tap-chat-toggle { position: relative; }
-.tap-chat-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: #dc2626; color: #fff; font-size: 0.7rem; font-weight: 700; margin-left: 4px; }
-.tap-chat-global-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 6px; margin-left: auto; border-radius: 999px; background: #dc2626; color: #fff; font-size: 0.7rem; font-weight: 700; }
+.tap-chat-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--tap-danger, #dc2626); color: var(--tap-surface, #fff); font-size: 0.7rem; font-weight: 700; margin-left: 4px; }
+.tap-chat-global-badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 6px; margin-left: auto; border-radius: 999px; background: var(--tap-danger, #dc2626); color: var(--tap-surface, #fff); font-size: 0.7rem; font-weight: 700; }
 .tap-chat-global-badge[hidden] { display: none; }
 .tap-chat-row td { background: #f9fafb; border-top: 1px dashed #d1d5db; }
 .tap-chat-wrap { padding: 0.5rem 0.25rem; }
-.tap-chat-wrap .tap-chat-thread { display: flex; flex-direction: column; gap: 0.5rem; max-height: 300px; overflow-y: auto; padding: 0.5rem; margin-bottom: 0.6rem; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; }
+.tap-chat-wrap .tap-chat-thread { display: flex; flex-direction: column; gap: 0.5rem; max-height: 300px; overflow-y: auto; padding: 0.5rem; margin-bottom: 0.6rem; background: var(--tap-surface, #fff); border: 1px solid #e5e7eb; border-radius: 8px; }
 .tap-chat-msg { max-width: 82%; padding: 0.4rem 0.6rem; border-radius: 8px; font-size: 0.85rem; }
-.tap-chat-msg.mine { align-self: flex-end; background: #0d9488; color: #fff; border-bottom-right-radius: 4px; }
+.tap-chat-msg.mine { align-self: flex-end; background: var(--tap-primary, #0d9488); color: var(--tap-surface, #fff); border-bottom-right-radius: 4px; }
 .tap-chat-msg.theirs { align-self: flex-start; background: #f3f4f6; color: #374151; border-bottom-left-radius: 4px; }
 .tap-chat-author { display: block; font-size: 0.7rem; font-weight: 600; opacity: 0.85; margin-bottom: 2px; }
 .tap-chat-text { margin: 0; line-height: 1.45; white-space: pre-wrap; word-break: break-word; }
@@ -525,13 +525,13 @@
 .tap-chat-input { display: flex; gap: 0.5rem; align-items: flex-end; }
 .tap-chat-input textarea { flex: 1; resize: vertical; min-height: 44px; }
 .tap-status-refunded   { background: #f3e8ff; color: #6b21a8; }
-.tap-status-unpaid     { background: #fef3c7; color: #92400e; }
+.tap-status-unpaid     { background: var(--tap-warning-bg, #fffbeb); color: var(--tap-warning-text, #92400e); }
 
 /* ── Compact table (inside dashboard) ───────────────────────────── */
 .tap-table-compact { font-size: 0.85rem; }
 .tap-table-compact th {
     font-weight: 600;
-    color: #475569;
+    color: var(--tap-neutral-600, #475569);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     font-size: 0.75rem;
@@ -539,21 +539,21 @@
 }
 .tap-table-compact td {
     padding: 0.75rem;
-    border-top: 1px solid #f1f5f9;
-    color: #334155;
+    border-top: 1px solid var(--tap-neutral-100, #f1f5f9);
+    color: var(--tap-neutral-700, #334155);
 }
 .tap-table-compact tbody tr:hover {
-    background: #f8fafc;
+    background: var(--tap-surface-muted, #f8fafc);
 }
 .tap-dash-code {
     font-family: 'SF Mono', 'Fira Code', monospace;
     font-weight: 600;
-    color: #0d9488;
+    color: var(--tap-primary, #0d9488);
     font-size: 0.8rem;
 }
 .tap-dash-amount {
     font-weight: 600;
-    color: #0f172a;
+    color: var(--tap-neutral-900, #0f172a);
 }
 
 /* ── Danger button variant ──────────────────────────────────────── */
@@ -563,15 +563,15 @@
 }
 .tap-btn-danger:hover {
     background: var(--tap-danger);
-    color: #fff;
+    color: var(--tap-surface, #fff);
 }
 .tap-btn-amber {
-    color: #d97706;
+    color: var(--tap-warning, #d97706);
     border-color: #fbbf24;
 }
 .tap-btn-amber:hover {
-    background: #f59e0b;
-    color: #fff;
+    background: var(--tap-warning, #d97706);
+    color: var(--tap-surface, #fff);
 }
 
 /* ── Mobile responsive ──────────────────────────────────────────── */
@@ -629,7 +629,7 @@
         text-align: center;
     }
     .tap-dash-nav-active { background: rgba(13,148,136,0.18) !important; }
-    .tap-dash-nav-active svg { stroke: #0d9488; }
+    .tap-dash-nav-active svg { stroke: var(--tap-primary, #0d9488); }
     .tap-dash-main { padding: 1.25rem 0.5rem; }
     .tap-dash-stats { grid-template-columns: repeat(2, 1fr); }
     .tap-dash-grid-3 { grid-template-columns: 1fr; }
@@ -659,20 +659,20 @@
 }
 .tap-dash-nav-item:hover {
     background: rgba(255, 255, 255, 0.08);
-    color: #f8fafc;
+    color: var(--tap-surface-muted, #f8fafc);
     transform: translateX(2px);
 }
 .tap-dash-nav-active {
     background: linear-gradient(90deg, rgba(13, 148, 136, 0.25), rgba(13, 148, 136, 0.08)) !important;
     color: #5eead4 !important;
     font-weight: 600;
-    box-shadow: inset 3px 0 0 #14b8a6;
+    box-shadow: inset 3px 0 0 var(--tap-primary-light, #14b8a6);
 }
 .tap-dash-nav-active svg { stroke: #5eead4; }
 
 /* ── Main content polish ────────────────────────────────────────── */
 .tap-dash-main {
-    background: #f8fafc;
+    background: var(--tap-surface-muted, #f8fafc);
     border-radius: 16px;
     padding: 2rem 2.5rem;
     min-height: 70vh;
@@ -686,20 +686,20 @@
     gap: 1rem;
     margin-bottom: 1.25rem;
     padding-bottom: 0.75rem;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 2px solid var(--tap-border, #e2e8f0);
 }
 .tap-dash-section-header h2 {
     font-size: 1.25rem;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--tap-neutral-900, #0f172a);
     margin: 0;
     letter-spacing: -0.01em;
 }
 
 /* ── Stats cards modern ─────────────────────────────────────────── */
 .tap-dash-stat-card {
-    background: #fff;
-    border: 1px solid #e2e8f0;
+    background: var(--tap-surface, #fff);
+    border: 1px solid var(--tap-border, #e2e8f0);
     border-radius: 16px;
     padding: 1.25rem 1.5rem;
     display: flex;
@@ -711,7 +711,7 @@
 .tap-dash-stat-card:hover {
     box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
     transform: translateY(-2px);
-    border-color: #cbd5e1;
+    border-color: var(--tap-border-strong, #cbd5e1);
 }
 .tap-dash-stat-icon {
     width: 48px;
@@ -727,14 +727,14 @@
     display: block;
     font-size: 1.5rem;
     font-weight: 800;
-    color: #0f172a;
+    color: var(--tap-neutral-900, #0f172a);
     line-height: 1.1;
     letter-spacing: -0.02em;
 }
 .tap-dash-stat-label {
     display: block;
     font-size: 0.78rem;
-    color: #64748b;
+    color: var(--tap-neutral-500, #64748b);
     margin-top: 2px;
     font-weight: 500;
 }
@@ -748,14 +748,14 @@
     box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
 }
 .tap-table thead th {
-    background: #f8fafc;
+    background: var(--tap-surface-muted, #f8fafc);
     font-weight: 700;
-    color: #475569;
+    color: var(--tap-neutral-600, #475569);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-size: 0.72rem;
     padding: 0.85rem 1rem;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 2px solid var(--tap-border, #e2e8f0);
     position: sticky;
     top: 0;
     z-index: 1;
@@ -764,12 +764,12 @@
     transition: background 0.15s ease;
 }
 .tap-table tbody tr:hover {
-    background: #f1f5f9;
+    background: var(--tap-neutral-100, #f1f5f9);
 }
 .tap-table tbody td {
     padding: 0.85rem 1rem;
-    border-bottom: 1px solid #f1f5f9;
-    color: #334155;
+    border-bottom: 1px solid var(--tap-neutral-100, #f1f5f9);
+    color: var(--tap-neutral-700, #334155);
     font-size: 0.875rem;
 }
 .tap-table tbody tr:last-child td {
@@ -780,15 +780,15 @@
 .tap-dash-empty {
     text-align: center;
     padding: 3rem 2rem;
-    color: #64748b;
-    background: #fff;
-    border: 1px dashed #cbd5e1;
+    color: var(--tap-neutral-500, #64748b);
+    background: var(--tap-surface, #fff);
+    border: 1px dashed var(--tap-border-strong, #cbd5e1);
     border-radius: 16px;
 }
 .tap-dash-empty h3 {
     font-size: 1.1rem;
     font-weight: 600;
-    color: #334155;
+    color: var(--tap-neutral-700, #334155);
     margin: 0 0 0.5rem;
 }
 .tap-dash-empty p {
@@ -806,14 +806,14 @@
     padding: 1rem 1.25rem;
     border-radius: 12px;
     border: 1px solid #fde68a;
-    background: #fffbeb;
-    color: #92400e;
+    background: var(--tap-warning-bg, #fffbeb);
+    color: var(--tap-warning-text, #92400e);
     font-size: 0.9rem;
     margin-bottom: 1.5rem;
 }
 .tap-notice-error {
     border-color: #fecaca;
-    background: #fef2f2;
+    background: var(--tap-error-bg, #fef2f2);
     color: #991b1b;
 }
 .tap-notice .tap-notice-icon {
@@ -871,18 +871,18 @@
 .tap-profile-field label {
     font-size: 0.8rem;
     font-weight: 600;
-    color: #475569;
+    color: var(--tap-neutral-600, #475569);
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
 .tap-profile-field input,
 .tap-profile-field textarea {
     padding: 0.6rem 0.85rem;
-    border: 1px solid #e2e8f0;
+    border: 1px solid var(--tap-border, #e2e8f0);
     border-radius: 10px;
-    background: #f8fafc;
+    background: var(--tap-surface-muted, #f8fafc);
     font-size: 0.9rem;
-    color: #0f172a;
+    color: var(--tap-neutral-900, #0f172a);
     transition: all 0.18s ease;
     width: 100%;
     box-sizing: border-box;
@@ -890,8 +890,8 @@
 }
 .tap-profile-field input:focus,
 .tap-profile-field textarea:focus {
-    background: #fff;
-    border-color: #0d9488;
+    background: var(--tap-surface, #fff);
+    border-color: var(--tap-primary, #0d9488);
     box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
     outline: none;
 }
@@ -900,7 +900,7 @@
     align-items: center;
     gap: 0.75rem;
     padding-top: 0.5rem;
-    border-top: 1px solid #e2e8f0;
+    border-top: 1px solid var(--tap-border, #e2e8f0);
     margin-top: 0.5rem;
 }
 @media (max-width: 640px) {
@@ -936,7 +936,7 @@
     font-weight: 600;
     transition: background 0.15s ease, border-color 0.15s ease;
 }
-.tap-dash-page:hover { background: var(--tap-surface-muted, #f1f5f9); border-color: var(--tap-border-strong, #cbd5e1); }
+.tap-dash-page:hover { background: var(--tap-surface-muted, var(--tap-neutral-100, #f1f5f9)); border-color: var(--tap-border-strong, #cbd5e1); }
 .tap-dash-page.is-active {
     background: var(--tap-primary, #0d9488);
     border-color: var(--tap-primary, #0d9488);
@@ -956,7 +956,7 @@
     left: 50%;
     transform: translateX(-50%) translateY(1rem);
     background: var(--tap-neutral-900, #0f172a);
-    color: #fff;
+    color: var(--tap-surface, #fff);
     padding: 0.75rem 1.25rem;
     border-radius: 10px;
     font-size: 0.875rem;
@@ -1132,14 +1132,14 @@
 /* ── Dark mode dashboard mobile ─────────────────────────────────── */
 @media (max-width: 768px) {
     html.dark .tap-dash-sidebar {
-        background: linear-gradient(195deg, #0f172a 0%, #1e293b 100%);
+        background: linear-gradient(195deg, var(--tap-neutral-900, #0f172a) 0%, var(--tap-neutral-800, #1e293b) 100%);
     }
     html.dark .tap-dash-main .tap-table tr {
-        background: var(--tap-surface, #1e293b);
-        border-color: var(--tap-border, #334155);
+        background: var(--tap-surface, var(--tap-neutral-800, #1e293b));
+        border-color: var(--tap-border, var(--tap-neutral-700, #334155));
     }
     html.dark .tap-dash-main .tap-table td {
-        border-color: var(--tap-border, #334155);
+        border-color: var(--tap-border, var(--tap-neutral-700, #334155));
     }
 }
 
@@ -1166,17 +1166,17 @@
 .tap-bulk-label { display: flex; align-items: center; gap: 0.375rem; font-size: var(--tap-text-sm, 0.85rem); }
 .tap-bo-count { margin-left: auto; }
 .tap-chart-wrap { position: relative; height: 220px; }
-.tap-review-card-list { border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin: 10px 0; }
-.is-today { background: #ecfdf5; }
+.tap-review-card-list { border: 1px solid var(--tap-border, #e2e8f0); border-radius: 8px; padding: 12px; margin: 10px 0; }
+.is-today { background: var(--tap-success-bg, #ecfdf5); }
 .tap-capacity-note {
-    background: #fffbeb; color: #92400e; font-size: 13px; font-weight: 600;
+    background: var(--tap-warning-bg, #fffbeb); color: var(--tap-warning-text, #92400e); font-size: 13px; font-weight: 600;
     padding: 10px 14px; border-radius: 10px;
 }
 .tap-capacity-spaced { margin-bottom: 12px; }
 .tap-promo-waiting { background: #ffedd5; color: #c2410c; }
-.tap-stat-warn { color: #b45309; }
-.tap-stat-success { color: #047857; }
-.tap-stat-danger { color: #b91c1c; }
+.tap-stat-warn { color: var(--tap-warning-text, #92400e); }
+.tap-stat-success { color: var(--tap-success-dark, #047857); }
+.tap-stat-danger { color: var(--tap-danger-dark, #b91c1c); }
 
 /* Form controls shared by search/filter/bulk bars */
 .tap-bo-search, .tap-bulk-bar {
@@ -1188,10 +1188,10 @@
 .tap-filter-bar input,
 .tap-input-block {
     padding: 8px 12px; border: 1px solid var(--tap-border, #e2e8f0);
-    border-radius: var(--tap-radius-md, 10px); background: #fff; font: inherit;
+    border-radius: var(--tap-radius-md, 10px); background: var(--tap-surface, #fff); font: inherit;
 }
 .tap-bo-search input[type="search"] { flex: 1; min-width: 220px; }
-.tap-bulk-msg { min-height: 1.2em; color: #0d9488; font-size: 0.85rem; }
+.tap-bulk-msg { min-height: 1.2em; color: var(--tap-primary, #0d9488); font-size: 0.85rem; }
 
 /* ── Windowed pagination ────────────────────────────────────────── */
 .tap-pagination {
@@ -1201,26 +1201,26 @@
 .tap-page-link {
     display: inline-flex; align-items: center; justify-content: center;
     min-width: 36px; height: 36px; padding: 0 0.6rem;
-    border: 1px solid #e2e8f0; border-radius: 9px; background: #fff;
-    color: #475569; font-size: 0.85rem; font-weight: 600; text-decoration: none;
+    border: 1px solid var(--tap-border, #e2e8f0); border-radius: 9px; background: var(--tap-surface, #fff);
+    color: var(--tap-neutral-600, #475569); font-size: 0.85rem; font-weight: 600; text-decoration: none;
     transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
-.tap-page-link:hover { background: #f0fdfa; border-color: #5eead4; color: #0f766e; }
-.tap-page-link.is-current { background: #0d9488; border-color: #0d9488; color: #fff; }
-.tap-page-gap { display: inline-flex; align-items: center; padding: 0 0.25rem; color: #94a3b8; }
+.tap-page-link:hover { background: var(--tap-primary-bg, #f0fdfa); border-color: #5eead4; color: var(--tap-primary-dark, #0f766e); }
+.tap-page-link.is-current { background: var(--tap-primary, #0d9488); border-color: var(--tap-primary, #0d9488); color: var(--tap-surface, #fff); }
+.tap-page-gap { display: inline-flex; align-items: center; padding: 0 0.25rem; color: var(--tap-neutral-400, #94a3b8); }
 
 /* ── Empty states ───────────────────────────────────────────────── */
 .tap-empty-state {
-    text-align: center; padding: 2.5rem 1rem; border: 1px dashed #cbd5e1;
-    border-radius: 14px; background: #f8fafc;
+    text-align: center; padding: 2.5rem 1rem; border: 1px dashed var(--tap-border-strong, #cbd5e1);
+    border-radius: 14px; background: var(--tap-surface-muted, #f8fafc);
 }
 .tap-empty-state-icon {
     display: inline-flex; align-items: center; justify-content: center;
     width: 52px; height: 52px; margin-bottom: 0.75rem;
-    border-radius: 14px; background: #ccfbf1; color: #0d9488;
+    border-radius: 14px; background: var(--tap-day-selected-bg, #ccfbf1); color: var(--tap-primary, #0d9488);
 }
-.tap-empty-state h3 { margin: 0 0 0.35rem; font-size: 1.05rem; color: #0f172a; }
-.tap-empty-state p { margin: 0 0 1rem; color: #64748b; font-size: 0.9rem; }
+.tap-empty-state h3 { margin: 0 0 0.35rem; font-size: 1.05rem; color: var(--tap-neutral-900, #0f172a); }
+.tap-empty-state p { margin: 0 0 1rem; color: var(--tap-neutral-500, #64748b); font-size: 0.9rem; }
 
 /* ── Keyboard accessibility ────────────────────────────────────── */
 .tap-dash :is(a, button, input, select, textarea, [tabindex]):focus-visible {
@@ -1237,7 +1237,7 @@
     }
     .tap-dash-sidebar-nav { scroll-snap-type: x proximity; }
     .tap-dash-nav-item { scroll-snap-align: center; }
-    .tap-dash-nav-active { box-shadow: inset 0 -3px 0 #14b8a6; }
+    .tap-dash-nav-active { box-shadow: inset 0 -3px 0 var(--tap-primary-light, #14b8a6); }
     .tap-bo-search input[type="search"] { min-width: 100%; }
 }
 
@@ -1249,17 +1249,165 @@
 }
 .tap-modal {
     width: min(100%, 420px); padding: 1.5rem;
-    background: #fff; border-radius: 16px;
+    background: var(--tap-surface, #fff); border-radius: 16px;
     box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
 }
-.tap-modal h3 { margin: 0 0 0.5rem; font-size: 1.1rem; color: #0f172a; }
-.tap-modal-message { margin: 0 0 1rem; color: #475569; font-size: 0.92rem; line-height: 1.5; }
+.tap-modal h3 { margin: 0 0 0.5rem; font-size: 1.1rem; color: var(--tap-neutral-900, #0f172a); }
+.tap-modal-message { margin: 0 0 1rem; color: var(--tap-neutral-600, #475569); font-size: 0.92rem; line-height: 1.5; }
 .tap-modal-input {
     width: 100%; padding: 0.7rem 0.85rem; margin-bottom: 1rem;
-    border: 1px solid #e2e8f0; border-radius: 10px; font: inherit;
+    border: 1px solid var(--tap-border, #e2e8f0); border-radius: 10px; font: inherit;
 }
 .tap-modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; }
-html.dark .tap-modal { background: #1e293b; }
-html.dark .tap-modal h3 { color: #f8fafc; }
-html.dark .tap-modal-message { color: #cbd5e1; }
-html.dark .tap-modal-input { background: #0f172a; color: #f8fafc; border-color: #475569; }
+html.dark .tap-modal { background: var(--tap-neutral-800, #1e293b); }
+html.dark .tap-modal h3 { color: var(--tap-surface-muted, #f8fafc); }
+html.dark .tap-modal-message { color: var(--tap-border-strong, #cbd5e1); }
+html.dark .tap-modal-input { background: var(--tap-neutral-900, #0f172a); color: var(--tap-surface-muted, #f8fafc); border-color: var(--tap-neutral-600, #475569); }
+
+/* ================================================================
+   Agency Command Center — grouped navigation & context (2026-11)
+   ================================================================ */
+.tap-agency-context-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; margin-bottom: 1rem; padding: 0.6rem 1rem;
+    background: var(--tap-surface, #fff);
+    border: 1px solid var(--tap-border, #e2e8f0); border-radius: 12px;
+}
+.tap-agency-context-id { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.tap-agency-context-id strong { color: var(--tap-neutral-800, #1e293b); }
+.tap-context-chip {
+    display: inline-flex; align-items: center; padding: 0.15rem 0.5rem;
+    border-radius: 999px; font-size: 0.7rem; font-weight: 700;
+    background: var(--tap-neutral-100, #f1f5f9); color: var(--tap-neutral-600, #475569);
+}
+.tap-context-chip-approved { background: var(--tap-success-bg, #ecfdf5); color: var(--tap-success-dark, #047857); }
+.tap-context-chip-pending  { background: var(--tap-warning-bg, #fffbeb); color: var(--tap-warning-text, #92400e); }
+.tap-context-chip-rejected { background: var(--tap-error-bg, #fef2f2); color: var(--tap-danger-dark, #b91c1c); }
+
+.tap-dash-nav-group { margin-bottom: 0.2rem; }
+.tap-dash-nav-group-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%; padding: 0.35rem 0.6rem; background: none; border: 0;
+    color: rgba(255, 255, 255, 0.55); cursor: pointer;
+    font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+}
+.tap-dash-nav-group-toggle:hover { color: #5eead4; }
+.tap-dash-nav-chevron { transition: transform 0.18s ease; }
+.tap-dash-nav-group.is-collapsed .tap-dash-nav-chevron { transform: rotate(-90deg); }
+.tap-dash-nav-group.is-collapsed .tap-dash-nav-group-items { display: none; }
+.tap-dash-nav-more { display: none; }
+
+@media (max-width: 1024px) {
+    .tap-dash-nav-group-toggle { display: none; }
+    .tap-dash-nav-group-items { display: contents; }
+    .tap-dash-sidebar-nav .tap-dash-nav-item:not(.tap-dash-nav-primary) { display: none; }
+    .tap-dash-nav-more {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        min-width: 72px; padding: 0.5rem 0.6rem; border: 0; border-radius: 8px;
+        background: rgba(255, 255, 255, 0.06); color: var(--tap-border, #e2e8f0); cursor: pointer; gap: 2px;
+    }
+    .tap-dash-nav-more span { font-size: 10px; }
+    .tap-dash-more-panel {
+        position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+        padding: 1rem; background: var(--tap-neutral-900, #0f172a); border-radius: 16px 16px 0 0;
+        box-shadow: 0 -12px 40px rgba(15, 23, 42, 0.4);
+    }
+    .tap-dash-more-panel:not([hidden]) {
+        display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem;
+    }
+    .tap-dash-more-panel .tap-dash-nav-item { margin: 0; }
+    .tap-agency-context-bar { flex-wrap: wrap; }
+}
+
+/* ── Command center: attention panel + quick actions ─────────────── */
+.tap-attention {
+    margin-bottom: 1rem; padding: 1rem 1.15rem;
+    background: var(--tap-surface, #fff);
+    border: 1px solid var(--tap-border, #e2e8f0);
+    border-left: 4px solid var(--tap-primary, #0d9488);
+    border-radius: 14px;
+}
+.tap-attention-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+.tap-attention-head h3 { margin: 0; font-size: 1rem; color: var(--tap-neutral-800, #1e293b); }
+.tap-attention-count {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px;
+    background: var(--tap-primary-bg, #f0fdfa); color: var(--tap-primary-dark, #0f766e);
+    font-size: 0.72rem; font-weight: 700;
+}
+.tap-attention-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+.tap-attention-item {
+    display: flex; align-items: center; gap: 0.65rem;
+    padding: 0.6rem 0.75rem; border-radius: 10px;
+    background: var(--tap-neutral-50, var(--tap-surface-muted, #f8fafc));
+}
+.tap-attention-dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; background: var(--tap-info, #3b82f6); }
+.tap-attention-urgent .tap-attention-dot { background: var(--tap-danger, #dc2626); }
+.tap-attention-warn .tap-attention-dot { background: var(--tap-warning, #d97706); }
+.tap-attention-text { display: flex; flex-direction: column; gap: 0.1rem; flex: 1; min-width: 0; }
+.tap-attention-text strong { font-size: 0.88rem; color: var(--tap-neutral-800, #1e293b); }
+.tap-attention-text span { font-size: 0.78rem; color: var(--tap-neutral-500, #64748b); }
+.tap-attention-action {
+    font-size: 0.78rem; font-weight: 700; color: var(--tap-primary-dark, #0f766e); text-decoration: none;
+}
+.tap-attention-action:hover { text-decoration: underline; }
+.tap-quick-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+
+/* ── Dark mode: dashboard-scoped semantic tokens ────────────────── */
+html.dark .tap-dash {
+    --tap-surface: #111a2e;
+    --tap-surface-muted: #1e293b;
+    --tap-border: #334155;
+    --tap-border-strong: #475569;
+    --tap-primary-bg: rgba(13, 148, 136, 0.18);
+    --tap-success-bg: rgba(16, 185, 129, 0.16);
+    --tap-error-bg: rgba(239, 68, 68, 0.16);
+    --tap-danger-bg: rgba(220, 38, 38, 0.16);
+    --tap-warning-bg: rgba(217, 119, 6, 0.16);
+    --tap-info-bg: rgba(59, 130, 246, 0.16);
+    --tap-day-selected-bg: rgba(13, 148, 136, 0.22);
+}
+html.dark .tap-dash-main { color: var(--tap-neutral-800, #f1f5f9); }
+html.dark .tap-dash-nav-group-toggle { color: var(--tap-neutral-500, #94a3b8); }
+html.dark .tap-dash-nav-group-toggle:hover { color: var(--tap-primary-light, #2dd4bf); }
+html.dark .tap-dash-more-panel { background: var(--tap-neutral-900, #0f172a); }
+html.dark .tap-page-link { background: var(--tap-surface); color: var(--tap-neutral-700, #e2e8f0); }
+html.dark .tap-page-link:hover { background: var(--tap-primary-bg); }
+html.dark .tap-page-link.is-current { background: var(--tap-primary, #0d9488); color: #fff; }
+html.dark .tap-empty-state { border-color: var(--tap-border-strong, #475569); }
+html.dark .tap-attention, html.dark .tap-agency-context-bar { border-color: var(--tap-border, #334155); }
+html.dark .tap-attention-item { background: var(--tap-surface-muted, #1e293b); }
+html.dark .tap-context-chip-rejected { background: var(--tap-danger-bg); }
+html.dark .tap-notif-dropdown { background: var(--tap-surface); border-color: var(--tap-border); }
+
+/* ── Command palette ─────────────────────────────────────────────── */
+.tap-cmd-overlay {
+    position: fixed; inset: 0; z-index: 100001;
+    display: flex; align-items: flex-start; justify-content: center;
+    padding: 12vh 1rem 1rem; background: rgba(15, 23, 42, 0.55);
+}
+.tap-cmd {
+    width: min(100%, 560px); padding: 0.75rem;
+    background: var(--tap-surface, #fff); border-radius: 14px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.3);
+}
+.tap-cmd-input {
+    width: 100%; padding: 0.8rem 1rem; font: inherit;
+    border: 1px solid var(--tap-border, #e2e8f0); border-radius: 10px;
+    background: var(--tap-surface-muted, #f8fafc); color: var(--tap-neutral-800, #1e293b);
+}
+.tap-cmd-results { list-style: none; margin: 0.5rem 0 0; padding: 0; max-height: 340px; overflow: auto; }
+.tap-cmd-item {
+    display: flex; gap: 0.75rem; align-items: center;
+    padding: 0.55rem 0.7rem; border-radius: 8px; cursor: pointer;
+}
+.tap-cmd-item.is-active { background: var(--tap-primary-bg, #f0fdfa); }
+.tap-cmd-kind {
+    flex: 0 0 auto; min-width: 62px; font-size: 0.68rem; font-weight: 700;
+    text-transform: uppercase; color: var(--tap-primary-dark, #0f766e);
+}
+.tap-cmd-label { font-size: 0.88rem; color: var(--tap-neutral-700, #334155); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tap-cmd-empty { padding: 1rem; text-align: center; color: var(--tap-neutral-500, #64748b); }
+.tap-cmd-hint { margin: 0.5rem 0.2rem 0; font-size: 0.7rem; color: var(--tap-neutral-500, #64748b); }
+html.dark .tap-cmd { background: var(--tap-surface); }
+html.dark .tap-cmd-label { color: var(--tap-neutral-700, #e2e8f0); }

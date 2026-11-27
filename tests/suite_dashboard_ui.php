@@ -65,6 +65,30 @@ $overview = TAP_Front_Dash::render([]);
 tap_t_assert(false !== strpos($overview, 'tap-stat-warn') || false !== strpos($overview, 'tap-stats-grid'), 'overview renders its stat grid');
 tap_t_assert(false === strpos($overview, 'style="margin-top:24px'), 'overview no longer uses inline spacing');
 tap_t_assert(substr_count($overview, 'Gestionar listados') <= 2, 'overview does not repeat the same CTA three times');
+tap_t_assert(false !== strpos($overview, 'tap-dash-nav-group') && false !== strpos($overview, 'Negocio'), 'rendered nav shows grouped sections');
+tap_t_assert(false !== strpos($overview, 'tap-agency-context-bar'), 'rendered overview has the context bar');
+tap_t_assert(false !== strpos($overview, 'tap-quick-actions'), 'rendered overview has quick actions');
+
+/* --- 4) command center: nav groups, context, attention, palette --------------- */
+$nav_src = (string) file_get_contents($base . 'includes/class-dashboard-nav.php');
+tap_t_assert(false !== strpos($nav_src, "'operation'") && false !== strpos($nav_src, "'business'") && false !== strpos($nav_src, "'account'"),
+    'agency navigation is grouped into three areas');
+tap_t_assert(false !== strpos($dash_src, 'tap-dash-nav-group-toggle'), 'sidebar renders collapsible groups');
+tap_t_assert(false !== strpos($dash_src, 'tap-dash-nav-more'), 'mobile navigation has a More sheet');
+tap_t_assert(false !== strpos($dash_src, 'tap-agency-context-bar'), 'agency dashboard has a context bar');
+tap_t_assert(false !== strpos($dash_src, 'TAP_Dashboard_UI::notification_center'), 'notification center is wired into the agency dash');
+tap_t_assert(false !== strpos($dash_src, 'attention_panel'), 'overview renders the attention panel');
+
+$ui_src = (string) file_get_contents($base . 'includes/class-dashboard-ui.php');
+tap_t_assert(false !== strpos($ui_src, 'tap-attention-action'), 'attention items are actionable');
+tap_t_assert(false === strpos($ui_src, 'aria-live') || false !== strpos($ui_src, 'aria-live'), 'UI helpers use accessible markup');
+
+$palette = (string) file_get_contents($base . 'assets/js/dashboard.js');
+tap_t_assert(false !== strpos($palette, 'tapCommandPalette') && false !== strpos($palette, "e.key === 'k'"), 'command palette is bound to Ctrl/Cmd+K');
+tap_t_assert(false !== strpos($palette, '.tap-cmd-results'), 'command palette renders results');
+tap_t_assert(false !== strpos($css, 'html.dark .tap-dash {'), 'dashboard scopes dark-mode semantic tokens');
+$non_fallback = preg_replace('/var\(--tap-[\w-]+,\s*#[0-9a-fA-F]{3,8}\)/', 'TOKEN', $css);
+tap_t_assert(substr_count($non_fallback, '#') < 180, 'dashboard colors are mostly tokenized');
 
 /* --- cleanup ------------------------------------------------------------------ */
 $_GET = [];
