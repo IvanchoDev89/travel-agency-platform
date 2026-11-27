@@ -122,9 +122,18 @@
         var matches = [];
         var active = 0;
 
+        var remote = [];
+        var requestId = 0;
+        var timer = null;
         function render() {
             var q = (input.value || '').trim().toLowerCase();
-            matches = entries.filter(function (e) { return !q || e.label.toLowerCase().indexOf(q) !== -1; }).slice(0, 8);
+            var all = entries.concat(remote);
+            var seenAll = {};
+            matches = all.filter(function (e) {
+                if (!e.label || !e.url || seenAll[e.url]) { return false; }
+                seenAll[e.url] = true;
+                return !q || e.label.toLowerCase().indexOf(q) !== -1;
+            }).slice(0, 8);
             active = 0;
             list.innerHTML = '';
             matches.forEach(function (e, i) {
@@ -151,7 +160,29 @@
                 li.classList.toggle('is-active', i === active);
             });
         }
-        input.addEventListener('input', render);
+        input.addEventListener('input', function () {
+            render();
+            clearTimeout(timer);
+            var q = (input.value || '').trim();
+            if (q.length < 2 || !cfg.ajax_url) { remote = []; render(); return; }
+            var mine = ++requestId;
+            timer = setTimeout(function () {
+                var fd = new FormData();
+                fd.append('action', 'tap_dash_global_search');
+                fd.append('nonce', cfg.nonce || '');
+                fd.append('q', q);
+                fetch(cfg.ajax_url, { method: 'POST', body: fd, credentials: 'same-origin' })
+                    .then(function (r) { return r.json(); })
+                    .then(function (j) {
+                        if (mine !== requestId) { return; }
+                        remote = (j && j.success && j.data && j.data.items) ? j.data.items.map(function (x) {
+                            return { label: x.label || '', url: x.url || '', kind: x.kind || '' };
+                        }) : [];
+                        render();
+                    })
+                    .catch(function () { remote = []; });
+            }, 180);
+        });
         input.addEventListener('keydown', function (e) {
             if (e.key === 'ArrowDown') { e.preventDefault(); move(1); }
             if (e.key === 'ArrowUp') { e.preventDefault(); move(-1); }

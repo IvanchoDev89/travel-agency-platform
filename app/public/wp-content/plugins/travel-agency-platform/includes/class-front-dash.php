@@ -46,6 +46,7 @@ class TAP_Front_Dash {
         add_action('wp_ajax_tap_dash_chat_unread', ['TAP_Ajax_Dash', 'ajax_chat_unread']);
         add_action('wp_ajax_tap_dash_team_add', ['TAP_Ajax_Dash', 'ajax_team_add']);
         add_action('wp_ajax_tap_dash_team_remove', ['TAP_Ajax_Dash', 'ajax_team_remove']);
+        add_action('wp_ajax_tap_dash_global_search', ['TAP_Ajax_Dash', 'ajax_global_search']);
 
         // 301 redirect legacy /dashboard/ page to the unified /mi-cuenta/ back-office
         add_action('template_redirect', [__CLASS__, 'dashboard_redirect']);
@@ -653,26 +654,26 @@ class TAP_Front_Dash {
                     ?>
                     <tr>
                         <td><input type="checkbox" class="tap-bulk-cb" value="<?php echo (int) $b->id; ?>" aria-label="<?php esc_attr_e('Seleccionar reserva', 'travel-agency-platform'); ?>"></td>
-                        <td><a class="tap-booking-code" href="<?php echo esc_url(home_url('/booking-detail/?code=' . rawurlencode($b->booking_code))); ?>"><?php echo esc_html($b->booking_code); ?></a>
+                        <td data-label="<?php esc_attr_e('Código', 'travel-agency-platform'); ?>"><a class="tap-booking-code" href="<?php echo esc_url(home_url('/booking-detail/?code=' . rawurlencode($b->booking_code))); ?>"><?php echo esc_html($b->booking_code); ?></a>
                             <br><a class="tap-booking-voucher" href="<?php echo esc_url(home_url('/booking-detail/?code=' . rawurlencode($b->booking_code))); ?>"><?php esc_html_e('Ver voucher', 'travel-agency-platform'); ?></a></td>
-                        <td>
+                        <td data-label="<?php esc_attr_e('Servicio', 'travel-agency-platform'); ?>">
                         <?php
                         echo esc_html($b_title);
 						$room = $b->room_id ? get_post($b->room_id) : null;
 						if ($room):
                             ?>
                             <span class="tap-booking-room"><?php echo esc_html($room->post_title); ?></span><?php endif; ?></td>
-                        <td>
+                        <td data-label="<?php esc_attr_e('Huésped', 'travel-agency-platform'); ?>">
                             <?php echo esc_html($b->guest_name ?: __('Invitado', 'travel-agency-platform')); ?>
                             <?php if ($b->guest_email): ?><br><small><?php echo esc_html($b->guest_email); ?></small><?php endif; ?>
                             <?php if ($b->guest_phone): ?><br><small><?php echo esc_html($b->guest_phone); ?></small><?php endif; ?>
                         </td>
-                        <td><?php echo esc_html($b->check_in . ($b->check_out ? ' &rarr; ' . $b->check_out : '')); ?></td>
-                        <td><?php echo esc_html($b->adults . ' ' . __('Adults', 'travel-agency-platform') . ($b->children ? ', ' . $b->children . ' ' . __('niños', 'travel-agency-platform') : '')); ?></td>
-                        <td><?php echo esc_html(TAP_Currency::fmt($b->total_amount)); ?></td>
-                        <td><?php $pay_cls = 'paid' === $b->payment_status ? 'confirmed' : ('refunded' === $b->payment_status ? 'cancelled' : 'pending'); ?><span class="tap-status tap-status-<?php echo $pay_cls; ?>"><?php echo esc_html(TAP_Emails_Send::payment_label($b->payment_status)); ?></span></td>
-                        <td><span class="tap-status tap-status-<?php echo in_array($b->status, ['confirmed', 'completed'], true) ? 'confirmed' : 'pending'; ?>"><?php echo esc_html(TAP_Emails_Send::status_label($b->status)); ?></span><?php if (!empty($b->cancel_reason)): ?><br><span class="tap-cancel-reason"><?php echo esc_html($b->cancel_reason); ?></span><?php endif; ?></td>
-                        <td>
+                        <td data-label="<?php esc_attr_e('Fechas', 'travel-agency-platform'); ?>"><?php echo esc_html($b->check_in . ($b->check_out ? ' &rarr; ' . $b->check_out : '')); ?></td>
+                        <td data-label="<?php esc_attr_e('Huéspedes', 'travel-agency-platform'); ?>"><?php echo esc_html($b->adults . ' ' . __('Adults', 'travel-agency-platform') . ($b->children ? ', ' . $b->children . ' ' . __('niños', 'travel-agency-platform') : '')); ?></td>
+                        <td data-label="<?php esc_attr_e('Total', 'travel-agency-platform'); ?>"><?php echo esc_html(TAP_Currency::fmt($b->total_amount)); ?></td>
+                        <td data-label="<?php esc_attr_e('Pago', 'travel-agency-platform'); ?>"><?php $pay_cls = 'paid' === $b->payment_status ? 'confirmed' : ('refunded' === $b->payment_status ? 'cancelled' : 'pending'); ?><span class="tap-status tap-status-<?php echo $pay_cls; ?>"><?php echo esc_html(TAP_Emails_Send::payment_label($b->payment_status)); ?></span></td>
+                        <td data-label="<?php esc_attr_e('Estado', 'travel-agency-platform'); ?>"><span class="tap-status tap-status-<?php echo in_array($b->status, ['confirmed', 'completed'], true) ? 'confirmed' : 'pending'; ?>"><?php echo esc_html(TAP_Emails_Send::status_label($b->status)); ?></span><?php if (!empty($b->cancel_reason)): ?><br><span class="tap-cancel-reason"><?php echo esc_html($b->cancel_reason); ?></span><?php endif; ?></td>
+                        <td data-label="<?php esc_attr_e('Acciones', 'travel-agency-platform'); ?>">
 								<?php if (in_array($b->status, ['request', 'pending'], true)): ?>
                                 <button class="tap-btn tap-btn-sm tap-bo-api" data-op="confirm" data-name="<?php echo esc_attr($b->booking_code); ?>" data-id="<?php echo (int) $b->id; ?>"><?php esc_html_e('Confirmar', 'travel-agency-platform'); ?></button>
                                 <?php if ('request' === $b->status): ?>

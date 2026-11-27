@@ -579,4 +579,65 @@ continue;
         echo $ics;
         exit;
     }
+
+
+    /** Global search for the command palette. Scoped to the caller's own data. */
+    public static function ajax_global_search() {
+        check_ajax_referer('tap_front_dash_nonce', 'nonce');
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => __('No autenticado.', 'travel-agency-platform')], 401);
+        }
+        $q = sanitize_text_field(wp_unslash($_POST['q'] ?? ''));
+        if (function_exists('mb_strlen') && mb_strlen($q) < 2) { wp_send_json_success(['items' => []]); }
+        elseif (strlen($q) < 2) { wp_send_json_success(['items' => []]); }
+
+        global $wpdb;
+        $uid = get_current_user_id();
+        $agency = (int) TAP_Booking::get_agency_for_user($uid);
+        $is_admin_only = current_user_can('manage_options') && !$agency;
+        $like = '%' . $wpdb->esc_like($q) . '%';
+        $items = [];
+
+        $where = 'WHERE (booking_code LIKE %s OR guest_name LIKE %s OR guest_email LIKE %s)';
+        $params = [$like, $like, $like];
+        if ($agency) {
+            $where .= ' AND agency_id = %d';
+            $params[] = $agency;
+        } elseif (!$is_admin_only) {
+            $where .= ' AND client_id = %d';
+            $params[] = $uid;
+        }
+        $rows = $wpdb->get_results($wpdb->prepare(
+            "SELECT id, booking_code, guest_name FROM {$wpdb->prefix}tap_bookings
+             {$where} ORDER BY id DESC LIMIT 6",
+            $params
+        ));
+        foreach ((array) $rows as $row) {
+            $items[] = [
+                'kind'  => __('Reserva', 'travel-agency-platform'),
+                'label' => (string) $row->booking_code . ' · ' . (string) ($row->guest_name ?? ''),
+                'url'   => home_url('/booking-detail/?code=' . rawurlencode((string) $row->booking_code)),
+            ];
+        }
+
+        if ($agency && post_type_exists('tap_tour')) {
+            $meta_key = TAP_Post_Types::agency_meta_key('tap_tour');
+            $posts = get_posts([
+                'post_type'      => ['tap_tour', 'tap_accommodation', 'tap_experience'],
+                'post_status'    => 'publish',
+                's'              => $q,
+                'posts_per_page' => 6,
+                'meta_query'     => [['key' => $meta_key, 'value' => (string) $agency]],
+            ]);
+            foreach ($posts as $post) {
+                $items[] = [
+                    'kind'  => __('Listado', 'travel-agency-platform'),
+                    'label' => get_the_title($post),
+                    'url'   => add_query_arg('seccion', 'bo-listings', home_url('/mi-cuenta/')),
+                ];
+            }
+        }
+
+        wp_send_json_success(['items' => $items]);
+    }
 }

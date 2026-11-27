@@ -1411,3 +1411,29 @@ html.dark .tap-notif-dropdown { background: var(--tap-surface); border-color: va
 .tap-cmd-hint { margin: 0.5rem 0.2rem 0; font-size: 0.7rem; color: var(--tap-neutral-500, #64748b); }
 html.dark .tap-cmd { background: var(--tap-surface); }
 html.dark .tap-cmd-label { color: var(--tap-neutral-700, #e2e8f0); }
+
+/* ── Mobile tables become readable cards ─────────────────────────── */
+@media (max-width: 640px) {
+    .tap-table-compact { display: block; }
+    .tap-table-compact thead { display: none; }
+    .tap-table-compact tbody { display: grid; gap: 0.75rem; }
+    .tap-table-compact tbody tr {
+        display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem;
+        padding: 0.8rem; border: 1px solid var(--tap-border, #e2e8f0);
+        border-radius: 12px; background: var(--tap-surface, #fff);
+    }
+    .tap-table-compact tbody td {
+        display: flex; flex-direction: column; gap: 0.15rem;
+        border: 0; padding: 0.25rem; word-break: break-word;
+    }
+    .tap-table-compact tbody td::before {
+        content: attr(data-label); font-size: 0.65rem; font-weight: 700;
+        text-transform: uppercase; letter-spacing: 0.04em;
+        color: var(--tap-neutral-500, #64748b);
+    }
+    .tap-table-compact tbody td:first-child,
+    .tap-table-compact tbody td:last-child { grid-column: 1 / -1; }
+    .tap-table-compact tbody tr.tap-chat-row { grid-column: 1 / -1; }
+    .tap-table-compact tbody tr.is-today { border-color: var(--tap-primary, #0d9488); }
+    .tap-table-compact .tap-btn { flex: 1 1 auto; }
+}

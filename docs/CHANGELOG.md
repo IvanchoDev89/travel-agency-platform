@@ -6,6 +6,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.30.0] — 2026-11-27
+
+### Added
+- Real global search for the command palette: nonce-protected, role-scoped
+  AJAX endpoint returning the caller's bookings and listings.
+- Mobile table cards with `data-label` for agency operations and traveller bookings.
+
+### Changed
+- The traveller dashboard now uses the shared notification component and
+  sidebar, removing its duplicate inline widget and script.
+
+### Added tests
+- Extended `suite_dashboard_ui.php`; 89/89 suites green.
+
 ## [1.29.0] — 2026-11-27
 
 ### Added (Agency Command Center)

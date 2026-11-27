@@ -90,6 +90,23 @@ tap_t_assert(false !== strpos($css, 'html.dark .tap-dash {'), 'dashboard scopes 
 $non_fallback = preg_replace('/var\(--tap-[\w-]+,\s*#[0-9a-fA-F]{3,8}\)/', 'TOKEN', $css);
 tap_t_assert(substr_count($non_fallback, '#') < 180, 'dashboard colors are mostly tokenized');
 
+/* --- 5) shared components, real search and mobile tables --------------------- */
+$client_src = (string) file_get_contents($base . 'includes/class-front-dash-client.php');
+tap_t_assert(false !== strpos($client_src, 'TAP_Dashboard_UI::notification_center'), 'client dashboard uses the shared notification centre');
+tap_t_assert(false === strpos($client_src, 'tap-notif-bell'), 'client dashboard no longer owns a notifications widget');
+tap_t_assert(false === strpos($client_src, 'tap-notif-dropdown" style='), 'client notification dropdown no longer uses inline visibility');
+
+$ajax_src = (string) file_get_contents($base . 'includes/class-ajax-dash.php');
+tap_t_assert(false !== strpos($ajax_src, 'ajax_global_search'), 'global search endpoint exists');
+tap_t_assert(false !== strpos($ajax_src, "check_ajax_referer('tap_front_dash_nonce'") && false !== strpos($ajax_src, 'get_agency_for_user'),
+    'global search is nonce-protected and role-scoped');
+tap_t_assert(false !== strpos($dash_src, 'wp_ajax_tap_dash_global_search'), 'global search action is registered');
+tap_t_assert(false !== strpos($js, 'tap_dash_global_search'), 'command palette queries the real search endpoint');
+
+tap_t_assert(false !== strpos($client_src, 'data-label='), 'client tables expose labels for mobile cards');
+tap_t_assert(substr_count($dash_src, 'data-label=') >= 8, 'agency tables expose labels for mobile cards');
+tap_t_assert(false !== strpos($css, '.tap-table-compact tbody td::before'), 'mobile table cards render their labels');
+
 /* --- cleanup ------------------------------------------------------------------ */
 $_GET = [];
 wp_set_current_user($orig_uid);
