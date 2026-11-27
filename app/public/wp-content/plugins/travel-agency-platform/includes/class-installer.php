@@ -531,6 +531,25 @@ class TAP_Installer {
                 KEY invoice (invoice_id),
                 KEY booking (booking_id)
             ) $charset;",
+            "CREATE TABLE {$wpdb->prefix}tap_money_ledger (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                booking_id bigint(20) NOT NULL DEFAULT 0,
+                event varchar(60) NOT NULL,
+                amount decimal(15,2) NOT NULL DEFAULT 0,
+                currency varchar(5) DEFAULT NULL,
+                payment_status varchar(30) DEFAULT NULL,
+                amount_paid decimal(15,2) NOT NULL DEFAULT 0,
+                refund_amount decimal(15,2) NOT NULL DEFAULT 0,
+                commission_status varchar(20) DEFAULT NULL,
+                actor bigint(20) NOT NULL DEFAULT 0,
+                reason varchar(255) DEFAULT NULL,
+                reference varchar(120) DEFAULT NULL,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (id),
+                KEY booking (booking_id),
+                KEY event (event),
+                KEY created_at (created_at)
+            ) $charset;",
         ];
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';

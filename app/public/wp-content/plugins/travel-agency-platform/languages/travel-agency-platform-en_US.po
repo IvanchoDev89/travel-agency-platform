@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-27T21:47:26+00:00\n"
+"POT-Creation-Date: 2026-11-27T22:25:57+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -902,7 +902,7 @@ msgstr "Click any day to edit its price, label or block it."
 #: includes/class-shortcode-booking.php:1343
 #: includes/class-shortcode-booking.php:1345
 #: includes/class-shortcode-booking.php:1380
-#: includes/class-shortcode-booking.php:1383 travel-agency-platform.php:461
+#: includes/class-shortcode-booking.php:1383 travel-agency-platform.php:465
 msgid "Error"
 msgstr "Error"
 
@@ -1777,7 +1777,7 @@ msgstr "You must log in."
 #: includes/class-email-campaigns.php:234
 #: includes/class-email-campaigns.php:251
 #: includes/class-email-campaigns.php:288
-#: includes/class-finance-exceptions.php:115 includes/class-front-dash.php:2500
+#: includes/class-finance-exceptions.php:122 includes/class-front-dash.php:2500
 #: includes/class-front-dash.php:2542 includes/class-invoices.php:589
 #: includes/class-kyc-docs.php:133 includes/class-leads.php:213
 #: includes/class-legal.php:399 includes/class-legal.php:426
@@ -2249,7 +2249,8 @@ msgstr "Transfer not completed."
 #: includes/class-dashboard-money.php:595
 #: includes/class-dashboard-money.php:725 includes/class-front-dash.php:2339
 #: includes/class-invoices.php:121 includes/class-invoices.php:420
-#: includes/class-ops-log.php:88 includes/class-shortcode-booking.php:1244
+#: includes/class-money-ledger.php:92 includes/class-ops-log.php:88
+#: includes/class-shortcode-booking.php:1244
 #: includes/class-transport-admin.php:127
 #: includes/class-transport-admin.php:168
 #: includes/class-transport-admin.php:225
@@ -3483,7 +3484,7 @@ msgstr "New coupon"
 
 #: includes/class-coupons.php:176 includes/class-coupons.php:195
 #: includes/class-dashboard-content.php:178 includes/class-emails-send.php:768
-#: includes/class-finance-exceptions.php:121 includes/class-front-dash.php:1652
+#: includes/class-finance-exceptions.php:128 includes/class-front-dash.php:1652
 #: includes/class-metaboxes.php:240 includes/class-metaboxes.php:277
 #: includes/class-shortcode-search.php:266
 #: includes/class-transport-admin.php:135
@@ -4041,7 +4042,7 @@ msgstr "Action"
 
 #: includes/class-dashboard-bookings.php:304
 #: includes/class-dashboard-content.php:693
-#: includes/class-finance-exceptions.php:123
+#: includes/class-finance-exceptions.php:130
 #: includes/class-launch-check.php:132 includes/class-ops-log.php:88
 #: includes/class-privacy.php:846
 msgid "Detalle"
@@ -4195,7 +4196,7 @@ msgid "pendiente"
 msgstr "pending"
 
 #: includes/class-dashboard-bookings.php:557
-#: includes/class-finance-exceptions.php:63
+#: includes/class-finance-exceptions.php:70
 msgid "Reembolso fallido"
 msgstr "Refund failed"
 
@@ -10644,7 +10645,7 @@ msgstr "Send now?"
 #: includes/class-email-campaigns.php:346
 #: includes/class-front-dash-client.php:410 includes/class-front-dash.php:704
 #: includes/class-shortcode-account.php:956
-#: includes/class-shortcode-booking.php:1322 travel-agency-platform.php:470
+#: includes/class-shortcode-booking.php:1322 travel-agency-platform.php:474
 msgid "Enviar"
 msgstr "Send"
 
@@ -11712,45 +11713,45 @@ msgstr ""
 
 #: includes/class-finance-exceptions.php:18
 #: includes/class-finance-exceptions.php:19
-#: includes/class-finance-exceptions.php:118
+#: includes/class-finance-exceptions.php:125
 msgid "Excepciones financieras"
 msgstr "Financial exceptions"
 
-#: includes/class-finance-exceptions.php:33
+#: includes/class-finance-exceptions.php:40
 msgid "Sobrepago"
 msgstr "Overpayment"
 
-#: includes/class-finance-exceptions.php:34
+#: includes/class-finance-exceptions.php:41
 msgid "Importe discrepante"
 msgstr "Amount mismatch"
 
-#: includes/class-finance-exceptions.php:79
+#: includes/class-finance-exceptions.php:86
 msgid "Pago parcial antiguo"
 msgstr "Old partial payment"
 
-#: includes/class-finance-exceptions.php:88
+#: includes/class-finance-exceptions.php:95
 msgid "Liquidación de comisión pendiente"
 msgstr "Pending commission payout"
 
-#: includes/class-finance-exceptions.php:89
+#: includes/class-finance-exceptions.php:96
 msgid "Liquidación de agencia pendiente"
 msgstr "Pending agency payout"
 
-#: includes/class-finance-exceptions.php:90
+#: includes/class-finance-exceptions.php:97
 msgid "Liquidación de afiliado pendiente"
 msgstr "Pending affiliate payout"
 
-#: includes/class-finance-exceptions.php:119
+#: includes/class-finance-exceptions.php:126
 msgid ""
 "Situaciones que requieren revisión humana. Esta vista no modifica ningún "
 "dato."
 msgstr "Situations that need human review. This view does not modify any data."
 
-#: includes/class-finance-exceptions.php:122
+#: includes/class-finance-exceptions.php:129
 msgid "Reserva / liquidación"
 msgstr "Booking / payout"
 
-#: includes/class-finance-exceptions.php:126
+#: includes/class-finance-exceptions.php:133
 msgid "No hay excepciones pendientes."
 msgstr "There are no pending exceptions."
 
@@ -12279,7 +12280,7 @@ msgstr "Search by code, guest or service…"
 
 #: includes/class-front-dash.php:602 includes/class-invoices.php:625
 #: includes/class-ops-log.php:74 includes/class-shortcode-search.php:1395
-#: includes/class-shortcode-support.php:104 travel-agency-platform.php:437
+#: includes/class-shortcode-support.php:104 travel-agency-platform.php:441
 msgid "Buscar"
 msgstr "Search"
 
@@ -12439,7 +12440,7 @@ msgstr "Reply publicly…"
 msgid "Responder"
 msgstr "Reply"
 
-#: includes/class-front-dash.php:931 travel-agency-platform.php:442
+#: includes/class-front-dash.php:931 travel-agency-platform.php:446
 msgid "Aún no hay reseñas."
 msgstr "No reviews yet."
 
@@ -15285,6 +15286,44 @@ msgstr "Unreadable text"
 msgid "Manually blocked"
 msgstr "Manually blocked"
 
+#. translators: %s: importe reembolsado
+#: includes/class-money-ledger.php:84
+#, php-format
+msgid "Reembolso %s"
+msgstr "Refund %s"
+
+#: includes/class-money-ledger.php:88
+msgid "Disputa"
+msgstr "Dispute"
+
+#: includes/class-money-ledger.php:116
+msgid "Pagado por debajo del total"
+msgstr "Marked paid below the total"
+
+#: includes/class-money-ledger.php:129
+msgid "Reembolso superior a lo cobrado"
+msgstr "Refund exceeds the amount collected"
+
+#: includes/class-money-ledger.php:146
+msgid "Comisión liquidada sin payout"
+msgstr "Settled commission without payout"
+
+#: includes/class-money-ledger.php:149
+msgid "El estado dice pagada pero no hay transferencia registrada."
+msgstr "Status says paid but no transfer is recorded."
+
+#: includes/class-money-ledger.php:161
+msgid "Reserva en dos payouts pendientes"
+msgstr "Booking in two pending payouts"
+
+#: includes/class-money-ledger.php:164
+msgid "liquidaciones pendientes"
+msgstr "pending payouts"
+
+#: includes/class-money-ledger.php:174
+msgid "Reembolsada con saldo pendiente"
+msgstr "Refunded with an outstanding balance"
+
 #: includes/class-onvo.php:134
 #, php-format
 msgid "Error de Onvo Pay (HTTP %d)"
@@ -17018,11 +17057,11 @@ msgid "Network error. Please try again."
 msgstr "Network error. Please try again."
 
 #: includes/class-shortcode-account.php:940
-#: includes/class-shortcode-account.php:942 travel-agency-platform.php:466
+#: includes/class-shortcode-account.php:942 travel-agency-platform.php:470
 msgid "Asistente de viajes"
 msgstr "Travel assistant"
 
-#: includes/class-shortcode-account.php:946 travel-agency-platform.php:471
+#: includes/class-shortcode-account.php:946 travel-agency-platform.php:475
 msgid ""
 "¡Hola! Soy el asistente de viajes. Pregunta por alojamientos, tours, bonos o "
 "agencias, o toca una sugerencia."
@@ -17031,7 +17070,7 @@ msgstr ""
 "or tap a suggestion."
 
 #: includes/class-shortcode-account.php:954
-#: includes/class-shortcode-account.php:955 travel-agency-platform.php:469
+#: includes/class-shortcode-account.php:955 travel-agency-platform.php:473
 msgid "Escribe tu pregunta…"
 msgstr "Type your question…"
 
@@ -17051,7 +17090,7 @@ msgid "Solicitar reserva"
 msgstr "Request to Book"
 
 #: includes/class-shortcode-booking.php:51
-#: includes/class-shortcode-booking.php:145 travel-agency-platform.php:460
+#: includes/class-shortcode-booking.php:145 travel-agency-platform.php:464
 msgid "Book Now"
 msgstr "Book Now"
 
@@ -20532,117 +20571,117 @@ msgid ""
 msgstr ""
 "The Composer autoloader was not found. Run \"composer dump-autoload -o\"."
 
-#: travel-agency-platform.php:103
+#: travel-agency-platform.php:104
 msgid "la última actualización de base de datos falló y se reintentará."
 msgstr "the last database update failed and will be retried."
 
-#: travel-agency-platform.php:438
+#: travel-agency-platform.php:442
 msgid "results found"
 msgstr "results found"
 
-#: travel-agency-platform.php:439
+#: travel-agency-platform.php:443
 msgid "No results found"
 msgstr "No results found"
 
-#: travel-agency-platform.php:440
+#: travel-agency-platform.php:444
 msgid "Guardado en favoritos"
 msgstr "Saved to favorites"
 
-#: travel-agency-platform.php:441
+#: travel-agency-platform.php:445
 msgid "Quitado de favoritos"
 msgstr "Removed from favorites"
 
-#: travel-agency-platform.php:443
+#: travel-agency-platform.php:447
 msgid "Aún no hay reseñas. Sé el primero en compartir tu experiencia."
 msgstr "No reviews yet. Be the first to share your experience."
 
-#: travel-agency-platform.php:444
+#: travel-agency-platform.php:448
 msgid "reseña"
 msgstr "review"
 
-#: travel-agency-platform.php:445
+#: travel-agency-platform.php:449
 msgid "reseñas"
 msgstr "reviews"
 
-#: travel-agency-platform.php:446
+#: travel-agency-platform.php:450
 msgid "Anónimo"
 msgstr "Anonymous"
 
-#: travel-agency-platform.php:447
+#: travel-agency-platform.php:451
 msgid "Enviando..."
 msgstr "Sending..."
 
-#: travel-agency-platform.php:448
+#: travel-agency-platform.php:452
 msgid "¡Reseña enviada! Pendiente de aprobación."
 msgstr "Review submitted! Pending approval."
 
-#: travel-agency-platform.php:449
+#: travel-agency-platform.php:453
 msgid "Error al enviar"
 msgstr "Error sending"
 
-#: travel-agency-platform.php:450
+#: travel-agency-platform.php:454
 msgid "Review submitted"
 msgstr "Review submitted"
 
-#: travel-agency-platform.php:451
+#: travel-agency-platform.php:455
 msgid "Error al enviar la reseña"
 msgstr "Error submitting the review"
 
 #. translators: %s: nombre del servicio
-#: travel-agency-platform.php:453
+#: travel-agency-platform.php:457
 #, php-format
 msgid "Gracias por tu estancia (%s). ¡Cuéntanos cómo fue tu experiencia!"
 msgstr "Thank you for your stay (%s). Tell us how it went!"
 
-#: travel-agency-platform.php:454
+#: travel-agency-platform.php:458
 msgid "Reseña verificada"
 msgstr "Verified review"
 
 #. translators: 1: cupos disponibles, 2: cupos totales
-#: travel-agency-platform.php:456
+#: travel-agency-platform.php:460
 #, php-format
 msgid "Cupos disponibles: %s de %s"
 msgstr "Available spots: %s of %s"
 
 #. translators: 1: cupos ocupados, 2: cupos totales
-#: travel-agency-platform.php:458
+#: travel-agency-platform.php:462
 #, php-format
 msgid "Cupo completo para esta fecha (%s/%s). Elige otra fecha."
 msgstr "Full for this date (%s/%s). Please choose another date."
 
-#: travel-agency-platform.php:459
+#: travel-agency-platform.php:463
 msgid "El tour está completo para esta fecha."
 msgstr "This tour is full for this date."
 
-#: travel-agency-platform.php:462
+#: travel-agency-platform.php:466
 msgid "Image gallery"
 msgstr "Image gallery"
 
-#: travel-agency-platform.php:463
+#: travel-agency-platform.php:467
 msgid "Close image gallery"
 msgstr "Close image gallery"
 
-#: travel-agency-platform.php:464
+#: travel-agency-platform.php:468
 msgid "Previous image"
 msgstr "Previous image"
 
-#: travel-agency-platform.php:465
+#: travel-agency-platform.php:469
 msgid "Next image"
 msgstr "Next image"
 
-#: travel-agency-platform.php:467
+#: travel-agency-platform.php:471
 msgid "Abrir asistente"
 msgstr "Open assistant"
 
-#: travel-agency-platform.php:468
+#: travel-agency-platform.php:472
 msgid "Cerrar asistente"
 msgstr "Close assistant"
 
-#: travel-agency-platform.php:472
+#: travel-agency-platform.php:476
 msgid "Pensando…"
 msgstr "Thinking…"
 
-#: travel-agency-platform.php:473
+#: travel-agency-platform.php:477
 msgid "Hubo un problema. Inténtalo de nuevo."
 msgstr "Something went wrong. Please try again."
 

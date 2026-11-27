@@ -29,6 +29,13 @@ class TAP_Finance_Exceptions {
         $b = $wpdb->prefix . 'tap_bookings';
         $out = [];
 
+        // Invariants verified by the daily money reconciliation cron.
+        if (class_exists('TAP_Money_Ledger')) {
+            foreach ((array) TAP_Money_Ledger::stored_issues() as $issue) {
+                $out[] = $issue;
+            }
+        }
+
         $meta_issues = [
             '_tap_overpayment'    => __('Sobrepago', 'travel-agency-platform'),
             '_tap_payment_mismatch' => __('Importe discrepante', 'travel-agency-platform'),

@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.31.0] — 2026-11-27
+
+### Added (money core, phase 1)
+- Append-only `tap_money_ledger`: every payment, refund, overpayment, commission
+  adjustment and payout writes an immutable audit row with the booking's money
+  state at event time.
+- Daily `tap_money_reconcile_hook` that verifies financial invariants and
+  publishes violations to the financial exceptions page.
+- Invariants checked: paid below total, refund above collected, settled
+  commission without payout, booking in two pending payouts, refunded with balance.
+- FUNCTIONAL `suite_money_ledger.php`; 90/90 suites green.
+
 ## [1.30.0] — 2026-11-27
 
 ### Added
