@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.33.0] — 2026-11-27
+
+### Added (journey coverage, phase 2)
+- Read-only B2B/B2C journey audit: verifies that every linked page exists, is
+  published, contains its shortcode (or a resolvable theme template) and that
+  the shortcode is registered. Results are included in the Launch Check.
+- FUNCTIONAL `suite_journey_audit.php`; 91/91 suites green.
+
 ## [1.32.0] — 2026-11-27
 
 ### Added (money core, phase 1 complete)

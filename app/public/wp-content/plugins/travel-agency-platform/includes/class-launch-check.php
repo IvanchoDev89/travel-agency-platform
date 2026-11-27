@@ -97,6 +97,12 @@ class TAP_Launch_Check {
             }
         }
 
+        if (class_exists('TAP_Journey_Audit')) {
+            foreach (TAP_Journey_Audit::issues() as $issue) {
+                $issues[] = $issue;
+            }
+        }
+
         return $issues;
     }
 

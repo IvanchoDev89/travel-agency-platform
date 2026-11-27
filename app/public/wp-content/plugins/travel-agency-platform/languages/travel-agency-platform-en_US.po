@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-27T22:40:18+00:00\n"
+"POT-Creation-Date: 2026-11-27T22:56:18+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -4044,7 +4044,7 @@ msgstr "Action"
 #: includes/class-dashboard-bookings.php:304
 #: includes/class-dashboard-content.php:693
 #: includes/class-finance-exceptions.php:130
-#: includes/class-launch-check.php:132 includes/class-ops-log.php:88
+#: includes/class-launch-check.php:138 includes/class-ops-log.php:88
 #: includes/class-privacy.php:846
 msgid "Detalle"
 msgstr "Detail"
@@ -4618,7 +4618,7 @@ msgstr "Document"
 msgid "Archivo"
 msgstr "File"
 
-#: includes/class-dashboard-content.php:610 includes/class-launch-check.php:132
+#: includes/class-dashboard-content.php:610 includes/class-launch-check.php:138
 msgid "Revisión"
 msgstr "Check"
 
@@ -13515,6 +13515,50 @@ msgstr "Clear"
 msgid "La reserva final se hace directo con cada agencia."
 msgstr "Final booking is made directly with each agency."
 
+#. translators: %s: slug de la página
+#: includes/class-journey-audit.php:37
+#, php-format
+msgid "Falta la página del recorrido: /%s/"
+msgstr "Missing journey page: /%s/"
+
+#. translators: %s: slug de la página
+#: includes/class-journey-audit.php:38
+msgid "Crea y publica esa página; el plugin enlaza a ella desde el panel y el checkout."
+msgstr "Create and publish that page; the plugin links to it from the dashboard and checkout."
+
+#. translators: 1: slug, 2: shortcode
+#: includes/class-journey-audit.php:44
+#, php-format
+msgid "La página /%1$s/ no contiene [%2$s]"
+msgstr "Page /%1$s/ does not contain [%2$s]"
+
+#. translators: 1: slug, 2: shortcode
+#: includes/class-journey-audit.php:45
+msgid "El recorrido se renderizará vacío aunque la página exista."
+msgstr "The journey will render empty even if the page exists."
+
+#. translators: %s: shortcode
+#: includes/class-journey-audit.php:50
+#, php-format
+msgid "Shortcode no registrado: [%s]"
+msgstr "Unregistered shortcode: [%s]"
+
+#. translators: %s: shortcode
+#: includes/class-journey-audit.php:51
+msgid "Otro plugin o el tema pudo desactivarlo."
+msgstr "Another plugin or the theme may have disabled it."
+
+#. translators: %s: slug
+#: includes/class-journey-audit.php:58
+#, php-format
+msgid "La página /%s/ está vacía y sin plantilla"
+msgstr "Page /%s/ is empty and has no template"
+
+#. translators: %s: slug
+#: includes/class-journey-audit.php:59
+msgid "Añade el shortcode o asigna la plantilla del tema correspondiente."
+msgstr "Add the shortcode or assign the matching theme template."
+
 #: includes/class-kyc-docs.php:28
 msgid "Identificación del representante (frente)"
 msgstr "Representative ID (front)"
@@ -13962,17 +14006,17 @@ msgid ""
 msgstr ""
 "This field contains a URL instead of a secret key/ID. Fix it before launch."
 
-#: includes/class-launch-check.php:112 includes/class-launch-check.php:113
-#: includes/class-launch-check.php:123
+#: includes/class-launch-check.php:118 includes/class-launch-check.php:119
+#: includes/class-launch-check.php:129
 msgid "Launch Check"
 msgstr "Launch Check"
 
-#: includes/class-launch-check.php:125
+#: includes/class-launch-check.php:131
 msgid "Todo listo para producción."
 msgstr "Everything is ready for production."
 
 #. translators: %d: number of pending tasks
-#: includes/class-launch-check.php:129
+#: includes/class-launch-check.php:135
 #, php-format
 msgid "%d tarea pendiente antes del lanzamiento."
 msgid_plural "%d tareas pendientes antes del lanzamiento."
