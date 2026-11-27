@@ -550,6 +550,20 @@ class TAP_Installer {
                 KEY event (event),
                 KEY created_at (created_at)
             ) $charset;",
+            "CREATE TABLE {$wpdb->prefix}tap_event_outbox (
+                id bigint(20) NOT NULL AUTO_INCREMENT,
+                event varchar(60) NOT NULL,
+                payload longtext NOT NULL,
+                dedupe_key varchar(64) DEFAULT NULL,
+                status varchar(20) NOT NULL DEFAULT 'pending',
+                attempts int NOT NULL DEFAULT 0,
+                available_at datetime DEFAULT CURRENT_TIMESTAMP,
+                created_at datetime DEFAULT CURRENT_TIMESTAMP,
+                last_error varchar(255) DEFAULT NULL,
+                PRIMARY KEY (id),
+                UNIQUE KEY dedupe_key (dedupe_key),
+                KEY status_available (status, available_at)
+            ) $charset;",
         ];
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';

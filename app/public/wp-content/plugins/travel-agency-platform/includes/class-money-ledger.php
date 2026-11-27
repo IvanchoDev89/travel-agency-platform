@@ -77,6 +77,14 @@ class TAP_Money_Ledger {
 
     public static function on_overpaid($booking_id, $gateway = '', $capture_id = '', $surplus = 0) {
         self::record($booking_id, 'overpayment', (float) $surplus, (string) $gateway, (string) $capture_id);
+        if (class_exists('TAP_Event_Outbox')) {
+            TAP_Event_Outbox::enqueue('overpayment', [
+                'booking_id' => (int) $booking_id,
+                'gateway'    => (string) $gateway,
+                'capture_id' => (string) $capture_id,
+                'surplus'    => round((float) $surplus, 2),
+            ], 'overpay-' . (int) $booking_id . '-' . (string) $capture_id);
+        }
     }
 
     public static function on_prorated($booking_id, $original = 0, $new = 0, $refund = 0) {
@@ -188,6 +196,17 @@ class TAP_Money_Ledger {
 
     public static function run_reconciliation() {
         $issues = self::check_invariants();
+        $previous = self::stored_issues();
+        $known = [];
+        foreach ($previous as $old) {
+            $known[md5(wp_json_encode($old))] = true;
+        }
+        foreach ($issues as $issue) {
+            $hash = md5(wp_json_encode($issue));
+            if (!isset($known[$hash]) && class_exists('TAP_Event_Outbox')) {
+                TAP_Event_Outbox::enqueue('money_issue', ['issue' => $issue], $hash);
+            }
+        }
         set_transient('tap_money_issues', $issues, 2 * DAY_IN_SECONDS);
         update_option('tap_money_reconciled_at', current_time('mysql'), false);
         return $issues;

@@ -6,6 +6,21 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.32.0] — 2026-11-27
+
+### Added (money core, phase 1 complete)
+- Centralised guarded state machine (`TAP_Money_State`): every payment and
+  commission transition uses compare-and-swap, rejects illegal transitions and
+  is idempotent when the state is unchanged.
+- Durable event outbox (`tap_event_outbox`) with dedupe keys, bounded retries
+  and hourly dispatcher; money-invariant and overpayment events are persisted
+  before dispatch and recorded in the audit log.
+- Schema, cron schedule, uninstall hook and extended functional tests.
+
+### Added tests
+- State transitions, outbox dedupe/dispatch and cron wiring in
+  `suite_money_ledger.php`; 90/90 suites green.
+
 ## [1.31.0] — 2026-11-27
 
 ### Added (money core, phase 1)

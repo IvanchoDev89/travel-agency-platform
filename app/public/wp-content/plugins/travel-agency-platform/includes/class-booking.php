@@ -1233,22 +1233,19 @@ class TAP_Booking {
      * Called on successful payment capture.
      */
     public static function mark_commission_owed($booking_id) {
+        if (class_exists('TAP_Money_State')) {
+            return TAP_Money_State::transition_commission($booking_id, 'owed', 'payment_completed');
+        }
         global $wpdb;
         $booking_id = intval($booking_id);
-        if (!$booking_id) return;
-
+        if (!$booking_id) { return false; }
         $current = $wpdb->get_var($wpdb->prepare(
-            "SELECT commission_status FROM {$wpdb->prefix}tap_bookings WHERE id = %d",
-            $booking_id
+            "SELECT commission_status FROM {$wpdb->prefix}tap_bookings WHERE id = %d", $booking_id
         ));
-
         if (in_array($current, ['owed', 'waiting'], true)) {
-            $wpdb->update(
-                $wpdb->prefix . 'tap_bookings',
-                ['commission_status' => 'owed'],
-                ['id' => $booking_id]
-            );
+            $wpdb->update($wpdb->prefix . 'tap_bookings', ['commission_status' => 'owed'], ['id' => $booking_id]);
         }
+        return true;
     }
 
     /**
@@ -1270,27 +1267,21 @@ class TAP_Booking {
      *                    when TAP_Payouts::complete() runs).
      */
     public static function void_commission($booking_id, $force = false) {
-        global $wpdb;
         $booking_id = intval($booking_id);
-        if (!$booking_id) return;
-
-        $current = $wpdb->get_var($wpdb->prepare(
-            "SELECT commission_status FROM {$wpdb->prefix}tap_bookings WHERE id = %d",
-            $booking_id
-        ));
-
+        if (!$booking_id) { return false; }
+        $booking = self::get_booking($booking_id);
+        if (!$booking) { return false; }
+        $current = (string) ($booking->commission_status ?? 'waiting');
         $targets = ['owed', 'waiting'];
-        if ($force) {
-            $targets[] = 'paid';
+        if ($force) { $targets[] = 'paid'; }
+        if (!in_array($current, $targets, true)) { return false; }
+        if (class_exists('TAP_Money_State')) {
+            $res = TAP_Money_State::transition_commission($booking_id, 'void', $force ? 'forced' : 'cancelled');
+            return !is_wp_error($res);
         }
-
-        if (in_array($current, $targets, true)) {
-            $wpdb->update(
-                $wpdb->prefix . 'tap_bookings',
-                ['commission_status' => 'void'],
-                ['id' => $booking_id]
-            );
-        }
+        global $wpdb;
+        $wpdb->update($wpdb->prefix . 'tap_bookings', ['commission_status' => 'void'], ['id' => $booking_id]);
+        return true;
     }
 
     /**
@@ -1331,27 +1322,25 @@ class TAP_Booking {
      * @return true|WP_Error
      */
     public static function update_payment_status($booking_id, $payment_status) {
-        global $wpdb;
-
         $valid_statuses = ['pending', 'paid', 'partial', 'refunded', 'failed'];
         if (!in_array($payment_status, $valid_statuses, true)) {
             return new WP_Error('invalid_status', __('Invalid payment status', 'travel-agency-platform'));
         }
-
+        if (class_exists('TAP_Money_State')) {
+            return TAP_Money_State::transition_payment($booking_id, $payment_status, 'manual/agent');
+        }
         if (!self::get_booking((int) $booking_id)) {
             return new WP_Error('not_found', __('Reserva no encontrada.', 'travel-agency-platform'));
         }
-
+        global $wpdb;
         $updated = $wpdb->update(
             $wpdb->prefix . 'tap_bookings',
             ['payment_status' => $payment_status],
             ['id' => $booking_id]
         );
-        if (false === $updated) {
-            return new WP_Error('db_error', __('No se pudo actualizar el estado del pago.', 'travel-agency-platform'));
-        }
-
-        return true;
+        return false === $updated
+            ? new WP_Error('db_error', __('No se pudo actualizar el estado del pago.', 'travel-agency-platform'))
+            : true;
     }
 
     /**

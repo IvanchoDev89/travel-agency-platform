@@ -61,10 +61,38 @@ tap_t_assert($found_stored, 'admin exceptions include the reconciled violation')
 $bootstrap = (string) file_get_contents($base . 'travel-agency-platform.php');
 tap_t_assert(false !== strpos($bootstrap, 'tap_money_reconcile_hook'), 'reconciliation cron is scheduled');
 
+/* --- 4) guarded state transitions -------------------------------------------- */
+tap_t_assert(true === TAP_Money_State::allowed('payment', 'pending', 'paid'), 'pending can become paid');
+tap_t_assert(false === TAP_Money_State::allowed('payment', 'refunded', 'paid'), 'refunded is terminal');
+$state_booking = tap_t_seed_booking([
+    'booking_code'   => 'STATE-' . $sfx,
+    'service_type'   => 'tap_tour', 'service_id' => 75,
+    'total_amount'   => 50, 'payment_status' => 'pending', 'status' => 'confirmed',
+]);
+tap_t_assert(true === TAP_Money_State::transition_payment($state_booking, 'partial', 'test'), 'CAS transition succeeds');
+tap_t_assert(true === TAP_Money_State::transition_payment($state_booking, 'partial', 'test'), 'same-state transition is idempotent');
+$wpdb->update($wpdb->prefix . 'tap_bookings', ['payment_status' => 'refunded'], ['id' => $state_booking]);
+$refused = TAP_Money_State::transition_payment($state_booking, 'paid', 'test');
+tap_t_assert(is_wp_error($refused) && 'invalid_transition' === $refused->get_error_code(), 'illegal transition is refused');
+
+/* --- 5) durable outbox -------------------------------------------------------- */
+$dedupe = 'test-' . $sfx;
+$e1 = TAP_Event_Outbox::enqueue('money_issue', ['issue' => ['type' => 'Prueba', 'booking' => $state_booking]], $dedupe);
+$e2 = TAP_Event_Outbox::enqueue('money_issue', ['issue' => ['type' => 'Prueba', 'booking' => $state_booking]], $dedupe);
+tap_t_assert((int) $e1 > 0 && 0 === (int) $e2, 'outbox deduplicates identical events');
+$res = TAP_Event_Outbox::process(50);
+tap_t_assert((int) ($res['done'] ?? 0) >= 1, 'outbox dispatches due events');
+$status = $wpdb->get_var($wpdb->prepare('SELECT status FROM ' . TAP_Event_Outbox::table() . ' WHERE id = %d', $e1));
+tap_t_assert('done' === $status, 'dispatched event is marked done');
+$bootstrap_src = (string) file_get_contents($base . 'travel-agency-platform.php');
+tap_t_assert(false !== strpos($bootstrap_src, 'tap_outbox_process_hook'), 'outbox cron is scheduled');
+
 /* --- cleanup ------------------------------------------------------------------ */
 $wpdb->delete(TAP_Money_Ledger::table(), ['booking_id' => $bid]);
 $wpdb->delete($wpdb->prefix . 'tap_bookings', ['id' => $bid]);
 $wpdb->delete($wpdb->prefix . 'tap_bookings', ['id' => $bad]);
 delete_transient('tap_money_issues');
+$wpdb->delete($wpdb->prefix . 'tap_bookings', ['id' => $state_booking]);
+$wpdb->delete(TAP_Event_Outbox::table(), ['dedupe_key' => hash('sha256', 'test-' . $sfx)]);
 wp_set_current_user($orig_uid);
 tap_t_finish();
