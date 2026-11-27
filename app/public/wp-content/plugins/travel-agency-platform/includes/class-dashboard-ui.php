@@ -32,15 +32,16 @@ class TAP_Dashboard_UI {
         ?>
         <nav class="tap-pagination" aria-label="<?php esc_attr_e('Paginación', 'travel-agency-platform'); ?>">
             <?php foreach ($pages as $p): ?>
-                <?php if ('gap' === $p): ?>
+                <?php if ('gap' === $p) : ?>
                     <span class="tap-page-gap" aria-hidden="true">…</span>
-                <?php else:
+                <?php else : ?>
+                    <?php
                     $url = add_query_arg(array_merge($args, ['bo_page' => (int) $p]), $base_url);
                     $is_current = ((int) $p === $current);
                     ?>
                     <a class="tap-page-link <?php echo $is_current ? 'is-current' : ''; ?>"
-                       href="<?php echo esc_url($url); ?>"
-                       <?php echo $is_current ? 'aria-current="page"' : ''; ?>>
+                        href="<?php echo esc_url($url); ?>"
+                        <?php echo $is_current ? 'aria-current="page"' : ''; ?>>
                         <?php echo (int) $p; ?>
                     </a>
                 <?php endif; ?>

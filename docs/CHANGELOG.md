@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.28.1] — 2026-11-27
+
+### Fixed
+- PHPCS violation in the shared pagination helper (inline `else` PHP tag).
+
 ## [1.28.0] — 2026-11-27
 
 ### Changed (agency dashboard UI/UX)
