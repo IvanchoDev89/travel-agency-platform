@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: travel-agency-platform 1.4.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/travel-agency-"
 "platform\n"
-"POT-Creation-Date: 2026-11-27T22:56:18+00:00\n"
+"POT-Creation-Date: 2026-11-27T23:21:40+00:00\n"
 "PO-Revision-Date: 2026-09-06 00:00+0000\n"
 "Last-Translator: Travel Agency Platform\n"
 "Language-Team: TAP\n"
@@ -15,8 +15,8 @@ msgstr ""
 
 #. Plugin Name of the plugin
 #: travel-agency-platform.php includes/class-emails-send.php:292
-#: includes/class-emails-send.php:324 includes/class-privacy.php:507
-#: includes/class-privacy.php:515
+#: includes/class-emails-send.php:324 includes/class-privacy.php:534
+#: includes/class-privacy.php:542
 msgid "Travel Agency Platform"
 msgstr "Travel Agency Platform"
 
@@ -371,8 +371,8 @@ msgstr "No main photo"
 #: includes/class-email-campaigns.php:372
 #: includes/class-front-dash-client.php:730 includes/class-front-dash.php:1558
 #: includes/class-front-dash.php:2189 includes/class-leads.php:273
-#: includes/class-metaboxes.php:90 includes/class-privacy.php:572
-#: includes/class-privacy.php:750 includes/class-privacy.php:822
+#: includes/class-metaboxes.php:90 includes/class-privacy.php:599
+#: includes/class-privacy.php:787 includes/class-privacy.php:859
 #: includes/class-tour-wizard-steps.php:664
 msgid "Nombre"
 msgstr "Name"
@@ -469,7 +469,7 @@ msgstr "Ready"
 #: includes/class-dashboard-content.php:430
 #: includes/class-dashboard-content.php:523 includes/class-labels.php:15
 #: includes/class-labels.php:32 includes/class-payouts.php:25
-#: includes/class-privacy.php:755 includes/class-privacy.php:844
+#: includes/class-privacy.php:792 includes/class-privacy.php:881
 #: includes/class-shortcode-booking.php:1076
 #: includes/class-tour-wizard-steps.php:743
 msgid "Pendiente"
@@ -1751,7 +1751,7 @@ msgstr "Affiliate settlement request"
 #: includes/class-affiliates.php:363 includes/class-agency-payouts.php:118
 #: includes/class-ajax-listing.php:511 includes/class-ajax-public.php:482
 #: includes/class-booking.php:740 includes/class-booking.php:876
-#: includes/class-kyc-docs.php:154 includes/class-legal.php:291
+#: includes/class-kyc-docs.php:215 includes/class-legal.php:291
 #: includes/class-transport.php:389
 msgid "Debes iniciar sesión."
 msgstr "You must log in."
@@ -1779,17 +1779,18 @@ msgstr "You must log in."
 #: includes/class-email-campaigns.php:288
 #: includes/class-finance-exceptions.php:122 includes/class-front-dash.php:2500
 #: includes/class-front-dash.php:2542 includes/class-invoices.php:589
-#: includes/class-kyc-docs.php:133 includes/class-leads.php:213
+#: includes/class-kyc-docs.php:194 includes/class-leads.php:213
 #: includes/class-legal.php:399 includes/class-legal.php:426
-#: includes/class-ops-log.php:27 includes/class-privacy.php:389
-#: includes/class-referral-reports.php:27 includes/class-test-data.php:45
-#: includes/class-test-data.php:77 includes/class-user-admin.php:40
-#: includes/class-user-admin.php:57 includes/class-user-admin.php:78
+#: includes/class-ops-log.php:27 includes/class-pii-inventory.php:90
+#: includes/class-privacy.php:416 includes/class-referral-reports.php:27
+#: includes/class-test-data.php:45 includes/class-test-data.php:77
+#: includes/class-user-admin.php:40 includes/class-user-admin.php:57
+#: includes/class-user-admin.php:78
 msgid "Acceso denegado."
 msgstr "Access denied."
 
 #: includes/class-affiliates.php:382 includes/class-affiliates.php:420
-#: includes/class-agency-payouts.php:138 includes/class-kyc-docs.php:108
+#: includes/class-agency-payouts.php:138 includes/class-kyc-docs.php:169
 msgid "Estado no válido."
 msgstr "Invalid status."
 
@@ -1891,8 +1892,8 @@ msgstr "Commission"
 #: includes/class-front-dash.php:1141 includes/class-front-dash.php:1236
 #: includes/class-front-dash.php:1653 includes/class-front-dash.php:2151
 #: includes/class-invoices.php:646 includes/class-ops-log.php:80
-#: includes/class-privacy.php:546 includes/class-privacy.php:755
-#: includes/class-privacy.php:825 includes/class-transport-admin.php:145
+#: includes/class-privacy.php:573 includes/class-privacy.php:792
+#: includes/class-privacy.php:862 includes/class-transport-admin.php:145
 #: includes/class-transport-admin.php:173
 #: includes/class-transport-admin.php:241
 #: includes/class-transport-admin.php:260
@@ -1917,9 +1918,9 @@ msgstr "Status"
 #: includes/class-front-dash.php:2192 includes/class-invoices.php:461
 #: includes/class-invoices.php:648 includes/class-legal.php:387
 #: includes/class-legal.php:471 includes/class-ops-log.php:80
-#: includes/class-ops-log.php:88 includes/class-privacy.php:576
-#: includes/class-privacy.php:598 includes/class-privacy.php:623
-#: includes/class-privacy.php:820 includes/class-privacy.php:876
+#: includes/class-ops-log.php:88 includes/class-privacy.php:603
+#: includes/class-privacy.php:625 includes/class-privacy.php:650
+#: includes/class-privacy.php:857 includes/class-privacy.php:913
 #: includes/class-referral-reports.php:187
 msgid "Fecha"
 msgstr "Date"
@@ -2009,7 +2010,7 @@ msgstr "Email"
 #: includes/class-front-dash-client.php:209
 #: includes/class-front-dash-client.php:222 includes/class-front-dash.php:638
 #: includes/class-front-dash.php:657 includes/class-front-dash.php:2147
-#: includes/class-privacy.php:545 includes/class-referral-reports.php:190
+#: includes/class-privacy.php:572 includes/class-referral-reports.php:190
 msgid "Código"
 msgstr "Code"
 
@@ -2138,7 +2139,7 @@ msgstr "You cannot attach images to that unit."
 
 #: includes/class-agency-media.php:38 includes/class-agency-media.php:70
 #: includes/class-ajax-public.php:496 includes/class-ajax-public.php:502
-#: includes/class-kyc-docs.php:74
+#: includes/class-kyc-docs.php:125
 msgid "No se recibió ningún archivo."
 msgstr "No file was received."
 
@@ -2213,11 +2214,11 @@ msgstr "Download unavailable."
 msgid "Liquidaciones de agencias"
 msgstr "Agency settlements"
 
-#: includes/class-agency-payouts.php:87 includes/class-kyc-docs.php:68
+#: includes/class-agency-payouts.php:87 includes/class-kyc-docs.php:119
 msgid "Agencia no válida."
 msgstr "Invalid agency."
 
-#: includes/class-agency-payouts.php:92 includes/class-kyc-docs.php:158
+#: includes/class-agency-payouts.php:92 includes/class-kyc-docs.php:219
 msgid "No tienes permiso sobre esta agencia."
 msgstr "You do not have permission over this agency."
 
@@ -2787,7 +2788,7 @@ msgstr "The endpoint must use HTTPS."
 #: includes/class-ajax-public.php:136 includes/class-ajax.php:518
 #: includes/class-front-dash.php:939 includes/class-front-dash.php:1270
 #: includes/class-invoices.php:559 includes/class-invoices.php:569
-#: includes/class-kyc-docs.php:173 includes/class-kyc-docs.php:181
+#: includes/class-kyc-docs.php:234 includes/class-kyc-docs.php:242
 #: includes/class-service-extras.php:25 includes/class-service-extras.php:31
 #: includes/class-service-extras.php:51 includes/class-service-extras.php:56
 #: includes/class-site-hardening.php:40 includes/class-transport.php:293
@@ -3883,8 +3884,8 @@ msgstr "Client"
 #: includes/class-front-dash.php:659 includes/class-front-dash.php:1338
 #: includes/class-front-dash.php:2148 includes/class-front-dash.php:2191
 #: includes/class-invoices.php:145 includes/class-invoices.php:429
-#: includes/class-invoices.php:445 includes/class-privacy.php:548
-#: includes/class-privacy.php:619 includes/class-transport-admin.php:386
+#: includes/class-invoices.php:445 includes/class-privacy.php:575
+#: includes/class-privacy.php:646 includes/class-transport-admin.php:386
 msgid "Servicio"
 msgstr "Service"
 
@@ -3897,7 +3898,7 @@ msgstr "Service"
 #: includes/class-front-dash-client.php:212
 #: includes/class-front-dash-client.php:225 includes/class-front-dash.php:643
 #: includes/class-front-dash.php:673 includes/class-front-dash.php:2150
-#: includes/class-privacy.php:551 includes/class-shortcode-booking.php:297
+#: includes/class-privacy.php:578 includes/class-shortcode-booking.php:297
 #: includes/class-shortcode-booking.php:318
 #: includes/class-shortcode-booking.php:1198
 #: includes/class-shortcode-booking.php:1219
@@ -3905,23 +3906,23 @@ msgid "Total"
 msgstr "Total"
 
 #: includes/class-dashboard-bookings.php:202 includes/class-front-dash.php:644
-#: includes/class-front-dash.php:674 includes/class-privacy.php:547
+#: includes/class-front-dash.php:674 includes/class-privacy.php:574
 #: includes/class-shortcode-booking.php:554
 msgid "Pago"
 msgstr "Payment"
 
 #: includes/class-dashboard-bookings.php:202
 #: includes/class-landing-builder.php:619
-#: includes/class-landing-builder.php:694 includes/class-privacy.php:621
+#: includes/class-landing-builder.php:694 includes/class-privacy.php:648
 msgid "Título"
 msgstr "Title"
 
-#: includes/class-dashboard-bookings.php:202 includes/class-privacy.php:549
+#: includes/class-dashboard-bookings.php:202 includes/class-privacy.php:576
 msgid "Entrada"
 msgstr "Check-in"
 
 #: includes/class-dashboard-bookings.php:202 includes/class-itinerary.php:558
-#: includes/class-privacy.php:550 includes/class-transport-admin.php:387
+#: includes/class-privacy.php:577 includes/class-transport-admin.php:387
 msgid "Salida"
 msgstr "Check-out"
 
@@ -4037,7 +4038,7 @@ msgstr "Activity log"
 #: includes/class-dashboard-content.php:653
 #: includes/class-dashboard-content.php:693 includes/class-front-dash.php:1382
 #: includes/class-metaboxes.php:244 includes/class-ops-log.php:88
-#: includes/class-privacy.php:826
+#: includes/class-privacy.php:863
 msgid "Acción"
 msgstr "Action"
 
@@ -4045,7 +4046,7 @@ msgstr "Action"
 #: includes/class-dashboard-content.php:693
 #: includes/class-finance-exceptions.php:130
 #: includes/class-launch-check.php:138 includes/class-ops-log.php:88
-#: includes/class-privacy.php:846
+#: includes/class-privacy.php:883
 msgid "Detalle"
 msgstr "Detail"
 
@@ -4087,7 +4088,7 @@ msgstr "All agencies"
 #: includes/class-dashboard-content.php:339
 #: includes/class-dashboard-insights.php:299
 #: includes/class-dashboard-money.php:719 includes/class-ops-log.php:75
-#: includes/class-privacy.php:870 includes/class-referral-reports.php:137
+#: includes/class-privacy.php:907 includes/class-referral-reports.php:137
 #: includes/class-shortcode-search.php:855 includes/class-user-admin.php:113
 msgid "Filtrar"
 msgstr "Filter"
@@ -4202,7 +4203,7 @@ msgid "Reembolso fallido"
 msgstr "Refund failed"
 
 #: includes/class-dashboard-content.php:76 includes/class-dashboard.php:127
-#: includes/class-dashboard.php:128 includes/class-privacy.php:616
+#: includes/class-dashboard.php:128 includes/class-privacy.php:643
 msgid "Reviews"
 msgstr "Reviews"
 
@@ -4228,7 +4229,7 @@ msgstr "All"
 
 #: includes/class-dashboard-content.php:83
 #: includes/class-dashboard-content.php:325
-#: includes/class-dashboard-money.php:400 includes/class-privacy.php:810
+#: includes/class-dashboard-money.php:400 includes/class-privacy.php:847
 #: includes/class-shortcode-booking.php:283
 msgid "Pendientes"
 msgstr "Pending"
@@ -4323,7 +4324,7 @@ msgstr ""
 "removes them."
 
 #: includes/class-dashboard-content.php:179
-#: includes/class-email-campaigns.php:275 includes/class-privacy.php:622
+#: includes/class-email-campaigns.php:275 includes/class-privacy.php:649
 msgid "Contenido"
 msgstr "Content"
 
@@ -4348,7 +4349,7 @@ msgid "Pregunta"
 msgstr "Question"
 
 #: includes/class-dashboard-content.php:196 includes/class-leads.php:279
-#: includes/class-privacy.php:575
+#: includes/class-privacy.php:602
 msgid "Mensaje"
 msgstr "Message"
 
@@ -4554,7 +4555,7 @@ msgid "Datos de la agencia"
 msgstr "Agency details"
 
 #: includes/class-dashboard-content.php:576 includes/class-front-dash.php:1454
-#: includes/class-leads.php:277 includes/class-privacy.php:574
+#: includes/class-leads.php:277 includes/class-privacy.php:601
 #: includes/class-shortcode-account.php:307
 msgid "Teléfono"
 msgstr "Phone"
@@ -4605,7 +4606,7 @@ msgstr "—"
 msgid "Guardar cambios"
 msgstr "Save changes"
 
-#: includes/class-dashboard-content.php:607 includes/class-kyc-docs.php:199
+#: includes/class-dashboard-content.php:607 includes/class-kyc-docs.php:263
 msgid "Documentos de verificación"
 msgstr "Verification documents"
 
@@ -4778,8 +4779,8 @@ msgid "No tienes permiso para agregar destinos."
 msgstr "You do not have permission to add destinations."
 
 #: includes/class-dashboard-insights.php:13
-#: includes/class-dashboard-insights.php:189 includes/class-privacy.php:735
-#: includes/class-privacy.php:782
+#: includes/class-dashboard-insights.php:189 includes/class-privacy.php:772
+#: includes/class-privacy.php:819
 msgid "No tienes permisos para acceder."
 msgstr "You do not have permission to access this page."
 
@@ -4835,8 +4836,8 @@ msgstr "Conversion rate"
 #: includes/class-dashboard-insights.php:105
 #: includes/class-dashboard-money.php:597 includes/class-invoices.php:123
 #: includes/class-invoices.php:422 includes/class-leads.php:275
-#: includes/class-privacy.php:573 includes/class-privacy.php:749
-#: includes/class-privacy.php:821 includes/class-privacy.php:877
+#: includes/class-privacy.php:600 includes/class-privacy.php:786
+#: includes/class-privacy.php:858 includes/class-privacy.php:914
 msgid "Correo"
 msgstr "Email"
 
@@ -5261,8 +5262,8 @@ msgstr ""
 "%d settlement(s) marked as failed: the payment did not complete. Review and "
 "process them again."
 
-#: includes/class-dashboard-money.php:421 includes/class-privacy.php:819
-#: includes/class-privacy.php:875 includes/class-transport-admin.php:167
+#: includes/class-dashboard-money.php:421 includes/class-privacy.php:856
+#: includes/class-privacy.php:912 includes/class-transport-admin.php:167
 #: includes/class-transport-admin.php:255
 #: includes/class-transport-admin.php:326
 #: includes/class-transport-admin.php:385
@@ -5348,7 +5349,7 @@ msgstr "Dispute #%d — %s"
 
 #: includes/class-dashboard-money.php:599 includes/class-front-dash.php:1384
 #: includes/class-listing-editor.php:325 includes/class-listing-editor.php:371
-#: includes/class-privacy.php:752 includes/class-privacy.php:824
+#: includes/class-privacy.php:789 includes/class-privacy.php:861
 #: includes/class-shortcode-booking.php:1293
 msgid "Detalles"
 msgstr "Details"
@@ -5440,8 +5441,8 @@ msgstr "Against the agency (commission not paid)"
 msgid "Retirar disputa"
 msgstr "Withdraw dispute"
 
-#: includes/class-dashboard-money.php:766 includes/class-privacy.php:758
-#: includes/class-privacy.php:851
+#: includes/class-dashboard-money.php:766 includes/class-privacy.php:795
+#: includes/class-privacy.php:888
 msgid "Nota de resolución"
 msgstr "Resolution note"
 
@@ -12330,7 +12331,7 @@ msgid "Seleccionar reserva"
 msgstr "Select booking"
 
 #: includes/class-front-dash.php:667 includes/class-front-dash.php:1014
-#: includes/class-front-dash.php:1025 includes/class-privacy.php:552
+#: includes/class-front-dash.php:1025 includes/class-privacy.php:579
 #: includes/class-shortcode-booking.php:1229
 msgid "Invitado"
 msgstr "Guest"
@@ -13523,8 +13524,12 @@ msgstr "Missing journey page: /%s/"
 
 #. translators: %s: slug de la página
 #: includes/class-journey-audit.php:38
-msgid "Crea y publica esa página; el plugin enlaza a ella desde el panel y el checkout."
-msgstr "Create and publish that page; the plugin links to it from the dashboard and checkout."
+msgid ""
+"Crea y publica esa página; el plugin enlaza a ella desde el panel y el "
+"checkout."
+msgstr ""
+"Create and publish that page; the plugin links to it from the dashboard and "
+"checkout."
 
 #. translators: 1: slug, 2: shortcode
 #: includes/class-journey-audit.php:44
@@ -13575,40 +13580,52 @@ msgstr "Legal ID / Registration"
 msgid "Comprobante de domicilio"
 msgstr "Proof of address"
 
-#: includes/class-kyc-docs.php:71
+#: includes/class-kyc-docs.php:122
 msgid "Tipo de documento no válido."
 msgstr "Invalid document type."
 
-#: includes/class-kyc-docs.php:77
+#: includes/class-kyc-docs.php:128
 msgid "El archivo supera los 5 MB."
 msgstr "The file exceeds 5 MB."
 
-#: includes/class-kyc-docs.php:83
+#: includes/class-kyc-docs.php:134
 msgid "Solo se permiten JPG, PNG o PDF."
 msgstr "Only JPG, PNG or PDF are allowed."
 
-#: includes/class-kyc-docs.php:88
+#: includes/class-kyc-docs.php:140
+msgid "No se pudo leer el archivo."
+msgstr "The file could not be read."
+
+#: includes/class-kyc-docs.php:144
+msgid "El servidor no puede cifrar el documento; contacta a soporte."
+msgstr "The server cannot encrypt the document; please contact support."
+
+#: includes/class-kyc-docs.php:148
 msgid "No se pudo guardar el archivo."
 msgstr "The file could not be saved."
 
-#: includes/class-kyc-docs.php:106 includes/class-kyc-docs.php:178
+#: includes/class-kyc-docs.php:167 includes/class-kyc-docs.php:239
 #: includes/class-legal.php:404
 msgid "Documento no encontrado."
 msgstr "Document not found."
 
-#: includes/class-kyc-docs.php:111
+#: includes/class-kyc-docs.php:172
 msgid "Indica el motivo del rechazo."
 msgstr "State the rejection reason."
 
-#: includes/class-kyc-docs.php:196
+#: includes/class-kyc-docs.php:245
+msgid "No se pudo abrir el documento."
+msgstr "The document could not be opened."
+
+#: includes/class-kyc-docs.php:260
 msgid "Motivo del rechazo:"
 msgstr "Rejection reason:"
 
-#: includes/class-kyc-docs.php:210
+#: includes/class-kyc-docs.php:274
 msgid "Sin subir"
 msgstr "Not uploaded"
 
-#: includes/class-kyc-docs.php:223
+#: includes/class-kyc-docs.php:287
 msgid "Subir documento"
 msgstr "Upload document"
 
@@ -14194,7 +14211,7 @@ msgid "Aún no has firmado contratos."
 msgstr "You have not signed any contracts yet."
 
 #: includes/class-legal.php:387 includes/class-legal.php:464
-#: includes/class-privacy.php:879
+#: includes/class-privacy.php:916
 msgid "Versión"
 msgstr "Version"
 
@@ -15427,7 +15444,7 @@ msgstr "Template"
 msgid "Destinatario"
 msgstr "Recipient"
 
-#: includes/class-ops-log.php:88 includes/class-privacy.php:880
+#: includes/class-ops-log.php:88 includes/class-privacy.php:917
 msgid "IP"
 msgstr "IP"
 
@@ -15468,6 +15485,103 @@ msgstr "Could not capture PayPal order"
 #: includes/class-paypal.php:388
 msgid "Could not process refund"
 msgstr "Could not process refund"
+
+#: includes/class-pii-inventory.php:17
+msgid "Gestión de la reserva, voucher y comunicaciones del viaje."
+msgstr "Booking management, voucher and trip communications."
+
+#: includes/class-pii-inventory.php:18
+msgid "Operativa; se anonimiza al solicitar borrado ARCO."
+msgstr "Operational; anonymised on an erasure request."
+
+#: includes/class-pii-inventory.php:23
+msgid "Atención de consultas comerciales."
+msgstr "Handling of commercial enquiries."
+
+#: includes/class-pii-inventory.php:24
+msgid "Hasta resolver la consulta."
+msgstr "Until the enquiry is resolved."
+
+#: includes/class-pii-inventory.php:29
+msgid "Prueba de consentimiento informado."
+msgstr "Evidence of informed consent."
+
+#: includes/class-pii-inventory.php:30
+msgid "Conservado como evidencia legal."
+msgstr "Kept as legal evidence."
+
+#: includes/class-pii-inventory.php:35
+msgid "Tramitación de disputas."
+msgstr "Dispute handling."
+
+#: includes/class-pii-inventory.php:36
+msgid "Mientras el caso esté abierto y su plazo de revisión."
+msgstr "While the case is open and its review period lasts."
+
+#: includes/class-pii-inventory.php:41
+msgid "Conversación entre viajero y agencia."
+msgstr "Conversation between traveller and agency."
+
+#: includes/class-pii-inventory.php:42
+msgid "Mientras la reserva esté activa."
+msgstr "While the booking is active."
+
+#: includes/class-pii-inventory.php:47
+msgid "Gestión de derechos ARCO."
+msgstr "Handling of data rights requests."
+
+#: includes/class-pii-inventory.php:48
+msgid "Registro de la solicitud y su resolución."
+msgstr "Record of the request and its resolution."
+
+#: includes/class-pii-inventory.php:53
+msgid "Programa de referidos y prevención de fraude."
+msgstr "Referral programme and fraud prevention."
+
+#: includes/class-pii-inventory.php:54
+msgid "Mientras la cuenta esté activa."
+msgstr "While the account is active."
+
+#: includes/class-pii-inventory.php:59
+msgid "Liquidación de comisiones a afiliados."
+msgstr "Affiliate commission settlement."
+
+#: includes/class-pii-inventory.php:60
+msgid "Mientras el afiliado esté activo y obligaciones fiscales lo requieran."
+msgstr "While the affiliate is active and tax obligations require it."
+
+#: includes/class-pii-inventory.php:73
+msgid "La tabla declarada ya no existe."
+msgstr "The declared table no longer exists."
+
+#: includes/class-pii-inventory.php:80
+msgid "La columna declarada no existe; revisa el inventario."
+msgstr "The declared column does not exist; review the inventory."
+
+#: includes/class-pii-inventory.php:92
+msgid "Inventario de datos personales"
+msgstr "Personal data inventory"
+
+#: includes/class-pii-inventory.php:95
+msgid "El inventario no coincide con la base de datos:"
+msgstr "The inventory does not match the database:"
+
+#: includes/class-pii-inventory.php:102
+msgid "Tabla"
+msgstr "Table"
+
+#: includes/class-pii-inventory.php:103
+#: includes/class-shortcode-booking.php:553
+msgid "Datos"
+msgstr "Details"
+
+#: includes/class-pii-inventory.php:104
+msgid "Finalidad"
+msgstr "Purpose"
+
+#: includes/class-pii-inventory.php:105
+msgid "Retención"
+msgstr "Retention"
 
 #: includes/class-post-types.php:23
 msgid "Add Agency"
@@ -16096,40 +16210,40 @@ msgstr ""
 "Notice</a> and consent to the processing of my personal data to manage this "
 "request."
 
-#: includes/class-privacy.php:268
+#: includes/class-privacy.php:295
 msgid "Ingresa un correo electrónico válido."
 msgstr "Enter a valid email address."
 
-#: includes/class-privacy.php:276
+#: includes/class-privacy.php:303
 msgid "Selecciona al menos un derecho."
 msgstr "Select at least one right."
 
-#: includes/class-privacy.php:279
+#: includes/class-privacy.php:306
 msgid "Describe brevemente tu solicitud."
 msgstr "Briefly describe your request."
 
-#: includes/class-privacy.php:293
+#: includes/class-privacy.php:320
 msgid "No se pudo guardar la solicitud."
 msgstr "The request could not be saved."
 
-#: includes/class-privacy.php:367 includes/class-privacy.php:739
+#: includes/class-privacy.php:394 includes/class-privacy.php:776
 msgid "Solicitud no encontrada."
 msgstr "Request not found."
 
-#: includes/class-privacy.php:480
+#: includes/class-privacy.php:507
 msgid "Enlace de baja no válido."
 msgstr "Invalid unsubscribe link."
 
-#: includes/class-privacy.php:484
+#: includes/class-privacy.php:511
 msgid "Te has dado de baja de los correos de marketing."
 msgstr "You have been unsubscribed from marketing emails."
 
-#: includes/class-privacy.php:485
+#: includes/class-privacy.php:512
 msgid "Baja confirmada"
 msgstr "Unsubscribe confirmed"
 
 #. translators: 1: enlace al aviso de privacidad, 2: dirección de correo de contacto
-#: includes/class-privacy.php:496
+#: includes/class-privacy.php:523
 #, php-format
 msgid ""
 "Procesamos tus datos personales de acuerdo con nuestro <a "
@@ -16142,134 +16256,138 @@ msgstr ""
 "rectification, erasure or objection by writing to <a href=\"mailto:"
 "%2$s\">%2$s</a>."
 
-#: includes/class-privacy.php:542
+#: includes/class-privacy.php:569
 msgid "Travel bookings"
 msgstr "Travel bookings"
 
-#: includes/class-privacy.php:569
+#: includes/class-privacy.php:596
 msgid "Contact messages"
 msgstr "Contact messages"
 
-#: includes/class-privacy.php:593
+#: includes/class-privacy.php:620
 msgid "Privacy consents"
 msgstr "Privacy consents"
 
-#: includes/class-privacy.php:596
+#: includes/class-privacy.php:623
 msgid "Alcance"
 msgstr "Scope"
 
-#: includes/class-privacy.php:597
+#: includes/class-privacy.php:624
 msgid "Versión política"
 msgstr "Policy version"
 
-#: includes/class-privacy.php:620
+#: includes/class-privacy.php:647
 msgid "Valoración"
 msgstr "Rating"
 
-#: includes/class-privacy.php:717 includes/class-privacy.php:718
+#: includes/class-privacy.php:744 includes/class-privacy.php:745
 msgid "Privacidad"
 msgstr "Privacy"
 
-#: includes/class-privacy.php:745
+#: includes/class-privacy.php:753 includes/class-privacy.php:754
+msgid "Inventario de datos"
+msgstr "Data inventory"
+
+#: includes/class-privacy.php:782
 msgid "Volver a solicitudes"
 msgstr "Back to requests"
 
-#: includes/class-privacy.php:746
+#: includes/class-privacy.php:783
 #, php-format
 msgid "Solicitud de datos #%d"
 msgstr "Data request #%d"
 
-#: includes/class-privacy.php:751
+#: includes/class-privacy.php:788
 msgid "Derechos solicitados"
 msgstr "Rights requested"
 
-#: includes/class-privacy.php:753
+#: includes/class-privacy.php:790
 msgid "Recibida"
 msgstr "Received"
 
-#: includes/class-privacy.php:754
+#: includes/class-privacy.php:791
 msgid "Dirección IP"
 msgstr "IP address"
 
-#: includes/class-privacy.php:755 includes/class-privacy.php:844
+#: includes/class-privacy.php:792 includes/class-privacy.php:881
 msgid "Atendida"
 msgstr "Handled"
 
-#: includes/class-privacy.php:756
+#: includes/class-privacy.php:793
 msgid "Atendida por"
 msgstr "Handled by"
 
-#: includes/class-privacy.php:757
+#: includes/class-privacy.php:794
 msgid "Fecha de resolución"
 msgstr "Resolution date"
 
-#: includes/class-privacy.php:759
+#: includes/class-privacy.php:796
 msgid "Datos exportados"
 msgstr "Data exported"
 
-#: includes/class-privacy.php:765
+#: includes/class-privacy.php:802
 msgid "Exportar datos personales (JSON)"
 msgstr "Export personal data (JSON)"
 
-#: includes/class-privacy.php:766
+#: includes/class-privacy.php:803
 msgid ""
 "La exportación queda registrada en la auditoría y en la fecha de esta "
 "solicitud."
 msgstr "The export is recorded in the audit log and in this request."
 
-#: includes/class-privacy.php:772
+#: includes/class-privacy.php:809
 msgid "Describe cómo se resolvió la solicitud"
 msgstr "Describe how the request was resolved"
 
-#: includes/class-privacy.php:773 includes/class-privacy.php:852
+#: includes/class-privacy.php:810 includes/class-privacy.php:889
 msgid "Marcar atendida"
 msgstr "Mark handled"
 
-#: includes/class-privacy.php:807
+#: includes/class-privacy.php:844
 msgid "Privacidad y Datos Personales (Ley 8968)"
 msgstr "Privacy and Personal Data (Law 8968)"
 
-#: includes/class-privacy.php:810
+#: includes/class-privacy.php:847
 msgid "Atendidas"
 msgstr "Handled"
 
-#: includes/class-privacy.php:815
+#: includes/class-privacy.php:852
 msgid "Solicitudes de derechos de datos"
 msgstr "Data rights requests"
 
-#: includes/class-privacy.php:823
+#: includes/class-privacy.php:860
 msgid "Derechos"
 msgstr "Rights"
 
-#: includes/class-privacy.php:831
+#: includes/class-privacy.php:868
 msgid "No hay solicitudes."
 msgstr "There are no requests."
 
-#: includes/class-privacy.php:865
+#: includes/class-privacy.php:902
 msgid "Registro de consentimientos"
 msgstr "Consents log"
 
-#: includes/class-privacy.php:869
+#: includes/class-privacy.php:906
 msgid "Correo o ámbito"
 msgstr "Email or scope"
 
-#: includes/class-privacy.php:878
+#: includes/class-privacy.php:915
 msgid "Ámbito"
 msgstr "Scope"
 
-#: includes/class-privacy.php:886
+#: includes/class-privacy.php:923
 msgid "No hay consentimientos registrados."
 msgstr "There are no recorded consents."
 
-#: includes/class-privacy.php:904
+#: includes/class-privacy.php:941
 msgid "Configuración de contacto"
 msgstr "Contact settings"
 
-#: includes/class-privacy.php:909
+#: includes/class-privacy.php:946
 msgid "Correo de contacto para datos personales"
 msgstr "Contact email for personal data"
 
-#: includes/class-privacy.php:912
+#: includes/class-privacy.php:949
 msgid "Si se deja vacío se usa el correo del administrador del sitio."
 msgstr "If left empty, the site administrator's email is used."
 
@@ -17384,10 +17502,6 @@ msgstr "This booking was cancelled or rejected and can no longer be paid."
 #: includes/class-shortcode-booking.php:547
 msgid "Buscar otras experiencias"
 msgstr "Browse other experiences"
-
-#: includes/class-shortcode-booking.php:553
-msgid "Datos"
-msgstr "Details"
 
 #: includes/class-shortcode-booking.php:555
 msgid "Confirmación"

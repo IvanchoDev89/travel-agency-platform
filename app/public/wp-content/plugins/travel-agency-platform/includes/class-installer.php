@@ -258,7 +258,7 @@ class TAP_Installer {
             "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}tap_affiliate_clicks (
                 id bigint(20) NOT NULL AUTO_INCREMENT,
                 affiliate_id bigint(20) NOT NULL,
-                ip varchar(45) DEFAULT NULL,
+                ip varchar(64) DEFAULT NULL,
                 user_agent varchar(255) DEFAULT NULL,
                 created_at datetime DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (id),
@@ -460,7 +460,7 @@ class TAP_Installer {
                 email varchar(150) NOT NULL,
                 phone varchar(50) DEFAULT NULL,
                 message text,
-                ip varchar(45) DEFAULT NULL,
+                ip varchar(64) DEFAULT NULL,
                 source varchar(30) DEFAULT 'agency',
                 mod_status varchar(20) DEFAULT 'ok',
                 mod_reason varchar(50) DEFAULT NULL,
@@ -477,7 +477,7 @@ class TAP_Installer {
                 email varchar(150) NOT NULL,
                 scope varchar(40) NOT NULL,
                 policy_version varchar(20) DEFAULT NULL,
-                ip varchar(45) DEFAULT NULL,
+                ip varchar(64) DEFAULT NULL,
                 created_at datetime DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (id),
                 KEY email (email),
@@ -493,7 +493,7 @@ class TAP_Installer {
                 rights varchar(100) NOT NULL,
                 details text,
                 status varchar(20) DEFAULT 'pending',
-                ip varchar(45) DEFAULT NULL,
+                ip varchar(64) DEFAULT NULL,
                 handled_by bigint(20) DEFAULT 0,
                 handled_note text DEFAULT NULL,
                 exported_at datetime DEFAULT NULL,
@@ -656,6 +656,21 @@ class TAP_Installer {
         if (!$has_unique) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_customer_referrals ADD UNIQUE KEY booking_unique (booking_id)");
         }
+
+        // KYC files are encrypted at rest; mark legacy rows for migration.
+        $kyc_cols = $wpdb->get_col("DESCRIBE {$wpdb->prefix}tap_kyc_documents");
+        if (!in_array('is_encrypted', $kyc_cols, true)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_kyc_documents ADD COLUMN is_encrypted tinyint(1) NOT NULL DEFAULT 0 AFTER file_size");
+        }
+        if (class_exists('TAP_KYC_Docs')) { TAP_KYC_Docs::encrypt_legacy(20); }
+        foreach (['tap_consents', 'tap_privacy_requests'] as $privacy_table) {
+            $full = $wpdb->prefix . $privacy_table;
+            $ip_col = $wpdb->get_row("DESCRIBE {$full} ip", ARRAY_A);
+            if ($ip_col && false === strpos((string) ($ip_col['Type'] ?? ''), '64')) {
+                $wpdb->query("ALTER TABLE {$full} MODIFY ip varchar(64) DEFAULT NULL");
+            }
+        }
+        if (class_exists('TAP_Privacy')) { TAP_Privacy::hash_legacy_ips(100); }
 
         // Referral anti-fraud columns (idempotent).
         $ref_cols = [
@@ -1180,6 +1195,7 @@ class TAP_Installer {
             file_name varchar(255) NOT NULL,
             mime varchar(100) NOT NULL DEFAULT '',
             file_size bigint(20) NOT NULL DEFAULT 0,
+            is_encrypted tinyint(1) NOT NULL DEFAULT 0,
             status varchar(20) NOT NULL DEFAULT 'pending',
             reviewer_note varchar(500) DEFAULT NULL,
             reviewed_by bigint(20) NOT NULL DEFAULT 0,
@@ -1310,7 +1326,7 @@ class TAP_Installer {
             object_type varchar(40) DEFAULT NULL,
             object_id bigint(20) DEFAULT NULL,
             details text DEFAULT NULL,
-            ip varchar(45) DEFAULT NULL,
+            ip varchar(64) DEFAULT NULL,
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
             KEY agency (agency_id),

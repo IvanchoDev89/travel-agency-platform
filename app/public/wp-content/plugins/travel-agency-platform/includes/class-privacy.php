@@ -205,6 +205,33 @@ class TAP_Privacy {
         return ob_get_clean();
     }
 
+    /** IPs are personal data: store a salted hash, never the raw address. */
+    public static function hash_ip($ip) {
+        $ip = trim((string) $ip);
+        if ('' === $ip) { return ''; }
+        return hash_hmac('sha256', $ip, wp_salt('auth'));
+    }
+
+    /** Convert legacy raw IPs to salted hashes (bounded, idempotent). */
+    public static function hash_legacy_ips($limit = 100) {
+        global $wpdb;
+        $done = 0;
+        foreach (['tap_consents', 'tap_privacy_requests'] as $table) {
+            $full = $wpdb->prefix . $table;
+            $cols = $wpdb->get_col("DESCRIBE {$full}");
+            if (!in_array('ip', $cols, true)) { continue; }
+            $rows = $wpdb->get_results($wpdb->prepare(
+                "SELECT id, ip FROM {$full} WHERE ip <> '' AND ip IS NOT NULL ORDER BY id ASC LIMIT %d",
+                max(1, (int) $limit)
+            ));
+            foreach ((array) $rows as $row) {
+                if (!filter_var($row->ip, FILTER_VALIDATE_IP)) { continue; }
+                if ($wpdb->update($full, ['ip' => self::hash_ip($row->ip)], ['id' => (int) $row->id])) { ++$done; }
+            }
+        }
+        return $done;
+    }
+
     public static function record_consent($email, $scope, $wp_user_id = 0) {
         if (!is_email($email) || !in_array($scope, self::SCOPES, true)) return 0;
 
@@ -214,7 +241,7 @@ class TAP_Privacy {
             'email'          => sanitize_email($email),
             'scope'          => $scope,
             'policy_version' => self::POLICY_VERSION,
-            'ip'             => isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '',
+            'ip'             => self::hash_ip(isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : ''),
         ]);
         return $result ? (int) $wpdb->insert_id : 0;
     }
@@ -288,7 +315,7 @@ class TAP_Privacy {
             'rights'     => implode(',', $clean_rights),
             'details'    => sanitize_textarea_field($details),
             'status'     => 'pending',
-            'ip'         => isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : '',
+            'ip'         => self::hash_ip(isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : ''),
         ]);
         return $result ? (int) $wpdb->insert_id : new WP_Error('tap_db_error', __('No se pudo guardar la solicitud.', 'travel-agency-platform'));
     }
@@ -720,6 +747,16 @@ class TAP_Privacy {
             'tap-privacy',
             [__CLASS__, 'privacy_page']
         );
+        if (class_exists('TAP_PII_Inventory')) {
+            add_submenu_page(
+                'travel-platform',
+                __('Inventario de datos', 'travel-agency-platform'),
+                __('Inventario de datos', 'travel-agency-platform'),
+                'tap_manage_settings',
+                'tap-pii-inventory',
+                ['TAP_PII_Inventory', 'render']
+            );
+        }
     }
 
     public static function register_settings() {

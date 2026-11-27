@@ -60,6 +60,57 @@ class TAP_KYC_Docs {
         return $dir;
     }
 
+    /** Derive the AES key from WordPress salts (and an optional env constant). */
+    public static function encryption_key() {
+        $extra = defined('TAP_KYC_KEY') ? (string) TAP_KYC_KEY : '';
+        return hash('sha256', wp_salt('auth') . '|tap-kyc|' . $extra, true);
+    }
+
+    /** Encrypt bytes with a random IV. Returns false if openssl is unavailable. */
+    public static function encrypt($plain) {
+        if (!function_exists('openssl_encrypt')) { return false; }
+        $iv = openssl_random_pseudo_bytes(16);
+        if (false === $iv) { return false; }
+        $cipher = openssl_encrypt((string) $plain, 'aes-256-cbc', self::encryption_key(), 0, $iv);
+        if (false === $cipher) { return false; }
+        return 'TAPKYC1:' . base64_encode($iv) . ':' . base64_encode($cipher);
+    }
+
+    /** Decrypt bytes; plain legacy content is returned unchanged. */
+    public static function decrypt($data) {
+        $data = (string) $data;
+        if (0 !== strpos($data, 'TAPKYC1:')) { return $data; }
+        if (!function_exists('openssl_decrypt')) { return false; }
+        $parts = explode(':', $data, 3);
+        if (3 !== count($parts)) { return false; }
+        $iv = base64_decode($parts[1], true);
+        $cipher = base64_decode($parts[2], true);
+        if (false === $iv || false === $cipher) { return false; }
+        return openssl_decrypt($cipher, 'aes-256-cbc', self::encryption_key(), 0, $iv);
+    }
+
+    /** Gradually encrypt legacy uploads (bounded so a request stays fast). */
+    public static function encrypt_legacy($limit = 20) {
+        global $wpdb;
+        $rows = $wpdb->get_results($wpdb->prepare(
+            'SELECT id, file_path, is_encrypted FROM ' . self::table() . ' WHERE is_encrypted = 0 ORDER BY id ASC LIMIT %d',
+            max(1, (int) $limit)
+        ));
+        $done = 0;
+        foreach ((array) $rows as $doc) {
+            if (!is_readable($doc->file_path)) { continue; }
+            $plain = self::decrypt(file_get_contents($doc->file_path)); // phpcs:ignore WordPress.WP.AlternativeFunctions
+            if (false === $plain) { continue; }
+            $encrypted = self::encrypt($plain);
+            if (false === $encrypted) { continue; }
+            if (false !== file_put_contents($doc->file_path, $encrypted) // phpcs:ignore WordPress.WP.AlternativeFunctions
+                && $wpdb->update(self::table(), ['is_encrypted' => 1], ['id' => (int) $doc->id])) {
+                ++$done;
+            }
+        }
+        return $done;
+    }
+
     /** Validate and store one uploaded file for an agency. Returns id or WP_Error. */
     public static function store($agency_id, $file, $doc_type) {
         $agency_id = (int) $agency_id;
@@ -84,7 +135,16 @@ class TAP_KYC_Docs {
         }
         $name = bin2hex(random_bytes(16)) . '.' . $ext;
         $path = trailingslashit(self::upload_dir()) . $name;
-        if (!move_uploaded_file($file['tmp_name'], $path)) {
+        $plain = file_get_contents($file['tmp_name']); // phpcs:ignore WordPress.WP.AlternativeFunctions
+        if (false === $plain) {
+            return new WP_Error('read_failed', __('No se pudo leer el archivo.', 'travel-agency-platform'));
+        }
+        $encrypted = self::encrypt($plain);
+        if (false === $encrypted) {
+            return new WP_Error('no_crypto', __('El servidor no puede cifrar el documento; contacta a soporte.', 'travel-agency-platform'));
+        }
+        if (false === file_put_contents($path, $encrypted) // phpcs:ignore WordPress.WP.AlternativeFunctions
+            || !file_exists($path)) {
             return new WP_Error('move_failed', __('No se pudo guardar el archivo.', 'travel-agency-platform'));
         }
         global $wpdb;
@@ -95,6 +155,7 @@ class TAP_KYC_Docs {
             'file_name' => sanitize_text_field((string) $file['name']),
             'mime' => (string) $checked['type'],
             'file_size' => (int) $file['size'],
+            'is_encrypted' => 1,
         ]);
         return (int) $wpdb->insert_id;
     }
@@ -179,10 +240,13 @@ class TAP_KYC_Docs {
         $allowed = current_user_can('manage_options') || current_user_can('tap_manage_agencies')
             || (int) TAP_Booking::get_agency_for_user(get_current_user_id()) === (int) $doc->agency_id;
         if (!$allowed) { wp_die(esc_html__('No autorizado.', 'travel-agency-platform'), '', ['response' => 403]); }
+        $bytes = file_get_contents($doc->file_path); // phpcs:ignore WordPress.WP.AlternativeFunctions
+        $bytes = self::decrypt($bytes);
+        if (false === $bytes) { wp_die(esc_html__('No se pudo abrir el documento.', 'travel-agency-platform'), '', ['response' => 500]); }
         nocache_headers();
         header('Content-Type: ' . $doc->mime);
         header('Content-Disposition: inline; filename="' . sanitize_file_name($doc->file_name) . '"');
-        readfile($doc->file_path); // phpcs:ignore WordPress.WP.AlternativeFunctions
+        echo $bytes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- binary document
         exit;
     }
 

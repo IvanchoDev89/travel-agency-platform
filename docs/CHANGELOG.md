@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.34.0] — 2026-11-27
+
+### Added (security and privacy, phase 3)
+- KYC identity documents encrypted at rest with AES-256-CBC and a random IV,
+  keyed from WordPress salts; bounded migration for legacy files and seamless
+  decryption when an operator opens a document.
+- IPs in consent logs and ARCO requests stored as salted hashes instead of raw
+  addresses, with bounded migration; `ip` columns widened to hold the hash.
+- Read-only personal-data inventory with purpose and retention, verified
+  against the database and available under the privacy menu.
+- FUNCTIONAL `suite_security_privacy.php`; 92/92 suites green.
+
 ## [1.33.0] — 2026-11-27
 
 ### Added (journey coverage, phase 2)
