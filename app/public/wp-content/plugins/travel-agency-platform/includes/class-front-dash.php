@@ -157,6 +157,12 @@ class TAP_Front_Dash {
                 'kind_booking'       => __('Reserva', 'travel-agency-platform'),
                 'kind_row'           => __('Fila', 'travel-agency-platform'),
                 'search_aria'        => __('Buscar en el panel', 'travel-agency-platform'),
+                'op_confirmed'       => __('Confirmada', 'travel-agency-platform'),
+                'op_completed'       => __('Completada', 'travel-agency-platform'),
+                'op_cancelled'       => __('Cancelada', 'travel-agency-platform'),
+                'op_rejected'        => __('Rechazada', 'travel-agency-platform'),
+                'op_noshow'          => __('No show', 'travel-agency-platform'),
+                'op_paid'            => __('Pagada', 'travel-agency-platform'),
             ],
         ]);
     }

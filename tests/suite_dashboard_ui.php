@@ -107,6 +107,24 @@ tap_t_assert(false !== strpos($client_src, 'data-label='), 'client tables expose
 tap_t_assert(substr_count($dash_src, 'data-label=') >= 8, 'agency tables expose labels for mobile cards');
 tap_t_assert(false !== strpos($css, '.tap-table-compact tbody td::before'), 'mobile table cards render their labels');
 
+/* --- 6) performance budget and optimistic actions ----------------------------- */
+$perf_src = (string) file_get_contents($base . 'includes/class-perf-budget.php');
+tap_t_assert(false !== strpos($perf_src, 'MAX_QUERIES') && false !== strpos($perf_src, 'MAX_SECONDS'), 'performance budget defines query and time limits');
+$bootstrap_src = (string) file_get_contents($base . 'travel-agency-platform.php');
+tap_t_assert(false !== strpos($bootstrap_src, 'TAP_Perf_Budget::init'), 'performance budget is wired in');
+$launch_src = (string) file_get_contents($base . 'includes/class-launch-check.php');
+tap_t_assert(false !== strpos($launch_src, 'TAP_Perf_Budget::issues'), 'performance issues are surfaced in the launch check');
+set_transient('tap_dash_perf', ['queries' => 200, 'seconds' => 5.0, 'section' => 'bo-operations', 'recorded_at' => current_time('mysql')], DAY_IN_SECONDS);
+tap_t_assert(count(TAP_Perf_Budget::issues()) >= 2, 'over-budget snapshot produces warnings');
+delete_transient('tap_dash_perf');
+
+tap_t_assert(false !== strpos($js, 'tapUpdateBookingRow'), 'booking actions update the row optimistically');
+$booking_js = substr($js, strpos($js, "\$(document).on('click', '.tap-bo-api'"), 2200);
+tap_t_assert(false === strpos($booking_js, 'location.reload();'), 'booking actions no longer force a full reload');
+foreach (['op_confirmed', 'op_completed', 'op_cancelled', 'op_rejected', 'op_paid'] as $key) {
+    tap_t_assert(false !== strpos($dash_src, "'" . $key . "'"), 'action label is localized: ' . $key);
+}
+
 /* --- cleanup ------------------------------------------------------------------ */
 $_GET = [];
 wp_set_current_user($orig_uid);

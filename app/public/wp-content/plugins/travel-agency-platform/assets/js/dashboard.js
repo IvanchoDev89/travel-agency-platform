@@ -362,6 +362,44 @@
         });
     });
 
+    /* ── Optimistic booking row update (no full page reload) ──────── */
+    function tapUpdateBookingRow($btn, op) {
+        var $row = $btn.closest('tr');
+        if (!$row.length) { return; }
+        var i18n = cfg.i18n || {};
+        var labels = {
+            confirm: i18n.op_confirmed || 'Confirmada',
+            complete: i18n.op_completed || 'Completada',
+            cancel: i18n.op_cancelled || 'Cancelada',
+            reject: i18n.op_rejected || 'Rechazada',
+            no_show: i18n.op_noshow || 'No show'
+        };
+        if (labels[op]) {
+            var $status = $row.find('td[data-label] .tap-status').last();
+            if ($status.length) {
+                $status.text(labels[op]);
+                $status.removeClass('tap-status-pending tap-status-confirmed tap-status-cancelled');
+                $status.addClass(op === 'confirm' || op === 'complete' ? 'tap-status-confirmed' : 'tap-status-cancelled');
+            }
+        }
+        if (op === 'mark_paid' || op === 'settle_offline') {
+            var $pay = $row.find('td[data-label] .tap-status').first();
+            if ($pay.length) {
+                $pay.text(i18n.op_paid || 'Pagada');
+                $pay.removeClass('tap-status-pending tap-status-cancelled').addClass('tap-status-paid');
+            }
+        }
+        $row.find('.tap-bo-api').each(function () {
+            var next = $(this).data('op');
+            var hide = op === 'cancel' || op === 'reject'
+                || (op === 'confirm' && (next === 'confirm' || next === 'reject'))
+                || (op === 'complete' && next === 'complete')
+                || ((op === 'mark_paid' || op === 'settle_offline') && (next === 'mark_paid' || next === 'settle_offline'));
+            if (hide) { $(this).remove(); }
+        });
+        tapToast(i18n.saved || 'Guardado', 'success');
+    }
+
     /* ── Agency back-office: booking ops ──────────────────────────── */
     $(document).on('click', '.tap-bo-api', function () {
         var $btn  = $(this);
@@ -386,7 +424,8 @@
                 }
                 $.post(cfg.ajax_url, data).done(function (res) {
                     if (res && res.success) {
-                        location.reload();
+                        tapUpdateBookingRow($btn, op);
+                        $btn.prop('disabled', false).text(originalLabel);
                     } else {
                         tapToast(res && res.data && res.data.message ? res.data.message : i18n.error, 'error');
                         $btn.prop('disabled', false).text(originalLabel);
@@ -709,7 +748,8 @@
                 user_id: id
             }).done(function (res) {
                 if (res && res.success) {
-                    location.reload();
+                    $btn.closest('tr').fadeOut(250, function () { $(this).remove(); });
+                    tapToast(cfg.i18n && cfg.i18n.saved ? cfg.i18n.saved : 'Guardado', 'success');
                 } else {
                     tapToast(res && res.data && res.data.message ? res.data.message : (cfg.i18n && cfg.i18n.error), 'error');
                     $btn.prop('disabled', false);

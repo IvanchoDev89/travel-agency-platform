@@ -6,6 +6,17 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.35.0] — 2026-11-27
+
+### Added (UX/performance, phase 4)
+- Dashboard performance budget: queries, time and peak memory measured on panel
+  requests, with warnings surfaced in the Launch Check.
+- Booking actions now update the row optimistically with a toast instead of
+  forcing a full page reload; team removal removes the row in place.
+
+### Added tests
+- Extended `suite_dashboard_ui.php`; 92/92 suites green.
+
 ## [1.34.0] — 2026-11-27
 
 ### Added (security and privacy, phase 3)
