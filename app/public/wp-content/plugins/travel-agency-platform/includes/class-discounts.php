@@ -336,11 +336,18 @@ class TAP_Discounts {
         $total_discount_pct = min(100, $total_discount_pct);
         $final_total = $base_total * (1 - $total_discount_pct / 100);
 
-        foreach ($discounts as $i => $d) {
-            $discounts[$i]['amount'] = $base_total * ($d['percent'] / 100);
-        }
-
         $savings = $base_total - $final_total;
+        // The displayed per-discount amounts must add up to the saving that was
+        // actually applied. Percentages can exceed 100 before the cap, so raw
+        // amounts are scaled down proportionally to the capped total.
+        $raw_sum = 0.0;
+        foreach ($discounts as $d) { $raw_sum += (float) $d['percent']; }
+        $scale = ($raw_sum > $total_discount_pct && $raw_sum > 0)
+            ? $total_discount_pct / $raw_sum
+            : 1.0;
+        foreach ($discounts as $i => $d) {
+            $discounts[$i]['amount'] = round($base_total * (($d['percent'] * $scale) / 100), 2);
+        }
 
         return [
             'available' => true,

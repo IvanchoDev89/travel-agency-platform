@@ -345,6 +345,7 @@ class TAP_Booking {
         $create_error = null;
         $booking_id   = 0;
         $tour_slot_id = 0;
+        $slot_booked  = false;
 
         try {
             if (!empty($data['room_id']) && $room_check_in && $room_check_out) {
@@ -608,8 +609,9 @@ class TAP_Booking {
             }
         }
 
-        if ($create_error && !empty($tour_slot_id) && class_exists('TAP_Tour_Availability')) {
-            // Release any partially booked slot on failure.
+        if ($create_error && $slot_booked && class_exists('TAP_Tour_Availability')) {
+            // Only undo a slot we actually incremented. Releasing after a
+            // failed book_slot() stole capacity from another reservation.
             TAP_Tour_Availability::release_slot($tour_slot_id, $adults + $children);
         }
         if ($create_error) {
@@ -767,13 +769,6 @@ class TAP_Booking {
      */
     private static function apply_cancellation($booking_id, $booking, $cancelled_by, $target_status = 'cancelled', $reason = '') {
         global $wpdb;
-        // Release tour slot on cancellation.
-        $slot_id = (int) ($booking->slot_id ?? 0);
-        if ($slot_id && class_exists('TAP_Tour_Availability')) {
-            $adults = (int) ($booking->adults ?? 1) + (int) ($booking->children ?? 0);
-            TAP_Tour_Availability::release_slot($slot_id, max(1, $adults));
-        }
-
         $prev_status = $booking->status;
 
         // CAS: atomically claim the cancellation so a concurrent client+agency
@@ -787,6 +782,15 @@ class TAP_Booking {
         ));
         if (!$claimed) {
             return new WP_Error('bad_status', __('Esta reserva ya no puede cancelarse.', 'travel-agency-platform'));
+        }
+
+        // Only the request that won the CAS may give the seat back. Releasing
+        // before the claim let two concurrent cancellations return the same
+        // slot twice and inflate available capacity.
+        $slot_id = (int) ($booking->slot_id ?? 0);
+        if ($slot_id && class_exists('TAP_Tour_Availability')) {
+            $adults = (int) ($booking->adults ?? 1) + (int) ($booking->children ?? 0);
+            TAP_Tour_Availability::release_slot($slot_id, max(1, $adults));
         }
 
         $refund = TAP_Refunds::cancellation_refund($booking);
@@ -1138,8 +1142,22 @@ class TAP_Booking {
         if (in_array($status, ['cancelled', 'refunded'], true) && $reason !== '') {
             $data['cancel_reason'] = $reason;
         }
-        // Release tour slot on cancellation (unpaid bookings; paid ones are
-        // released in apply_cancellation()).
+        // CAS: only the writer that still sees the state we validated may
+        // change it. Releasing a slot before this UPDATE let concurrent
+        // cancellations return the same seat more than once.
+        $changed = $wpdb->update(
+            $wpdb->prefix . 'tap_bookings',
+            $data,
+            ['id' => $booking_id, 'status' => $prev]
+        );
+        if (1 !== $changed) {
+            if (null !== $tour_lock) {
+                $wpdb->get_var($wpdb->prepare('SELECT RELEASE_LOCK(%s)', $tour_lock));
+            }
+            return new WP_Error('lost_race', __('La reserva cambió en otra petición.', 'travel-agency-platform'));
+        }
+        // Release tour slot on cancellation only after winning the CAS
+        // (unpaid bookings; paid ones are released in apply_cancellation()).
         if (in_array($status, ['cancelled', 'refunded'], true) && 'paid' !== $booking->payment_status) {
             $slot_id = (int) ($booking->slot_id ?? 0);
             if ($slot_id && class_exists('TAP_Tour_Availability')) {
@@ -1147,11 +1165,6 @@ class TAP_Booking {
                 TAP_Tour_Availability::release_slot($slot_id, max(1, $adults));
             }
         }
-        $wpdb->update(
-            $wpdb->prefix . 'tap_bookings',
-            $data,
-            ['id' => $booking_id]
-        );
         if (null !== $tour_lock) {
             $wpdb->get_var($wpdb->prepare('SELECT RELEASE_LOCK(%s)', $tour_lock));
         }

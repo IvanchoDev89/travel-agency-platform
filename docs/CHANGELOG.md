@@ -6,6 +6,22 @@ The format follows [Keep a Changelog](https://keepachangelog.com/) and the proje
 
 ---
 
+## [1.36.0] — 2026-11-28
+
+### Fixed (algorithm audit)
+- Cancellations now release the tour slot only after winning the CAS claim,
+  preventing double release on concurrent requests.
+- A failed `book_slot()` no longer releases capacity it never took.
+- Status writes use compare-and-swap, so stale state changes cannot overwrite
+  newer ones.
+- The v1.7.0 money backfill now runs after the columns it writes exist.
+- Dispute resolution moves the commission through the guarded state machine;
+  clawback is applied only after the transition succeeds.
+- Displayed discount amounts are scaled to the capped saving.
+
+### Added
+- FUNCTIONAL `suite_algorithm_fixes.php`; 93/93 suites green.
+
 ## [1.35.0] — 2026-11-27
 
 ### Added (UX/performance, phase 4)

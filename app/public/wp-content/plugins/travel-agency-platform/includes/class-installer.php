@@ -1397,6 +1397,19 @@ class TAP_Installer {
         if (!$wpdb->get_var("SHOW INDEX FROM {$wpdb->prefix}tap_bookings WHERE Key_name = 'idempotency_key'")) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD UNIQUE KEY idempotency_key (idempotency_key)");
         }
+        if (!in_array('commission_base', $cols_bookings, true)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN commission_base decimal(15,2) DEFAULT NULL AFTER booking_fee");
+        }
+        if (!in_array('insurance_premium', $cols_bookings, true)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN insurance_premium decimal(15,2) DEFAULT 0 AFTER commission_base");
+        }
+        if (!in_array('price_breakdown', $cols_bookings, true)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN price_breakdown longtext NULL AFTER insurance_premium");
+        }
+        if (!in_array('amount_paid', $cols_bookings, true)) {
+            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN amount_paid decimal(15,2) DEFAULT 0.00 AFTER total_amount");
+            $wpdb->query("UPDATE {$wpdb->prefix}tap_bookings SET amount_paid = total_amount WHERE payment_status = 'paid'");
+        }
         // One-shot repairs for legacy rows created before the v1.7.0 money model.
         if (!get_option('tap_legacy_money_backfill')) {
             $wpdb->query(
@@ -1412,19 +1425,6 @@ class TAP_Installer {
             update_option('tap_legacy_money_backfill', '1', false);
         }
 
-        if (!in_array('commission_base', $cols_bookings, true)) {
-            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN commission_base decimal(15,2) DEFAULT NULL AFTER booking_fee");
-        }
-        if (!in_array('insurance_premium', $cols_bookings, true)) {
-            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN insurance_premium decimal(15,2) DEFAULT 0 AFTER commission_base");
-        }
-        if (!in_array('price_breakdown', $cols_bookings, true)) {
-            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN price_breakdown longtext NULL AFTER insurance_premium");
-        }
-        if (!in_array('amount_paid', $cols_bookings, true)) {
-            $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN amount_paid decimal(15,2) DEFAULT 0.00 AFTER total_amount");
-            $wpdb->query("UPDATE {$wpdb->prefix}tap_bookings SET amount_paid = total_amount WHERE payment_status = 'paid'");
-        }
         if (!in_array('cancel_reason', $cols_bookings, true)) {
             $wpdb->query("ALTER TABLE {$wpdb->prefix}tap_bookings ADD COLUMN cancel_reason text AFTER notes");
         }

@@ -189,16 +189,9 @@ class TAP_Disputes {
         }
         $booking_id = (int) $dispute->booking_id;
         $booking = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->prefix}tap_bookings WHERE id = %d", $booking_id));
-        $wpdb->update(
-            $wpdb->prefix . 'tap_disputes',
-            [
-                'status'          => $outcome,
-                'resolution_note' => $note ? sanitize_textarea_field($note) : null,
-                'resolved_at'     => current_time('mysql'),
-            ],
-            ['id' => $dispute_id]
-        );
-        if ($booking && 'disputed' === $booking->commission_status) {
+        // Resolve the commission under CAS before closing the case, so a
+        // concurrent payout or void cannot be overwritten by a stale dispute.
+        if ($booking && 'disputed' === $booking->commission_status && class_exists('TAP_Money_State')) {
             $prev = (string) $dispute->prev_commission;
             if (in_array($outcome, [self::FOR_AGENCY, self::WITHDRAWN], true)) {
                 // Give the commission back the state it had before the dispute
@@ -209,11 +202,30 @@ class TAP_Disputes {
                 // to the platform, return it to the agency as a payout credit.
                 $frozen = clone $booking;
                 $frozen->commission_status = $prev;
-                self::apply_clawback((int) $dispute_id, $frozen);
                 $next = 'void';
             }
+            $moved = TAP_Money_State::transition_commission($booking_id, $next, 'dispute_resolved');
+            if (is_wp_error($moved)) {
+                return $moved;
+            }
+            if (isset($frozen)) {
+                self::apply_clawback((int) $dispute_id, $frozen);
+            }
+        } elseif ($booking && 'disputed' === $booking->commission_status) {
+            $next = in_array($outcome, [self::FOR_AGENCY, self::WITHDRAWN], true)
+                ? ((string) $dispute->prev_commission ?: 'owed')
+                : 'void';
             $wpdb->update($wpdb->prefix . 'tap_bookings', ['commission_status' => $next], ['id' => $booking_id]);
         }
+        $wpdb->update(
+            $wpdb->prefix . 'tap_disputes',
+            [
+                'status'          => $outcome,
+                'resolution_note' => $note ? sanitize_textarea_field($note) : null,
+                'resolved_at'     => current_time('mysql'),
+            ],
+            ['id' => $dispute_id]
+        );
         do_action('tap_dispute_resolved', (int) $dispute_id, $outcome, $booking_id);
         return true;
     }
